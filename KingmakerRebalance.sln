@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{50D7BC9E-7661-4252-A201-B0E6F0773DA4}") = "KingmakerRebalance", "KingmakerRebalance\KingmakerRebalance.csproj", "{C7BFDB31-11DF-430D-B599-3A2085A3DC09}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug Install|Any CPU = Debug Install|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug Install|Any CPU.ActiveCfg = Debug Install|Any CPU
+		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug Install|Any CPU.Build.0 = Debug Install|Any CPU
+		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E161308-F419-4FC8-94B9-F7212B9B2676}
+	EndGlobalSection
+EndGlobal
