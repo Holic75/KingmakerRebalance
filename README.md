@@ -15,10 +15,9 @@ Also changes stats of npcs.
 
 
 Install
-    Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
-    Download the mod
-    Build id using Visual Studio 2017 Community Edition or use prebuilt binaries from one of Releases
-    Extract the archive and put the mod folder into 'Mods' folder of the Game (\Pathfinder Kingmaker\Mods)
-    Run the game
+- Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
+- Download the mod
+- Build it using Visual Studio 2017 Community Edition or use prebuilt binaries from one of Releases (just drop archive into UMM GUI)
+- Run the game
 
 
