@@ -9,7 +9,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Designers.Mechanics.Buffs;
 using System.Collections.Generic;
-
+using Kingmaker.Blueprints.Items;
 namespace KingmakerRebalance
 {
     public class Main
@@ -97,6 +97,87 @@ namespace KingmakerRebalance
                         var current_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>(class_skill.Key);
                         current_class.SkillPoints = class_skill.Value;
                     }
+                    //change stats of certain companions
+                    //Valerie 
+                    var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
+                    valerie_companion.Strength = 16;//+2
+                    valerie_companion.Dexterity = 15;
+                    valerie_companion.Constitution = 14;
+                    valerie_companion.Intelligence = 13;
+                    valerie_companion.Wisdom = 8;
+                    valerie_companion.Charisma = 15;
+                    var valerie1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("912444657701e2d4ab2634c3d1e130ad");
+                    var valerie_class_level = valerie1_feature.GetComponent<AddClassLevels>();
+                    valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;
+                    valerie_class_level.Selections[1].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"); //shield focus instead of bastard sword
+                    valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
+                    valerie_companion.Body.Armor = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Armors.BlueprintItemArmor>("9809987cc12d94545a64ff20e6fdb216");//breastplate
+                    //change amiri stats
+                    var amiri_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b3f29faef0a82b941af04f08ceb47fa2");
+                    amiri_companion.Strength = 16;//+2
+                    amiri_companion.Dexterity = 14;
+                    amiri_companion.Constitution = 16;
+                    amiri_companion.Intelligence = 10;
+                    amiri_companion.Wisdom = 12;
+                    amiri_companion.Charisma = 8;
+                    var amiri1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("df943986ee329e84a94360f2398ae6e6");
+                    var amiri_class_level = amiri1_feature.GetComponent<AddClassLevels>();
+                    amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
+                    //change tristian stats
+                    var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
+                    tristian_companion.Strength = 8;
+                    tristian_companion.Dexterity = 16;
+                    tristian_companion.Constitution = 12;
+                    tristian_companion.Intelligence = 10;
+                    tristian_companion.Wisdom = 16;
+                    tristian_companion.Charisma = 14;
+                    var tristian_level = tristian_companion.GetComponent<AddClassLevels>();
+                    tristian_level.Selections[2].Features = new BlueprintFeature[2];
+                    tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35");//fire as primary
+                    tristian_level.Selections[2].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4");//good as secondary
+                    tristian_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4");//good as secondary
+                    tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extend spell
+                    //change harrim stats
+                    var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
+                    harrim_companion.Strength = 16;
+                    var harrim_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8910febae2a7b9f4ba5eca4dde1e9649");
+                    var harrim_class_level = harrim_feature.GetComponent<AddClassLevels>();
+                    harrim_class_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("9ebe166b9b901c746b1858029f13a2c5"); //madness domain instead of chaos
+
+                    //change linzi
+                    var linzi_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("77c11edb92ce0fd408ad96b40fd27121");
+                    linzi_companion.Dexterity = 16;
+                    //change octavia
+                    var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
+                    octavia_companion.Dexterity = 16;
+                    octavia_companion.Intelligence = 16;
+                    octavia_companion.Constitution = 10;
+
+                    //change regognar
+                    var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
+                    regognar_companion.Dexterity = 12;
+                    //change ekun
+                    var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
+                    ekun_companion.Strength = 14;
+                    ekun_companion.Constitution = 10;
+                    ekun_companion.Dexterity = 18;
+                    ekun_companion.Wisdom = 14;
+                    ekun_companion.Charisma = 8;
+                    var ekun_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0bc6dc9b6648a744899752508addae8c");
+                    var ekun_class_level = ekun_feature.GetComponent<AddClassLevels>();
+                    ekun_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;
+                    
+                    //change jubilost
+                    var jubilost_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("3f5777b51d301524c9b912812955ee1e");
+                    jubilost_companion.Dexterity = 16;
+                    //change nok-nok
+                    var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
+                    noknok_companion.Constitution = 14;
+                    noknok_companion.Wisdom = 10;
+
+
+
+
                 }
                 catch (Exception ex)
                 {
