@@ -100,7 +100,7 @@ namespace KingmakerRebalance
                     //change stats of certain companions
                     //Valerie 
                     var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
-                    valerie_companion.Strength = 16;//+2
+                    valerie_companion.Strength = 14;//+2
                     valerie_companion.Dexterity = 15;
                     valerie_companion.Constitution = 14;
                     valerie_companion.Intelligence = 13;
@@ -108,7 +108,7 @@ namespace KingmakerRebalance
                     valerie_companion.Charisma = 15;
                     var valerie1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("912444657701e2d4ab2634c3d1e130ad");
                     var valerie_class_level = valerie1_feature.GetComponent<AddClassLevels>();
-                    valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;
+                    valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
                     valerie_class_level.Selections[1].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"); //shield focus instead of bastard sword
                     valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
                     valerie_companion.Body.Armor = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Armors.BlueprintItemArmor>("9809987cc12d94545a64ff20e6fdb216");//breastplate
