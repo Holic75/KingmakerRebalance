@@ -59,13 +59,14 @@ namespace KingmakerRebalance
                 {
                     Main.DebugLog("Loading Kingmaker Rebalance");
 
-
+                    KingmakerRebalance.Helpers.Load();
                     KingmakerRebalance.Rebalance.fixAnimalCompanion();
                     KingmakerRebalance.Rebalance.fixLegendaryProportionsAC();
                     KingmakerRebalance.Rebalance.fixSkillPoints();
                     KingmakerRebalance.Rebalance.fixCompanions();
                     KingmakerRebalance.Rebalance.removeJudgement19FormSHandMS();
-                    KingmakerRebalance.Hunter.addAnimalFocus();
+                    KingmakerRebalance.Hunter.createHunterClass();
+                    KingmakerRebalance.Hunter.addAnimalFocusSH();
                 }
                 catch (Exception ex)
                 {

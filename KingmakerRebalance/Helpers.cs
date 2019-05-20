@@ -2026,18 +2026,18 @@ namespace KingmakerRebalance
         }
 
 
-        public static void RegisterClass(this BlueprintCharacterClass oracle)
+        public static void RegisterClass(BlueprintCharacterClass class_to_register)
         {
             var progressionRoot = Main.library.Root.Progression;
             var classes = progressionRoot.CharacterClasses.ToList();
-            classes.Add(oracle);
+            classes.Add(class_to_register);
             classes.Sort((x, y) =>
             {
                 if (x.PrestigeClass != y.PrestigeClass) return x.PrestigeClass ? 1 : -1;
                 return x.Name.CompareTo(y.Name);
             });
             progressionRoot.CharacterClasses = classes.ToArray();
-            Helpers.classes.Add(oracle);
+            Helpers.classes.Add(class_to_register);
         }
 
         static readonly int[] fullCasterCost = new int[] { 13, 25, 150, 375, 700, 1125, 1650, 2275, 3000, 3825 };
