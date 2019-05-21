@@ -456,7 +456,7 @@ namespace KingmakerRebalance
         public static void SetIcon(this BlueprintAbilityResource resource, Sprite icon) => setIcon(resource, icon);
 
         static readonly FastSetter setIcon = Helpers.CreateFieldSetter<BlueprintAbilityResource>("m_Icon");
-        static readonly FastSetter setMaxAmount = Helpers.CreateFieldSetter<BlueprintAbilityResource>("m_MaxAmount");
+        internal static readonly FastSetter setMaxAmount = Helpers.CreateFieldSetter<BlueprintAbilityResource>("m_MaxAmount");
         internal static readonly FastGetter getMaxAmount = Helpers.CreateFieldGetter<BlueprintAbilityResource>("m_MaxAmount");
         //static readonly Type blueprintAbilityResource_Amount = Harmony12.AccessTools.Inner(typeof(BlueprintAbilityResource), "Amount");
 

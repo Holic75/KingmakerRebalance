@@ -39,7 +39,7 @@ namespace KingmakerRebalance
     {
         static internal readonly Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup AnimalFocusGroup = Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup.Judgment;
         internal static BlueprintCharacterClass hunter_class;
-        static LibraryScriptableObject library => Main.library;
+        static internal LibraryScriptableObject library => Main.library;
         static internal BlueprintFeature animal_focus;
         static internal BlueprintFeature animal_focus_ac;
         static internal BlueprintFeature animal_focus_additional_use;
@@ -49,8 +49,10 @@ namespace KingmakerRebalance
         static internal BlueprintFeature hunter_teamwork_feat;
         static internal BlueprintFeature hunter_tactics;
         static internal BlueprintFeature hunter_woodland_stride;
+        static internal BlueprintArchetype divine_hunter_archetype;
+        static internal BlueprintFeatureSelection hunter_otherwordly_companion;
 
-        public static void createHunterClass()
+        internal static void createHunterClass()
         {
             var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
             var ranger_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6");
@@ -93,7 +95,49 @@ namespace KingmakerRebalance
         }
 
 
-        internal static BlueprintSpellbook createHunterSpellbook()
+        static void createDivineHunterArchetype()
+        {
+            divine_hunter_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "DivineHunterHunterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Divine Hunter");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While most hunters heed the call of nature and fight to protect its bounty, some are inspired to serve a higher power. These divine hunters use faith to aid them in their struggles, and their faith infuses their animal companions, making these companions champions of their deities.\n"
+                                                              + "Alignment: A divine hunter’s alignment must be within one step of her deity’s, along either the law / chaos axis or the good / evil axis. A divine hunter can otherwise be of any alignment.");
+
+            });
+            Helpers.SetField(divine_hunter_archetype, "m_ParentClass", hunter_class);
+            library.AddAsset(divine_hunter_archetype, "bd650995013f4cb2b98b014b0639a46c");
+
+            divine_hunter_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(3, hunter_tactics, hunter_teamwork_feat),
+                                                                        Helpers.LevelEntry(6, hunter_teamwork_feat),
+                                                                        Helpers.LevelEntry(9, hunter_teamwork_feat),
+                                                                        Helpers.LevelEntry(12, hunter_teamwork_feat),
+                                                                        Helpers.LevelEntry(15, hunter_teamwork_feat),
+                                                                        Helpers.LevelEntry(18, hunter_teamwork_feat)
+                                                                       };
+            var diety_selection = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
+            var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
+            //add divine_hunter to all domains
+            //this will make hunter receive all domain bonuses starting from level 1 which will be a bit stronger than pnp version, but way simpler to implement
+            Common.addClassToDomains(hunter_class, new BlueprintArchetype[] { divine_hunter_archetype }, Common.DomainSpellsType.NormalList, domain_selection);
+            createOtherWordlyCompanion();
+
+            divine_hunter_archetype.ClassSkills = hunter_class.ClassSkills.AddToArray(StatType.SkillLoreReligion);
+            divine_hunter_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, diety_selection, domain_selection),
+                                                                     Helpers.LevelEntry(3, hunter_otherwordly_companion)
+                                                                   };
+
+
+        }
+
+
+        static void createOtherWordlyCompanion()
+        {
+
+        }
+
+
+        static BlueprintSpellbook createHunterSpellbook()
         {
             var ranger_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6");
             var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
@@ -160,7 +204,7 @@ namespace KingmakerRebalance
         }
 
 
-        internal static BlueprintProgression createHunterProgression()
+        static BlueprintProgression createHunterProgression()
         {
             var hunter_progression = Helpers.CreateProgression("HunterProgression",
                                                    hunter_class.Name,
@@ -244,7 +288,7 @@ namespace KingmakerRebalance
         }
 
 
-        internal static void createPreciseCompanion()
+        static void createPreciseCompanion()
         {
             precise_companion = library.CopyAndAdd<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb",
                                                       "HunterPreciseCompanion",
@@ -271,7 +315,7 @@ namespace KingmakerRebalance
         }
 
 
-        internal static BlueprintFeature createFreeSummonNatureAllySpells()
+        static BlueprintFeature createFreeSummonNatureAllySpells()
         {
             BlueprintAbility[] summon_nature_ally    = new BlueprintAbility[6]{library.TryGet<BlueprintAbility>("c6147854641924442a3bb736080cfeb6"),
                                                                              library.TryGet<BlueprintAbility>("298148133cdc3fd42889b99c82711986"),
@@ -301,7 +345,7 @@ namespace KingmakerRebalance
         }
 
 
-        internal static Kingmaker.Blueprints.Classes.Selection.BlueprintFeatureSelection createHunterAnimalCompanion()
+        static Kingmaker.Blueprints.Classes.Selection.BlueprintFeatureSelection createHunterAnimalCompanion()
         {
             var animal_companion_progression = library.CopyAndAdd<BlueprintProgression>("924fb4b659dcb4f4f906404ba694b690",
                                                                           "HunterAnimalCompanionProgression",
@@ -320,7 +364,7 @@ namespace KingmakerRebalance
         }
 
 
-        public static void createAnimalFocusFeat()
+        static void createAnimalFocusFeat()
         {
             var wildshape_wolf = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
             var acid_maw = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
@@ -358,7 +402,7 @@ namespace KingmakerRebalance
         }
 
 
-        public static void addAnimalFocusSH()
+        internal static void addAnimalFocusSH()
         {
             Kingmaker.Blueprints.Classes.LevelEntry initial_entry = new Kingmaker.Blueprints.Classes.LevelEntry();
             Kingmaker.Blueprints.Classes.LevelEntry add_animal_focus_use_entry = new Kingmaker.Blueprints.Classes.LevelEntry();
@@ -406,7 +450,7 @@ namespace KingmakerRebalance
         }
 
 
-        public static BlueprintFeature createAnimalFocus()
+        static BlueprintFeature createAnimalFocus()
         {
             var inquistor_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
             var animal_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920");
@@ -592,7 +636,7 @@ namespace KingmakerRebalance
                                                                        KingmakerRebalance.Helpers.CreateAddContextStatBonus(stat_type, 
                                                                                                                         descriptor,
                                                                                                                         Kingmaker.UnitLogic.Mechanics.ContextValueType.Rank)
-                                                                     };          
+                                                                     };
             var focus = createToggleFocus(name,
                                           display_name,
                                           description,
