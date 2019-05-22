@@ -46,7 +46,50 @@ namespace KingmakerRebalance
         }
 
 
-        public static void addClassToDomains(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureSelection domain_selection)
+        internal static BlueprintFeature createSpellResistance(string name, string display_name, string description, string guid, BlueprintCharacterClass character_class, int start_value)
+        {
+            var spell_resistance = library.CopyAndAdd<BlueprintFeature>("01182bcee8cb41640b7fa1b1ad772421", //monk diamond soul
+                                                                        name,
+                                                                        guid);
+            spell_resistance.SetName(display_name);
+            spell_resistance.SetDescription(description);
+            spell_resistance.Groups = new FeatureGroup[0];
+            spell_resistance.RemoveComponent(spell_resistance.GetComponent<Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteClassLevel>());
+            var context_rank_config = spell_resistance.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
+            Helpers.SetField(context_rank_config, "m_StepLevel", start_value);
+            Helpers.SetField(context_rank_config, "m_Class", new BlueprintCharacterClass[] { character_class });
+
+            return spell_resistance;
+        }
+
+
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDR(int dr_value, DamageAlignment alignment)
+        {
+            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            feat.Alignment = alignment;
+            feat.BypassedByAlignment = true;
+            feat.Material = PhysicalDamageMaterial.Adamantite;
+            feat.Value.ValueType = ContextValueType.Simple;
+            feat.Value.Value = dr_value;
+            feat.Value.ValueShared = Kingmaker.UnitLogic.Abilities.AbilitySharedValue.Damage;
+
+            return feat;
+        }
+
+
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDR(int dr_value, DamageEnergyType energy)
+        {
+            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy();
+            feat.Type = energy;
+            feat.Value.ValueType = ContextValueType.Simple;
+            feat.Value.Value = dr_value;
+            feat.Value.ValueShared = Kingmaker.UnitLogic.Abilities.AbilitySharedValue.Damage;
+
+            return feat;
+        }
+
+
+        internal static void addClassToDomains(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureSelection domain_selection)
         {
             var domains = domain_selection.AllFeatures;
             foreach (var domain_feature in domains)

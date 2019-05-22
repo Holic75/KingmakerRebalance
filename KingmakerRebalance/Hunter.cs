@@ -52,6 +52,12 @@ namespace KingmakerRebalance
         static internal BlueprintArchetype divine_hunter_archetype;
         static internal BlueprintFeatureSelection hunter_otherwordly_companion;
 
+        static internal BlueprintFeature ac_smite_good_feature;
+        static internal BlueprintAbility ac_smite_good_ability;
+
+        static internal BlueprintFeature ac_smite_evil_feature;
+        static internal BlueprintAbility ac_smite_evil_ability;
+
         internal static void createHunterClass()
         {
             var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
@@ -133,7 +139,216 @@ namespace KingmakerRebalance
 
         static void createOtherWordlyCompanion()
         {
+            createSmiteGoodEvilAC();
 
+            var celestial_bloodline = library.Get<Kingmaker.Blueprints.Classes.BlueprintProgression>("aa79c65fa0e11464d9d100b038c50796");
+            var abbysal_bloodline = library.Get<Kingmaker.Blueprints.Classes.BlueprintProgression>("d3a4cb7be97a6694290f0dcfbd147113");
+
+            var demonic_might = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("5c1c2ed7fe5f99649ab00605610b775b");
+            var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
+            var aura_of_heaven = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("2768c719ee7338c49932358c2c581bba");
+
+            var ac_dr5_evil = Helpers.CreateFeature("AnimalCompanionDR5EvilFeature",
+                                                "Celestial Damage Reduction",
+                                                "Animal Companion gains damage reduction 5/Evil at level 5. It increases to damage reduction 10/Evil at level 11.",
+                                                "368bc4311f7f4ba9af3752ff4418d0a8",
+                                                aura_of_heaven.Icon,
+                                                FeatureGroup.None,
+                                                Common.createAlignmentDR(5, DamageAlignment.Evil)
+                                                );
+
+            var ac_dr10_evil = Helpers.CreateFeature("AnimalCompanionDR10EvilFeature",
+                                    ac_dr5_evil.Name,
+                                    ac_dr5_evil.Description,
+                                    "025575448afb4d30b10015b1208938aa",
+                                    aura_of_heaven.Icon,
+                                    FeatureGroup.None,
+                                    Common.createAlignmentDR(10, DamageAlignment.Evil)
+                                    );
+            ac_dr10_evil.HideInUI = true;
+            ac_dr10_evil.HideInCharacterSheetAndLevelUp = true;
+
+
+            var ac_dr5_good = Helpers.CreateFeature("AnimalCompanionDR5EvilFeature",
+                                               "Fiendish Damage Reduction",
+                                               "Animal Companion gains damage reduction 5/Good at level 5. It increases to damage reduction 10/Good at level 11.",
+                                               "a203d617f8d547459e1f25790f886b6e",
+                                               aura_of_heaven.Icon,
+                                               FeatureGroup.None,
+                                               Common.createAlignmentDR(5, DamageAlignment.Good)
+                                               );
+
+            var ac_dr10_good = Helpers.CreateFeature("AnimalCompanionDR10EvilFeature",
+                                    ac_dr5_good.Name,
+                                    ac_dr5_good.Description,
+                                    "",
+                                    aura_of_heaven.Icon,
+                                    FeatureGroup.None,
+                                    Common.createAlignmentDR(10, DamageAlignment.Good)
+                                    );
+            ac_dr10_good.HideInUI = true;
+            ac_dr10_good.HideInCharacterSheetAndLevelUp = true;
+
+            var ac_resist_cae5 = Helpers.CreateFeature("AnimalCompanionCelestialResist5Feature",
+                        "Celestial Resistance",
+                        "Animal commanpanion gains reist acid 5, resist cold 5 and resist electricity 5. At 5th level these resistances increase to 10, at 11th level to 15",
+                        "46a19a521e0d40f792d8b4f64931be8a",
+                        damage_resistance.Icon,
+                        FeatureGroup.None,
+                        Common.createEnergyDR(5, DamageEnergyType.Acid),
+                        Common.createEnergyDR(5, DamageEnergyType.Cold),
+                        Common.createEnergyDR(5, DamageEnergyType.Electricity)
+                        );
+            var ac_resist_cae10 = Helpers.CreateFeature("AnimalCompanionCelestialResist10Feature",
+                        ac_resist_cae5.Name,
+                        ac_resist_cae5.Description,
+                        "53c2ebe9de684d8290386f3f67fef90b",
+                        damage_resistance.Icon,
+                        FeatureGroup.None,
+                        Common.createEnergyDR(10, DamageEnergyType.Acid),
+                        Common.createEnergyDR(10, DamageEnergyType.Cold),
+                        Common.createEnergyDR(10, DamageEnergyType.Electricity)
+                        );
+            ac_resist_cae10.HideInUI = true;
+            ac_resist_cae10.HideInCharacterSheetAndLevelUp = true;
+            var ac_resist_cae15 = Helpers.CreateFeature("AnimalCompanionCelestialResist15Feature",
+                    ac_resist_cae5.Name,
+                    ac_resist_cae5.Description,
+                    "3fe9c4c62055440f8491d3ce139011fe",
+                    damage_resistance.Icon,
+                    FeatureGroup.None,
+                    Common.createEnergyDR(15, DamageEnergyType.Acid),
+                    Common.createEnergyDR(15, DamageEnergyType.Cold),
+                    Common.createEnergyDR(15, DamageEnergyType.Electricity)
+                    );
+            ac_resist_cae15.HideInUI = true;
+            ac_resist_cae15.HideInCharacterSheetAndLevelUp = true;
+
+
+            var ac_resist_cf5 = Helpers.CreateFeature("AnimalCompanionCelestialResist5Feature",
+                        "Fiendish Resistance",
+                        "Animal commanpanion gains reist resist cold 5 and resist fire 5. At 5th level these resistances increase to 10, at 11th level to 15",
+                        "4170f7f5874a4e45bc7050a53727452f",
+                        damage_resistance.Icon,
+                        FeatureGroup.None,
+                        Common.createEnergyDR(5, DamageEnergyType.Fire),
+                        Common.createEnergyDR(5, DamageEnergyType.Cold)
+                        );
+            var ac_resist_cf10 = Helpers.CreateFeature("AnimalCompanionCelestialResist10Feature",
+                        ac_resist_cf5.Name,
+                        ac_resist_cf5.Description,
+                        "1ae4fad1bff64c03b76979a896adf250",
+                        damage_resistance.Icon,
+                        FeatureGroup.None,
+                        Common.createEnergyDR(10, DamageEnergyType.Fire),
+                        Common.createEnergyDR(10, DamageEnergyType.Cold)
+                        );
+            ac_resist_cf10.HideInUI = true;
+            ac_resist_cf10.HideInCharacterSheetAndLevelUp = true;
+            var ac_resist_cf15 = Helpers.CreateFeature("AnimalCompanionCelestialResist15Feature",
+                        ac_resist_cf5.Name,
+                        ac_resist_cf5.Description,
+                        "9f646d3d19d246c09988d2a0df2e4d92",
+                        damage_resistance.Icon,
+                        FeatureGroup.None,
+                        Common.createEnergyDR(15, DamageEnergyType.Fire),
+                        Common.createEnergyDR(15, DamageEnergyType.Cold)
+                        );
+            ac_resist_cf15.HideInUI = true;
+            ac_resist_cf15.HideInCharacterSheetAndLevelUp = true;
+
+
+            var ac_spell_resistance = Common.createSpellResistance("AnimalCompanionSpellResistanceFeature",
+                                                               "Spell Resistance",
+                                                               "Animal Companion gains spell resistance equal to its level + 6.",
+                                                               "0e7481a8ceb041129a692bf59f24d057",
+                                                               library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"),
+                                                               6);
+            var animal_companion_array = new BlueprintCharacterClass[] { library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920") };
+            var celestial_progression = Helpers.CreateProgression("CelestialCompanionProgression",
+                                                  "Celestial Companion",
+                                                  "Celestial creatures dwell in the higher planes, but can be summoned using spells such as summon monster and planar ally. Celestial creatures may use Smite Evil once per day, gain energy resistance 5 to acid, cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Evil which further increases to  10/Evil at level 11.",
+                                                  "69f0d7d1077f492f8237952f8219a270",
+                                                  celestial_bloodline.Icon,
+                                                  FeatureGroup.None);
+            celestial_progression.Classes = animal_companion_array;
+            celestial_progression.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(3, ac_smite_evil_feature, ac_spell_resistance, ac_resist_cae5),
+                                                                    Helpers.LevelEntry(5, ac_resist_cae10, ac_dr5_evil),
+                                                                    Helpers.LevelEntry(11, ac_resist_cae15, ac_dr10_evil)
+                                                                  };
+            var fiendish_progression = Helpers.CreateProgression("FiendishCompanionProgression",
+                                                  "Fiendish Companion",
+                                                  "Creatures with the fiendish template live in the Lower Planes, such as the Abyss and Hell, but can be summoned using spells such as summon monster and planar ally. Fiendish creatures may use Smite Good once per day, gain energy resistance 5 to cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Good which further increases to  10/Good at level 11.",
+                                                  "3e33af2ab5974859bdaa92c32987b3e0",
+                                                  abbysal_bloodline.Icon,
+                                                  FeatureGroup.None);
+            fiendish_progression.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(3, ac_smite_good_feature, ac_spell_resistance, ac_resist_cf5),
+                                                                    Helpers.LevelEntry(5, ac_resist_cf10, ac_dr5_good),
+                                                                    Helpers.LevelEntry(11, ac_resist_cf15, ac_dr10_good)
+                                                                  };
+
+            hunter_otherwordly_companion = Helpers.CreateFeatureSelection("AnimalCompanionTemplateSelection",
+                                           "Outwordly Companion",
+                                           "At 3rd level, a hunter’s companion takes on otherworldly features. If the divine hunter is good (or worships a good deity), the animal companion gains the celestial template. If the hunter is evil (or worships an evil deity), the animal companion gains the fiendish template. If the hunter is neutral and worships a neutral deity, she must choose either the celestial or fiendish template; once this choice is made, it cannot be changed.",
+                                           "1936995e234b4d2e8dbddc935e731254",
+                                           null,
+                                           FeatureGroup.None);
+            var channel_positive_allowed = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8c769102f3996684fb6e09a2c4e7e5b9");
+            var channel_negative_allowed = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6");
+
+            hunter_otherwordly_companion.AllFeatures = new BlueprintFeature[] {Helpers.CreateFeature("CelestialCompanionTemplateFeature",
+                                                                                          celestial_progression.Name,
+                                                                                          celestial_progression.Description,
+                                                                                          "4eff84c8f4a740b28f18587cdeb0c41d",
+                                                                                          celestial_bloodline.Icon,
+                                                                                          FeatureGroup.None,
+                                                                                          createAddFeatToAnimalCompanion(celestial_progression),
+                                                                                          Helpers.PrerequisiteFeature(channel_positive_allowed)
+                                                                                          ),
+                                                                                          Helpers.CreateFeature("FiendishCompanionTemplateFeature",
+                                                                                          fiendish_progression.Name,
+                                                                                          fiendish_progression.Description,
+                                                                                          "76784350237247aab40ebdcc6107794d",
+                                                                                          abbysal_bloodline.Icon,
+                                                                                          FeatureGroup.None,
+                                                                                          createAddFeatToAnimalCompanion(fiendish_progression),
+                                                                                          Helpers.PrerequisiteFeature(channel_negative_allowed)
+                                                                                          )
+                                                                                };
+        }
+
+
+        static void createSmiteGoodEvilAC()
+        {
+            var animal_companion_array = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920") };
+
+            ac_smite_good_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteGoodACAbility", "eeb6e25da78e4ac99f73024eaf54718e");
+            ac_smite_good_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", "SmiteGoodACFeature", "250a6fed6c9a4de1b8483aae07728c62");
+            var smite_good_resource = library.CopyAndAdd<BlueprintAbilityResource>("b4274c5bb0bf2ad4190eb7c44859048b", "SmiteGoodResource", "0686f01667e24299834545aa98b29b6e");
+
+            ac_smite_good_feature.GetComponent<Kingmaker.UnitLogic.FactLogic.AddFacts>().Facts[0] = ac_smite_good_ability;
+            ac_smite_good_feature.GetComponent<Kingmaker.Designers.Mechanics.Facts.AddAbilityResources>().Resource = smite_good_resource;
+            ac_smite_good_feature.SetName("Smite Good");
+            ac_smite_good_feature.SetDescription("A character can call out to the powers of evil to aid her in her struggle against good. As a swift action, the character chooses one target within sight to smite. If this target is good, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite good is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not good, the smite is wasted with no effect.\nThe smite good lasts until the target dies or the character selects a new target.");
+
+            ac_smite_good_ability.SetName(ac_smite_good_feature.Name);
+            ac_smite_good_ability.SetDescription(ac_smite_good_feature.Description);
+            ac_smite_good_ability.RemoveComponent(ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
+            var context_rank_config = ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
+            Helpers.SetField(context_rank_config, "m_Class", animal_companion_array);
+            ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>().RequiredResource = smite_good_resource;
+            var smite_good_actions = ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions;
+            var condition = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_good_actions.Actions[0];
+            ((Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionAlignment)condition.ConditionsChecker.Conditions[0]).Alignment = AlignmentComponent.Good;
+
+
+            ac_smite_evil_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteEvilACAbility", "40c15480d05e4e7e8242237caeecf909");
+            ac_smite_evil_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", "SmiteEvilACFeature", "fbf3dd7b8043491194142634e0344258");
+            ac_smite_evil_feature.SetDescription("A character can call out to the powers of good to aid her in her struggle against evil. As a swift action, the character chooses one target within sight to smite. If this target is evil, the character adds her Charisma bonus (if any) to her attack rolls and adds her character level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite evil is in effect, the character gains a deflection bonus equal to her Charisma bonus (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not evil, the smite is wasted with no effect. The smite evil lasts until the target dies or the character selects a new target.");
+            ac_smite_evil_ability.SetDescription(ac_smite_evil_feature.Description);
+            ac_smite_evil_ability.RemoveComponent(ac_smite_evil_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
+            var context_rank_config2 = ac_smite_evil_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
+            Helpers.SetField(context_rank_config2, "m_Class", animal_companion_array);
         }
 
 
@@ -329,7 +544,7 @@ namespace KingmakerRebalance
 
             for (int i = 0; i <add_summon_nature_ally.Length; i++)
             {
-                add_summon_nature_ally[i] = Helpers.CreateAddKnownSpell(summon_nature_ally[i], hunter_class, i + 1);
+                add_summon_nature_ally[i] = Helpers.CreateAddKnownSpell(summon_nature_ally[i], hunter_class, i + 1);           
             }
 
 
@@ -340,6 +555,11 @@ namespace KingmakerRebalance
                                                                 summon_nature_ally[0].Icon,
                                                                 FeatureGroup.None,
                                                                 add_summon_nature_ally);
+
+            for (int i = 0; i < add_summon_nature_ally.Length; i++)
+            {
+                summon_nature_ally[i].AddRecommendNoFeature(free_summon_nature_ally);
+            }
 
             return free_summon_nature_ally;
         }
