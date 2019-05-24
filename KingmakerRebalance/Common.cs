@@ -38,11 +38,71 @@ namespace KingmakerRebalance
     {
         static internal LibraryScriptableObject library => Main.library;
 
-        public enum DomainSpellsType
+        internal enum DomainSpellsType
         {
             NoSpells = 1,
             SpecialList = 2,
             NormalList = 3
+        }
+
+
+        public static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
+        {
+            var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
+            var new_selection = library.CopyAndAdd<BlueprintFeatureSelection>(original_selection_guid, name_prefix + old_selection, selection_guid);
+
+            new_selection.SetDescription(description);
+
+            BlueprintFeature[] new_features = new BlueprintFeature[feature_guids.Length];
+
+            var old_features = old_selection.AllFeatures;
+            if (new_features.Length != old_features.Length)
+            {
+                throw Main.Error($"Incorrect number of guids passed to Common.createFavoredTerrainSelection:: guids.Length =  {new_features.Length}, terrains.Length: {old_features.Length}");
+            }
+            for (int i = 0; i < old_features.Length; i++)
+            {
+                new_features[i] = library.CopyAndAdd<BlueprintFeature>(old_features[i].AssetGuid, name_prefix + old_features[i].name, feature_guids[i]);
+                new_features[i].SetDescription(description);
+            }
+            new_selection.AllFeatures = new_features;
+            return new_selection;
+        }
+
+
+
+
+
+        internal static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                                     BlueprintCharacterClass[] classes, AlignmentComponent smite_alignment)
+        {
+            var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name+"Ability", ability_guid);
+            var smite_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", name +"Feature", guid);
+
+
+            smite_feature.SetName(display_name);
+            smite_feature.SetDescription(description);
+            smite_feature.SetIcon(icon);
+
+            smite_feature.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.AddFacts>(Helpers.CreateAddFact(smite_ability));
+            smite_ability.SetName(smite_feature.Name);
+            smite_ability.SetDescription(smite_feature.Description);
+            smite_ability.SetIcon(icon);
+            smite_ability.RemoveComponent(smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
+            var context_rank_config = smite_ability.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>().Where(a => a.Type == AbilityRankType.DamageBonus).ElementAt(0);
+            var new_context_rank_config = context_rank_config.CreateCopy();
+            Helpers.SetField(new_context_rank_config, "m_Class", classes);
+            smite_ability.ReplaceComponent(context_rank_config, new_context_rank_config);
+
+            var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+            var new_smite_action = smite_action.CreateCopy();
+            var condition = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)new_smite_action.Actions.Actions[0];
+            new_smite_action.Actions =  Helpers.CreateActionList(new_smite_action.Actions.Actions);
+            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)new_smite_action.Actions.Actions[0];
+            var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false),  old_conditional.ConditionsChecker.Conditions[1]};
+            new_smite_action.Actions.Actions[0] = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
+
+            return smite_feature;
         }
 
 
@@ -125,7 +185,7 @@ namespace KingmakerRebalance
                 BlueprintProgression domain = (BlueprintProgression)domain_feature;
                 domain.Classes = domain.Classes.AddToArray(class_to_add);
                 domain.Archetypes = domain.Archetypes.AddToArray(archetypes_to_add);
-                Main.logger.Log("Processing " + domain.Name);
+               // Main.logger.Log("Processing " + domain.Name);
 
                 foreach (var entry in domain.LevelEntries)
                 {
@@ -176,22 +236,39 @@ namespace KingmakerRebalance
         }
 
 
-        static void addClassToBuff(BlueprintCharacterClass class_to_add ,BlueprintBuff b)
+        static void addClassToAreaEffect(BlueprintCharacterClass class_to_add, Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect a)
         {
+            var components = a.ComponentsArray;
+            foreach (var c in components)
             {
-                var context_rank_configs = b.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
-                foreach (var c in context_rank_configs)
+                if (c is ContextRankConfig)
                 {
-                    addClassToContextRankConfig(class_to_add, c);
+                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
+                    addClassToContextRankConfig(class_to_add, c_typed);
+                }
+                else if (c is Kingmaker.UnitLogic.Abilities.Components.AreaEffects.AbilityAreaEffectBuff)
+                {
+                    var c_typed = (Kingmaker.UnitLogic.Abilities.Components.AreaEffects.AbilityAreaEffectBuff)c;
+                    addClassToBuff(class_to_add, c_typed.Buff);
                 }
             }
-            var area_effects = b.GetComponents<Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect>();
-            foreach (var c in area_effects)
+        }
+
+
+        static void addClassToBuff(BlueprintCharacterClass class_to_add ,BlueprintBuff b)
+        {
+            var components = b.ComponentsArray;
+            foreach (var c in components)
             {
-                var context_rank_configs = c.AreaEffect.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
-                foreach (var c2 in context_rank_configs)
+                if (c is ContextRankConfig)
                 {
-                    addClassToContextRankConfig(class_to_add, c2);
+                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
+                    addClassToContextRankConfig(class_to_add, c_typed);
+                }
+                else if (c is Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect)
+                {
+                    var c_typed = (Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect)c;
+                    addClassToAreaEffect(class_to_add, c_typed.AreaEffect);
                 }
             }
         }
@@ -202,7 +279,7 @@ namespace KingmakerRebalance
             var components = a.ComponentsArray;
             foreach (var c in components)
             {
-                if (c.GetType() == new Kingmaker.UnitLogic.Abilities.Components.AbilityVariants().GetType())
+                if (c is Kingmaker.UnitLogic.Abilities.Components.AbilityVariants)
                 {
                     var c_typed = (Kingmaker.UnitLogic.Abilities.Components.AbilityVariants)c;
                     foreach (var v in c_typed.Variants)
@@ -210,12 +287,12 @@ namespace KingmakerRebalance
                         addClassToAbility(class_to_add, v);
                     }
                 }
-                else if (c.GetType() == new Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig().GetType())
+                else if (c is Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)
                 {
                     var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
                     addClassToContextRankConfig(class_to_add, c_typed);
                 }
-                else if (c.GetType() == new AbilityEffectRunAction().GetType())
+                else if (c is AbilityEffectRunAction)
                 {
                     var c_typed = (AbilityEffectRunAction)c;
                     foreach (var aa in c_typed.Actions.Actions)
@@ -224,7 +301,7 @@ namespace KingmakerRebalance
                         {
                             continue;
                         }
-                        if (aa.GetType() == new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff().GetType())
+                        if (aa is Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)
                         {
                             var aa_typed = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)aa;
                             addClassToBuff(class_to_add, aa_typed.Buff);
@@ -238,12 +315,12 @@ namespace KingmakerRebalance
 
         static void addClassToFact(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintUnitFact f)
         {
-            if (f.GetType() == new Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility().GetType())
+            if (f is Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility)
             {
                 var f_typed = (Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility)f;
                 addClassToAbility(class_to_add, f_typed);
             }
-            else if (f.GetType() == new Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility().GetType())
+            else if (f is Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility)
             {
                 var f_typed = (Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility)f;
                 addClassToBuff(class_to_add, f_typed.Buff);
@@ -274,17 +351,17 @@ namespace KingmakerRebalance
         {
             foreach (var c in feat.ComponentsArray)
             {
-                if (c.GetType() == new Kingmaker.Designers.Mechanics.Buffs.IncreaseSpellDamageByClassLevel().GetType())
+                if (c is Kingmaker.Designers.Mechanics.Buffs.IncreaseSpellDamageByClassLevel)
                 {
                     var c_typed = (Kingmaker.Designers.Mechanics.Buffs.IncreaseSpellDamageByClassLevel)c;
                     c_typed.AdditionalClasses = c_typed.AdditionalClasses.AddToArray(class_to_add);
                     c_typed.Archetypes = c_typed.Archetypes.AddToArray(archetypes_to_add);
                 }
-                else if (c.GetType() == new Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel().GetType())
+                else if (c is Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel)
                 {
                     var c_typed = (Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel)c;
                     if (c_typed.Feature.ComponentsArray.Length > 0 
-                          && c_typed.Feature.ComponentsArray[0].GetType() == new Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList().GetType())
+                          && c_typed.Feature.ComponentsArray[0] is Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList)
                     {
                         if (spells_type == DomainSpellsType.SpecialList)
                         {
@@ -299,7 +376,7 @@ namespace KingmakerRebalance
                     c_typed.Archetypes = c_typed.Archetypes.AddToArray(archetypes_to_add);
                     addClassToFeat(class_to_add, archetypes_to_add, spells_type, c_typed.Feature);
                 }
-                else if (c.GetType() == new Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList().GetType() && spells_type == DomainSpellsType.SpecialList)
+                else if (c is Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList && spells_type == DomainSpellsType.SpecialList)
                 {
                     /*var c_typed = (Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList)c;
                     if (c_typed.CharacterClass != class_to_add)
@@ -310,7 +387,7 @@ namespace KingmakerRebalance
                         feat.AddComponent(c2);
                     }*/
                 }
-                else if (c.GetType() == new Kingmaker.UnitLogic.FactLogic.AddFacts().GetType())
+                else if (c is Kingmaker.UnitLogic.FactLogic.AddFacts)
                 {
                     var c_typed = (Kingmaker.UnitLogic.FactLogic.AddFacts)c;
                     foreach (var f in c_typed.Facts)
@@ -318,18 +395,23 @@ namespace KingmakerRebalance
                         addClassToFact(class_to_add, archetypes_to_add, spells_type, f);
                     }
                 }
-                else if (c.GetType() == new Kingmaker.Designers.Mechanics.Facts.AddAbilityResources().GetType())
+                else if (c is Kingmaker.Designers.Mechanics.Facts.AddAbilityResources)
                 {
                     var c_typed = (Kingmaker.Designers.Mechanics.Facts.AddAbilityResources)c;
                     addClassToResource(class_to_add, archetypes_to_add, c_typed.Resource);
                 }
-                else if (c.GetType() == new Kingmaker.Designers.Mechanics.Facts.FactSinglify().GetType())
+                else if (c is Kingmaker.Designers.Mechanics.Facts.FactSinglify)
                 {
                     var c_typed = (Kingmaker.Designers.Mechanics.Facts.FactSinglify)c;
                     foreach (var f in c_typed.NewFacts)
                     {
                         addClassToFact(class_to_add, archetypes_to_add, spells_type, f);
                     }
+                }
+                else if (c is Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)
+                {
+                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
+                    addClassToContextRankConfig(class_to_add, c_typed);
                 }
 
 

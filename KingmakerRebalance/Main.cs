@@ -65,6 +65,7 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Rebalance.fixSkillPoints();
                     KingmakerRebalance.Rebalance.fixCompanions();
                     KingmakerRebalance.Rebalance.removeJudgement19FormSHandMS();
+                    KingmakerRebalance.Rebalance.fixDomains();
                     KingmakerRebalance.Hunter.createHunterClass();
                     KingmakerRebalance.Hunter.addAnimalFocusSH();
                 }

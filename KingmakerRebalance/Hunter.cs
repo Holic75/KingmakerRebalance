@@ -50,14 +50,14 @@ namespace KingmakerRebalance
         static internal BlueprintFeature hunter_teamwork_feat;
         static internal BlueprintFeature hunter_tactics;
         static internal BlueprintFeature hunter_woodland_stride;
+        static internal BlueprintArchetype forester_archetype;
+        static internal BlueprintArchetype feykiller_archetype;
         static internal BlueprintArchetype divine_hunter_archetype;
         static internal BlueprintFeatureSelection hunter_otherwordly_companion;
 
         static internal BlueprintFeature ac_smite_good_feature;
-        static internal BlueprintAbility ac_smite_good_ability;
 
         static internal BlueprintFeature ac_smite_evil_feature;
-        static internal BlueprintAbility ac_smite_evil_ability;
 
         internal static void createHunterClass()
         {
@@ -102,6 +102,92 @@ namespace KingmakerRebalance
             hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype }; //Divine hunter, Forester (replace favored terrain attack bonus with racial enemies), Feykiller
             Helpers.RegisterClass(hunter_class);
         }
+
+
+        static void createForesterArchetype()
+        {
+            forester_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ForesterHunterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Forester");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While all hunters have a bond with the natural world, a forester has a stronger tie to her environment than to the animals within it. While most foresters feel strong bonds with woodland regions, the archetype functions well in other terrains as well. In such cases, a forester might refer to herself by a different name that more accurately reflects her chosen terrain. For example, a forester who favors bogs and marshes might call herself a “swamper,” while one who favors frozen regions might call herself a “glacier guardian.” As foresters gain levels and take on new favored terrains, they often eschew such titles completely, viewing them as unnecessary, and merely refer to themselves as guardians of the wild or champions of nature’s will—but regardless of the name, their devotion remains.");
+
+            });
+            Helpers.SetField(forester_archetype, "m_ParentClass", hunter_class);
+            library.AddAsset(forester_archetype, "fabce7959e2f44119cc9ef8a778e9ebd");
+            forester_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, hunter_animal_companion, animal_focus_ac),
+                                                                  Helpers.LevelEntry(8, animal_focus_additional_use_ac),
+                                                                  Helpers.LevelEntry(8, animal_focus_additional_use_ac) };
+
+            var evasion = library.Get<BlueprintFeature>("576933720c440aa4d8d42b0c54b77e80");
+            var improved_evasion = library.Get<BlueprintFeature>("ce96af454a6137d47b9c6a1e02e66803");
+            var camouflage = library.CopyAndAdd<BlueprintFeature>("ff1b5aa8dcc7d7d4d9aa85e1cb3f9e88", "ForesterCamouflageFeature", "204bfa0c3232403db8105d56d8bda1be");
+            var camouflage_ability = library.CopyAndAdd<BlueprintAbility>("b26a123a009d4a141ac9c19355913285", "ForesterCamouflageAbility","990d21cb474946e6bdf293d4fe9009e0");
+            camouflage_ability.SetDescription("At 7th level, a forester can use the Stealth skill to hide in any of her favored terrains, even if the terrain doesn’t grant cover or concealment.");
+            camouflage.SetComponents(Helpers.CreateAddFact(camouflage_ability));
+            camouflage.SetDescription(camouflage_ability.Description);
+
+            string[] favored_terrain_guids = new string[] {"93f9cf990bfd477795faa8cd97f29e2c",
+                                                             "13cfc8f8121841ebb29d2f78802c7c7f",
+                                                             "bcda940651334b5fa236e1888e7b7a83",
+                                                             "b8c14546f4714df5b519f268f9b2af78",
+                                                             "aba4c11a52994c6791e38987c4cb1ba2",
+                                                             "42ce5c5ff8084aed8230aac14176f483"};
+
+            var forester_favored_terrain_selection = Common.copyRenameSelection("a6ea422d7308c0d428a541562faedefd",
+                                                                                 "Forester",
+                                                                                 "A forester gains the ranger’s favored terrain ability. She gains her first favored terrain at 5th level and a new favored terrain every 4 levels thereafter. The forester gains a +2 bonus on initiative checks and Lore (Nature), Perception, and Stealth skill checks when he is in this terrain.",
+                                                                                 "e36b551be4684d4388242b405f7a8732",
+                                                                                 favored_terrain_guids);
+
+            string[] favored_enemy_guids = new string [] {"bbc2b888cecc4f2284acd3845454da29",
+                                                    "989b7921d44840398b84887332ca2ed7",
+                                                    "0e39b46b534a41f5acaf7412a7a98237",
+                                                    "5ed706f7917445a2af929eb286cee6f2",
+                                                    "2a4b4f52b2994732beb411ce6710bb12",
+                                                    "6deec72a74f843dba739e4508751d38a",
+                                                    "ce653d0e0eda4e1fa90f9d1fa8a835aa",
+                                                    "89028eb6b2fa4c5ab873c274fa8f0b3c",
+                                                    "827b313a7045419ab4cfd89cbc8bc2d6",
+                                                    "63fbe72a756f46f1896b85376083d19c",
+                                                    "dce6fc719e294721869bd9ef6bdaa2ed",
+                                                    "5f6324d30da44baaa5d7c9ac81f1de31",
+                                                    "3577b87a9ef94ba18cdee30bbdf755fd",
+                                                    "77b6be6ec8574857b9b2d58d20ea4598",
+                                                    "c4fdc727551345839ba5afa995139030",
+                                                    "8ae497a29de7470aad548b4af509fb42",
+                                                    "9fcffdbf9ef74337b7868e8eedde7cea",
+                                                    "550501c634e441b2b7eba42a6c866cb7",
+                                                    "4abb7ef0ba8a443990f0e75f6ad652d9"
+                                                    };
+            var forester_favored_enemy_selection = Common.copyRenameSelection("16cc2c937ea8d714193017780e7d4fc6",
+                                                                     "Forester",
+                                                                     "At 6th level, a forester selects a creature type from the ranger favored enemies list. He gets a + 2 bonus on weapon attack and damage rolls against them.\nAt 10th level and every four levels thereafter( 14th, and 18th level), the ranger may select an additional favored enemy.\nIf the forester chooses humanoids or outsiders as a favored enemy, he must also choose an associated subtype, as indicated on the table below. If a specific creature falls into more than one category of favored enemy, the forester's bonuses do not stack; he simply uses whichever bonus is higher.",
+                                                                     "c8fec1d3bf354c06bc9a3d356453767f",
+                                                                     favored_enemy_guids);
+
+            var bonus_feat_selection = library.CopyAndAdd<Kingmaker.Blueprints.Classes.Selection.BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "ForesterBonusFeatSelection", "eaa6fe284ea8461493ad95e406b74e41");
+            bonus_feat_selection.SetDescription("At 2nd level, a forester gains one bonus combat feat. She must meet the prerequisites for this feat as normal. She gains an additional bonus combat feat at 7th, 13th, and 19th levels.");
+
+
+         
+            forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, bonus_feat_selection),
+                                                                Helpers.LevelEntry(4, evasion),
+                                                                Helpers.LevelEntry(5, forester_favored_terrain_selection),
+                                                                Helpers.LevelEntry(6, forester_favored_enemy_selection),
+                                                                Helpers.LevelEntry(7, camouflage, bonus_feat_selection),
+                                                                Helpers.LevelEntry(9, forester_favored_terrain_selection),
+                                                                Helpers.LevelEntry(10, forester_favored_enemy_selection),
+                                                                Helpers.LevelEntry(11, improved_evasion),
+                                                                Helpers.LevelEntry(13, forester_favored_terrain_selection, bonus_feat_selection),
+                                                                Helpers.LevelEntry(14, forester_favored_enemy_selection),
+                                                                Helpers.LevelEntry(17, forester_favored_terrain_selection),
+                                                                Helpers.LevelEntry(18, forester_favored_enemy_selection),
+                                                                Helpers.LevelEntry(19, bonus_feat_selection)
+                                                               };
+        }
+
+
 
 
         static void createDivineHunterArchetype()
@@ -173,7 +259,7 @@ namespace KingmakerRebalance
                                                 );
 
 
-    
+
             var ac_dr_good = Helpers.CreateFeature("AnimalCompanionFiendishDRFeature",
                                                "Fiendish Damage Reduction",
                                                "Animal Companion gains damage reduction 5/Good at level 5. It increases to damage reduction 10/Good at level 11.",
@@ -189,7 +275,8 @@ namespace KingmakerRebalance
                                                                                     (10, 5),
                                                                                     (20, 10)
                                                                                 })
-                                               );
+                                              );
+
             var ac_resist_cae = Helpers.CreateFeature("AnimalCompanionCelestialResistFeature",
                         "Celestial Resistance",
                         "Animal commanpanion gains reist acid 5, resist cold 5 and resist electricity 5. At 5th level these resistances increase to 10, at 11th level to 15.",
@@ -244,18 +331,14 @@ namespace KingmakerRebalance
                                                   celestial_bloodline.Icon,
                                                   FeatureGroup.None);
             celestial_progression.Classes = animal_companion_array;
-            celestial_progression.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(3, ac_smite_evil_feature, ac_spell_resistance, ac_resist_cae),
-                                                                    Helpers.LevelEntry(5, ac_dr_evil)
-                                                                  };
+
             var fiendish_progression = Helpers.CreateProgression("FiendishCompanionProgression",
                                                   "Fiendish Companion",
                                                   "Creatures with the fiendish template live in the Lower Planes, such as the Abyss and Hell, but can be summoned using spells such as summon monster and planar ally. Fiendish creatures may use Smite Good once per day, gain energy resistance 5 to cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Good which further increases to  10/Good at level 11.",
                                                   "3e33af2ab5974859bdaa92c32987b3e0",
                                                   abbysal_bloodline.Icon,
                                                   FeatureGroup.None);
-            fiendish_progression.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(3, ac_smite_good_feature, ac_spell_resistance, ac_resist_cf),
-                                                                    Helpers.LevelEntry(5, ac_dr_good)
-                                                                  };
+
 
             hunter_otherwordly_companion = Helpers.CreateFeatureSelection("AnimalCompanionTemplateSelection",
                                            "Otherworldly Companion",
@@ -301,43 +384,28 @@ namespace KingmakerRebalance
             //TODO : fix reference issues
             var animal_companion_array = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920") };
             var umbral_strike = library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716");
+            var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
 
-            ac_smite_good_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteGoodACAbility", "eeb6e25da78e4ac99f73024eaf54718e");
-            ac_smite_good_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", "SmiteGoodACFeature", "250a6fed6c9a4de1b8483aae07728c62");
-            var smite_good_resource = library.CopyAndAdd<BlueprintAbilityResource>("b4274c5bb0bf2ad4190eb7c44859048b", "SmiteGoodResource", "0686f01667e24299834545aa98b29b6e");
+            ac_smite_evil_feature = Common.createSmite("SmiteEvilAC",
+                                                       "Smite Evil",
+                                                       "A character can call out to the powers of good to aid her in her struggle against evil. As a swift action, the character chooses one target within sight to smite. If this target is evil, the character adds her Charisma bonus (if any) to her attack rolls and adds her character level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite evil is in effect, the character gains a deflection bonus equal to her Charisma bonus (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not evil, the smite is wasted with no effect. The smite evil lasts until the target dies or the character selects a new target.",
+                                                       "bf0882a6d254407bb259356f1aa66392",
+                                                       "f009c072167c4b53a37c1071a2251c3f",
+                                                       smite_evil.Icon,
+                                                       animal_companion_array,
+                                                       AlignmentComponent.Evil);
 
-            ac_smite_good_feature.SetComponents(Helpers.CreateAddFacts(ac_smite_good_ability), Helpers.CreateAddAbilityResource(smite_good_resource));
-            ac_smite_good_feature.SetName("Smite Good");
-            ac_smite_good_feature.SetDescription("A character can call out to the powers of evil to aid her in her struggle against good. As a swift action, the character chooses one target within sight to smite. If this target is good, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite good is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not good, the smite is wasted with no effect.\nThe smite good lasts until the target dies or the character selects a new target.");
-            ac_smite_good_feature.SetIcon(umbral_strike.Icon);
+            ac_smite_good_feature = Common.createSmite("SmiteGoodAC",
+                                           "Smite Good",
+                                           "A character can call out to the powers of evil to aid her in her struggle against good. As a swift action, the character chooses one target within sight to smite. If this target is good, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite good is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not good, the smite is wasted with no effect.\nThe smite good lasts until the target dies or the character selects a new target.",
+                                           "a432066702694b2590260b58426fee28",
+                                           "320b92730bd54842b9707931a5dbab18",
+                                           umbral_strike.Icon,
+                                           animal_companion_array,
+                                           AlignmentComponent.Good);
 
-            ac_smite_good_ability.SetName(ac_smite_good_feature.Name);
-            ac_smite_good_ability.SetDescription(ac_smite_good_feature.Description);
-            ac_smite_good_ability.RemoveComponent(ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
-            var context_rank_config = ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
-
-            Helpers.SetField(context_rank_config, "m_Class", animal_companion_array);
-
-            ac_smite_good_ability.ReplaceComponent(ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>(),
-                                                   Helpers.CreateResourceLogic(smite_good_resource));
-
-            var smite_good_actions = ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions;
-            var condition = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_good_actions.Actions[0];
-            ((Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionAlignment)condition.ConditionsChecker.Conditions[0]).Alignment = AlignmentComponent.Good;
-            ac_smite_good_ability.SetIcon(umbral_strike.Icon);
-
-            ac_smite_evil_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteEvilACAbility", "40c15480d05e4e7e8242237caeecf909");
-            ac_smite_evil_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", "SmiteEvilACFeature", "fbf3dd7b8043491194142634e0344258");
-            ac_smite_evil_feature.SetDescription("A character can call out to the powers of good to aid her in her struggle against evil. As a swift action, the character chooses one target within sight to smite. If this target is evil, the character adds her Charisma bonus (if any) to her attack rolls and adds her character level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite evil is in effect, the character gains a deflection bonus equal to her Charisma bonus (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not evil, the smite is wasted with no effect. The smite evil lasts until the target dies or the character selects a new target.");
-            ac_smite_evil_ability.SetDescription(ac_smite_evil_feature.Description);
-            ac_smite_evil_ability.RemoveComponent(ac_smite_evil_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
-            var context_rank_config2 = ac_smite_evil_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
-            Helpers.SetField(context_rank_config2, "m_Class", animal_companion_array);
-
-            Main.logger.Log("Checked: " + ac_smite_evil_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>().RequiredResource.name);
-            Main.logger.Log("Checked: " + ac_smite_good_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>().RequiredResource.name);
-            
-
+            //Main.logger.Log(ac_smite_evil_feature.GetComponent<AddFacts>().Facts[0].name);
+            //Main.logger.Log(ac_smite_good_feature.GetComponent<AddFacts>().Facts[0].name);
         }
 
 

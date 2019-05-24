@@ -274,6 +274,13 @@ namespace KingmakerRebalance
             return clone;
         }
 
+
+        public static T CreateCopy<T>(this T original) where T : UnityEngine.Object
+        {
+            var clone = UnityEngine.Object.Instantiate(original);
+            return clone;
+        }
+
         static readonly FastSetter blueprintUnitFact_set_Description = Helpers.CreateFieldSetter<BlueprintUnitFact>("m_Description");
         static readonly FastSetter blueprintUnitFact_set_Icon = Helpers.CreateFieldSetter<BlueprintUnitFact>("m_Icon");
         static readonly FastSetter blueprintUnitFact_set_DisplayName = Helpers.CreateFieldSetter<BlueprintUnitFact>("m_DisplayName");
@@ -1575,6 +1582,16 @@ namespace KingmakerRebalance
         }
 
 
+        public static Conditional CreateConditional(Condition[] condition, GameAction[] ifTrue, GameAction[] ifFalse = null)
+        {
+            var c = Create<Conditional>();
+            c.ConditionsChecker = CreateConditionsCheckerAnd(condition);
+            c.IfTrue = CreateActionList(ifTrue);
+            c.IfFalse = CreateActionList(ifFalse);
+            return c;
+        }
+
+
         public static Conditional CreateConditional(ConditionsChecker conditions, GameAction ifTrue, GameAction ifFalse = null)
         {
             var c = Create<Conditional>();
@@ -1649,6 +1666,15 @@ namespace KingmakerRebalance
             var c = Create<ContextConditionCasterHasFact>();
             c.Fact = fact;
             c.Not = not;
+            return c;
+        }
+
+        public static ContextConditionAlignment CreateContextConditionAlignment(AlignmentComponent alignment, bool check_caster = false, bool not = false)
+        {
+            var c = Create<ContextConditionAlignment>();
+            c.Alignment = alignment;
+            c.Not = not;
+            c.CheckCaster = check_caster;
             return c;
         }
 

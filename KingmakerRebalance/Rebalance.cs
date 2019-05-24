@@ -199,5 +199,28 @@ public class Rebalance
     }
 
 
+    public static void fixDomains()
+    {
+            var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
+            var domain_classes = new BlueprintCharacterClass[] { cleric_class, inquisitor_class };
+            //protection domain
+            var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,
+                                                                                             startLevel: 1,
+                                                                                             stepLevel: 5,
+                                                                                             min: 1,
+                                                                                             classes: domain_classes
+                                                                                             );
+            var protection_domain_remove_save_bonus = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Buffs.Blueprints.BlueprintBuff>("74a4fb45f23705d4db2784d16eb93138"); //resistant touch self
+            protection_domain_remove_save_bonus.AddComponent(protection_bonus_context_rank);
+
+            var protection_domain_save_bonus = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Buffs.Blueprints.BlueprintBuff>("2ddb4cfc3cfd04c46a66c6cd26df1c06"); //resitant touch bonus
+            protection_domain_save_bonus.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(protection_bonus_context_rank);
+
+
+
+        }
+
+
     }
 }
