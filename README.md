@@ -13,7 +13,7 @@ Changes stats of npcs.
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 8/22/14/12/10/8
 
-Adds Hunter class.
+Adds Hunter class with its 3 archetypes (Divine Hunter, Forester and Feykiller).
 
 Install
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
