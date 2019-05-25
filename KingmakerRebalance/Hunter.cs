@@ -723,11 +723,11 @@ namespace KingmakerRebalance
                                                    FeatureGroup.None);
             hunter_progression.Classes = new BlueprintCharacterClass[1] { hunter_class };
 
-            var hunter_orisions = library.CopyAndAdd<BlueprintFeature>("f2ed91cc202bd344691eef91eb6d5d1a",
+            var hunter_orisons = library.CopyAndAdd<BlueprintFeature>("f2ed91cc202bd344691eef91eb6d5d1a",
                                                                        "HunterOrisionsFeature",
                                                                        "5838ceedcf344dfe8d3e0538c67a7884");
-            hunter_orisions.SetDescription("Hunters learn a number of orisions, or 0 - level spells. These spells are cast like any other spell, but they do not consume any slots and may be used again.");
-            hunter_orisions.SetComponents(hunter_orisions.ComponentsArray.Select(c =>
+            hunter_orisons.SetDescription("Hunters learn a number of orisons, or 0 - level spells. These spells are cast like any other spell, but they do not consume any slots and may be used again.");
+            hunter_orisons.SetComponents(hunter_orisons.ComponentsArray.Select(c =>
             {
                 var bind = c as BindAbilitiesToClass;
                 if (bind == null) return c;
@@ -764,15 +764,15 @@ namespace KingmakerRebalance
             hunter_woodland_stride.SetDescription("At 5th level, you can move through any sort difficult terrain at your normal speed and without taking damage or suffering any other impairment.");
 
             var entries = new List<LevelEntry>();
-            entries.Add(Helpers.LevelEntry(1, hunter_proficiencies, hunter_orisions, detect_magic, bonus_hunter_spells, hunter_animal_companion, animal_focus, animal_focus_ac,
+            entries.Add(Helpers.LevelEntry(1, hunter_proficiencies, hunter_orisons, detect_magic, bonus_hunter_spells, hunter_animal_companion, animal_focus, animal_focus_ac,
                                                            library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                            library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")  // touch calculate feature
                                                            )) ;
-            hunter_orisions.GetComponent<BindAbilitiesToClass>().CharacterClass = hunter_class;
-            var learn_orisions = new Kingmaker.UnitLogic.FactLogic.LearnSpells();
-            learn_orisions.CharacterClass = hunter_class;
-            learn_orisions.Spells = hunter_orisions.GetComponent<BindAbilitiesToClass>().Abilites;
-            hunter_orisions.AddComponent(learn_orisions);
+            hunter_orisons.GetComponent<BindAbilitiesToClass>().CharacterClass = hunter_class;
+            var learn_orisons = new Kingmaker.UnitLogic.FactLogic.LearnSpells();
+            learn_orisons.CharacterClass = hunter_class;
+            learn_orisons.Spells = hunter_orisons.GetComponent<BindAbilitiesToClass>().Abilites;
+            hunter_orisons.AddComponent(learn_orisons);
 
             createPreciseCompanion();
             entries.Add(Helpers.LevelEntry(2, precise_companion));
@@ -790,7 +790,7 @@ namespace KingmakerRebalance
                                                           Helpers.CreateUIGroups(animal_focus, animal_focus_additional_use, animal_focus_additional_use)[0],
                                                           Helpers.CreateUIGroups(animal_focus_ac, animal_focus_additional_use_ac, animal_focus_additional_use_ac)[0],
                                                           Helpers.CreateUIGroups(bonus_hunter_spells, hunter_tactics, hunter_woodland_stride)[0] };
-            hunter_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { hunter_animal_companion, hunter_proficiencies, hunter_orisions, detect_magic};
+            hunter_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { hunter_animal_companion, hunter_proficiencies, hunter_orisons, detect_magic};
             hunter_progression.LevelEntries = entries.ToArray();
 
         }

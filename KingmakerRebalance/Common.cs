@@ -34,6 +34,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace KingmakerRebalance
 {
+
     class Common
     {
         static internal LibraryScriptableObject library => Main.library;
@@ -46,7 +47,10 @@ namespace KingmakerRebalance
         }
 
 
-        public static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
+         
+
+
+        internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
             var new_selection = library.CopyAndAdd<BlueprintFeatureSelection>(original_selection_guid, name_prefix + old_selection, selection_guid);

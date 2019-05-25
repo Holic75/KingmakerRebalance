@@ -619,6 +619,12 @@ namespace KingmakerRebalance
             s.Descriptor = spell;
             return s;
         }
+
+        public static void addAction(this Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction action, Kingmaker.ElementsSystem.GameAction game_action)
+        {
+            action.Actions = Helpers.CreateActionList(action.Actions.Actions);
+            action.Actions.Actions = action.Actions.Actions.AddToArray(game_action);
+        }
     }
 
     [Flags]
