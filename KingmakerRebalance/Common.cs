@@ -46,8 +46,33 @@ namespace KingmakerRebalance
             NormalList = 3
         }
 
+        internal struct SpellId
+        {
+            public readonly string guid;
+            public readonly int level;
+            public SpellId(string spell_guid, int spell_level)
+            {
+                guid = spell_guid;
+                level = spell_level;
+            }
+        }
 
-         
+
+        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate)
+        {
+            var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
+            var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            apply_buff.IsFromSpell = true;
+            apply_buff.Buff = buff;
+            var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
+            bonus_value.Value = 1;
+            bonus_value.ValueType = ContextValueType.Rank;
+            apply_buff.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,
+                                                                           rate: duration_rate);
+            context_saved.Failed = Helpers.CreateActionList(apply_buff);
+            return context_saved;
+        }
 
 
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )

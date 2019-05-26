@@ -82,10 +82,8 @@ namespace KingmakerRebalance
 
         internal static void createHunterClass()
         {
-            var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
             var ranger_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6");
             var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
-            var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
 
             hunter_class = Helpers.Create<BlueprintCharacterClass>();
             hunter_class.name = "HunterClass";
@@ -101,7 +99,7 @@ namespace KingmakerRebalance
             hunter_class.HitDie = DiceType.D8;
             hunter_class.BaseAttackBonus = druid_class.BaseAttackBonus;
             hunter_class.FortitudeSave = ranger_class.FortitudeSave;
-            hunter_class.ReflexSave = ranger_class.FortitudeSave;
+            hunter_class.ReflexSave = ranger_class.ReflexSave;
             hunter_class.WillSave = ranger_class.WillSave;
             hunter_class.Spellbook = createHunterSpellbook();
             hunter_class.ClassSkills = ranger_class.ClassSkills;
