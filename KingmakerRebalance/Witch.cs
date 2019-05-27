@@ -39,6 +39,7 @@ namespace KingmakerRebalance
         static internal LibraryScriptableObject library => Main.library;
         static internal BlueprintCharacterClass witch_class;
         static internal BlueprintProgression witch_progression;
+        static internal BlueprintFeatureSelection witch_patrons;
         static internal BlueprintFeatureSelection hex_selection;
         //hexes
         static internal BlueprintFeature healing_hex;
@@ -48,6 +49,9 @@ namespace KingmakerRebalance
         static internal BlueprintFeature fortune_hex;
         static internal BlueprintFeature iceplant_hex;
         static internal BlueprintFeature murksight_hex;
+
+
+
 
 
         internal static void createWitchClass()
@@ -100,7 +104,212 @@ namespace KingmakerRebalance
 
         static void createWitchProgression()
         {
+            createWitchPatrons();
 
+        }
+
+
+        static void createWitchPatrons()
+        {
+            BlueprintFeature[] patrons = new BlueprintFeature[]
+            {
+                createWitchPatronFeature("Agility", "f7a4a115c138439c8e5f4ee8adacfca0","9b43dc766cae40b7891c035b8fa43522",
+                                         "4f8181e7a7f1d904fbaea64220e83379", //expeditious retreat
+                                         "de7a025d48ad5da4991e7d3c682cf69d", //cats grace
+                                         "486eaff58293f6441a5c2759c4872f98", //haste
+                                         "4c349361d720e844e846ad8c19959b1e", //freedom of movement
+                                         "93d9d74dac46b9b458d4d2ea7f4b1911", //polymorph
+                                         "1f6c94d56f178b84ead4c02f1b1e1c48", //cats grace mass
+                                         "a9fc28e147dbb364ea4a3c1831e7e55f", //polymorph greater
+                                         "9155dbc8268da1c49a7fc4834fa1a4b1", //cloak of chaos
+                                         "08ccad78cac525040919d51963f9ac39" //fiery body
+                                         ),
+                createWitchPatronFeature("Ancestors", "7e72537869dc455781780147823fc6a5", "a5dd1fcfdff84b2396c21c7705faf3fc",
+                                         "90e59f4a4ada87243b7b3535a06d0638", //bless
+                                         "03a9630394d10164a9410882d31572f0", //aid
+                                         "faabd2cc67efa4646ac58c7bb3e40fcc", //prayer
+                                         "0413915f355a38146bc6ad40cdf27b3f", //death ward
+                                         "1bc83efec9f8c4b42a46162d72cbf494", //burst of glory
+                                         "e15e5e7045fda2244b98c8f010adfe31", //heroism, greater
+                                         "3cf5b2bd093a36a468b4ece38ad4d5fa", //bestow grace of the champion
+                                         "cbf3bafa8375340498b86a3313a11e2f", //euphoric tranquility
+                                         "870af83be6572594d84d276d7fc583e0" //weird
+                                        ),
+                createWitchPatronFeature("Animal", "aee09b4c9ae843c09829ef220241affe", "1eb5c7c9254044b5bad7bdf0eca1764a",
+                                         "403cf599412299a4f9d5d925c7b9fb33", //magic fang
+                                         "4c3d08935262b6544ae97599b3a9556d", //bull strength
+                                         "754c478a2aa9bb54d809e648c3f7ac0e", //dominate animal
+                                         "c83db50513abdf74ca103651931fac4b", //summon nature ally 4
+                                         "56923211d2ac95e43b8ac5031bab74d8", //animal growth
+                                         "9b93040dad242eb43ac7de6bb6547030", //beast shape 3
+                                         "940a545a665194b48b722c1f9dd78d53", //beast shape 4
+                                         "ea78c04f0bd13d049a1cce5daf8d83e0", //natures ally 8
+                                         "a7469ef84ba50ac4cbf3d145e3173f8e"  //natures ally 9
+                                        ),
+                createWitchPatronFeature("Automn", "c3c1f806206546628b7b9d44cc1141ad", "beaddc15271240d992b8149babb79fed",
+                                         "450af0402422b0b4980d9c2175869612", //ray of enfeeblement
+                                         "29ccc62632178d344ad0be0865fd3113", //create pit
+                                         "1a36c8b9ed655c249a9f9e8d4731f001", //soothing mud
+                                         "6b30813c3709fc44b92dc8fd8191f345", //slowing mud
+                                         "6d1d48a939ce475409f06e1b376bc386", //vinetrap
+                                         "dbf99b00cd35d0a4491c6cc9e771b487", //acid fog
+                                         "8c29e953190cc67429dc9c701b16b7c2", //caustic eruption
+                                         "08323922485f7e246acb3d2276515526", //horrid witling
+                                         "b24583190f36a8442b212e45226c54fc", //wail of banshee
+                                        ),
+                createWitchPatronFeature("Devotion", "faa76cf5cacd447caa2c18965ca9c3cb", "89bd5b848cfc4d6eacb51cf8e018e8d4",
+                                         "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
+                                         "042aaa117e89c4d4b8cb41478dd3fca3", //grace
+                                         "2d4263d80f5136b4296d6eb43a221d7d", //magic vestment
+                                         "a26c23a887a6f154491dc2cefdad2c35",  //crusader's edge
+                                         "f9910c76efc34af41b6e43d5d8752f0f", //flameStrike
+                                         "6a234c6dcde7ae94e94e9c36fd1163a7", //bulls strength mass
+                                         "3cf5b2bd093a36a468b4ece38ad4d5fa", //bestow grace of the champion
+                                         "808ab74c12df8784ab4eeaf6a107dbea", //holy aura
+                                         "867524328b54f25488d371214eea0d90" //heal mass
+                                        ),
+                createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22",
+                                         "ab395d2335d3f384e99dddee8562978f", //shocking grasp
+                                         "cdb106d53c65bbc4086183d54c3b97c7", //scorching ray
+                                         "2d81362af43aeac4387a3d4fced489c3", //fireball
+                                         "690c90a82bf2e58449c6b541cb8ea004", //elemental body 1
+                                         "f9910c76efc34af41b6e43d5d8752f0f", //flamestrike
+                                         "6303b404df12b0f4793fa0763b21dd2c", //elemental assesor
+                                         "8eb769e3b583f594faabe1cfdb0bb696", //summon greater elemental
+                                         "e3d0dfe1c8527934294f241e0ae96a8d", //firestorm
+                                         "d8144161e352ca846a73cf90e85bf9ac" //tsunami
+                                        ),
+                createWitchPatronFeature("Endurance", "16e0d62dac7947aab226dcded5bc5177", "79301d011ec5490ea32dcd42a8daa366",
+                                         "b065231094a21d14dbf1c3832f776871", //fire belly
+                                         "a900628aea19aa74aad0ece0e65d091a", //bears endurance
+                                         "d2f116cfe05fcdd4a94e80143b67046f", //protection from energy
+                                         "76a629d019275b94184a1a8733cac45e", //protection from energy communal
+                                         "0a5ddfbcfb3989543ac7c936fc256889", //spell resistance
+                                         "f6bcea6db14f0814d99b54856e918b92", //bears endurance mass
+                                         "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
+                                         "b1c7576bd06812b42bda3f09ab202f14", //angelic aspect greater
+                                         "867524328b54f25488d371214eea0d90"  //heal mass
+                                         ),
+                createWitchPatronFeature("Healing", "84286f03a92c4d27bf13484dee22c990", "b6c6c3ee2e904c689d9cb0eca78ce7c1",
+                                         "55a037e514c0ee14a8e3ed14b47061de", //remove fear
+                                         "e84fc922ccf952943b5240293669b171", //restoration lesser
+                                         "4093d5a0eb5cae94e909eb1e0e1a6b36", //remove disiease
+                                         "f2115ac1148256b4ba20788f7e966830", //restoration
+                                         "be2062d6d85f4634ea4f26e9e858c3b8", //cleanse
+                                         "788d72e7713cf90418ee1f38449416dc", //inspiring recovery
+                                         "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
+                                         "1f173a16120359e41a20fc75bb53d449", //cure critical wounds mass
+                                         "867524328b54f25488d371214eea0d90" // heal mass
+                                         ),
+                createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b",
+                                         "91da41b9793a4624797921f221db653c", //color spray
+                                         "ce7dad2b25acf85429b6c9550787b2d9", //glitterdust
+                                         "c927a8b0cd3f5174f8c0b67cdbfde539", //remove blindness
+                                         "4b8265132f9c8174f87ce7fa6d0fe47b", //rainbow pattern
+                                         "ebade19998e1f8542a1b55bd4da766b3", //fire snake
+                                         "093ed1d67a539ad4c939d9d05cfe192c", //sirocco
+                                         "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", //sunbeam
+                                         "e96424f70ff884947b06f41a765b7658", //sunburst
+                                         "08ccad78cac525040919d51963f9ac39" //fiery body
+                                        ),
+                createWitchPatronFeature("Mercy", "88ce8b8dc64b4343984fefd31054a913","b7b7f46389544a99b0b4846ab99ed042",
+                                         "47808d23c67033d4bbab86a1070fd62f", //cure light wounds
+                                         "446f7bf201dc1934f96ac0a26e324803", //eagles splendor
+                                         "b48674cef2bff5e478a007cf57d8345b", //remove curse
+                                         "f2115ac1148256b4ba20788f7e966830", //resoration
+                                         "be2062d6d85f4634ea4f26e9e858c3b8", //cleanse
+                                         "2caa607eadda4ab44934c5c9875e01bc", //eagles splendor mass
+                                         "15a04c40f84545949abeedef7279751a", //joyfull rupture
+                                         "cbf3bafa8375340498b86a3313a11e2f", //euphoric tranquility
+                                         "867524328b54f25488d371214eea0d90" //mass heal
+                                        ),
+                createWitchPatronFeature("Mountain", "2147870b66c643978c6c6aeae6f6c6a6", "cdcc5439ee0a4266aeb41e29f0677bf9",
+                                         "85067a04a97416949b5d1dbf986d93f3", //stone fist
+                                         "5181c2ed0190fc34b8a1162783af5bf4", //stone call
+                                         "0a2f7c6aa81bc6548ac7780d8b70bcbc", //battering blast
+                                         "d1afa8bc28c99104da7d784115552de5", //spike stones
+                                         "7c5d556b9a5883048bf030e20daebe31", //stoneskin communal
+                                         "e243740dfdb17a246b116b334ed0b165", //stone to flesh
+                                         "3ecd589cf1a55df42a3b66940ee93ea4", //summon earth elemental greater
+                                         "65254c7a2cf18944287207e1de3e44e8", //summon earth elemental elder
+                                         "01300baad090d634cb1a1b2defe068d6" //clashing rocks
+                                        ),
+                createWitchPatronFeature("Plague", "ad6dcbca48394d0890565eef09c0dc19", "7339a5c3c56d4403860790af1118959a",
+                                         "fa3078b9976a5b24caf92e20ee9c0f54", //ray of sickening
+                                         "dee3074b2fbfb064b80b973f9b56319e", //pernicious poison
+                                         "48e2744846ed04b4580be1a3343a5d3d", //contagion
+                                         "4b76d32feb089ad4499c3a1ce8e1ac27", //animate dead
+                                         "548d339ba87ee56459c98e80167bdf10", //cloudkill
+                                         "76a11b460be25e44ca85904d6806e5a3", //create undead
+                                         "b974af13e45639a41a04843ce1c9aa12", //creeping doom
+                                         "08323922485f7e246acb3d2276515526", //horrid witlin
+                                         "37302f72b06ced1408bf5bb965766d46" //energy drain
+                                        ),
+                createWitchPatronFeature("Protection", "fbda94ae0c184d06a9f1bc8b56e68267", "da5be607b885402eae26f954c47b47e4",
+                                         "183d5bb91dea3a1489a6db6c9cb64445", //shield of faith
+                                         "21ffef7791ce73f468b6fca4d9371e8b", //resist energy
+                                         "d2f116cfe05fcdd4a94e80143b67046f", //protection from energy
+                                         "c66e86905f7606c4eaa5c774f0357b2b", //stoneskin
+                                         "7c5d556b9a5883048bf030e20daebe31", //stoneskin communal
+                                         "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
+                                         "42aa71adc7343714fa92e471baa98d42", //protection from spells
+                                         "87a29febd010993419f2a4a9bee11cfc" //mindblank communal
+                                         ),
+                createWitchPatronFeature("Spring", "fa8155faef214069a896e65a9073458c", "e9f7f92bf7724ec788fcd6374bfd2e82",
+                                         "f3c0b267dd17a2a45a40805e31fe3cd1", //feather step
+                                         "6c7467f0344004d48848a43d8c078bf8", //sickening entanglement
+                                         "d219494150ac1f24f9ce14a3d4f66d26", //feather step mass
+                                         "a5e23522eda32dc45801e32c05dc9f96", //good hope
+                                         "3fce8e988a51a2a4ea366324d6153001", //constricting coils
+                                         "645558d63604747428d55f0dd3a4cb58", //chain lightning
+                                         "26be70c4664d07446bdfe83504c1d757", //change staff
+                                         "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
+                                         "d8144161e352ca846a73cf90e85bf9ac" //tsunami
+                                        ),
+                createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4",
+                                         "b065231094a21d14dbf1c3832f776871", //firebelly
+                                         "cdb106d53c65bbc4086183d54c3b97c7", //scorching ray
+                                         "bf0accce250381a44b857d4af6c8e10d", //searing light
+                                         "f72f8f03bf0136c4180cd1d70eb773a5", //controlled fireball
+                                         "f9910c76efc34af41b6e43d5d8752f0f", //flame strike
+                                         "093ed1d67a539ad4c939d9d05cfe192c", //sirocco
+                                         "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", //sunbeam
+                                         "e96424f70ff884947b06f41a765b7658", //sunburst
+                                         "08ccad78cac525040919d51963f9ac39" //fiery body
+                                         ),
+                createWitchPatronFeature("Transformation", "6af899b9496d42258619ceebe08b1e4a" , "e71d75fcdc24439ab6a7fddbfbd92d34",
+                                         "14c90900b690cac429b229efdf416127", //longstrider
+                                         "a900628aea19aa74aad0ece0e65d091a", //bears endurance
+                                         "61a7ed778dd93f344a5dacdbad324cc9", //beast shape 1
+                                         "5d4028eb28a106d4691ed1b92bbb1915", //beast shape 2
+                                         "9b93040dad242eb43ac7de6bb6547030", //beast shape 3
+                                         "f767399367df54645ac620ef7b2062bb", //form of dragon 1
+                                         "666556ded3a32f34885e8c318c3a0ced", //form of dragon 2
+                                         "1cdc4ad4c208246419b98a35539eafa6", //form of dragon 3
+                                         "08ccad78cac525040919d51963f9ac39", //fiery body
+                                         ),
+                createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
+                                         "9f10909f0be1f5141bf1c102041f93d9", //snowball
+                                         "c83447189aabc72489164dfc246f3a36", //frigid touch
+                                         "fcb028205a71ee64d98175ff39a0abf9", //ice storm
+                                         "65e8d23aef5e7784dbeb27b1fca40931", //icy prison
+                                         "e7c530f8137630f4d9d7ee1aa7b1edc0", //cone of cold
+                                         "5ef85d426783a5347b420546f91a677b", //cold ice strike
+                                         "3e4d3b9a5bd03734d9b053b9067c2f38", //waves of exhaustion
+                                         "17696c144a0194c478cbe402b496cb23", //polar ray
+                                         "ba48abb52b142164eba309fd09898856" // polar midnight
+                                         )
+
+            };
+            var diety_selection = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
+            witch_patrons = Helpers.CreateFeatureSelection("WitchPatronSelection",
+                                                           "Patron",
+                                                           "At 1st level, when a witch gains her familiar, she must also select a patron. This patron is a vague and mysterious force, granting the witch power for reasons that she might not entirely understand. While these forces need not be named, they typically hold influence over one of the following forces.\n"
+                                                           + "At 2nd level, and every two levels thereafter, a witch’s patron adds new spells to a witch’s list of spells known. These spells are also automatically added to the list of spells stored by the familiar.The spells gained depend upon the patron chosen.",
+                                                           "30f2f38633a144028aebecdd03391470",
+                                                           diety_selection.Icon,
+                                                           FeatureGroup.None);
+            witch_patrons.AllFeatures = patrons;
         }
 
 
@@ -276,6 +485,27 @@ namespace KingmakerRebalance
         }
 
 
+        static BlueprintFeature createWitchPatronFeature(string name, string spell_list_guid, string feature_guid, params string[] spell_guids)
+        {
+            var extra_spell_list = new Common.ExtraSpellList(spell_guids);
+            var learn_spell_list = extra_spell_list.createLearnSpellList("Witch" + name + "PatronSpellList", spell_list_guid, witch_class);
+            string description = name + " patron grants witch the following spells: ";
+            for (int i = 1; i < 9; i++)
+            {
+                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ", ";
+            }
+            description += ".";
+
+            return Helpers.CreateFeature("Witch" + name + "PatronFeature",
+                                  name + " Patron",
+                                  description,
+                                  feature_guid,
+                                  null,
+                                  FeatureGroup.None,
+                                  learn_spell_list);
+        }
+
+
         static void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown)
         {
             ability.Type = AbilityType.Supernatural;
@@ -308,6 +538,7 @@ namespace KingmakerRebalance
             ability.Type = AbilityType.Supernatural;
 
         }
+
 
         static BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid)
         {

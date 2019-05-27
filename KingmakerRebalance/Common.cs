@@ -57,6 +57,54 @@ namespace KingmakerRebalance
             }
         }
 
+        internal class ExtraSpellList
+        {
+            SpellId[] spells;
+
+            public ExtraSpellList(params SpellId[] list_spells)
+            {
+                spells = list_spells;
+            }
+
+
+            public ExtraSpellList(params string[] list_spell_guids)
+            {
+                spells = new SpellId[list_spell_guids.Length];
+                for (int i = 0; i< list_spell_guids.Length; i++)
+                {
+                    spells[i] = new SpellId(list_spell_guids[i], i + 1);
+                }
+            }
+
+
+            public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellList createSpellList(string name, string guid)
+            {
+                var spell_list = Helpers.Create<Kingmaker.Blueprints.Classes.Spells.BlueprintSpellList>();
+                spell_list.name = name;
+                library.AddAsset(spell_list, guid);
+                spell_list.SpellsByLevel = new SpellLevelList[10];
+                for (int i = 0; i < spell_list.SpellsByLevel.Length; i++)
+                {
+                    spell_list.SpellsByLevel[i] = new SpellLevelList(i);
+                }
+                foreach (var s in spells)
+                {
+                    var spell = library.Get<BlueprintAbility>(s.guid);
+                    spell.AddToSpellList(spell_list, s.level);
+                }
+                return spell_list;
+            }
+
+
+            public Kingmaker.UnitLogic.FactLogic.LearnSpellList createLearnSpellList(string name, string guid, BlueprintCharacterClass character_class, BlueprintArchetype archetype = null)
+            {
+                Kingmaker.UnitLogic.FactLogic.LearnSpellList learn_spell_list = new Kingmaker.UnitLogic.FactLogic.LearnSpellList();
+                learn_spell_list.Archetype = archetype;
+                learn_spell_list.CharacterClass = character_class;
+                learn_spell_list.SpellList = createSpellList(name, guid);
+                return learn_spell_list;
+            }
+        }
 
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate)
         {
