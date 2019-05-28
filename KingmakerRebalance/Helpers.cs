@@ -622,8 +622,15 @@ namespace KingmakerRebalance
 
         public static void addAction(this Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction action, Kingmaker.ElementsSystem.GameAction game_action)
         {
-            action.Actions = Helpers.CreateActionList(action.Actions.Actions);
-            action.Actions.Actions = action.Actions.Actions.AddToArray(game_action);
+            if (action.Actions != null)
+            {
+                action.Actions = Helpers.CreateActionList(action.Actions.Actions);
+                action.Actions.Actions = action.Actions.Actions.AddToArray(game_action);
+            }
+            else
+            {
+                action.Actions = Helpers.CreateActionList(game_action);
+            }  
         }
     }
 

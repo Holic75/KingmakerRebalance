@@ -68,6 +68,7 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Rebalance.fixDomains();
                     KingmakerRebalance.Hunter.createHunterClass();
                     KingmakerRebalance.Hunter.addAnimalFocusSH();
+                    KingmakerRebalance.Witch.createWitchClass();
                 }
                 catch (Exception ex)
                 {

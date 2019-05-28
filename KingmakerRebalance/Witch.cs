@@ -41,6 +41,7 @@ namespace KingmakerRebalance
         static internal BlueprintProgression witch_progression;
         static internal BlueprintFeatureSelection witch_patrons;
         static internal BlueprintFeatureSelection hex_selection;
+        static internal BlueprintFeature witch_cantrips;
         //hexes
         static internal BlueprintFeature healing_hex;
         static internal BlueprintFeature beast_of_ill_omen;
@@ -49,7 +50,26 @@ namespace KingmakerRebalance
         static internal BlueprintFeature fortune_hex;
         static internal BlueprintFeature iceplant_hex;
         static internal BlueprintFeature murksight_hex;
+        //ameliorating
+        //evil eye
+        //protective luck?
+        //swine
+        //summer heat
+        
+        //major ameliorating
+        //agony
+        //animal skin
+        //beast gift?
+        //harrowing curse
+        //major healing
+        //restless slumber
+        //retribution
+        //regenerative sinew
 
+        //death curse
+        //live giver
+        //lay to rest
+        //animal servant
 
 
 
@@ -64,7 +84,7 @@ namespace KingmakerRebalance
 
             witch_class.LocalizedName = Helpers.CreateString("Witch.Name", "Witch");
             witch_class.LocalizedDescription = Helpers.CreateString("Witch.Description",
-                "Some gain power through study, some through devotion, others through blood, but the witch gains power from her communion with the unknown.Generally feared and misunderstood, the witch draws her magic from a pact made with an otherworldly power.Communing with that source, using her familiar as a conduit, the witch gains not only a host of spells, but a number of strange abilities known as hexes.As a witch grows in power, she might learn about the source of her magic, but some remain blissfully unaware.Some are even afraid of that source, fearful of what it might be or where its true purposes lie."                + "Role: Hunters can adapt their tactics to many kinds of opponents, and cherish their highly trained animal companions.As a team, the hunter and her companion can react to danger with incredible speed, making them excellent scouts, explorers, and saboteurs."
+                "Some gain power through study, some through devotion, others through blood, but the witch gains power from her communion with the unknown.Generally feared and misunderstood, the witch draws her magic from a pact made with an otherworldly power.Communing with that source, using her familiar as a conduit, the witch gains not only a host of spells, but a number of strange abilities known as hexes.As a witch grows in power, she might learn about the source of her magic, but some remain blissfully unaware.Some are even afraid of that source, fearful of what it might be or where its true purposes lie.\n"
                 + "Role: While many witches are recluses, living on the edge of civilization, some live within society, openly or in hiding.The blend of witches’ spells makes them adept at filling a number of different roles, from seer to healer, and their hexes grant them a number of abilities that are useful in a fight.Some witches travel about, seeking greater knowledge and better understanding of the mysterious powers that guide them."
                 );
             witch_class.m_Icon = wizard_class.Icon;
@@ -102,11 +122,85 @@ namespace KingmakerRebalance
         }
 
 
+        static void createHexSelection()
+        {
+            createBeastOfIllOmen();
+            createHealingHex();
+            createIceplantHex();
+            createFortuneHex();
+            createMisfortune();
+            createMurksightHex();
+            createSlumber();
+
+            hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
+                                                           "Hex",
+                                                           "Witches learn a number of magic tricks, called hexes, that grant them powers or weaken foes. At 1st level, a witch gains one hex of her choice. She gains an additional hex at 2nd level and for every 2 levels attained after 2nd level. A witch cannot select an individual hex more than once.\n" +
+                                                           "Unless otherwise noted, using a hex is a standard action that does not provoke an attack of opportunity. The save to resist a hex is equal to 10 + 1 / 2 the witch’s level +the witch’s Intelligence modifier.",
+                                                           "68bd6449147e4234b6d9a80564ba17ae",
+                                                           null,
+                                                           FeatureGroup.None);
+            hex_selection.Features = new BlueprintFeature[] { healing_hex, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex };
+            hex_selection.AllFeatures = hex_selection.Features;
+        }
+
+
+        static void createWitchCantrips()
+        {
+            var daze = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c");
+            witch_cantrips = Common.createCantrips("WitchCantripsFeature",
+                                                   "Cantrips",
+                                                   "Witches can cast a number of cantrips, or 0-level spells. These spells are cast like any other spell, but they are not expended when cast and may be used again.",
+                                                   daze.Icon,
+                                                   "86501dda312a4f548d579632c4a06c0f",
+                                                   witch_class,
+                                                   StatType.Intelligence,
+                                                   witch_class.Spellbook.SpellList.SpellsByLevel[0].Spells.ToArray());
+        }
+
+
         static void createWitchProgression()
         {
             createWitchPatrons();
+            createWitchCantrips();
+            createHexSelection();
+            witch_progression = Helpers.CreateProgression("WitchProgression",
+                                       witch_class.Name,
+                                       witch_class.Description,
+                                       "6973ab6ad02f4265888c3fdbe7e12921",
+                                       witch_class.Icon,
+                                       FeatureGroup.None);
+            witch_progression.Classes = getWitchArray();
 
+            var witch_proficiencies = library.CopyAndAdd<BlueprintFeature>("25c97697236ccf2479d0c6a4185eae7f", //sorcerer proficiencies
+                                                                            "WitchProficiencies",
+                                                                            "a042a27a76f94a2ca5e0997d5f432a33");
+            witch_proficiencies.SetName("Witch Proficiencies");
+            witch_proficiencies.SetDescription("Witches are proficient with all simple weapons. They are not proficient with any type of armor or shield. Armor interferes with a witch’s gestures, which can cause her spells with somatic components to fail.");
+
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+            var familiar = library.CopyAndAdd<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183", "WitchFamiliar", "a07215bde92a4cc986ee3059cb8b7350");
+            familiar.DlcType = Kingmaker.Blueprints.Root.DlcType.None;
+            familiar.ComponentsArray = new BlueprintComponent[0];
+            familiar.SetDescription("At 1st level, a witch forms a close bond with a familiar, a creature that teaches her magic and helps to guide her along her path. Familiars also aid a witch by granting her skill bonuses, additional spells, and help with some types of magic.");
+
+            var entries = new List<LevelEntry>();
+            entries.Add(Helpers.LevelEntry(1, witch_proficiencies, witch_cantrips, detect_magic, witch_patrons, familiar, hex_selection,
+                                                           library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                           library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa"),  // touch calculate feature
+                                                           library.Get<BlueprintFeature>("9fc9813f569e2e5448ddc435abf774b3") //full caster feature
+                                                         ));
+            witch_progression.UIGroups = new UIGroup[1] { Helpers.CreateUIGroup(hex_selection) };
+            for (int i = 2; i<= 20; i+=2)
+            {
+                entries.Add(Helpers.LevelEntry(i, hex_selection));
+                witch_progression.UIGroups[0].Features.Add(hex_selection);
+            }
+            
+            
+            witch_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { familiar, witch_proficiencies, witch_cantrips, detect_magic };
+            witch_progression.LevelEntries = entries.ToArray();
         }
+
 
 
         static void createWitchPatrons()
@@ -155,7 +249,7 @@ namespace KingmakerRebalance
                                          "dbf99b00cd35d0a4491c6cc9e771b487", //acid fog
                                          "8c29e953190cc67429dc9c701b16b7c2", //caustic eruption
                                          "08323922485f7e246acb3d2276515526", //horrid witling
-                                         "b24583190f36a8442b212e45226c54fc", //wail of banshee
+                                         "b24583190f36a8442b212e45226c54fc" //wail of banshee
                                         ),
                 createWitchPatronFeature("Devotion", "faa76cf5cacd447caa2c18965ca9c3cb", "89bd5b848cfc4d6eacb51cf8e018e8d4",
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
@@ -286,7 +380,7 @@ namespace KingmakerRebalance
                                          "f767399367df54645ac620ef7b2062bb", //form of dragon 1
                                          "666556ded3a32f34885e8c318c3a0ced", //form of dragon 2
                                          "1cdc4ad4c208246419b98a35539eafa6", //form of dragon 3
-                                         "08ccad78cac525040919d51963f9ac39", //fiery body
+                                         "08ccad78cac525040919d51963f9ac39" //fiery body
                                          ),
                 createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
                                          "9f10909f0be1f5141bf1c102041f93d9", //snowball
@@ -305,11 +399,12 @@ namespace KingmakerRebalance
             witch_patrons = Helpers.CreateFeatureSelection("WitchPatronSelection",
                                                            "Patron",
                                                            "At 1st level, when a witch gains her familiar, she must also select a patron. This patron is a vague and mysterious force, granting the witch power for reasons that she might not entirely understand. While these forces need not be named, they typically hold influence over one of the following forces.\n"
-                                                           + "At 2nd level, and every two levels thereafter, a witch’s patron adds new spells to a witch’s list of spells known. These spells are also automatically added to the list of spells stored by the familiar.The spells gained depend upon the patron chosen.",
+                                                           + "A witch’s patron adds new spells to a witch’s list of spells known. These spells are also automatically added to the list of spells stored by the familiar. The spells gained depend upon the patron chosen.",
                                                            "30f2f38633a144028aebecdd03391470",
                                                            diety_selection.Icon,
                                                            FeatureGroup.None);
             witch_patrons.AllFeatures = patrons;
+            witch_patrons.Features = patrons;
         }
 
 
@@ -330,6 +425,7 @@ namespace KingmakerRebalance
             witch_spellbook.CharacterClass = witch_class;
             witch_spellbook.CasterLevelModifier = 0;
             witch_spellbook.CantripsType = CantripsType.Cantrips;
+            witch_spellbook.SpellsPerLevel = wizard_class.Spellbook.SpellsPerLevel;
           
             witch_spellbook.SpellList = Helpers.Create<BlueprintSpellList>();
             witch_spellbook.SpellList.name = "WizardSpellList";
@@ -492,7 +588,7 @@ namespace KingmakerRebalance
             string description = name + " patron grants witch the following spells: ";
             for (int i = 1; i < 9; i++)
             {
-                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ", ";
+                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ((i == 8) ? " " :", ");
             }
             description += ".";
 
@@ -509,18 +605,31 @@ namespace KingmakerRebalance
         static void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown)
         {
             ability.Type = AbilityType.Supernatural;
-            ability.ReplaceComponent<AbilityEffectRunAction>(ability.GetComponent<AbilityEffectRunAction>());
+
             var cooldown_action = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
             cooldown_action.Buff = hex_cooldown;
             cooldown_action.AsChild = true;
+            //cooldown_action.IsFromSpell = true;
             var duration = Helpers.CreateContextValue(AbilityRankType.Default);
             duration.ValueType = ContextValueType.Simple;
             duration.Value = 1;
             cooldown_action.DurationValue = Helpers.CreateContextDuration(bonus: duration,
                                                                             rate: DurationRate.Days);
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
-            action.addAction(cooldown_action);
-            ability.AddComponent(action);
+            cooldown_action.IsNotDispelable = true;
+
+            bool has_action = (ability.GetComponents<AbilityEffectRunAction>().Count() != 0);
+            if (!has_action)
+            {
+                var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+                action.addAction(cooldown_action);
+                ability.AddComponent(action);
+            }
+            else
+            {
+                ability.ReplaceComponent<AbilityEffectRunAction>(ability.GetComponent<AbilityEffectRunAction>().CreateCopy());
+                ability.GetComponent<AbilityEffectRunAction>().addAction(cooldown_action);
+
+            }
             var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { hex_cooldown };
             target_checker.Inverted = true;
@@ -536,7 +645,7 @@ namespace KingmakerRebalance
                 ability.RemoveComponent(c);
             }
             ability.Type = AbilityType.Supernatural;
-
+            ability.SpellResistance = false;
         }
 
 
@@ -549,6 +658,8 @@ namespace KingmakerRebalance
                                                                      ability.Icon,
                                                                      null);
             hex_cooldown.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
+            hex_cooldown.Frequency = DurationRate.Rounds;
+            hex_cooldown.Stacking = StackingType.Stack;
             addWitchHexCooldownScaling(ability, hex_cooldown);
             return hex_cooldown;
         }
@@ -566,11 +677,11 @@ namespace KingmakerRebalance
             cure_light_wounds_hex_ability.SetDescription("A witch can soothe the wounds of those she touches.\n"
                                                           + "Effect: This acts as a cure light wounds spell, using the witch’s caster level.Once a creature has benefited from the healing hex, it cannot benefit from it again for 24 hours.At 5th level, this hex acts like cure moderate wounds.");
 
-            cure_light_wounds_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, 
+            cure_light_wounds_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                                                                                        classes: new BlueprintCharacterClass[] { witch_class },
                                                                                                                                                        max: 5));
             var hex_cooldown = addWitchHexCooldownScaling(cure_light_wounds_hex_ability, "67e655e5a20640519d387e08298de728");
-
+            
 
             var cure_mod_wounds_hex_ability = library.CopyAndAdd<BlueprintAbility>("1c1ebf5370939a9418da93176cc44cd9", "HealingHex2Ability", "8ea243ac42aa4959ba131cbd5ff0118b");
             cure_mod_wounds_hex_ability.SetName(cure_light_wounds_hex_ability.Name);
@@ -587,13 +698,13 @@ namespace KingmakerRebalance
                                                              cure_light_wounds_hex_ability.Icon,
                                                              FeatureGroup.None,
                                                              Helpers.CreateAddFact(cure_light_wounds_hex_ability));
-
+            healing_hex1_feature.HideInCharacterSheetAndLevelUp = true;
             var healing_hex2_feature = Helpers.CreateFeature("HealingHex2Feature", cure_light_wounds_hex_ability.Name, cure_light_wounds_hex_ability.Description,
                                                  "6fe1054367f149939edc7f576d157bfa",
                                                  cure_light_wounds_hex_ability.Icon,
                                                  FeatureGroup.None,
                                                  Helpers.CreateAddFact(cure_mod_wounds_hex_ability));
-
+            healing_hex2_feature.HideInCharacterSheetAndLevelUp = true;
             healing_hex = Helpers.CreateFeature("HealingHexFeature",
                                                 cure_light_wounds_hex_ability.Name,
                                                 cure_light_wounds_hex_ability.Description,
@@ -603,6 +714,7 @@ namespace KingmakerRebalance
                                                 Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, 5, getWitchArray(), new BlueprintArchetype[0], true),
                                                 Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, 5, getWitchArray(), new BlueprintArchetype[0], false)
                                                 );
+            healing_hex.Ranks = 1;
         }
 
 
@@ -618,7 +730,7 @@ namespace KingmakerRebalance
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityTargetsAround>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
-
+            
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "ef6b3d4ad22644628aacfd3eaa4783e9");
             beast_of_ill_omen = Helpers.CreateFeature("BeastOfIllOmenFeature",
                                                       hex_ability.Name,
@@ -627,6 +739,7 @@ namespace KingmakerRebalance
                                                       hex_ability.Icon,
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
+            beast_of_ill_omen.Ranks = 1;
         }
 
 
@@ -677,6 +790,7 @@ namespace KingmakerRebalance
                                                       hex_ability.Icon,
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
+            slumber_hex.Ranks = 1;
         }
 
 
@@ -707,14 +821,15 @@ namespace KingmakerRebalance
                                                       hex_ability.Icon,
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
+            misfortune_hex.Ranks = 1;
         }
 
 
         static void createFortuneHex()
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", "FortuneHexAbility", "9af0b584f6f754045a0a79293d100ab3"); //bit of luck
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", "FortuneHexAbility", "986017ba2747495cb29cd37432140391"); //bit of luck
             hex_ability.SetName("Fortune");
-            hex_ability.SetDescription("he witch can grant a creature within 30 feet a bit of good luck for 1 round. The target can call upon this good luck once per round, allowing him to reroll any ability check, attack roll, saving throw, or skill check, taking the better result. He must decide to use this ability before the first roll is made. At 8th level and 16th level, the duration of this hex is extended by 1 round. Once a creature has benefited from the fortune hex, it cannot benefit from it again for 24 hours.");
+            hex_ability.SetDescription("The witch can grant a creature within 30 feet a bit of good luck for 1 round. The target can call upon this good luck once per round, allowing him to reroll any ability check, attack roll, saving throw, or skill check, taking the better result. He must decide to use this ability before the first roll is made. At 8th level and 16th level, the duration of this hex is extended by 1 round. Once a creature has benefited from the fortune hex, it cannot benefit from it again for 24 hours.");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.Designers.Mechanics.Facts.ReplaceAbilitiesStat>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
@@ -726,6 +841,7 @@ namespace KingmakerRebalance
             action.Actions = Helpers.CreateActionList(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy());
             action.Actions.Actions = new Kingmaker.ElementsSystem.GameAction[] { apply_buff };
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            hex_ability.AddComponent(action);
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "ffaf306fa3aa41e183dba5866bee9210");
             fortune_hex = Helpers.CreateFeature("FortuneHexFeature",
                                                       hex_ability.Name,
@@ -734,6 +850,7 @@ namespace KingmakerRebalance
                                                       hex_ability.Icon,
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
+            fortune_hex.Ranks = 1;
         }
 
 
@@ -749,18 +866,21 @@ namespace KingmakerRebalance
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
                                                   );
+            iceplant_hex.Ranks = 1;
         }
+
 
         static void createMurksightHex()
         {
-            var dracon_disciple_blindsense = library.Get<BlueprintFeature>("bb19b581f5a47b44abfe00164f1fcade");
+            var remove_blindness = library.Get<BlueprintAbility>("c927a8b0cd3f5174f8c0b67cdbfde539");
             murksight_hex = Helpers.CreateFeature("MurksightHexFeature",
                                   "Murksight",
                                   "The witch receives blindsense up to 15 feet.",
                                   "e860bd889e494cd583b59bc5df42e7ef",
-                                   dracon_disciple_blindsense.Icon, 
+                                   remove_blindness.Icon, 
                                    FeatureGroup.None,
                                    Helpers.Create<Blindsense>(b => b.Range = 15.Feet()));
+            murksight_hex.Ranks = 1;
         }
     }
 }

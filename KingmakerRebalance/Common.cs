@@ -104,6 +104,30 @@ namespace KingmakerRebalance
                 learn_spell_list.SpellList = createSpellList(name, guid);
                 return learn_spell_list;
             }
+
+        }
+
+
+        internal static BlueprintFeature createCantrips(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, BlueprintCharacterClass character_class, 
+                                       StatType stat ,BlueprintAbility[] spells)
+        {
+            var learn_spells = new LearnSpells();
+            learn_spells.CharacterClass = character_class;
+            learn_spells.Spells = spells;
+
+            var bind_spells = Helpers.CreateBindToClass(character_class, stat, spells);
+            bind_spells.LevelStep = 1;
+            bind_spells.Cantrip = true;
+            return Helpers.CreateFeature(name,
+                                  display_name,
+                                  description,
+                                  guid,
+                                  icon,
+                                  FeatureGroup.None,
+                                  Helpers.CreateAddFacts(spells),
+                                  learn_spells,
+                                  bind_spells
+                                  );
         }
 
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate)
