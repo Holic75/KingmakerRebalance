@@ -1202,6 +1202,7 @@ namespace KingmakerRebalance
             addStat.Stat = stat;
             addStat.Value = new ContextValue() { ValueType = type };
             addStat.Descriptor = descriptor;
+            addStat.Value.ValueRank = rankType;
             return addStat;
         }
 

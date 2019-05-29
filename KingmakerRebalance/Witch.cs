@@ -50,10 +50,10 @@ namespace KingmakerRebalance
         static internal BlueprintFeature fortune_hex;
         static internal BlueprintFeature iceplant_hex;
         static internal BlueprintFeature murksight_hex;
-        //ameliorating
-        //evil eye
+        static internal BlueprintFeature ameliorating;
+        static internal BlueprintFeature evil_eye;
+        static internal BlueprintFeature summer_heat;
         //protective luck?
-        //swine
         //summer heat
         
         //major ameliorating
@@ -131,6 +131,8 @@ namespace KingmakerRebalance
             createMisfortune();
             createMurksightHex();
             createSlumber();
+            createAmeliorating();
+            createEvilEye();
 
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
@@ -139,7 +141,7 @@ namespace KingmakerRebalance
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
-            hex_selection.Features = new BlueprintFeature[] { healing_hex, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex };
+            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing_hex, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye };
             hex_selection.AllFeatures = hex_selection.Features;
         }
 
@@ -508,12 +510,15 @@ namespace KingmakerRebalance
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
 
                 new Common.SpellId( "3105d6e9febdc3f41a08d2b7dda1fe74", 5), //baleful polymorph
+                new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 5), //break enchantment
                 new Common.SpellId( "bacba2ff48d498b46b86384053945e83", 5), //cave fangs
                 new Common.SpellId( "548d339ba87ee56459c98e80167bdf10", 5), //cloudkill
                 new Common.SpellId( "0d657aa811b310e4bbd8586e60156a2d", 5), //cure critical wounds
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
+                new Common.SpellId( "444eed6e26f773a40ab6e4d160c67faa", 5), //feeblemind
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
                 new Common.SpellId( "3cf05ef7606f06446ad357845cb4d430", 5), //inflict critical wounds
+                new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
 
@@ -604,8 +609,6 @@ namespace KingmakerRebalance
 
         static void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown)
         {
-            ability.Type = AbilityType.Supernatural;
-
             var cooldown_action = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
             cooldown_action.Buff = hex_cooldown;
             cooldown_action.AsChild = true;
@@ -646,6 +649,11 @@ namespace KingmakerRebalance
             }
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
+            var spell_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>();
+            foreach (var s in spell_components)
+            {
+                ability.RemoveComponent(s);
+            }
         }
 
 
@@ -659,7 +667,7 @@ namespace KingmakerRebalance
                                                                      null);
             hex_cooldown.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
             hex_cooldown.Frequency = DurationRate.Rounds;
-            hex_cooldown.Stacking = StackingType.Stack;
+            hex_cooldown.Stacking = StackingType.Replace;
             addWitchHexCooldownScaling(ability, hex_cooldown);
             return hex_cooldown;
         }
@@ -720,6 +728,7 @@ namespace KingmakerRebalance
 
         static void createBeastOfIllOmen()
         {
+            var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734", "BeastOfIllOmenHexAbility", "c19d55421e6f436580423fffc78c11bd");
             hex_ability.SetName("Beast of Ill-Omen");
             hex_ability.SetDescription("The witch imbues her familiar with strange magic, putting a minor curse upon the next enemy to see it.\n"
@@ -730,7 +739,9 @@ namespace KingmakerRebalance
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityTargetsAround>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
-            
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+            hex_ability.AddComponent(doom_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "ef6b3d4ad22644628aacfd3eaa4783e9");
             beast_of_ill_omen = Helpers.CreateFeature("BeastOfIllOmenFeature",
                                                       hex_ability.Name,
@@ -746,6 +757,7 @@ namespace KingmakerRebalance
         static void createSlumber()
         {
             var sleep_spell = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
+            var dominate_spell = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
             var sleep_buff = library.Get<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a");
             var hex_ability = Helpers.CreateAbility("SlumberHexAbility",
                                                     "Slumber",
@@ -761,26 +773,27 @@ namespace KingmakerRebalance
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetEnemies = true;
             hex_ability.CanTargetFriends = true;
-            hex_ability.CanTargetSelf = false;
-            hex_ability.SpellResistance = true;
+            hex_ability.CanTargetSelf = true;
             hex_ability.AvailableMetamagic = sleep_spell.AvailableMetamagic;
             hex_ability.MaterialComponent = sleep_spell.MaterialComponent;
             hex_ability.ResourceAssetIds = sleep_spell.ResourceAssetIds;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
-            hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellComponent>());
+            hex_ability.ActionType = CommandType.Standard;
+            hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            hex_ability.LocalizedDuration = Helpers.CreateString("SlumberHexAbility1.Duration", "1 round/level");
             var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
                                                                     library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
                                                                   };
             target_checker.Inverted = true;
             hex_ability.AddComponent(target_checker);
-            hex_ability.AddComponent(sleep_spell.GetComponents<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>().Where(a => a.Time == Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxTime.OnApplyEffect).ElementAt(0));
+            hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
 
             var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
             action.SavingThrowType = SavingThrowType.Will;
             action.addAction(Common.createContextSavedApplyBuff(sleep_buff, DurationRate.Rounds));
-
+            hex_ability.AddComponent(action);
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));          
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "0ccdbefa7f304a5788c4369b0a988e21");
             slumber_hex = Helpers.CreateFeature("SlumberHexFeature",
@@ -796,8 +809,10 @@ namespace KingmakerRebalance
 
         static void createMisfortune()
         {
+            var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "MisfortuneHexAbility", "08b6595f503f4d3c973424c217f7610e"); //touch of chaos as base
             hex_ability.SetName("Misfortune");
+            hex_ability.LocalizedDuration = Helpers.CreateString("FortuneHexAbility.Duration", "Variable");
             hex_ability.SetDescription("Effect: The witch can cause a creature within 30 feet to suffer grave misfortune for 1 round. Anytime the creature makes an ability check, attack roll, saving throw, or skill check, it must roll twice and take the worse result. A Will save negates this hex. At 8th level and 16th level, the duration of this hex is extended by 1 round. This hex affects all rolls the target must make while it lasts. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
             hex_ability.Range = AbilityRange.Close;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
@@ -806,13 +821,16 @@ namespace KingmakerRebalance
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
             action.SavingThrowType = SavingThrowType.Will;
-            action.addAction(Common.createContextSavedApplyBuff(library.Get<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5"), DurationRate.Rounds));
+            action.addAction(Common.createContextSavedApplyBuff(library.Get<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5"), DurationRate.Rounds, AbilityRankType.DamageBonus));
+
             hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                     type: AbilityRankType.DamageBonus,
                                                                      min: 1,
-                                                                     startLevel: 1,
+                                                                     startLevel: 0,
                                                                      stepLevel: 8,
                                                                      classes: getWitchArray()));
+            hex_ability.AddComponent(doom_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "3c8c06c506cd45d29e35e2e6507c659a");
             misfortune_hex = Helpers.CreateFeature("MisfortuneHexFeature",
                                                       hex_ability.Name,
@@ -829,19 +847,25 @@ namespace KingmakerRebalance
         {
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", "FortuneHexAbility", "986017ba2747495cb29cd37432140391"); //bit of luck
             hex_ability.SetName("Fortune");
+            hex_ability.LocalizedDuration = Helpers.CreateString("FortuneHexAbility.Duration", "Variable");
             hex_ability.SetDescription("The witch can grant a creature within 30 feet a bit of good luck for 1 round. The target can call upon this good luck once per round, allowing him to reroll any ability check, attack roll, saving throw, or skill check, taking the better result. He must decide to use this ability before the first roll is made. At 8th level and 16th level, the duration of this hex is extended by 1 round. Once a creature has benefited from the fortune hex, it cannot benefit from it again for 24 hours.");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.Designers.Mechanics.Facts.ReplaceAbilitiesStat>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
             var apply_buff = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
-            var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
+            var bonus_value = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             bonus_value.Value = 1;
             bonus_value.ValueType = ContextValueType.Rank;
             apply_buff.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value);
+            apply_buff.DurationValue.Rate = DurationRate.Rounds;
             action.Actions = Helpers.CreateActionList(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy());
             action.Actions.Actions = new Kingmaker.ElementsSystem.GameAction[] { apply_buff };
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             hex_ability.AddComponent(action);
+            var context_rank = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep, 
+                                                              type: AbilityRankType.DamageBonus, min:1,  max: 3, startLevel: 0, stepLevel: 8,
+                                            classes: getWitchArray());
+            hex_ability.AddComponent(context_rank);
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "ffaf306fa3aa41e183dba5866bee9210");
             fortune_hex = Helpers.CreateFeature("FortuneHexFeature",
                                                       hex_ability.Name,
@@ -881,6 +905,160 @@ namespace KingmakerRebalance
                                    FeatureGroup.None,
                                    Helpers.Create<Blindsense>(b => b.Range = 15.Feet()));
             murksight_hex.Ranks = 1;
+        }
+
+
+        static void createAmeliorating()
+        {
+            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140", "AmelioratingHexImmAbility", "414d6c8fd5fc46c5a83b596a9bcf3322");
+            hex_ability1.LocalizedDuration = Helpers.CreateString("AmelioratingHexImmAbility.Duration","1 minute/level");
+            hex_ability1.SetName("Ameliorating: Suppress Condition");
+            hex_ability1.SetDescription("The witch can touch a creature to suppress or protect it from negative conditions. The hex effects the following conditions: dazzled, fatigued, shaken, or sickened. If the target is afflicted with these conditions, they are suppressed for a number of minutes equal to the witch’s level. Alternatively, the witch can grant her target a +4 circumstance bonus on saving throws against effects that cause any of the listed conditions for 24 hours. Once a creature has benefited from this hex, it cannot benefit from the hex again for 24 hours.");
+            hex_ability1.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            hex_ability1.Range = AbilityRange.Touch;
+            hex_ability1.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            hex_ability1.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("414d6c8fd5fc46c5a83b596a9bcf3322", "AmelioratingHexSaveAbility", "a88b55579cd44dd5b78a27dcc6862ae1");
+            var hex_ability1_buff = Helpers.CreateBuff("AmelioratingHexImmBuff", hex_ability1.Name, hex_ability1.Description, "e7861746a94347cabec03c43b13f1223",
+                                                       hex_ability1.Icon, null,
+                                                       Common.createAddConditionImmunity(UnitCondition.Sickened),
+                                                       Common.createAddConditionImmunity(UnitCondition.Dazzled),
+                                                       Common.createAddConditionImmunity(UnitCondition.Fatigued),
+                                                       Common.createAddConditionImmunity(UnitCondition.Shaken)
+                                                       );
+
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
+            bonus_value.ValueType = ContextValueType.Rank;
+            var duration_value = Helpers.CreateContextDuration(bonus: bonus_value, rate: DurationRate.Minutes);     
+            action.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability1_buff, duration_value, true));
+            hex_ability1.AddComponent(action);
+
+            hex_ability2.SetName("Ameliorating: Saving Throws Bonus");
+            hex_ability2.LocalizedDuration = Helpers.CreateString("AmelioratingHexSaveAbility.Duration", "24 hours");
+            var hex_ability2_buff = Helpers.CreateBuff("AmelioratingHexSaveBuff", hex_ability2.Name, hex_ability2.Description, "cdf8ea7144b0454786273b68c97f3cfe",
+                                                       hex_ability2.Icon, null,
+                                                       Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Circumstance,
+                                                                SpellDescriptor.Fatigue | SpellDescriptor.Shaken | SpellDescriptor.Sickened | SpellDescriptor.Blindness)
+                                                      );
+            hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var action2 = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var bonus_value2 = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
+            bonus_value2.ValueType = ContextValueType.Simple;
+            bonus_value2.Value = 1;
+            var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
+            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true));
+            hex_ability2.AddComponent(action2);
+            var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "b58d93d94e834ada903a91d8cf46d650");
+            hex_cooldown.SetName("Ameliorating");
+            addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
+
+            ameliorating = Helpers.CreateFeature("AmelioratingHexFeature",
+                                                      "Ameliorating",
+                                                      hex_ability1.Description,
+                                                      "09e35a74b871478eb1fb9480eae1f773",
+                                                      hex_ability1.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFacts(hex_ability1, hex_ability2));
+            ameliorating.Ranks = 1;
+        }
+
+
+        static void createEvilEye()
+        {
+            var eyebyte = library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642");
+
+            var context_value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2, 
+                                            type: AbilityRankType.StatBonus, startLevel: 0, stepLevel: 8, min: 1, max: 2, classes: getWitchArray());
+
+            StatType[] stats = new StatType[] { StatType.AC, StatType.AdditionalAttackBonus, StatType.SaveFortitude, StatType.SaveReflex, StatType.SaveWill };
+            AddContextStatBonus[] penalties = new AddContextStatBonus[stats.Length];
+            for (int i = 0; i < stats.Length; i++)
+            {
+                penalties[i] = Helpers.CreateAddContextStatBonus(stats[i], ModifierDescriptor.None, ContextValueType.Rank, AbilityRankType.StatBonus);
+                penalties[i].Multiplier = -2;
+            }
+            string description = "The witch can cause doubt to creep into the mind of a foe within 30 feet that she can see.\n"
+                                 + "Effect: The target takes a –2 penalty on one of the following(witch’s choice): AC, attack rolls or saving throws. This hex lasts for a number of rounds equal to 3 + the witch’s Intelligence modifier.A Will save reduces this to just 1 round.\n"
+                                 + "This is a mind - affecting effect. At 8th level the penalty increases to –4.";
+
+
+            var evil_eye_ac = createEvilEyeComponent("EvilEyeACHex", "Evil Eye: AC Penalty", description, "1c8855dc3c9846a8addb4db4375eafe8", "4a8fcd47dc9244f7ac6deb8dd9b741e2",
+                                                     eyebyte.Icon, penalties[0], context_rank_config);
+            var evil_eye_attack = createEvilEyeComponent("EvilEyeAttackHex", "Evil Eye: Attack Rolls Penalty", description, "ad14718b3f65491183dd97c4b9f57246", "a11119164c7d430f81f6f3ec15e56e44",
+                                                     eyebyte.Icon, penalties[1], context_rank_config);
+            var evil_eye_saves = createEvilEyeComponent("EvilEyeSavesHex", "Evil Eye: Saving Throws Penalty", description, "cb406009170b447489b32d5b43d88f3f", "2598782fac2a44b6a607f5d0d2a059bb",
+                                                     eyebyte.Icon, penalties[2], penalties[3], penalties[4], context_rank_config);
+
+
+            evil_eye = Helpers.CreateFeature("EvilEyeHexFeature",
+                                          "Evil Eye",
+                                          description,
+                                          "7a23bee9c3b04801bcd08ab8ef369341",
+                                          eyebyte.Icon,
+                                          FeatureGroup.None,
+                                          Helpers.CreateAddFacts(evil_eye_ac, evil_eye_attack, evil_eye_saves)
+                                          );
+            evil_eye.Ranks = 1;
+        }
+
+
+        static BlueprintAbility createEvilEyeComponent(string name, string display_name, string description, string guid, string buff_guid, UnityEngine.Sprite icon, 
+                                                        params BlueprintComponent[] components)
+        {
+            var buff = Helpers.CreateBuff(name + "Buff", display_name, description, buff_guid, icon, null, components);
+            buff.Stacking = StackingType.Replace;
+
+            var ability = Helpers.CreateAbility(name + "Ability",
+                                                display_name,
+                                                description,
+                                                guid,
+                                                icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "Variable",
+                                                "Will special");
+            ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
+            ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
+            ability.CanTargetEnemies = true;
+            ability.CanTargetFriends = true;
+            ability.CanTargetSelf = true;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
+
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Will;
+            var action_save = Common.createContextSavedApplyBuff(buff, DurationRate.Rounds, AbilityRankType.DamageBonus);
+            var buff_save = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            buff_save.IsFromSpell = true;
+            buff_save.Buff = buff;
+            var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
+            bonus_value.ValueType = ContextValueType.Simple;
+            bonus_value.Value = 1;
+            buff_save.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,
+                                                                           rate: DurationRate.Rounds);
+            action_save.Succeed = Helpers.CreateActionList(buff_save);
+            action.addAction(action_save);
+            ability.AddComponent(action);
+
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, progression: ContextRankProgression.AsIs,
+                                                    min: 3, startLevel:3, type: AbilityRankType.DamageBonus);
+            
+            ability.AddComponent(context_rank_config);
+            ability.Type = AbilityType.Supernatural;
+            ability.SpellResistance = false;
+
+            ability.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting));
+            var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+            scaling.CharacterClass = witch_class;
+            scaling.StatType = StatType.Intelligence;
+            scaling.UseKineticistMainStat = false;
+            ability.AddComponent(scaling);
+            var eyebyte = library.Get<BlueprintAbility>("582009cf6013790469d6e98e5210477a");
+            ability.AddComponent(eyebyte.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+            return ability;
         }
     }
 }

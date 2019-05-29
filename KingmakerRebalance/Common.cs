@@ -130,15 +130,15 @@ namespace KingmakerRebalance
                                   );
         }
 
-        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate)
+        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate, 
+                                                                                                                        AbilityRankType rank_type = AbilityRankType.Default)
         {
             var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
             context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
             var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
             apply_buff.IsFromSpell = true;
             apply_buff.Buff = buff;
-            var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
-            bonus_value.Value = 1;
+            var bonus_value = Helpers.CreateContextValue(rank_type);
             bonus_value.ValueType = ContextValueType.Rank;
             apply_buff.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,
                                                                            rate: duration_rate);
@@ -517,6 +517,24 @@ namespace KingmakerRebalance
 
 
             }
+        }
+
+
+        static internal Kingmaker.UnitLogic.FactLogic.AddConditionImmunity createAddConditionImmunity(UnitCondition condition)
+        {
+            Kingmaker.UnitLogic.FactLogic.AddConditionImmunity c = new Kingmaker.UnitLogic.FactLogic.AddConditionImmunity();
+            c.Condition = condition;
+            return c;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor createSavingThrowBonusAgainstDescriptor(int bonus, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
+        {
+            Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor c = new Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor();
+            c.Bonus = bonus;
+            c.ModifierDescriptor = descriptor;
+            c.SpellDescriptor = spell_descriptor;
+            return c;
         }
     }
 }
