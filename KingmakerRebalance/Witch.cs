@@ -43,7 +43,7 @@ namespace KingmakerRebalance
         static internal BlueprintFeatureSelection hex_selection;
         static internal BlueprintFeature witch_cantrips;
         //hexes
-        static internal BlueprintFeature healing_hex;
+        static internal BlueprintFeature healing;
         static internal BlueprintFeature beast_of_ill_omen;
         static internal BlueprintFeature slumber_hex;
         static internal BlueprintFeature misfortune_hex;
@@ -53,26 +53,24 @@ namespace KingmakerRebalance
         static internal BlueprintFeature ameliorating;
         static internal BlueprintFeature evil_eye;
         static internal BlueprintFeature summer_heat;
-        //protective luck?
-        //summer heat
-        
-        //major ameliorating
-        //agony
-        //animal skin
-        //beast gift?
-        //harrowing curse
-        //major healing
-        //restless slumber
-        //retribution
-        //regenerative sinew
+        //major hexes
+        static internal BlueprintFeature major_ameliorating;
+        static internal BlueprintFeature major_healing;
+        static internal BlueprintFeature animal_skin;
+        static internal BlueprintFeature agony;
+        static internal BlueprintFeature beast_gift;
+        static internal BlueprintFeature harrowing_curse;
+        static internal BlueprintFeature ice_tomb;
+        static internal BlueprintFeature regenerative_sinew;
+
+        //restless_slumber ?
+        //retribution ?
+
 
         //death curse
         //live giver
         //lay to rest
         //animal servant
-
-
-
 
         internal static void createWitchClass()
         {
@@ -125,7 +123,7 @@ namespace KingmakerRebalance
         static void createHexSelection()
         {
             createBeastOfIllOmen();
-            createHealingHex();
+            createHealing();
             createIceplantHex();
             createFortuneHex();
             createMisfortune();
@@ -133,6 +131,16 @@ namespace KingmakerRebalance
             createSlumber();
             createAmeliorating();
             createEvilEye();
+            createSummerHeat();
+
+            createMajorHealing();
+            createMajorAmeliorating();
+            createAnimalSkin();
+            createAgony();
+            createBeastGift();
+            createHarrowingCurse();
+            createIceTomb();
+            createRegenerativeSinew();
 
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
@@ -141,7 +149,8 @@ namespace KingmakerRebalance
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
-            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing_hex, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye };
+            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat,
+                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew};
             hex_selection.AllFeatures = hex_selection.Features;
         }
 
@@ -407,6 +416,7 @@ namespace KingmakerRebalance
                                                            FeatureGroup.None);
             witch_patrons.AllFeatures = patrons;
             witch_patrons.Features = patrons;
+
         }
 
 
@@ -654,13 +664,16 @@ namespace KingmakerRebalance
             {
                 ability.RemoveComponent(s);
             }
+            ability.RemoveComponent(ability.GetComponent<Kingmaker.Blueprints.Classes.Spells.ChirurgeonSpell>());
+            ability.RemoveComponent(ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
+            //ability.AvailableMetamagic = 0;
         }
 
 
-        static BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid)
+        static BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid, string name = "")
         {
             var hex_cooldown = Helpers.CreateBuff(ability.name + "CooldownBuff",
-                                                                     ability.Name,
+                                                                     name == "" ? "Cooldown " + ability.Name : name,
                                                                      ability.Description,
                                                                      buff_guid,
                                                                      ability.Icon,
@@ -678,51 +691,20 @@ namespace KingmakerRebalance
         }
 
 
-        static void createHealingHex()
+        static void createHealing()
         {
-            var cure_light_wounds_hex_ability = library.CopyAndAdd<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f", "HealingHex1Ability", "a9f6f1aa9d46452aa5720c472b8926e2");
-            cure_light_wounds_hex_ability.SetName("Healing Hex");
-            cure_light_wounds_hex_ability.SetDescription("A witch can soothe the wounds of those she touches.\n"
-                                                          + "Effect: This acts as a cure light wounds spell, using the witch’s caster level.Once a creature has benefited from the healing hex, it cannot benefit from it again for 24 hours.At 5th level, this hex acts like cure moderate wounds.");
-
-            cure_light_wounds_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                                                                       classes: new BlueprintCharacterClass[] { witch_class },
-                                                                                                                                                       max: 5));
-            var hex_cooldown = addWitchHexCooldownScaling(cure_light_wounds_hex_ability, "67e655e5a20640519d387e08298de728");
-            
-
-            var cure_mod_wounds_hex_ability = library.CopyAndAdd<BlueprintAbility>("1c1ebf5370939a9418da93176cc44cd9", "HealingHex2Ability", "8ea243ac42aa4959ba131cbd5ff0118b");
-            cure_mod_wounds_hex_ability.SetName(cure_light_wounds_hex_ability.Name);
-            cure_mod_wounds_hex_ability.SetDescription(cure_light_wounds_hex_ability.Description);
-
-
-            cure_mod_wounds_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                                                                       classes: getWitchArray(),
-                                                                                                                                                       max: 10));
-            addWitchHexCooldownScaling(cure_mod_wounds_hex_ability, hex_cooldown);
-
-            var healing_hex1_feature = Helpers.CreateFeature("HealingHex1Feature", cure_light_wounds_hex_ability.Name, cure_light_wounds_hex_ability.Description,
-                                                             "a9d436988d044916b7bf61a58725725b",
-                                                             cure_light_wounds_hex_ability.Icon,
-                                                             FeatureGroup.None,
-                                                             Helpers.CreateAddFact(cure_light_wounds_hex_ability));
-            healing_hex1_feature.HideInCharacterSheetAndLevelUp = true;
-            var healing_hex2_feature = Helpers.CreateFeature("HealingHex2Feature", cure_light_wounds_hex_ability.Name, cure_light_wounds_hex_ability.Description,
-                                                 "6fe1054367f149939edc7f576d157bfa",
-                                                 cure_light_wounds_hex_ability.Icon,
-                                                 FeatureGroup.None,
-                                                 Helpers.CreateAddFact(cure_mod_wounds_hex_ability));
-            healing_hex2_feature.HideInCharacterSheetAndLevelUp = true;
-            healing_hex = Helpers.CreateFeature("HealingHexFeature",
-                                                cure_light_wounds_hex_ability.Name,
-                                                cure_light_wounds_hex_ability.Description,
-                                                "abec18ed55414a52a6d09457b734a5ca",
-                                                cure_light_wounds_hex_ability.Icon,
-                                                FeatureGroup.None,
-                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, 5, getWitchArray(), new BlueprintArchetype[0], true),
-                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, 5, getWitchArray(), new BlueprintArchetype[0], false)
-                                                );
-            healing_hex.Ranks = 1;
+            healing = createHealingHex("WitchHealingHex", "Healing",
+                                        "A witch can soothe the wounds of those she touches.\n"
+                                         + "Effect: This acts as a cure light wounds spell, using the witch’s caster level.Once a creature has benefited from the healing hex, it cannot benefit from it again for 24 hours.At 5th level, this hex acts like cure moderate wounds.",
+                                        "47808d23c67033d4bbab86a1070fd62f", //cure light wounds
+                                        "1c1ebf5370939a9418da93176cc44cd9", //cure moderate wounds
+                                        "a9f6f1aa9d46452aa5720c472b8926e2",
+                                        "8ea243ac42aa4959ba131cbd5ff0118b",
+                                        "a9d436988d044916b7bf61a58725725b",
+                                        "6fe1054367f149939edc7f576d157bfa",
+                                        "abec18ed55414a52a6d09457b734a5ca",
+                                        "67e655e5a20640519d387e08298de728",
+                                        5);
         }
 
 
@@ -926,7 +908,6 @@ namespace KingmakerRebalance
                                                        Common.createAddConditionImmunity(UnitCondition.Fatigued),
                                                        Common.createAddConditionImmunity(UnitCondition.Shaken)
                                                        );
-
             var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
             bonus_value.ValueType = ContextValueType.Rank;
@@ -949,8 +930,7 @@ namespace KingmakerRebalance
             var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
             action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true));
             hex_ability2.AddComponent(action2);
-            var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "b58d93d94e834ada903a91d8cf46d650");
-            hex_cooldown.SetName("Ameliorating");
+            var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "b58d93d94e834ada903a91d8cf46d650", "Cooldown Ameliorating");
             addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
 
             ameliorating = Helpers.CreateFeature("AmelioratingHexFeature",
@@ -1043,8 +1023,8 @@ namespace KingmakerRebalance
             action.addAction(action_save);
             ability.AddComponent(action);
 
-            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, progression: ContextRankProgression.AsIs,
-                                                    min: 3, startLevel:3, type: AbilityRankType.DamageBonus);
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, progression: ContextRankProgression.StartPlusDivStep,
+                                                    min: 3, startLevel:-2, stepLevel: 1, type: AbilityRankType.DamageBonus);
             
             ability.AddComponent(context_rank_config);
             ability.Type = AbilityType.Supernatural;
@@ -1059,6 +1039,409 @@ namespace KingmakerRebalance
             var eyebyte = library.Get<BlueprintAbility>("582009cf6013790469d6e98e5210477a");
             ability.AddComponent(eyebyte.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             return ability;
+        }
+
+
+        static void createSummerHeat()
+        {
+            var fatigued_buff = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var nonlethal_full = library.CopyAndAdd<BlueprintBuff>("95b1c0d55f30996429a3a4eba4d2b4a6", "WitchSummerHeatHexDamageFullBuff", "0c2bce51244647329e7e753b07548d10");
+            nonlethal_full.RemoveComponent(nonlethal_full.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
+            var dmg = nonlethal_full.GetComponent<Kingmaker.UnitLogic.FactLogic.AddContextStatBonus>().CreateCopy();
+            dmg.Value.ValueRank = AbilityRankType.DamageBonus;
+            nonlethal_full.ComponentsArray[0] = dmg;
+            var nonlethal_half = library.CopyAndAdd<BlueprintBuff>("0c2bce51244647329e7e753b07548d10", "WitchSummerHeatHexDamageHalfBuff", "383672cfa7804b20b3c27d20cf62bc73");
+
+            nonlethal_full.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
+                                        type: AbilityRankType.DamageBonus, classes: getWitchArray()));
+            nonlethal_half.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
+                            type: AbilityRankType.DamageBonus, classes: getWitchArray()));
+
+
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("f2f1efac32ea2884e84ecaf14657298b", "WitchSummerHeatHex", "008a70774dbf48058810c565dad93fce");//bonshatter
+            hex_ability.SetIcon(fatigued_buff.Icon);
+            hex_ability.ComponentsArray = new BlueprintComponent[] { hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>()};
+            hex_ability.CanTargetFriends = true;
+            hex_ability.SetName("Summer’s Heat");
+            hex_ability.SetDescription("Effect: The witch surrounds her target with oppressive heat, dealing a number of points of nonlethal damage equal to her witch level and causing the target to become fatigued. The target can attempt a Fortitude save to reduce this nonlethal damage by half and negate the fatigued condition. Whether or not the target succeeds at this save, it can’t be the target of this hex again for 1 day.");
+
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Fortitude;
+
+            var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            context_saved.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_full, Helpers.CreateContextDuration(), is_permanent: true),
+                                                            Common.createContextActionApplyBuff(fatigued_buff, Helpers.CreateContextDuration(), is_permanent: true));
+            context_saved.Succeed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_half, Helpers.CreateContextDuration(), is_permanent: true));
+            action.addAction(context_saved);
+            hex_ability.AddComponent(action);
+
+            addWitchHexCooldownScaling(hex_ability, "4ade4bcdcef14344b7f09c99fb60a672");
+            summer_heat = Helpers.CreateFeature("WitchSummerHeatHexFeature",
+                              hex_ability.Name,
+                              hex_ability.Description,
+                              "7e5ed75385894376833e5dda98b12f8d",
+                              hex_ability.Icon,
+                              FeatureGroup.None,
+                              Helpers.CreateAddFact(hex_ability)
+                              );
+            summer_heat.Ranks = 1;
+        }
+
+
+        static void createMajorHealing()
+        {
+            major_healing = createHealingHex("WitchMajorHealingHex", "Major Healing",
+                                             "By calling upon eerie powers, the witch’s touch can mend even the most terrible wounds of those she touches.\n"
+                                                            + "Effect: This hex acts as cure serious wounds, using the witch’s caster level.Once a creature has benefited from the major healing hex, it cannot benefit from it again for 24 hours.At 15th level, this hex acts like cure critical wounds.",
+                                             "6e81a6679a0889a429dec9cedcf3729c", //cure serious wounds
+                                             "0d657aa811b310e4bbd8586e60156a2d", //cure critical wounds
+                                             "8edb4d0c196a45c3a19a9b15272690ed",
+                                             "20fd1e6465a74433b9da13ef44a9c1bf",
+                                             "b247577f3d1b4abba1b412c3b694c741",
+                                             "2cffb51f4dcf4eec90d70cef7157ceca",
+                                             "b5614740fd784ec5b8e68bc9fbd4f0bd",
+                                             "8850ad9fb25148bb8732ca19076b15ec",
+                                             15);
+            major_healing.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static BlueprintFeature createHealingHex(string name, string display_name, string description, string heal1_guid, string heal2_guid, string ability1_guid, string ability2_guid,
+                                                    string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid, int update_level)
+        {
+            var heal1__hex_ability = library.CopyAndAdd<BlueprintAbility>(heal1_guid, name + "1Ability", ability1_guid);
+            heal1__hex_ability.SetName(display_name);
+            heal1__hex_ability.SetDescription(description);
+
+            heal1__hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                                                                       classes: new BlueprintCharacterClass[] { witch_class },
+                                                                                                                                                       max: update_level));
+            var hex_cooldown = addWitchHexCooldownScaling(heal1__hex_ability, cooldown_guid);
+
+
+            var heal2_hex_ability = library.CopyAndAdd<BlueprintAbility>(heal2_guid, name + "2Ability", ability2_guid);
+            heal2_hex_ability.SetName(heal1__hex_ability.Name);
+            heal2_hex_ability.SetDescription(heal1__hex_ability.Description);
+
+
+            heal2_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                                                                       classes: getWitchArray(),
+                                                                                                                                                       max: update_level+5));
+            addWitchHexCooldownScaling(heal2_hex_ability, hex_cooldown);
+
+            var healing_hex1_feature = Helpers.CreateFeature(name + "1Feature", heal1__hex_ability.Name, heal1__hex_ability.Description,
+                                                             feature1_guid,
+                                                             heal1__hex_ability.Icon,
+                                                             FeatureGroup.None,
+                                                             Helpers.CreateAddFact(heal1__hex_ability));
+            healing_hex1_feature.HideInCharacterSheetAndLevelUp = true;
+            var healing_hex2_feature = Helpers.CreateFeature(name + "2Feature", heal1__hex_ability.Name, heal1__hex_ability.Description,
+                                                 feature2_guid,
+                                                 heal1__hex_ability.Icon,
+                                                 FeatureGroup.None,
+                                                 Helpers.CreateAddFact(heal2_hex_ability));
+            healing_hex2_feature.HideInCharacterSheetAndLevelUp = true;
+            var healing = Helpers.CreateFeature(name+"Feature",
+                                                heal1__hex_ability.Name,
+                                                heal1__hex_ability.Description,
+                                                feature_guid,
+                                                heal1__hex_ability.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, 15, getWitchArray(), new BlueprintArchetype[0], true),
+                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, 15, getWitchArray(), new BlueprintArchetype[0], false)
+                                                );
+            healing.Ranks = 1;
+            return healing;
+        }
+
+
+        static void createMajorAmeliorating()
+        {
+            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", "MajorAmelioratingHexRemoveAbility", "6c9027c8518b4e5abb5e6910b1bfd929");
+            hex_ability1.SetName("Major Ameliorating: Remove Condition");
+            hex_ability1.SetDescription("The witch can touch a creature to suppress or protect it from more debilitating negative conditions. The witch can remove blinded, curse, disease, or poison condition. The witch must succeed on caster level check (1d20 + caster level) against the DC of each condition to remove it. Alternatively, for 24 hours the witch can grant her target a +4 circumstance bonus on saving throws against effects that cause any of the above conditions or effects. Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.");
+
+            var action1 = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionDispelMagic)hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
+            action1.Descriptor = SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Poison | SpellDescriptor.Disease;
+            hex_ability1.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            var run_action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            run_action.Actions = Helpers.CreateActionList(action1);
+            hex_ability1.AddComponent(run_action);
+
+            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", "MajorAmelioratingHexSaveAbility", "b9e4db8a1dad4f3a86576a31c665fc93");
+
+
+            hex_ability2.SetName("Major Ameliorating: Saving Throws Bonus");
+            hex_ability2.LocalizedDuration = Helpers.CreateString("MajorAmelioratingHexSaveAbility.Duration", "24 hours");
+            var hex_ability2_buff = Helpers.CreateBuff("MajorAmelioratingHexSaveBuff", hex_ability2.Name, hex_ability2.Description, "0d1b469f355b44129ef4236d0feabfce",
+                                                       hex_ability2.Icon, null,
+                                                       Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Circumstance,
+                                                                SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
+                                                      );
+            hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var action2 = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var bonus_value2 = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
+            bonus_value2.ValueType = ContextValueType.Simple;
+            bonus_value2.Value = 1;
+            var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
+            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true));
+            hex_ability2.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            hex_ability2.AddComponent(action2);
+            var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "c580d3007f4948b38150aa347b9d9a9f", "Cooldown Major Ameliorating");
+            addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
+
+            major_ameliorating = Helpers.CreateFeature("WitchMajorAmelioratingHexFeature",
+                                                      "Major Ameliorating",
+                                                      hex_ability1.Description,
+                                                      "2c4d412a48844be184f2bd2ecc587ea6",
+                                                      hex_ability1.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFacts(hex_ability1, hex_ability2));
+            major_ameliorating.Ranks = 1;
+            major_ameliorating.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createAnimalSkin()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("5d4028eb28a106d4691ed1b92bbb1915", "WitchAnimalSkinHexAbility", "db93b8d7ae754858a81da32c121036a4"); //beast shape 2
+            hex_ability.Type = AbilityType.Supernatural;
+            hex_ability.SetName("Animal Skin");
+            var spell_list_components = hex_ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>();
+            foreach (var c in spell_list_components)
+            {
+                hex_ability.RemoveComponent(c);
+            }
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
+            hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));
+
+            animal_skin = Helpers.CreateFeature("WitchAnimalSkinFeature",
+                                                  hex_ability.Name,
+                                                  hex_ability.Description,
+                                                  "3c7752fbba7949dfb8ff07044c4db11d",
+                                                  hex_ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(hex_ability));
+            animal_skin.Ranks = 1;
+            animal_skin.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createAgony()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "WitchAgonyHexAbility", "0229165c289947968a20550817524590");//stinking cloud
+            hex_ability.SetName("Agony");
+            hex_ability.SetDescription("Effect: With a quick incantation, a witch can place this hex on one creature within 60 feet, causing them to suffer intense pain. The target is nauseated for a number of rounds equal to the witch’s level. A Fortitude save negates this effect. If the saving throw is failed, the target can attempt a new save each round to end the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e", "WitchAgonyHexBuff", "824364df0dc3420d98c699f95dc250c0"); //nauseted
+            hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.AddCondition>());
+            hex_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Nauseated, SavingThrowType.Fortitude));
+
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Fortitude;
+            action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds));
+            hex_ability.AddComponent(action);
+            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetPoint = false;
+            hex_ability.CanTargetEnemies = true;
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityAoERadius>());
+            hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
+
+            addWitchHexCooldownScaling(hex_ability, "512e6a19428047038a4abd8ee368dc99");
+
+            agony = Helpers.CreateFeature("WitchAgonyHexFeature",
+                                              hex_ability.Name,
+                                              hex_ability.Description,
+                                              "77d75c4d05a94141a461b29198a59f0b",
+                                              hex_ability.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddFact(hex_ability));
+            agony.Ranks = 1;
+            agony.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createBeastGift()
+        {
+            var animal_fury = library.Get<BlueprintFeature>("25954b1652bebc2409f9cb9d5728bceb");
+            var buff = Helpers.CreateBuff("WitchBeastGiftBuff", "Beast’s Gift",
+                                          "Effect: The witch can use her magic to grant her allies ferocious animal abilities.The witch can partially transform a willing ally, granting him one bite attack dealing 1d8 points of damage for a number of minutes equal to the witch’s level. Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.",
+                                          "9007fc6505104436b01dfc7f989e82c4",
+                                          animal_fury.Icon,
+                                          null,
+                                          Common.createAddSecondaryAttacks(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218")) //bide 1d8
+                                          );
+
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33", "WitchBeastGiftHexAbility", "b87be54ce5ef465786f74d89efa53678");
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+            var duration = Helpers.CreateContextDuration(bonus, DurationRate.Minutes);
+            action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, duration));
+            hex_ability.AddComponent(action);
+            hex_ability.SetIcon(buff.Icon);
+            hex_ability.SetName(buff.Name);
+            hex_ability.SetDescription(buff.Description);
+            addWitchHexCooldownScaling(hex_ability, "0dde3620e1394115a8785454170d8108");
+
+            beast_gift = Helpers.CreateFeature("WitchBeastGiftHexFeature",
+                                                  hex_ability.Name,
+                                                  hex_ability.Description,
+                                                  "fb4abd4dec1f4a029ebbc39c28139e8c",
+                                                  hex_ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(hex_ability));
+            beast_gift.Ranks = 1;
+            beast_gift.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createHarrowingCurse()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("69851cc3b821c2d479ac1f2d86e8ffa5", "WitchHarrowingCurseHex", "39cd09cc131e40b49ca20213094d1190");
+            BlueprintBuff[] curses = new BlueprintBuff[] {library.Get<BlueprintBuff>("caae9592917719a41b601b678a8e6ddf"),
+                                                              library.Get<BlueprintBuff>("c092750ba895e014cb24a25e2e8274a7"),
+                                                              library.Get<BlueprintBuff>("7fbb7799e8684434e80487cef9cc7f09"),
+                                                              library.Get<BlueprintBuff>("de92c96c86cb2cd4c8eb8e2881b84d99")};
+            hex_ability.SetName("Harrowing Curse");
+            hex_ability.SetDescription("Effect: The witch can curse a target creature by touching it with a card randomly drawn from a harrow deck she owns. The target is affected as if by the spell bestow curse using the witch’s caster level, except that the witch can decrease only the ability score that corresponds to the suit of the card drawn. Whether or not the save is successful, a creature cannot be targeted by this hex more than once in 24 hours.");
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Will;
+            Kingmaker.ElementsSystem.ActionList[] curse_actions = new Kingmaker.ElementsSystem.ActionList[curses.Length];
+            for (int i = 0; i < curses.Length; i++)
+            {
+                curse_actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(curses[i], Helpers.CreateContextDuration(), is_permanent: true));
+            }
+            var random_curse = Common.createContextActionRandomize(curse_actions);
+            
+            var action_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            action_saved.Failed = Helpers.CreateActionList(random_curse);
+            action.Actions = Helpers.CreateActionList(action_saved);
+            hex_ability.AddComponent(action);
+            addWitchHexCooldownScaling(hex_ability, "b706bf0a946d4d1d9a49040efb3595c9");
+
+            harrowing_curse = Helpers.CreateFeature("WitchHarrowingCurseHexFeature",
+                                                      hex_ability.Name,
+                                                      hex_ability.Description,
+                                                      "5ca58e3854444a869808889a3cbf20d9",
+                                                      hex_ability.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFact(hex_ability));
+            harrowing_curse.Ranks = 1;
+            harrowing_curse.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createIceTomb()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931", "WitchIceTombHexAbility", "a680c3c5fd7646499f1b7e8d95b0f5df");
+            hex_ability.SetName("Ice Tomb");
+            hex_ability.SetDescription("Effect: A storm of ice and freezing wind envelops the target, which takes 3d8 points of cold damage (Fortitude half). If the target fails its save, it is paralyzed and unconscious but does not need to eat or breathe while the ice lasts. Destroying the ice frees the creature, which is staggered for 1d4 rounds after being released. Whether or not the target’s saving throw is successful, it cannot be the target of this hex again for 1 day.");
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            hex_ability.Range = AbilityRange.Close;
+            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetSelf = true;
+            var damage_value = new ContextValue();
+            damage_value.ValueType = ContextValueType.Simple;
+            damage_value.Value = 3;
+            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D8, damage_value), halfIfSaved: true);
+
+            var sleep_buff = library.Get<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a");
+            var ice_tomb_buff = library.CopyAndAdd<BlueprintBuff>("6f0e450771cc7d446aea798e1fef1c7a", "WitchIceTombHexBuff", "7e75ef2ae6984d80a98f47f7a5a2a8a8");//icy prison buff
+            ice_tomb_buff.RemoveComponent(ice_tomb_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
+            ice_tomb_buff.RemoveComponent(ice_tomb_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>());
+            ice_tomb_buff.SetName(hex_ability.Name);
+            ice_tomb_buff.SetDescription(hex_ability.Description);
+            ice_tomb_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Sleeping, save_each_round: false));
+            ice_tomb_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Paralyzed, save_each_round: false));
+
+            var staggered_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var dice_count = new ContextValue();
+            dice_count.ValueType = ContextValueType.Simple;
+            dice_count.Value = 1;
+
+            var damage_trigger = new Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger();
+            damage_trigger.Actions = Helpers.CreateActionList(new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf(),
+                                                              Common.createContextActionApplyBuff(staggered_buff, Helpers.CreateContextDuration(diceType: DiceType.D4, diceCount: dice_count))
+                                                              );
+            ice_tomb_buff.AddComponent(damage_trigger); //remove buff on damage, and add stagger
+
+            var action_buff = new ContextActionConditionalSaved();
+            action_buff.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(ice_tomb_buff, Helpers.CreateContextDuration(), is_permanent: true));
+            var run_action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            run_action.SavingThrowType = SavingThrowType.Fortitude;
+            run_action.Actions = Helpers.CreateActionList(damage_action, action_buff);
+            hex_ability.AddComponent(run_action);
+            addWitchHexCooldownScaling(hex_ability, "99e48705252147f6a8c395394ba77faa");
+            ice_tomb = Helpers.CreateFeature("WitchIceTombHexFeature",
+                                          hex_ability.Name,
+                                          hex_ability.Description,
+                                          "f983760c33db49b5ae58e3c60ad0014b",
+                                          hex_ability.Icon,
+                                          FeatureGroup.None,
+                                          Helpers.CreateAddFact(hex_ability));
+            ice_tomb.Ranks = 1;
+            ice_tomb.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+
+        }
+
+
+        static void createRegenerativeSinew()
+        {
+            string description = "The witch can cause the debilitating wounds of a creature she touches to quickly close, helping it heal rapidly.\n"
+                                 + "The target either gains fast healing 5 for a number of rounds equal to 1 / 2 the witch’s class level or it heals ability score damage for one ability score.\n"
+                                 + "Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.";
+            var fast_healing_buff = library.CopyAndAdd<BlueprintBuff>("37a5e51e9e3a23049a77ba70b4e7b2d2", "WitchRegenerativeSinewFHHexBuff", "f6de4a3f23ec4e319f574e3900002919"); //fs5
+            fast_healing_buff.SetDescription(description);
+            fast_healing_buff.SetName("Regenerative Sinew: Fast Healing");
+
+            var fast_healing_ability = library.CopyAndAdd<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830", "WitchRegenerativeSinewFHHexAbility", "6fab21ff649245babdb6f1155579f6b0"); //restoration
+            fast_healing_ability.RemoveComponent(fast_healing_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            fast_healing_ability.RemoveComponent(fast_healing_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
+
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var bonus = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
+            var duration = Helpers.CreateContextDuration(bonus, DurationRate.Rounds);
+            action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(fast_healing_buff, duration));
+            fast_healing_ability.AddComponent(action);
+            fast_healing_buff.SetIcon(fast_healing_ability.Icon);
+            fast_healing_ability.SetName(fast_healing_buff.Name);
+            fast_healing_ability.SetDescription(fast_healing_buff.Description);
+            fast_healing_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray(), progression: ContextRankProgression.Div2,
+                                                                              type: AbilityRankType.DamageBonus));
+            fast_healing_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
+            fast_healing_ability.ActionType = CommandType.Standard;
+            Helpers.SetField(fast_healing_ability, "m_IsFullRoundAction", false);
+            var hex_cooldown = addWitchHexCooldownScaling(fast_healing_ability, "a367881ee1704b1ab509758f5799369d", "Cooldown Regenerative Sinew");
+
+            var restoration_ability = library.CopyAndAdd<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830", "WitchRegenerativeSinewRestorationHexAbility", "03963bcf8dd64abea3757311c1e8a79c"); //restoration
+            var restoration_action = restoration_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+            var restoration_component = ((Kingmaker.UnitLogic.Mechanics.Actions.ContextActionHealStatDamage)restoration_action.Actions.Actions[0]).CreateCopy();
+            restoration_component.HealDrain = false;
+            restoration_ability.RemoveComponent(restoration_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
+            restoration_ability.RemoveComponent(restoration_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
+            var action2 = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action2.Actions = Helpers.CreateActionList(restoration_component);
+            restoration_ability.AddComponent(action2);
+
+            restoration_ability.SetDescription(fast_healing_ability.Description);
+            restoration_ability.SetName("Regenerative Sinew: Restoration");
+            restoration_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
+            restoration_ability.ActionType = CommandType.Standard;
+            Helpers.SetField(restoration_ability, "m_IsFullRoundAction", false);
+            addWitchHexCooldownScaling(restoration_ability, hex_cooldown);
+
+            regenerative_sinew = Helpers.CreateFeature("WitchRegenerativeSinewHexFeature",
+                                          "Regenerative Sinew",
+                                          fast_healing_ability.Description,
+                                          "b7f1e7aee027492e8f474a1f5e419194",
+                                          fast_healing_ability.Icon,
+                                          FeatureGroup.None,
+                                          Helpers.CreateAddFacts(fast_healing_ability, restoration_ability));
+            regenerative_sinew.Ranks = 1;
+            regenerative_sinew.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
         }
     }
 }

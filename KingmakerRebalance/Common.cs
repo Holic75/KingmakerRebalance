@@ -29,6 +29,7 @@ using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
+using Kingmaker.Blueprints.Items;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
@@ -70,7 +71,7 @@ namespace KingmakerRebalance
             public ExtraSpellList(params string[] list_spell_guids)
             {
                 spells = new SpellId[list_spell_guids.Length];
-                for (int i = 0; i< list_spell_guids.Length; i++)
+                for (int i = 0; i < list_spell_guids.Length; i++)
                 {
                     spells[i] = new SpellId(list_spell_guids[i], i + 1);
                 }
@@ -108,8 +109,8 @@ namespace KingmakerRebalance
         }
 
 
-        internal static BlueprintFeature createCantrips(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, BlueprintCharacterClass character_class, 
-                                       StatType stat ,BlueprintAbility[] spells)
+        internal static BlueprintFeature createCantrips(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, BlueprintCharacterClass character_class,
+                                       StatType stat, BlueprintAbility[] spells)
         {
             var learn_spells = new LearnSpells();
             learn_spells.CharacterClass = character_class;
@@ -130,7 +131,7 @@ namespace KingmakerRebalance
                                   );
         }
 
-        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate, 
+        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
                                                                                                                         AbilityRankType rank_type = AbilityRankType.Default)
         {
             var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
@@ -144,6 +145,54 @@ namespace KingmakerRebalance
                                                                            rate: duration_rate);
             context_saved.Failed = Helpers.CreateActionList(apply_buff);
             return context_saved;
+        }
+
+
+        internal static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
+        {
+            var c = new Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks();
+            c.Weapon = weapons;
+            return c;
+        }
+
+
+        static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
+                                                                                                                  bool is_child = false, bool is_permanent = false)
+        {
+            var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            apply_buff.IsFromSpell = is_from_spell;
+            apply_buff.Buff = buff;
+            apply_buff.Permanent = is_permanent;
+            apply_buff.DurationValue = duration;
+            return apply_buff;
+        }
+
+
+        static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize createContextActionRandomize(params Kingmaker.ElementsSystem.ActionList[] actions)
+        {
+            var c = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize();
+            Type m_Action_type = Helpers.GetField(c, "m_Actions").GetType().GetElementType();
+            var y = Array.CreateInstance(m_Action_type, actions.Length);
+            var field = m_Action_type.GetField("Action");
+            for (int i = 0; i < actions.Length; i++)
+            {
+                var yi = m_Action_type.GetConstructor(new System.Type[0]).Invoke(new object[0]);
+                field.SetValue(yi, actions[i]);
+                y.SetValue(yi, i);
+            }
+            Helpers.SetField(c, "m_Actions", y);
+            return c;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition createBuffStatusCondition(UnitCondition condition, SavingThrowType save_type = SavingThrowType.Unknown,
+                                                                                                           bool save_each_round = true)
+        {
+            var c = new Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition();
+            c.SaveType = save_type;
+            c.SaveEachRound = save_each_round;
+            c.Condition = condition;
+            return c;
         }
 
 
