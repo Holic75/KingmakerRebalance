@@ -62,15 +62,16 @@ namespace KingmakerRebalance
         static internal BlueprintFeature harrowing_curse;
         static internal BlueprintFeature ice_tomb;
         static internal BlueprintFeature regenerative_sinew;
-
         //restless_slumber ?
         //retribution ?
+        // grand hexes
+        static internal BlueprintFeature animal_servant;
+        static internal BlueprintFeature death_curse;
+        static internal BlueprintFeature lay_to_rest;
+        static internal BlueprintFeature life_giver;
 
+        static internal BlueprintFeature extra_hex_feat;
 
-        //death curse
-        //live giver
-        //lay to rest
-        //animal servant
 
         internal static void createWitchClass()
         {
@@ -117,6 +118,7 @@ namespace KingmakerRebalance
             witch_class.Progression = witch_progression;
             witch_class.Archetypes = new BlueprintArchetype[] { };
             Helpers.RegisterClass(witch_class);
+            createExtraHexFeat();
         }
 
 
@@ -142,6 +144,11 @@ namespace KingmakerRebalance
             createIceTomb();
             createRegenerativeSinew();
 
+            createAnimalServant();
+            createDeathCurse();
+            createLayToRest();
+            createLifeGiver();
+
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
                                                            "Witches learn a number of magic tricks, called hexes, that grant them powers or weaken foes. At 1st level, a witch gains one hex of her choice. She gains an additional hex at 2nd level and for every 2 levels attained after 2nd level. A witch cannot select an individual hex more than once.\n" +
@@ -150,7 +157,8 @@ namespace KingmakerRebalance
                                                            null,
                                                            FeatureGroup.None);
             hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat,
-                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew};
+                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew,
+                                                              animal_servant, death_curse, lay_to_rest, life_giver};
             hex_selection.AllFeatures = hex_selection.Features;
         }
 
@@ -1442,6 +1450,185 @@ namespace KingmakerRebalance
                                           Helpers.CreateAddFacts(fast_healing_ability, restoration_ability));
             regenerative_sinew.Ranks = 1;
             regenerative_sinew.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createAnimalServant()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61", "WitchAnimalServantHexAbility", "583e661fe4244a319672bc6ccdc51294");//dominate  person
+            hex_ability.CanTargetFriends = true;
+            hex_ability.ActionType = CommandType.Standard;
+            Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
+            hex_ability.SetName("Animal Servant");
+            hex_ability.SetDescription("Effect: The witch can use this hex to turn a humanoid enemy into an animal and rob it of its free will.\n"
+                                       + "The transformation works as beast shape II and is negated by a successful Will save.The transformed creature retains its Intelligence score and known languages, if any, but the witch controls its mind. This effect functions as dominate monster, except the creature does not receive further saving throws to resist the hex.The effect can be removed only with wish or similar magic, although slaying the witch also ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
+            var dominate_person_buff = library.Get<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f");
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc", "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c"); //beast_shape2;
+            hex_buff.SetDescription(hex_ability.Description);
+            hex_buff.SetName(hex_ability.Name);
+            hex_buff.SetIcon(hex_ability.Icon);
+
+            var polymorph_component = hex_buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
+            polymorph_component.Facts = new BlueprintUnitFact[0];
+            hex_buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph_component);
+            hex_buff.AddComponent(dominate_person_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ChangeFaction>());
+            hex_buff.ReplaceComponent< Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Polymorph));
+            hex_buff.SetBuffFlags(hex_buff.GetBuffFlags() | BuffFlags.RemoveOnRest);
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Will;
+            action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
+            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
+
+
+            addWitchHexCooldownScaling(hex_ability, "73b1287891e7441bbfc663c5f937083c");
+            animal_servant = Helpers.CreateFeature("WitchAnimalServantHexFeature",
+                              hex_ability.Name,
+                              hex_ability.Description,
+                              "92859cd9f42a4fae95462e27e3a940fb",
+                              hex_ability.Icon,
+                              FeatureGroup.None,
+                              Helpers.CreateAddFact(hex_ability));
+            animal_servant.Ranks = 1;
+            animal_servant.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
+        }
+
+
+        static void createDeathCurse()
+        {
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4", "WitchDeathCurseHexBuff", "617290b83ca04f01adc23e0416758dfb"); //fatigue buff
+            var exhausted_buff = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+            var death_effect = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSavingThrow();
+            death_effect.Type = SavingThrowType.Fortitude;
+            var death_effect_conditional = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            death_effect_conditional.Failed = Helpers.CreateActionList(new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionKillTarget());
+
+            var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(4), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+            death_effect_conditional.Succeed = Helpers.CreateActionList(Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, damage));
+            death_effect.Actions = Helpers.CreateActionList(death_effect_conditional, new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf());
+
+            var round3_death = Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(3), death_effect);
+            var round2_exhausted = Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(2),
+                                                             Common.createContextActionApplyBuff(exhausted_buff, Helpers.CreateContextDuration(), is_permanent: true),
+                                                             round3_death);
+            hex_buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: round2_exhausted));
+
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("6f1dcf6cfa92d1948a740195707c0dbe", "WitchDeathCurseHexAbility", "6913bcf974004951a0542e906b4c201c"); //finger of death
+            hex_ability.SetName("Death Curse");
+            hex_ability.SetDescription("This powerful hex seizes a creature’s heart, causing death within just a few moments.\n"
+                                       + "Effect: This hex has a range of 30 feet. The hexed creature receives a Will save to negate the effect. If this save is failed, the creature becomes fatigued the first round of the hex. On the second round of the hex, the creature becomes exhausted. On the third round, the creature dies unless it succeeds at a Fort save. Creatures that fail the first save but succeed at the second remain exhausted and take 4d6 points of damage + 1 point of damage per level of the witch. Slaying the witch that hexed the creature ends the effect, but any fatigue or exhaustion remains. Whether or not the saves are successful, a creature cannot be the target of this hex again for 1 day.");
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
+            hex_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
+                                                                                                     classes: getWitchArray(), type: AbilityRankType.DamageBonus)); //for damage on save
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Will;
+            action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
+            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
+            hex_ability.ReplaceComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Exhausted | SpellDescriptor.Fatigue));
+            addWitchHexCooldownScaling(hex_ability, "f172135df37a40e8aa7cb7be29d2a72d");
+            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
+                                                                    library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
+                                                                  };
+            target_checker.Inverted = true;
+            hex_ability.AddComponent(target_checker);
+            hex_buff.SetIcon(hex_ability.Icon);
+            hex_buff.SetDescription(hex_ability.Description);
+            hex_buff.SetName(hex_ability.Name);
+
+            hex_ability.CanTargetFriends = true;
+            hex_ability.ActionType = CommandType.Standard;
+            Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
+            death_curse = Helpers.CreateFeature("WitchDeathCurseHexFeature",
+                              hex_ability.Name,
+                              hex_ability.Description,
+                              "cf27f36d30cd4ce8baaa3a52cf9e08f1",
+                              hex_ability.Icon,
+                              FeatureGroup.None,
+                              Helpers.CreateAddFact(hex_ability));
+            death_curse.Ranks = 1;
+            death_curse.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
+        }
+
+
+        static void createLayToRest()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("a9a52760290591844a96d0109e30e04d", "WitchLayToRestHexAbility", "948b588bb57d4ef1bf96940c0bba95c9");
+            hex_ability.SetName("Lay to Rest");
+            hex_ability.SetDescription("Effect: The witch may target a single undead creature with this hex as if with an undeath to death spell. A Will save negates this effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
+            hex_ability.CanTargetPoint = false;
+            hex_ability.CanTargetSelf = false;
+            hex_ability.CanTargetFriends = false;
+            hex_ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
+            hex_ability.Range = AbilityRange.Close;
+            hex_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
+            hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityTargetsAround>());
+            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") };//undead
+            hex_ability.AddComponent(target_checker);
+            var destruction = library.Get<BlueprintAbility>("3b646e1db3403b940bf620e01d2ce0c7");
+            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>(destruction.GetComponent <Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+            addWitchHexCooldownScaling(hex_ability, "8a0733cfc0844297b4db7f3351714744");
+
+            lay_to_rest = Helpers.CreateFeature("WitchLayToRestHexFeature",
+                              hex_ability.Name,
+                              hex_ability.Description,
+                              "3fcdc34afbb74b15a4236740d299afaf",
+                              hex_ability.Icon,
+                              FeatureGroup.None,
+                              Helpers.CreateAddFact(hex_ability));
+            lay_to_rest.Ranks = 1;
+            lay_to_rest.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
+        }
+
+
+        static void createLifeGiver()
+        {
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("80a1a388ee938aa4e90d427ce9a7a3e9", "WitchLifeGiverHexAbility", "7924a8779bc442c2b5cfd472f9ba028f");
+            hex_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
+            hex_ability.SetName("Life Giver");
+            hex_ability.SetDescription("Effect: Once per day the witch can, as a full round action, touch a dead creature and bring it back to life. This functions as resurrection, but it does not require a material component.");
+            var hex_resource = Helpers.CreateAbilityResource("WitchLifeGiverHexResource", "", "", "34e471a5196247e4b2daecf9bc38c105", null);
+            hex_resource.SetFixedResource(1);
+            hex_ability.AddComponent(Helpers.CreateResourceLogic(hex_resource));
+
+            hex_ability.Type = AbilityType.Supernatural;
+            hex_ability.SpellResistance = false;
+            var spell_components = hex_ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>();
+            foreach (var s in spell_components)
+            {
+                hex_ability.RemoveComponent(s);
+            }
+            
+            life_giver = Helpers.CreateFeature("WitchLifeGiverHexFeature",
+                              hex_ability.Name,
+                              hex_ability.Description,
+                              "272749f543954f77a4180370207e1159",
+                              hex_ability.Icon,
+                              FeatureGroup.None,
+                              Helpers.CreateAddFact(hex_ability),
+                              Helpers.CreateAddAbilityResource(hex_resource));
+            life_giver.Ranks = 1;
+            life_giver.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
+        }
+
+
+        static void createExtraHexFeat()
+        {
+            var extra_hex_feat_selection = Helpers.CreateFeatureSelection("ExtraHexFeat",
+                                                            "Extra Hex",
+                                                            "You gain one additional hex. You must meet the prerequisites for this hex. If you are a shaman, it must be a hex granted by your spirit rather than one from a wandering spirit.\n"
+                                                            + "Special: You can take this feat multiple times. Each time you do, you gain another hex.",
+                                                            "5d3b5b72afb940d4b9aab740d8925b53",
+                                                            null,
+                                                            FeatureGroup.None,
+                                                            Helpers.PrerequisiteClassLevel(witch_class, 1));
+            extra_hex_feat_selection.AllFeatures = hex_selection.Features;
+            extra_hex_feat_selection.Features = hex_selection.Features;
+            extra_hex_feat = extra_hex_feat_selection;
+            extra_hex_feat.Ranks = 3;
+            extra_hex_feat.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+            library.AddFeats(extra_hex_feat);
         }
     }
 }

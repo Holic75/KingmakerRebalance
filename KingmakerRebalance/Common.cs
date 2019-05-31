@@ -148,6 +148,23 @@ namespace KingmakerRebalance
         }
 
 
+        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
+                                                                                                                  bool is_child = false, bool is_permanent = false)
+        {
+            var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
+            var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            apply_buff.IsFromSpell = true;
+            apply_buff.Buff = buff;
+            apply_buff.DurationValue = duration;
+            apply_buff.IsFromSpell = is_from_spell;
+            apply_buff.AsChild = is_child;
+            apply_buff.Permanent = is_permanent;
+            context_saved.Failed = Helpers.CreateActionList(apply_buff);
+            return context_saved;
+        }
+
+
         internal static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
         {
             var c = new Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks();
@@ -195,6 +212,22 @@ namespace KingmakerRebalance
             return c;
         }
 
+        static internal Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber createBuffConditionCheckRoundNumber(int round_number, bool not = false)
+        {
+            var c = new Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber();
+            c.RoundNumber = round_number;
+            c.Not = not;
+            return c;
+        }
+
+
+        static internal ContextValue createSimpleContextValue(int value)
+        {
+            var v = new ContextValue();
+            v.Value = value;
+            v.ValueType = ContextValueType.Simple;
+            return v;
+        }
 
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
         {
