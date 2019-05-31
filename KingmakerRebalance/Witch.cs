@@ -27,6 +27,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -41,6 +42,7 @@ namespace KingmakerRebalance
         static internal BlueprintProgression witch_progression;
         static internal BlueprintFeatureSelection witch_patrons;
         static internal BlueprintFeatureSelection hex_selection;
+        static internal BlueprintFeatureSelection witch_familiar;
         static internal BlueprintFeature witch_cantrips;
         //hexes
         static internal BlueprintFeature healing;
@@ -62,15 +64,19 @@ namespace KingmakerRebalance
         static internal BlueprintFeature harrowing_curse;
         static internal BlueprintFeature ice_tomb;
         static internal BlueprintFeature regenerative_sinew;
-        //restless_slumber ?
-        //retribution ?
+        //retribution ?, restless slumber? withering ?
         // grand hexes
         static internal BlueprintFeature animal_servant;
         static internal BlueprintFeature death_curse;
         static internal BlueprintFeature lay_to_rest;
         static internal BlueprintFeature life_giver;
-
+        static internal BlueprintFeature eternal_slumber;
+        //death interupted ? - breath of life 1/creature/24 hours?
         static internal BlueprintFeature extra_hex_feat;
+
+        static internal BlueprintArchetype ley_line_guardian_archetype;
+        static internal BlueprintArchetype hedge_witch_archetype;
+        static internal BlueprintArchetype hex_channeler_archetype;
 
 
         internal static void createWitchClass()
@@ -116,9 +122,74 @@ namespace KingmakerRebalance
                                                                                        };
             createWitchProgression();
             witch_class.Progression = witch_progression;
-            witch_class.Archetypes = new BlueprintArchetype[] { };
+            createLeyLineGuardian();
+            createHedgeWitch();
+            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype};
             Helpers.RegisterClass(witch_class);
             createExtraHexFeat();
+        }
+
+
+        static void createLeyLineGuardian()
+        {
+            ley_line_guardian_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "LeyLineGuardianArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Ley Line Guardian");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some witches tap into the power of their patrons not through a special connection with a familiar, but rather directly through the vast network of ley lines that crosses the planes. These witches can harness the latent powers of ley lines without even needing to be near one of the points where ley lines’ powers are accessible to mortal spellcasters.");
+            });
+            Helpers.SetField(ley_line_guardian_archetype, "m_ParentClass", witch_class);
+            library.AddAsset(ley_line_guardian_archetype, "d4a3aa7c1cf84e14ae532c92e675927f");
+            ley_line_guardian_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, witch_familiar) };
+
+            var sorcerer_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+
+            var spellbook = library.CopyAndAdd<BlueprintSpellbook>(witch_class.Spellbook, "LeyLineGuardianSpellbook", "a3a86b1efe31479cb8543c76bd522147");
+            spellbook.CanCopyScrolls = false;
+            spellbook.Spontaneous = true;
+            spellbook.SpellsKnown = sorcerer_class.Spellbook.SpellsKnown;
+            spellbook.SpellsPerDay = sorcerer_class.Spellbook.SpellsPerDay;
+            spellbook.SpellsPerLevel = sorcerer_class.Spellbook.SpellsPerLevel;
+            ley_line_guardian_archetype.ReplaceSpellbook = spellbook;
+        }
+
+
+        static void createHedgeWitch()
+        {
+            hedge_witch_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "HedgeWitchArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Hedge Witch");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Among witches, there are those who devote themselves to the care of others and restrict their practices to the healing arts. They often take the place of clerics in rural communities and may wander the countryside servicing the needs of several small communities.");
+            });
+            Helpers.SetField(hedge_witch_archetype, "m_ParentClass", witch_class);
+            library.AddAsset(hedge_witch_archetype, "721173ec8def432ea01dd024d53e8fb8");
+            hedge_witch_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(4, hex_selection),
+                                                                      Helpers.LevelEntry(8, hex_selection)};
+
+            var witch_spontaneous_cure = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "WitchSpontaneousCure", "ba941f7c2096461bbda75578b52b792cf");
+            witch_spontaneous_cure.SetName("Spontaneous Healing");
+            witch_spontaneous_cure.SetDescription("A hedge witch can channel stored spell energy into healing spells that she did not prepare ahead of time. The witch can “lose” any prepared spell that is not an orison in order to cast any cure spell of the same spell level or lower, even if she doesn’t know that cure spell.");
+            witch_spontaneous_cure.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>(Common.createSpontaneousSpellConversion(witch_class,
+                                                                                                                                                      null,
+                                                                                                                                                      library.Get<BlueprintAbility>("5590652e1c2225c4ca30c4a699ab3649"),
+                                                                                                                                                      library.Get<BlueprintAbility>("6b90c773a6543dc49b2505858ce33db5"),
+                                                                                                                                                      library.Get<BlueprintAbility>("6b90c773a6543dc49b2505858ce33db5"),
+                                                                                                                                                      library.Get<BlueprintAbility>("3361c5df793b4c8448756146a88026ad"),
+                                                                                                                                                      library.Get<BlueprintAbility>("41c9016596fe1de4faf67425ed691203"),
+                                                                                                                                                      library.Get<BlueprintAbility>("5d3d689392e4ff740a761ef346815074"),
+                                                                                                                                                      library.Get<BlueprintAbility>("571221cc141bc21449ae96b3944652aa"),
+                                                                                                                                                      library.Get<BlueprintAbility>("0cea35de4d553cc439ae80b3a8724397"),
+                                                                                                                                                      library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449")
+                                                                                                                                                     )
+                                                                                                             );
+            hedge_witch_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, witch_spontaneous_cure)};
+        }
+
+
+        static void createHexChanneler()
+        {
+
         }
 
 
@@ -148,6 +219,7 @@ namespace KingmakerRebalance
             createDeathCurse();
             createLayToRest();
             createLifeGiver();
+            createEternalSlumber();
 
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
@@ -158,7 +230,7 @@ namespace KingmakerRebalance
                                                            FeatureGroup.None);
             hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat,
                                                               major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew,
-                                                              animal_servant, death_curse, lay_to_rest, life_giver};
+                                                              animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
         }
 
@@ -197,13 +269,13 @@ namespace KingmakerRebalance
             witch_proficiencies.SetDescription("Witches are proficient with all simple weapons. They are not proficient with any type of armor or shield. Armor interferes with a witch’s gestures, which can cause her spells with somatic components to fail.");
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
-            var familiar = library.CopyAndAdd<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183", "WitchFamiliar", "a07215bde92a4cc986ee3059cb8b7350");
-            familiar.DlcType = Kingmaker.Blueprints.Root.DlcType.None;
-            familiar.ComponentsArray = new BlueprintComponent[0];
-            familiar.SetDescription("At 1st level, a witch forms a close bond with a familiar, a creature that teaches her magic and helps to guide her along her path. Familiars also aid a witch by granting her skill bonuses, additional spells, and help with some types of magic.");
+            witch_familiar = library.CopyAndAdd<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183", "WitchFamiliar", "a07215bde92a4cc986ee3059cb8b7350");
+            witch_familiar.DlcType = Kingmaker.Blueprints.Root.DlcType.None;
+            witch_familiar.ComponentsArray = new BlueprintComponent[0];
+            witch_familiar.SetDescription("At 1st level, a witch forms a close bond with a familiar, a creature that teaches her magic and helps to guide her along her path. Familiars also aid a witch by granting her skill bonuses, additional spells, and help with some types of magic.");
 
             var entries = new List<LevelEntry>();
-            entries.Add(Helpers.LevelEntry(1, witch_proficiencies, witch_cantrips, detect_magic, witch_patrons, familiar, hex_selection,
+            entries.Add(Helpers.LevelEntry(1, witch_proficiencies, witch_cantrips, detect_magic, witch_patrons, witch_familiar, hex_selection,
                                                            library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                            library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa"),  // touch calculate feature
                                                            library.Get<BlueprintFeature>("9fc9813f569e2e5448ddc435abf774b3") //full caster feature
@@ -216,7 +288,7 @@ namespace KingmakerRebalance
             }
             
             
-            witch_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { familiar, witch_proficiencies, witch_cantrips, detect_magic };
+            witch_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { witch_familiar, witch_proficiencies, witch_cantrips, detect_magic };
             witch_progression.LevelEntries = entries.ToArray();
         }
 
@@ -448,7 +520,7 @@ namespace KingmakerRebalance
             witch_spellbook.SpellsPerLevel = wizard_class.Spellbook.SpellsPerLevel;
           
             witch_spellbook.SpellList = Helpers.Create<BlueprintSpellList>();
-            witch_spellbook.SpellList.name = "WizardSpellList";
+            witch_spellbook.SpellList.name = "WitchSpellList";
             library.AddAsset(witch_spellbook.SpellList, "422490cf62744e16a3e131efd94cf290");
             witch_spellbook.SpellList.SpellsByLevel = new SpellLevelList[10];
             for (int i = 0; i < witch_spellbook.SpellList.SpellsByLevel.Length; i++)
@@ -784,7 +856,8 @@ namespace KingmakerRebalance
             action.SavingThrowType = SavingThrowType.Will;
             action.addAction(Common.createContextSavedApplyBuff(sleep_buff, DurationRate.Rounds));
             hex_ability.AddComponent(action);
-            hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));          
+            hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));
+            hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "0ccdbefa7f304a5788c4369b0a988e21");
             slumber_hex = Helpers.CreateFeature("SlumberHexFeature",
                                                       hex_ability.Name,
@@ -1064,7 +1137,6 @@ namespace KingmakerRebalance
                                         type: AbilityRankType.DamageBonus, classes: getWitchArray()));
             nonlethal_half.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
                             type: AbilityRankType.DamageBonus, classes: getWitchArray()));
-
 
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("f2f1efac32ea2884e84ecaf14657298b", "WitchSummerHeatHex", "008a70774dbf48058810c565dad93fce");//bonshatter
             hex_ability.SetIcon(fatigued_buff.Icon);
@@ -1452,7 +1524,6 @@ namespace KingmakerRebalance
             regenerative_sinew.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
         }
 
-
         static void createAnimalServant()
         {
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61", "WitchAnimalServantHexAbility", "583e661fe4244a319672bc6ccdc51294");//dominate  person
@@ -1610,6 +1681,67 @@ namespace KingmakerRebalance
                               Helpers.CreateAddAbilityResource(hex_resource));
             life_giver.Ranks = 1;
             life_giver.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
+        }
+
+
+        static void createEternalSlumber()
+        {
+            var sleep_spell = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
+            var dominate_spell = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a", "WitchEternalSlumberHexBuff", "0a2763d71f274a25b053647ea5053b40");
+            hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>());
+            var hex_ability = Helpers.CreateAbility("WitchEternalSlumberHexAbility",
+                                                    "Eternal Slumber",
+                                                    "The witch can touch a creature, causing it to drift off into a permanent slumber.\n"
+                                                    +"Effect: The creature receives a Will save to negate this effect. If the save fails, the creature falls asleep and cannot be woken. The effect can only be removed with a wish or similar magic, although slaying the witch ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
+                                                    "b03f4347c1974e38acff99a2af092461",
+                                                    hex_buff.Icon,
+                                                    AbilityType.Supernatural,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Close,
+                                                    Helpers.CreateString("WitchEternalSlumberrHexBuff.Duration", "Permanent"),
+                                                    sleep_spell.LocalizedSavingThrow);
+
+            hex_ability.Range = AbilityRange.Touch;
+            hex_ability.CanTargetPoint = false;
+            hex_ability.CanTargetEnemies = true;
+            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetSelf = true;
+            hex_ability.AvailableMetamagic = sleep_spell.AvailableMetamagic;
+            hex_ability.MaterialComponent = sleep_spell.MaterialComponent;
+            hex_ability.ResourceAssetIds = sleep_spell.ResourceAssetIds;
+            hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
+            hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
+            hex_ability.ActionType = CommandType.Standard;
+            hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            hex_ability.LocalizedDuration = Helpers.CreateString("EternalSlumberHexAbility1.Duration", "Permanent");
+            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
+                                                                    library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
+                                                                  };
+            target_checker.Inverted = true;
+            hex_ability.AddComponent(target_checker);
+            hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+
+            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            action.SavingThrowType = SavingThrowType.Will;
+            action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_permanent: true));
+            hex_ability.AddComponent(action);
+            hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));
+            var touch = new Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch();
+            touch.TouchWeapon = library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("bb337517547de1a4189518d404ec49d4");
+            hex_ability.AddComponent(touch);
+            hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
+            var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "2214659c18824be4af8a662485b6f341");
+            eternal_slumber = Helpers.CreateFeature("SlumberHexFeature",
+                                                      hex_ability.Name,
+                                                      hex_ability.Description,
+                                                      "8e7292d4fb9346a3bc71f653d539d0ca",
+                                                      hex_ability.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFact(hex_ability));
+            eternal_slumber.Ranks = 1;
+            eternal_slumber.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
         }
 
 

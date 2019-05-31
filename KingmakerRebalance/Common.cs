@@ -132,12 +132,15 @@ namespace KingmakerRebalance
         }
 
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
-                                                                                                                        AbilityRankType rank_type = AbilityRankType.Default)
+                                                                                                                        AbilityRankType rank_type = AbilityRankType.Default,
+                                                                                                                        bool is_from_spell = true, bool is_permanent = false, bool is_child = false)
         {
             var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
             context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
             var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
-            apply_buff.IsFromSpell = true;
+            apply_buff.IsFromSpell = is_from_spell;
+            apply_buff.AsChild = is_child;
+            apply_buff.Permanent = is_permanent;
             apply_buff.Buff = buff;
             var bonus_value = Helpers.CreateContextValue(rank_type);
             bonus_value.ValueType = ContextValueType.Rank;
@@ -169,6 +172,14 @@ namespace KingmakerRebalance
         {
             var c = new Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks();
             c.Weapon = weapons;
+            return c;
+        }
+
+
+        internal static Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger createIncomingDamageTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
+        {
+            var c = new Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger();
+            c.Actions = Helpers.CreateActionList(actions);
             return c;
         }
 
@@ -228,6 +239,16 @@ namespace KingmakerRebalance
             v.ValueType = ContextValueType.Simple;
             return v;
         }
+
+
+        static internal Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion createSpontaneousSpellConversion(BlueprintCharacterClass character_class, params BlueprintAbility[] spells)
+        {
+            var sc = new Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion();
+            sc.CharacterClass = character_class;
+            sc.SpellsByLevel = spells;
+            return sc;
+        }
+
 
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
         {
