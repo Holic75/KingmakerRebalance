@@ -250,6 +250,32 @@ namespace KingmakerRebalance
         }
 
 
+        static internal Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType alignment)
+        {
+            var p = new Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment();
+            p.Alignment = alignment;
+            return p;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility createAddCasterLevelToAbility(BlueprintAbility spell, int bonus)
+        {
+            var a = new Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility();
+            a.Bonus = bonus;
+            a.Spell = spell;
+            return a;
+        }
+
+        static internal PrerequisiteArchetypeLevel createPrerequisiteArchetypeLevel(BlueprintCharacterClass character_class, BlueprintArchetype archetype, int level)
+        {
+            var p = new PrerequisiteArchetypeLevel();
+            p.CharacterClass = character_class;
+            p.Archetype = archetype;
+            p.Level = level;
+            return p;
+        }
+
+
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);

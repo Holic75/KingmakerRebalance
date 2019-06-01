@@ -78,6 +78,9 @@ namespace KingmakerRebalance
         static internal BlueprintArchetype hedge_witch_archetype;
         static internal BlueprintArchetype hex_channeler_archetype;
 
+        static internal BlueprintFeatureSelection hex_channeler_channel_energy_selection;
+        static internal BlueprintFeature improved_channel_hex;
+
 
         internal static void createWitchClass()
         {
@@ -124,7 +127,8 @@ namespace KingmakerRebalance
             witch_class.Progression = witch_progression;
             createLeyLineGuardian();
             createHedgeWitch();
-            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype};
+            createHexChanneler();
+            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype};
             Helpers.RegisterClass(witch_class);
             createExtraHexFeat();
         }
@@ -187,9 +191,119 @@ namespace KingmakerRebalance
         }
 
 
-        static void createHexChanneler()
+        static internal void createHexChanneler()
         {
+            hex_channeler_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "HexChannelerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Hex Channeler");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A hex channeler is a witch who devotes herself to either life—healing the wounded and destroying the undead—or death, slaying the living and aiding undead.");
+            });
+            Helpers.SetField(hex_channeler_archetype, "m_ParentClass", witch_class);
+            library.AddAsset(hex_channeler_archetype, "6fb0c184122e42e686d23d9d473d621e");
+            hex_channeler_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(2, hex_selection)};
 
+            createHexChannelerChannelEnergySelection();
+            hex_channeler_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, hex_channeler_channel_energy_selection) };
+        }
+
+
+        static void createHexChannelerChannelEnergySelection()
+        {
+            var bless_spell = library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638");
+
+            var positive_heal = library.CopyAndAdd<BlueprintAbility>("f5fc9a1a2a3c1a946a31b320d1dd31b2", "WitchPostiveHeal", "b305df2f8ec34684867db7402677388b");
+            var positive_harm = library.CopyAndAdd<BlueprintAbility>("279447a6bf2d3544d93a0a39c3b8e91d", "WitchPostiveHarm", "4ca35352f0eb49a49faf4a1057ed5d6e");
+            var negative_heal = library.CopyAndAdd<BlueprintAbility>("9be3aa47a13d5654cbcb8dbd40c325f2", "WitchNegativeHeal", "a39b06c274c843f19fa10cc6b7be5f39");
+            var negative_harm = library.CopyAndAdd<BlueprintAbility>("89df18039ef22174b81052e2e419c728", "WitchNegativeHarm", "ba94b10d81bb4497886e50ce9d4d96ce");
+
+            var channel_energy_fact = library.Get<BlueprintUnitFact>("93f062bc0bf70e84ebae436e325e30e8");
+
+
+            var select_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var select_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
+
+            var witch_channel_positive = Helpers.CreateFeature("WitchChannelPositive",
+                                                               select_positive.Name,
+                                                               select_negative.Description,
+                                                               "2cca6a04afd64ebd84ee6aad6d1cea5f",
+                                                               select_positive.Icon,
+                                                               FeatureGroup.ChannelEnergy,
+                                                               Helpers.CreateAddFacts(channel_energy_fact, positive_heal, positive_harm),
+                                                               Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good
+                                                                                                  | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral
+                                                                                                  | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                                  | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                                  )
+                                                             );
+
+            var witch_channel_negative = Helpers.CreateFeature("WitchChannelNegative",
+                                                                select_negative.Name,
+                                                                select_negative.Description,
+                                                                "bffcdc859c954a08bbbbe1eddb4b2115",
+                                                                select_negative.Icon,
+                                                                FeatureGroup.ChannelEnergy,
+                                                                Helpers.CreateAddFacts(channel_energy_fact, negative_heal, negative_harm),
+                                                                Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil
+                                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral
+                                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                                    )
+                                                               );
+
+
+            hex_channeler_channel_energy_selection = Helpers.CreateFeatureSelection("WitchChannelEnergySelection",
+                                                                                    "Channel Energy",
+                                                                                    "At 2nd level, a hex channeler can call upon her patron to release a wave of energy from herself or her familiar.A good witch channels positive energy(like a good cleric), and an evil witch channels negative energy(like an evil cleric).A witch who is neither good nor evil must choose whether she channels positive or negative energy; once this choice is made, it cannot be reversed.\n"
+                                                                                    + "Channeling energy causes a burst that affects all creatures of one type(either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability.The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
+                                                                                    + "This burst heals or deals 1d6 points of damage.Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                                                                    "d33b4095dbfa47588ed1f07b5af30e2c",
+                                                                                    bless_spell.Icon,
+                                                                                    FeatureGroup.None);
+            hex_channeler_channel_energy_selection.Features = new BlueprintFeature[] { witch_channel_positive, witch_channel_negative };
+            hex_channeler_channel_energy_selection.AllFeatures = hex_channeler_channel_energy_selection.Features;
+
+            improved_channel_hex = Helpers.CreateFeature("WitchImprovedChannelHex",
+                                                         "Increase Channel Energy Amount",
+                                                         "Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                                         "6638ec10b97b4e5bad312f58b80db844",
+                                                         bless_spell.Icon,
+                                                         FeatureGroup.None,
+                                                         Common.createPrerequisiteArchetypeLevel(witch_class, hex_channeler_archetype, 2));
+            improved_channel_hex.Ranks = 20;
+            hex_selection.Features = hex_selection.Features.AddToArray(improved_channel_hex);
+            hex_selection.AllFeatures = hex_selection.AllFeatures.AddToArray(improved_channel_hex);
+
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+                                                                      featureList: new BlueprintFeature[]{ witch_channel_positive, witch_channel_negative, improved_channel_hex });
+
+            positive_heal.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
+            positive_harm.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
+            negative_heal.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
+            negative_harm.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
+
+            //phylacteries bonuses
+            var negative_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316");
+            var positive_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("f5d0bf8c1b4574848acb8d1fbb544807");
+            var negative_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("cb4a39044b59f5e47ad5bc08ff9d6669");
+            var positive_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("e988cf802d403d941b2ed8b6016de68f");
+
+            var bonus1 = new Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment();
+            bonus1.Feature = improved_channel_hex;
+            negative_bonus1.AddComponent(bonus1);
+            positive_bonus1.AddComponent(bonus1);
+            negative_bonus2.AddComponent(bonus1);
+            negative_bonus2.AddComponent(bonus1);
+            positive_bonus2.AddComponent(bonus1);
+            positive_bonus2.AddComponent(bonus1);
+
+            //allow selective channel
+            var selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
+            selective_channel.AddComponent(Helpers.PrerequisiteFeature(hex_channeler_channel_energy_selection, true));
+            var extra_channel = library.CopyAndAdd<BlueprintFeature>("cd9f19775bd9d3343a31a065e93f0c47", "ExtraChannelWitch", "9c90fbbe75dc4bd0951e6d5be6da5627");
+            extra_channel.ReplaceComponent<Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteFeature>(Helpers.PrerequisiteFeature(hex_channeler_channel_energy_selection));
+            extra_channel.SetName("Extra Channel (Hex Channeler)");
+            library.AddFeats(extra_channel);
         }
 
 
@@ -1758,7 +1872,7 @@ namespace KingmakerRebalance
             extra_hex_feat_selection.AllFeatures = hex_selection.Features;
             extra_hex_feat_selection.Features = hex_selection.Features;
             extra_hex_feat = extra_hex_feat_selection;
-            extra_hex_feat.Ranks = 3;
+            extra_hex_feat.Ranks = 10;
             extra_hex_feat.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             library.AddFeats(extra_hex_feat);
         }
