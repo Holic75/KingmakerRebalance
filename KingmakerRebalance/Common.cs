@@ -276,6 +276,86 @@ namespace KingmakerRebalance
         }
 
 
+        static internal Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency createArcaneArmorProficiency(params Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[] armor)
+        {
+            var p = new Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency();
+            p.Armor = armor;
+            return p;
+        }
+
+
+        static internal Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry createSpellsLevelEntry(params int[] count)
+        {
+            var s = new Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry();
+            s.Count = count;
+            return s;
+        }
+
+        static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpellsTable(string name, string guid, params Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry[] levels)
+        {
+            var t = new Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable();
+            t.name = name;
+            library.AddAsset(t, guid);
+            t.Levels = levels;
+            return t;
+        }
+
+
+        static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsPerDay(string name, string guid)
+        {
+            return createSpellsTable(  name, guid,
+                                       Common.createSpellsLevelEntry(),  //0
+                                       Common.createSpellsLevelEntry(),  //1
+                                       Common.createSpellsLevelEntry(),  //2
+                                       Common.createSpellsLevelEntry(),  //2
+                                       Common.createSpellsLevelEntry(0, 1), //4
+                                       Common.createSpellsLevelEntry(0, 1), //5
+                                       Common.createSpellsLevelEntry(0, 1), //6
+                                       Common.createSpellsLevelEntry(0, 1, 1), //7
+                                       Common.createSpellsLevelEntry(0, 1, 1), //8
+                                       Common.createSpellsLevelEntry(0, 2, 1), //9
+                                       Common.createSpellsLevelEntry(0, 2, 1, 1), //10
+                                       Common.createSpellsLevelEntry(0, 2, 1, 1), //11
+                                       Common.createSpellsLevelEntry(0, 2, 2, 1), //12
+                                       Common.createSpellsLevelEntry(0, 3, 2, 1, 1), //13
+                                       Common.createSpellsLevelEntry(0, 3, 2, 1, 1), //14
+                                       Common.createSpellsLevelEntry(0, 3, 2, 2, 1), //15
+                                       Common.createSpellsLevelEntry(0, 3, 3, 2, 1), //16
+                                       Common.createSpellsLevelEntry(0, 4, 3, 2, 1), //17
+                                       Common.createSpellsLevelEntry(0, 4, 4, 2, 2), //18
+                                       Common.createSpellsLevelEntry(0, 4, 3, 3, 2), //19
+                                       Common.createSpellsLevelEntry(0, 4, 4, 3, 2) //20
+                                       );
+        }
+
+
+        static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsKnown(string name, string guid)
+        {
+            return createSpellsTable(  name, guid,
+                                       Common.createSpellsLevelEntry(),  //0
+                                       Common.createSpellsLevelEntry(),  //1
+                                       Common.createSpellsLevelEntry(),  //2
+                                       Common.createSpellsLevelEntry(),  //2
+                                       Common.createSpellsLevelEntry(0, 2), //4
+                                       Common.createSpellsLevelEntry(0, 3), //5
+                                       Common.createSpellsLevelEntry(0, 4), //6
+                                       Common.createSpellsLevelEntry(0, 4, 2), //7
+                                       Common.createSpellsLevelEntry(0, 4, 3), //8
+                                       Common.createSpellsLevelEntry(0, 5, 4), //9
+                                       Common.createSpellsLevelEntry(0, 5, 4, 2), //10
+                                       Common.createSpellsLevelEntry(0, 5, 4, 3), //11
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4), //12
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4, 2), //13
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4, 3), //14
+                                       Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //15
+                                       Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //16
+                                       Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //17
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //18
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //19
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5) //20
+                                       );
+        }
+
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);

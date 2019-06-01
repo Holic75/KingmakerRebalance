@@ -700,6 +700,7 @@ namespace KingmakerRebalance
                 new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampyric touch
 
                 new Common.SpellId( "e418c20c8ce362943a8025d82c865c1c", 4), //cape of vasps
+                new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
                 new Common.SpellId( "6e81a6679a0889a429dec9cedcf3729c", 4), //cure serious wounds
                 new Common.SpellId( "0413915f355a38146bc6ad40cdf27b3f", 4), //death ward

@@ -69,6 +69,7 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Hunter.createHunterClass();
                     KingmakerRebalance.Hunter.addAnimalFocusSH();
                     KingmakerRebalance.Witch.createWitchClass();
+                    KingmakerRebalance.Bloodrager.createBloodragerClass();
                 }
                 catch (Exception ex)
                 {
