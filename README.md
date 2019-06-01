@@ -14,6 +14,7 @@ Changes stats of npcs.
 - Nok-Nok to 8/22/14/12/10/8
 
 Adds Hunter class with its 3 archetypes (Divine Hunter, Forester and Feykiller).
+Adds Witch class with its 3 archetypes (Ley Line Guardian, Hedge Witch and Hex Channeler).
 
 Install
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
