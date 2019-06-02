@@ -1164,6 +1164,16 @@ namespace KingmakerRebalance
             return a;
         }
 
+
+        public static AddFactContextActions CreateEmptyAddFactContextActions()
+        {
+            var a = Create<AddFactContextActions>();
+            a.Activated = CreateActionList();
+            a.Deactivated = CreateActionList();
+            a.NewRound = CreateActionList();
+            return a;
+        }
+
         public static AddFactContextActions CreateAddFactContextActions(GameAction[] activated = null, GameAction[] deactivated = null, GameAction[] newRound = null)
         {
             var a = Create<AddFactContextActions>();
@@ -1595,6 +1605,15 @@ namespace KingmakerRebalance
             return c;
         }
 
+
+        public static Conditional CreateConditional(Condition[] condition, GameAction ifTrue, GameAction ifFalse = null)
+        {
+            var c = Create<Conditional>();
+            c.ConditionsChecker = CreateConditionsCheckerAnd(condition);
+            c.IfTrue = CreateActionList(ifTrue);
+            c.IfFalse = CreateActionList(ifFalse);
+            return c;
+        }
 
         public static Conditional CreateConditional(Condition[] condition, GameAction[] ifTrue, GameAction[] ifFalse = null)
         {

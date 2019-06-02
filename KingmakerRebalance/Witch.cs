@@ -847,14 +847,14 @@ namespace KingmakerRebalance
             scaling.StatType = StatType.Intelligence;
             scaling.UseKineticistMainStat = false;
             ability.AddComponent(scaling);
-            var spell_list_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>();
+            var spell_list_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>().ToArray();
             foreach (var c in spell_list_components)
             {
                 ability.RemoveComponent(c);
             }
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
-            var spell_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>();
+            var spell_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>().ToArray();
             foreach (var s in spell_components)
             {
                 ability.RemoveComponent(s);
@@ -1402,7 +1402,7 @@ namespace KingmakerRebalance
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("5d4028eb28a106d4691ed1b92bbb1915", "WitchAnimalSkinHexAbility", "db93b8d7ae754858a81da32c121036a4"); //beast shape 2
             hex_ability.Type = AbilityType.Supernatural;
             hex_ability.SetName("Animal Skin");
-            var spell_list_components = hex_ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>();
+            var spell_list_components = hex_ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>().ToArray();
             foreach (var c in spell_list_components)
             {
                 hex_ability.RemoveComponent(c);
@@ -1780,7 +1780,7 @@ namespace KingmakerRebalance
 
             hex_ability.Type = AbilityType.Supernatural;
             hex_ability.SpellResistance = false;
-            var spell_components = hex_ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>();
+            var spell_components = hex_ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>().ToArray();
             foreach (var s in spell_components)
             {
                 hex_ability.RemoveComponent(s);

@@ -22,12 +22,12 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
-using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -40,11 +40,22 @@ namespace KingmakerRebalance
         static internal LibraryScriptableObject library => Main.library;
         static internal BlueprintCharacterClass bloodrager_class;
         static internal BlueprintProgression bloodrager_progression;
+        static internal BlueprintFeatureSelection bloodline_selection;
+
+        static internal BlueprintFeature bloodrage;
+        static internal BlueprintFeature greater_bloodrage;
+        static internal BlueprintFeature mighty_bloodrage;
+        static internal BlueprintFeature tireless_bloodrage;
         static internal BlueprintBuff bloodrage_buff;
 
-        //aberrant - reach?
-        //bloodlines
-        //abbyssal - everything seems to be doable
+        static internal BlueprintProgression abyssal_bloodline;
+        static internal BlueprintFeature abyssal_bloodline_claws;
+        static internal BlueprintFeature abyssal_bloodline_demonic_bulk;
+        static internal BlueprintFeature abyssal_bloodline_demonic_resistances;
+        static internal BlueprintFeature abyssal_bloodline_abyssal_bloodrage;
+        static internal BlueprintFeature abyssal_bloodline_demonic_aura;
+        static internal BlueprintFeature abyssal_bloodline_demonic_immunities;
+
         //arcane - diruptive ?, caster's scourge?
         //celestial - conviction?
         //draconic  - ok
@@ -91,7 +102,7 @@ namespace KingmakerRebalance
             createBloodragerProgression();
             bloodrager_class.Progression = bloodrager_progression;
 
-            bloodrager_class.Archetypes = new BlueprintArchetype[] {};
+            bloodrager_class.Archetypes = new BlueprintArchetype[] { };
             Helpers.RegisterClass(bloodrager_class);
         }
 
@@ -104,6 +115,9 @@ namespace KingmakerRebalance
 
         static void createBloodragerProgression()
         {
+            createBloodrage();
+            creatBloodlineSelection();
+
             bloodrager_progression = Helpers.CreateProgression("BloodragerProgression",
                            bloodrager_class.Name,
                            bloodrager_class.Description,
@@ -132,30 +146,35 @@ namespace KingmakerRebalance
             var damage_reduction = library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8");
             var indomitable_will = library.Get<BlueprintFeature>("e9ae7276574c170468937b617d993357");
 
-            var rage = library.Get<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647");
-            var greater_rage = library.Get<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982");
-            var tireless_rage = library.Get<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a");
-            var mighty_rage = library.Get<BlueprintFeature>("06a7e5b60020ad947aed107d82d1f897");
 
-            bloodrager_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, bloodrager_proficiencies, rage, fast_movement, detect_magic,
+            bloodrager_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, bloodrager_proficiencies, bloodrage, bloodline_selection, fast_movement, detect_magic,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, uncanny_dodge),
                                                                     Helpers.LevelEntry(5, improved_uncanny_dodge),
                                                                     Helpers.LevelEntry(7, damage_reduction),
                                                                     Helpers.LevelEntry(10, damage_reduction),
-                                                                    Helpers.LevelEntry(11, greater_rage),
+                                                                    Helpers.LevelEntry(11, greater_bloodrage),
                                                                     Helpers.LevelEntry(13, damage_reduction),
                                                                     Helpers.LevelEntry(14, indomitable_will),
                                                                     Helpers.LevelEntry(16, damage_reduction),
-                                                                    Helpers.LevelEntry(17, tireless_rage),
+                                                                    Helpers.LevelEntry(17, tireless_bloodrage),
                                                                     Helpers.LevelEntry(19, damage_reduction),
-                                                                    Helpers.LevelEntry(20, mighty_rage)
+                                                                    Helpers.LevelEntry(20, mighty_bloodrage)
                                                                     };
 
-            bloodrager_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { bloodrager_proficiencies, detect_magic};
-            bloodrager_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(rage, greater_rage, tireless_rage, mighty_rage) };
+            bloodrager_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { bloodrager_proficiencies, detect_magic, bloodline_selection };
+            bloodrager_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(bloodrage, greater_bloodrage, tireless_bloodrage, mighty_bloodrage) };
+        }
 
+
+        static void createBloodrage()
+        {
+            //we are going to use barbarian rage as a bloodrage, at least for the time being
+            bloodrage = library.Get<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647");//barbarian rage feature
+            greater_bloodrage = library.Get<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982");
+            tireless_bloodrage = library.Get<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a");
+            mighty_bloodrage = library.Get<BlueprintFeature>("06a7e5b60020ad947aed107d82d1f897");
             //fix rage resource to work for bloodrager
             var rage_resource = library.Get<Kingmaker.Blueprints.BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
             var amount = Helpers.GetField(rage_resource, "m_MaxAmount");
@@ -165,11 +184,16 @@ namespace KingmakerRebalance
             Helpers.SetField(rage_resource, "m_MaxAmount", amount);
 
             //allow to cast spells while in rage
-            //It is possible to make a separate rage buff for bloodrager different from standard rage,
+            //It is possible to make a separate rage buff for bloodrager, different from standard rage,
             //but it is apparently impossible to allow casting only bloodrager spells while under the effect of such buff
             bloodrage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
             bloodrage_buff.RemoveComponent(bloodrage_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ForbidSpellCasting>());
+            // all to use rage out of combat for debug purposes
+            var rage = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
+            rage.IsOnByDefault = false;
+            rage.DeactivateIfCombatEnded = false;
         }
+
 
 
         static BlueprintSpellbook createBloodragerSpellbook()
@@ -276,5 +300,368 @@ namespace KingmakerRebalance
             return bloodrager_spellbook;
         }
 
+
+        static void creatBloodlineSelection()
+        {
+            createAbyssalBloodline();
+
+
+            bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
+                                                                     "Bloodline",
+                                                                     "Each bloodrager has a source of magic somewhere in his heritage that empowers his bloodrages, bonus feats, and bonu spells. Sometimes this source reflects a distant blood relationship to a powerful being, or is due to an extreme event involving such a creature somewhere in his family’s past. Regardless of the source, this influence manifests in a number of ways. A bloodrager must pick one bloodline upon taking his first level of bloodrager. Once made, this choice cannot be changed.\n"
+                                                                     + "When choosing a bloodline, the bloodrager’s alignment doesn’t restrict his choices.A good bloodrager could come from an abyssal bloodline, a celestial bloodline could beget an evil bloodrager generations later, a bloodrager from an infernal bloodline could be chaotic, and so on.Though his bloodline empowers him, it doesn’t dictate or limit his thoughts and behavior.\n"
+                                                                     + "The bloodrager gains bloodline powers at 1st level, 4th level, and every 4 levels thereafter.The bloodline powers a bloodrager gains are described in his chosen bloodline.For all spell - like bloodline powers, treat the character’s bloodrager level as the caster level.\n"
+                                                                     + "At 6th level and every 3 levels thereafter, a bloodrager receives one bonus feat chosen from a list specific to each bloodline.The bloodrager must meet the prerequisites for these bonus feats.At 7th, 10th, 13th, and 16th levels, a bloodrager learns an additional spell derived from his bloodline.",
+                                                                     "6eed80b1bfa9425e90c5981fb87dedf2",
+                                                                     null,
+                                                                     FeatureGroup.None);
+            bloodline_selection.AllFeatures = new BlueprintFeature[] { abyssal_bloodline };
+            bloodline_selection.Features = bloodline_selection.AllFeatures;
+        }
+
+
+        static void createAbyssalBloodline()
+        {
+            createAbyssalBloodlineClaws();
+            createAbyssalBloodlineDemonicBulk();
+            createAbyssalBloodlineDemonicResistances();
+            createAbyssalBloodlineAbyssalBloodrage();
+            createAbyssalBloodlineDemonicAura();
+            createAbyssalBloodlineDemonicImmunities();
+
+            var ray_of_enfeeblement = library.Get<BlueprintAbility>("450af0402422b0b4980d9c2175869612");
+            var bulls_strength  = library.Get<BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d");
+            var rage = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2");
+            var stoneskin = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b");
+
+            var cleave = library.Get<BlueprintFeature>("d809b6c4ff2aaff4fa70d712a70f7d7b");
+            var great_fortitude = library.Get<BlueprintFeature>("79042cb55f030614ea29956177977c52");
+            var improved_bull_rush = library.Get<BlueprintFeature>("b3614622866fe7046b787a548bbd7f59");
+            var improved_sunder = library.Get<BlueprintFeature>("9719015edcbf142409592e2cbaab7fe1");
+            var intimidating_prowess = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
+            var power_attack = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+            var toughness = library.Get<BlueprintFeature>("d09b20029e9abfe4480b356c92095623");
+
+
+            abyssal_bloodline = createBloodragerBloodline("Abyssal",
+                                                          "Generations ago, a demon spread its filth into the essence of your bloodline. While it doesn’t manifest in all of your kin, in those moments when you’re bloodraging, you embody its terrifying presence.\n"
+                                                           + "Bonus Feats: Cleave, Great Fortitude, Improved Bull Rush, Improved Sunder, Intimidating Prowess, Power Attack, Toughness.\n"
+                                                           + "Bonus Spells: Ray of enfeeblement(7th), bull’s strength(10th), rage(13th), stoneskin(16th).",
+                                                          library.Get<BlueprintProgression>("d3a4cb7be97a6694290f0dcfbd147113").Icon, //sorceror bloodline
+                                                          new BlueprintAbility[] { ray_of_enfeeblement, bulls_strength, rage, stoneskin },
+                                                          new BlueprintFeature[] { cleave, great_fortitude, improved_bull_rush, improved_sunder, intimidating_prowess, power_attack, toughness },
+                                                          new BlueprintFeature[] { abyssal_bloodline_claws, abyssal_bloodline_demonic_bulk, abyssal_bloodline_demonic_resistances, abyssal_bloodline_abyssal_bloodrage, abyssal_bloodline_demonic_aura, abyssal_bloodline_demonic_immunities },
+                                                          "8a06875a5d1b4f3e93d4f7e1b54e3356",
+                                                          new string[] { "1ebaa0951c4c43b69462fb6ccf0dde3f", "bbe03ed8293e435782dbfa6bc0ad10bf", "6e26e5974ab4481fa6127783bbac301c", "b7b57562edac4e01955dfa63e956b01b" },
+                                                          "ccd945bba7784ae981ac66e8138439d5"
+                                                          );
+
+        }
+
+
+        static void createAbyssalBloodlineClaws()
+        {
+            //claws
+            var claw1d6 = library.Get<BlueprintItemWeapon>("d40ae466ba750bf4495a174e399d85ce"); //from sorc abbys bloodline
+            var claw1d8 = library.CopyAndAdd<BlueprintItemWeapon>("d40ae466ba750bf4495a174e399d85ce", "BloodlineAbyssalClaw1d8", "350d22105211463ebcb998e9740d00a1");
+            Helpers.SetField(claw1d8, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
+            var claw1d8Fire = library.CopyAndAdd<BlueprintItemWeapon>("6e2487c8fb0501841b508e5918b36cb9", "BloodlineAbyssalClaw1d8Fire", "9f147636d23c4a04a2a575e6eb601bfa");
+            Helpers.SetField(claw1d8Fire, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
+
+            var claw_buff1 = library.CopyAndAdd<BlueprintBuff>("4a51dca9d9456214e9a382b9e47385b3", "BloodragerBloodlineAbyssalClaw1Buff", "6786313f39c044ad9348bdfc163cf45f");
+            claw_buff1.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d6));
+            var claw_buff2 = library.Get<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6"); //from sorcerer bloodline
+            var claw_buff3 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw3Buff", "9af5c8658f3f42c99cc61e58b1cae7ac");
+            claw_buff3.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8));
+            var claw_buff4 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw4Buff", "d255c953ad424b1f8e73e98b318e0d64");
+            claw_buff4.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8Fire));
+
+            var claws1_feature = Helpers.CreateFeature("BloodragerBloodlineAbyssalClaws1Feature", "Claws",
+                                                      "At 1st level, you grow claws while bloodraging. These claws are treated as natural weapons, allowing you to make two claw attacks as a full attack, using your full base attack bonus. These attacks deal 1d6 points of damage each (1d4 if you are Small) plus your Strength modifier. At 4th level, these claws are considered magic weapons for the purpose of overcoming damage resistance. At 8th level, the damage increases to 1d8 points (1d6 if you are Small). At 12th level, these claws become flaming weapons, which deal an additional 1d6 points of fire damage on a hit.",
+                                                      "beb37be3879744b08b1def72cb4fb2d9",
+                                                      claw1d6.Icon,
+                                                      FeatureGroup.None);
+            claws1_feature.HideInCharacterSheetAndLevelUp = true;
+            var claws2_feature = Helpers.CreateFeature("BloodragerBloodlineAbyssalClaws2Feature", "Claws",
+                                                      claws1_feature.Description,
+                                                      "d5d7cfbbefc740d2b1047dd8ae4a9651",
+                                                      claws1_feature.Icon,
+                                                      FeatureGroup.None,
+                                                      Common.createRemoveFeatureOnApply(claws1_feature));
+            claws2_feature.HideInCharacterSheetAndLevelUp = true;
+            var claws3_feature = Helpers.CreateFeature("BloodragerBloodlineAbyssalClaws3Feature", "Claws",
+                                                      claws1_feature.Description,
+                                                      "98cb5e2a4a7240dfa8f8de58136bc738",
+                                                      claws1_feature.Icon,
+                                                      FeatureGroup.None,
+                                                      Common.createRemoveFeatureOnApply(claws2_feature),
+                                                      Common.createRemoveFeatureOnApply(claws1_feature));
+            claws3_feature.HideInCharacterSheetAndLevelUp = true;
+            var claws4_feature = Helpers.CreateFeature("BloodragerBloodlineAbyssalClaws3Feature", "Claws",
+                                                      claws1_feature.Description,
+                                                      "e8d6d66c04bd495ba24824feaf537cf6",
+                                                      claws1_feature.Icon,
+                                                      FeatureGroup.None,
+                                                      Common.createRemoveFeatureOnApply(claws3_feature),
+                                                      Common.createRemoveFeatureOnApply(claws2_feature),
+                                                      Common.createRemoveFeatureOnApply(claws1_feature));
+            claws4_feature.HideInCharacterSheetAndLevelUp = true;
+            abyssal_bloodline_claws = Helpers.CreateFeature("BloodragerBloodlineAbyssalClawsFeature", "Claws",
+                                                      claws1_feature.Description,
+                                                      "6897f6702f0144f4b468cd2ce6c22390",
+                                                      claws1_feature.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFeatureOnClassLevel(claws1_feature, 1, getBloodragerArray(), null),
+                                                      Helpers.CreateAddFeatureOnClassLevel(claws2_feature, 4, getBloodragerArray(), null),
+                                                      Helpers.CreateAddFeatureOnClassLevel(claws3_feature, 8, getBloodragerArray(), null),
+                                                      Helpers.CreateAddFeatureOnClassLevel(claws4_feature, 12, getBloodragerArray(), null)
+                                                      );
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff1, claws1_feature);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff2, claws2_feature);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff3, claws3_feature);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff4, claws4_feature);
+        }
+
+
+        static void createAbyssalBloodlineDemonicBulk()
+        {
+            var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
+            var enlarge_buff = library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb");
+            var demonic_bulk_switch_buff = Helpers.CreateBuff("BloodragerBloodlineAbyssalDemonicBulkSwitchBuff",
+                                                              "Demonic Bulk",
+                                                              "At 4th level, when entering a bloodrage, you can choose to grow one size category larger than your base size (as enlarge person) even if you aren’t humanoid.",
+                                                              "00c460abf3e94f7fa7a69c6da5cb2741",
+                                                              enlarge_buff.Icon,
+                                                              null,
+                                                              Helpers.CreateEmptyAddFactContextActions());
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(demonic_bulk_switch_buff, enlarge_buff, bloodrage_buff);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, enlarge_buff, demonic_bulk_switch_buff);
+
+            var demonic_bulk_ability = Helpers.CreateActivatableAbility("BloodragerBloodlineAbyssalDemonicBulkToggleAbility",
+                                                                        demonic_bulk_switch_buff.Name,
+                                                                        demonic_bulk_switch_buff.Description,
+                                                                        "d6dd7b8642624f50997b2d580b8e18fa",
+                                                                        enlarge_buff.Icon,
+                                                                        demonic_bulk_switch_buff,
+                                                                        AbilityActivationType.Immediately,
+                                                                        CommandType.Standard,
+                                                                        reckless_stance.ActivateWithUnitAnimation);
+            abyssal_bloodline_demonic_bulk = Helpers.CreateFeature("BloodragerBloodlineAbyssalDemonicBulkFeature",
+                                                                    demonic_bulk_switch_buff.Name,
+                                                                    demonic_bulk_switch_buff.Description,
+                                                                    "4f2896b7dcda42dd89a44550381b7173",
+                                                                    enlarge_buff.Icon,
+                                                                    FeatureGroup.None,
+                                                                    KingmakerRebalance.Helpers.CreateAddFact(demonic_bulk_ability));
+        }
+
+
+        static void createAbyssalBloodlineDemonicResistances()
+        {
+            var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
+            var resist_caf = Helpers.CreateBuff("BloodragerAbyssalBloodlineDemonicResistancesBuff",
+                                                "Demon Resistances",
+                                                "At 8th level, you gain resistance 5 to acid, cold, and fire. At 16th level, these resistances increase to 10.",
+                                                "c888c8d801dc49ceac1cf022734afaaf",
+                                                damage_resistance.Icon,
+                                                null,
+                                                Common.createEnergyDRContextRank(DamageEnergyType.Acid),
+                                                Common.createEnergyDRContextRank(DamageEnergyType.Fire),
+                                                Common.createEnergyDRContextRank(DamageEnergyType.Cold),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                classes: getBloodragerArray(),
+                                                customProgression: new (int, int)[] {
+                                                                (15, 5),
+                                                                (20, 10)
+                                                })
+                                                );
+            abyssal_bloodline_demonic_resistances = Helpers.CreateFeature("BloodragerAbyssalBloodlineDemonicResistancesFeature",
+                                                                           resist_caf.Name,
+                                                                           resist_caf.Description,
+                                                                           "f5926c928da34a3ebaf0c9183742fb91",
+                                                                           resist_caf.Icon,
+                                                                           FeatureGroup.None);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_caf, abyssal_bloodline_demonic_resistances);
+        }
+
+        static void createAbyssalBloodlineAbyssalBloodrage()
+        {
+            var abyssal_strength = library.Get<BlueprintFeature>("489c8c4a53a111d4094d239054b26e32");
+            var buff = Helpers.CreateBuff("BloodragerAbyssalBloodlineAbyssalBloodrage",
+                                                "Abyssal Bloodrage",
+                                                "At 12th level, while bloodraging,  you receive +2 morale bonus to Strength, but the penalty to AC becomes –4 instead of –2. At 16th level, this bonus increases by 4 instead. At 20th level, it increases by 6 instead.",
+                                                "9f57b65210a34032aef5da55a7b7fa18",
+                                                abyssal_strength.Icon,
+                                                null,
+                                                Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                                Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                classes: getBloodragerArray(),
+                                                customProgression: new (int, int)[] {
+                                                                (15, 2),
+                                                                (19, 4),
+                                                                (20, 6)
+                                                })
+                                                );
+            abyssal_bloodline_abyssal_bloodrage = Helpers.CreateFeature("BloodragerAbyssalBloodlineDemonicResistancesFeature",
+                                                                           buff.Name,
+                                                                           buff.Description,
+                                                                           "9167d9245c9140ae94f834186c98b700",
+                                                                           buff.Icon,
+                                                                           FeatureGroup.None);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, abyssal_bloodline_abyssal_bloodrage);
+        }
+
+
+        static void createAbyssalBloodlineDemonicAura()
+        {
+            var area_effect = new Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect();
+            area_effect.name = "BloodragerAbyssalBloodlineDemonicAura";
+            area_effect.AffectEnemies = true;
+            area_effect.AggroEnemies = true;
+            area_effect.Size = 5.Feet();
+            area_effect.Shape = AreaEffectShape.Cylinder;
+            var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, damage, isAoE: true);
+            var conditional_damage = Helpers.CreateConditional(new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionIsMainTarget(),
+                                                                null,
+                                                                damage_action);
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_damage));
+            area_effect.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
+                                                                     stat: StatType.Constitution,
+                                                                     classes: getBloodragerArray(),
+                                                                     type: AbilityRankType.DamageBonus
+                                                                     )
+                                    );
+            area_effect.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
+            area_effect.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            library.AddAsset(area_effect, "2a03a03228fb479f9f0810e87cfbbe95");
+
+            var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
+            var firebelly = library.Get<BlueprintAbility>("b065231094a21d14dbf1c3832f776871");
+
+            var demonic_aura_buff = Helpers.CreateBuff("BloodragerBloodlineAbyssalDemonicAuraBuff",
+                                                                          "Demonic Aura",
+                                                                          "At 16th level, when entering a bloodrage you can choose to exude an aura of fire. The aura is a 5-foot burst centered on you, and deals 2d6 + your Constitution modifier points of fire damage to creatures that end their turns within it.",
+                                                                          "44d877ef2428424082761e94dd3d55b3",
+                                                                          firebelly.Icon,
+                                                                          null,
+                                                                          Common.createAddAreaEffect(area_effect));
+
+            var demonic_aura_switch_buff = Helpers.CreateBuff("BloodragerBloodlineAbyssalDemonicAuraSwitchBuff",
+                                                              demonic_aura_buff.Name,
+                                                              demonic_aura_buff.Description,
+                                                              "5680b4fb4da04366a651e9da1b7943a1",
+                                                              firebelly.Icon,
+                                                              null,
+                                                              Helpers.CreateEmptyAddFactContextActions());
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(demonic_aura_switch_buff, demonic_aura_buff, bloodrage_buff);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, demonic_aura_buff, demonic_aura_switch_buff);
+
+            var demonic_aura_ability = Helpers.CreateActivatableAbility("BloodragerBloodlineAbyssalDemonicAuraToggleAbility",
+                                                                        demonic_aura_switch_buff.Name,
+                                                                        demonic_aura_switch_buff.Description,
+                                                                        "610e508618df41e8bb32aff78c326e9f",
+                                                                        firebelly.Icon,
+                                                                        demonic_aura_switch_buff,
+                                                                        AbilityActivationType.Immediately,
+                                                                        CommandType.Standard,
+                                                                        reckless_stance.ActivateWithUnitAnimation);
+            abyssal_bloodline_demonic_aura = Helpers.CreateFeature("BloodragerBloodlineAbyssalDemonicBulkFeature",
+                                                                    demonic_aura_switch_buff.Name,
+                                                                    demonic_aura_switch_buff.Description,
+                                                                    "b6df9a3984114c14881bf4b2d5aa5a47",
+                                                                    firebelly.Icon,
+                                                                    FeatureGroup.None,
+                                                                    KingmakerRebalance.Helpers.CreateAddFact(demonic_aura_ability));
+
+        }
+
+
+        static void createAbyssalBloodlineDemonicImmunities()
+        {
+            abyssal_bloodline_demonic_immunities = library.CopyAndAdd<BlueprintFeature>("5c1c2ed7fe5f99649ab00605610b775b", //from sorceror bloodline
+                                                                                        "BloodragerAbyssalBloodlineDemonicImmunitiesFeature",
+                                                                                        "9f558f25202e451eb5b29c721a906a97");
+            var resistances = abyssal_bloodline_demonic_immunities.GetComponents<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>().ToArray();
+           
+            foreach (var r in resistances)
+            {
+                abyssal_bloodline_demonic_immunities.RemoveComponent(r);
+            }
+            abyssal_bloodline_demonic_immunities.SetName("Demonic Immunities");
+            abyssal_bloodline_demonic_immunities.SetDescription("At 20th level, you’re immune to electricity and poison. You have this benefit constantly, even while not bloodraging.");
+        }
+
+
+        static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
+                                                    BlueprintAbility[] bonus_spells, BlueprintFeature[] bonus_feats, BlueprintFeature[] powers,
+                                                    string feat_selection_guid, string[] spell_guids, string progression_guid)
+        {
+            //spells at 7, 10, 13, 16
+            //powers at 1, 4, 8, 12, 16, 20
+            //feats at levels = 6, 9, 12, 15, 18
+            var progression = Helpers.CreateProgression("Bloodrager" + name + "BloodlineProgression",
+                                            name + " Bloodline",
+                                            description,
+                                            progression_guid,
+                                            icon,
+                                            FeatureGroup.BloodLine);
+
+
+            var feat_selection = Helpers.CreateFeatureSelection("Bloodrager" + name + "BloodlineBonusFeatSelection",
+                                                                "Bloodline Feat",
+                                                                "At 6th level and every 3 levels thereafter, a bloodrager receives one bonus feat chosen from a list specific to each bloodline. The bloodrager must meet the prerequisites for these bonus feats.",
+                                                                feat_selection_guid,
+                                                                null,
+                                                                FeatureGroup.None
+                                                                );
+            feat_selection.AllFeatures = bonus_feats;
+            feat_selection.Features = bonus_feats;
+
+            BlueprintFeature[] bloodline_spells = new BlueprintFeature[bonus_spells.Length];
+
+            for (int i = 0; i < bloodline_spells.Length; i++)
+            {
+                bloodline_spells[i] = Helpers.CreateFeature("Bloodrager" + name + "BloodlineBonusSpell" + (i + 1).ToString(),
+                                                            bonus_spells[i].Name,
+                                                            "At 7th, 10th, 13th, and 16th levels, a bloodrager learns an additional spell derived from his bloodline.\n"
+                                                            + bonus_spells[i].Description,
+                                                            spell_guids[i],
+                                                            bonus_spells[i].Icon,
+                                                            FeatureGroup.None,
+                                                            Helpers.CreateAddKnownSpell(bonus_spells[i], bloodrager_class, i + 1)
+                                                            );
+                bonus_spells[i].AddRecommendNoFeature(progression);
+            }
+
+
+            progression.Classes = getBloodragerArray();
+            progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, powers[0]),
+                                                         Helpers.LevelEntry(4, powers[1]),
+                                                         Helpers.LevelEntry(6, feat_selection),
+                                                         Helpers.LevelEntry(7, bloodline_spells[0]),
+                                                         Helpers.LevelEntry(8, powers[2]),
+                                                         Helpers.LevelEntry(9, feat_selection),
+                                                         Helpers.LevelEntry(10, bloodline_spells[1]),
+                                                         Helpers.LevelEntry(12, feat_selection, powers[3]),
+                                                         Helpers.LevelEntry(13, bloodline_spells[2]),
+                                                         Helpers.LevelEntry(15, feat_selection),
+                                                         Helpers.LevelEntry(16, powers[4], bloodline_spells[3]),
+                                                         Helpers.LevelEntry(18, feat_selection),
+                                                         Helpers.LevelEntry(20, powers[5])
+                                                        };
+            progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(powers),
+                                                  Helpers.CreateUIGroup(bloodline_spells),
+                                                  Helpers.CreateUIGroup(feat_selection, feat_selection, feat_selection, feat_selection, feat_selection)
+                                                 };
+       
+            return progression;
+        }
+        
     }
 }

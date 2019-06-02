@@ -222,5 +222,20 @@ public class Rebalance
         }
 
 
+        public static void fixBarbarianRageAC()
+        {
+            var rage = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
+            var components = rage.GetComponents<Kingmaker.UnitLogic.FactLogic.AddContextStatBonus>();
+            foreach (var c in components)
+            {
+                if (c.Stat == Kingmaker.EntitySystem.Stats.StatType.AC)
+                {
+                    c.Value = Common.createSimpleContextValue(2);
+                }
+            }
+            
+        }
+
+
     }
 }

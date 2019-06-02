@@ -27,6 +27,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Kingmaker.Blueprints.Items;
@@ -356,6 +357,48 @@ namespace KingmakerRebalance
                                        );
         }
 
+
+        static internal Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride createEmptyHandWeaponOverride(BlueprintItemWeapon weapon)
+        {
+            var c = new Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride();
+            c.Weapon = weapon;
+            return c;
+        }
+
+
+        static internal RemoveFeatureOnApply createRemoveFeatureOnApply(BlueprintFeature feature)
+        {
+            var c = new RemoveFeatureOnApply();
+            c.Feature = feature;
+            return c;
+        }
+
+
+        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
+        {
+            var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact[facts.Length];
+            for (int i = 0; i < facts.Length; i++)
+            {
+                condition[i] = Helpers.CreateConditionHasFact(facts[i]);
+            }
+            var action = Helpers.CreateConditional(condition, Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(), false, true, true));
+            var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
+            activated.Actions = activated.Actions.AddToArray(action);
+            var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
+            var remove_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff();
+            remove_buff.Buff = buff_to_add;
+            deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);
+        }
+
+
+        static internal Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect createAddAreaEffect(BlueprintAbilityAreaEffect area_effect)
+        {
+            var a = new Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect();
+            a.AreaEffect = area_effect;
+            return a;
+        }
+
+
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
@@ -456,12 +499,12 @@ namespace KingmakerRebalance
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDRContextRank(DamageAlignment alignment)
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDRContextRank(DamageAlignment alignment, AbilityRankType rank = AbilityRankType.StatBonus)
         {
             var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
             feat.Alignment = alignment;
             feat.BypassedByAlignment = true;
-            feat.Value = Helpers.CreateContextValueRank(AbilityRankType.StatBonus);
+            feat.Value = Helpers.CreateContextValueRank(rank);
             return feat;
         }
 
@@ -477,11 +520,11 @@ namespace KingmakerRebalance
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy)
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy, AbilityRankType rank = AbilityRankType.StatBonus)
         {
             var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy();
             feat.Type = energy;
-            feat.Value = Helpers.CreateContextValueRank(AbilityRankType.StatBonus);
+            feat.Value = Helpers.CreateContextValueRank(rank);
             return feat;
         }
 
