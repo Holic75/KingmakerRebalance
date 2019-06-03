@@ -1077,11 +1077,11 @@ namespace KingmakerRebalance
             var remove_blindness = library.Get<BlueprintAbility>("c927a8b0cd3f5174f8c0b67cdbfde539");
             murksight_hex = Helpers.CreateFeature("MurksightHexFeature",
                                   "Murksight",
-                                  "The witch receives blindsense up to 15 feet.",
+                                  "The witch receives blindsight up to 15 feet.",
                                   "e860bd889e494cd583b59bc5df42e7ef",
-                                   remove_blindness.Icon, 
+                                   remove_blindness.Icon,
                                    FeatureGroup.None,
-                                   Helpers.Create<Blindsense>(b => b.Range = 15.Feet()));
+                                   Common.createBlindsight(15));
             murksight_hex.Ranks = 1;
         }
 
@@ -1710,7 +1710,7 @@ namespace KingmakerRebalance
             action.SavingThrowType = SavingThrowType.Will;
             action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
             hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
-            hex_ability.ReplaceComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Exhausted | SpellDescriptor.Fatigue));
+            hex_ability.ReplaceComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Death));
             addWitchHexCooldownScaling(hex_ability, "f172135df37a40e8aa7cb7be29d2a72d");
             var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
@@ -1801,9 +1801,11 @@ namespace KingmakerRebalance
 
         static void createEternalSlumber()
         {
+            var touch_of_fatigue_spell = library.Get<BlueprintAbility>("5bf3315ce1ed4d94e8805706820ef64d");
             var sleep_spell = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
             var dominate_spell = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
             var hex_buff = library.CopyAndAdd<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a", "WitchEternalSlumberHexBuff", "0a2763d71f274a25b053647ea5053b40");
+            hex_buff.SetIcon(touch_of_fatigue_spell.Icon);
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>());
             var hex_ability = Helpers.CreateAbility("WitchEternalSlumberHexAbility",
                                                     "Eternal Slumber",

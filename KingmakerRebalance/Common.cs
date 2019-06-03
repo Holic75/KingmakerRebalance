@@ -169,6 +169,26 @@ namespace KingmakerRebalance
         }
 
 
+        internal static ContextActionSavingThrow createContextActionSavingThrow(SavingThrowType saving_throw, Kingmaker.ElementsSystem.ActionList action)
+        {
+            var c = new ContextActionSavingThrow();
+            c.Type = saving_throw;
+            c.Actions = action;
+            return c;
+        }
+
+
+        internal static Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass createContextCalculateAbilityParamsBasedOnClass(BlueprintCharacterClass character_class, 
+                                                                                                                                                    StatType stat, bool use_kineticist_main_stat = false)
+        {
+            var c = new ContextCalculateAbilityParamsBasedOnClass();
+            c.CharacterClass = character_class;
+            c.StatType = stat;
+            c.UseKineticistMainStat = use_kineticist_main_stat;
+            return c;
+        }
+
+
         internal static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
         {
             var c = new Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks();
@@ -211,6 +231,41 @@ namespace KingmakerRebalance
             }
             Helpers.SetField(c, "m_Actions", y);
             return c;
+        }
+
+
+        static internal BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
+        {
+            var b = new BuffDescriptorImmunity();
+            b.Descriptor = descriptor;
+            return b;
+        }
+
+
+        static internal Blindsense createBlindsense(int range)
+        {
+            var b = new Blindsense();
+            b.Range = range.Feet();
+            return b;
+        }
+
+
+        static internal Blindsense createBlindsight(int range)
+        {
+            var b = new Blindsense();
+            b.Range = range.Feet();
+            b.Blindsight = true;
+            return b;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Facts.AddFortification createAddFortification(int bonus = 0, ContextValue value = null)
+        {
+            var a = new AddFortification();
+            a.Bonus = bonus;
+            a.UseContextValue = value == null ? true : false;
+            a.Value = value;
+            return a;
         }
 
 
@@ -396,6 +451,16 @@ namespace KingmakerRebalance
             var a = new Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect();
             a.AreaEffect = area_effect;
             return a;
+        }
+
+
+        static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = false, bool critical_hit = false)
+        {
+            var t = new AddInitiatorAttackWithWeaponTrigger();
+            t.Action = action;
+            t.OnlyHit = only_hit;
+            t.CriticalHit = critical_hit;
+            return t;
         }
 
 
