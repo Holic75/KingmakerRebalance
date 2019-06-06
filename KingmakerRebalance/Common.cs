@@ -454,13 +454,28 @@ namespace KingmakerRebalance
         }
 
 
-        static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = false, bool critical_hit = false)
+        static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false, 
+                                                                                                      bool check_weapon_range_type = false,
+                                                                                                      AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
         {
             var t = new AddInitiatorAttackWithWeaponTrigger();
             t.Action = action;
             t.OnlyHit = only_hit;
             t.CriticalHit = critical_hit;
+            t.CheckWeaponRangeType = check_weapon_range_type;
+            t.RangeType = range_type;
             return t;
+        }
+
+
+        static internal Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignment(DamageAlignment alignment, bool check_range = false, bool is_ranged = false)
+        {
+            var a = new AddOutgoingPhysicalDamageProperty();
+            a.AddAlignment = true;
+            a.Alignment = alignment;
+            a.CheckRange = check_range;
+            a.IsRanged = is_ranged;
+            return a;
         }
 
 

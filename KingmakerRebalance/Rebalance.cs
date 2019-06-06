@@ -158,7 +158,7 @@ public class Rebalance
         tristian_level.Selections[2].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4");//good as secondary
         tristian_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4");//good as secondary
         tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extend spell
-                                                                                                                                            //change harrim stats
+        //change harrim stats
         var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
         harrim_companion.Strength = 16;
         var harrim_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8910febae2a7b9f4ba5eca4dde1e9649");

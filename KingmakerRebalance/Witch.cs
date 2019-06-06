@@ -38,6 +38,7 @@ namespace KingmakerRebalance
     class Witch
     {
         static internal LibraryScriptableObject library => Main.library;
+        internal static bool test_mode = false;
         static internal BlueprintCharacterClass witch_class;
         static internal BlueprintProgression witch_progression;
         static internal BlueprintFeatureSelection witch_patrons;
@@ -949,8 +950,8 @@ namespace KingmakerRebalance
                                                     sleep_spell.LocalizedSavingThrow);
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetEnemies = true;
-            hex_ability.CanTargetFriends = true;
-            hex_ability.CanTargetSelf = true;
+            hex_ability.CanTargetFriends = test_mode;
+            hex_ability.CanTargetSelf = test_mode;
             hex_ability.AvailableMetamagic = sleep_spell.AvailableMetamagic;
             hex_ability.MaterialComponent = sleep_spell.MaterialComponent;
             hex_ability.ResourceAssetIds = sleep_spell.ResourceAssetIds;
@@ -1199,8 +1200,8 @@ namespace KingmakerRebalance
             ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
             ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             ability.CanTargetEnemies = true;
-            ability.CanTargetFriends = true;
-            ability.CanTargetSelf = true;
+            ability.CanTargetFriends = test_mode;
+            ability.CanTargetSelf = test_mode;
             ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
 
@@ -1256,7 +1257,8 @@ namespace KingmakerRebalance
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("f2f1efac32ea2884e84ecaf14657298b", "WitchSummerHeatHex", "008a70774dbf48058810c565dad93fce");//bonshatter
             hex_ability.SetIcon(fatigued_buff.Icon);
             hex_ability.ComponentsArray = new BlueprintComponent[] { hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>()};
-            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetFriends = test_mode;
+            hex_ability.CanTargetSelf = test_mode;
             hex_ability.SetName("Summer’s Heat");
             hex_ability.SetDescription("Effect: The witch surrounds her target with oppressive heat, dealing a number of points of nonlethal damage equal to her witch level and causing the target to become fatigued. The target can attempt a Fortitude save to reduce this nonlethal damage by half and negate the fatigued condition. Whether or not the target succeeds at this save, it can’t be the target of this hex again for 1 day.");
 
@@ -1436,7 +1438,8 @@ namespace KingmakerRebalance
             action.SavingThrowType = SavingThrowType.Fortitude;
             action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds));
             hex_ability.AddComponent(action);
-            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetFriends = test_mode;
+            hex_ability.CanTargetSelf = test_mode;
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetEnemies = true;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityAoERadius>());
@@ -1536,8 +1539,8 @@ namespace KingmakerRebalance
             hex_ability.SetDescription("Effect: A storm of ice and freezing wind envelops the target, which takes 3d8 points of cold damage (Fortitude half). If the target fails its save, it is paralyzed and unconscious but does not need to eat or breathe while the ice lasts. Destroying the ice frees the creature, which is staggered for 1d4 rounds after being released. Whether or not the target’s saving throw is successful, it cannot be the target of this hex again for 1 day.");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             hex_ability.Range = AbilityRange.Close;
-            hex_ability.CanTargetFriends = true;
-            hex_ability.CanTargetSelf = true;
+            hex_ability.CanTargetFriends = test_mode;
+            hex_ability.CanTargetSelf = test_mode;
             var damage_value = new ContextValue();
             damage_value.ValueType = ContextValueType.Simple;
             damage_value.Value = 3;
@@ -1642,7 +1645,8 @@ namespace KingmakerRebalance
         static void createAnimalServant()
         {
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61", "WitchAnimalServantHexAbility", "583e661fe4244a319672bc6ccdc51294");//dominate  person
-            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetFriends = test_mode;
+            hex_ability.CanTargetSelf = test_mode;
             hex_ability.ActionType = CommandType.Standard;
             Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
             hex_ability.SetName("Animal Servant");
@@ -1722,7 +1726,7 @@ namespace KingmakerRebalance
             hex_buff.SetDescription(hex_ability.Description);
             hex_buff.SetName(hex_ability.Name);
 
-            hex_ability.CanTargetFriends = true;
+            hex_ability.CanTargetFriends = test_mode;
             hex_ability.ActionType = CommandType.Standard;
             Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
             death_curse = Helpers.CreateFeature("WitchDeathCurseHexFeature",
@@ -1745,7 +1749,6 @@ namespace KingmakerRebalance
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetSelf = false;
             hex_ability.CanTargetFriends = false;
-            hex_ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
             hex_ability.Range = AbilityRange.Close;
             hex_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityTargetsAround>());
@@ -1822,8 +1825,8 @@ namespace KingmakerRebalance
             hex_ability.Range = AbilityRange.Touch;
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetEnemies = true;
-            hex_ability.CanTargetFriends = true;
-            hex_ability.CanTargetSelf = true;
+            hex_ability.CanTargetFriends = test_mode;
+            hex_ability.CanTargetSelf = test_mode;
             hex_ability.AvailableMetamagic = sleep_spell.AvailableMetamagic;
             hex_ability.MaterialComponent = sleep_spell.MaterialComponent;
             hex_ability.ResourceAssetIds = sleep_spell.ResourceAssetIds;

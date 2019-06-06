@@ -38,6 +38,7 @@ namespace KingmakerRebalance
     class Bloodrager
     {
         static internal LibraryScriptableObject library => Main.library;
+        static internal bool test_mode = false;
         static internal BlueprintCharacterClass bloodrager_class;
         static internal BlueprintProgression bloodrager_progression;
         static internal BlueprintFeatureSelection bloodline_selection;
@@ -182,10 +183,17 @@ namespace KingmakerRebalance
             //but it is apparently impossible to allow casting only bloodrager spells while under the effect of such buff
             bloodrage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
             bloodrage_buff.RemoveComponent(bloodrage_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ForbidSpellCasting>());
-            // all to use rage out of combat for debug purposes
-            var rage = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
-            rage.IsOnByDefault = false;
-            rage.DeactivateIfCombatEnded = false;
+
+            if (test_mode)
+            {
+                // allow to use rage out of combat for debug purposes
+                var rage = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
+                rage.IsOnByDefault = false;
+                rage.DeactivateIfCombatEnded = false;
+                // allow to use charge on allies
+                var charge = library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038");
+                charge.CanTargetFriends = true;
+            }
 
             //we will use damage reduction of barbarian
             damage_reduction = library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8");
@@ -302,6 +310,7 @@ namespace KingmakerRebalance
         {
             AberrantBloodline.create();
             AbyssalBloodline.create();
+            CelestialBloodline.create();
 
             bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
                                                                      "Bloodline",
@@ -312,7 +321,7 @@ namespace KingmakerRebalance
                                                                      "6eed80b1bfa9425e90c5981fb87dedf2",
                                                                      null,
                                                                      FeatureGroup.None);
-            bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression };
+            bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression};
             bloodline_selection.Features = bloodline_selection.AllFeatures;
         }
 
@@ -493,6 +502,7 @@ namespace KingmakerRebalance
                                                                                FeatureGroup.None);
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_caf, demonic_resistances);
             }
+
 
             static void createAbyssalBloodrage()
             {
@@ -791,10 +801,177 @@ namespace KingmakerRebalance
                 feature_list = feature_list.AddToArray(aberrant_form);
                 Helpers.SetField(rank_config, "m_FeatureList", feature_list);
             }
+        }
 
 
+        class CelestialBloodline
+        {
+            static internal BlueprintProgression progression;
+            static internal BlueprintFeature angelic_attacks;
+            static internal BlueprintFeature celestial_resistances;
+            static internal BlueprintFeature conviction;
+            static internal BlueprintFeature wings_of_heaven;
+            static internal BlueprintFeature angelic_protection;
+            static internal BlueprintFeature ascension;
+            static string prefix = "BloodragerBloodlineCelestial";
 
 
+            static internal void create()
+            {
+                createAngelicAttacks();
+                createCelestialResistances();
+                createConviction();
+                createWingsOfHeaven();
+                createAngelicProtection();
+                createAscension();
+
+                var bless = library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638");
+                var resist_energy = library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b");
+                var heroism = library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63");
+                var flamestrike = library.Get<BlueprintAbility>("f9910c76efc34af41b6e43d5d8752f0f");
+
+                var dodge = library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5");
+                var mobility = library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb");
+                var dazzling_display = library.Get<BlueprintFeature>("bcbd674ec70ff6f4894bb5f07b6f4095");
+                var cornugon_smash = library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14");
+                var improved_initiative = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");
+                var weapon_focus = library.Get<BlueprintFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+                var iron_will = library.Get<BlueprintFeature>("175d1577bb6c9a04baf88eec99c66334");
+
+
+                progression = createBloodragerBloodline("Celestial",
+                                                              "By way of a celestial ancestor or divine intervention, the blood of angels fills your body with a holy potency, granting you a majestic visage and angelic powers when you enter your bloodrage.\n"
+                                                               + "Bonus Feats: Dodge, Mobility, Dazzling Display, Cornugon Smash, Improved Initiative, Iron Will, Weapon Focus.\n"
+                                                               + "Bonus Spells: Bless (7th), resist energy (10th), heroism (13th), flamestrike (16th).",
+                                                              library.Get<BlueprintAbility>("75a10d5a635986641bfbcceceec87217").Icon, //angelic aspect
+                                                              new BlueprintAbility[] { bless, resist_energy, heroism, flamestrike },
+                                                              new BlueprintFeature[] { dodge, mobility, dazzling_display, cornugon_smash, improved_initiative, iron_will, weapon_focus},
+                                                              new BlueprintFeature[] { angelic_attacks, celestial_resistances, conviction, wings_of_heaven, angelic_protection, ascension},
+                                                              "356f9a6169d8480da772f02a13e2da29",
+                                                              new string[] { "0921bf94bf174c8b8e0361057761ba7a", "ca818409470d4a56b8619c3604af345b", "c7dfde63fb8a41afa3f0b1fc0020bcac", "9d196e52c01c43ddbcca7b8a941144e7" },
+                                                              "205d951fa55a4d9ca10f50592f1868b3"
+                                                              );
+            }
+
+            static void createAngelicAttacks()
+            {
+                var crusaders_edge = library.Get<BlueprintAbility>("a26c23a887a6f154491dc2cefdad2c35");
+                var resounding_blow_buff = library.Get<BlueprintBuff>("06173a778d7067a439acffe9004916e9");
+
+                var outsider_feature = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
+                var evil_feature = library.Get<BlueprintFeature>("5279fc8380dd9ba419b4471018ffadd1");
+
+                var c = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact();
+
+                var bonus_damage = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.CreateConditionHasFact(outsider_feature), Helpers.CreateConditionHasFact(evil_feature)),
+                                                             Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)))
+                                                            );
+                var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
+                var good_weapon = Common.createAddOutgoingAlignment(DamageAlignment.Good, check_range: true, is_ranged: false);
+                var angelic_attacks_buff = Helpers.CreateBuff(prefix + "AngelicAttacksBuff",
+                                                             "Angelic Attacks",
+                                                             "At 1st level, your melee attacks are considered good-aligned weapons for the purpose of bypassing damage reduction. Furthermore, when you deal damage with a melee attack to an evil outsider, you deal an additional 1d6 points of damage. This additional damage stacks with effects such as align weapon and those granted by a weapon with the holy weapon special ability.",
+                                                             "fcba2a8679de4213b31ecdbc9ab7a9ad",
+                                                             crusaders_edge.Icon,
+                                                             resounding_blow_buff.FxOnStart,
+                                                             good_weapon,
+                                                             Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, only_hit: true, check_weapon_range_type: true, 
+                                                                                                              range_type: AttackTypeAttackBonus.WeaponRangeType.Melee)
+                                                             );
+                angelic_attacks = Helpers.CreateFeature(prefix + "AngelicAttacksFeature",
+                                                               angelic_attacks_buff.Name,
+                                                               angelic_attacks_buff.Description,
+                                                               "300f0d5f0a9446078465bafc693a17ef",
+                                                               angelic_attacks_buff.Icon,
+                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, angelic_attacks_buff, angelic_attacks);
+            }
+
+
+            static void createCelestialResistances()
+            {
+                var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
+                var resist_ca_buff  = Helpers.CreateBuff(prefix + "CelestialResistancesBuff",
+                                                    "Celestial Resistances",
+                                                    "At 4th level, you gain resistance 5 to acid and cold. At 12th level, these resistances increase to 10.",
+                                                    "2f932f4a8b32446993708c3e60e3aa54",
+                                                    damage_resistance.Icon,
+                                                    null,
+                                                    Common.createEnergyDRContextRank(DamageEnergyType.Acid),
+                                                    Common.createEnergyDRContextRank(DamageEnergyType.Cold),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                    ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                    classes: getBloodragerArray(),
+                                                    customProgression: new (int, int)[] {
+                                                                (11, 5),
+                                                                (20, 10)
+                                                    })
+                                                    );
+                celestial_resistances = Helpers.CreateFeature(prefix + "CelestialResistancesFeature",
+                                                                               resist_ca_buff.Name,
+                                                                               resist_ca_buff.Description,
+                                                                               "4f59478befb0468081599205fbbce42a",
+                                                                               resist_ca_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_ca_buff, celestial_resistances);
+            }
+
+
+            static void createConviction()
+            {
+                var spell_resistance = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889");
+                var conviction_buff = Helpers.CreateBuff(prefix + "ConvictionBuff",
+                                                    "Conviction",
+                                                    "At 8th level, you take half damage from magical attacks with the evil descriptor. If such an attack allows a Reflex save for half damage, you take no damage on a successful saving throw.",
+                                                    "accbfca27afe4dadbc1b02f603e32a1a",
+                                                    spell_resistance.Icon,
+                                                    null,
+                                                    new Kingmaker.UnitLogic.FactLogic.AddNimbusDamageDivisor()
+                                                    );
+                conviction = Helpers.CreateFeature(prefix + "ConvictionFeature",
+                                                                               conviction_buff.Name,
+                                                                               conviction_buff.Description,
+                                                                               "223df27c2390449594a4d0fb78e9019e",
+                                                                               conviction_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, conviction_buff, celestial_resistances);
+            }
+
+
+            static void createWingsOfHeaven()
+            {
+                var angelic_wings_buff = library.Get<BlueprintBuff>("25699a90ed3299e438b6fd5548930809");
+                wings_of_heaven = Helpers.CreateFeature(prefix + "WingsOfHeavenFeature",
+                                                                               "Wings of Heaven",
+                                                                               "At 12th level, you gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
+                                                                               "b5d48e26779048499194ade26ff0a741",
+                                                                               angelic_wings_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, angelic_wings_buff, wings_of_heaven);
+            }
+
+
+            static void createAngelicProtection()
+            {
+                var sacred_nimbus_buff = library.Get<BlueprintBuff>("57b1c6a69c53f4d4ea9baec7d0a3a93a");
+                var angelic_protection_buff = library.CopyAndAdd<BlueprintBuff>("6ab366720f4b8ed4f83ada36994d0890", prefix + "AngelicAspectBuff", "095a348c65564461b11398e8814d2c12"); //angelic aspect greater aura
+                angelic_protection_buff.SetName("Angelic Protection");
+                angelic_protection_buff.SetDescription("At 16th level, you gain a +4 deflection bonus to AC and a +4 resistance bonus on saving throws against attacks made or effects created by evil creatures.");
+                angelic_protection_buff.SetIcon(sacred_nimbus_buff.Icon);
+                angelic_protection = Helpers.CreateFeature(prefix + "AngelicProtectionFeature",
+                                                                               angelic_protection_buff.Name,
+                                                                               angelic_protection_buff.Description,
+                                                                               "4ae1b076c2984982a9b2474ff0b980e7",
+                                                                               angelic_protection_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, angelic_protection_buff, angelic_protection);
+            }
+
+
+            static void createAscension()
+            {
+                ascension = library.Get<BlueprintFeature>("d85e0396d8f68e047b7b67a1290f8dbc"); //from sorceror bloodline
+            }
 
         }
 
