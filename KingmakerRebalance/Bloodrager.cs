@@ -311,6 +311,8 @@ namespace KingmakerRebalance
             AberrantBloodline.create();
             AbyssalBloodline.create();
             CelestialBloodline.create();
+            FeyBloodline.create();
+            InfernalBloodline.create();
 
             bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
                                                                      "Bloodline",
@@ -321,7 +323,8 @@ namespace KingmakerRebalance
                                                                      "6eed80b1bfa9425e90c5981fb87dedf2",
                                                                      null,
                                                                      FeatureGroup.None);
-            bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression};
+            bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, FeyBloodline.progression,
+                                                                       InfernalBloodline.progression};
             bloodline_selection.Features = bloodline_selection.AllFeatures;
         }
 
@@ -861,8 +864,6 @@ namespace KingmakerRebalance
                 var outsider_feature = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
                 var evil_feature = library.Get<BlueprintFeature>("5279fc8380dd9ba419b4471018ffadd1");
 
-                var c = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact();
-
                 var bonus_damage = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.CreateConditionHasFact(outsider_feature), Helpers.CreateConditionHasFact(evil_feature)),
                                                              Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)))
                                                             );
@@ -970,14 +971,373 @@ namespace KingmakerRebalance
 
             static void createAscension()
             {
-                ascension = library.Get<BlueprintFeature>("d85e0396d8f68e047b7b67a1290f8dbc"); //from sorceror bloodline
+                ascension = library.CopyAndAdd<BlueprintFeature>("d85e0396d8f68e047b7b67a1290f8dbc", prefix + "AscensionFeature", "17f896a2f8164f26a6c04523aa7ce708"); //from sorceror bloodline
+                ascension.SetDescription("At 20th level, you become infused with the power of the heavens. You gain immunity to acid, cold, and petrification. You also gain resistance 10 to electricity and fire, as well as a +4 racial bonus on saving throws against poison. You have these benefits constantly, even while not bloodraging.");
             }
 
         }
 
 
+        class FeyBloodline
+        {
+            static internal BlueprintProgression progression;
+            static internal BlueprintFeature confusing_critical;
+            static internal BlueprintFeature woodland_stride;
+            static internal BlueprintFeature blurring_movement;
+            static internal BlueprintFeature quickling_bloodrage;
+            static internal BlueprintFeature fleeting_glance;
+            static internal BlueprintFeature fury_of_the_fey;
+            static string prefix = "BloodragerBloodlineFey";
 
-        static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
+
+            static internal void create()
+            {
+                createConfusingCritical();
+                createWoodlandStride();
+                createBlurringMovement();
+                createQuicklingBloodrage();
+                createFleetingGlance();
+                createFuryOfTheFey();
+
+                var entangle = library.Get<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca");
+                var hideous_laughter = library.Get<BlueprintAbility>("fd4d9fd7f87575d47aafe2a64a6e2d8d");
+                var haste = library.Get<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98");
+                var confusion = library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949");
+
+                var combat_reflexes = library.Get<BlueprintFeature>("0f8939ae6f220984e8fb568abbdfba95");
+                var lightning_reflexes = library.Get<BlueprintFeature>("15e7da6645a7f3d41bdad7c8c4b9de1e");
+                var dodge = library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5");
+                var mobility = library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb");
+                var improved_initiative = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");
+                var intimidating_prowess = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
+                var hammer_the_gap = library.Get<BlueprintFeature>("7b64641c76ff4a744a2bce7f91a20f9a");
+
+
+                progression = createBloodragerBloodline("Fey",
+                                                              "One of your ancestors was fey, or the fey realm somehow intermixed with your bloodline. It affects your bloodrage in tricky and surprising ways.\n"
+                                                               + "Bonus Feats: Dodge, Mobility, Combat Reflexes, Lightning Reflexes, Improved Initiative, Intimidating Prowess, Hammer the Gap.\n"
+                                                               + "Bonus Spells: Entangle (7th), hideous laughter (10th), haste (13th), confusion (16th).",
+                                                              library.Get<BlueprintProgression>("e8445256abbdc45488c2d90373f7dae8").Icon, // sorcerer fey bloodline
+                                                              new BlueprintAbility[] { entangle, hideous_laughter, haste, confusion },
+                                                              new BlueprintFeature[] { dodge, mobility, combat_reflexes, lightning_reflexes, improved_initiative, intimidating_prowess, hammer_the_gap },
+                                                              new BlueprintFeature[] { confusing_critical, woodland_stride, blurring_movement, quickling_bloodrage, fleeting_glance, fury_of_the_fey  },
+                                                              "fe056d23f80c4c64b4ee3a8e6f2973b2",
+                                                              new string[] { "78b0900bd71c454baeb5886494fb0ae0", "2dbe75eadf684985a252608ae6f86259", "bcf1a280d91e435087c1180e3188ea41", "75c37819a8f74d02a3da486c46bf4e0c" },
+                                                              "30fb198d84af4b2498fa1b3f35668494"
+                                                              );
+            }
+
+
+            static void createConfusingCritical()
+            {
+                var blade_barrier = library.Get<BlueprintAbility>("36c8971e91f1745418cc3ffdfac17b74");
+                var confusion_buff = library.Get<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df");
+
+                var effect_action = Helpers.CreateActionList(Common.createContextSavedApplyBuff(confusion_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1))));
+                var action = Helpers.CreateActionList(Common.createContextActionSavingThrow(SavingThrowType.Will, effect_action));
+                var confusing_critical_buff = Helpers.CreateBuff(prefix + "ConfusingCriticalBuff",
+                                                                "Confusing Critical",
+                                                                "At 1st level, fey power courses through your attacks. Each time you confirm a critical hit, the target must succeed at a Will saving throw or be confused for 1 round. The DC of this save is equal to 10 + 1/2 your bloodrager level + your Constitution modifier. This is a mind-affecting compulsion effect.",
+                                                                "7a54fe2bbf624e60b10121356218a3a5",
+                                                                blade_barrier.Icon,
+                                                                null,
+                                                                Common.createAddInitiatorAttackWithWeaponTrigger(action, critical_hit: true),
+                                                                Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution)
+                                                                );
+                confusing_critical = Helpers.CreateFeature(prefix + "ConfusingCriticalFeature",
+                                                               confusing_critical_buff.Name,
+                                                               confusing_critical_buff.Description,
+                                                               "54d034a7d7de4da083464496ab4aba61",
+                                                               confusing_critical_buff.Icon,
+                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, confusing_critical_buff, confusing_critical);
+            }
+
+
+            static void createWoodlandStride()
+            {
+                woodland_stride = library.CopyAndAdd<BlueprintFeature>("11f4072ea766a5840a46e6660894527d",
+                                                             prefix + "WooldlandStrideFeature",
+                                                             "c017c81495ee40d68dacbe5b794ef2a4");
+                woodland_stride.SetDescription("At 4th level, you can move through any sort difficult terrain at your normal speed and without taking damage or suffering any other impairment.");
+            }
+
+
+            static void createBlurringMovement()
+            {
+                var blur_buff = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
+                blurring_movement = Helpers.CreateFeature(prefix + "BlurringMovementFeature",
+                                                                               "Blurring Movement",
+                                                                               "At 8th level, you become a blur of motion when you bloodrage. You gain effect of blur spell while in bloodrage.",
+                                                                               "c7027b9ddd534fc09025ae807e5af38a",
+                                                                               blur_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, blur_buff, blurring_movement);
+            }
+
+
+            static void createQuicklingBloodrage()
+            {
+                var haste_buff0 = library.Get<BlueprintBuff>("8d20b0a6129bd814eb0146041879f38a");
+                var haste_buff = library.Get<BlueprintBuff>("03464790f40c3c24aa684b57155f3280");
+                haste_buff.SetName(haste_buff0.Name);
+                haste_buff.SetDescription(haste_buff0.Description);
+                quickling_bloodrage = Helpers.CreateFeature(prefix + "QuicklingBloodrageFeature",
+                                                                               "Quickling Bloodrage",
+                                                                               "At 12th level, while bloodraging you’re treated as if you are under the effects of haste.",
+                                                                               "f08420c83d6443068038b9160406438a",
+                                                                               haste_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, haste_buff, quickling_bloodrage);
+            }
+
+
+            static void createFleetingGlance()
+            {
+                var resource = library.Get<BlueprintAbilityResource>("cb4518f1e176db44cbab819bb29c9b49"); //from sorc bloodline
+                var amount = Helpers.GetField(resource, "m_MaxAmount");
+                BlueprintCharacterClass[] classes = (BlueprintCharacterClass[])Helpers.GetField(amount, "Class");
+                classes = classes.AddToArray(bloodrager_class);
+                Helpers.SetField(amount, "Class", classes);
+                Helpers.SetField(resource, "m_MaxAmount", amount);
+
+                var fleeting_glance_ability = library.CopyAndAdd<BlueprintActivatableAbility>("ba5ead16619d2c64697968224163280b", prefix + "FleetingGlanceActivatableAbility", "625503853eea46f78e049841c0d27d4c");
+                fleeting_glance_ability.SetDescription("At 12th level, you can turn invisible for a number of rounds per day equal to your bloodrager level. This ability functions as greater invisibility. These rounds need not be consecutive. You can use this ability even when not bloodraging.\nGreater Invisibility: This spell functions like invisibility, except that it doesn't end if the subject attacks.\nInvisibility: The creature becomes invisible. If a check is required, an invisible creature has a +20 bonus on its Stealth checks. The spell ends if the subject attacks any creature. For purposes of this spell, an attack includes any spell targeting a foe or whose area or effect includes a foe. Exactly who is a foe depends on the invisible character's perceptions. Actions directed at unattended objects do not break the spell. Causing harm indirectly is not an attack. Thus, an invisible being can open doors, talk, eat, climb stairs, summon monsters and have them attack, cut the ropes holding a rope bridge while enemies are on the bridge, remotely trigger traps, open a portcullis to release attack dogs, and so forth. If the subject attacks directly, however, it immediately becomes visible along with all its gear. Spells such as bless that specifically affect allies but not foes are not attacks for this purpose, even when they include foes in their area.");
+                fleeting_glance_ability.ReplaceComponent<ActivatableAbilityResourceLogic>(Helpers.CreateActivatableResourceLogic(resource, ResourceSpendType.NewRound));
+
+                fleeting_glance = Helpers.CreateFeature(prefix + "FleetingGlanceFeature",
+                                                        fleeting_glance_ability.Name,
+                                                        fleeting_glance_ability.Description,
+                                                        "09b86c3330854d4cb1f303d6e3fea473",
+                                                        fleeting_glance_ability.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddAbilityResource(resource),
+                                                        Helpers.CreateAddFact(fleeting_glance_ability)
+                                                       );
+            }
+
+
+            static void createFuryOfTheFey()
+            {
+                var bane_weapon_buff = library.CopyAndAdd<BlueprintBuff>("be190d2dd5433dd41a4aa00e1abc9a5b", prefix + "FuryOfTheFeyBuff", "51e32fabc97549a6ad56bd5d414a7d65");
+                bane_weapon_buff.SetName("Fury of the Fey");
+                bane_weapon_buff.SetBuffFlags(BuffFlags.StayOnDeath);
+                bane_weapon_buff.SetDescription("At 20th level, when entering a bloodrage you can choose one type of creature (and subtype for humanoids or outsiders) that can be affected by the bane weapon special ability. All of your melee attacks are considered to have bane against that type. This ability doesn’t stack with other forms of bane.");
+                fury_of_the_fey = Helpers.CreateFeature(prefix + "FuryOfTheFeyFeature",
+                                                                               bane_weapon_buff.Name,
+                                                                               bane_weapon_buff.Description,
+                                                                               "9234d31a673840f6954d1baad879bbb8",
+                                                                               bane_weapon_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, bane_weapon_buff, fury_of_the_fey);
+            }
+
+        }
+
+
+        class InfernalBloodline
+        {
+            static internal BlueprintProgression progression;
+            static internal BlueprintFeature hellfire_strike;
+            static internal BlueprintFeature infernal_resistance;
+            static internal BlueprintFeature diabolical_arrogance;
+            static internal BlueprintFeature dark_wings;
+            static internal BlueprintFeature hellfire_charge;
+            static internal BlueprintFeature fiend_of_the_pit;
+            static string prefix = "BloodragerBloodlineInfernal";
+
+
+            static internal void create()
+            {
+                createHellfireStrike();
+                createInfernalResistance();
+                createDiabolicalArrogance();
+                createDarkWings();
+                createHellfireCharge();
+                createFiendOfThePit();
+
+                var protection_from_good = library.Get<BlueprintAbility>("2ac7637daeb2aa143a3bae860095b63e");
+                var scorching_ray = library.Get<BlueprintAbility>("cdb106d53c65bbc4086183d54c3b97c7");
+                var hold_person = library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e");
+                var shield_of_dawn = library.Get<BlueprintAbility>("62888999171921e4dafb46de83f4d67d");
+
+                var combat_reflexes = library.Get<BlueprintFeature>("0f8939ae6f220984e8fb568abbdfba95");
+                var deceitful = library.Get<BlueprintFeature>("231a37321e26551489503e4e1d99e681");
+                var blindfight = library.Get<BlueprintFeature>("4e219f5894ad0ea4daa0699e28c37b1d");
+                var improved_sunder = library.Get<BlueprintFeature>("9719015edcbf142409592e2cbaab7fe1");
+                var improved_disarm = library.Get<BlueprintFeature>("25bc9c439ac44fd44ac3b1e58890916f");
+                var intimidating_prowess = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
+                var iron_will = library.Get<BlueprintFeature>("175d1577bb6c9a04baf88eec99c66334");
+
+
+                progression = createBloodragerBloodline("Infernal",
+                                                              "The Pit lives in your blood. Maybe one of your ancestors was seduced by the powers of Hell or made a deal with a devil. Either way, its corruption seethes within your lineage.\n"
+                                                               + "Bonus Feats: Blind - Fight, Combat Reflexes, Deceitful, Improved Disarm, Improved Sunder, Intimidating Prowess, Iron Will.\n"
+                                                               + "Bonus Spells: Protection from good (7th), scorching ray(10th), hold preson(13th), shield of dawn(16th).",
+                                                              library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon, // sorcerer infernal bloodline
+                                                              new BlueprintAbility[] { protection_from_good, scorching_ray, hold_person, shield_of_dawn },
+                                                              new BlueprintFeature[] { combat_reflexes, deceitful, blindfight, improved_disarm, improved_sunder, intimidating_prowess, iron_will },
+                                                              new BlueprintFeature[] { hellfire_strike, infernal_resistance, diabolical_arrogance, dark_wings, hellfire_charge, fiend_of_the_pit },
+                                                              "346f332ed9b843638a228257a59743b7",
+                                                              new string[] { "02339061142647e8835f6f91c1485a76", "9a2c466398d04102b43c1a78ead78937", "592cf48fec304b4f8a2a5005a0939895", "11eab4cb7d9a4081b6788bfe9cb97fc4" },
+                                                              "2d083855bf614669a8dd82ac2ff93207"
+                                                              );
+            }
+
+            static void createHellfireStrike()
+            {
+                var burning_arc = library.Get<BlueprintAbility>("eaac3d36e0336cb479209a6f65e25e7c");
+
+                var bonus_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+                var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
+
+                var hellfire_strike_buff = Helpers.CreateBuff(prefix + "HellfireStrikeBuff",
+                                                             "Hellfire Strike",
+                                                             "At 1st level, you deal additional 1d6 points of fire damage on critical hit. At 12thl level this damage increases to 2d6.",
+                                                             "a97d9794ce2549709997a61f89ffcacb",
+                                                             burning_arc.Icon,
+                                                             null,
+                                                             Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, critical_hit: true, check_weapon_range_type: true,
+                                                                                                              range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Custom,
+                                                                                             type: AbilityRankType.DamageBonus, classes: getBloodragerArray(),
+                                                                                             customProgression: new (int, int)[] {
+                                                                                                            (11, 1),
+                                                                                                            (20, 2)
+                                                                                             })
+                                                             );
+                hellfire_strike = Helpers.CreateFeature(prefix + "HellfireStirkeFeature",
+                                                               hellfire_strike_buff.Name,
+                                                               hellfire_strike_buff.Description,
+                                                               "1740de7601f94a109bee9c7061c4085e",
+                                                               hellfire_strike_buff.Icon,
+                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, hellfire_strike_buff, hellfire_strike);
+            }
+
+
+            static void createInfernalResistance()
+            {
+                var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
+                var resist_buff = Helpers.CreateBuff(prefix + "InfernalResistanceBuff",
+                                                    "Infernal Resistance",
+                                                    "At 4th level, you gain fire resistance 5, as well as a + 2 bonus on saving throws against poison.At 8th level, your fire resistance increases to 10, and the bonus on saving throws against poison increases to + 4.",
+                                                    "befdf5624cd7418891b0dc62712c1456",
+                                                    damage_resistance.Icon,
+                                                    null,
+                                                    Common.createEnergyDRContextRank(DamageEnergyType.Fire, AbilityRankType.StatBonus),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                    ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                                                    classes: getBloodragerArray(),
+                                                                                    customProgression: new (int, int)[] {
+                                                                                                (7, 5),
+                                                                                                (20, 10)
+                                                                                                }
+                                                                                    ),
+                                                    Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.DamageDice), ModifierDescriptor.UntypedStackable,
+                                                                                                          SpellDescriptor.Poison
+                                                                                                          ),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                    ContextRankProgression.Custom, AbilityRankType.DamageDice,
+                                                                                    classes: getBloodragerArray(),
+                                                                                    customProgression: new (int, int)[] {
+                                                                                                (7, 5),
+                                                                                                (20, 10)
+                                                                                                }
+                                                                                    )
+                                                    );
+                infernal_resistance = Helpers.CreateFeature(prefix + "InfernalResistanceFeature",
+                                                                               resist_buff.Name,
+                                                                               resist_buff.Description,
+                                                                               "b40f0fc02adb43ad9ffd8341154b1980",
+                                                                               resist_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_buff, infernal_resistance);
+            }
+
+
+            static void createDiabolicalArrogance()
+            {
+                var mind_blank = library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf");
+
+                var buff = Helpers.CreateBuff(prefix + "DiabolicalArroganceBuff",
+                                              "Diabolical Arrogance",
+                                              "At 8th level, you gain a +4 bonus on saving throws against enchantment and fear effects.",
+                                              "abcff44aae1e475b855a9792a2d91f40",
+                                              mind_blank.Icon,
+                                              null,
+                                              Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Fear),
+                                              Common.createSavingThrowBonusAgainstSchool(4, ModifierDescriptor.UntypedStackable, SpellSchool.Enchantment)
+                                             );
+                diabolical_arrogance = Helpers.CreateFeature(prefix + "DiabolicalArroganceFeature",
+                                                                               buff.Name,
+                                                                               buff.Description,
+                                                                               "487473aa12bb4829885341e889b5cb97",
+                                                                               buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, diabolical_arrogance);
+            }
+
+
+            static void createDarkWings()
+            {
+                var diabolic_wings_buff = library.Get<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f");
+                dark_wings = Helpers.CreateFeature(prefix + "DarkWingsFeature",
+                                                                               "Dark Wings",
+                                                                               "At 12th level, you gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
+                                                                               "9c451731dd7f4f96adec8e9621610841",
+                                                                               diabolic_wings_buff.Icon,
+                                                                               FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, diabolic_wings_buff, dark_wings);
+            }
+
+
+            static void createHellfireCharge()
+            {
+                var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
+                var flaming_burst = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintWeaponEnchantment>("3f032a3cd54e57649a0cdad0434bf221");
+                var flaming = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
+                var weapon_enchant_buff = Helpers.CreateBuff(prefix + "HellfireChargeBuff",
+                                                             "Hellfire Charge",
+                                                             "At 16th level, when you charge the attack you make at the end of the charge is considered to be performed with weapon having flaming burst property",
+                                                             "b0439659723f4a8da680965c78a8fbf5",
+                                                             charge_buff.Icon,
+                                                             null,
+                                                             Common.createBuffEnchantWornItem(flaming),
+                                                             Common.createBuffEnchantWornItem(flaming_burst)
+                                                             );
+                hellfire_charge = Helpers.CreateFeature(prefix + "HellfireChargeFeature",
+                                                                                weapon_enchant_buff.Name,
+                                                                                weapon_enchant_buff.Description,
+                                                                                "d26ca0ac64874157aad34ef664b116a9",
+                                                                                weapon_enchant_buff.Icon,
+                                                                                FeatureGroup.None);
+                charge_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, weapon_enchant_buff, hellfire_charge, bloodrage_buff);
+            }
+
+
+            static void createFiendOfThePit()
+            {
+                var power_of_the_pit = library.Get<BlueprintFeature>("b6afdc50876e08149b1f9fdcdb2a308c");//from sorcerer infernal bloodline
+                fiend_of_the_pit = Helpers.CreateFeature(prefix + "FiendOfThePitFeature",
+                                                         "Fiend of the Pit",
+                                                         "At 20th level, you gain immunity to fire and poison. You also gain resistance 10 to acid and cold, and gain blindsight within 60 feet. You have these benefits constantly, even while not bloodraging.",
+                                                         "15b9af6383e7473eb8aa3a384ee9a78c",
+                                                         power_of_the_pit.Icon,
+                                                         FeatureGroup.None,
+                                                         Common.createEnergyDR(10, DamageEnergyType.Cold),
+                                                         Common.createEnergyDR(10, DamageEnergyType.Acid),
+                                                         Common.createBlindsight(60),
+                                                         Common.createBuffDescriptorImmunity(SpellDescriptor.Poison),
+                                                         Common.createAddEnergyDamageImmunity(DamageEnergyType.Fire)
+                                                         );
+            }
+        }
+
+
+
+            static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
                                                     BlueprintAbility[] bonus_spells, BlueprintFeature[] bonus_feats, BlueprintFeature[] powers,
                                                     string feat_selection_guid, string[] spell_guids, string progression_guid)
         {

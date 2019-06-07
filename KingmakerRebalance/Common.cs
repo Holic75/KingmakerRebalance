@@ -178,7 +178,7 @@ namespace KingmakerRebalance
         }
 
 
-        internal static Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass createContextCalculateAbilityParamsBasedOnClass(BlueprintCharacterClass character_class, 
+        internal static Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass createContextCalculateAbilityParamsBasedOnClass(BlueprintCharacterClass character_class,
                                                                                                                                                     StatType stat, bool use_kineticist_main_stat = false)
         {
             var c = new ContextCalculateAbilityParamsBasedOnClass();
@@ -359,7 +359,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsPerDay(string name, string guid)
         {
-            return createSpellsTable(  name, guid,
+            return createSpellsTable(name, guid,
                                        Common.createSpellsLevelEntry(),  //0
                                        Common.createSpellsLevelEntry(),  //1
                                        Common.createSpellsLevelEntry(),  //2
@@ -387,7 +387,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsKnown(string name, string guid)
         {
-            return createSpellsTable(  name, guid,
+            return createSpellsTable(name, guid,
                                        Common.createSpellsLevelEntry(),  //0
                                        Common.createSpellsLevelEntry(),  //1
                                        Common.createSpellsLevelEntry(),  //2
@@ -454,7 +454,7 @@ namespace KingmakerRebalance
         }
 
 
-        static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false, 
+        static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
                                                                                                       bool check_weapon_range_type = false,
                                                                                                       AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
         {
@@ -479,7 +479,7 @@ namespace KingmakerRebalance
         }
 
 
-        internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description,string selection_guid, string[] feature_guids )
+        internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description, string selection_guid, string[] feature_guids)
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
             var new_selection = library.CopyAndAdd<BlueprintFeatureSelection>(original_selection_guid, name_prefix + old_selection, selection_guid);
@@ -509,8 +509,8 @@ namespace KingmakerRebalance
         internal static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
                                                      BlueprintCharacterClass[] classes, AlignmentComponent smite_alignment)
         {
-            var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name+"Ability", ability_guid);
-            var smite_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", name +"Feature", guid);
+            var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name + "Ability", ability_guid);
+            var smite_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", name + "Feature", guid);
 
 
             smite_feature.SetName(display_name);
@@ -530,9 +530,9 @@ namespace KingmakerRebalance
             var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var new_smite_action = smite_action.CreateCopy();
             var condition = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)new_smite_action.Actions.Actions[0];
-            new_smite_action.Actions =  Helpers.CreateActionList(new_smite_action.Actions.Actions);
+            new_smite_action.Actions = Helpers.CreateActionList(new_smite_action.Actions.Actions);
             var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)new_smite_action.Actions.Actions[0];
-            var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false),  old_conditional.ConditionsChecker.Conditions[1]};
+            var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false), old_conditional.ConditionsChecker.Conditions[1] };
             new_smite_action.Actions.Actions[0] = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
 
             return smite_feature;
@@ -614,11 +614,11 @@ namespace KingmakerRebalance
             var domains = domain_selection.AllFeatures;
             foreach (var domain_feature in domains)
             {
-                
+
                 BlueprintProgression domain = (BlueprintProgression)domain_feature;
                 domain.Classes = domain.Classes.AddToArray(class_to_add);
                 domain.Archetypes = domain.Archetypes.AddToArray(archetypes_to_add);
-               // Main.logger.Log("Processing " + domain.Name);
+                // Main.logger.Log("Processing " + domain.Name);
 
                 foreach (var entry in domain.LevelEntries)
                 {
@@ -630,7 +630,7 @@ namespace KingmakerRebalance
 
                 if (spells_type == DomainSpellsType.NormalList)
                 {
-                    
+
                     var spell_list = domain.GetComponent<Kingmaker.UnitLogic.FactLogic.LearnSpellList>().SpellList;
 
                     if (archetypes_to_add.Empty())
@@ -639,7 +639,7 @@ namespace KingmakerRebalance
                         learn_spells_fact.SpellList = spell_list;
                         learn_spells_fact.CharacterClass = class_to_add;
                         domain.AddComponent(learn_spells_fact);
-                        
+
                     }
                     else
                     {
@@ -688,7 +688,7 @@ namespace KingmakerRebalance
         }
 
 
-        static void addClassToBuff(BlueprintCharacterClass class_to_add ,BlueprintBuff b)
+        static void addClassToBuff(BlueprintCharacterClass class_to_add, BlueprintBuff b)
         {
             var components = b.ComponentsArray;
             foreach (var c in components)
@@ -793,7 +793,7 @@ namespace KingmakerRebalance
                 else if (c is Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel)
                 {
                     var c_typed = (Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel)c;
-                    if (c_typed.Feature.ComponentsArray.Length > 0 
+                    if (c_typed.Feature.ComponentsArray.Length > 0
                           && c_typed.Feature.ComponentsArray[0] is Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList)
                     {
                         if (spells_type == DomainSpellsType.SpecialList)
@@ -867,6 +867,42 @@ namespace KingmakerRebalance
             c.ModifierDescriptor = descriptor;
             c.SpellDescriptor = spell_descriptor;
             return c;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor createContextSavingThrowBonusAgainstDescriptor(ContextValue value, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
+        {
+            var c = new Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor();
+            c.ModifierDescriptor = descriptor;
+            c.SpellDescriptor = spell_descriptor;
+            c.Value = value;
+            return c;
+        }
+
+
+        static internal SavingThrowBonusAgainstSchool createSavingThrowBonusAgainstSchool(int bonus, ModifierDescriptor descriptor, SpellSchool school)
+        {
+            var c = new SavingThrowBonusAgainstSchool();
+            c.School = school;
+            c.ModifierDescriptor = descriptor;
+            c.Value = bonus;
+            return c;
+        }
+
+
+        static internal Kingmaker.UnitLogic.FactLogic.BuffEnchantWornItem createBuffEnchantWornItem(Kingmaker.Blueprints.Items.Ecnchantments.BlueprintItemEnchantment enchantment)
+        {
+            var b = new BuffEnchantWornItem();
+            b.Enchantment = enchantment;
+            return b;
+        }
+
+
+        static internal Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity createAddEnergyDamageImmunity(DamageEnergyType energy_type)
+        {
+            var a = new Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity();
+            a.EnergyType = energy_type;
+            return a;
         }
     }
 }
