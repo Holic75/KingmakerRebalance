@@ -431,6 +431,10 @@ namespace KingmakerRebalance
 
         static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
         {
+            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }
             var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact[facts.Length];
             for (int i = 0; i < facts.Length; i++)
             {
@@ -576,6 +580,37 @@ namespace KingmakerRebalance
             feat.Value.Value = dr_value;
 
             return feat;
+        }
+
+
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMatrialDR(int dr_value, PhysicalDamageMaterial material)
+        {
+            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            feat.Material = material;
+            feat.BypassedByMaterial = true;
+            feat.Value.ValueType = ContextValueType.Simple;
+            feat.Value.Value = dr_value;
+
+            return feat;
+        }
+
+
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(int dr_value)
+        {
+            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            feat.BypassedByMagic = true;
+            feat.Value.ValueType = ContextValueType.Simple;
+            feat.Value.Value = dr_value;
+
+            return feat;
+        }
+
+
+        internal static AddCondition createAddCondition(UnitCondition condition)
+        {
+            var a = new AddCondition();
+            a.Condition = condition;
+            return a;
         }
 
 
@@ -904,5 +939,60 @@ namespace KingmakerRebalance
             a.EnergyType = energy_type;
             return a;
         }
+
+
+        static internal Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityUnitCommand createActivatableAbilityUnitCommand(CommandType command_type)
+        {
+            var a = new ActivatableAbilityUnitCommand();
+            a.Type = command_type;
+            return a;
+        }
+
+
+        static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
+                                                                            BlueprintBuff effect, BlueprintBuff target_buff, UnityEngine.AnimationClip animation,
+                                                                            ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
+                                                                            CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
+
+        {
+            effect.SetBuffFlags(BuffFlags.HiddenInUi | effect.GetBuffFlags());
+            var switch_buff = Helpers.CreateBuff(name + "SwitchBuff",
+                                              effect.Name,
+                                              effect.Description,
+                                              switch_guid,
+                                              effect.Icon,
+                                              null,
+                                              Helpers.CreateEmptyAddFactContextActions());
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(switch_buff, effect, target_buff);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(target_buff, effect, switch_buff);
+
+            var ability = Helpers.CreateActivatableAbility(name + "ToggleAbility",
+                                                                        effect.Name,
+                                                                        effect.Description,
+                                                                        ability_guid,
+                                                                        effect.Icon,
+                                                                        switch_buff,
+                                                                        AbilityActivationType.Immediately,
+                                                                        command_type,
+                                                                        animation
+                                                                        );
+            if (unit_command != CommandType.Free)
+            {
+                ability.AddComponent(Common.createActivatableAbilityUnitCommand(unit_command));
+            }
+            ability.Group = group;
+            ability.WeightInGroup = weight;
+            var feature = Helpers.CreateFeature(name +"Feature",
+                                                effect.Name,
+                                                effect.Description,
+                                                feature_guid,
+                                                effect.Icon,
+                                                FeatureGroup.None,
+                                                KingmakerRebalance.Helpers.CreateAddFact(ability));
+
+            return feature;
+        }
+        
     }
 }

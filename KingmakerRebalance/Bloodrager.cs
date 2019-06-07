@@ -276,12 +276,13 @@ namespace KingmakerRebalance
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
-                new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampyric touch
+                new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampiric touch
 
                 new Common.SpellId( "5d4028eb28a106d4691ed1b92bbb1915", 4), //beast shape 2
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 4), //bestow curse
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
+                new Common.SpellId( "48e2744846ed04b4580be1a3343a5d3d", 4), //contagion
                 new Common.SpellId( "f72f8f03bf0136c4180cd1d70eb773a5", 4), //controlled fireball
                 new Common.SpellId( "5e826bcdfde7f82468776b55315b2403", 4), //dragon breath
                 new Common.SpellId( "690c90a82bf2e58449c6b541cb8ea004", 4), //elemental body 1
@@ -290,8 +291,10 @@ namespace KingmakerRebalance
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
+                new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass
                 new Common.SpellId( "f09453607e683784c8fca646eec49162", 4), //shout
+                new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
             };
@@ -313,6 +316,7 @@ namespace KingmakerRebalance
             CelestialBloodline.create();
             FeyBloodline.create();
             InfernalBloodline.create();
+            UndeadBloodline.create();
 
             bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
                                                                      "Bloodline",
@@ -324,7 +328,7 @@ namespace KingmakerRebalance
                                                                      null,
                                                                      FeatureGroup.None);
             bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, FeyBloodline.progression,
-                                                                       InfernalBloodline.progression};
+                                                                       InfernalBloodline.progression, UndeadBloodline.progression};
             bloodline_selection.Features = bloodline_selection.AllFeatures;
         }
 
@@ -1299,7 +1303,7 @@ namespace KingmakerRebalance
                 var flaming = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
                 var weapon_enchant_buff = Helpers.CreateBuff(prefix + "HellfireChargeBuff",
                                                              "Hellfire Charge",
-                                                             "At 16th level, when you charge the attack you make at the end of the charge is considered to be performed with weapon having flaming burst property",
+                                                             "At 16th level, when you charge the attack you make at the end of the charge is considered to be performed with weapon having flaming burst property.",
                                                              "b0439659723f4a8da680965c78a8fbf5",
                                                              charge_buff.Icon,
                                                              null,
@@ -1312,7 +1316,6 @@ namespace KingmakerRebalance
                                                                                 "d26ca0ac64874157aad34ef664b116a9",
                                                                                 weapon_enchant_buff.Icon,
                                                                                 FeatureGroup.None);
-                charge_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, weapon_enchant_buff, hellfire_charge, bloodrage_buff);
             }
 
@@ -1335,6 +1338,194 @@ namespace KingmakerRebalance
             }
         }
 
+
+        class UndeadBloodline
+        {
+            static internal BlueprintProgression progression;
+            static internal BlueprintFeature frightful_charger;
+            static internal BlueprintFeature ghost_strike;
+            static internal BlueprintFeature deaths_gift;
+            static internal BlueprintFeature frightening_strikes;
+            static internal BlueprintFeature incorporeal_bloodrager;
+            static internal BlueprintFeature one_foot_in_the_grave;
+            static string prefix = "BloodragerBloodlineUndead";
+
+
+            static internal void create()
+            {
+                createFrightfulCharger();
+                createGhostStrike();
+                createDeathsGift();
+                createFrighteningStrikes();
+                createIncorporealBloodrager();
+                createOneFootInTheGrave();
+
+                var ray_of_enfeeblement = library.Get<BlueprintAbility>("450af0402422b0b4980d9c2175869612");
+                var false_life = library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762");
+                var vampiric_touch = library.Get<BlueprintAbility>("6cbb040023868574b992677885390f92");
+                var enervation = library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f");
+
+                var endurance = library.Get<BlueprintFeature>("54ee847996c25cd4ba8773d7b8555174");
+                var diehard = library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad");
+                var dodge = library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5");
+                var toughness = library.Get<BlueprintFeature>("d09b20029e9abfe4480b356c92095623");
+                var mobility = library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb");
+                var intimidating_prowess = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
+                var iron_will = library.Get<BlueprintFeature>("175d1577bb6c9a04baf88eec99c66334");
+
+
+                progression = createBloodragerBloodline("Undead",
+                                                              "The foul corruption of undeath is a part of you. Somewhere in the past, death became infused with your lineage. Your connection to the attributes of the undead bestows frightening power when your bloodrage.\n"
+                                                               + "Bonus Feats: Diehard, Dodge, Endurance, Intimidating Prowess, Iron Will, Mobility, Toughness.\n"
+                                                               + "Bonus Spells: Ray of enfeeblement (7th), false life (10th), vampiric touch (13th), enervation (16th).",
+                                                              library.Get<BlueprintProgression>("a1a8bf61cadaa4143b2d4966f2d1142e").Icon, // sorcerer undead bloodline
+                                                              new BlueprintAbility[] { ray_of_enfeeblement, false_life, vampiric_touch, enervation },
+                                                              new BlueprintFeature[] { endurance, diehard, dodge, toughness, mobility, intimidating_prowess, iron_will },
+                                                              new BlueprintFeature[] { frightful_charger, ghost_strike, deaths_gift, frightening_strikes, incorporeal_bloodrager, one_foot_in_the_grave },
+                                                              "c9474ae9021543ff84633825b16b25f2",
+                                                              new string[] { "290830ff3e8a470aaf1ebfd696dd1be5", "65d95f832c5649a9951d6d384085dcf2", "ca173aea1a5c41baa455f0146135ba18", "d83b97e1facf41ca9ef281a753536910" },
+                                                              "e82330114e464cf193d521a47a273f5a"
+                                                              );
+            }
+
+
+            static void createFrightfulCharger()
+            {
+                var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+                var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
+
+                var action = Common.createContextActionApplyBuff(shaken_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), DurationRate.Rounds));
+                var effect_buff = Helpers.CreateBuff(prefix + "FrightfulChargerBuff",
+                                                             "Frightful Charger",
+                                                             "At 1st level, when you hit a creature with a charge attack, that creature becomes shaken for a number of rounds equal to 1/2 your bloodrager level (minimum 1). This effect does not cause an existing shaken or frightened condition (from this ability or another source) to turn into frightened or panicked. This is a mind-affecting fear effect.",
+                                                             "61aff33f69d84391b49782fb976cf870",
+                                                             charge_buff.Icon,
+                                                             null,
+                                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action)),
+                                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getBloodragerArray(),
+                                                                                             type: AbilityRankType.DamageBonus, min: 1,  progression:ContextRankProgression.Div2)
+                                                             );
+                frightful_charger = Helpers.CreateFeature(prefix + "FrightfulChargerFeature",
+                                                                                effect_buff.Name,
+                                                                                effect_buff.Description,
+                                                                                "2ba88b87439e456cb382392ba07ffa96",
+                                                                                effect_buff.Icon,
+                                                                                FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, effect_buff, frightful_charger, bloodrage_buff);
+            }
+
+
+            static void createGhostStrike()
+            {
+                var ghost_touch_magus = library.Get<BlueprintBuff>("9069fd94f3f5b8b448b28ce0a5ee8fd6");
+                var ghost_touch = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f");
+                var weapon_enchant_buff = Helpers.CreateBuff(prefix + "GhostStrikeBuff",
+                                                             "Ghost Strike",
+                                                             "At 4th level, your melee attacks are treated as if they have the ghost touch weapon special ability.",
+                                                             "0f662d1b1432483190aa928ca7b9d355",
+                                                             ghost_touch_magus.Icon,
+                                                             null,
+                                                             Common.createBuffEnchantWornItem(ghost_touch)
+                                                             );
+                ghost_strike = Helpers.CreateFeature(prefix + "GhostStrikeFeature",
+                                                                                weapon_enchant_buff.Name,
+                                                                                weapon_enchant_buff.Description,
+                                                                                "85c240197d8d4f1f86b4f55f7bf51397",
+                                                                                weapon_enchant_buff.Icon,
+                                                                                FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, weapon_enchant_buff, ghost_strike);
+            }
+
+
+            static void createDeathsGift()
+            {
+                var sorc_deaths_gift = library.Get<BlueprintFeature>("fd5f14d44e82f464196fdf0ea82347cc");
+
+                var buff = Helpers.CreateBuff(prefix + "DeathsGiftBuff",
+                                              "Death's Gift",
+                                              "At 8th level, you gain cold resistance 10, as well as DR 10/magic.",
+                                              "f13abf4af63841e48f99c3005b163f75",
+                                              sorc_deaths_gift.Icon,
+                                              null,
+                                              Common.createEnergyDR(10, DamageEnergyType.Cold),
+                                              Common.createMagicDR(10)
+                                              );
+                deaths_gift = Helpers.CreateFeature(prefix + "DeathsGiftFeature",
+                                                                                buff.Name,
+                                                                                buff.Description,
+                                                                                "19cdee308a0b4492a2b780adb115ab00",
+                                                                                buff.Icon,
+                                                                                FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, deaths_gift);
+            }
+
+
+            static void createFrighteningStrikes()
+            {
+                var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
+
+                var frightened = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf"); //frightened
+                var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220"); //shaken
+
+                var fear_action = Helpers.CreateConditional(Helpers.CreateConditionHasBuff(shaken),
+                                                       Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds)),
+                                                       Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds))
+                                                       );
+                var save_action = Helpers.CreateConditionalSaved(new Kingmaker.ElementsSystem.GameAction[0], new Kingmaker.ElementsSystem.GameAction[] { fear_action });
+                var action = Helpers.CreateActionList(Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(save_action)));
+
+                var frightening_strikes_buff = Helpers.CreateBuff(prefix + "FrighteningStrikesBuff",
+                                                                  "Frightening Strikes",
+                                                                  "At 12th level, as a swift action during bloodrage you can empower your melee attacks with fear. For 1 round, creatures you hit with your melee attacks that fail a Will saving throw become shaken. Creatures who are already shaken become frightened. The DC of this save is equal to 10 + 1/2 your bloodrager level + your Constitution modifier. This is a mind-affecting fear effect.",
+                                                                  "1a11f46ae4414b499d990d84b435fe81",
+                                                                  frightened.Icon,
+                                                                  null,
+                                                                  Common.createAddInitiatorAttackWithWeaponTrigger(action, check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                                                  Common.createContextCalculateAbilityParamsBasedOnClass(character_class: bloodrager_class, stat: StatType.Constitution)
+                                                                  );
+
+                frightening_strikes = Common.createSwitchActivatableAbilityBuff(prefix + "FrighteningStrikes",
+                                                                                "62c4051ff92f49d681a9d7fad040aca9", "4890b60e6cef4e4684b1c60e0a5c299a", "d32c7ed12d7e4cb09f5b4d9709dc7706",
+                                                                                frightening_strikes_buff, bloodrage_buff, reckless_stance.ActivateWithUnitAnimation,
+                                                                                command_type: CommandType.Swift,
+                                                                                unit_command: CommandType.Swift
+                                                                                );
+
+            }
+
+
+            static void createIncorporealBloodrager()
+            {
+                var ability = library.Get<BlueprintAbility>("853b5266404060f4f8afd9cf7859ef1f");
+                var context_rank_config = ability.GetComponent<ContextRankConfig>();
+                BlueprintCharacterClass[] classes = (BlueprintCharacterClass[])Helpers.GetField(context_rank_config, "m_Class");
+                classes = classes.AddToArray(bloodrager_class);
+                Helpers.SetField(context_rank_config, "m_Class", classes);
+                ability.SetDescription("You can become incorporeal for 1 round per sorcerer level. While in this form, you gain the incorporeal subtype. You take no damage from non-magic weapons. You also take only half damage from any source not dealing ghost, holy, divine, or force damage. You can use this ability once per day.");
+
+                incorporeal_bloodrager = library.CopyAndAdd<BlueprintFeature>("eafdc6762cbfa7d4d8220c6d6372973d", prefix + "IncorporealBloodragerFeature", "71742ba4b5434da6b5dfb9a0ccf79b19");
+                incorporeal_bloodrager.SetName("Incorporeal Bloodrager");
+                incorporeal_bloodrager.SetDescription("At 16th level, once per day you can choose to become incorporeal for 1 round per bloodrager level. You take only half damage from magic corporeal sources, and you take no damage from non-magic weapons and objects. You can use this ability even if not bloodraging.");
+            }
+
+
+            static void createOneFootInTheGrave()
+            {
+                one_foot_in_the_grave = library.CopyAndAdd<BlueprintFeature>("b3e403ebbdad8314386270fefc4b4cc8", prefix + "OneFootInTheGrave", "7ee1a466730f493f8957cbf65cbb9aa0");
+                one_foot_in_the_grave.SetName("One foot in the Grave");
+                one_foot_in_the_grave.SetDescription("At 20th level, you gain immunity to cold, paralysis, and sleep. The DR from your damage reduction ability increases to 8. You gain a +4 morale bonus on saving throws made against spells and spell-like abilities cast by undead. You have these benefits constantly, even while not bloodraging.");
+                one_foot_in_the_grave.RemoveComponent(one_foot_in_the_grave.GetComponent<AddDamageResistancePhysical>());
+
+                //add rank to dr
+                var rank_config = damage_reduction.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
+                var feature_list = Helpers.GetField<BlueprintFeature[]>(rank_config, "m_FeatureList");
+                feature_list = feature_list.AddToArray(one_foot_in_the_grave, one_foot_in_the_grave, one_foot_in_the_grave);
+                Helpers.SetField(rank_config, "m_FeatureList", feature_list);
+            }
+
+
+
+        }
 
 
             static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
