@@ -50,13 +50,6 @@ namespace KingmakerRebalance
         static internal BlueprintBuff bloodrage_buff;
         static internal BlueprintFeature damage_reduction;
 
-        //arcane - diruptive ?, caster's scourge?
-        //celestial - conviction?
-        //draconic  - ok
-        //elemental - power of the elements?
-        //fey - leaping charge
-        //infernal - ok
-        //undead - frightfull charge? 
 
         internal static void createBloodragerClass()
         {
@@ -451,7 +444,7 @@ namespace KingmakerRebalance
             static void createDemonicBulk()
             {
                 var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
-                var enlarge_buff = library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb");
+                var enlarge_buff = library.CopyAndAdd<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb", "BloodragerBloodlineAbyssalDemonicBulkSBuff", "b71ecf2aeb024508aa8d74ba96c9530b");
                 var demonic_bulk_switch_buff = Helpers.CreateBuff("BloodragerBloodlineAbyssalDemonicBulkSwitchBuff",
                                                                   "Demonic Bulk",
                                                                   "At 4th level, when entering a bloodrage, you can choose to grow one size category larger than your base size (as enlarge person) even if you aren’t humanoid.",
@@ -945,7 +938,7 @@ namespace KingmakerRebalance
 
             static void createWingsOfHeaven()
             {
-                var angelic_wings_buff = library.Get<BlueprintBuff>("25699a90ed3299e438b6fd5548930809");
+                var angelic_wings_buff = library.CopyAndAdd<BlueprintBuff>("25699a90ed3299e438b6fd5548930809", prefix + "WingsOfHeavenBuff", "52bf0d70b8884943b83cdc96588a007f");
                 wings_of_heaven = Helpers.CreateFeature(prefix + "WingsOfHeavenFeature",
                                                                                "Wings of Heaven",
                                                                                "At 12th level, you gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
@@ -1069,7 +1062,7 @@ namespace KingmakerRebalance
 
             static void createBlurringMovement()
             {
-                var blur_buff = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
+                var blur_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", prefix + "BlurringMovementBuff", "f2c369b10d9049c79ec6660ad0a0bece");
                 blurring_movement = Helpers.CreateFeature(prefix + "BlurringMovementFeature",
                                                                                "Blurring Movement",
                                                                                "At 8th level, you become a blur of motion when you bloodrage. You gain effect of blur spell while in bloodrage.",
@@ -1083,9 +1076,18 @@ namespace KingmakerRebalance
             static void createQuicklingBloodrage()
             {
                 var haste_buff0 = library.Get<BlueprintBuff>("8d20b0a6129bd814eb0146041879f38a");
-                var haste_buff = library.Get<BlueprintBuff>("03464790f40c3c24aa684b57155f3280");
+                var haste_buff = library.CopyAndAdd<BlueprintBuff>("03464790f40c3c24aa684b57155f3280", prefix + "QuicklingBloodrageBuff", "ff4c584a792149ff9d0246bc77cc2a85");
                 haste_buff.SetName(haste_buff0.Name);
                 haste_buff.SetDescription(haste_buff0.Description);
+
+                //change haste bonus types to enchancement to avoid stacking
+                var haste_boni = haste_buff.GetComponents<Kingmaker.UnitLogic.FactLogic.AddStatBonus>().ToArray();
+                foreach (var b in haste_boni)
+                {
+                    b.Descriptor = ModifierDescriptor.Enhancement;
+                }
+
+
                 quickling_bloodrage = Helpers.CreateFeature(prefix + "QuicklingBloodrageFeature",
                                                                                "Quickling Bloodrage",
                                                                                "At 12th level, while bloodraging you’re treated as if you are under the effects of haste.",
@@ -1325,13 +1327,13 @@ namespace KingmakerRebalance
                 var power_of_the_pit = library.Get<BlueprintFeature>("b6afdc50876e08149b1f9fdcdb2a308c");//from sorcerer infernal bloodline
                 fiend_of_the_pit = Helpers.CreateFeature(prefix + "FiendOfThePitFeature",
                                                          "Fiend of the Pit",
-                                                         "At 20th level, you gain immunity to fire and poison. You also gain resistance 10 to acid and cold, and gain blindsight within 60 feet. You have these benefits constantly, even while not bloodraging.",
+                                                         "At 20th level, you gain immunity to fire and poison. You also gain resistance 10 to acid and cold, and gain blindsense within 60 feet. You have these benefits constantly, even while not bloodraging.",
                                                          "15b9af6383e7473eb8aa3a384ee9a78c",
                                                          power_of_the_pit.Icon,
                                                          FeatureGroup.None,
                                                          Common.createEnergyDR(10, DamageEnergyType.Cold),
                                                          Common.createEnergyDR(10, DamageEnergyType.Acid),
-                                                         Common.createBlindsight(60),
+                                                         Common.createBlindsense(60),
                                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Poison),
                                                          Common.createAddEnergyDamageImmunity(DamageEnergyType.Fire)
                                                          );
@@ -1522,9 +1524,18 @@ namespace KingmakerRebalance
                 feature_list = feature_list.AddToArray(one_foot_in_the_grave, one_foot_in_the_grave, one_foot_in_the_grave);
                 Helpers.SetField(rank_config, "m_FeatureList", feature_list);
             }
+        }
 
-
-
+        class DestinedBloodline
+        {
+            static internal BlueprintProgression progression;
+            static internal BlueprintFeature destined_strike;
+            static internal BlueprintFeature fated_bloodrager;
+            static internal BlueprintFeature certain_strike;
+            static internal BlueprintFeature defy_death;
+            static internal BlueprintFeature unstoppable;
+            static internal BlueprintFeature victory_or_death;
+            static string prefix = "BloodragerBloodlineDestined";
         }
 
 
