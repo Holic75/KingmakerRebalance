@@ -28,6 +28,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -378,16 +379,15 @@ namespace KingmakerRebalance
 
             static void createClaws()
             {
-                //claws
-                var claw1d6 = library.Get<BlueprintItemWeapon>("d40ae466ba750bf4495a174e399d85ce"); //from sorc abbys bloodline
-                var claw1d8 = library.CopyAndAdd<BlueprintItemWeapon>("d40ae466ba750bf4495a174e399d85ce", "BloodlineAbyssalClaw1d8", "350d22105211463ebcb998e9740d00a1");
+                var claw1d6 = library.CopyAndAdd<BlueprintItemWeapon>("d40ae466ba750bf4495a174e399d85ce", "BloodragerBloodlineAbyssalClaw1d6", "37f8a9bd2fd04270a8d0d14916ed4c11"); //from sorc abbys bloodline
+                var claw1d8 = library.CopyAndAdd<BlueprintItemWeapon>("d40ae466ba750bf4495a174e399d85ce", "BloodragerBloodlineAbyssalClaw1d8", "350d22105211463ebcb998e9740d00a1");
                 Helpers.SetField(claw1d8, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
-                var claw1d8Fire = library.CopyAndAdd<BlueprintItemWeapon>("6e2487c8fb0501841b508e5918b36cb9", "BloodlineAbyssalClaw1d8Fire", "9f147636d23c4a04a2a575e6eb601bfa");
+                var claw1d8Fire = library.CopyAndAdd<BlueprintItemWeapon>("6e2487c8fb0501841b508e5918b36cb9", "BloodragerBloodlineAbyssalClaw1d8Fire", "9f147636d23c4a04a2a575e6eb601bfa");
                 Helpers.SetField(claw1d8Fire, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
 
                 var claw_buff1 = library.CopyAndAdd<BlueprintBuff>("4a51dca9d9456214e9a382b9e47385b3", "BloodragerBloodlineAbyssalClaw1Buff", "6786313f39c044ad9348bdfc163cf45f");
                 claw_buff1.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d6));
-                var claw_buff2 = library.Get<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6"); //from sorcerer bloodline
+                var claw_buff2 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw1Buff", "a4b808de88d44420aa0f2db0d64a1ce8"); //from sorcerer bloodline
                 var claw_buff3 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw3Buff", "9af5c8658f3f42c99cc61e58b1cae7ac");
                 claw_buff3.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8));
                 var claw_buff4 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw4Buff", "d255c953ad424b1f8e73e98b318e0d64");
@@ -1287,7 +1287,7 @@ namespace KingmakerRebalance
 
             static void createDarkWings()
             {
-                var diabolic_wings_buff = library.Get<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f");
+                var diabolic_wings_buff = library.CopyAndAdd<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f", prefix + "DarkWingsBuff", "cd8e632e520d417cb20766b7e124909a");
                 dark_wings = Helpers.CreateFeature(prefix + "DarkWingsFeature",
                                                                                "Dark Wings",
                                                                                "At 12th level, you gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
@@ -1730,17 +1730,6 @@ namespace KingmakerRebalance
                                    Helpers.CreateAddAbilityResource(resource)
                                    );
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, defy_death_buff, defy_death);
-
-
-                /*defy_death = Helpers.CreateFeature(prefix + "DefyDeathFeature",
-                                                   "Defy Death",
-                                                   "At 12th level, once per day when an attack or spell would result in your death, you can attempt a DC 20 Fortitude save. If you succeed, you are instead revived with 10% of health.",
-                                                   "",
-                                                   raise_dead.Icon,
-                                                   FeatureGroup.None,
-                                                   Common.createDeathActions(Helpers.CreateActionList(death_check), resource),
-                                                   Helpers.CreateAddAbilityResource(resource)
-                                                   );*/
             }
 
 
@@ -1788,6 +1777,236 @@ namespace KingmakerRebalance
                                                          Common.createAddConditionImmunity(UnitCondition.Paralyzed)
                                                          );
             }
+        }
+
+
+
+        class DraconicBloodlines
+        {
+            static List<BlueprintProgression> progressions = new List<BlueprintProgression>();
+            static List<BlueprintFeature> claws = new List<BlueprintFeature>();
+            static List<BlueprintFeature> draconic_resistance = new List<BlueprintFeature>();
+            static List<BlueprintFeature> breath_weapon = new List<BlueprintFeature>();
+            static List<BlueprintFeature> dragon_wings = new List<BlueprintFeature>();
+            static List<BlueprintFeature> dragon_form = new List<BlueprintFeature>();
+            static List<BlueprintFeature> power_of_the_wyrms = new List<BlueprintFeature>();
+
+            static string prefix = "BloodragerBloodlineDraconic";
+
+            struct DraconicBloodlineData
+            {
+                public UnityEngine.Sprite icon;
+                public BlueprintBuff wings_prototype;
+                public BlueprintAbility breath_weapon_prototype;
+                public BlueprintBuff dragon_form_prototype;
+                public DamageEnergyType energy_type;
+                public Kingmaker.Blueprints.Items.Ecnchantments.BlueprintWeaponEnchantment claws_enchantment;
+                public string prefix;
+                public string name;
+
+                public string energy_string;
+                public string breath_area_string;
+
+                public DraconicBloodlineData(UnityEngine.Sprite bloodline_icon, BlueprintBuff wings, BlueprintAbility breath_weapon, BlueprintBuff dragon_form, DamageEnergyType energy,
+                                      BlueprintWeaponEnchantment enchantment, string bloodline_name)
+                {
+                    icon = bloodline_icon;
+                    wings_prototype = wings;
+                    breath_weapon_prototype = breath_weapon;
+                    dragon_form_prototype = dragon_form;
+                    energy_type = energy;
+                    claws_enchantment = enchantment;
+                    name = bloodline_name;
+                    prefix = "BloodragerBloodlineDraconic" + bloodline_name;
+                    energy_string = energy.ToString().ToLower();
+                    int start =  breath_weapon.Description.IndexOf("level in", 0) + 8;
+                    int end = breath_weapon.Description.IndexOf('.', start);
+                    breath_area_string = breath_weapon.Description.Substring(start, end - start);
+                }
+            }
+
+
+            static DraconicBloodlineData[] bloodlines;
+
+
+
+            static void createClaws()
+            {
+                var claw1d6 = library.CopyAndAdd<BlueprintItemWeapon>("18dc77b96c009804399c834e028d0552",  prefix + "Claw1d6", ""); //from sorc draconic bloodline
+                var claw1d8 = library.CopyAndAdd<BlueprintItemWeapon>("18dc77b96c009804399c834e028d0552", prefix + "Claw1d8", "");
+                Helpers.SetField(claw1d8, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
+
+                List<BlueprintItemWeapon> claws1d8Energy = new List<BlueprintItemWeapon>();
+
+                foreach (var b in bloodlines)
+                {
+                    var claw_energy = library.CopyAndAdd<BlueprintItemWeapon>("18dc77b96c009804399c834e028d0552", b.prefix + "Claw1d8" + b.claws_enchantment.name, "");
+                    Helpers.SetField(claw_energy, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
+                    Helpers.SetField(claw_energy, "m_Enchantments", new BlueprintWeaponEnchantment[] { b.claws_enchantment });
+                    claws1d8Energy.Add(claw_energy);
+                }
+
+                var claw_buff1 = library.CopyAndAdd<BlueprintBuff>("fe712a5237d918342936c0761cdc2d3e", prefix + "Claw1Buff", ""); //from sorcerer bloodline
+                claw_buff1.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d6));
+                var claw_buff2 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw2Buff", ""); //from sorcerer bloodline
+                var claw_buff3 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw3Buff", "");
+                claw_buff3.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8));
+                List<BlueprintBuff> claws4_buff_energy = new List<BlueprintBuff>();
+                foreach (var c in claws1d8Energy)
+                {
+                    var claw_buff4 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw4Buff", "");
+                    claw_buff4.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(c));
+                    claws4_buff_energy.Add(claw_buff4);
+                }
+
+                var claws1_feature = Helpers.CreateFeature(prefix + "Claws1Feature", "Claws",
+                                                          "At 1st level, you grow claws. These claws are treated as natural weapons, allowing you to make two claw attacks as a full attack, using your full base attack bonus. These attacks deal 1d6 points of damage each (1d4 if you are Small) plus your Strength modifier. At 4th level, these claws are considered magic weapons for the purpose of overcoming damage reduction. At 8th level, the damage increases to 1d8 points (1d6 if you are Small). At 12th level, these claws deal an additional 1d6 points of damage of your energy type on a hit.",
+                                                          "",
+                                                          claw1d6.Icon,
+                                                          FeatureGroup.None);
+                claws1_feature.HideInCharacterSheetAndLevelUp = true;
+                var claws2_feature = Helpers.CreateFeature(prefix + "Claws2Feature", "Claws",
+                                                          claws1_feature.Description,
+                                                          "",
+                                                          claws1_feature.Icon,
+                                                          FeatureGroup.None,
+                                                          Common.createRemoveFeatureOnApply(claws1_feature));
+                claws2_feature.HideInCharacterSheetAndLevelUp = true;
+                var claws3_feature = Helpers.CreateFeature(prefix + "Claws3Feature", "Claws",
+                                                          claws1_feature.Description,
+                                                          "",
+                                                          claws1_feature.Icon,
+                                                          FeatureGroup.None,
+                                                          Common.createRemoveFeatureOnApply(claws2_feature),
+                                                          Common.createRemoveFeatureOnApply(claws1_feature));
+                claws3_feature.HideInCharacterSheetAndLevelUp = true;
+
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff1, claws1_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff2, claws2_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff3, claws3_feature);
+
+                for (int i = 0; i < bloodlines.Length; i++)
+                {
+                    var claws4_feature = Helpers.CreateFeature(bloodlines[i].prefix + "Claws4Feature", "Claws",
+                                                              claws1_feature.Description,
+                                                              "",
+                                                              claws1_feature.Icon,
+                                                              FeatureGroup.None,
+                                                              Common.createRemoveFeatureOnApply(claws3_feature),
+                                                              Common.createRemoveFeatureOnApply(claws2_feature),
+                                                              Common.createRemoveFeatureOnApply(claws1_feature));
+                    claws4_feature.HideInCharacterSheetAndLevelUp = true;
+                    var claw = Helpers.CreateFeature(bloodlines[i].prefix + "ClawsFeature", "Claws",
+                                                              claws1_feature.Description,
+                                                              "",
+                                                              claws1_feature.Icon,
+                                                              FeatureGroup.None,
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws1_feature, 1, getBloodragerArray(), null),
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws2_feature, 4, getBloodragerArray(), null),
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws3_feature, 8, getBloodragerArray(), null),
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws4_feature, 12, getBloodragerArray(), null)
+                                                              );
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claws4_buff_energy[i], claws4_feature);
+                    claws.Add(claw);
+                }
+            }
+
+            static void createDraconicResistance()
+            {
+                var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
+
+                foreach (var b in bloodlines)
+                {
+                    var buff = Helpers.CreateBuff(b.prefix + "DraconicResistancesBuff",
+                                                        "Draconic Resistance",
+                                                        $"At 4th level, you gain {b.energy_string} resistance 5  and a +1 natural armor bonus to AC. At 8th level, your {b.energy_string} resistance increases to 10 and your natural armor bonus increases to +2. At 16th level, your natural armor bonus increases to +4.",
+                                                        "",
+                                                        damage_resistance.Icon,
+                                                        null,
+                                                        Common.createEnergyDRContextRank(b.energy_type, AbilityRankType.StatBonus),
+                                                                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                         ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                                                         classes: getBloodragerArray(),
+                                                                                         customProgression: new (int, int)[] {
+                                                                                                (7, 5),
+                                                                                                (20, 10)
+                                                                                         }),
+                                                        Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, rankType: AbilityRankType.DamageBonus), 
+                                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                        ContextRankProgression.Custom, AbilityRankType.DamageBonus,
+                                                                                        classes: getBloodragerArray(),
+                                                                                        customProgression: new (int, int)[] {
+                                                                                                (7, 1),
+                                                                                                (15, 2),
+                                                                                                (20, 4)
+                                                                                        })
+                                                        );
+                    var feat = Helpers.CreateFeature(b.prefix + "DraconicResistancesFeature",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     FeatureGroup.None
+                                                    );
+                    draconic_resistance.Add(feat);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, feat);
+                }
+            }
+
+
+            static void createBreathWeapon()
+            {
+                var resource = library.CopyAndAdd<BlueprintAbilityResource>("bebe2a97cc091934189fd8255e903b1f", prefix + "BreathWeaponResource", ""); //sorc bloodline resource
+                resource.SetIncreasedByLevelStartPlusDivStep(1, 16, 1, 4, 1, 0, 0.0f, getBloodragerArray());
+                //var add_resource = library.Get<BlueprintFeature>("7459c25b2cc9cdd4d8367cb555f0fe5a");
+                foreach (var b in bloodlines)
+                {
+                    var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
+                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day.This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
+                    var rank_config = breath_ability.GetComponent<ContextRankConfig>();
+                    var classes = Helpers.GetField< BlueprintCharacterClass[]>(rank_config, "m_Class");
+                    classes = classes.AddToArray(bloodrager_class);
+                    Helpers.SetField(rank_config, "m_Class", classes);
+                    breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution));
+
+                    var breath_feature = Helpers.CreateFeature(b.prefix + "BreathWeaponFeature",
+                                                               breath_ability.Name,
+                                                               breath_ability.Description,
+                                                               "",
+                                                               breath_ability.Icon,
+                                                               FeatureGroup.None,
+                                                               Helpers.CreateAddFact(breath_ability),
+                                                               Helpers.CreateAddAbilityResource(resource)
+                                                               //Helpers.CreateAddFeatureOnClassLevel(add_resource, 16, getBloodragerArray(), new BlueprintArchetype[0]),
+                                                               //Helpers.CreateAddFeatureOnClassLevel(add_resource, 20, getBloodragerArray(), new BlueprintArchetype[0])
+                                                               );
+                    breath_weapon.Add(breath_feature);
+                }
+            }
+
+
+            static void createDragonWings()
+            {
+                foreach (var b in bloodlines)
+                {
+                    var wings_buff = library.CopyAndAdd<BlueprintBuff>(b.wings_prototype.AssetGuid, b.prefix + "DragonWingsBuff", "");
+                    var wings_feature = Helpers.CreateFeature(b.prefix + "DragonWings",
+                                                                                   "Dragon Wings ",
+                                                                                   "At 12th level, you gain a pair of leathery wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
+                                                                                   "",
+                                                                                   wings_buff.Icon,
+                                                                                   FeatureGroup.None);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, wings_buff, wings_feature);
+                    dragon_wings.Add(wings_feature);
+                }
+            }
+
+
+            static void createDragonForm()
+            {
+
+            }
+
         }
 
 
