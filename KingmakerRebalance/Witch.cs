@@ -1853,7 +1853,7 @@ namespace KingmakerRebalance
             hex_ability.AddComponent(touch);
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "2214659c18824be4af8a662485b6f341");
-            eternal_slumber = Helpers.CreateFeature("SlumberHexFeature",
+            eternal_slumber = Helpers.CreateFeature("WitchEternalSlumberHexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       "8e7292d4fb9346a3bc71f653d539d0ca",

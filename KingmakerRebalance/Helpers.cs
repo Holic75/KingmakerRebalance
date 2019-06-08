@@ -144,6 +144,10 @@ namespace KingmakerRebalance
 
         public static void AddAsset(this LibraryScriptableObject library, BlueprintScriptableObject blueprint, String guid)
         {
+            if (guid == "")
+            {
+                guid = Helpers.GuidStorage.getGuid(blueprint.name);
+            }
             blueprintScriptableObject_set_AssetId(blueprint, guid);
             // Sanity check that we don't stop on our own GUIDs or someone else's.
             BlueprintScriptableObject existing;
@@ -173,6 +177,7 @@ namespace KingmakerRebalance
 
             library.GetAllBlueprints().Add(blueprint);
             library.BlueprintsByAssetId[guid] = blueprint;
+            Helpers.GuidStorage.addEntry(blueprint.name, guid);
         }
 
         public static void SetFeatures(this BlueprintFeatureSelection selection, IEnumerable<BlueprintFeature> features)
@@ -659,6 +664,69 @@ namespace KingmakerRebalance
     // - less `Helpers.` etc.
     internal static class Helpers
     {
+        internal static class GuidStorage
+        {
+            static Dictionary<string, string> guids_in_use = new Dictionary<string, string>();
+
+            static internal void load(string file_content)
+            {
+               
+
+                using (System.IO.StringReader reader = new System.IO.StringReader(file_content))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        string[] items = line.Split('\t');
+                        guids_in_use.Add(items[0], items[1]);
+                    }
+                }
+            }
+
+            static internal void dump(string guid_file_name)
+            {
+                using (System.IO.StreamWriter sw = System.IO.File.CreateText(guid_file_name))
+                {
+                    foreach (var pair in guids_in_use)
+                    {
+                        BlueprintScriptableObject existing;
+                        Main.library.BlueprintsByAssetId.TryGetValue(pair.Value, out existing);
+                            sw.WriteLine(pair.Key + '\t' + pair.Value + '\t' + existing.GetType().FullName);
+                    }
+                }
+            }
+
+            static internal void addEntry(string name, string guid)
+            {
+                string original_guid;
+                if (guids_in_use.TryGetValue(name, out original_guid))
+                {
+                    if (original_guid != guid)
+                    {
+                        throw Main.Error($"Asset: {name}, is already registered for object with another guid: {guid}");
+                    }
+                }
+                else
+                {
+                    guids_in_use.Add(name, guid);
+                }
+            }
+
+
+            static internal string getGuid(string name)
+            {
+                string original_guid;
+                if (guids_in_use.TryGetValue(name, out original_guid))
+                {
+                    return original_guid;
+                }
+                else
+                {
+                    return Guid.NewGuid().ToString("N");
+                }
+            }
+
+        }
         public static BlueprintFeatureSelection skillFocusFeat;
 
         // All classes (including prestige classes).

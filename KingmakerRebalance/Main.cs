@@ -11,6 +11,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.Designers.Mechanics.Buffs;
 using System.Collections.Generic;
 using Kingmaker.Blueprints.Items;
+
 namespace KingmakerRebalance
 {
     public class Main
@@ -59,6 +60,8 @@ namespace KingmakerRebalance
                 {
                     Main.DebugLog("Loading Kingmaker Rebalance");
 
+
+                    KingmakerRebalance.Helpers.GuidStorage.load(Properties.Resources.blueprints);
                     KingmakerRebalance.Helpers.Load();
                     KingmakerRebalance.Rebalance.fixAnimalCompanion();
                     KingmakerRebalance.Rebalance.fixLegendaryProportionsAC();
@@ -72,6 +75,11 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Witch.createWitchClass();
                     KingmakerRebalance.Bloodrager.test_mode = true;
                     KingmakerRebalance.Bloodrager.createBloodragerClass();
+
+#if DEBUG
+                    string guid_file_name = @"C:\Repositories\KingmakerRebalance\KingmakerRebalance\blueprints.txt";
+                    KingmakerRebalance.Helpers.GuidStorage.dump(guid_file_name);
+#endif
                 }
                 catch (Exception ex)
                 {

@@ -134,10 +134,11 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
                                                                                                                         AbilityRankType rank_type = AbilityRankType.Default,
-                                                                                                                        bool is_from_spell = true, bool is_permanent = false, bool is_child = false)
+                                                                                                                        bool is_from_spell = true, bool is_permanent = false, bool is_child = false,
+                                                                                                                        bool on_failed_save = true)
         {
             var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
-            context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
+        
             var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.AsChild = is_child;
@@ -147,7 +148,16 @@ namespace KingmakerRebalance
             bonus_value.ValueType = ContextValueType.Rank;
             apply_buff.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,
                                                                            rate: duration_rate);
-            context_saved.Failed = Helpers.CreateActionList(apply_buff);
+            if (on_failed_save)
+            {
+                context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
+                context_saved.Failed = Helpers.CreateActionList(apply_buff);
+            }
+            else
+            {
+                context_saved.Failed = new Kingmaker.ElementsSystem.ActionList();
+                context_saved.Succeed = Helpers.CreateActionList(apply_buff);
+            }
             return context_saved;
         }
 
@@ -167,7 +177,33 @@ namespace KingmakerRebalance
             context_saved.Failed = Helpers.CreateActionList(apply_buff);
             return context_saved;
         }
+        
 
+        static internal Kingmaker.UnitLogic.Mechanics.Components.DeathActions createDeathActions(Kingmaker.ElementsSystem.ActionList action_list,
+                                                                                                 BlueprintAbilityResource resource = null)
+        {
+            var a = new Kingmaker.UnitLogic.Mechanics.Components.DeathActions();
+            a.Actions = action_list;
+            a.CheckResource = (resource != null);
+            a.Resource = resource;
+            return a;
+        }
+
+        
+        static internal Kingmaker.Designers.Mechanics.Facts.CriticalConfirmationACBonus createCriticalConfirmationACBonus(int bonus)
+        {
+            var c = new CriticalConfirmationACBonus();
+            c.Bonus = bonus;
+            return c;
+        }
+
+
+        static internal CriticalConfirmationBonus createCriticalConfirmationBonus(int bonus)
+        {
+            var c = new CriticalConfirmationBonus();
+            c.Bonus = bonus;
+            return c;
+        }
 
         internal static ContextActionSavingThrow createContextActionSavingThrow(SavingThrowType saving_throw, Kingmaker.ElementsSystem.ActionList action)
         {
@@ -945,6 +981,18 @@ namespace KingmakerRebalance
         {
             var a = new ActivatableAbilityUnitCommand();
             a.Type = command_type;
+            return a;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Facts.AttackTypeAttackBonus createAttackTypeAttackBonus(ContextValue value, AttackTypeAttackBonus.WeaponRangeType attack_type,
+                                                                                                              ModifierDescriptor descriptor)
+        {
+            var a = new AttackTypeAttackBonus();
+            a.AttackBonus = 1;
+            a.Type = attack_type;
+            a.Value = value;
+            a.Descriptor = descriptor;
             return a;
         }
 

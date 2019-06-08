@@ -310,6 +310,7 @@ namespace KingmakerRebalance
             FeyBloodline.create();
             InfernalBloodline.create();
             UndeadBloodline.create();
+            DestinedBloodline.create();
 
             bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
                                                                      "Bloodline",
@@ -320,15 +321,14 @@ namespace KingmakerRebalance
                                                                      "6eed80b1bfa9425e90c5981fb87dedf2",
                                                                      null,
                                                                      FeatureGroup.None);
-            bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, FeyBloodline.progression,
-                                                                       InfernalBloodline.progression, UndeadBloodline.progression};
+            bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, DestinedBloodline.progression,
+                                                                       FeyBloodline.progression, InfernalBloodline.progression, UndeadBloodline.progression};
             bloodline_selection.Features = bloodline_selection.AllFeatures;
         }
 
 
         class AbyssalBloodline
         {
-
             static internal BlueprintProgression progression;
             static internal BlueprintFeature claws;
             static internal BlueprintFeature demonic_bulk;
@@ -414,7 +414,7 @@ namespace KingmakerRebalance
                                                           Common.createRemoveFeatureOnApply(claws2_feature),
                                                           Common.createRemoveFeatureOnApply(claws1_feature));
                 claws3_feature.HideInCharacterSheetAndLevelUp = true;
-                var claws4_feature = Helpers.CreateFeature("BloodragerBloodlineAbyssalClaws3Feature", "Claws",
+                var claws4_feature = Helpers.CreateFeature("BloodragerBloodlineAbyssalClaws4Feature", "Claws",
                                                           claws1_feature.Description,
                                                           "e8d6d66c04bd495ba24824feaf537cf6",
                                                           claws1_feature.Icon,
@@ -524,7 +524,7 @@ namespace KingmakerRebalance
                                                                 (20, 6)
                                                     })
                                                     );
-                abyssal_bloodrage = Helpers.CreateFeature("BloodragerAbyssalBloodlineDemonicResistancesFeature",
+                abyssal_bloodrage = Helpers.CreateFeature("BloodragerAbyssalBloodlineAbyssalBloodrageFeature",
                                                                                buff.Name,
                                                                                buff.Description,
                                                                                "9167d9245c9140ae94f834186c98b700",
@@ -589,7 +589,7 @@ namespace KingmakerRebalance
                                                                             AbilityActivationType.Immediately,
                                                                             CommandType.Standard,
                                                                             reckless_stance.ActivateWithUnitAnimation);
-                demonic_aura = Helpers.CreateFeature("BloodragerBloodlineAbyssalDemonicBulkFeature",
+                demonic_aura = Helpers.CreateFeature("BloodragerBloodlineAbyssalDemonicAuraFeature",
                                                                         demonic_aura_switch_buff.Name,
                                                                         demonic_aura_switch_buff.Description,
                                                                         "b6df9a3984114c14881bf4b2d5aa5a47",
@@ -1536,16 +1536,268 @@ namespace KingmakerRebalance
             static internal BlueprintFeature unstoppable;
             static internal BlueprintFeature victory_or_death;
             static string prefix = "BloodragerBloodlineDestined";
+
+
+            static internal void create()
+            {
+                createDestinedStrike();
+                createFatedBloodrager();
+                createCertainStrike();
+                createDefyDeath();
+                createUnstoppable();
+                createVictoryOrDeath();
+
+                var shield = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4");
+                var blur = library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1");
+                var protection_from_energy = library.Get<BlueprintAbility>("d2f116cfe05fcdd4a94e80143b67046f");
+                var freedom_of_movement = library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e");
+
+                var endurance = library.Get<BlueprintFeature>("54ee847996c25cd4ba8773d7b8555174");
+                var diehard = library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad");
+                var improved_initiative = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");
+                var lightning_reflexes = library.Get<BlueprintFeature>("15e7da6645a7f3d41bdad7c8c4b9de1e");
+                var dazzling_display = library.Get<BlueprintFeature>("bcbd674ec70ff6f4894bb5f07b6f4095");
+                var intimidating_prowess = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
+                var weapon_focus = library.Get<BlueprintFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+
+
+                progression = createBloodragerBloodline("Destined",
+                                                              "Your bloodline is destined for great things. When you bloodrage, you exude a greatness that makes all but the most legendary creatures seem lesser.\n"
+                                                               + "Bonus Feats: Diehard, Endurance, Improved Initiative, Intimidating Prowess, Dazzling Display, Lightning Reflexes, Weapon Focus.\n"
+                                                               + "Bonus Spells: Shield (7th), blur (10th), protection from energy (13th), freedom of movement (16th).",
+                                                              library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63").Icon, // heroism
+                                                              new BlueprintAbility[] { shield, blur, protection_from_energy, freedom_of_movement },
+                                                              new BlueprintFeature[] { endurance, diehard, dazzling_display, improved_initiative, weapon_focus, intimidating_prowess, lightning_reflexes },
+                                                              new BlueprintFeature[] { destined_strike, fated_bloodrager, certain_strike, defy_death, unstoppable, victory_or_death},
+                                                              "",
+                                                              new string[] { "", "", "", "" },
+                                                              ""
+                                                              );
+            }
+
+            static void createDestinedStrike()
+            {
+                var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
+                var destined_strike_buff = Helpers.CreateBuff(prefix + "DestinedStrikeBuff",
+                                                              "Destined Strike",
+                                                              "At 1st level, as a free action up to three times per day you can grant yourself an insight bonus equal to 1/2 your bloodrager level (minimum 1) on one melee attack. At 12th level, you can use this ability up to five times per day.",
+                                                              "",
+                                                              true_strike.Icon,
+                                                              null,
+                                                              Common.createAttackTypeAttackBonus(Helpers.CreateContextValue(AbilityRankType.DamageBonus), AttackTypeAttackBonus.WeaponRangeType.Melee,
+                                                                                                 ModifierDescriptor.Insight),
+                                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
+                                                                                              min: 1, classes: getBloodragerArray(), type: AbilityRankType.DamageBonus)
+                                                             );
+                var resource = Helpers.CreateAbilityResource(prefix + "DestinedStrikeResource",
+                                                             destined_strike_buff.Name,
+                                                             "",
+                                                             "",
+                                                             null
+                                                             );
+                resource.SetFixedResource(3);
+                var destined_strike_ability = Helpers.CreateActivatableAbility(prefix + "DestinedStrikeActivatableAbility",
+                                                                               destined_strike_buff.Name,
+                                                                               destined_strike_buff.Description,
+                                                                               "",
+                                                                               destined_strike_buff.Icon,
+                                                                               destined_strike_buff,
+                                                                               AbilityActivationType.Immediately,
+                                                                               CommandType.Free,
+                                                                               null,
+                                                                               Helpers.CreateActivatableResourceLogic(resource, ResourceSpendType.Attack)
+                                                                               );
+                var destined_strike_additional_use = Helpers.CreateFeature(prefix + "DestinedStrikeAdditionalUsesFeature",
+                                                                           "",
+                                                                           "",
+                                                                           "",
+                                                                           destined_strike_buff.Icon,
+                                                                           FeatureGroup.None,
+                                                                           Helpers.CreateIncreaseResourceAmount(resource, 2)
+                                                                           );
+                destined_strike_additional_use.HideInCharacterSheetAndLevelUp = true;
+                destined_strike = Helpers.CreateFeature(prefix + "DestinedStrikeFeature",
+                                                        destined_strike_buff.Name,
+                                                        destined_strike_buff.Description,
+                                                        "",
+                                                        destined_strike_buff.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddFact(destined_strike_ability),
+                                                        Helpers.CreateAddAbilityResource(resource),
+                                                        Helpers.CreateAddFeatureOnClassLevel(destined_strike_additional_use, 12, getBloodragerArray(), new BlueprintArchetype[0])
+                                                        );
+            }
+
+            static void createFatedBloodrager()
+            {
+                var mirror_image = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564");
+                var fated_bloodrager_buff = Helpers.CreateBuff(prefix + "FatedBloodragerBuff",
+                                                               "Fated Bloodrager",
+                                                               "At 4th level, you gain a +1 luck bonus to AC and on saving throws. At 8th level and every 4 levels thereafter, this bonus increases by 1 (to a maximum of +5 at 20th level).",
+                                                               "",
+                                                               mirror_image.Icon,
+                                                               null,
+                                                               Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Luck, ContextValueType.Rank, AbilityRankType.Default),
+                                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                               startLevel: 4, stepLevel: 4, classes: getBloodragerArray()
+                                                                                               )
+                                                              );
+                fated_bloodrager= Helpers.CreateFeature(prefix + "FatedBloodragerFeature",
+                                                                                fated_bloodrager_buff.Name,
+                                                                                fated_bloodrager_buff.Description,
+                                                                                "",
+                                                                                fated_bloodrager_buff.Icon,
+                                                                                FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, fated_bloodrager_buff, fated_bloodrager);
+            }
+
+
+            static void createCertainStrike()
+            {
+                //replace with the following:
+                //once every 4 levels allow to reroll one failed attack
+                var knights_resolve = library.Get<BlueprintBuff>("f7bf9fc0d400d7243aaca01b14f8c935");
+
+                var reroll = new Kingmaker.Designers.Mechanics.Facts.ModifyD20();
+                reroll.DispellOnRerollFinished = true;
+                reroll.Rule = RuleType.AttackRoll;
+                reroll.RollsAmount = 2;
+                reroll.TakeBest = false;
+                reroll.RerollOnlyIfFailed = true;
+
+                var certain_strike_buff = Helpers.CreateBuff(prefix + "CertainStrikeBuff",
+                                                         "Certain Strike",
+                                                         "At 8th level, you may reroll a failed attack roll. You must take the second result, even if it’s worse. You can use this ability once per day per 4 levels of bloodrager.",
+                                                         "",
+                                                         knights_resolve.Icon,
+                                                         null,
+                                                         reroll);
+
+                var resource = Helpers.CreateAbilityResource(prefix + "CertainStrikeResource", "", "", "", knights_resolve.Icon);
+                resource.SetIncreasedByLevelStartPlusDivStep(0, 8, 2, 4, 1, 0, 0.0f, getBloodragerArray());
+                var certain_strike_ability = library.CopyAndAdd<BlueprintAbility>("6f9af630d43d4c2498a127ea84cb1c8a", prefix + "CertainStrikeAbility", "");
+                certain_strike_ability.SetName(certain_strike_buff.Name);
+                certain_strike_ability.SetDescription(certain_strike_buff.Description);
+                certain_strike_ability.ActionType = CommandType.Free;
+                certain_strike_ability.ComponentsArray = new BlueprintComponent[] {Helpers.CreateRunActions(Common.createContextActionApplyBuff(certain_strike_buff,
+                                                                                                                                                Helpers.CreateContextDuration(),
+                                                                                                                                                is_child: true,
+                                                                                                                                                is_permanent: true
+                                                                                                                                                )
+                                                                                                           ),
+                                                                                   Helpers.CreateResourceLogic(resource)
+                                                                                  };
+                certain_strike = Helpers.CreateFeature(prefix + "CertainStrikeFeature",
+                                                       certain_strike_buff.Name,
+                                                       certain_strike_buff.Description,
+                                                       "",
+                                                       certain_strike_buff.Icon,
+                                                       FeatureGroup.None,
+                                                       Helpers.CreateAddFact(certain_strike_ability),
+                                                           Helpers.CreateAddAbilityResource(resource)
+                                                           );
+            }
+
+
+            static void createDefyDeath()
+            {
+                var raise_dead = library.Get<BlueprintAbility>("a0fc99f0933d01643b2b8fe570caa4c5");
+                var resource = Helpers.CreateAbilityResource(prefix + "DefyDeathResource", "", "", "", raise_dead.Icon);
+                resource.SetFixedResource(1);
+
+                var death_check = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSkillCheck();
+                death_check.CustomDC = Common.createSimpleContextValue(20);
+                death_check.Stat = StatType.SaveFortitude;
+                death_check.Failure = Helpers.CreateActionList();
+                death_check.Success = Helpers.CreateActionList(new ContextActionResurrect());
+                death_check.UseCustomDC = true;
+                var defy_death_buff = Helpers.CreateBuff(prefix + "DefyDeathBuff",
+                                   "Defy Death",
+                                   "At 12th level, once per day when an attack or spell would result in your death, you can attempt a DC 20 Fortitude save. If you succeed, you are instead revived with 10% of health.",
+                                   "",
+                                   raise_dead.Icon,
+                                   null,
+                                   Common.createDeathActions(Helpers.CreateActionList(death_check), resource),
+                                   Helpers.CreateAddAbilityResource(resource)
+                                   );
+
+                defy_death = Helpers.CreateFeature(prefix + "DefyDeathFeature",
+                                   defy_death_buff.Name,
+                                   defy_death_buff.Description,
+                                   "",
+                                   raise_dead.Icon,
+                                   FeatureGroup.None,
+                                   Helpers.CreateAddAbilityResource(resource)
+                                   );
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, defy_death_buff, defy_death);
+
+
+                /*defy_death = Helpers.CreateFeature(prefix + "DefyDeathFeature",
+                                                   "Defy Death",
+                                                   "At 12th level, once per day when an attack or spell would result in your death, you can attempt a DC 20 Fortitude save. If you succeed, you are instead revived with 10% of health.",
+                                                   "",
+                                                   raise_dead.Icon,
+                                                   FeatureGroup.None,
+                                                   Common.createDeathActions(Helpers.CreateActionList(death_check), resource),
+                                                   Helpers.CreateAddAbilityResource(resource)
+                                                   );*/
+            }
+
+
+            static void createUnstoppable()
+            {
+                var shield_of_faith = library.Get<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445");
+
+                var unstoppable_buff = Helpers.CreateBuff(prefix + "UnstoppableBuff",
+                                                          "Unstoppable",
+                                                          "At 16th level, any critical threats you score are automatically confirmed. Any critical threats made against you confirm only if the second roll results in a natural 20 (or is automatically confirmed).",
+                                                          "",
+                                                          shield_of_faith.Icon,
+                                                          null,
+                                                          Common.createCriticalConfirmationACBonus(100),
+                                                          Common.createCriticalConfirmationBonus(100)
+                                                          );
+                unstoppable = Helpers.CreateFeature(prefix + "UnstoppableFeature",
+                                                                                unstoppable_buff.Name,
+                                                                                unstoppable_buff.Description,
+                                                                                "",
+                                                                                unstoppable_buff.Icon,
+                                                                                FeatureGroup.None);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, unstoppable_buff, unstoppable);
+            }
+
+
+            static void createVictoryOrDeath()
+            {
+                var confusion = library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949");
+                victory_or_death = Helpers.CreateFeature(prefix + "VictoryOrDeath",
+                                                         "Victory or Death",
+                                                         "At 20th level, you are immune to paralysis and petrification, as well as to the stunned, dazed, and staggered conditions. You have these benefits constantly, even while not bloodraging.",
+                                                         "",
+                                                         confusion.Icon,
+                                                         FeatureGroup.None,
+                                                         Common.createBuffDescriptorImmunity(SpellDescriptor.Stun),
+                                                         Common.createBuffDescriptorImmunity(SpellDescriptor.Daze),
+                                                         Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
+                                                         Common.createBuffDescriptorImmunity(SpellDescriptor.Staggered),
+                                                         Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis),
+                                                         Common.createAddConditionImmunity(UnitCondition.Staggered),
+                                                         Common.createAddConditionImmunity(UnitCondition.Stunned),
+                                                         Common.createAddConditionImmunity(UnitCondition.Dazed),
+                                                         Common.createAddConditionImmunity(UnitCondition.Petrified),
+                                                         Common.createAddConditionImmunity(UnitCondition.Paralyzed)
+                                                         );
+            }
         }
 
 
-            static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
+        static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
                                                     BlueprintAbility[] bonus_spells, BlueprintFeature[] bonus_feats, BlueprintFeature[] powers,
                                                     string feat_selection_guid, string[] spell_guids, string progression_guid)
         {
             //spells at 7, 10, 13, 16
             //powers at 1, 4, 8, 12, 16, 20
-            //feats at levels = 6, 9, 12, 15, 18
+            //feats at levels  6, 9, 12, 15, 18
             var progression = Helpers.CreateProgression("Bloodrager" + name + "BloodlineProgression",
                                             name + " Bloodline",
                                             description,
