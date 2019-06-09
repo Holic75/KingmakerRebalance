@@ -313,6 +313,7 @@ namespace KingmakerRebalance
             UndeadBloodline.create();
             DestinedBloodline.create();
             DraconicBloodlines.create();
+            ElementalBloodlines.create();
 
             bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
                                                                      "Bloodline",
@@ -326,6 +327,7 @@ namespace KingmakerRebalance
             bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, DestinedBloodline.progression,
                                                                        FeyBloodline.progression, InfernalBloodline.progression, UndeadBloodline.progression };
             bloodline_selection.AllFeatures = bloodline_selection.AllFeatures.AddToArray(DraconicBloodlines.progressions);
+            bloodline_selection.AllFeatures = bloodline_selection.AllFeatures.AddToArray(ElementalBloodlines.progressions);
             bloodline_selection.Features = bloodline_selection.AllFeatures;
         }
 
@@ -1201,7 +1203,7 @@ namespace KingmakerRebalance
 
                 var hellfire_strike_buff = Helpers.CreateBuff(prefix + "HellfireStrikeBuff",
                                                              "Hellfire Strike",
-                                                             "At 1st level, you deal additional 1d6 points of fire damage on critical hit. At 12thl level this damage increases to 2d6.",
+                                                             "At 1st level, you deal additional 1d6 points of fire damage on critical hit. At 12th level this damage increases to 2d6.",
                                                              "a97d9794ce2549709997a61f89ffcacb",
                                                              burning_arc.Icon,
                                                              null,
@@ -2012,7 +2014,6 @@ namespace KingmakerRebalance
 
             static void createDraconicResistance()
             {
-
                 foreach (var b in bloodlines)
                 {
                     var buff = Helpers.CreateBuff(b.prefix + "DraconicResistancesBuff",
@@ -2134,9 +2135,294 @@ namespace KingmakerRebalance
             {
                 foreach (var b in bloodlines)
                 {
+                    var feat = library.CopyAndAdd<BlueprintFeature>(b.power_of_the_wyrms.AssetGuid, b.prefix + "PowerOfTheWyrmsFeature", "");
+                    feat.SetDescription(feat.Description + " You have this benefit constantly, even while not bloodraging.");
                     power_of_the_wyrms.Add(b.power_of_the_wyrms);
                 }
             }
+        }
+
+
+        class ElementalBloodlines
+        {
+            public static List<BlueprintProgression> progressions = new List<BlueprintProgression>();
+            static List<BlueprintFeature> elemental_strikes = new List<BlueprintFeature>(); //change duration to 1 round per 2 levels
+            static List<BlueprintFeature> elemental_resistance = new List<BlueprintFeature>();
+            static List<BlueprintFeature> elemental_movement = new List<BlueprintFeature>();
+            static List<BlueprintFeature> power_of_the_elements = new List<BlueprintFeature>();//ignore resistance while using elemental strikes and raging on critical hit
+            static List<BlueprintFeature> elemental_form = new List<BlueprintFeature>();
+            static List<BlueprintFeature> elemental_body = new List<BlueprintFeature>();
+
+            static string prefix = "BloodragerBloodlineElemental";
+
+            struct ElementalBloodlineData
+            {
+                public UnityEngine.Sprite icon;
+                public BlueprintFeature elemental_movement_prototype;
+                public BlueprintBuff elemental_form_prototype;
+                public DamageEnergyType energy_type;
+                public BlueprintFeature elemental_body;
+                public UnityEngine.Sprite resistance_icon;
+                public BlueprintAbility spell1;
+                public BlueprintAbility spell2;
+                public string prefix;
+                public string name;
+
+                public string energy_string;
+
+                public ElementalBloodlineData(UnityEngine.Sprite bloodline_icon, BlueprintFeature elemental_movement, BlueprintBuff elemental_form, DamageEnergyType energy,
+                                      BlueprintAbility level1_spell, BlueprintAbility level2_spell,
+                                      BlueprintFeature elemental_body_feature, string bloodline_name)
+                {
+                    icon = bloodline_icon;
+                    elemental_movement_prototype = elemental_movement;
+                    elemental_form_prototype = elemental_form;
+                    elemental_body = elemental_body_feature;
+                    spell1 = level1_spell;
+                    spell2 = level2_spell;
+                    energy_type = energy;
+                    name = bloodline_name;
+
+                    prefix = "BloodragerBloodlineElemental" + bloodline_name;
+                    energy_string = energy.ToString().ToLower();
+
+                    switch (energy)
+                    {
+                        case DamageEnergyType.Acid:
+                            resistance_icon = library.Get<BlueprintAbility>("fedc77de9b7aad54ebcc43b4daf8decd").Icon;
+                            break;
+                        case DamageEnergyType.Cold:
+                            resistance_icon = library.Get<BlueprintAbility>("5368cecec375e1845ae07f48cdc09dd1").Icon;
+                            break;
+                        case DamageEnergyType.Electricity:
+                            resistance_icon = library.Get<BlueprintAbility>("90987584f54ab7a459c56c2d2f22cee2").Icon;
+                            break;
+                        default: //fire
+                            resistance_icon = library.Get<BlueprintAbility>("ddfb4ac970225f34dbff98a10a4a8844").Icon;
+                            break;
+                    }
+                }
+            }
+            static ElementalBloodlineData[] bloodlines;
+
+
+            public static void create()
+            {
+                bloodlines = new ElementalBloodlineData[]
+                {
+                    new ElementalBloodlineData(library.Get<BlueprintProgression>("cd788df497c6f10439c7025e87864ee4").Icon, library.Get<BlueprintFeature>("1ae6835b8f568d44c8deb911f74762e4"),
+                                               library.Get<BlueprintBuff>("ba06b8cff52da9e4d8432144ed6a6d19"), DamageEnergyType.Electricity,
+                                               library.Get<BlueprintAbility>("728b3daffb1d9fd45958c6e60876b7a9"), library.Get<BlueprintAbility>("96ca3143601d6b242802655336620d91"),
+                                               library.Get<BlueprintFeature>("7c3be22702ee39a418a5fba0e85e68de"), "Air"),
+                    new ElementalBloodlineData(library.Get<BlueprintProgression>("32393034410fb2f4d9c8beaa5c8c8ab7").Icon, library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8"),
+                                               library.Get<BlueprintBuff>("3c7c12df25d21b344b7cbe12a60038d8"), DamageEnergyType.Acid,
+                                               library.Get<BlueprintAbility>("97d0a51ca60053047afb9aca900fb71b"), library.Get<BlueprintAbility>("435222be97067a447b2b40d3c58a058e"),
+                                               library.Get<BlueprintFeature>("6541fc1423987a341b30ea68a54f0327"), "Earth"),
+                    new ElementalBloodlineData(library.Get<BlueprintProgression>("17cc794d47408bc4986c55265475c06f").Icon, library.Get<BlueprintFeature>("f48c7d56a8a13af4d8e1cc9aae579b01"),
+                                               library.Get<BlueprintBuff>("6be582eb1f6df4f41875c16d919e3b12"), DamageEnergyType.Fire,
+                                               library.Get<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038"), library.Get<BlueprintAbility>("cdb106d53c65bbc4086183d54c3b97c7"),
+                                               library.Get<BlueprintFeature>("5d974328297021a479b4e3a1de749126"), "Fire"),
+                    new ElementalBloodlineData(library.Get<BlueprintProgression>("7c692e90592257a4e901d12ae6ec1e41").Icon, library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8"),
+                                               library.Get<BlueprintBuff>("f0abf98bb3bce4f4e877a8e8c2eccf41"), DamageEnergyType.Cold,
+                                               library.Get<BlueprintAbility>("83ed16546af22bb43bd08734a8b51941"), library.Get<BlueprintAbility>("7ef096fdc8394e149a9e8dced7576fee"),
+                                               library.Get<BlueprintFeature>("c459fcee6baabd149ac79acb0cb1d40e"), "Water")
+                };
+
+                createElementalStrikesAndPowerOfTheElements();
+                createElementalResistance();
+                createElementalMovement();
+                createElementalForm();
+                createElementalBody();
+  
+                var protection_from_energy = library.Get<BlueprintAbility>("d2f116cfe05fcdd4a94e80143b67046f");
+                var elemental_body1 = library.Get<BlueprintAbility>("690c90a82bf2e58449c6b541cb8ea004");
+
+                var dodge = library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5");
+                var cleave = library.Get<BlueprintFeature>("d809b6c4ff2aaff4fa70d712a70f7d7b");
+                var improved_initiative = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");
+                var great_fortitude = library.Get<BlueprintFeature>("79042cb55f030614ea29956177977c52");
+                var power_attack = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+                var lightning_reflexes = library.Get<BlueprintFeature>("15e7da6645a7f3d41bdad7c8c4b9de1e");
+                var weapon_focus = library.Get<BlueprintFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+
+                for (int i = 0; i < bloodlines.Length; i++)
+                {
+                    var progression = createBloodragerBloodline("Elemental",
+                                                                  "The power of the elements resides in you, and at times you can hardly control its fury.This influence comes either from an elemental outsider in your family history or from a moment when you or your ancestors were exposed to a powerful elemental force or cataclysm.\n"
+                                                                   + "Cleave, Dodge, Great Fortitude, Improved Initiative, Lightning Reflexes, Power Attack, Weapon Focus.\n"
+                                                                   + $"Bonus Spells: {bloodlines[i].spell1.Name} (7th), {bloodlines[i].spell2.Name.ToLower()} (10th), protection from energy (13th), elemental body I (16th).",
+                                                                  bloodlines[i].icon,
+                                                                  new BlueprintAbility[] { bloodlines[i].spell1, bloodlines[i].spell2, protection_from_energy, elemental_body1 },
+                                                                  new BlueprintFeature[] { cleave, dodge, great_fortitude, improved_initiative, lightning_reflexes, power_attack, weapon_focus },
+                                                                  new BlueprintFeature[] { elemental_strikes[i], elemental_resistance[i], elemental_movement[i], power_of_the_elements[i], elemental_form[i], elemental_body[i]},
+                                                                  "",
+                                                                  new string[] { "", "", "", "" },
+                                                                  "",
+                                                                  bloodlines[i].name);
+                    progressions.Add(progression);
+                }
+            }
+
+
+
+            static void createElementalStrikesAndPowerOfTheElements()
+            {
+                var resource = Helpers.CreateAbilityResource(prefix + "ElementalStrikesResource", "", "", "", null);
+                resource.SetIncreasedByLevelStartPlusDivStep(1, 8, 1, 8, 1, 0, 0.0f, getBloodragerArray());
+
+                var divine_power = library.Get<BlueprintAbility>("ef16771cb05d1344989519e87f25b3c5"); //divine power
+                var power_feat= Helpers.CreateFeature(prefix + "PowerOfTheElementsFeature",
+                     "Power of the elements",
+                     "At 12th level, the damage of your elemental strikes doubles.",
+                     "",
+                     divine_power.Icon,
+                     FeatureGroup.None
+                     );
+
+                foreach (var b in bloodlines)
+                {
+                    var bonus_damage = Helpers.CreateActionDealDamage(b.energy_type, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+                    var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
+
+                    var buff = Helpers.CreateBuff(b.prefix + "ElementalStrikesBuff",
+                                                             "Elemental Strikes",
+                                                             $"At 1st level, one time a day as a swift action you can imbue your melee attacks with elemental energy. For 1 round per 2 bloodrager levels (minimum 1), your melee attacks deal 1d6 points of {b.energy_string} damage. You gain an additional use of this ability at levels 8 and 16.",
+                                                             "",
+                                                             library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113").Icon, //divine favor
+                                                             null,
+                                                             Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, check_weapon_range_type: true,
+                                                                                                              range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                                             Helpers.CreateResourceLogic(resource)
+                                                             );
+                    var action = Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus))));
+                    var ability = Helpers.CreateAbility(b.prefix + "ElementalStrikesAbility",
+                                                                   buff.Name,
+                                                                   buff.Description,
+                                                                   "",
+                                                                   buff.Icon,
+                                                                   AbilityType.Extraordinary,
+                                                                   CommandType.Swift,
+                                                                   AbilityRange.Personal,
+                                                                   "1 round per 2 caster levels" ,
+                                                                   Helpers.savingThrowNone,
+                                                                   action,
+                                                                   Helpers.CreateResourceLogic(resource),
+                                                                   Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                   progression: ContextRankProgression.Div2,
+                                                                                                   min: 1,
+                                                                                                   classes: getBloodragerArray(),
+                                                                                                   type: AbilityRankType.StatBonus
+                                                                                                   )
+                                                                   );
+                    ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Omni;
+                    ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+
+                    var feat = Helpers.CreateFeature(b.prefix + "ElementalStrikesFeature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     "",
+                                                     ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(ability),
+                                                     Helpers.CreateAddAbilityResource(resource)
+                                                     );
+                    elemental_strikes.Add(feat);
+                    power_of_the_elements.Add(power_feat);
+                    var rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+                                                                      type: AbilityRankType.DamageBonus, featureList: new BlueprintFeature[] { feat, power_feat });
+                    buff.AddComponent(rank_config);
+                }
+            }
+
+
+            static void createElementalResistance()
+            {
+                foreach (var b in bloodlines)
+                {
+                    var buff = Helpers.CreateBuff(b.prefix + "ElementalResistanceBuff",
+                                                    "Elemental Resistance",
+                                                    $"At 4th level, you gain {b.energy_string} resistance 10.",
+                                                    "",
+                                                    b.resistance_icon,
+                                                    null,
+                                                    Common.createEnergyDR(10, b.energy_type)
+                                                  );
+                    var feat = Helpers.CreateFeature(b.prefix + "ElementalResistanceFeature",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     FeatureGroup.None
+                                                    );
+                    elemental_resistance.Add(feat);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, feat);
+                }
+            }
+
+            static void createElementalMovement()
+            {
+                foreach (var b in bloodlines)
+                {
+                    var buff = Helpers.CreateBuff(b.prefix + "ElementalMovementBuff",
+                                                    "Elemental Movement",
+                                                    b.elemental_movement_prototype.Description.Replace("15", "12"),
+                                                    "",
+                                                    b.elemental_movement_prototype.Icon,
+                                                    null,
+                                                    b.elemental_movement_prototype.ComponentsArray
+                                                  );
+                    var feat = Helpers.CreateFeature(b.prefix + "ElementalMovementFeature",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     FeatureGroup.None
+                                                    );
+                    elemental_movement.Add(feat);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, feat);
+                }
+            }
+
+
+            static void createElementalForm()
+            {
+                var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
+                var remove_polymorph = Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph);
+                foreach (var b in bloodlines)
+                {
+                    var buff = library.CopyAndAdd<BlueprintBuff>(b.elemental_form_prototype.AssetGuid, b.prefix + "ElementalFormBuff", "");
+                    buff.SetName("Elemental Form");
+                    buff.SetDescription("At 16th level, when entering a bloodrage, you can choose to take you can take an elemental form as elemental body IV.");
+                    //remove turn back 
+                    var polymorph = buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
+                    polymorph.Facts = new BlueprintUnitFact[0];
+                    buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph);
+                    var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+                    scaling.CharacterClass = bloodrager_class;
+                    scaling.StatType = StatType.Constitution;
+                    scaling.UseKineticistMainStat = false;
+                    buff.AddComponent(scaling);
+
+                    var feature = Common.createSwitchActivatableAbilityBuff(b.prefix + "ElementalForm", "", "", "",
+                                                                            buff,
+                                                                            bloodrage_buff,
+                                                                            new Kingmaker.ElementsSystem.GameAction[] { remove_polymorph },
+                                                                            reckless_stance.ActivateWithUnitAnimation);
+                    elemental_form.Add(feature);
+                }
+            }
+
+
+            static void createElementalBody()
+            {
+                foreach (var b in bloodlines)
+                {
+                    var feat = library.CopyAndAdd<BlueprintFeature>(b.elemental_body.AssetGuid, b.prefix + "ElementalBodyFeature", "");
+                    feat.SetDescription(feat.Description + " You have this benefit constantly, even while not bloodraging.");
+                    elemental_body.Add(feat);
+                }
+            }
+
 
         }
 
