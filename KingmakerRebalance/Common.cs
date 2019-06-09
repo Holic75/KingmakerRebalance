@@ -465,7 +465,8 @@ namespace KingmakerRebalance
         }
 
 
-        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
+        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                                                      params BlueprintUnitFact[] facts)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
             {
@@ -476,13 +477,19 @@ namespace KingmakerRebalance
             {
                 condition[i] = Helpers.CreateConditionHasFact(facts[i]);
             }
-            var action = Helpers.CreateConditional(condition, Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(), false, true, true));
+            var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(), false, true, true)));
             var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
             activated.Actions = activated.Actions.AddToArray(action);
             var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
             var remove_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff();
             remove_buff.Buff = buff_to_add;
             deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);
+        }
+
+
+        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
+        {
+            addContextActionApplyBuffOnFactsToActivatedAbilityBuff(target_buff, buff_to_add, new Kingmaker.ElementsSystem.GameAction[0], facts);
         }
 
 
@@ -998,9 +1005,10 @@ namespace KingmakerRebalance
 
 
         static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
-                                                                            BlueprintBuff effect, BlueprintBuff target_buff, UnityEngine.AnimationClip animation,
-                                                                            ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
-                                                                            CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
+                                                                    BlueprintBuff effect, BlueprintBuff target_buff, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                                    UnityEngine.AnimationClip animation,
+                                                                    ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
+                                                                    CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
 
         {
             effect.SetBuffFlags(BuffFlags.HiddenInUi | effect.GetBuffFlags());
@@ -1012,8 +1020,8 @@ namespace KingmakerRebalance
                                               null,
                                               Helpers.CreateEmptyAddFactContextActions());
 
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(switch_buff, effect, target_buff);
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(target_buff, effect, switch_buff);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(switch_buff, effect, pre_actions, target_buff);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(target_buff, effect, pre_actions, switch_buff);
 
             var ability = Helpers.CreateActivatableAbility(name + "ToggleAbility",
                                                                         effect.Name,
@@ -1031,7 +1039,7 @@ namespace KingmakerRebalance
             }
             ability.Group = group;
             ability.WeightInGroup = weight;
-            var feature = Helpers.CreateFeature(name +"Feature",
+            var feature = Helpers.CreateFeature(name + "Feature",
                                                 effect.Name,
                                                 effect.Description,
                                                 feature_guid,
@@ -1041,6 +1049,26 @@ namespace KingmakerRebalance
 
             return feature;
         }
-        
+
+
+        static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
+                                                                            BlueprintBuff effect, BlueprintBuff target_buff, UnityEngine.AnimationClip animation,
+                                                                            ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
+                                                                            CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
+
+        {
+            return createSwitchActivatableAbilityBuff(name, switch_guid, ability_guid, feature_guid, effect, target_buff, new Kingmaker.ElementsSystem.GameAction[0],
+                                                      animation, group, weight, command_type, unit_command);
+        }
+
+
+        static internal ContextActionRemoveBuffsByDescriptor createContextActionRemoveBuffsByDescriptor(SpellDescriptor descriptor, bool not_self = true)
+        {
+            var r = new ContextActionRemoveBuffsByDescriptor();
+            r.SpellDescriptor = descriptor;
+            r.NotSelf = true;
+            return r;
+        }
+
     }
 }

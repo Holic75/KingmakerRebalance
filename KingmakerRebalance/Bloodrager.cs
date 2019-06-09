@@ -312,6 +312,7 @@ namespace KingmakerRebalance
             InfernalBloodline.create();
             UndeadBloodline.create();
             DestinedBloodline.create();
+            DraconicBloodlines.create();
 
             bloodline_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineSelection",
                                                                      "Bloodline",
@@ -323,7 +324,8 @@ namespace KingmakerRebalance
                                                                      null,
                                                                      FeatureGroup.None);
             bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, DestinedBloodline.progression,
-                                                                       FeyBloodline.progression, InfernalBloodline.progression, UndeadBloodline.progression};
+                                                                       FeyBloodline.progression, InfernalBloodline.progression, UndeadBloodline.progression };
+            bloodline_selection.AllFeatures = bloodline_selection.AllFeatures.AddToArray(DraconicBloodlines.progressions);
             bloodline_selection.Features = bloodline_selection.AllFeatures;
         }
 
@@ -387,7 +389,7 @@ namespace KingmakerRebalance
 
                 var claw_buff1 = library.CopyAndAdd<BlueprintBuff>("4a51dca9d9456214e9a382b9e47385b3", "BloodragerBloodlineAbyssalClaw1Buff", "6786313f39c044ad9348bdfc163cf45f");
                 claw_buff1.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d6));
-                var claw_buff2 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw1Buff", "a4b808de88d44420aa0f2db0d64a1ce8"); //from sorcerer bloodline
+                var claw_buff2 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw2Buff", "a4b808de88d44420aa0f2db0d64a1ce8"); //from sorcerer bloodline
                 var claw_buff3 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw3Buff", "9af5c8658f3f42c99cc61e58b1cae7ac");
                 claw_buff3.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8));
                 var claw_buff4 = library.CopyAndAdd<BlueprintBuff>("cec6fcd5be2175f4e888f7c79ce68db6", "BloodragerBloodlineAbyssalClaw4Buff", "d255c953ad424b1f8e73e98b318e0d64");
@@ -1783,7 +1785,7 @@ namespace KingmakerRebalance
 
         class DraconicBloodlines
         {
-            static List<BlueprintProgression> progressions = new List<BlueprintProgression>();
+            public static List<BlueprintProgression> progressions = new List<BlueprintProgression>();
             static List<BlueprintFeature> claws = new List<BlueprintFeature>();
             static List<BlueprintFeature> draconic_resistance = new List<BlueprintFeature>();
             static List<BlueprintFeature> breath_weapon = new List<BlueprintFeature>();
@@ -1801,6 +1803,8 @@ namespace KingmakerRebalance
                 public BlueprintBuff dragon_form_prototype;
                 public DamageEnergyType energy_type;
                 public Kingmaker.Blueprints.Items.Ecnchantments.BlueprintWeaponEnchantment claws_enchantment;
+                public BlueprintFeature power_of_the_wyrms;
+                public UnityEngine.Sprite resistance_icon;
                 public string prefix;
                 public string name;
 
@@ -1808,7 +1812,7 @@ namespace KingmakerRebalance
                 public string breath_area_string;
 
                 public DraconicBloodlineData(UnityEngine.Sprite bloodline_icon, BlueprintBuff wings, BlueprintAbility breath_weapon, BlueprintBuff dragon_form, DamageEnergyType energy,
-                                      BlueprintWeaponEnchantment enchantment, string bloodline_name)
+                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, string bloodline_name)
                 {
                     icon = bloodline_icon;
                     wings_prototype = wings;
@@ -1822,12 +1826,106 @@ namespace KingmakerRebalance
                     int start =  breath_weapon.Description.IndexOf("level in", 0) + 8;
                     int end = breath_weapon.Description.IndexOf('.', start);
                     breath_area_string = breath_weapon.Description.Substring(start, end - start);
+                    power_of_the_wyrms = power_of_the_wyrms_feat;
+
+                    switch (energy)
+                    {
+                        case DamageEnergyType.Acid:
+                            resistance_icon = library.Get<BlueprintAbility>("fedc77de9b7aad54ebcc43b4daf8decd").Icon;
+                            break;
+                        case DamageEnergyType.Cold:
+                            resistance_icon = library.Get<BlueprintAbility>("5368cecec375e1845ae07f48cdc09dd1").Icon;
+                            break;
+                        case DamageEnergyType.Electricity:
+                            resistance_icon = library.Get<BlueprintAbility>("90987584f54ab7a459c56c2d2f22cee2").Icon;
+                            break;
+                        default: //fire
+                            resistance_icon = library.Get<BlueprintAbility>("ddfb4ac970225f34dbff98a10a4a8844").Icon;
+                            break;
+                    }
                 }
             }
 
-
             static DraconicBloodlineData[] bloodlines;
 
+
+            public static void create()
+            {
+                var corrosive_enchantment = library.Get<BlueprintWeaponEnchantment>("633b38ff1d11de64a91d490c683ab1c8");
+                var flaming_enchantment = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
+                var shocking_enchantment = library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658");
+                var frost_enchantment = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
+                bloodlines = new DraconicBloodlineData[]
+                {
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34").Icon, library.Get<BlueprintBuff>("ddfe6e85e1eed7a40aa911280373c228"),
+                                              library.Get<BlueprintAbility>("1e65b0b2db777e24db96d8bc52cc9207"), library.Get<BlueprintBuff>("9eb5ba8c396d2c74c8bfabd3f5e91050"),
+                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("25397838424fac04197e226a268ddce6"), "Black"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("8a7f100c02d0b254d8f5f3affc8ef386").Icon, library.Get<BlueprintBuff>("800cde038f9e6304d95365edc60ab0a4"),
+                                              library.Get<BlueprintAbility>("60a3047f434f38544a2878c26955d3ad"), library.Get<BlueprintBuff>("cf8b4e861226e0545a6805036ab2a21b"),
+                                              DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("582b25fef37373c4591a7994f3da9c69"), "Blue"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("5f9ecbee67db8364985e9d0500eb25f1").Icon, library.Get<BlueprintBuff>("7f5acae38fc1e0f4c9325d8a4f4f81fc"),
+                                              library.Get<BlueprintAbility>("531a57e0c19f80945b68bdb3e289279a"), library.Get<BlueprintBuff>("f7fdc15aa0219104a8b38c9891cac17b"),
+                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("8f10f507dde8d86488fda84cb136de47"), "Brass"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("7e0f57d8d00464441974e303b84238ac").Icon, library.Get<BlueprintBuff>("482ee5d001527204bb86e34240e2ce65"),
+                                              library.Get<BlueprintAbility>("732291d7ac20b0949aae002622e00b34"), library.Get<BlueprintBuff>("53e408cab2331bd48a3db846e531dfe8"),
+                                              DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("d81844b1f549df1418ccc40ccca3274a"), "Bronze"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("b522759a265897b4f8f7a1a180a692e4").Icon, library.Get<BlueprintBuff>("a25d6fc69cba80548832afc6c4787379"),
+                                              library.Get<BlueprintAbility>("826ef8251d9243941b432f97d901e938"), library.Get<BlueprintBuff>("799c8b6ae43c7d741ac7887c984f2aa2"),
+                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("6a885e6b343e4b44ab56e0dd47ff83fb"), "Copper"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("6c67ef823db8d7d45bb0ef82f959743d").Icon, library.Get<BlueprintBuff>("984064a3dd0f25444ad143b8a33d7d92"),
+                                              library.Get<BlueprintAbility>("598e33639b662784fb07c0e4c8978aa4"), library.Get<BlueprintBuff>("4300f60c00ecabc439deab11ce6d738a"),
+                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("3247396087a747148b17e1a0e37a3e67"), "Gold"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("7181be57d1cc3bc40bc4b552e4e4ce24").Icon, library.Get<BlueprintBuff>("a4ccc396e60a00f44907e95bc8bf463f"),
+                                              library.Get<BlueprintAbility>("633b622267c097d4abe3ec6445c05152"), library.Get<BlueprintBuff>("070543328d3e9af49bb514641c56911d"),
+                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("c593e3279e68cc649b976e685e5b8900"), "Green"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("8c6e5b3cf12f71e43949f52c41ae70a8").Icon, library.Get<BlueprintBuff>("08ae1c01155a2184db869e9ebedc758d"),
+                                              library.Get<BlueprintAbility>("3f31704e595e78942b3640cdc9b95d8b"), library.Get<BlueprintBuff>("40a96969339f3c241b4d989910f255e1"),
+                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("a18ab74c10933e84daf76afdaabc28dd"), "Red"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("c7d2f393e6574874bb3fc728a69cc73a").Icon, library.Get<BlueprintBuff>("5a791c1b0bacee3459d7f5137fa0bd5f"),
+                                              library.Get<BlueprintAbility>("11d03ebc508d6834cad5992056ad01a4"), library.Get<BlueprintBuff>("16857109dafc2b94eafd1e888552ef76"),
+                                              DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("a1d338a76b127b54eba7dc9a85532f3f"), "Silver"),
+                    new DraconicBloodlineData(library.Get<BlueprintProgression>("b0f79497a0d1f4f4b8293e82c8f8fa0c").Icon, library.Get<BlueprintBuff>("381a168acd79cd54baf87a17ca861d9b"),
+                                              library.Get<BlueprintAbility>("84be529914c90664aa948d8266bb3fa6"), library.Get<BlueprintBuff>("2652c61dff50a24479520c84005ede8b"),
+                                              DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("c06fe7c8722ad5a42b241f11246d2679"), "White")
+                };
+
+                createClaws();
+                createDraconicResistance();
+                createBreathWeapon();
+                createDragonWings();
+                createDragonForm();
+                createPowerOfTheWyrms();
+
+                var shield = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4");
+                var resist_energy = library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b");
+                var dispel_magic = library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a");
+                var fear = library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0");
+
+                var blind_fight = library.Get<BlueprintFeature>("4e219f5894ad0ea4daa0699e28c37b1d");
+                var cleave = library.Get<BlueprintFeature>("d809b6c4ff2aaff4fa70d712a70f7d7b");
+                var improved_initiative = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");
+                var great_fortitude = library.Get<BlueprintFeature>("79042cb55f030614ea29956177977c52");
+                var power_attack = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+                var skill_focus_mobility = library.Get<BlueprintFeature>("52dd89af385466c499338b7297896ded");
+                var toughness = library.Get<BlueprintFeature>("d09b20029e9abfe4480b356c92095623");
+
+                for (int i = 0; i < bloodlines.Length; i++)
+                {
+                    var progression = createBloodragerBloodline("Draconic",
+                                                                  "At some point in your family’s history, a dragon interbred with your bloodline. Now, the sublime monster’s ancient power fuels your bloodrage.\n"
+                                                                   + "Bonus Feats: Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Power Attack, Skill Focus (Mobility), Toughness.\n"
+                                                                   + "Bonus Spells: Shield (7th), resist energy (10th), dispel magic (13th), fear (16th).",
+                                                                  bloodlines[i].icon,
+                                                                  new BlueprintAbility[] { shield, resist_energy, dispel_magic, fear },
+                                                                  new BlueprintFeature[] { blind_fight, cleave, great_fortitude, improved_initiative, power_attack, skill_focus_mobility, toughness },
+                                                                  new BlueprintFeature[] { claws[i], draconic_resistance[i], breath_weapon[i], dragon_wings[i], dragon_form[i], power_of_the_wyrms[i] },
+                                                                  "",
+                                                                  new string[] { "", "", "", "" },
+                                                                  "",
+                                                                  bloodlines[i].name);
+                    progressions.Add(progression);
+                }
+            }
 
 
             static void createClaws()
@@ -1852,10 +1950,10 @@ namespace KingmakerRebalance
                 var claw_buff3 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw3Buff", "");
                 claw_buff3.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8));
                 List<BlueprintBuff> claws4_buff_energy = new List<BlueprintBuff>();
-                foreach (var c in claws1d8Energy)
+                for (int i = 0; i < bloodlines.Length; i++)
                 {
-                    var claw_buff4 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw4Buff", "");
-                    claw_buff4.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(c));
+                    var claw_buff4 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", bloodlines[i].prefix + "Claw4Buff", "");
+                    claw_buff4.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claws1d8Energy[i]));
                     claws4_buff_energy.Add(claw_buff4);
                 }
 
@@ -1911,9 +2009,9 @@ namespace KingmakerRebalance
                 }
             }
 
+
             static void createDraconicResistance()
             {
-                var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
 
                 foreach (var b in bloodlines)
                 {
@@ -1921,7 +2019,7 @@ namespace KingmakerRebalance
                                                         "Draconic Resistance",
                                                         $"At 4th level, you gain {b.energy_string} resistance 5  and a +1 natural armor bonus to AC. At 8th level, your {b.energy_string} resistance increases to 10 and your natural armor bonus increases to +2. At 16th level, your natural armor bonus increases to +4.",
                                                         "",
-                                                        damage_resistance.Icon,
+                                                        b.resistance_icon,
                                                         null,
                                                         Common.createEnergyDRContextRank(b.energy_type, AbilityRankType.StatBonus),
                                                                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
@@ -1962,12 +2060,13 @@ namespace KingmakerRebalance
                 foreach (var b in bloodlines)
                 {
                     var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
-                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day.This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
+                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a{b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
                     var classes = Helpers.GetField< BlueprintCharacterClass[]>(rank_config, "m_Class");
                     classes = classes.AddToArray(bloodrager_class);
                     Helpers.SetField(rank_config, "m_Class", classes);
                     breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution));
+                    breath_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(resource));
 
                     var breath_feature = Helpers.CreateFeature(b.prefix + "BreathWeaponFeature",
                                                                breath_ability.Name,
@@ -2004,7 +2103,39 @@ namespace KingmakerRebalance
 
             static void createDragonForm()
             {
+                var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
+                var remove_polymorph = Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph);
+                foreach (var b in bloodlines)
+                {
+                    var buff = library.CopyAndAdd<BlueprintBuff>(b.dragon_form_prototype.AssetGuid, b.prefix + "DragonFormBuff", "");
+                    buff.SetName("Dragon Form");
+                    buff.SetDescription("At 16th level, when entering a bloodrage, you can choose to take the form of your chosen dragon type (as Dragonkind II).");
+                    //remove turn back 
+                    var polymorph = buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
+                    polymorph.Facts = new BlueprintUnitFact[0];
+                    buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph);
+                    var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+                    scaling.CharacterClass = bloodrager_class;
+                    scaling.StatType = StatType.Constitution;
+                    scaling.UseKineticistMainStat = false;
+                    buff.AddComponent(scaling);
 
+                    var feature = Common.createSwitchActivatableAbilityBuff(b.prefix + "DragonForm", "", "", "",
+                                                                            buff,
+                                                                            bloodrage_buff,
+                                                                            new Kingmaker.ElementsSystem.GameAction[] {remove_polymorph},
+                                                                            reckless_stance.ActivateWithUnitAnimation);
+                    dragon_form.Add(feature);
+                }
+            }
+
+
+            static void createPowerOfTheWyrms()
+            {
+                foreach (var b in bloodlines)
+                {
+                    power_of_the_wyrms.Add(b.power_of_the_wyrms);
+                }
             }
 
         }
@@ -2012,20 +2143,20 @@ namespace KingmakerRebalance
 
         static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
                                                     BlueprintAbility[] bonus_spells, BlueprintFeature[] bonus_feats, BlueprintFeature[] powers,
-                                                    string feat_selection_guid, string[] spell_guids, string progression_guid)
+                                                    string feat_selection_guid, string[] spell_guids, string progression_guid, string name_ext = "")
         {
             //spells at 7, 10, 13, 16
             //powers at 1, 4, 8, 12, 16, 20
             //feats at levels  6, 9, 12, 15, 18
-            var progression = Helpers.CreateProgression("Bloodrager" + name + "BloodlineProgression",
-                                            name + " Bloodline",
+            var progression = Helpers.CreateProgression("Bloodrager" + name + name_ext + "BloodlineProgression",
+                                            name + " Bloodline" + ((name_ext == "") ? "" : (" — " + name_ext)),
                                             description,
                                             progression_guid,
                                             icon,
                                             FeatureGroup.BloodLine);
 
 
-            var feat_selection = Helpers.CreateFeatureSelection("Bloodrager" + name + "BloodlineBonusFeatSelection",
+            var feat_selection = Helpers.CreateFeatureSelection("Bloodrager" + name + name_ext + "BloodlineBonusFeatSelection",
                                                                 "Bloodline Feat",
                                                                 "At 6th level and every 3 levels thereafter, a bloodrager receives one bonus feat chosen from a list specific to each bloodline. The bloodrager must meet the prerequisites for these bonus feats.",
                                                                 feat_selection_guid,
@@ -2039,7 +2170,7 @@ namespace KingmakerRebalance
 
             for (int i = 0; i < bloodline_spells.Length; i++)
             {
-                bloodline_spells[i] = Helpers.CreateFeature("Bloodrager" + name + "BloodlineBonusSpell" + (i + 1).ToString(),
+                bloodline_spells[i] = Helpers.CreateFeature("Bloodrager" + name + name_ext + "BloodlineBonusSpell" + (i + 1).ToString(),
                                                             bonus_spells[i].Name,
                                                             "At 7th, 10th, 13th, and 16th levels, a bloodrager learns an additional spell derived from his bloodline.\n"
                                                             + bonus_spells[i].Description,
