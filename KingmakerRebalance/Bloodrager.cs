@@ -33,6 +33,7 @@ using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 
 namespace KingmakerRebalance
 {
@@ -49,8 +50,33 @@ namespace KingmakerRebalance
         static internal BlueprintFeature mighty_bloodrage;
         static internal BlueprintFeature tireless_bloodrage;
         static internal BlueprintBuff bloodrage_buff;
+        static internal BlueprintAbilityResource bloodrage_resource;
         static internal BlueprintFeature damage_reduction;
+        static internal BlueprintFeature uncanny_dodge;
+        static internal BlueprintFeature improved_uncanny_dodge;
+        static internal BlueprintFeature fast_movement;
+        static internal BlueprintFeature indomitable_will;
 
+
+        static internal BlueprintArchetype metamagic_rager_archetype;
+        static internal BlueprintArchetype steelblood_archetype;
+        static internal BlueprintArchetype spelleater_archetype;
+
+        static internal ActivatableAbilityGroup metarage_group = ActivatableAbilityGroup.TrueMagus;
+
+        class BloodlineInfo
+        {
+            public BlueprintProgression progression;
+            public BlueprintFeatureSelection bonus_feats;
+
+            public BloodlineInfo(BlueprintProgression bloodline_progression, BlueprintFeatureSelection bloodline_feats)
+            {
+                progression = bloodline_progression;
+                bonus_feats = bloodline_feats;
+            }
+        }
+
+        static List<BloodlineInfo> bloodlines = new List<BloodlineInfo>();
 
         internal static void createBloodragerClass()
         {
@@ -85,13 +111,16 @@ namespace KingmakerRebalance
             bloodrager_class.EquipmentEntities = barbarian_class.EquipmentEntities;
             bloodrager_class.MaleEquipmentEntities = barbarian_class.MaleEquipmentEntities;
             bloodrager_class.FemaleEquipmentEntities = barbarian_class.FemaleEquipmentEntities;
-            bloodrager_class.ComponentsArray = barbarian_class.ComponentsArray;
+            bloodrager_class.ComponentsArray = new BlueprintComponent[] { barbarian_class.ComponentsArray[0] }; //no animal class, probably shoudl be no sorcerer or eldrich scion  or dragon disciple
             bloodrager_class.StartingItems = barbarian_class.StartingItems;
             createBloodragerProgression();
             bloodrager_class.Progression = bloodrager_progression;
 
-            bloodrager_class.Archetypes = new BlueprintArchetype[] { };
+            createMetarager();
+            createSpellEater();
+            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype }; //steelblood, spell eater, metamagic rager
             Helpers.RegisterClass(bloodrager_class);
+            createRageCastingFeat();
         }
 
 
@@ -129,11 +158,11 @@ namespace KingmakerRebalance
             bloodrager_proficiencies.SetDescription("Bloodragers are proficient with all simple and martial weapons, light armor, medium armor, and shields (except tower shields). A bloodrager can cast bloodrager spells while wearing light armor or medium armor without incurring the normal arcane spell failure chance. This does not affect the arcane spell failure chance for arcane spells received from other classes. Like other arcane spellcasters, a bloodrager wearing heavy armor or wielding a shield incurs a chance of arcane spell failure if the spell in question has somatic components.");
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
-            var fast_movement = library.Get<BlueprintFeature>("d294a5dddd0120046aae7d4eb6cbc4fc");
-            var uncanny_dodge = library.Get<BlueprintFeature>("3c08d842e802c3e4eb19d15496145709");
-            var improved_uncanny_dodge = library.Get<BlueprintFeature>("485a18c05792521459c7d06c63128c79");
+            fast_movement = library.Get<BlueprintFeature>("d294a5dddd0120046aae7d4eb6cbc4fc");
+            uncanny_dodge = library.Get<BlueprintFeature>("3c08d842e802c3e4eb19d15496145709");
+            improved_uncanny_dodge = library.Get<BlueprintFeature>("485a18c05792521459c7d06c63128c79");
 
-            var indomitable_will = library.Get<BlueprintFeature>("e9ae7276574c170468937b617d993357");
+            indomitable_will = library.Get<BlueprintFeature>("e9ae7276574c170468937b617d993357");
 
 
             bloodrager_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, bloodrager_proficiencies, bloodrage, bloodline_selection, fast_movement, detect_magic,
@@ -191,6 +220,7 @@ namespace KingmakerRebalance
 
             //we will use damage reduction of barbarian
             damage_reduction = library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8");
+            bloodrage_resource = library.Get<BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
         }
 
 
@@ -849,8 +879,8 @@ namespace KingmakerRebalance
                                                                + "Bonus Spells: Bless (7th), resist energy (10th), heroism (13th), flamestrike (16th).",
                                                               library.Get<BlueprintAbility>("75a10d5a635986641bfbcceceec87217").Icon, //angelic aspect
                                                               new BlueprintAbility[] { bless, resist_energy, heroism, flamestrike },
-                                                              new BlueprintFeature[] { dodge, mobility, dazzling_display, cornugon_smash, improved_initiative, iron_will, weapon_focus},
-                                                              new BlueprintFeature[] { angelic_attacks, celestial_resistances, conviction, wings_of_heaven, angelic_protection, ascension},
+                                                              new BlueprintFeature[] { dodge, mobility, dazzling_display, cornugon_smash, improved_initiative, iron_will, weapon_focus },
+                                                              new BlueprintFeature[] { angelic_attacks, celestial_resistances, conviction, wings_of_heaven, angelic_protection, ascension },
                                                               "356f9a6169d8480da772f02a13e2da29",
                                                               new string[] { "0921bf94bf174c8b8e0361057761ba7a", "ca818409470d4a56b8619c3604af345b", "c7dfde63fb8a41afa3f0b1fc0020bcac", "9d196e52c01c43ddbcca7b8a941144e7" },
                                                               "205d951fa55a4d9ca10f50592f1868b3"
@@ -877,7 +907,7 @@ namespace KingmakerRebalance
                                                              crusaders_edge.Icon,
                                                              resounding_blow_buff.FxOnStart,
                                                              good_weapon,
-                                                             Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, only_hit: true, check_weapon_range_type: true, 
+                                                             Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, only_hit: true, check_weapon_range_type: true,
                                                                                                               range_type: AttackTypeAttackBonus.WeaponRangeType.Melee)
                                                              );
                 angelic_attacks = Helpers.CreateFeature(prefix + "AngelicAttacksFeature",
@@ -893,7 +923,7 @@ namespace KingmakerRebalance
             static void createCelestialResistances()
             {
                 var damage_resistance = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8cbf303d479cf0d42a8e36092c76fa7c");
-                var resist_ca_buff  = Helpers.CreateBuff(prefix + "CelestialResistancesBuff",
+                var resist_ca_buff = Helpers.CreateBuff(prefix + "CelestialResistancesBuff",
                                                     "Celestial Resistances",
                                                     "At 4th level, you gain resistance 5 to acid and cold. At 12th level, these resistances increase to 10.",
                                                     "2f932f4a8b32446993708c3e60e3aa54",
@@ -1021,7 +1051,7 @@ namespace KingmakerRebalance
                                                               library.Get<BlueprintProgression>("e8445256abbdc45488c2d90373f7dae8").Icon, // sorcerer fey bloodline
                                                               new BlueprintAbility[] { entangle, hideous_laughter, haste, confusion },
                                                               new BlueprintFeature[] { dodge, mobility, combat_reflexes, lightning_reflexes, improved_initiative, intimidating_prowess, hammer_the_gap },
-                                                              new BlueprintFeature[] { confusing_critical, woodland_stride, blurring_movement, quickling_bloodrage, fleeting_glance, fury_of_the_fey  },
+                                                              new BlueprintFeature[] { confusing_critical, woodland_stride, blurring_movement, quickling_bloodrage, fleeting_glance, fury_of_the_fey },
                                                               "fe056d23f80c4c64b4ee3a8e6f2973b2",
                                                               new string[] { "78b0900bd71c454baeb5886494fb0ae0", "2dbe75eadf684985a252608ae6f86259", "bcf1a280d91e435087c1180e3188ea41", "75c37819a8f74d02a3da486c46bf4e0c" },
                                                               "30fb198d84af4b2498fa1b3f35668494"
@@ -1409,7 +1439,7 @@ namespace KingmakerRebalance
                                                              null,
                                                              Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action)),
                                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getBloodragerArray(),
-                                                                                             type: AbilityRankType.DamageBonus, min: 1,  progression:ContextRankProgression.Div2)
+                                                                                             type: AbilityRankType.DamageBonus, min: 1, progression: ContextRankProgression.Div2)
                                                              );
                 frightful_charger = Helpers.CreateFeature(prefix + "FrightfulChargerFeature",
                                                                                 effect_buff.Name,
@@ -1572,7 +1602,7 @@ namespace KingmakerRebalance
                                                               library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63").Icon, // heroism
                                                               new BlueprintAbility[] { shield, blur, protection_from_energy, freedom_of_movement },
                                                               new BlueprintFeature[] { endurance, diehard, dazzling_display, improved_initiative, weapon_focus, intimidating_prowess, lightning_reflexes },
-                                                              new BlueprintFeature[] { destined_strike, fated_bloodrager, certain_strike, defy_death, unstoppable, victory_or_death},
+                                                              new BlueprintFeature[] { destined_strike, fated_bloodrager, certain_strike, defy_death, unstoppable, victory_or_death },
                                                               "",
                                                               new string[] { "", "", "", "" },
                                                               ""
@@ -1646,7 +1676,7 @@ namespace KingmakerRebalance
                                                                                                startLevel: 4, stepLevel: 4, classes: getBloodragerArray()
                                                                                                )
                                                               );
-                fated_bloodrager= Helpers.CreateFeature(prefix + "FatedBloodragerFeature",
+                fated_bloodrager = Helpers.CreateFeature(prefix + "FatedBloodragerFeature",
                                                                                 fated_bloodrager_buff.Name,
                                                                                 fated_bloodrager_buff.Description,
                                                                                 "",
@@ -1825,7 +1855,7 @@ namespace KingmakerRebalance
                     name = bloodline_name;
                     prefix = "BloodragerBloodlineDraconic" + bloodline_name;
                     energy_string = energy.ToString().ToLower();
-                    int start =  breath_weapon.Description.IndexOf("level in", 0) + 8;
+                    int start = breath_weapon.Description.IndexOf("level in", 0) + 8;
                     int end = breath_weapon.Description.IndexOf('.', start);
                     breath_area_string = breath_weapon.Description.Substring(start, end - start);
                     power_of_the_wyrms = power_of_the_wyrms_feat;
@@ -1932,7 +1962,7 @@ namespace KingmakerRebalance
 
             static void createClaws()
             {
-                var claw1d6 = library.CopyAndAdd<BlueprintItemWeapon>("18dc77b96c009804399c834e028d0552",  prefix + "Claw1d6", ""); //from sorc draconic bloodline
+                var claw1d6 = library.CopyAndAdd<BlueprintItemWeapon>("18dc77b96c009804399c834e028d0552", prefix + "Claw1d6", ""); //from sorc draconic bloodline
                 var claw1d8 = library.CopyAndAdd<BlueprintItemWeapon>("18dc77b96c009804399c834e028d0552", prefix + "Claw1d8", "");
                 Helpers.SetField(claw1d8, "m_DamageDice", new Kingmaker.RuleSystem.DiceFormula(1, DiceType.D8));
 
@@ -2030,7 +2060,7 @@ namespace KingmakerRebalance
                                                                                                 (7, 5),
                                                                                                 (20, 10)
                                                                                          }),
-                                                        Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, rankType: AbilityRankType.DamageBonus), 
+                                                        Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, rankType: AbilityRankType.DamageBonus),
                                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
                                                                                         ContextRankProgression.Custom, AbilityRankType.DamageBonus,
                                                                                         classes: getBloodragerArray(),
@@ -2063,7 +2093,7 @@ namespace KingmakerRebalance
                     var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
                     breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a{b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
-                    var classes = Helpers.GetField< BlueprintCharacterClass[]>(rank_config, "m_Class");
+                    var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class");
                     classes = classes.AddToArray(bloodrager_class);
                     Helpers.SetField(rank_config, "m_Class", classes);
                     breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution));
@@ -2124,7 +2154,7 @@ namespace KingmakerRebalance
                     var feature = Common.createSwitchActivatableAbilityBuff(b.prefix + "DragonForm", "", "", "",
                                                                             buff,
                                                                             bloodrage_buff,
-                                                                            new Kingmaker.ElementsSystem.GameAction[] {remove_polymorph},
+                                                                            new Kingmaker.ElementsSystem.GameAction[] { remove_polymorph },
                                                                             reckless_stance.ActivateWithUnitAnimation);
                     dragon_form.Add(feature);
                 }
@@ -2233,7 +2263,7 @@ namespace KingmakerRebalance
                 createElementalMovement();
                 createElementalForm();
                 createElementalBody();
-  
+
                 var protection_from_energy = library.Get<BlueprintAbility>("d2f116cfe05fcdd4a94e80143b67046f");
                 var elemental_body1 = library.Get<BlueprintAbility>("690c90a82bf2e58449c6b541cb8ea004");
 
@@ -2254,7 +2284,7 @@ namespace KingmakerRebalance
                                                                   bloodlines[i].icon,
                                                                   new BlueprintAbility[] { bloodlines[i].spell1, bloodlines[i].spell2, protection_from_energy, elemental_body1 },
                                                                   new BlueprintFeature[] { cleave, dodge, great_fortitude, improved_initiative, lightning_reflexes, power_attack, weapon_focus },
-                                                                  new BlueprintFeature[] { elemental_strikes[i], elemental_resistance[i], elemental_movement[i], power_of_the_elements[i], elemental_form[i], elemental_body[i]},
+                                                                  new BlueprintFeature[] { elemental_strikes[i], elemental_resistance[i], elemental_movement[i], power_of_the_elements[i], elemental_form[i], elemental_body[i] },
                                                                   "",
                                                                   new string[] { "", "", "", "" },
                                                                   "",
@@ -2271,7 +2301,7 @@ namespace KingmakerRebalance
                 resource.SetIncreasedByLevelStartPlusDivStep(1, 8, 1, 8, 1, 0, 0.0f, getBloodragerArray());
 
                 var divine_power = library.Get<BlueprintAbility>("ef16771cb05d1344989519e87f25b3c5"); //divine power
-                var power_feat= Helpers.CreateFeature(prefix + "PowerOfTheElementsFeature",
+                var power_feat = Helpers.CreateFeature(prefix + "PowerOfTheElementsFeature",
                      "Power of the elements",
                      "At 12th level, the damage of your elemental strikes doubles.",
                      "",
@@ -2303,7 +2333,7 @@ namespace KingmakerRebalance
                                                                    AbilityType.Extraordinary,
                                                                    CommandType.Swift,
                                                                    AbilityRange.Personal,
-                                                                   "1 round per 2 caster levels" ,
+                                                                   "1 round per 2 caster levels",
                                                                    Helpers.savingThrowNone,
                                                                    action,
                                                                    Helpers.CreateResourceLogic(resource),
@@ -2427,7 +2457,7 @@ namespace KingmakerRebalance
         }
 
 
-        static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon, 
+        static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon,
                                                     BlueprintAbility[] bonus_spells, BlueprintFeature[] bonus_feats, BlueprintFeature[] powers,
                                                     string feat_selection_guid, string[] spell_guids, string progression_guid, string name_ext = "")
         {
@@ -2488,11 +2518,229 @@ namespace KingmakerRebalance
                                                   Helpers.CreateUIGroup(bloodline_spells),
                                                   Helpers.CreateUIGroup(feat_selection, feat_selection, feat_selection, feat_selection, feat_selection)
                                                  };
-       
+
+            bloodlines.Add(new BloodlineInfo(progression, feat_selection));
+
             return progression;
         }
 
 
-        
+        static void createRageCastingFeat()
+        {
+            var contagion = library.Get<BlueprintAbility>("48e2744846ed04b4580be1a3343a5d3d"); //contagion
+            var buff = Helpers.CreateBuff("RageCastingFeatBuff",
+                                          "Rage Casting",
+                                          "When you cast a bloodrager spell, as a swift action you can sacrifice some of your life force to augment the spell’s potency. You can opt to take 1d6 points of damage per spell level of the spell you are casting. You cannot overcome this damage in any way, and it cannot be taken from temporary hit points. For each of these damage dice you roll, the DC of the spell you are casting increases by 1.",
+                                          "",
+                                          contagion.Icon,
+                                          null,
+                                          new RageCasting(4)
+                                          );
+            var ability = Helpers.CreateActivatableAbility("RageCastingAFeatActivatableAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           test_mode ? CommandType.Free : CommandType.Swift,
+                                                           null,
+                                                           Common.createActivatableAbilityUnitCommand(CommandType.Swift)
+                                                           );
+
+            var feat = Helpers.CreateFeature("RageCastingFeat",
+                                             ability.Name,
+                                             ability.Description,
+                                             "",
+                                             null,
+                                             FeatureGroup.Feat,
+                                             Helpers.CreateAddFact(ability),
+                                             Helpers.PrerequisiteClassLevel(bloodrager_class, 4)
+                                             );
+            library.AddFeats(feat);
+        }
+
+
+
+        static void createMetarager()
+        {
+            metamagic_rager_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "MetamagicRagerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Metamagic Rager");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While metamagic is difficult for many bloodragers to utilize, a talented few are able to channel their bloodrage in ways that push their spells to impressive ends.");
+            });
+            Helpers.SetField(metamagic_rager_archetype, "m_ParentClass", bloodrager_class);
+            library.AddAsset(metamagic_rager_archetype, "");
+            metamagic_rager_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(5, improved_uncanny_dodge) };
+
+            BlueprintFeature[] metamagics = new BlueprintFeature[] {library.Get<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e"), //empower
+                                                                    library.Get<BlueprintFeature>("46fad72f54a33dc4692d3b62eca7bb78"), //reach
+                                                                    library.Get<BlueprintFeature>("7f2b282626862e345935bbea5e66424b"), //maximize
+                                                                    library.Get<BlueprintFeature>("ef7ece7bb5bb66a41b256976b27f424e"), //quicken
+                                                                    library.Get<BlueprintFeature>("f180e72e4a9cbaa4da8be9bc958132ef") //extend
+                                                                  };
+            //add metamagic to feat selection
+            foreach (var b in bloodlines)
+            {
+                b.bonus_feats.AllFeatures = b.bonus_feats.AllFeatures.AddToArray(metamagics);
+                b.bonus_feats.Features = b.bonus_feats.Features.AddToArray(metamagics);
+            }
+
+            foreach (var m in metamagics)
+            {
+                var metamagic = m.GetComponent<Kingmaker.UnitLogic.FactLogic.AddMetamagicFeat>().Metamagic;
+                var buff = Helpers.CreateBuff(m.name + "MetaRageBuff",
+                                              m.Name.Replace("Metamagic", "Meta-Rage"),
+                                              m.Description,
+                                              "",
+                                              m.Icon,
+                                              null,
+                                              new MetaRage(metamagic, bloodrage_resource)
+                                              );
+                var ability = Helpers.CreateActivatableAbility(m.name + "MetaRageAbility",
+                                                               buff.Name,
+                                                               buff.Description,
+                                                               "",
+                                                               buff.Icon,
+                                                               buff,
+                                                               AbilityActivationType.Immediately,
+                                                               CommandType.Free,
+                                                               null
+                                                               );
+                ability.Group = metarage_group;
+                ability.WeightInGroup = 1;
+                var feat = Helpers.CreateFeature(m.name + "MetaRageFeat",
+                                                 ability.Name,
+                                                 ability.Description,
+                                                 "",
+                                                 ability.Icon,
+                                                 FeatureGroup.Feat,
+                                                 Helpers.CreateAddFact(ability)
+                                                 );
+                feat.HideInUI = true;
+                feat.HideInCharacterSheetAndLevelUp = true;
+
+                m.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 5, getBloodragerArray(), null));
+            }
+            var shadow_evocation = library.Get<BlueprintAbility>("237427308e48c3341b3d532b9d3a001f");
+            var metarage = Helpers.CreateFeature("BloodragerMetaRagerMetaRageFeat",
+                                     "Meta-Rage",
+                                     "At 5th level, a metamagic rager can sacrifice additional rounds of bloodrage to apply a metamagic feat he knows to a bloodrager spell. This costs a number of rounds of bloodrage equal to twice what the spell’s adjusted level would normally be with the metamagic feat applied (minimum 2 rounds). The metamagic rager does not have to be bloodraging to use this ability. The metamagic effect is applied without increasing the level of the spell slot expended, though the casting time is increased as normal. The metamagic rager can apply only one metamagic feat he knows in this manner with each casting. Additionally, when the metamagic rager takes a bloodline feat, he can choose to take a metamagic feat instead.",
+                                     "",
+                                     shadow_evocation.Icon,
+                                     FeatureGroup.None
+                                     );
+            metamagic_rager_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(5, metarage) };
+        }
+
+
+        static void createSpellEater()
+        {
+            spelleater_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SpelleaterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Spelleater");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Where other bloodragers learn to avoid or shrug off minor damage of all sorts, spelleaters tap into the power of their bloodline in order to heal damage as it comes, and can even cannibalize their own magical energy to heal more damage and continue taking the fight to the enemy.");
+            });
+            Helpers.SetField(spelleater_archetype, "m_ParentClass", bloodrager_class);
+            library.AddAsset(spelleater_archetype, "");
+            spelleater_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(2, uncanny_dodge),
+                                                                          Helpers.LevelEntry(5, improved_uncanny_dodge),
+                                                                          Helpers.LevelEntry(7, damage_reduction),
+                                                                          Helpers.LevelEntry(10, damage_reduction),
+                                                                          Helpers.LevelEntry(13, damage_reduction),
+                                                                          Helpers.LevelEntry(16, damage_reduction),
+                                                                          Helpers.LevelEntry(19, damage_reduction)
+                                                                        };
+            //create blood of life
+            var blood_of_life_buff = Helpers.CreateBuff("SpelleaterFastHealingBuff",
+                                                           "Blood of Life",
+                                                           "A spelleater’s blood empowers him to slowly recover from his wounds. At 2nd level, while bloodraging a spelleater gains fast healing 1.At 7th level and every 3 levels thereafter, this increases by 1(to a maximum of fast healing 6 at 19th level). If the spelleater gains an increase to damage reduction from a bloodline, feat, or other ability, he is considered to have an effective damage reduction of 0, and the increase is added to this effective damage reduction.",
+                                                           "",
+                                                           null,
+                                                           null
+                                                           );
+
+            var blood_of_life_base = Helpers.CreateFeature("SpelleaterFastHealingBaseFeature",
+                                                            blood_of_life_buff.Name,
+                                                            blood_of_life_buff.Description,
+                                                            "",
+                                                            library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980").Icon, //healing judgement
+                                                            FeatureGroup.None,
+                                                            Common.createAuraFeatureComponent(blood_of_life_buff)
+                                                            );
+            var blood_of_life_add = Helpers.CreateFeature("SpelleaterFastHealingAddFeature",
+                                                            blood_of_life_buff.Name,
+                                                            blood_of_life_buff.Description,
+                                                            "",
+                                                            library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980").Icon, //healing judgement
+                                                            FeatureGroup.None
+                                                          );
+            blood_of_life_add.Ranks = 10;
+
+            blood_of_life_buff.AddComponent(Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.Default)));
+            blood_of_life_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, type: AbilityRankType.Default,
+                                                                            featureList: new BlueprintFeature[] {blood_of_life_base, blood_of_life_add, AberrantBloodline.aberrant_form,
+                                                                                                                 UndeadBloodline.one_foot_in_the_grave, UndeadBloodline.one_foot_in_the_grave, UndeadBloodline.one_foot_in_the_grave})
+                                           );
+            //create spell eating
+            var renewed_vigor = library.Get<BlueprintAbility>("5a25185dbf75a954580a1248dc694cfc"); //for icon
+            BlueprintAbility[] spell_eating = new BlueprintAbility[4];
+            string[] roman_id = new string[4] { "I", "II", "III", "IV" };
+            for (int i = 0; i < spell_eating.Length; i++)
+            {
+                var dice_value = Helpers.CreateContextDiceValue(dice: DiceType.D8, diceCount: Common.createSimpleContextValue(i + 1));
+                var spell = Helpers.CreateAbility("SpellEating" + (i + 1).ToString() + "Ability",
+                                                  "Spell Eating " + roman_id[i],
+                                                  $"As a swift action, the spelleater can consume one unused bloodrager spell slot to heal {i + 1}d8 damage.",
+                                                  "",
+                                                  renewed_vigor.Icon,
+                                                  AbilityType.Special,
+                                                  CommandType.Swift,
+                                                  AbilityRange.Personal,
+                                                  "",
+                                                  "",
+                                                  renewed_vigor.GetComponent<AbilitySpawnFx>(),
+                                                  renewed_vigor.GetComponent<AbilityUseOnRest>(),
+                                                  renewed_vigor.GetComponent<SpellDescriptorComponent>(),
+                                                  Helpers.CreateRunActions(Common.createContextActionHealTarget(dice_value))
+                                                 );
+                spell.AnimationStyle = renewed_vigor.AnimationStyle;
+                spell.Animation = renewed_vigor.Animation;
+                spell.CanTargetSelf = true;
+                spell_eating[i] = spell;
+
+            }
+            var spell_eating_feat = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "Spell Eating", "");
+            spell_eating_feat.SetName("Spell Eating");
+            spell_eating_feat.SetIcon(renewed_vigor.Icon);
+            spell_eating_feat.SetDescription("At 5th level, a spelleater can consume spell slots for an extra dose of healing. As a swift action, the spelleater can consume one unused bloodrager spell slot to heal 1d8 damage for each level of the spell slot consumed.");
+            spell_eating_feat.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>(Common.createSpontaneousSpellConversion(bloodrager_class,
+                                                                                                                                                        null,
+                                                                                                                                                        spell_eating[0],
+                                                                                                                                                        spell_eating[1],
+                                                                                                                                                        spell_eating[2],
+                                                                                                                                                        spell_eating[3],
+                                                                                                                                                        null,
+                                                                                                                                                        null,
+                                                                                                                                                        null,
+                                                                                                                                                        null,
+                                                                                                                                                        null
+                                                                                                                                                        )
+                                                                                                                 );
+            spelleater_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, blood_of_life_base),
+                                                                  Helpers.LevelEntry(5, spell_eating_feat),
+                                                                  Helpers.LevelEntry(7, blood_of_life_add),
+                                                                  Helpers.LevelEntry(10, blood_of_life_add),
+                                                                  Helpers.LevelEntry(13, blood_of_life_add),
+                                                                  Helpers.LevelEntry(16, blood_of_life_add),
+                                                                  Helpers.LevelEntry(19, blood_of_life_add),
+                                                                };
+            bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(blood_of_life_base, blood_of_life_add, blood_of_life_add, blood_of_life_add, blood_of_life_add, blood_of_life_add));
+
+        }
     }
+
+
 }

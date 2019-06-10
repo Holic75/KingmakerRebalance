@@ -1070,5 +1070,28 @@ namespace KingmakerRebalance
             return r;
         }
 
+
+        static internal AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value)
+        {
+            var a = new AddContextEffectFastHealing();
+            a.Value = value;
+            return a;
+        }
+
+
+        static internal Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent createAuraFeatureComponent(BlueprintBuff buff)
+        {
+            var a = new Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent();
+            a.Buff = buff;
+            return a;
+        }
+
+
+        static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionHealTarget createContextActionHealTarget(ContextDiceValue value)
+        {
+            var c = new ContextActionHealTarget();
+            c.Value = value;
+            return c;
+        }
     }
 }
