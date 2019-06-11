@@ -34,6 +34,7 @@ using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.Blueprints.Items.Armors;
 
 namespace KingmakerRebalance
 {
@@ -56,11 +57,19 @@ namespace KingmakerRebalance
         static internal BlueprintFeature improved_uncanny_dodge;
         static internal BlueprintFeature fast_movement;
         static internal BlueprintFeature indomitable_will;
+        static internal BlueprintFeature bloodrager_proficiencies;
 
 
         static internal BlueprintArchetype metamagic_rager_archetype;
         static internal BlueprintArchetype steelblood_archetype;
         static internal BlueprintArchetype spelleater_archetype;
+
+        static internal BlueprintFeature metarage;
+        static internal BlueprintFeature blood_of_life;
+        static internal BlueprintFeature spell_eating;
+        static internal BlueprintFeature steelblood_proficiencies;
+        static internal BlueprintFeature blood_deflection;
+        static internal BlueprintFeature blood_deflection_bonus;
 
         static internal ActivatableAbilityGroup metarage_group = ActivatableAbilityGroup.TrueMagus;
 
@@ -118,7 +127,8 @@ namespace KingmakerRebalance
 
             createMetarager();
             createSpellEater();
-            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype }; //steelblood, spell eater, metamagic rager
+            createSteelblood();
+            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype }; //steelblood, spell eater, metamagic rager
             Helpers.RegisterClass(bloodrager_class);
             createRageCastingFeat();
         }
@@ -144,7 +154,7 @@ namespace KingmakerRebalance
                            FeatureGroup.None);
             bloodrager_progression.Classes = getBloodragerArray();
 
-            var bloodrager_proficiencies = library.CopyAndAdd<BlueprintFeature>("acc15a2d19f13864e8cce3ba133a1979", //barbarian proficiencies
+            bloodrager_proficiencies = library.CopyAndAdd<BlueprintFeature>("acc15a2d19f13864e8cce3ba133a1979", //barbarian proficiencies
                                                                             "BloodragerProficiencies",
                                                                             "207950c35a6a48bb895325d4dab02b75");
             bloodrager_proficiencies.AddComponent(Common.createArcaneArmorProficiency(Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Buckler,
@@ -1672,6 +1682,9 @@ namespace KingmakerRebalance
                                                                mirror_image.Icon,
                                                                null,
                                                                Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Luck, ContextValueType.Rank, AbilityRankType.Default),
+                                                               Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Luck, ContextValueType.Rank, AbilityRankType.Default),
+                                                               Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Luck, ContextValueType.Rank, AbilityRankType.Default),
+                                                               Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Luck, ContextValueType.Rank, AbilityRankType.Default),
                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                                                                startLevel: 4, stepLevel: 4, classes: getBloodragerArray()
                                                                                                )
@@ -2573,18 +2586,40 @@ namespace KingmakerRebalance
             Helpers.SetField(metamagic_rager_archetype, "m_ParentClass", bloodrager_class);
             library.AddAsset(metamagic_rager_archetype, "");
             metamagic_rager_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(5, improved_uncanny_dodge) };
+            createMetarage();
+            metamagic_rager_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(5, metarage) };
+        }
 
+
+        static void createMetarage()
+        {
             BlueprintFeature[] metamagics = new BlueprintFeature[] {library.Get<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e"), //empower
                                                                     library.Get<BlueprintFeature>("46fad72f54a33dc4692d3b62eca7bb78"), //reach
                                                                     library.Get<BlueprintFeature>("7f2b282626862e345935bbea5e66424b"), //maximize
                                                                     library.Get<BlueprintFeature>("ef7ece7bb5bb66a41b256976b27f424e"), //quicken
                                                                     library.Get<BlueprintFeature>("f180e72e4a9cbaa4da8be9bc958132ef") //extend
                                                                   };
+            BlueprintFeature[] metarager_metamagics = new BlueprintFeature[metamagics.Length];
+            for (int i = 0; i < metamagics.Length; i++)
+            {
+                metarager_metamagics[i] = Helpers.CreateFeature("Metarager" + metamagics[i].name,
+                                                                metamagics[i].Name,
+                                                                metamagics[i].Description,
+                                                                "",
+                                                                metamagics[i].Icon,
+                                                                FeatureGroup.None,
+                                                                Helpers.CreateAddFact(metamagics[i]),
+                                                                Helpers.PrerequisiteNoFeature(metamagics[i]),
+                                                                Common.createPrerequisiteArchetypeLevel(bloodrager_class, metamagic_rager_archetype, 5)
+                                                                );
+                metarager_metamagics[i].HideInCharacterSheetAndLevelUp = true;
+            }
             //add metamagic to feat selection
             foreach (var b in bloodlines)
             {
-                b.bonus_feats.AllFeatures = b.bonus_feats.AllFeatures.AddToArray(metamagics);
-                b.bonus_feats.Features = b.bonus_feats.Features.AddToArray(metamagics);
+                
+                b.bonus_feats.AllFeatures = b.bonus_feats.AllFeatures.AddToArray(metarager_metamagics);
+                b.bonus_feats.Features = b.bonus_feats.Features.AddToArray(metarager_metamagics);
             }
 
             foreach (var m in metamagics)
@@ -2624,14 +2659,13 @@ namespace KingmakerRebalance
                 m.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 5, getBloodragerArray(), null));
             }
             var shadow_evocation = library.Get<BlueprintAbility>("237427308e48c3341b3d532b9d3a001f");
-            var metarage = Helpers.CreateFeature("BloodragerMetaRagerMetaRageFeat",
+            metarage = Helpers.CreateFeature("BloodragerMetaRagerMetaRageFeat",
                                      "Meta-Rage",
                                      "At 5th level, a metamagic rager can sacrifice additional rounds of bloodrage to apply a metamagic feat he knows to a bloodrager spell. This costs a number of rounds of bloodrage equal to twice what the spell’s adjusted level would normally be with the metamagic feat applied (minimum 2 rounds). The metamagic rager does not have to be bloodraging to use this ability. The metamagic effect is applied without increasing the level of the spell slot expended, though the casting time is increased as normal. The metamagic rager can apply only one metamagic feat he knows in this manner with each casting. Additionally, when the metamagic rager takes a bloodline feat, he can choose to take a metamagic feat instead.",
                                      "",
                                      shadow_evocation.Icon,
                                      FeatureGroup.None
                                      );
-            metamagic_rager_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(5, metarage) };
         }
 
 
@@ -2653,42 +2687,59 @@ namespace KingmakerRebalance
                                                                           Helpers.LevelEntry(16, damage_reduction),
                                                                           Helpers.LevelEntry(19, damage_reduction)
                                                                         };
-            //create blood of life
-            var blood_of_life_buff = Helpers.CreateBuff("SpelleaterFastHealingBuff",
+            createBloodOfLife();
+            createSpellEating();
+            spelleater_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, blood_of_life),
+                                                                  Helpers.LevelEntry(5, spell_eating),
+                                                                  Helpers.LevelEntry(7, blood_of_life),
+                                                                  Helpers.LevelEntry(10, blood_of_life),
+                                                                  Helpers.LevelEntry(13, blood_of_life),
+                                                                  Helpers.LevelEntry(16, blood_of_life),
+                                                                  Helpers.LevelEntry(19, blood_of_life),
+                                                                };
+            bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(blood_of_life, blood_of_life, blood_of_life, blood_of_life, blood_of_life, blood_of_life));
+        }
+
+
+        static void createBloodOfLife()
+        {
+            var healing_judgement = library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980");
+            var blood_of_life_buff = Helpers.CreateBuff("SpelleaterBloodOfLifeBuff",
                                                            "Blood of Life",
-                                                           "A spelleater’s blood empowers him to slowly recover from his wounds. At 2nd level, while bloodraging a spelleater gains fast healing 1.At 7th level and every 3 levels thereafter, this increases by 1(to a maximum of fast healing 6 at 19th level). If the spelleater gains an increase to damage reduction from a bloodline, feat, or other ability, he is considered to have an effective damage reduction of 0, and the increase is added to this effective damage reduction.",
+                                                           "A spelleater’s blood empowers him to slowly recover from his wounds. At 2nd level, while bloodraging a spelleater gains fast healing 1.At 7th level and every 3 levels thereafter, this increases by 1(to a maximum of fast healing 6 at 19th level). If the spelleater gains an increase to damage reduction from a bloodline, he is considered to have an effective damage reduction of 0, and the increase is added to this effective damage reduction.",
                                                            "",
-                                                           null,
+                                                           healing_judgement.Icon,
                                                            null
                                                            );
 
-            var blood_of_life_base = Helpers.CreateFeature("SpelleaterFastHealingBaseFeature",
+            blood_of_life  = Helpers.CreateFeature("SpelleaterBloodOfLifeFeature",
                                                             blood_of_life_buff.Name,
                                                             blood_of_life_buff.Description,
                                                             "",
-                                                            library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980").Icon, //healing judgement
-                                                            FeatureGroup.None,
-                                                            Common.createAuraFeatureComponent(blood_of_life_buff)
-                                                            );
-            var blood_of_life_add = Helpers.CreateFeature("SpelleaterFastHealingAddFeature",
-                                                            blood_of_life_buff.Name,
-                                                            blood_of_life_buff.Description,
-                                                            "",
-                                                            library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980").Icon, //healing judgement
+                                                            healing_judgement.Icon, //healing judgement
                                                             FeatureGroup.None
                                                           );
-            blood_of_life_add.Ranks = 10;
+            blood_of_life.Ranks = 20;
 
             blood_of_life_buff.AddComponent(Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.Default)));
             blood_of_life_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, type: AbilityRankType.Default,
-                                                                            featureList: new BlueprintFeature[] {blood_of_life_base, blood_of_life_add, AberrantBloodline.aberrant_form,
-                                                                                                                 UndeadBloodline.one_foot_in_the_grave, UndeadBloodline.one_foot_in_the_grave, UndeadBloodline.one_foot_in_the_grave})
+                                                                            featureList: new BlueprintFeature[] {blood_of_life, AberrantBloodline.aberrant_form,
+                                                                                                                 UndeadBloodline.one_foot_in_the_grave,
+                                                                                                                 UndeadBloodline.one_foot_in_the_grave,
+                                                                                                                 UndeadBloodline.one_foot_in_the_grave
+                                                                                                                 }
+                                                                            )
                                            );
-            //create spell eating
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, blood_of_life_buff, blood_of_life);
+        }
+
+
+        static void createSpellEating()
+        {
             var renewed_vigor = library.Get<BlueprintAbility>("5a25185dbf75a954580a1248dc694cfc"); //for icon
-            BlueprintAbility[] spell_eating = new BlueprintAbility[4];
+            BlueprintAbility[] spell_eating_spells = new BlueprintAbility[4];
             string[] roman_id = new string[4] { "I", "II", "III", "IV" };
-            for (int i = 0; i < spell_eating.Length; i++)
+            for (int i = 0; i < spell_eating_spells.Length; i++)
             {
                 var dice_value = Helpers.CreateContextDiceValue(dice: DiceType.D8, diceCount: Common.createSimpleContextValue(i + 1));
                 var spell = Helpers.CreateAbility("SpellEating" + (i + 1).ToString() + "Ability",
@@ -2709,19 +2760,19 @@ namespace KingmakerRebalance
                 spell.AnimationStyle = renewed_vigor.AnimationStyle;
                 spell.Animation = renewed_vigor.Animation;
                 spell.CanTargetSelf = true;
-                spell_eating[i] = spell;
+                spell_eating_spells[i] = spell;
 
             }
-            var spell_eating_feat = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "Spell Eating", "");
-            spell_eating_feat.SetName("Spell Eating");
-            spell_eating_feat.SetIcon(renewed_vigor.Icon);
-            spell_eating_feat.SetDescription("At 5th level, a spelleater can consume spell slots for an extra dose of healing. As a swift action, the spelleater can consume one unused bloodrager spell slot to heal 1d8 damage for each level of the spell slot consumed.");
-            spell_eating_feat.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>(Common.createSpontaneousSpellConversion(bloodrager_class,
+            spell_eating = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "SpellEaterSpellEating", "");
+            spell_eating.SetName("Spell Eating");
+            spell_eating.SetIcon(renewed_vigor.Icon);
+            spell_eating.SetDescription("At 5th level, a spelleater can consume spell slots for an extra dose of healing. As a swift action, the spelleater can consume one unused bloodrager spell slot to heal 1d8 damage for each level of the spell slot consumed.");
+            spell_eating.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>(Common.createSpontaneousSpellConversion(bloodrager_class,
                                                                                                                                                         null,
-                                                                                                                                                        spell_eating[0],
-                                                                                                                                                        spell_eating[1],
-                                                                                                                                                        spell_eating[2],
-                                                                                                                                                        spell_eating[3],
+                                                                                                                                                        spell_eating_spells[0],
+                                                                                                                                                        spell_eating_spells[1],
+                                                                                                                                                        spell_eating_spells[2],
+                                                                                                                                                        spell_eating_spells[3],
                                                                                                                                                         null,
                                                                                                                                                         null,
                                                                                                                                                         null,
@@ -2729,16 +2780,147 @@ namespace KingmakerRebalance
                                                                                                                                                         null
                                                                                                                                                         )
                                                                                                                  );
-            spelleater_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, blood_of_life_base),
-                                                                  Helpers.LevelEntry(5, spell_eating_feat),
-                                                                  Helpers.LevelEntry(7, blood_of_life_add),
-                                                                  Helpers.LevelEntry(10, blood_of_life_add),
-                                                                  Helpers.LevelEntry(13, blood_of_life_add),
-                                                                  Helpers.LevelEntry(16, blood_of_life_add),
-                                                                  Helpers.LevelEntry(19, blood_of_life_add),
-                                                                };
-            bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(blood_of_life_base, blood_of_life_add, blood_of_life_add, blood_of_life_add, blood_of_life_add, blood_of_life_add));
+        }
 
+
+        static void createSteelblood()
+        {
+            steelblood_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SteelbloodArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Steelblood");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Most bloodragers prefer light armor, but some learn the secret of using heavy armors. These steelbloods plod around the battlefield inspiring fear and delivering carnage from within a steel shell.");
+            });
+            Helpers.SetField(steelblood_archetype, "m_ParentClass", bloodrager_class);
+            library.AddAsset(steelblood_archetype, "");
+            steelblood_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, fast_movement),
+                                                                          Helpers.LevelEntry(2, uncanny_dodge),
+                                                                          Helpers.LevelEntry(5, improved_uncanny_dodge),
+                                                                          Helpers.LevelEntry(7, damage_reduction),
+                                                                          Helpers.LevelEntry(10, damage_reduction),
+                                                                          Helpers.LevelEntry(13, damage_reduction),
+                                                                          Helpers.LevelEntry(16, damage_reduction),
+                                                                          Helpers.LevelEntry(19, damage_reduction)
+                                                                        };
+            createSteelbloodProficiencies();
+            var indomitable_stance = library.CopyAndAdd<BlueprintFeature>("74c59090138e28f4687c8a3400030763", "SteelbloodIndomitableStance","");
+            indomitable_stance.SetDescription("At 1st level, a steelblood gains a +1 bonus on combat maneuver checks, to CMD against overrun combat maneuvers, and on Reflex saving throws against trample attacks. He also gains a +1 bonus to his AC against charge attacks and on attack and damage rolls against charging creatures.");
+
+            var armored_swiftness = library.CopyAndAdd<BlueprintFeature>("f95f4f3a10917114c82bcbebc4d0fd36", "SteelbloodArmoredSwiftness", "");
+            armored_swiftness.SetDescription("At 2nd level, a steelblood moves faster in medium and heavy armor. When wearing medium or heavy armor, a steelblood can move 5 feet faster than normal in that armor, to a maximum of his unencumbered speed.");
+
+            var armor_training = library.CopyAndAdd<BlueprintFeature>("3c380607706f209499d951b29d3c44f3", "SteelbloodArmorTraining", "");
+            armor_training.RemoveComponent(armor_training.GetComponent<Kingmaker.Designers.Mechanics.Facts.ArmorSpeedPenaltyRemoval>());
+            armor_training.SetDescription("At 5th level, a steelblood learns to be more maneuverable while wearing armor. Whenever he is wearing armor, he reduces the armor check penalty by 1 (to a maximum of 0) and increases the maximum Dexterity bonus allowed by his armor by 1. Every 4 levels thereafter (9th, 13th, and 17th), these bonuses increase by 1, to a maximum 4-point reduction of the armor check penalty and a +4 increase of the maximum Dexterity bonus. This ability stacks with the fighter class feature of the same name.");
+
+            createBloodDeflection();
+            steelblood_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, steelblood_proficiencies),
+                                                                  Helpers.LevelEntry(2, armored_swiftness),
+                                                                  Helpers.LevelEntry(5, armor_training),
+                                                                  Helpers.LevelEntry(7, blood_deflection),
+                                                                  Helpers.LevelEntry(9, armor_training),
+                                                                  Helpers.LevelEntry(13, armor_training),
+                                                                  Helpers.LevelEntry(17, armor_training),
+                                                                };
+            bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(armor_training, armor_training, armor_training, armor_training));
+        }
+
+
+        static internal void createSteelbloodProficiencies()
+        {
+            steelblood_proficiencies = Helpers.CreateFeature("BloodragerSteelBloodProficiencies",
+                                                             "Steelblood Proficiencies",
+                                                             "A steelblood gains proficiency in heavy armor. A steelblood can cast bloodrager spells while wearing heavy armor without incurring an arcane spell failure chance. This replaces the bloodrager’s armor proficiency.",
+                                                             "",
+                                                             null,
+                                                             FeatureGroup.None,
+                                                             Common.createAddArmorProficiencies(ArmorProficiencyGroup.Heavy),
+                                                             Common.createArcaneArmorProficiency(ArmorProficiencyGroup.Heavy)
+                                                            );
+        }
+
+
+        static void createBloodDeflection()
+        {
+            blood_deflection_bonus = Helpers.CreateFeature("SteelbloodBloodDeflectionBonus",
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.None);
+            blood_deflection_bonus.HideInUI = true;
+            blood_deflection_bonus.HideInCharacterSheetAndLevelUp = true;
+            blood_deflection_bonus.Ranks = 20;
+
+            var shield_of_faith = library.Get<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445");
+
+            BlueprintAbility[] blood_deflection_spells = new BlueprintAbility[4];
+            string[] roman_id = new string[4] { "I", "II", "III", "IV" };
+            int base_ac = 2;
+            for (int i = 0; i < blood_deflection_spells.Length; i++)
+            {
+                var buff = Helpers.CreateBuff($"SteelbloodBloodDeflection{i + 1}Buff",
+                                              "Blood Deflection " + roman_id[i],
+                                              $"Steelblood can sacrifice a spell slot to gain a deflection bonus to AC equal to {1 + base_ac + i}.",
+                                              "",
+                                              shield_of_faith.Icon,
+                                              null,
+                                              Helpers.CreateAddStatBonus(StatType.AC, i + 3, ModifierDescriptor.Deflection)
+                                              );
+
+                var action = Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, 
+                                                                                          Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), 
+                                                                                          is_from_spell: true
+                                                                                          )
+                                                     );
+
+                var spell = Helpers.CreateAbility($"SteelbloodBloodDeflection{i + 1}Ability",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  shield_of_faith.Icon,
+                                                  AbilityType.Supernatural,
+                                                  CommandType.Standard,
+                                                  AbilityRange.Personal,
+                                                  "Variable",
+                                                  Helpers.savingThrowNone,
+                                                  action,
+                                                  shield_of_faith.GetComponent<AbilitySpawnFx>(),
+                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+                                                                                  type: AbilityRankType.Default, 
+                                                                                  featureList: new BlueprintFeature[] { blood_deflection_bonus, AberrantBloodline.aberrant_form,
+                                                                                                                        UndeadBloodline.one_foot_in_the_grave,
+                                                                                                                        UndeadBloodline.one_foot_in_the_grave,
+                                                                                                                        UndeadBloodline.one_foot_in_the_grave
+                                                                                                                      }
+                                                                                  )
+                                                  );
+                spell.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self;
+                spell.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionSelf;
+                blood_deflection_spells[i] = spell;
+            }
+            blood_deflection = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "SteelbloodBloodDeflection", "");
+            blood_deflection.SetName("Blood Deflection");
+            blood_deflection.SetIcon(shield_of_faith.Icon);
+            blood_deflection.SetDescription($"At 7th level, as a standard action a steelblood can sacrifice a bloodrager spell slot to gain a deflection bonus to AC equal to {base_ac} + the level of the spell sacrificed. The deflection bonus lasts one minute. Duration of the effect is increased by 1 minute at level 10 and every 3 levels thereafter. If the steelblood gains an increase to damage reduction from a bloodline he is considered to have an effective damage reduction of 0, and the increase is added to the duration of the effect.");
+            blood_deflection.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>(Common.createSpontaneousSpellConversion(bloodrager_class,
+                                                                                                                                                        null,
+                                                                                                                                                        blood_deflection_spells[0],
+                                                                                                                                                        blood_deflection_spells[1],
+                                                                                                                                                        blood_deflection_spells[2],
+                                                                                                                                                        blood_deflection_spells[3],
+                                                                                                                                                        null,
+                                                                                                                                                        null,
+                                                                                                                                                        null,
+                                                                                                                                                        null,
+                                                                                                                                                        null
+                                                                                                                                                        )
+                                                                                                        );
+            blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus,  7, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
+            blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 10, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
+            blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 13, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
+            blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 16, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
+            blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 19, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
         }
     }
 

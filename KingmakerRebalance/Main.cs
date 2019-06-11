@@ -73,7 +73,7 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Hunter.createHunterClass();
                     KingmakerRebalance.Hunter.addAnimalFocusSH();
                     KingmakerRebalance.Witch.createWitchClass();
-                    KingmakerRebalance.Bloodrager.test_mode = true;
+                    KingmakerRebalance.Bloodrager.test_mode = false;
                     KingmakerRebalance.Bloodrager.createBloodragerClass();
 
 #if DEBUG

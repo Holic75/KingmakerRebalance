@@ -33,6 +33,7 @@ using Kingmaker.Utility;
 using Kingmaker.Blueprints.Items;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
+using Kingmaker.Blueprints.Items.Armors;
 
 namespace KingmakerRebalance
 {
@@ -1093,5 +1094,14 @@ namespace KingmakerRebalance
             c.Value = value;
             return c;
         }
+
+
+        static internal Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
+        {
+            var a = new Kingmaker.UnitLogic.FactLogic.AddProficiencies();
+            a.ArmorProficiencies = armor;
+            return a;
+        }
+
     }
 }

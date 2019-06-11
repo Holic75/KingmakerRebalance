@@ -691,7 +691,10 @@ namespace KingmakerRebalance
                     {
                         BlueprintScriptableObject existing;
                         Main.library.BlueprintsByAssetId.TryGetValue(pair.Value, out existing);
+                        if (existing != null)
+                        {
                             sw.WriteLine(pair.Key + '\t' + pair.Value + '\t' + existing.GetType().FullName);
+                        }
                     }
                 }
             }

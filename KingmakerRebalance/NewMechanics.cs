@@ -16,6 +16,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Controllers.Units;
 using Kingmaker.Designers;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.RuleSystem.Rules;
 
 namespace KingmakerRebalance
 {
@@ -108,6 +109,51 @@ namespace KingmakerRebalance
                 this.Owner.Stats.TemporaryHitPoints.AddModifier(m.ModValue, m.Source, m.SourceComponent, m.ModDescriptor);
             }
             this.Owner.Stats.TemporaryHitPoints.UpdateValue();
+        }
+    }
+
+    
+    [ComponentName("increase caster level by value and apply on caster debuff for duration equal to rate*spell_level if it fails saving throw against (dc_base + spell_level + caster_level_increase)")]
+    [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+    public class ConduitSurge : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+    {
+        public BlueprintBuff buff;
+        public DurationRate rate = DurationRate.Rounds;
+        public ContextDiceValue dice_value;
+        public SavingThrowType save_type;
+        public int dc_base = 10;
+        public string display_name = "Conduit Surge";
+        public BlueprintAbilityResource resource;
+        private int caster_level_increase;
+
+
+        public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+        {
+            caster_level_increase = -1;
+            if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
+            {
+                return;
+            }
+            caster_level_increase = dice_value.Calculate(this.Fact.MaybeContext);
+            evt.AddBonusCasterLevel(caster_level_increase);
+            //Log.Write($"{display_name}: spell level increased by {caster_level_increase}");
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+        {
+            if (caster_level_increase == -1)
+            {
+                return;
+            }
+            RuleSavingThrow ruleSavingThrow = this.Fact.MaybeContext.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(this.Owner.Unit, save_type, dc_base + evt.SpellLevel + caster_level_increase));
+            if (!ruleSavingThrow.IsPassed)
+            {
+                this.Owner.Buffs.AddBuff(buff, this.Owner.Unit, (rate.ToRounds() * evt.SpellLevel).Seconds);
+            }
+            if (resource != null)
+            {
+                this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
+            }
         }
     }
 
