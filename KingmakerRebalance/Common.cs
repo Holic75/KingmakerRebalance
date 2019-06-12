@@ -1072,9 +1072,9 @@ namespace KingmakerRebalance
         }
 
 
-        static internal AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value)
+        static internal NewMechanics.AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value)
         {
-            var a = new AddContextEffectFastHealing();
+            var a = new NewMechanics.AddContextEffectFastHealing();
             a.Value = value;
             return a;
         }
@@ -1100,6 +1100,22 @@ namespace KingmakerRebalance
         {
             var a = new Kingmaker.UnitLogic.FactLogic.AddProficiencies();
             a.ArmorProficiencies = armor;
+            return a;
+        }
+
+
+        static internal AddEnergyVulnerability createAddEnergyVulnerability(DamageEnergyType energy)
+        {
+            var a = new AddEnergyVulnerability();
+            a.Type = energy;
+            return a;
+        }
+
+
+        static internal AbilityCasterHasNoFacts createAbilityCasterHasNoFacts(params BlueprintUnitFact[] facts)
+        {
+            var a = new AbilityCasterHasNoFacts();
+            a.Facts = facts;
             return a;
         }
 

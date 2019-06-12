@@ -2547,7 +2547,7 @@ namespace KingmakerRebalance
                                           "",
                                           contagion.Icon,
                                           null,
-                                          new RageCasting(4)
+                                          new NewMechanics.RageCasting(4)
                                           );
             var ability = Helpers.CreateActivatableAbility("RageCastingAFeatActivatableAbility",
                                                            buff.Name,
@@ -2631,7 +2631,7 @@ namespace KingmakerRebalance
                                               "",
                                               m.Icon,
                                               null,
-                                              new MetaRage(metamagic, bloodrage_resource)
+                                              new NewMechanics.MetaRage(metamagic, bloodrage_resource)
                                               );
                 var ability = Helpers.CreateActivatableAbility(m.name + "MetaRageAbility",
                                                                buff.Name,

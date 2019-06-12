@@ -233,7 +233,6 @@ public class Rebalance
                     c.Value = Common.createSimpleContextValue(2);
                 }
             }
-            
         }
 
 

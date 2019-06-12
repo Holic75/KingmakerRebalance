@@ -172,7 +172,7 @@ namespace KingmakerRebalance
                                              );
             resource.SetIncreasedByStat(3, StatType.Charisma);
 
-            var surge = new ConduitSurge();
+            var surge = new NewMechanics.ConduitSurge();
             surge.buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3"); //stagerred
             surge.save_type = SavingThrowType.Fortitude;
             surge.rate = DurationRate.Minutes;
@@ -1712,15 +1712,15 @@ namespace KingmakerRebalance
             Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
             hex_ability.SetName("Animal Servant");
             hex_ability.SetDescription("Effect: The witch can use this hex to turn a humanoid enemy into an animal and rob it of its free will.\n"
-                                       + "The transformation works as beast shape II and is negated by a successful Will save.The transformed creature retains its Intelligence score and known languages, if any, but the witch controls its mind. This effect functions as dominate monster, except the creature does not receive further saving throws to resist the hex.The effect can be removed only with wish or similar magic, although slaying the witch also ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
+                                       + "The transformation works as beast shape II and is negated by a successful Will save. The transformed creature retains its Intelligence score and known languages, if any, but the witch controls its mind. This effect functions as dominate monster, except the creature does not receive further saving throws to resist the hex.The effect can be removed only with wish or similar magic, although slaying the witch also ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
             var dominate_person_buff = library.Get<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f");
-            var hex_buff = library.CopyAndAdd<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc", "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c"); //beast_shape2;
+            var hex_buff = Wildshape.bear_form;  //library.CopyAndAdd<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc", "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c"); //beast_shape2;
             hex_buff.SetDescription(hex_ability.Description);
             hex_buff.SetName(hex_ability.Name);
             hex_buff.SetIcon(hex_ability.Icon);
 
             var polymorph_component = hex_buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
-            polymorph_component.Facts = new BlueprintUnitFact[0];
+            polymorph_component.Facts = polymorph_component.Facts.RemoveFromArray(Wildshape.turn_back);
             hex_buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph_component);
             hex_buff.AddComponent(dominate_person_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ChangeFaction>());
             hex_buff.ReplaceComponent< Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Polymorph));

@@ -70,6 +70,8 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Rebalance.removeJudgement19FormSHandMS();
                     KingmakerRebalance.Rebalance.fixDomains();
                     KingmakerRebalance.Rebalance.fixBarbarianRageAC();
+                    KingmakerRebalance.Wildshape.fixBeastShape();
+
                     KingmakerRebalance.Hunter.createHunterClass();
                     KingmakerRebalance.Hunter.addAnimalFocusSH();
                     KingmakerRebalance.Witch.createWitchClass();
