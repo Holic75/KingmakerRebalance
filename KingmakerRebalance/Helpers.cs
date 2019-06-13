@@ -207,6 +207,16 @@ namespace KingmakerRebalance
             obj.SetComponents(obj.ComponentsArray.RemoveFromArray(component));
         }
 
+
+        public static void RemoveComponents<T>(this BlueprintScriptableObject obj) where T : BlueprintComponent
+        {
+            var compnents_to_remove = obj.GetComponents<T>().ToArray();
+            foreach (var c in compnents_to_remove)
+            {
+                obj.SetComponents(obj.ComponentsArray.RemoveFromArray(c));
+            }
+        }
+
         public static void AddComponents(this BlueprintScriptableObject obj, IEnumerable<BlueprintComponent> components) => AddComponents(obj, components.ToArray());
 
         public static void AddComponents(this BlueprintScriptableObject obj, params BlueprintComponent[] components)

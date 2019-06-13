@@ -43,6 +43,8 @@ namespace KingmakerRebalance
 {
     class Wildshape
     {
+        static internal BlueprintAbility beast_shape1 = library.Get<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9");
+
         static internal LibraryScriptableObject library => Main.library;
         static internal BlueprintBuff leopard_form = Main.library.Get<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc");
         static internal BlueprintBuff bear_form = Main.library.Get<BlueprintBuff>("0c0afabcfddeecc40a1545a282f2bec8");
@@ -53,6 +55,10 @@ namespace KingmakerRebalance
         static internal BlueprintBuff mastodon_form;
         static internal BlueprintBuff hodag_form;
         static internal BlueprintBuff winter_wolf_form;
+        static internal BlueprintBuff mandragora_form;
+        static internal BlueprintBuff shambling_mound_form;
+        static internal BlueprintBuff treant_form;
+        static internal BlueprintBuff giant_flytrap_form;
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
         static BlueprintFeature tripping_bite = library.Get<BlueprintFeature>("f957b4444b6fb404e84ae2a5765797bb");
@@ -63,6 +69,10 @@ namespace KingmakerRebalance
         static BlueprintItemWeapon Bite1d6 = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286");
         static BlueprintItemWeapon mastodon_gore = library.Get<BlueprintItemWeapon>("de42c58801037b84c9d992634ddd7220");
         static BlueprintItemWeapon mastodon_slam = library.Get<BlueprintItemWeapon>("c2ce7bc3559b2024ea91ddf5bb321f0a");
+        static BlueprintItemWeapon mandaragora_slam = library.Get<BlueprintItemWeapon>("7445b0b255796d34495a8bca81b2e2d4");
+        static BlueprintItemWeapon mandragora_bite = library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218");
+        static BlueprintItemWeapon treant_slam = library.Get<BlueprintItemWeapon>("04499d551301bf9488c1e94b74f8c6d2");
+        static BlueprintItemWeapon giant_flytrap_bite = library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218");
 
         static internal BlueprintAbility bear_form_spell;
         static internal BlueprintAbility dire_wolf_form_spell;
@@ -71,6 +81,11 @@ namespace KingmakerRebalance
         static internal BlueprintAbility leopard_form_spell;
         static internal BlueprintAbility hodag_form_spell;
         static internal BlueprintAbility winter_wolf_form_spell;
+        static internal BlueprintAbility plant_shapeI;
+        static internal BlueprintAbility plant_shapeII;
+        static internal BlueprintAbility plant_shapeIII;
+
+        
 
         static internal void fixBeastShape()
         {
@@ -80,11 +95,119 @@ namespace KingmakerRebalance
             fixBeastShape4();
             fixPolymorph1();
             fixPolymorph2();
+
+            createPlantShapeI();
+            createPlantShapeII();
+            createPlantShapeIII();
+
+            //add giant form I, II and shapechange
         }
+
+
+        static void createPlantShapeI()
+        {
+            //fix poison
+            var mandragora_poison = library.Get<BlueprintFeature>("ec44af8b3449c5b4889145dbfc246a00");
+            var on_save = (ContextActionSavingThrow)mandragora_poison.GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0];
+            var effect = (ContextActionConditionalSaved)on_save.Actions.Actions[0];
+            var apply_buff = (ContextActionApplyBuff)effect.Failed.Actions[0];
+            apply_buff.DurationValue.DiceCountValue = Common.createSimpleContextValue(1);
+            apply_buff.DurationValue.DiceType = DiceType.D4;
+
+            var entangle = library.Get<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca");
+            BlueprintUnit mandragora = library.Get<BlueprintUnit>("f30beec3bfcfc374883cbbc700c6ad47");
+            mandragora_form = createPolymorphForm("PlantshapeIMandragoraBuff",
+                                                 "Plant Shape (Mandragora)",
+                                                 "You are in mandragora form now. You have a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also have one 1d6 bite attack, two 1d4 slams and poison ability.",
+                                                 entangle.Icon,
+                                                 mandragora,
+                                                 2, 0, 2, 2, 10, Size.Small,
+                                                 mandaragora_slam, mandaragora_slam, new BlueprintItemWeapon[] {mandragora_bite},
+                                                 mandragora_poison
+                                                 );  
+
+            plant_shapeI = replaceForm(beast_shape1, mandragora_form, "PlantShapeISpell", "Plant Shape I",
+                                                "You become a Small mandragora. You gain a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d6 bite attack, two 1d4 slams and poison ability.");
+            plant_shapeI.RemoveComponents<SpellListComponent>();
+            plant_shapeI.AddToSpellList(Helpers.alchemistSpellList, 5);
+            plant_shapeI.AddToSpellList(Helpers.wizardSpellList, 5);
+            plant_shapeI.SetIcon(entangle.Icon);
+            Helpers.AddSpellAndScroll(plant_shapeI, "5022612735a9e2345bfc5110106823d8");
+        }
+
+
+
+        
+
+        static void createPlantShapeII()
+        {
+            var entangle = library.Get<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca");
+            shambling_mound_form = library.CopyAndAdd<BlueprintBuff>("50ab9c820eb9cf94d8efba3632ad5ce2", "PlantShapeIIBuff", ""); //from beast shape 4
+            shambling_mound_form.SetName("Plant Shape (Shambling Mound)");
+            shambling_mound_form.SetIcon(entangle.Icon);
+
+            plant_shapeII = replaceForm(beast_shape1, shambling_mound_form, "PlantShapeIISpell", "Plant Shape II",
+                                                "You become a Large shambling mound. You gain a +4 size bonus to your Strength, a +2 size bonus to your Constitution, +4 natural armor bonus, resist fire 20, and resist electricity 20. Your movement speed is reduced by 10 feet. You also have two 2d6 slam attacks, the constricting vines ability, and the poison ability.\nConstricting Vines: A shambling mound's vines coil around any creature it hits with a slam attack. The shambling mound attempts a grapple maneuver check against its target, and on a successful check its vines deal 2d6+5 damage and the foe is grappled.\nGrappled characters cannot move, and take a -2 penalty on all attack rolls and a -4 penalty to Dexterity. Grappled characters attempt to escape every round by making a successful combat maneuver, Strength, Athletics, or Mobility check. The DC of this check is the shambling mound's CMD.\nEach round, creatures grappled by a shambling mound suffer 4d6+Strength modifier × 2 damage.\nA shambling mound receives a +4 bonus on grapple maneuver checks.\nPoison:\nSlam; Save: Fortitude\nFrequency: 1/round for 2 rounds\nEffect: 1d2 Strength and 1d2 Dexterity damage\nCure: 1 save\nThe save DC is Constitution-based.");
+
+            plant_shapeII.AddToSpellList(Helpers.alchemistSpellList, 6);
+            plant_shapeII.AddToSpellList(Helpers.wizardSpellList, 6);
+            plant_shapeII.SetIcon(entangle.Icon);
+            Helpers.AddSpellAndScroll(plant_shapeII, "5022612735a9e2345bfc5110106823d8");
+        }
+
+
+        static void createPlantShapeIII()
+        {
+            var entangle = library.Get<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca");
+            BlueprintUnit treant = library.Get<BlueprintUnit>("0ef5c65ca08a0204cba840f01cd415af");
+            treant_form = createPolymorphForm("PlantshapeIIITreantBuff",
+                                                 "Plant Shape (Treant)",
+                                                 "You are in treant form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.",
+                                                 entangle.Icon,
+                                                 treant,
+                                                 8, -2, 6, 6, 0, Size.Huge,
+                                                 treant_slam, treant_slam, new BlueprintItemWeapon[0],
+                                                 trample, overrun,
+                                                 library.Get<BlueprintFeature>("8e934134fec60ab4c8972c85a7b62f89"),
+                                                 library.Get<BlueprintFeature>("0df8cdae87d2a3047ad2b1c0568407e9")
+                                                 );
+
+            BlueprintUnit giant_flytrap = library.Get<BlueprintUnit>("fb824352b7968fb4d8103ac439644633");
+            giant_flytrap_form = createPolymorphForm("PlantshapeIIIGiantFlytrapBuff",
+                                                 "Plant Shape (Giant Flytrap)",
+                                                 "You are in giant flytrap form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have four 1d8 bite attacks, acid Resistance 20, blindsight and poison ability.",
+                                                 entangle.Icon,
+                                                 giant_flytrap,
+                                                 8, -2, 6, 6, 0, Size.Huge,
+                                                 giant_flytrap_bite, giant_flytrap_bite, new BlueprintItemWeapon[] { giant_flytrap_bite, giant_flytrap_bite },
+                                                 library.Get<BlueprintFeature>("416386972c8de2e42953533c4946599a"), //acid resistance
+                                                 library.Get<BlueprintFeature>("236ec7f226d3d784884f066aa4be1570"), //blindsight
+                                                 library.Get<BlueprintFeature>("1180eb46f39f0cd41a0b2e293d1502cb") //poison
+                                                 );
+
+            var treant_form_spell = replaceForm(smilodon_form_spell, treant_form, "PlantShapeIIITreantAbility", "Plant Shape III (Treant)",
+                                     "You become a Huge treant. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.");
+            treant_form_spell.RemoveComponents<SpellListComponent>();
+            treant_form_spell.SetIcon(entangle.Icon);
+            var giant_flytrap_form_spell = replaceForm(smilodon_form_spell, giant_flytrap_form, "PlantShapeIIIGiantFlytrapAbility", "Plant Shape III (Giant Flytrap)",
+                                                 "You become a Huge giant flytrap. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain four 1d8 bite attacks, acid Resistance 20, blindsight and poison ability.");
+
+            giant_flytrap_form_spell.RemoveComponents<SpellListComponent>();
+            giant_flytrap_form_spell.SetIcon(entangle.Icon);
+            plant_shapeIII = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "PlantShapeIIISpell", "");
+            plant_shapeIII.SetIcon(entangle.Icon);
+            plant_shapeIII.SetName("Plant Shape III");
+            plant_shapeIII.SetDescription("You become a Huge Treant or a Huge Giant Flytrap");
+            plant_shapeIII.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(plant_shapeIII, treant_form_spell, giant_flytrap_form_spell));
+
+            plant_shapeIII.RemoveComponents<SpellListComponent>();
+            plant_shapeIII.AddToSpellList(Helpers.wizardSpellList, 7);
+            Helpers.AddSpellAndScroll(plant_shapeIII, "5022612735a9e2345bfc5110106823d8");
+        }
+
 
         static void fixBeastShape1()
         {
-            var beast_shape1 = library.Get<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9");
             beast_shape1.SetDescription("You become a Medium leopard. You gain a +2 size bonus to your Strength and a +2 natural armor bonus. You also gain two 1d3 claw attacks and one 1d6 bite attack.");
             beast_shape1.GetComponent<AbilityTargetHasFact>().CheckedFacts[0] = leopard_form;
             leopard_form.GetComponent<Polymorph>().Facts = leopard_form.GetComponent<Polymorph>().Facts.AddToArray(trip_defense_4legs);
@@ -102,7 +225,7 @@ namespace KingmakerRebalance
             BlueprintUnit dire_wolf = library.Get<BlueprintUnit>("87b83e0e06432a44eb50fb03c71bc8f5");
             dire_wolf_form = createPolymorphForm("BeastShapeIIDireWolfBuff",
                                                  "Wild Shape (Dire Wolf)",
-                                                 "You are in dire wolf form now. You have a +4 size bonus to your Strength and a +4 natural armor bonus and -2 penalty to dexterity. Your movement speed is increased by 10 feet. You also have a 1d8 bite attack and the tripping bite ability.",
+                                                 "You are in dire wolf form now. You have a +4 size bonus to your Strength, -2 penalty to dexterity and a +4 natural armor bonus. Your movement speed is increased by 10 feet. You also have a 1d8 bite attack and the tripping bite ability.",
                                                  beast_shape2.Icon,
                                                  dire_wolf,
                                                  4, -2, 0, 4, 10, Size.Large,
@@ -311,7 +434,6 @@ namespace KingmakerRebalance
         static BlueprintAbility replaceForm(BlueprintAbility ability_base, BlueprintBuff form_buff, string new_name, string display_name, string description)
         {
             var ability = library.CopyAndAdd<BlueprintAbility>(ability_base.AssetGuid, new_name, "");
-            ability.SetDescription(form_buff.Description);
             ability.SetName(display_name);
             ability.SetDescription(description);
             var check_component = ability.GetComponent<AbilityTargetHasFact>().CreateCopy();
