@@ -38,6 +38,7 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.UnitLogic.Buffs.Components;
 
 namespace KingmakerRebalance
 {
@@ -59,6 +60,11 @@ namespace KingmakerRebalance
         static internal BlueprintBuff shambling_mound_form;
         static internal BlueprintBuff treant_form;
         static internal BlueprintBuff giant_flytrap_form;
+        static internal BlueprintBuff fire_giant_form;
+        static internal BlueprintBuff frost_giant_form;
+        static internal BlueprintBuff troll_form;
+        static internal BlueprintBuff storm_giant_form;
+
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
         static BlueprintFeature tripping_bite = library.Get<BlueprintFeature>("f957b4444b6fb404e84ae2a5765797bb");
@@ -81,11 +87,22 @@ namespace KingmakerRebalance
         static internal BlueprintAbility leopard_form_spell;
         static internal BlueprintAbility hodag_form_spell;
         static internal BlueprintAbility winter_wolf_form_spell;
+
+        static internal BlueprintAbility treant_form_spell;
+        static internal BlueprintAbility giant_flytrap_form_spell;
         static internal BlueprintAbility plant_shapeI;
         static internal BlueprintAbility plant_shapeII;
         static internal BlueprintAbility plant_shapeIII;
 
-        
+        static internal BlueprintAbility troll_form_spell;
+        static internal BlueprintAbility fire_giant_form_spell;
+        static internal BlueprintAbility frost_giant_form_spell;
+        static internal BlueprintAbility storm_giant_form_spell;
+        static internal BlueprintAbility giant_formI;
+        static internal BlueprintAbility giant_formII;
+
+        static internal BlueprintAbility shapechange;
+
 
         static internal void fixBeastShape()
         {
@@ -100,7 +117,364 @@ namespace KingmakerRebalance
             createPlantShapeII();
             createPlantShapeIII();
 
-            //add giant form I, II and shapechange
+            fixLegendaryProportions();
+
+            createGiantFormI();
+            createGiantFormII();
+            createShapechange();
+
+            fixDruid();
+            fixTransmuter();
+        }
+
+
+        static void fixDruid()
+        {
+            string description = "At 4th level, a druid gains the ability to turn herself into a leopard and back again once per day. The effect lasts for 1 hour per druid level, or until she changes back.\nChanging form is a standard action and doesn't provoke an attack of opportunity. A druid can use this ability an additional time per day at 6th level and every two levels thereafter, for a total of eight times at 18th level.\nAt 6th level, a druid can use wild shape to change into a bear, dire wold or a small elemental. At 8th level, a druid can use wild shape to change into a smilodon, mastodon, mandragora or a medium elemental. At 10th level, a druid can use wild shape to change into a shambling mound or a large elemental. At 12th level, a druid can use wild shape to change into a giant flytrap or a huge elemental.\nFor the feyspeaker archetype, all level prerequisites are increased by 2.";
+            var wildshape_wolf = library.Get<BlueprintAbility>("ac8811714a45a5948b27208538ce4f03");
+
+
+            var wildshape_leopard = library.Get<BlueprintAbility>("92c47b04f6c9aa44abf1693b32554804");
+
+            var wildshape_bear_buff = library.CopyAndAdd<BlueprintBuff>(bear_form.AssetGuid, "DruidWildshapeIIBearBuff", "");
+            wildshape_bear_buff.SetName("Wild Shape (Bear)");
+            var wildshape_bear = replaceForm(wildshape_wolf, wildshape_bear_buff, "DruidWildshapeIIBearAbility", wildshape_bear_buff.Name, bear_form_spell.Description);
+
+            var wildshape_dire_wolf_buff = library.CopyAndAdd<BlueprintBuff>(dire_wolf_form.AssetGuid, "DruidWildshapeIIDireWolfBuff", "");
+            wildshape_dire_wolf_buff.SetName("Wild Shape (Dire Wolf)");
+            var wildshape_dire_wolf = replaceForm(wildshape_wolf, wildshape_dire_wolf_buff, "DruidWildshapeIIDireWolfAbility", wildshape_dire_wolf_buff.Name, dire_wolf_form_spell.Description);
+
+            var wildshape_smilodon = library.Get<BlueprintAbility>("32f1f208ad635224f89ef158140ab509");
+
+            var wildshape_mastodon_buff = library.CopyAndAdd<BlueprintBuff>(mastodon_form.AssetGuid, "DruidWildshapeIIIMastodonBuff", "");
+            wildshape_mastodon_buff.SetName("Wild Shape (Mastodon)");
+            var wildshape_mastodon = replaceForm(wildshape_wolf, wildshape_mastodon_buff, "DruidWildshapeIIIMastodonAbility", wildshape_mastodon_buff.Name, smilodon_form_spell.Description);
+
+            var wildshape_mandragora_buff = library.CopyAndAdd<BlueprintBuff>(mandragora_form.AssetGuid, "DruidWildshapeIIIMandragoraBuff", "");
+            wildshape_mandragora_buff.SetName("Wild Shape (Mandragora)");
+            var wildshape_mandragora = replaceForm(wildshape_wolf, wildshape_mandragora_buff, "DruidWildshapeIIIMandragoraAbility", wildshape_mandragora_buff.Name, plant_shapeI.Description);
+
+            var wildshape_shambling_mound = library.Get<BlueprintAbility>("943d41b6aaef1dc4e82f115118dbf902");
+
+            var wildshape_flytrap_buff = library.CopyAndAdd<BlueprintBuff>(giant_flytrap_form.AssetGuid, "DruidWildshapeVGiantFlytrapBuff", "");
+            wildshape_flytrap_buff.SetName("Wild Shape (Giant Flytrap)");
+            var wildshape_flytrap = replaceForm(wildshape_wolf, wildshape_flytrap_buff, "DruidWildshapeVGiantFlytrapAbility", wildshape_flytrap_buff.Name, plant_shapeIII.Description);
+
+            var leopard_feature = library.Get<BlueprintFeature>("c4d651bc0d4eabd41b08ee81bfe701d8");
+            leopard_feature.AddComponent(Helpers.CreateAddAbilityResource(library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4")));
+
+            var bear_feature = library.Get<BlueprintFeature>("1368c7ce69702444893af5ffd3226e19");
+            bear_feature.GetComponent<AddFacts>().Facts[0] = wildshape_bear;
+
+            var shambling_mound_feature = library.Get<BlueprintFeature>("0f31b23c2ab39354bbde4e33e8151495");
+            var smilodon_feature = library.Get<BlueprintFeature>("253c0c0d00e50a24797445f20af52dc8");
+            var dire_wolf_feature = createWildshapeFeature(wildshape_dire_wolf, description);
+            var mastodon_feature = createWildshapeFeature(wildshape_mastodon, description);
+            var mandragora_feature = createWildshapeFeature(wildshape_mandragora, description);
+            var flytrap_feature = createWildshapeFeature(wildshape_flytrap, description);
+
+            var small_elemental_feature = library.Get<BlueprintFeature>("bddd46a6f6a3e6e4b99008dcf5271c3b");
+            var medium_elemental_feature = library.Get<BlueprintFeature>("4d517e670ed4b6e4282d52855237a44f");
+            var large_elemental_feature = library.Get<BlueprintFeature>("1186fc7362560c94bad3de6338cc509e");
+            var huge_elemental_feature = library.Get<BlueprintFeature>("fe58dd496a36e274b86958f4677071b2");
+
+            var medium_elemental_add = library.Get<BlueprintFeature>("6e4b88e2a044c67469c038ac2f09d061");
+            var large_elemental_add = library.Get<BlueprintFeature>("e66154511a6f9fc49a9de644bd8922db");
+            medium_elemental_add.SetDescription(description);
+            large_elemental_add.SetDescription(description);
+
+            var shape_features = new BlueprintFeature[] {
+                                                        leopard_feature,
+                                                        bear_feature,
+                                                        shambling_mound_feature,    
+                                                        smilodon_feature,        
+                                                        small_elemental_feature,
+                                                        medium_elemental_feature,
+                                                        large_elemental_feature,
+                                                        huge_elemental_feature
+                                                        };
+            foreach (var s in shape_features)
+            {
+                var facts = s.GetComponent<AddFacts>().Facts;
+                foreach (var f in facts)
+                {
+                    ((BlueprintAbility)f).SetDescription(description);
+                }
+                s.SetDescription(description);
+            }
+
+            var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
+            druid_progression.LevelEntries[3].Features[1] = leopard_feature;
+            druid_progression.LevelEntries[5].Features[0] = dire_wolf_feature;
+            druid_progression.LevelEntries[5].Features.Insert(0, bear_feature);
+            druid_progression.LevelEntries[7].Features[0] = mastodon_feature;
+            druid_progression.LevelEntries[7].Features.Insert(0, smilodon_feature);
+            druid_progression.LevelEntries[7].Features.Add(mandragora_feature);
+            druid_progression.LevelEntries[9].Features.Remove(smilodon_feature);
+            druid_progression.LevelEntries[11].Features.Add(flytrap_feature);
+            druid_progression.UIGroups[0].Features.Remove(library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb"));//remove wolf feature
+            var wildshape_ui_groups = new UIGroup[] {Helpers.CreateUIGroup(leopard_feature, dire_wolf_feature, smilodon_feature),
+                                                     Helpers.CreateUIGroup(bear_feature, mastodon_feature),
+                                                     Helpers.CreateUIGroup(mandragora_feature, shambling_mound_feature, flytrap_feature),
+                                                     Helpers.CreateUIGroup(small_elemental_feature, medium_elemental_add , large_elemental_add, huge_elemental_feature)};
+            druid_progression.UIGroups = druid_progression.UIGroups.AddToArray(wildshape_ui_groups);
+
+
+            var feyspeaker = library.Get<BlueprintArchetype>("da69747aa3dd0044ebff5f3d701cdde3");
+            feyspeaker.AddFeatures[2].Features[1] = leopard_feature;
+            feyspeaker.AddFeatures[3].Features[1] = dire_wolf_feature;
+            feyspeaker.AddFeatures[3].Features.Add(bear_feature);
+            feyspeaker.AddFeatures[4].Features[1] = mastodon_feature;
+            feyspeaker.AddFeatures[4].Features.Add(smilodon_feature);
+            feyspeaker.AddFeatures[4].Features.Add(mandragora_feature);
+            feyspeaker.AddFeatures[5].Features[1] = shambling_mound_feature;
+            feyspeaker.AddFeatures[6].Features.Add(flytrap_feature);
+
+
+            feyspeaker.RemoveFeatures[1].Features[0] = leopard_feature;
+            feyspeaker.RemoveFeatures[2].Features[0] = bear_feature;
+            feyspeaker.RemoveFeatures[2].Features.Add(dire_wolf_feature);
+            feyspeaker.RemoveFeatures[3].Features[0] = smilodon_feature;
+            feyspeaker.RemoveFeatures[3].Features.Add(mandragora_feature);
+            feyspeaker.RemoveFeatures[3].Features.Add(mastodon_feature);
+            feyspeaker.RemoveFeatures[4].Features[0] = shambling_mound_feature;
+            feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, huge_elemental_feature));
+        }
+
+
+        static BlueprintFeature createWildshapeFeature(BlueprintAbility wildshape_ability, string description)
+        {
+            var wildshape_wolf_feature = library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
+            var f = Helpers.CreateFeature(wildshape_ability.name.Replace("Ability", "Feature"),
+                                               wildshape_ability.Name,
+                                               description,
+                                               "",
+                                               wildshape_wolf_feature.Icon,
+                                               FeatureGroup.None,
+                                               Helpers.CreateAddFact(wildshape_ability)
+                                               );
+            return f;
+        }
+
+
+        static void fixTransmuter()
+        {
+
+        }
+
+
+        static void createShapechange()
+        {
+            var disintegrate = library.Get<BlueprintAbility>("4aa7942c3e62a164387a73184bca3fc1");
+            BlueprintAbility[] forms = {library.Get<BlueprintAbility>("c12c98cfd3cde22488f09e9618ff7435"), //black dragon
+                                        library.Get<BlueprintAbility>("5c6791821d8a2ae4cb134a4bd925de50"), //blue dragon
+                                        library.Get<BlueprintAbility>("4fda7f6a51d989a4794ff4401178b5fe"), //brass dragon
+                                        library.Get<BlueprintAbility>("04d7a690e60feca40890bc3db144b335"), //bronze dragon
+                                        library.Get<BlueprintAbility>("ab069196fb37dfc4e848fe482f7f620d"), //copper dragon
+                                        library.Get<BlueprintAbility>("c511266a705a6e94186cb51e0503775f"), //gold dragon
+                                        library.Get<BlueprintAbility>("00b3a04140c39b447925fe5a79522087"), //green dragon
+                                        library.Get<BlueprintAbility>("2c1ee791f53ed4f42bd86d8659c638c0"), //red dragon
+                                        library.Get<BlueprintAbility>("0b1e76be6f786ca45b2ac247ac3a278e"), //silver dragon
+                                        library.Get<BlueprintAbility>("ded61c155aaa39440be67f877623378e"), //white dragon
+                                        storm_giant_form_spell,
+                                        troll_form_spell,
+                                        fire_giant_form_spell,
+                                        frost_giant_form_spell,
+                                        giant_flytrap_form_spell,
+                                        treant_form_spell,
+                                        library.Get<BlueprintAbility>("ee63301f83c76694692d4704d8a05bdc"),//air elemental
+                                        library.Get<BlueprintAbility>("facdc8851a0b3f44a8bed50f0199b83c"),//earth elemental
+                                        library.Get<BlueprintAbility>("c281eeecc554b72449fef43924e522ce"),//fire elemental
+                                        library.Get<BlueprintAbility>("96d2ab91f2d2329459a8dab496c5bede")//air elemental
+                                      };
+
+
+            List<BlueprintAbility> shapechange_forms = new List<BlueprintAbility>();
+            foreach (var f in forms)
+            {
+                var form = library.CopyAndAdd<BlueprintAbility>(f.AssetGuid, "Shapechange" + f.name, "");
+                form.Type = AbilityType.Supernatural;
+                form.ActionType = CommandType.Free;
+                form.SetName("Shapechange: " + f.Name);
+                form.RemoveComponents<SpellListComponent>();
+                ((Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)form.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]).Permanent = true; //permanent form
+                shapechange_forms.Add(form);
+            }
+
+            var ability = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "ShapechangeAbility", "");
+            ability.SetIcon(disintegrate.Icon);
+            ability.SetName("Shapechange Ability");
+            ability.SetDescription("This spell allows you to take the form of a wide variety of creatures.This spell can function as elemental body IV, form of the dragon III, giant form I, giant form II and plant shape III depending on what form you take.You can change form once each round as a free action.The change takes place either immediately before your regular action or immediately after it, but not during the action.");
+            ability.RemoveComponents<SpellListComponent>();
+            ability.Type = AbilityType.Supernatural;
+            ability.ActionType = CommandType.Free;
+            ability.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(ability, shapechange_forms));
+
+
+            var buff = Helpers.CreateBuff("ShapechangeBuff",
+                              "Shapechange",
+                              ability.Description,
+                              "",
+                              ability.Icon,
+                              null,
+                              Helpers.CreateAddFact(ability),
+                              Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph))
+                              );
+
+
+            shapechange = Helpers.CreateAbility("ShapechangeSpell",
+                                              "Shapechange",
+                                              ability.Description,
+                                              "",
+                                              ability.Icon,
+                                              AbilityType.Spell,
+                                              CommandType.Standard,
+                                              AbilityRange.Personal,
+                                              Helpers.tenMinPerLevelDuration,
+                                              Helpers.savingThrowNone,
+                                              beast_shape1.GetComponent<AbilitySpawnFx>(),
+                                              beast_shape1.GetComponent<ContextRankConfig>(),
+                                              beast_shape1.GetComponent<SpellComponent>(),
+                                              Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(rate: DurationRate.TenMinutes), is_from_spell: true))
+                                           );
+
+            shapechange.ResourceAssetIds = beast_shape1.ResourceAssetIds;
+            shapechange.AvailableMetamagic = beast_shape1.AvailableMetamagic;
+            shapechange.Animation = beast_shape1.Animation;
+            shapechange.AnimationStyle = beast_shape1.AnimationStyle;
+            shapechange.AddToSpellList(Helpers.wizardSpellList, 9);
+            shapechange.AddToSpellList(Helpers.druidSpellList, 9);
+            shapechange.MaterialComponent = library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28").MaterialComponent; //from legendary proportions
+
+            Helpers.AddSpellAndScroll(shapechange, "bb2f172e429b40840a7dc25bc83732cb"); //disintegrate
+        }
+
+        static void createGiantFormII()
+        {
+            var defensive_stance = library.Get<BlueprintFeature>("2a6a2f8e492ab174eb3f01acf5b7c90a");
+
+            storm_giant_form = Helpers.CreateBuff("GiantShapeIIBuff",
+                                "Giant Form (Storm Giant)",
+                                "You are in storm giant form now. You have a + 8 size bonus to your Strength, +6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also have two 2d6 slam attacks and electricity resistance 20.",
+                                "",
+                                defensive_stance.Icon,
+                                null,
+                                Common.createChangeUnitSize(Size.Huge),
+                                Common.createAddGenericStatBonus(8, ModifierDescriptor.Size, StatType.Strength),
+                                Common.createAddGenericStatBonus(10, ModifierDescriptor.Enhancement, StatType.Speed),
+                                Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Constitution),
+                                Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
+                                Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                Common.createEnergyDR(20, DamageEnergyType.Electricity),
+                                Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),//slam
+                                Helpers.CreateAddFact(turn_back)
+                              );
+            storm_giant_form_spell = replaceForm(beast_shape1, storm_giant_form, "GiantFormIIStormGiantAbility", "Giant Form II (Storm Giant)",
+                         "You acquire storm giant features. Your size changes to huge. You gain a + 8 size bonus to your Strength, + 6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also gain two 2d6 slam attacks and electricity resistance 20.");
+            storm_giant_form_spell.RemoveComponents<SpellListComponent>();
+            storm_giant_form_spell.SetIcon(defensive_stance.Icon);
+
+            giant_formII = library.CopyAndAdd<BlueprintAbility>(storm_giant_form_spell.AssetGuid, "GiantFormIISpell", "");
+            giant_formII.SetName("Giant Form II");
+
+            giant_formII.AddToSpellList(Helpers.wizardSpellList, 8);
+            Helpers.AddSpellAndScroll(giant_formII, "2778cd9dc966c3641afa1e455969a022"); //legendary proportions
+        }
+
+
+        static void createGiantFormI()
+        {
+            var defensive_stance = library.Get<BlueprintFeature>("2a6a2f8e492ab174eb3f01acf5b7c90a");
+            troll_form = Helpers.CreateBuff("GiantShapeITrollFormBuff",
+                                            "Giant Form (Troll)",
+                                            "You are in troll form now. You have a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also have two 1d6 claw attacks, one 1d8 bite, regeneration 5 (acid or fire) and rend ability.",
+                                            "",
+                                            defensive_stance.Icon,
+                                            null,
+                                            Common.createChangeUnitSize(Size.Large),
+                                            Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
+                                            Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
+                                            Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
+                                            Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                            Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("de21b6c00e6adaa409a6e7c2ae9f87f4")),//claws
+                                            Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("1f8a2e1e5e078014baebc90c2c46796f")), //bite
+                                            library.Get<BlueprintBuff>("ac95eba4690dbca46b9a2ab18f656d4f").GetComponent<AddEffectRegeneration>(), //regeneration
+                                            Helpers.CreateAddFacts(library.Get<BlueprintFeature>("e80ba26500d22e546baba542032aad0d"), //rend
+                                                                   turn_back)
+                                          );
+            troll_form_spell = replaceForm(smilodon_form_spell, troll_form, "GiantFormITrollAbility", "Giant Form I (Troll)",
+                         "You acquire troll features. Your size changes to large. You gain a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also gain two 1d6 claw attacks, one 1d8 bite, regeneration 5 (acid or fire) and rend ability.\nYou can continue use your equipment and cast spells while in this form.");
+            troll_form_spell.RemoveComponents<SpellListComponent>();
+            troll_form_spell.SetIcon(defensive_stance.Icon);
+
+
+            fire_giant_form = Helpers.CreateBuff("GiantShapeIFireGiantFormBuff",
+                                "Giant Form (Fire Giant)",
+                                "You are in fire giant form now. You have a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also have two 1d8 slam attacks, fire resistance 20 and cold vulnerability.",
+                                "",
+                                defensive_stance.Icon,
+                                null,
+                                Common.createChangeUnitSize(Size.Large),
+                                Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
+                                Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
+                                Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
+                                Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                Common.createAddEnergyVulnerability(DamageEnergyType.Cold),
+                                Common.createEnergyDR(20, DamageEnergyType.Fire),
+                                Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),//slam
+                                Helpers.CreateAddFact(turn_back)
+                              );
+            fire_giant_form_spell = replaceForm(smilodon_form_spell, fire_giant_form, "GiantFormIFireGiantAbility", "Giant Form I (Fire Giant)",
+                         "You acquire fire giant features. Your size changes to large. You gain a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also gain two 1d8 slam attacks, fire resistance 20 and cold vulnerability.");
+            fire_giant_form_spell.RemoveComponents<SpellListComponent>();
+            fire_giant_form_spell.SetIcon(defensive_stance.Icon);
+
+
+            frost_giant_form = Helpers.CreateBuff("GiantShapeIFrostGiantFormBuff",
+                    "Giant Form (Frost Giant)",
+                    "You are in frost giant form now. You have a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also have two 1d8 slam attacks, cold resistance 20 and fire vulnerability.",
+                    "",
+                    defensive_stance.Icon,
+                    null,
+                    Common.createChangeUnitSize(Size.Large),
+                    Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
+                    Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
+                    Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
+                    Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                    Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                    Common.createAddEnergyVulnerability(DamageEnergyType.Fire),
+                    Common.createEnergyDR(20, DamageEnergyType.Cold),
+                    Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),//slam
+                    Helpers.CreateAddFact(turn_back)
+                  );
+            frost_giant_form_spell = replaceForm(smilodon_form_spell, frost_giant_form, "GiantFormIFrostGiantAbility", "Giant Form I (Frost Giant)",
+                         "You acquire frost giant features. Your size changes to large. You gain a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also gain two 1d8 slam attacks, cold resistance 20 and fire vulnerability.");
+            frost_giant_form_spell.RemoveComponents<SpellListComponent>();
+            frost_giant_form_spell.SetIcon(defensive_stance.Icon);
+
+
+            giant_formI = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "GiantFormISpell", "");
+            giant_formI.SetIcon(defensive_stance.Icon);
+            giant_formI.SetName("Giant Form I");
+            giant_formI.SetDescription("You can aquire features of Troll, Fire Giant or Frost Giant.");
+            giant_formI.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(giant_formI, troll_form_spell, fire_giant_form_spell, frost_giant_form_spell));
+
+            giant_formI.RemoveComponents<SpellListComponent>();
+            giant_formI.AddToSpellList(Helpers.wizardSpellList, 7);
+            giant_formI.AddToSpellList(Helpers.alchemistSpellList, 6);
+            Helpers.AddSpellAndScroll(giant_formI, "2778cd9dc966c3641afa1e455969a022"); //legendary proportions
+        }
+
+
+        static void fixLegendaryProportions()
+        {
+            var legendary_proportions_buff = library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3");
+            legendary_proportions_buff.GetComponent<ChangeUnitSize>().SizeDelta = 1;
+            var legendary_proportions_spell = library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28");
+            legendary_proportions_spell.SetDescription("You call upon the primordial power of ancient megafauna to boost the size of your target. Because of its connection to living creatures of the distant past, the spell does not function on outsiders, undead, and summoned creatures. Your target grows to legendary proportions, increasing in size by one category.The creature's height doubles and its weight increases by a factor of 8. The target gains a +6 size bonus to its Strength score and a +4 size bonus to its Constitution score. It gains a +6 bonus to its natural armor, and DR 10/adamantine. Melee and ranged weapons used by this creature deal more damage.");
         }
 
 
@@ -185,11 +559,11 @@ namespace KingmakerRebalance
                                                  library.Get<BlueprintFeature>("1180eb46f39f0cd41a0b2e293d1502cb") //poison
                                                  );
 
-            var treant_form_spell = replaceForm(smilodon_form_spell, treant_form, "PlantShapeIIITreantAbility", "Plant Shape III (Treant)",
+            treant_form_spell = replaceForm(smilodon_form_spell, treant_form, "PlantShapeIIITreantAbility", "Plant Shape III (Treant)",
                                      "You become a Huge treant. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.");
             treant_form_spell.RemoveComponents<SpellListComponent>();
             treant_form_spell.SetIcon(entangle.Icon);
-            var giant_flytrap_form_spell = replaceForm(smilodon_form_spell, giant_flytrap_form, "PlantShapeIIIGiantFlytrapAbility", "Plant Shape III (Giant Flytrap)",
+            giant_flytrap_form_spell = replaceForm(smilodon_form_spell, giant_flytrap_form, "PlantShapeIIIGiantFlytrapAbility", "Plant Shape III (Giant Flytrap)",
                                                  "You become a Huge giant flytrap. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain four 1d8 bite attacks, acid Resistance 20, blindsight and poison ability.");
 
             giant_flytrap_form_spell.RemoveComponents<SpellListComponent>();

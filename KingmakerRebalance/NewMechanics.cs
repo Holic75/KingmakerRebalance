@@ -17,6 +17,10 @@ using Kingmaker.Controllers.Units;
 using Kingmaker.Designers;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Classes;
+using Kingmaker.Enums;
+using Kingmaker.UnitLogic;
 
 namespace KingmakerRebalance
 {
@@ -185,5 +189,30 @@ namespace KingmakerRebalance
             {
             }
         }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [ComponentName("Saving throw bonus against allies")]
+        public class SavingThrowBonusAgainstAllies : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public ModifierDescriptor Descriptor;
+            public int Value;
+            
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                var caster = evt.Reason.Caster;
+                if (caster == null || caster.IsPlayersEnemy)
+                    return;
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
+        
     }
 }

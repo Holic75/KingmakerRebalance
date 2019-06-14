@@ -58,6 +58,7 @@ namespace KingmakerRebalance
         static internal BlueprintFeature fast_movement;
         static internal BlueprintFeature indomitable_will;
         static internal BlueprintFeature bloodrager_proficiencies;
+        static internal BlueprintFeature blood_sanctuary;
 
 
         static internal BlueprintArchetype metamagic_rager_archetype;
@@ -145,6 +146,7 @@ namespace KingmakerRebalance
 
             createBloodrage();
             creatBloodlineSelection();
+            createBloodSanctuary();
 
             bloodrager_progression = Helpers.CreateProgression("BloodragerProgression",
                            bloodrager_class.Name,
@@ -179,6 +181,7 @@ namespace KingmakerRebalance
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, uncanny_dodge),
+                                                                    Helpers.LevelEntry(3, blood_sanctuary),
                                                                     Helpers.LevelEntry(5, improved_uncanny_dodge),
                                                                     Helpers.LevelEntry(7, damage_reduction),
                                                                     Helpers.LevelEntry(10, damage_reduction),
@@ -193,6 +196,22 @@ namespace KingmakerRebalance
 
             bloodrager_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { bloodrager_proficiencies, detect_magic, bloodline_selection };
             bloodrager_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(bloodrage, greater_bloodrage, tireless_bloodrage, mighty_bloodrage) };
+        }
+
+
+        static void createBloodSanctuary()
+        {
+            var fact = new NewMechanics.SavingThrowBonusAgainstAllies();
+            fact.Descriptor = ModifierDescriptor.UntypedStackable;
+            fact.Value = 2;
+            var spell_resistance = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889");
+            blood_sanctuary = Helpers.CreateFeature("BloodragerBloodSanctury",
+                                                     "Blood Sanctuary",
+                                                     "At 3rd level, due to the power of his blood, a bloodrager can stand confidently amid the effects of spells cast by himself or his allies. He gains a +2 bonus on saving throws against spells that he or an ally casts.",
+                                                     "",
+                                                     spell_resistance.Icon,
+                                                     FeatureGroup.None,
+                                                     fact);
         }
 
 

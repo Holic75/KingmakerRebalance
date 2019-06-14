@@ -484,7 +484,7 @@ namespace KingmakerRebalance
                                          "1f6c94d56f178b84ead4c02f1b1e1c48", //cats grace mass
                                          "a9fc28e147dbb364ea4a3c1831e7e55f", //polymorph greater
                                          "9155dbc8268da1c49a7fc4834fa1a4b1", //cloak of chaos
-                                         "08ccad78cac525040919d51963f9ac39" //fiery body
+                                         Wildshape.shapechange.AssetGuid //shapechange
                                          ),
                 createWitchPatronFeature("Ancestors", "7e72537869dc455781780147823fc6a5", "a5dd1fcfdff84b2396c21c7705faf3fc",
                                          "90e59f4a4ada87243b7b3535a06d0638", //bless
@@ -628,6 +628,17 @@ namespace KingmakerRebalance
                                          "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
                                          "d8144161e352ca846a73cf90e85bf9ac" //tsunami
                                         ),
+                createWitchPatronFeature("Strength", "6f859ba938f94132920eeb63a8c9af50", "8125ff1edafc4c5489ad2739a85d5386",
+                                         "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
+                                         "4c3d08935262b6544ae97599b3a9556d", //bulls strength
+                                         "2d4263d80f5136b4296d6eb43a221d7d", //magical vestment
+                                         "ef16771cb05d1344989519e87f25b3c5", //divine power
+                                         "90810e5cf53bf854293cbd5ea1066252", //righteous magic
+                                         "6a234c6dcde7ae94e94e9c36fd1163a7", //bulls strength mass
+                                         Wildshape.giant_formI.AssetGuid, //giant form I
+                                         Wildshape.giant_formII.AssetGuid, //giant form II
+                                         Wildshape.shapechange.AssetGuid //shapechange
+                                        ),
                 createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4",
                                          "b065231094a21d14dbf1c3832f776871", //firebelly
                                          "cdb106d53c65bbc4086183d54c3b97c7", //scorching ray
@@ -648,7 +659,7 @@ namespace KingmakerRebalance
                                          "f767399367df54645ac620ef7b2062bb", //form of dragon 1
                                          "666556ded3a32f34885e8c318c3a0ced", //form of dragon 2
                                          "1cdc4ad4c208246419b98a35539eafa6", //form of dragon 3
-                                         "08ccad78cac525040919d51963f9ac39" //fiery body
+                                         Wildshape.shapechange.AssetGuid //shapechange
                                          ),
                 createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
                                          "9f10909f0be1f5141bf1c102041f93d9", //snowball

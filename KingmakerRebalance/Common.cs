@@ -34,6 +34,8 @@ using Kingmaker.Blueprints.Items;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.Designers.Mechanics.Buffs;
 
 namespace KingmakerRebalance
 {
@@ -1117,6 +1119,25 @@ namespace KingmakerRebalance
             var a = new AbilityCasterHasNoFacts();
             a.Facts = facts;
             return a;
+        }
+
+
+        static internal AddGenericStatBonus createAddGenericStatBonus(int bonus, ModifierDescriptor descriptor, StatType stat)
+        {
+            var a = new AddGenericStatBonus();
+            a.Stat = stat;
+            a.Value = bonus;
+            a.Descriptor = descriptor;
+            return a;
+        }
+
+
+        static internal ChangeUnitSize createChangeUnitSize(Size size)
+        {
+            var c = new ChangeUnitSize();
+            c.Size = size;
+            Helpers.SetField(c, "m_Type", 1);
+            return c;
         }
 
     }

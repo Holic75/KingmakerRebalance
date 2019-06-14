@@ -418,8 +418,11 @@ namespace KingmakerRebalance
                 var school = spell.School;
                 var specialistList = specialistSchoolList.Value[(int)school];
                 specialistList?.SpellsByLevel[level].Spells.Add(spell);
-                var thassilonianList = thassilonianSchoolList.Value[(int)school];
-                thassilonianList?.SpellsByLevel[level].Spells.Add(spell);
+
+                foreach (var thassilonianList in thassilonianSchoolList.Value)
+                {
+                    thassilonianList?.SpellsByLevel[level].Spells.Add(spell);
+                }
             }
         }
 
