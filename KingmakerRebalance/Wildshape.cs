@@ -137,7 +137,7 @@ namespace KingmakerRebalance
 
         static void fixAirElementalDC()
         {
-            var dc = new ContextCalculateAbilityParams();
+            var dc = Helpers.Create<ContextCalculateAbilityParams>();
             dc.StatType = StatType.Strength;
             
             var effects = new BlueprintAbilityAreaEffect[]{library.Get<BlueprintAbilityAreaEffect>("91f4541e0eb353b4681289cc9615a79d"),
@@ -812,7 +812,7 @@ namespace KingmakerRebalance
                                                           "",
                                                           winter_wolf_breath.Icon,
                                                           null);
-            var cooldown_action = new AbilityExecuteActionOnCast();
+            var cooldown_action = Helpers.Create<AbilityExecuteActionOnCast>();
             var cooldown_action_apply = Helpers.CreateApplyBuff(winter_wolf_cooldown_buff,
                                                               duration: Helpers.CreateContextDuration(bonus: Common.createSimpleContextValue(0), diceType: DiceType.D4, diceCount: Common.createSimpleContextValue(1)),
                                                               fromSpell: false,

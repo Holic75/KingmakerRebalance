@@ -135,12 +135,12 @@ namespace KingmakerRebalance
             grounded.SetDescription("At 17th level, a feykiller gains a +4 insight bonus on saving throws against illusion and enchantment effects, and she is immune to illusion and enchantment effects created by fey.");
             grounded.SetName("Grounded");
 
-            var illusion_save_bonus = new SavingThrowBonusAgainstSchool();
+            var illusion_save_bonus = Helpers.Create<SavingThrowBonusAgainstSchool>();
             illusion_save_bonus.Value = 4;
             illusion_save_bonus.School = SpellSchool.Illusion;
             illusion_save_bonus.ModifierDescriptor = ModifierDescriptor.Insight;
 
-            var enchancement_save_bonus = new SavingThrowBonusAgainstSchool();
+            var enchancement_save_bonus = Helpers.Create<SavingThrowBonusAgainstSchool>();
             enchancement_save_bonus.Value = 4;
             enchancement_save_bonus.School = SpellSchool.Enchantment;
             enchancement_save_bonus.ModifierDescriptor = ModifierDescriptor.Insight;
@@ -218,7 +218,7 @@ namespace KingmakerRebalance
                                             allowed_classes,
                                             sacred_huntsmaster_archetype);
 
-            var goat_bonus = new SavingThrowBonusAgainstSchoolAbilityValue();
+            var goat_bonus = Helpers.Create<SavingThrowBonusAgainstSchoolAbilityValue>();
             goat_bonus.School = SpellSchool.Enchantment;
             goat_bonus.Value = 0;
             goat_bonus.Bonus = Helpers.CreateContextValueRank(AbilityRankType.Default);
@@ -767,7 +767,7 @@ namespace KingmakerRebalance
                                                            library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")  // touch calculate feature
                                                            )) ;
             hunter_orisons.GetComponent<BindAbilitiesToClass>().CharacterClass = hunter_class;
-            var learn_orisons = new Kingmaker.UnitLogic.FactLogic.LearnSpells();
+            var learn_orisons = Helpers.Create<Kingmaker.UnitLogic.FactLogic.LearnSpells>();
             learn_orisons.CharacterClass = hunter_class;
             learn_orisons.Spells = hunter_orisons.GetComponent<BindAbilitiesToClass>().Abilites;
             hunter_orisons.AddComponent(learn_orisons);
@@ -866,7 +866,7 @@ namespace KingmakerRebalance
             var animal_companion_selection = library.CopyAndAdd<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67",
                                                                                             "AnimalCompanionSelectionHunter",
                                                                                             "cf9f8d9910db4beba174f4e2b7c1bb2a");
-            var add_progression = new AddFeatureOnApply();
+            var add_progression = Helpers.Create<AddFeatureOnApply>();
             add_progression.Feature = animal_companion_progression;
             animal_companion_selection.ComponentsArray[0] = add_progression;
 
@@ -879,7 +879,7 @@ namespace KingmakerRebalance
         {
             var wildshape_wolf = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
             var acid_maw = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
-            var animal_focus_additional_use_component = new Kingmaker.UnitLogic.FactLogic.IncreaseActivatableAbilityGroupSize();
+            var animal_focus_additional_use_component = Helpers.Create<Kingmaker.UnitLogic.FactLogic.IncreaseActivatableAbilityGroupSize>();
             animal_focus_additional_use_component.Group = AnimalFocusGroup;
 
             animal_focus_additional_use = Helpers.CreateFeature("AdditionalAnimalFocusFeature",
@@ -955,7 +955,7 @@ namespace KingmakerRebalance
 
         static Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion createAddFeatToAnimalCompanion(BlueprintFeature feat)
         {
-            var add_feat_ac = new Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion();
+            var add_feat_ac = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion>();
             add_feat_ac.Feature = feat;
             return add_feat_ac;
         }
@@ -1096,8 +1096,8 @@ namespace KingmakerRebalance
         static Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel[] createMouseFocus(UnityEngine.Sprite icon, BlueprintCharacterClass[] allowed_classes,
                                                                                                       BlueprintArchetype archetype, int update_lvl)
         {
-            var evasion = new Kingmaker.Designers.Mechanics.Facts.Evasion();
-            var improved_evasion = new Kingmaker.Designers.Mechanics.Facts.ImprovedEvasion();
+            var evasion = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.Evasion>();
+            var improved_evasion = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ImprovedEvasion>();
             improved_evasion.SavingThrow = SavingThrowType.Reflex;
             evasion.SavingThrow = SavingThrowType.Reflex;
             var mouse_focus1 = createToggleFocus("MouseFocus1",

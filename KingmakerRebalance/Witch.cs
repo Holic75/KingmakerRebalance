@@ -205,7 +205,7 @@ namespace KingmakerRebalance
                                              );
             resource.SetIncreasedByStat(3, StatType.Charisma);
 
-            var surge = new NewMechanics.ConduitSurge();
+            var surge = Helpers.Create<NewMechanics.ConduitSurge>();
             surge.buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3"); //stagerred
             surge.save_type = SavingThrowType.Fortitude;
             surge.rate = DurationRate.Minutes;
@@ -383,7 +383,7 @@ namespace KingmakerRebalance
             var negative_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("cb4a39044b59f5e47ad5bc08ff9d6669");
             var positive_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("e988cf802d403d941b2ed8b6016de68f");
 
-            var bonus1 = new Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment();
+            var bonus1 = Helpers.Create<Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment>();
             bonus1.Feature = improved_channel_hex;
             negative_bonus1.AddComponent(bonus1);
             positive_bonus1.AddComponent(bonus1);
@@ -921,7 +921,7 @@ namespace KingmakerRebalance
 
         static void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown)
         {
-            var cooldown_action = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            var cooldown_action = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             cooldown_action.Buff = hex_cooldown;
             cooldown_action.AsChild = true;
             //cooldown_action.IsFromSpell = true;
@@ -935,7 +935,7 @@ namespace KingmakerRebalance
             bool has_action = (ability.GetComponents<AbilityEffectRunAction>().Count() != 0);
             if (!has_action)
             {
-                var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+                var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
                 action.addAction(cooldown_action);
                 ability.AddComponent(action);
             }
@@ -945,11 +945,11 @@ namespace KingmakerRebalance
                 ability.GetComponent<AbilityEffectRunAction>().addAction(cooldown_action);
 
             }
-            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { hex_cooldown };
             target_checker.Inverted = true;
             ability.AddComponent(target_checker);
-            var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+            var scaling = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass>();
             scaling.CharacterClass = witch_class;
             scaling.StatType = StatType.Intelligence;
             scaling.UseKineticistMainStat = false;
@@ -1066,7 +1066,7 @@ namespace KingmakerRebalance
             hex_ability.ActionType = CommandType.Standard;
             hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             hex_ability.LocalizedDuration = Helpers.CreateString("SlumberHexAbility1.Duration", "1 round/level");
-            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
                                                                     library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
                                                                   };
@@ -1074,7 +1074,7 @@ namespace KingmakerRebalance
             hex_ability.AddComponent(target_checker);
             hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
 
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             action.addAction(Common.createContextSavedApplyBuff(sleep_buff, DurationRate.Rounds));
             hex_ability.AddComponent(action);
@@ -1104,7 +1104,7 @@ namespace KingmakerRebalance
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             action.addAction(Common.createContextSavedApplyBuff(library.Get<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5"), DurationRate.Rounds, AbilityRankType.DamageBonus));
 
@@ -1136,7 +1136,7 @@ namespace KingmakerRebalance
             hex_ability.SetDescription("The witch can grant a creature within 30 feet a bit of good luck for 1 round. The target can call upon this good luck once per round, allowing him to reroll any ability check, attack roll, saving throw, or skill check, taking the better result. He must decide to use this ability before the first roll is made. At 8th level and 16th level, the duration of this hex is extended by 1 round. Once a creature has benefited from the fortune hex, it cannot benefit from it again for 24 hours.");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.Designers.Mechanics.Facts.ReplaceAbilitiesStat>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var apply_buff = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             bonus_value.Value = 1;
@@ -1211,7 +1211,7 @@ namespace KingmakerRebalance
                                                        Common.createAddConditionImmunity(UnitCondition.Fatigued),
                                                        Common.createAddConditionImmunity(UnitCondition.Shaken)
                                                        );
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
             bonus_value.ValueType = ContextValueType.Rank;
             var duration_value = Helpers.CreateContextDuration(bonus: bonus_value, rate: DurationRate.Minutes);     
@@ -1226,7 +1226,7 @@ namespace KingmakerRebalance
                                                                 SpellDescriptor.Fatigue | SpellDescriptor.Shaken | SpellDescriptor.Sickened | SpellDescriptor.Blindness)
                                                       );
             hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
-            var action2 = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action2 = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus_value2 = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             bonus_value2.ValueType = ContextValueType.Simple;
             bonus_value2.Value = 1;
@@ -1311,10 +1311,10 @@ namespace KingmakerRebalance
             ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
 
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             var action_save = Common.createContextSavedApplyBuff(buff, DurationRate.Rounds, AbilityRankType.DamageBonus);
-            var buff_save = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            var buff_save = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             buff_save.IsFromSpell = true;
             buff_save.Buff = buff;
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
@@ -1334,7 +1334,7 @@ namespace KingmakerRebalance
             ability.SpellResistance = false;
 
             ability.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting));
-            var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+            var scaling = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass>();
             scaling.CharacterClass = witch_class;
             scaling.StatType = StatType.Intelligence;
             scaling.UseKineticistMainStat = false;
@@ -1368,10 +1368,10 @@ namespace KingmakerRebalance
             hex_ability.SetName("Summer’s Heat");
             hex_ability.SetDescription("Effect: The witch surrounds her target with oppressive heat, dealing a number of points of nonlethal damage equal to her witch level and causing the target to become fatigued. The target can attempt a Fortitude save to reduce this nonlethal damage by half and negate the fatigued condition. Whether or not the target succeeds at this save, it can’t be the target of this hex again for 1 day.");
 
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Fortitude;
 
-            var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
             context_saved.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_full, Helpers.CreateContextDuration(), is_permanent: true),
                                                             Common.createContextActionApplyBuff(fatigued_buff, Helpers.CreateContextDuration(), is_permanent: true));
             context_saved.Succeed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_half, Helpers.CreateContextDuration(), is_permanent: true));
@@ -1467,7 +1467,7 @@ namespace KingmakerRebalance
             var action1 = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionDispelMagic)hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
             action1.Descriptor = SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Poison | SpellDescriptor.Disease;
             hex_ability1.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            var run_action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var run_action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             run_action.Actions = Helpers.CreateActionList(action1);
             hex_ability1.AddComponent(run_action);
 
@@ -1482,7 +1482,7 @@ namespace KingmakerRebalance
                                                                 SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
                                                       );
             hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
-            var action2 = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action2 = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus_value2 = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             bonus_value2.ValueType = ContextValueType.Simple;
             bonus_value2.Value = 1;
@@ -1540,7 +1540,7 @@ namespace KingmakerRebalance
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.AddCondition>());
             hex_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Nauseated, SavingThrowType.Fortitude));
 
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Fortitude;
             action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds));
             hex_ability.AddComponent(action);
@@ -1579,7 +1579,7 @@ namespace KingmakerRebalance
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33", "WitchBeastGiftHexAbility", "b87be54ce5ef465786f74d89efa53678");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus = Helpers.CreateContextValue(AbilityRankType.Default);
             var duration = Helpers.CreateContextDuration(bonus, DurationRate.Minutes);
             action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, duration));
@@ -1611,7 +1611,7 @@ namespace KingmakerRebalance
             hex_ability.SetName("Harrowing Curse");
             hex_ability.SetDescription("Effect: The witch can curse a target creature by touching it with a card randomly drawn from a harrow deck she owns. The target is affected as if by the spell bestow curse using the witch’s caster level, except that the witch can decrease only the ability score that corresponds to the suit of the card drawn. Whether or not the save is successful, a creature cannot be targeted by this hex more than once in 24 hours.");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             Kingmaker.ElementsSystem.ActionList[] curse_actions = new Kingmaker.ElementsSystem.ActionList[curses.Length];
             for (int i = 0; i < curses.Length; i++)
@@ -1620,7 +1620,7 @@ namespace KingmakerRebalance
             }
             var random_curse = Common.createContextActionRandomize(curse_actions);
             
-            var action_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            var action_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
             action_saved.Failed = Helpers.CreateActionList(random_curse);
             action.Actions = Helpers.CreateActionList(action_saved);
             hex_ability.AddComponent(action);
@@ -1666,15 +1666,15 @@ namespace KingmakerRebalance
             dice_count.ValueType = ContextValueType.Simple;
             dice_count.Value = 1;
 
-            var damage_trigger = new Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger();
-            damage_trigger.Actions = Helpers.CreateActionList(new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf(),
+            var damage_trigger = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>();
+            damage_trigger.Actions = Helpers.CreateActionList(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf>(),
                                                               Common.createContextActionApplyBuff(staggered_buff, Helpers.CreateContextDuration(diceType: DiceType.D4, diceCount: dice_count))
                                                               );
             ice_tomb_buff.AddComponent(damage_trigger); //remove buff on damage, and add stagger
 
-            var action_buff = new ContextActionConditionalSaved();
+            var action_buff = Helpers.Create<ContextActionConditionalSaved>();
             action_buff.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(ice_tomb_buff, Helpers.CreateContextDuration(), is_permanent: true));
-            var run_action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var run_action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             run_action.SavingThrowType = SavingThrowType.Fortitude;
             run_action.Actions = Helpers.CreateActionList(damage_action, action_buff);
             hex_ability.AddComponent(run_action);
@@ -1705,7 +1705,7 @@ namespace KingmakerRebalance
             fast_healing_ability.RemoveComponent(fast_healing_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             fast_healing_ability.RemoveComponent(fast_healing_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
 
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             var duration = Helpers.CreateContextDuration(bonus, DurationRate.Rounds);
             action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(fast_healing_buff, duration));
@@ -1726,7 +1726,7 @@ namespace KingmakerRebalance
             restoration_component.HealDrain = false;
             restoration_ability.RemoveComponent(restoration_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             restoration_ability.RemoveComponent(restoration_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
-            var action2 = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action2 = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action2.Actions = Helpers.CreateActionList(restoration_component);
             restoration_ability.AddComponent(action2);
 
@@ -1770,7 +1770,7 @@ namespace KingmakerRebalance
             hex_buff.AddComponent(dominate_person_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ChangeFaction>());
             hex_buff.ReplaceComponent< Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Polymorph));
             hex_buff.SetBuffFlags(hex_buff.GetBuffFlags() | BuffFlags.RemoveOnRest);
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
             hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
@@ -1793,14 +1793,14 @@ namespace KingmakerRebalance
         {
             var hex_buff = library.CopyAndAdd<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4", "WitchDeathCurseHexBuff", "617290b83ca04f01adc23e0416758dfb"); //fatigue buff
             var exhausted_buff = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
-            var death_effect = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSavingThrow();
+            var death_effect = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSavingThrow>();
             death_effect.Type = SavingThrowType.Fortitude;
-            var death_effect_conditional = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
-            death_effect_conditional.Failed = Helpers.CreateActionList(new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionKillTarget());
+            var death_effect_conditional = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
+            death_effect_conditional.Failed = Helpers.CreateActionList(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionKillTarget>());
 
             var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(4), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
             death_effect_conditional.Succeed = Helpers.CreateActionList(Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, damage));
-            death_effect.Actions = Helpers.CreateActionList(death_effect_conditional, new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf());
+            death_effect.Actions = Helpers.CreateActionList(death_effect_conditional, Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf>());
 
             var round3_death = Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(3), death_effect);
             var round2_exhausted = Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(2),
@@ -1816,13 +1816,13 @@ namespace KingmakerRebalance
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
             hex_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
                                                                                                      classes: getWitchArray(), type: AbilityRankType.DamageBonus)); //for damage on save
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
             hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
             hex_ability.ReplaceComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Death));
             addWitchHexCooldownScaling(hex_ability, "f172135df37a40e8aa7cb7be29d2a72d");
-            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
                                                                     library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
                                                                   };
@@ -1858,7 +1858,7 @@ namespace KingmakerRebalance
             hex_ability.Range = AbilityRange.Close;
             hex_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityTargetsAround>());
-            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") };//undead
             hex_ability.AddComponent(target_checker);
             var destruction = library.Get<BlueprintAbility>("3b646e1db3403b940bf620e01d2ce0c7");
@@ -1941,7 +1941,7 @@ namespace KingmakerRebalance
             hex_ability.ActionType = CommandType.Standard;
             hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             hex_ability.LocalizedDuration = Helpers.CreateString("EternalSlumberHexAbility1.Duration", "Permanent");
-            var target_checker = new Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact();
+            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
                                                                     library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
                                                                   };
@@ -1949,12 +1949,12 @@ namespace KingmakerRebalance
             hex_ability.AddComponent(target_checker);
             hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
 
-            var action = new Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction();
+            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_permanent: true));
             hex_ability.AddComponent(action);
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));
-            var touch = new Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch();
+            var touch = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch>();
             touch.TouchWeapon = library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("bb337517547de1a4189518d404ec49d4");
             hex_ability.AddComponent(touch);
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());

@@ -109,7 +109,7 @@ namespace KingmakerRebalance
 
             public Kingmaker.UnitLogic.FactLogic.LearnSpellList createLearnSpellList(string name, string guid, BlueprintCharacterClass character_class, BlueprintArchetype archetype = null)
             {
-                Kingmaker.UnitLogic.FactLogic.LearnSpellList learn_spell_list = new Kingmaker.UnitLogic.FactLogic.LearnSpellList();
+                Kingmaker.UnitLogic.FactLogic.LearnSpellList learn_spell_list = Helpers.Create<Kingmaker.UnitLogic.FactLogic.LearnSpellList>();
                 learn_spell_list.Archetype = archetype;
                 learn_spell_list.CharacterClass = character_class;
                 learn_spell_list.SpellList = createSpellList(name, guid);
@@ -122,7 +122,7 @@ namespace KingmakerRebalance
         internal static BlueprintFeature createCantrips(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, BlueprintCharacterClass character_class,
                                        StatType stat, BlueprintAbility[] spells)
         {
-            var learn_spells = new LearnSpells();
+            var learn_spells = Helpers.Create<LearnSpells>();
             learn_spells.CharacterClass = character_class;
             learn_spells.Spells = spells;
 
@@ -146,9 +146,9 @@ namespace KingmakerRebalance
                                                                                                                         bool is_from_spell = true, bool is_permanent = false, bool is_child = false,
                                                                                                                         bool on_failed_save = true)
         {
-            var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
         
-            var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.AsChild = is_child;
             apply_buff.Permanent = is_permanent;
@@ -174,9 +174,9 @@ namespace KingmakerRebalance
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false)
         {
-            var context_saved = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved();
+            var context_saved = Helpers.Create <Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
             context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
-            var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = true;
             apply_buff.Buff = buff;
             apply_buff.DurationValue = duration;
@@ -191,7 +191,7 @@ namespace KingmakerRebalance
         static internal Kingmaker.UnitLogic.Mechanics.Components.DeathActions createDeathActions(Kingmaker.ElementsSystem.ActionList action_list,
                                                                                                  BlueprintAbilityResource resource = null)
         {
-            var a = new Kingmaker.UnitLogic.Mechanics.Components.DeathActions();
+            var a = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.DeathActions>();
             a.Actions = action_list;
             a.CheckResource = (resource != null);
             a.Resource = resource;
@@ -201,7 +201,7 @@ namespace KingmakerRebalance
         
         static internal Kingmaker.Designers.Mechanics.Facts.CriticalConfirmationACBonus createCriticalConfirmationACBonus(int bonus)
         {
-            var c = new CriticalConfirmationACBonus();
+            var c = Helpers.Create<CriticalConfirmationACBonus>();
             c.Bonus = bonus;
             return c;
         }
@@ -209,14 +209,14 @@ namespace KingmakerRebalance
 
         static internal CriticalConfirmationBonus createCriticalConfirmationBonus(int bonus)
         {
-            var c = new CriticalConfirmationBonus();
+            var c = Helpers.Create<CriticalConfirmationBonus>();
             c.Bonus = bonus;
             return c;
         }
 
         internal static ContextActionSavingThrow createContextActionSavingThrow(SavingThrowType saving_throw, Kingmaker.ElementsSystem.ActionList action)
         {
-            var c = new ContextActionSavingThrow();
+            var c = Helpers.Create<ContextActionSavingThrow>();
             c.Type = saving_throw;
             c.Actions = action;
             return c;
@@ -226,7 +226,7 @@ namespace KingmakerRebalance
         internal static Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass createContextCalculateAbilityParamsBasedOnClass(BlueprintCharacterClass character_class,
                                                                                                                                                     StatType stat, bool use_kineticist_main_stat = false)
         {
-            var c = new ContextCalculateAbilityParamsBasedOnClass();
+            var c = Helpers.Create<ContextCalculateAbilityParamsBasedOnClass>();
             c.CharacterClass = character_class;
             c.StatType = stat;
             c.UseKineticistMainStat = use_kineticist_main_stat;
@@ -236,7 +236,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
         {
-            var c = new Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks();
+            var c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks>();
             c.Weapon = weapons;
             return c;
         }
@@ -244,7 +244,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger createIncomingDamageTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
         {
-            var c = new Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger();
+            var c = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>();
             c.Actions = Helpers.CreateActionList(actions);
             return c;
         }
@@ -253,7 +253,7 @@ namespace KingmakerRebalance
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false)
         {
-            var apply_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff();
+            var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.Buff = buff;
             apply_buff.Permanent = is_permanent;
@@ -264,7 +264,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize createContextActionRandomize(params Kingmaker.ElementsSystem.ActionList[] actions)
         {
-            var c = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize();
+            var c = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize>();
             Type m_Action_type = Helpers.GetField(c, "m_Actions").GetType().GetElementType();
             var y = Array.CreateInstance(m_Action_type, actions.Length);
             var field = m_Action_type.GetField("Action");
@@ -281,7 +281,7 @@ namespace KingmakerRebalance
 
         static internal BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
         {
-            var b = new BuffDescriptorImmunity();
+            var b = Helpers.Create <BuffDescriptorImmunity>();
             b.Descriptor = descriptor;
             return b;
         }
@@ -289,7 +289,7 @@ namespace KingmakerRebalance
 
         static internal Blindsense createBlindsense(int range)
         {
-            var b = new Blindsense();
+            var b = Helpers.Create <Blindsense>();
             b.Range = range.Feet();
             return b;
         }
@@ -297,7 +297,7 @@ namespace KingmakerRebalance
 
         static internal Blindsense createBlindsight(int range)
         {
-            var b = new Blindsense();
+            var b = Helpers.Create <Blindsense>();
             b.Range = range.Feet();
             b.Blindsight = true;
             return b;
@@ -306,7 +306,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Facts.AddFortification createAddFortification(int bonus = 0, ContextValue value = null)
         {
-            var a = new AddFortification();
+            var a = Helpers.Create <AddFortification>();
             a.Bonus = bonus;
             a.UseContextValue = value == null ? true : false;
             a.Value = value;
@@ -317,7 +317,7 @@ namespace KingmakerRebalance
         static internal Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition createBuffStatusCondition(UnitCondition condition, SavingThrowType save_type = SavingThrowType.Unknown,
                                                                                                            bool save_each_round = true)
         {
-            var c = new Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition();
+            var c = Helpers.Create <Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition>();
             c.SaveType = save_type;
             c.SaveEachRound = save_each_round;
             c.Condition = condition;
@@ -326,7 +326,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber createBuffConditionCheckRoundNumber(int round_number, bool not = false)
         {
-            var c = new Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber();
+            var c = Helpers.Create <Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber>();
             c.RoundNumber = round_number;
             c.Not = not;
             return c;
@@ -344,7 +344,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion createSpontaneousSpellConversion(BlueprintCharacterClass character_class, params BlueprintAbility[] spells)
         {
-            var sc = new Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion();
+            var sc = Helpers.Create<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>();
             sc.CharacterClass = character_class;
             sc.SpellsByLevel = spells;
             return sc;
@@ -353,7 +353,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType alignment)
         {
-            var p = new Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment();
+            var p = Helpers.Create <Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment>();
             p.Alignment = alignment;
             return p;
         }
@@ -361,7 +361,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility createAddCasterLevelToAbility(BlueprintAbility spell, int bonus)
         {
-            var a = new Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility();
+            var a = Helpers.Create <Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility>();
             a.Bonus = bonus;
             a.Spell = spell;
             return a;
@@ -369,7 +369,7 @@ namespace KingmakerRebalance
 
         static internal PrerequisiteArchetypeLevel createPrerequisiteArchetypeLevel(BlueprintCharacterClass character_class, BlueprintArchetype archetype, int level)
         {
-            var p = new PrerequisiteArchetypeLevel();
+            var p = Helpers.Create <PrerequisiteArchetypeLevel>();
             p.CharacterClass = character_class;
             p.Archetype = archetype;
             p.Level = level;
@@ -379,7 +379,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency createArcaneArmorProficiency(params Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[] armor)
         {
-            var p = new Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency();
+            var p = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency>();
             p.Armor = armor;
             return p;
         }
@@ -394,7 +394,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpellsTable(string name, string guid, params Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry[] levels)
         {
-            var t = new Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable();
+            var t = Helpers.Create<Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable>();
             t.name = name;
             library.AddAsset(t, guid);
             t.Levels = levels;
@@ -460,7 +460,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride createEmptyHandWeaponOverride(BlueprintItemWeapon weapon)
         {
-            var c = new Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride();
+            var c = Helpers.Create<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>();
             c.Weapon = weapon;
             return c;
         }
@@ -468,7 +468,7 @@ namespace KingmakerRebalance
 
         static internal RemoveFeatureOnApply createRemoveFeatureOnApply(BlueprintFeature feature)
         {
-            var c = new RemoveFeatureOnApply();
+            var c = Helpers.Create<RemoveFeatureOnApply>();
             c.Feature = feature;
             return c;
         }
@@ -490,7 +490,7 @@ namespace KingmakerRebalance
             var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
             activated.Actions = activated.Actions.AddToArray(action);
             var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
-            var remove_buff = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff();
+            var remove_buff = Helpers.Create <Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
             remove_buff.Buff = buff_to_add;
             deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);
         }
@@ -504,7 +504,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect createAddAreaEffect(BlueprintAbilityAreaEffect area_effect)
         {
-            var a = new Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect();
+            var a = Helpers.Create<Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect>();
             a.AreaEffect = area_effect;
             return a;
         }
@@ -514,7 +514,7 @@ namespace KingmakerRebalance
                                                                                                       bool check_weapon_range_type = false,
                                                                                                       AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
         {
-            var t = new AddInitiatorAttackWithWeaponTrigger();
+            var t = Helpers.Create<AddInitiatorAttackWithWeaponTrigger>();
             t.Action = action;
             t.OnlyHit = only_hit;
             t.CriticalHit = critical_hit;
@@ -526,7 +526,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignment(DamageAlignment alignment, bool check_range = false, bool is_ranged = false)
         {
-            var a = new AddOutgoingPhysicalDamageProperty();
+            var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
             a.AddAlignment = true;
             a.Alignment = alignment;
             a.CheckRange = check_range;
@@ -597,7 +597,7 @@ namespace KingmakerRebalance
 
         internal static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintCharacterClass character_class, BlueprintArchetype archetype)
         {
-            var p = new PrerequisiteNoArchetype();
+            var p = Helpers.Create<PrerequisiteNoArchetype>();
             p.Archetype = archetype;
             p.CharacterClass = character_class;
             return p;
@@ -625,7 +625,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDR(int dr_value, DamageAlignment alignment)
         {
-            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Alignment = alignment;
             feat.BypassedByAlignment = true;
             feat.Value.ValueType = ContextValueType.Simple;
@@ -637,7 +637,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMatrialDR(int dr_value, PhysicalDamageMaterial material)
         {
-            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Material = material;
             feat.BypassedByMaterial = true;
             feat.Value.ValueType = ContextValueType.Simple;
@@ -649,7 +649,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(int dr_value)
         {
-            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.BypassedByMagic = true;
             feat.Value.ValueType = ContextValueType.Simple;
             feat.Value.Value = dr_value;
@@ -660,7 +660,7 @@ namespace KingmakerRebalance
 
         internal static AddCondition createAddCondition(UnitCondition condition)
         {
-            var a = new AddCondition();
+            var a = Helpers.Create<AddCondition>();
             a.Condition = condition;
             return a;
         }
@@ -668,7 +668,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDRContextRank(DamageAlignment alignment, AbilityRankType rank = AbilityRankType.StatBonus)
         {
-            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical();
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Alignment = alignment;
             feat.BypassedByAlignment = true;
             feat.Value = Helpers.CreateContextValueRank(rank);
@@ -678,7 +678,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDR(int dr_value, DamageEnergyType energy)
         {
-            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy();
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>();
             feat.Type = energy;
             feat.Value.ValueType = ContextValueType.Simple;
             feat.Value.Value = dr_value;
@@ -689,7 +689,7 @@ namespace KingmakerRebalance
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy, AbilityRankType rank = AbilityRankType.StatBonus)
         {
-            var feat = new Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy();
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>();
             feat.Type = energy;
             feat.Value = Helpers.CreateContextValueRank(rank);
             return feat;
@@ -941,7 +941,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.FactLogic.AddConditionImmunity createAddConditionImmunity(UnitCondition condition)
         {
-            Kingmaker.UnitLogic.FactLogic.AddConditionImmunity c = new Kingmaker.UnitLogic.FactLogic.AddConditionImmunity();
+            Kingmaker.UnitLogic.FactLogic.AddConditionImmunity c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddConditionImmunity>();
             c.Condition = condition;
             return c;
         }
@@ -949,7 +949,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor createSavingThrowBonusAgainstDescriptor(int bonus, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
         {
-            Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor c = new Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor();
+            Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor c = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor>();
             c.Bonus = bonus;
             c.ModifierDescriptor = descriptor;
             c.SpellDescriptor = spell_descriptor;
@@ -959,7 +959,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor createContextSavingThrowBonusAgainstDescriptor(ContextValue value, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
         {
-            var c = new Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor();
+            var c = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor>();
             c.ModifierDescriptor = descriptor;
             c.SpellDescriptor = spell_descriptor;
             c.Value = value;
@@ -969,7 +969,7 @@ namespace KingmakerRebalance
 
         static internal SavingThrowBonusAgainstSchool createSavingThrowBonusAgainstSchool(int bonus, ModifierDescriptor descriptor, SpellSchool school)
         {
-            var c = new SavingThrowBonusAgainstSchool();
+            var c = Helpers.Create<SavingThrowBonusAgainstSchool>();
             c.School = school;
             c.ModifierDescriptor = descriptor;
             c.Value = bonus;
@@ -979,7 +979,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.FactLogic.BuffEnchantWornItem createBuffEnchantWornItem(Kingmaker.Blueprints.Items.Ecnchantments.BlueprintItemEnchantment enchantment)
         {
-            var b = new BuffEnchantWornItem();
+            var b = Helpers.Create<BuffEnchantWornItem>();
             b.Enchantment = enchantment;
             return b;
         }
@@ -987,7 +987,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity createAddEnergyDamageImmunity(DamageEnergyType energy_type)
         {
-            var a = new Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity();
+            var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity>();
             a.EnergyType = energy_type;
             return a;
         }
@@ -995,7 +995,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityUnitCommand createActivatableAbilityUnitCommand(CommandType command_type)
         {
-            var a = new ActivatableAbilityUnitCommand();
+            var a = Helpers.Create<ActivatableAbilityUnitCommand>();
             a.Type = command_type;
             return a;
         }
@@ -1004,7 +1004,7 @@ namespace KingmakerRebalance
         static internal Kingmaker.Designers.Mechanics.Facts.AttackTypeAttackBonus createAttackTypeAttackBonus(ContextValue value, AttackTypeAttackBonus.WeaponRangeType attack_type,
                                                                                                               ModifierDescriptor descriptor)
         {
-            var a = new AttackTypeAttackBonus();
+            var a = Helpers.Create<AttackTypeAttackBonus>();
             a.AttackBonus = 1;
             a.Type = attack_type;
             a.Value = value;
@@ -1073,7 +1073,7 @@ namespace KingmakerRebalance
 
         static internal ContextActionRemoveBuffsByDescriptor createContextActionRemoveBuffsByDescriptor(SpellDescriptor descriptor, bool not_self = true)
         {
-            var r = new ContextActionRemoveBuffsByDescriptor();
+            var r = Helpers.Create<ContextActionRemoveBuffsByDescriptor>();
             r.SpellDescriptor = descriptor;
             r.NotSelf = true;
             return r;
@@ -1082,7 +1082,7 @@ namespace KingmakerRebalance
 
         static internal NewMechanics.AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value)
         {
-            var a = new NewMechanics.AddContextEffectFastHealing();
+            var a = Helpers.Create<NewMechanics.AddContextEffectFastHealing>();
             a.Value = value;
             return a;
         }
@@ -1090,7 +1090,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent createAuraFeatureComponent(BlueprintBuff buff)
         {
-            var a = new Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent();
+            var a = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent>();
             a.Buff = buff;
             return a;
         }
@@ -1098,7 +1098,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionHealTarget createContextActionHealTarget(ContextDiceValue value)
         {
-            var c = new ContextActionHealTarget();
+            var c = Helpers.Create<ContextActionHealTarget>();
             c.Value = value;
             return c;
         }
@@ -1106,7 +1106,7 @@ namespace KingmakerRebalance
 
         static internal Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
         {
-            var a = new Kingmaker.UnitLogic.FactLogic.AddProficiencies();
+            var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.ArmorProficiencies = armor;
             return a;
         }
@@ -1114,7 +1114,7 @@ namespace KingmakerRebalance
 
         static internal AddEnergyVulnerability createAddEnergyVulnerability(DamageEnergyType energy)
         {
-            var a = new AddEnergyVulnerability();
+            var a = Helpers.Create<AddEnergyVulnerability>();
             a.Type = energy;
             return a;
         }
@@ -1122,7 +1122,7 @@ namespace KingmakerRebalance
 
         static internal AbilityCasterHasNoFacts createAbilityCasterHasNoFacts(params BlueprintUnitFact[] facts)
         {
-            var a = new AbilityCasterHasNoFacts();
+            var a = Helpers.Create<AbilityCasterHasNoFacts>();
             a.Facts = facts;
             return a;
         }
@@ -1130,7 +1130,7 @@ namespace KingmakerRebalance
 
         static internal AddGenericStatBonus createAddGenericStatBonus(int bonus, ModifierDescriptor descriptor, StatType stat)
         {
-            var a = new AddGenericStatBonus();
+            var a = Helpers.Create<AddGenericStatBonus>();
             a.Stat = stat;
             a.Value = bonus;
             a.Descriptor = descriptor;
@@ -1140,7 +1140,7 @@ namespace KingmakerRebalance
 
         static internal ChangeUnitSize createChangeUnitSize(Size size)
         {
-            var c = new ChangeUnitSize();
+            var c = Helpers.Create<ChangeUnitSize>();
             c.Size = size;
             Helpers.SetField(c, "m_Type", 1);
             return c;
@@ -1149,7 +1149,7 @@ namespace KingmakerRebalance
 
         static internal void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
         {
-            var feature = new BlueprintFeatureReplaceSpellbook();
+            var feature = Helpers.Create<BlueprintFeatureReplaceSpellbook>();
             feature.name = name;
             feature.Groups = new FeatureGroup[] { selection.Group };
             feature.IsClassFeature = true;
@@ -1164,7 +1164,7 @@ namespace KingmakerRebalance
 
         static internal PrerequisiteClassSpellLevel createPrerequisiteClassSpellLevel(BlueprintCharacterClass character_class, int spell_level)
         {
-            var p = new PrerequisiteClassSpellLevel();
+            var p = Helpers.Create<PrerequisiteClassSpellLevel>();
             p.CharacterClass = character_class;
             p.RequiredSpellLevel = spell_level;
             return p;

@@ -74,13 +74,8 @@ namespace KingmakerRebalance
         public class RageCasting : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
         {
             public int BonusDC;
-            private int actual_dc;
+            private int actual_dc = 0;
 
-            public RageCasting(int bonus_dc)
-            {
-                BonusDC = bonus_dc;
-                actual_dc = 0;
-            }
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 actual_dc = 0;

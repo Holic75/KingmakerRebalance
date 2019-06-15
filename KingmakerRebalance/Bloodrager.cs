@@ -215,7 +215,7 @@ namespace KingmakerRebalance
 
         static void createBloodSanctuary()
         {
-            var fact = new NewMechanics.SavingThrowBonusAgainstAllies();
+            var fact = Helpers.Create<NewMechanics.SavingThrowBonusAgainstAllies>();
             fact.Descriptor = ModifierDescriptor.UntypedStackable;
             fact.Value = 2;
             var spell_resistance = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889");
@@ -613,7 +613,7 @@ namespace KingmakerRebalance
 
             static void createDemonicAura()
             {
-                var area_effect = new Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect();
+                var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
                 area_effect.name = "BloodragerAbyssalBloodlineDemonicAura";
                 area_effect.AffectEnemies = true;
                 area_effect.AggroEnemies = true;
@@ -621,7 +621,7 @@ namespace KingmakerRebalance
                 area_effect.Shape = AreaEffectShape.Cylinder;
                 var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
                 var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, damage, isAoE: true);
-                var conditional_damage = Helpers.CreateConditional(new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionIsMainTarget(),
+                var conditional_damage = Helpers.CreateConditional(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionIsMainTarget>(),
                                                                     null,
                                                                     damage_action);
                 area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_damage));
@@ -869,8 +869,8 @@ namespace KingmakerRebalance
                                                           constricting_coils.Icon,
                                                           FeatureGroup.None,
                                                           Common.createBlindsight(60),
-                                                          new AddImmunityToCriticalHits(),
-                                                          new AddImmunityToPrecisionDamage()
+                                                           Helpers.Create<AddImmunityToCriticalHits>(),
+                                                           Helpers.Create<AddImmunityToPrecisionDamage>()
                                                           );
                 //add rank to dr
                 var rank_config = damage_reduction.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
@@ -1001,7 +1001,7 @@ namespace KingmakerRebalance
                                                     "accbfca27afe4dadbc1b02f603e32a1a",
                                                     spell_resistance.Icon,
                                                     null,
-                                                    new Kingmaker.UnitLogic.FactLogic.AddNimbusDamageDivisor()
+                                                     Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddNimbusDamageDivisor>()
                                                     );
                 conviction = Helpers.CreateFeature(prefix + "ConvictionFeature",
                                                                                conviction_buff.Name,
@@ -1738,7 +1738,7 @@ namespace KingmakerRebalance
                 //once every 4 levels allow to reroll one failed attack
                 var knights_resolve = library.Get<BlueprintBuff>("f7bf9fc0d400d7243aaca01b14f8c935");
 
-                var reroll = new Kingmaker.Designers.Mechanics.Facts.ModifyD20();
+                var reroll = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ModifyD20>();
                 reroll.DispellOnRerollFinished = true;
                 reroll.Rule = RuleType.AttackRoll;
                 reroll.RollsAmount = 2;
@@ -1785,11 +1785,11 @@ namespace KingmakerRebalance
                 var resource = Helpers.CreateAbilityResource(prefix + "DefyDeathResource", "", "", "", raise_dead.Icon);
                 resource.SetFixedResource(1);
 
-                var death_check = new Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSkillCheck();
+                var death_check = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSkillCheck>();
                 death_check.CustomDC = Common.createSimpleContextValue(20);
                 death_check.Stat = StatType.SaveFortitude;
                 death_check.Failure = Helpers.CreateActionList();
-                death_check.Success = Helpers.CreateActionList(new ContextActionResurrect());
+                death_check.Success = Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>());
                 death_check.UseCustomDC = true;
                 var defy_death_buff = Helpers.CreateBuff(prefix + "DefyDeathBuff",
                                    "Defy Death",
@@ -2191,7 +2191,7 @@ namespace KingmakerRebalance
                     var polymorph = buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
                     polymorph.Facts = new BlueprintUnitFact[0];
                     buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph);
-                    var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+                    var scaling = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass>();
                     scaling.CharacterClass = bloodrager_class;
                     scaling.StatType = StatType.Constitution;
                     scaling.UseKineticistMainStat = false;
@@ -2473,7 +2473,7 @@ namespace KingmakerRebalance
                     var polymorph = buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
                     polymorph.Facts = new BlueprintUnitFact[0];
                     buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph);
-                    var scaling = new Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass();
+                    var scaling = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass>();
                     scaling.CharacterClass = bloodrager_class;
                     scaling.StatType = StatType.Constitution;
                     scaling.UseKineticistMainStat = false;
@@ -2574,13 +2574,15 @@ namespace KingmakerRebalance
         static void createRageCastingFeat()
         {
             var contagion = library.Get<BlueprintAbility>("48e2744846ed04b4580be1a3343a5d3d"); //contagion
+            var rage_casting = Helpers.Create<NewMechanics.RageCasting>();
+            rage_casting.BonusDC = 4;
             var buff = Helpers.CreateBuff("RageCastingFeatBuff",
                                           "Rage Casting",
                                           "When you cast a bloodrager spell, as a swift action you can sacrifice some of your life force to augment the spell’s potency. You can opt to take 1d6 points of damage per spell level of the spell you are casting. You cannot overcome this damage in any way, and it cannot be taken from temporary hit points. For each of these damage dice you roll, the DC of the spell you are casting increases by 1.",
                                           "",
                                           contagion.Icon,
                                           null,
-                                          new NewMechanics.RageCasting(4)
+                                          rage_casting
                                           );
             var ability = Helpers.CreateActivatableAbility("RageCastingAFeatActivatableAbility",
                                                            buff.Name,
@@ -2658,13 +2660,16 @@ namespace KingmakerRebalance
             foreach (var m in metamagics)
             {
                 var metamagic = m.GetComponent<Kingmaker.UnitLogic.FactLogic.AddMetamagicFeat>().Metamagic;
+                var mr = Helpers.Create<NewMechanics.MetaRage >();
+                mr.metamagic = metamagic;
+                mr.resource = bloodrage_resource;
                 var buff = Helpers.CreateBuff(m.name + "MetaRageBuff",
                                               m.Name.Replace("Metamagic", "Meta-Rage"),
                                               m.Description,
                                               "",
                                               m.Icon,
                                               null,
-                                              new NewMechanics.MetaRage(metamagic, bloodrage_resource)
+                                              mr
                                               );
                 var ability = Helpers.CreateActivatableAbility(m.name + "MetaRageAbility",
                                                                buff.Name,

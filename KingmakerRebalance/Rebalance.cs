@@ -264,7 +264,7 @@ public class Rebalance
             }
 
             var magic_vestement_armor_buff = Main.library.Get<BlueprintBuff>("9e265139cf6c07c4fb8298cb8b646de9");
-            var armor_enchant = new NewMechanics.BuffContextEnchantArmor();
+            var armor_enchant = Helpers.Create<NewMechanics.BuffContextEnchantArmor>();
             armor_enchant.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
             armor_enchant.enchantments = temporary_enchantments;
 
@@ -294,7 +294,7 @@ public class Rebalance
             }
 
             var magic_vestement_shield_buff = Main.library.Get<BlueprintBuff>("2e8446f820936a44f951b50d70a82b16");
-            var shield_enchant = new NewMechanics.BuffContextEnchantShield();
+            var shield_enchant = Helpers.Create<NewMechanics.BuffContextEnchantShield>();
             shield_enchant.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
             shield_enchant.enchantments = temporary_enchantments;
 

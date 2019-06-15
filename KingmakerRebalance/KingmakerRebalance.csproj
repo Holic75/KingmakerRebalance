@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony12">
-      <HintPath>C:\GOG Games\PathfinderKingmaker2.0\Kingmaker_Data\Managed\0Harmony12.dll</HintPath>
+      <HintPath>..\..\..\GOG Games\PathfinderKingmaker2.0\Kingmaker_Data\Managed\UnityModManager\0Harmony12.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\GOG Games\PathfinderKingmaker2.0\Kingmaker_Data\Managed\Assembly-CSharp.dll</HintPath>
