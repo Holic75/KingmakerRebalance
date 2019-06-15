@@ -21,6 +21,12 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Newtonsoft.Json;
+using Kingmaker.Utility;
+using Kingmaker.UI.GenericSlot;
+using Kingmaker.Items;
 
 namespace KingmakerRebalance
 {
@@ -213,6 +219,108 @@ namespace KingmakerRebalance
             {
             }
         }
-        
+
+
+        public class BuffContextEnchantShield : BuffLogic
+        {
+            public BlueprintArmorEnchantment[] enchantments;
+            public ContextValue value;
+            [JsonProperty]
+            private ItemEnchantment m_Enchantment;
+            private ItemEntityShield m_Shield;
+
+            public override void OnFactActivate()
+            {
+                var unit = this.Owner;
+                if (unit == null) return;
+
+                var shield = unit.Body.SecondaryHand.MaybeShield;
+                if (shield == null)
+                {
+                    return;
+                }
+
+                int bonus = value.Calculate(Context) - 1;
+                if (bonus < 0)
+                {
+                    bonus = 0;
+                }
+                if (bonus >= enchantments.Length)
+                {
+                    bonus = enchantments.Length - 1;
+                }
+
+                var fact = shield.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                if (fact != null && fact.IsTemporary)
+                {
+                    shield.RemoveEnchantment(fact);
+                }
+                m_Enchantment = shield.ArmorComponent.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+                shield.ArmorComponent.RecalculateStats();
+                m_Shield = shield;
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Enchantment == null)
+                    return;
+                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+                if (m_Shield != null)
+                {
+                    m_Shield.ArmorComponent.RecalculateStats();
+                }
+            }
+        }
+
+
+        public class BuffContextEnchantArmor : BuffLogic
+        {
+            public BlueprintArmorEnchantment[] enchantments;
+            public ContextValue value;
+            [JsonProperty]
+            private ItemEnchantment m_Enchantment;
+            private ItemEntityArmor m_Armor;
+
+            public override void OnFactActivate()
+            {
+                var unit = this.Owner;
+                if (unit == null) return;
+
+                var armor = unit.Body.Armor.MaybeArmor;
+                if (armor == null) return;
+
+              
+                int bonus = value.Calculate(Context) - 1;
+                if (bonus <0)
+                {
+                    bonus = 0;
+                }
+                if (bonus >= enchantments.Length)
+                {
+                    bonus = enchantments.Length - 1;
+                }
+
+                var fact = armor.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                if (fact != null && fact.IsTemporary)
+                {
+                    armor.RemoveEnchantment(fact);
+                }
+                m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+                armor.RecalculateStats();
+                m_Armor = armor;
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Enchantment == null)
+                    return;
+                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+                if (m_Armor != null)
+                {
+                    m_Armor.RecalculateStats();
+                }
+            }
+        }
+
     }
 }

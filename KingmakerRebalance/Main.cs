@@ -71,6 +71,7 @@ namespace KingmakerRebalance
                     KingmakerRebalance.Rebalance.fixDomains();
                     KingmakerRebalance.Rebalance.fixBarbarianRageAC();
                     KingmakerRebalance.Wildshape.fixBeastShape();
+                    KingmakerRebalance.Rebalance.fixMagicVestment();
 
                     KingmakerRebalance.Hunter.createHunterClass();
                     KingmakerRebalance.Hunter.addAnimalFocusSH();

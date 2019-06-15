@@ -8,7 +8,11 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.Designers.Mechanics.Buffs;
 using System.Collections.Generic;
 using Kingmaker.Blueprints.Items;
-
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Enums;
 
 namespace KingmakerRebalance
 {
@@ -233,6 +237,72 @@ public class Rebalance
                     c.Value = Common.createSimpleContextValue(2);
                 }
             }
+        }
+
+
+        public static void fixMagicVestment()
+        {
+            fixMagicVestmentArmor();
+            fixMagicVestmentShield();
+        }
+
+        static void fixMagicVestmentArmor()
+        {
+            BlueprintArmorEnchantment[] enchantments = {Main.library.Get< BlueprintArmorEnchantment>("a9ea95c5e02f9b7468447bc1010fe152"), //+1
+                                                              Main.library.Get< BlueprintArmorEnchantment>("758b77a97640fd747abf149f5bf538d0"), //+2
+                                                              Main.library.Get< BlueprintArmorEnchantment>("9448d3026111d6d49b31fc85e7f3745a"), //+3 
+                                                              Main.library.Get< BlueprintArmorEnchantment>("eaeb89df5be2b784c96181552414ae5a"), //+4
+                                                              Main.library.Get< BlueprintArmorEnchantment>("6628f9d77fd07b54c911cd8930c0d531")  //+5
+                                                             };
+
+            BlueprintArmorEnchantment[] temporary_enchantments = new BlueprintArmorEnchantment[enchantments.Length];
+
+            for (int i = 0; i < enchantments.Length; i++)
+            {
+                temporary_enchantments[i] = Main.library.CopyAndAdd<BlueprintArmorEnchantment>(enchantments[i].AssetGuid, $"TemporaryArmorEnchantment{i + 1}", "");
+                Helpers.SetField(temporary_enchantments[i], "m_EnchantName", Helpers.CreateString($"TemporaryArmorEnchantment{i + 1}.Name", $"Temporary Enhancement + {i + 1}"));
+            }
+
+            var magic_vestement_armor_buff = Main.library.Get<BlueprintBuff>("9e265139cf6c07c4fb8298cb8b646de9");
+            var armor_enchant = new NewMechanics.BuffContextEnchantArmor();
+            armor_enchant.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+            armor_enchant.enchantments = temporary_enchantments;
+
+            magic_vestement_armor_buff.ComponentsArray = new BlueprintComponent[] {armor_enchant,
+                                                                                   Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel,
+                                                                                   progression: ContextRankProgression.DivStep, startLevel: 4, min:1, stepLevel: 4, max: 5, type: AbilityRankType.StatBonus)
+                                                                                  };
+            magic_vestement_armor_buff.Stacking = StackingType.Replace;
+        }
+
+
+        static void fixMagicVestmentShield()
+        {
+            BlueprintArmorEnchantment[] enchantments = {Main.library.Get< BlueprintArmorEnchantment>("e90c252e08035294eba39bafce76c119"), //+1
+                                                              Main.library.Get< BlueprintArmorEnchantment>("7b9f2f78a83577d49927c78be0f7fbc1"), //+2
+                                                              Main.library.Get< BlueprintArmorEnchantment>("ac2e3a582b5faa74aab66e0a31c935a9"), //+3 
+                                                              Main.library.Get< BlueprintArmorEnchantment>("a5d27d73859bd19469a6dde3b49750ff"), //+4
+                                                              Main.library.Get< BlueprintArmorEnchantment>("84d191a748edef84ba30c13b8ab83bd9")  //+5
+                                                             };
+
+            BlueprintArmorEnchantment[] temporary_enchantments = new BlueprintArmorEnchantment[enchantments.Length];
+
+            for (int i = 0; i < enchantments.Length; i++)
+            {
+                temporary_enchantments[i] = Main.library.CopyAndAdd<BlueprintArmorEnchantment>(enchantments[i].AssetGuid, $"TemporaryShieldEnchantment{i + 1}", "");
+                Helpers.SetField(temporary_enchantments[i], "m_EnchantName", Helpers.CreateString($"TemporaryShieldEnchantment{i + 1}.Name", $"Temporary Enhancement + {i + 1}"));
+            }
+
+            var magic_vestement_shield_buff = Main.library.Get<BlueprintBuff>("2e8446f820936a44f951b50d70a82b16");
+            var shield_enchant = new NewMechanics.BuffContextEnchantShield();
+            shield_enchant.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+            shield_enchant.enchantments = temporary_enchantments;
+
+            magic_vestement_shield_buff.ComponentsArray = new BlueprintComponent[] {shield_enchant,
+                                                                                   Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel,
+                                                                                   progression: ContextRankProgression.DivStep, startLevel: 4, min:1, stepLevel: 4, max: 5, type: AbilityRankType.StatBonus)
+                                                                                  };
+            magic_vestement_shield_buff.Stacking = StackingType.Replace;
         }
 
 
