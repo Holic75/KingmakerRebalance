@@ -132,6 +132,36 @@ namespace KingmakerRebalance
             witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype};
             Helpers.RegisterClass(witch_class);
             createExtraHexFeat();
+
+            addToPrestigeClasses();
+        }
+
+
+        static void addToPrestigeClasses()
+        {
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, witch_class.Spellbook, "EldritchKnightWitch",
+                                       Common.createPrerequisiteClassSpellLevel(witch_class, 3),
+                                       Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, witch_class.Spellbook, "ArcaneTricksterWitch",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, witch_class.Spellbook, "MysticTheurgeWitch",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
+
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "EldritchKnightLeyLineGuardian",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 3),
+                           Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype, 1));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, ley_line_guardian_archetype.ReplaceSpellbook, "ArcaneTricksterLeyLineGuardian",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype, 1));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "MysticTheurgeLeyLineGuardian",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype,1));
+
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "DragonDiscipleLeyLineGuardian",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype, 1));
         }
 
 
@@ -153,11 +183,13 @@ namespace KingmakerRebalance
             var sorcerer_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
             var spellbook = library.CopyAndAdd<BlueprintSpellbook>(witch_class.Spellbook, "LeyLineGuardianSpellbook", "a3a86b1efe31479cb8543c76bd522147");
+            
             spellbook.CanCopyScrolls = false;
             spellbook.Spontaneous = true;
             spellbook.SpellsKnown = sorcerer_class.Spellbook.SpellsKnown;
             spellbook.SpellsPerDay = sorcerer_class.Spellbook.SpellsPerDay;
             spellbook.SpellsPerLevel = sorcerer_class.Spellbook.SpellsPerLevel;
+            spellbook.Name = ley_line_guardian_archetype.LocalizedName;
             ley_line_guardian_archetype.ReplaceSpellbook = spellbook;
         }
 
@@ -692,6 +724,7 @@ namespace KingmakerRebalance
         {
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             var witch_spellbook = Helpers.Create<BlueprintSpellbook>();
+            witch_spellbook.Name = witch_class.LocalizedName;
             witch_spellbook.name = "WitchSpellbook";
             library.AddAsset(witch_spellbook, "be5817bb59c14526a99877f8a7f15d31");
             witch_spellbook.Name = witch_class.LocalizedName;

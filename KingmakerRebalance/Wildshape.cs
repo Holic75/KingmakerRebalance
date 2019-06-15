@@ -64,6 +64,7 @@ namespace KingmakerRebalance
         static internal BlueprintBuff frost_giant_form;
         static internal BlueprintBuff troll_form;
         static internal BlueprintBuff storm_giant_form;
+        static internal BlueprintBuff athach_form;
 
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
@@ -79,6 +80,9 @@ namespace KingmakerRebalance
         static BlueprintItemWeapon mandragora_bite = library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218");
         static BlueprintItemWeapon treant_slam = library.Get<BlueprintItemWeapon>("04499d551301bf9488c1e94b74f8c6d2");
         static BlueprintItemWeapon giant_flytrap_bite = library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218");
+        static BlueprintItemWeapon athach_slam = library.Get<BlueprintItemWeapon>("340ab07dff974a841b76f22ba4c3cf84");
+        static BlueprintItemWeapon athach_claw = library.Get<BlueprintItemWeapon>("f8c9fc15f5966f74298cfb2b9bde0986");
+        static BlueprintItemWeapon athach_bite = library.Get<BlueprintItemWeapon>("d2f99947db522e24293a7ec4eded453f");
 
         static internal BlueprintAbility bear_form_spell;
         static internal BlueprintAbility dire_wolf_form_spell;
@@ -98,6 +102,7 @@ namespace KingmakerRebalance
         static internal BlueprintAbility fire_giant_form_spell;
         static internal BlueprintAbility frost_giant_form_spell;
         static internal BlueprintAbility storm_giant_form_spell;
+        static internal BlueprintAbility athach_form_form_spell;
         static internal BlueprintAbility giant_formI;
         static internal BlueprintAbility giant_formII;
 
@@ -334,6 +339,7 @@ namespace KingmakerRebalance
                                         library.Get<BlueprintAbility>("2c1ee791f53ed4f42bd86d8659c638c0"), //red dragon
                                         library.Get<BlueprintAbility>("0b1e76be6f786ca45b2ac247ac3a278e"), //silver dragon
                                         library.Get<BlueprintAbility>("ded61c155aaa39440be67f877623378e"), //white dragon
+                                        athach_form_form_spell,
                                         storm_giant_form_spell,
                                         troll_form_spell,
                                         fire_giant_form_spell,
@@ -355,7 +361,9 @@ namespace KingmakerRebalance
                 form.ActionType = CommandType.Free;
                 form.SetName("Shapechange: " + f.Name);
                 form.RemoveComponents<SpellListComponent>();
-                ((Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)form.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]).Permanent = true; //permanent form
+                var apply_buff = ((Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)form.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]).CreateCopy();
+                apply_buff.Permanent = true; //permanent form
+                form.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
                 shapechange_forms.Add(form);
             }
 
@@ -411,7 +419,7 @@ namespace KingmakerRebalance
         {
             var defensive_stance = library.Get<BlueprintFeature>("2a6a2f8e492ab174eb3f01acf5b7c90a");
 
-            storm_giant_form = Helpers.CreateBuff("GiantShapeIIBuff",
+            storm_giant_form = Helpers.CreateBuff("GiantShapeIIStormGiantBuff",
                                 "Giant Form (Storm Giant)",
                                 "You are in storm giant form now. You have a + 8 size bonus to your Strength, +6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also have two 2d6 slam attacks and electricity resistance 20.",
                                 "",
@@ -433,8 +441,35 @@ namespace KingmakerRebalance
             storm_giant_form_spell.RemoveComponents<SpellListComponent>();
             storm_giant_form_spell.SetIcon(defensive_stance.Icon);
 
-            giant_formII = library.CopyAndAdd<BlueprintAbility>(storm_giant_form_spell.AssetGuid, "GiantFormIISpell", "");
+
+            athach_form = Helpers.CreateBuff("GiantShapeIIAthachBuff",
+                    "Giant Form (Athach)",
+                    "You are in athach form now. You have a + 8 size bonus to your Strength, +6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also have two 1d8 slam attacks, one 2d6 bite attack, one 1d10 secondary claw attack and poison ability.",
+                    "",
+                    defensive_stance.Icon,
+                    null,
+                    Common.createChangeUnitSize(Size.Huge),
+                    Common.createAddGenericStatBonus(8, ModifierDescriptor.Size, StatType.Strength),
+                    Common.createAddGenericStatBonus(10, ModifierDescriptor.Enhancement, StatType.Speed),
+                    Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Constitution),
+                    Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
+                    Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
+                    Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                    Common.createEmptyHandWeaponOverride(athach_slam),
+                    Common.createAddSecondaryAttacks(athach_bite, athach_claw),
+                    Helpers.CreateAddFacts(library.Get<BlueprintFeature>("366f54decfc4c08438fa66427cd92939"), //poison
+                                           turn_back)
+                  );
+            athach_form_form_spell = replaceForm(beast_shape1, athach_form, "GiantFormIIAthachAbility", "Giant Form II (Athach)",
+                         "You acquire athach features. Your size changes to huge. You gain a + 8 size bonus to your Strength, + 6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also have two 1d8 slam attacks, one 2d6 bite attack, one 1d10 secondary claw attack and poison ability.");
+            athach_form_form_spell.RemoveComponents<SpellListComponent>();
+            athach_form_form_spell.SetIcon(defensive_stance.Icon);
+
+            giant_formII = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "GiantFormIISpell", "");
+            giant_formII.SetIcon(defensive_stance.Icon);
             giant_formII.SetName("Giant Form II");
+            giant_formII.SetDescription("You can aquire features of Huge Athach or Storm Giant.");
+            giant_formII.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(giant_formII, athach_form_form_spell, storm_giant_form_spell));
 
             giant_formII.AddToSpellList(Helpers.wizardSpellList, 8);
             Helpers.AddSpellAndScroll(giant_formII, "2778cd9dc966c3641afa1e455969a022"); //legendary proportions

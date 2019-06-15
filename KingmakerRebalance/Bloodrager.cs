@@ -132,6 +132,20 @@ namespace KingmakerRebalance
             bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype }; //steelblood, spell eater, metamagic rager
             Helpers.RegisterClass(bloodrager_class);
             createRageCastingFeat();
+            addToPrestigeClasses();
+        }
+
+
+        static void addToPrestigeClasses()
+        {
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, bloodrager_class.Spellbook, "EldritchKnightBloodrager",
+                                       Common.createPrerequisiteClassSpellLevel(bloodrager_class, 3));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, bloodrager_class.Spellbook, "ArcaneTricksterBloodrager",
+                           Common.createPrerequisiteClassSpellLevel(bloodrager_class, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, bloodrager_class.Spellbook, "MysticTheurgeBloodrager",
+                           Common.createPrerequisiteClassSpellLevel(bloodrager_class, 2));
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, bloodrager_class.Spellbook, "DragonDiscipleBloodrager",
+                                      Common.createPrerequisiteClassSpellLevel(bloodrager_class, 1));
         }
 
 

@@ -42,7 +42,13 @@ namespace KingmakerRebalance
 
     class Common
     {
-        static internal LibraryScriptableObject library => Main.library;
+
+        static internal BlueprintFeatureSelection EldritchKnightSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("dc3ab8d0484467a4787979d93114ebc3");
+        static internal BlueprintFeatureSelection ArcaneTricksterSelection = Main.library.Get<BlueprintFeatureSelection>("ae04b7cdeb88b024b9fd3882cc7d3d76");
+        static internal BlueprintFeatureSelection DragonDiscipleSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("8c1ba14c0b6dcdb439c56341385ee474");
+        static internal BlueprintFeatureSelection MysticTheurgeArcaneSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("97f510c6483523c49bc779e93e4c4568");
+        static internal BlueprintFeatureSelection MysticTheurgeDivineSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
+        static LibraryScriptableObject library => Main.library;
 
         internal enum DomainSpellsType
         {
@@ -1138,6 +1144,30 @@ namespace KingmakerRebalance
             c.Size = size;
             Helpers.SetField(c, "m_Type", 1);
             return c;
+        }
+
+
+        static internal void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
+        {
+            var feature = new BlueprintFeatureReplaceSpellbook();
+            feature.name = name;
+            feature.Groups = new FeatureGroup[] { selection.Group };
+            feature.IsClassFeature = true;
+            feature.SetName(spellbook.Name);
+            feature.SetDescription(selection.Description);
+            feature.ComponentsArray = components;
+            feature.Spellbook = spellbook;
+            library.AddAsset(feature, "");
+            selection.AllFeatures = selection.AllFeatures.AddToArray(feature);
+        }
+
+
+        static internal PrerequisiteClassSpellLevel createPrerequisiteClassSpellLevel(BlueprintCharacterClass character_class, int spell_level)
+        {
+            var p = new PrerequisiteClassSpellLevel();
+            p.CharacterClass = character_class;
+            p.RequiredSpellLevel = spell_level;
+            return p;
         }
 
     }
