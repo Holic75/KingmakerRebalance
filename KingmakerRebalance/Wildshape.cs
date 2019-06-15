@@ -118,19 +118,38 @@ namespace KingmakerRebalance
             createPlantShapeIII();
 
             fixLegendaryProportions();
-
+            fixAirElementalDC();
             createGiantFormI();
             createGiantFormII();
             createShapechange();
+
+            
 
             fixDruid();
             fixTransmuter();
         }
 
 
+        static void fixAirElementalDC()
+        {
+            var dc = new ContextCalculateAbilityParams();
+            dc.StatType = StatType.Strength;
+            
+            var effects = new BlueprintAbilityAreaEffect[]{library.Get<BlueprintAbilityAreaEffect>("91f4541e0eb353b4681289cc9615a79d"),
+                                                  library.Get<BlueprintAbilityAreaEffect>("ebd2fe081029a6b438aed873607e6375"),
+                                                  library.Get<BlueprintAbilityAreaEffect>("c73f9a028b78f6e4d8a709b62f6344e0"),
+                                                  library.Get<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e")
+                                                 };
+            foreach (var e in effects)
+            {    //dc is only computed based on druid class, changed to be based on character level
+                e.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(dc);
+            }
+        }
+
+
         static void fixDruid()
         {
-            string description = "At 4th level, a druid gains the ability to turn herself into a leopard and back again once per day. The effect lasts for 1 hour per druid level, or until she changes back.\nChanging form is a standard action and doesn't provoke an attack of opportunity. A druid can use this ability an additional time per day at 6th level and every two levels thereafter, for a total of eight times at 18th level.\nAt 6th level, a druid can use wild shape to change into a bear, dire wold or a small elemental. At 8th level, a druid can use wild shape to change into a smilodon, mastodon, mandragora or a medium elemental. At 10th level, a druid can use wild shape to change into a shambling mound or a large elemental. At 12th level, a druid can use wild shape to change into a giant flytrap or a huge elemental.\nFor the feyspeaker archetype, all level prerequisites are increased by 2.";
+            string description = "At 4th level, a druid gains the ability to turn herself into a leopard and back again once per day. The effect lasts for 1 hour per druid level, or until she changes back.\nChanging form is a standard action and doesn't provoke an attack of opportunity. A druid can use this ability an additional time per day at 6th level and every two levels thereafter, for a total of eight times at 18th level.\nAt 6th level, a druid can use wild shape to change into a bear, dire wold or a small elemental. At 8th level, a druid can use wild shape to change into a smilodon, mastodon, mandragora or a medium elemental. At 10th level, a druid can use wild shape to change into a shambling mound or a large elemental. At 12th level, a druid can use wild shape to change into a giant flytrap, treant or a huge elemental.\nFor the feyspeaker archetype, all level prerequisites are increased by 2.";
             var wildshape_wolf = library.Get<BlueprintAbility>("ac8811714a45a5948b27208538ce4f03");
 
 
@@ -158,7 +177,11 @@ namespace KingmakerRebalance
 
             var wildshape_flytrap_buff = library.CopyAndAdd<BlueprintBuff>(giant_flytrap_form.AssetGuid, "DruidWildshapeVGiantFlytrapBuff", "");
             wildshape_flytrap_buff.SetName("Wild Shape (Giant Flytrap)");
-            var wildshape_flytrap = replaceForm(wildshape_wolf, wildshape_flytrap_buff, "DruidWildshapeVGiantFlytrapAbility", wildshape_flytrap_buff.Name, plant_shapeIII.Description);
+            var wildshape_flytrap = replaceForm(wildshape_wolf, wildshape_flytrap_buff, "DruidWildshapeVGiantFlytrapAbility", wildshape_flytrap_buff.Name, giant_flytrap_form_spell.Description);
+
+            var wildshape_treant_buff = library.CopyAndAdd<BlueprintBuff>(treant_form.AssetGuid, "DruidWildshapeVTreantBuff", "");
+            wildshape_treant_buff.SetName("Wild Shape (Treant)");
+            var wildshape_treant = replaceForm(wildshape_wolf, wildshape_treant_buff, "DruidWildshapeVTreantAbility", wildshape_treant_buff.Name, treant_form_spell.Description);
 
             var leopard_feature = library.Get<BlueprintFeature>("c4d651bc0d4eabd41b08ee81bfe701d8");
             leopard_feature.AddComponent(Helpers.CreateAddAbilityResource(library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4")));
@@ -172,6 +195,7 @@ namespace KingmakerRebalance
             var mastodon_feature = createWildshapeFeature(wildshape_mastodon, description);
             var mandragora_feature = createWildshapeFeature(wildshape_mandragora, description);
             var flytrap_feature = createWildshapeFeature(wildshape_flytrap, description);
+            var treant_feature = createWildshapeFeature(wildshape_treant, description);
 
             var small_elemental_feature = library.Get<BlueprintFeature>("bddd46a6f6a3e6e4b99008dcf5271c3b");
             var medium_elemental_feature = library.Get<BlueprintFeature>("4d517e670ed4b6e4282d52855237a44f");
@@ -212,9 +236,10 @@ namespace KingmakerRebalance
             druid_progression.LevelEntries[7].Features.Add(mandragora_feature);
             druid_progression.LevelEntries[9].Features.Remove(smilodon_feature);
             druid_progression.LevelEntries[11].Features.Add(flytrap_feature);
+            druid_progression.LevelEntries[11].Features.Add(treant_feature);
             druid_progression.UIGroups[0].Features.Remove(library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb"));//remove wolf feature
             var wildshape_ui_groups = new UIGroup[] {Helpers.CreateUIGroup(leopard_feature, dire_wolf_feature, smilodon_feature),
-                                                     Helpers.CreateUIGroup(bear_feature, mastodon_feature),
+                                                     Helpers.CreateUIGroup(bear_feature, mastodon_feature, treant_feature),
                                                      Helpers.CreateUIGroup(mandragora_feature, shambling_mound_feature, flytrap_feature),
                                                      Helpers.CreateUIGroup(small_elemental_feature, medium_elemental_add , large_elemental_add, huge_elemental_feature)};
             druid_progression.UIGroups = druid_progression.UIGroups.AddToArray(wildshape_ui_groups);
@@ -229,6 +254,7 @@ namespace KingmakerRebalance
             feyspeaker.AddFeatures[4].Features.Add(mandragora_feature);
             feyspeaker.AddFeatures[5].Features[1] = shambling_mound_feature;
             feyspeaker.AddFeatures[6].Features.Add(flytrap_feature);
+            feyspeaker.AddFeatures[6].Features.Add(treant_feature);
 
 
             feyspeaker.RemoveFeatures[1].Features[0] = leopard_feature;
@@ -238,7 +264,7 @@ namespace KingmakerRebalance
             feyspeaker.RemoveFeatures[3].Features.Add(mandragora_feature);
             feyspeaker.RemoveFeatures[3].Features.Add(mastodon_feature);
             feyspeaker.RemoveFeatures[4].Features[0] = shambling_mound_feature;
-            feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, huge_elemental_feature));
+            feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, treant_feature, huge_elemental_feature));
         }
 
 
@@ -259,7 +285,39 @@ namespace KingmakerRebalance
 
         static void fixTransmuter()
         {
+            var bear_shape = library.Get<BlueprintActivatableAbility>("e634c83bf9a81054a85ccb44f8152896");
+            bear_shape.Buff.ComponentsArray = bear_form.ComponentsArray;
+            bear_shape.Buff.SetDescription(bear_form.Description);
+            bear_shape.SetDescription(bear_form_spell.Description);
 
+            var dire_wolf_shape = createChangeShapeAbility(dire_wolf_form, "TransmutationSchoolChangeShapeDireWolf", "Change Shape (Dire Wolf)", dire_wolf_form_spell.Description);
+            var mastodon_shape = createChangeShapeAbility(mastodon_form, "TransmutationSchoolChangeShapeMastodon", "Change Shape (Mastodon)", mastodon_form_spell.Description);
+            var smilodon_shape = createChangeShapeAbility(smilodon_form, "TransmutationSchoolChangeShapeSmilodon", "Change Shape (Smilodon)", smilodon_form_spell.Description);
+
+            var change_shapeI = library.Get<BlueprintFeature>("aeb56418768235640a3ee858d5ee05e8");
+            var factsI = change_shapeI.GetComponent<AddFacts>().Facts.ToList();
+            factsI.Insert(1, bear_shape);
+            factsI.Insert(2, dire_wolf_shape);
+            change_shapeI.GetComponent<AddFacts>().Facts = factsI.ToArray();
+            var change_shapeII = library.Get<BlueprintFeature>("b699aa5a98519ee469afddb71b9a8fd0");
+            var factsII = change_shapeII.GetComponent<AddFacts>().Facts.ToList();
+            factsII[0] = mastodon_shape;
+            factsII.Insert(1, smilodon_shape);
+            change_shapeII.GetComponent<AddFacts>().Facts = factsII.ToArray();
+        }
+
+
+        static BlueprintActivatableAbility createChangeShapeAbility(BlueprintBuff buff, string name, string display_name, string description)
+        {
+            var shape = library.CopyAndAdd<BlueprintActivatableAbility>("e634c83bf9a81054a85ccb44f8152896", name + "Ability", "");
+            var shape_buff = library.CopyAndAdd<BlueprintBuff>("a5d38d44a92ff4a44b9583d1d196ba64", name + "Buff", "");
+            shape_buff.SetDescription(buff.Description);
+            shape_buff.SetName(display_name);
+            shape_buff.ComponentsArray = buff.ComponentsArray;
+            shape.SetName(display_name);
+            shape.SetDescription(description);
+            shape.Buff = shape_buff;
+            return shape;
         }
 
 
@@ -285,7 +343,7 @@ namespace KingmakerRebalance
                                         library.Get<BlueprintAbility>("ee63301f83c76694692d4704d8a05bdc"),//air elemental
                                         library.Get<BlueprintAbility>("facdc8851a0b3f44a8bed50f0199b83c"),//earth elemental
                                         library.Get<BlueprintAbility>("c281eeecc554b72449fef43924e522ce"),//fire elemental
-                                        library.Get<BlueprintAbility>("96d2ab91f2d2329459a8dab496c5bede")//air elemental
+                                        library.Get<BlueprintAbility>("96d2ab91f2d2329459a8dab496c5bede")//water elemental
                                       };
 
 

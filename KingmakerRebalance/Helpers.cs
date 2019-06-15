@@ -419,9 +419,12 @@ namespace KingmakerRebalance
                 var specialistList = specialistSchoolList.Value[(int)school];
                 specialistList?.SpellsByLevel[level].Spells.Add(spell);
 
-                foreach (var thassilonianList in thassilonianSchoolList.Value)
+                for (int i = 0; i < thassilonianSchoolList.Value.Length; i++)
                 {
-                    thassilonianList?.SpellsByLevel[level].Spells.Add(spell);
+                    if (thassilonianOpposedSchools.Value[i] != null && !thassilonianOpposedSchools.Value[i].Contains(school))
+                    {
+                        thassilonianSchoolList.Value[i]?.SpellsByLevel[level].Spells.Add(spell);
+                    }
                 }
             }
         }
@@ -453,6 +456,21 @@ namespace KingmakerRebalance
             result[(int)SpellSchool.Illusion] = library.Get<BlueprintSpellList>("c311aed33deb7a346ab715baef4a0572");
             result[(int)SpellSchool.Necromancy] = library.Get<BlueprintSpellList>("5c08349132cb6b04181797f58ccf38ae");
             result[(int)SpellSchool.Transmutation] = library.Get<BlueprintSpellList>("f3a8f76b1d030a64084355ba3eea369a");
+            return result;
+        });
+
+
+        static readonly Lazy<SpellSchool[][]> thassilonianOpposedSchools = new Lazy<SpellSchool[][]>(() =>
+        {
+            var result = new SpellSchool[(int)SpellSchool.Universalist + 1][];
+           
+            result[(int)SpellSchool.Abjuration] = new SpellSchool[] {SpellSchool.Evocation, SpellSchool.Necromancy };
+            result[(int)SpellSchool.Conjuration] = new SpellSchool[] { SpellSchool.Evocation, SpellSchool.Illusion };
+            result[(int)SpellSchool.Enchantment] = new SpellSchool[] { SpellSchool.Necromancy, SpellSchool.Transmutation };
+            result[(int)SpellSchool.Evocation] = new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration };
+            result[(int)SpellSchool.Illusion] = new SpellSchool[] { SpellSchool.Conjuration, SpellSchool.Transmutation };
+            result[(int)SpellSchool.Necromancy] = new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Enchantment };
+            result[(int)SpellSchool.Transmutation] = new SpellSchool[] { SpellSchool.Enchantment, SpellSchool.Illusion };
             return result;
         });
 
