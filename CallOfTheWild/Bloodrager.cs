@@ -36,7 +36,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.Blueprints.Items.Armors;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     class Bloodrager
     {
@@ -547,7 +547,7 @@ namespace KingmakerRebalance
                                                                         "4f2896b7dcda42dd89a44550381b7173",
                                                                         enlarge_buff.Icon,
                                                                         FeatureGroup.None,
-                                                                        KingmakerRebalance.Helpers.CreateAddFact(demonic_bulk_ability));
+                                                                        CallOfTheWild.Helpers.CreateAddFact(demonic_bulk_ability));
             }
 
 
@@ -672,7 +672,7 @@ namespace KingmakerRebalance
                                                                         "b6df9a3984114c14881bf4b2d5aa5a47",
                                                                         firebelly.Icon,
                                                                         FeatureGroup.None,
-                                                                        KingmakerRebalance.Helpers.CreateAddFact(demonic_aura_ability));
+                                                                        CallOfTheWild.Helpers.CreateAddFact(demonic_aura_ability));
 
             }
 

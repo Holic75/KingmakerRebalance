@@ -33,7 +33,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     public class Hunter
     {
@@ -258,7 +258,7 @@ namespace KingmakerRebalance
                                                sacred_huntsmaster_archetype);
 
 
-            BlueprintComponent animal_foci = KingmakerRebalance.Helpers.CreateAddFacts(bull_focus,
+            BlueprintComponent animal_foci = CallOfTheWild.Helpers.CreateAddFacts(bull_focus,
                                                                                        tiger_focus,
                                                                                        falcon_focus,
                                                                                        owl_focus,
@@ -271,7 +271,7 @@ namespace KingmakerRebalance
 
 
             var inflict_light_wounds = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
-            var feat = KingmakerRebalance.Helpers.CreateFeature("FeykillerAnimalFocusFeature",
+            var feat = CallOfTheWild.Helpers.CreateFeature("FeykillerAnimalFocusFeature",
                                                             "Feykiller Animal Focus",
                                                             "A feykiller emulates animals that grant her the ability to unmask fey trickery. She adds crow, goat, shark and turtle to her animal focus ability instead of the bear, frog, monkey and mouse choices.",
                                                             "0c7d1530b6e6464793add007315337c9",
@@ -1072,7 +1072,7 @@ namespace KingmakerRebalance
                                              sacred_huntsmaster_archetype);
 
 
-            BlueprintComponent animal_foci = KingmakerRebalance.Helpers.CreateAddFacts(bull_focus,
+            BlueprintComponent animal_foci = CallOfTheWild.Helpers.CreateAddFacts(bull_focus,
                                                                                        bear_focus,
                                                                                        tiger_focus,
                                                                                        falcon_focus,
@@ -1082,7 +1082,7 @@ namespace KingmakerRebalance
                                                                                        stag_focus);
 
             var wildshape_wolf = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
-            var feat = KingmakerRebalance.Helpers.CreateFeature("AnimalFocusFeature",
+            var feat = CallOfTheWild.Helpers.CreateFeature("AnimalFocusFeature",
                                                             "Animal Focus",
                                                             "Character can take the Focus of an animal as a swift action. She must select one type of animal to emulate, gaining a bonus or special ability based on the type of animal emulated and her level.",
                                                             "5a05ef60442c4fd38c418d4d190cb250",
@@ -1121,7 +1121,7 @@ namespace KingmakerRebalance
                                                        "0ed62ee6b78e411e87c931fb6939fede",
                                                        icon,
                                                        FeatureGroup.None,
-                                                       KingmakerRebalance.Helpers.CreateAddFact(mouse_focus1));
+                                                       CallOfTheWild.Helpers.CreateAddFact(mouse_focus1));
             mouse_focus1f.HideInUI = true;
             mouse_focus1f.HideNotAvailibleInUI = true;
             var mouse_focus2f = Helpers.CreateFeature("MouseFocus2Feature",
@@ -1130,7 +1130,7 @@ namespace KingmakerRebalance
                                            "ee6fe29a2f7c4d4ebaad71c630ca4061",
                                            icon,
                                            FeatureGroup.None,
-                                           KingmakerRebalance.Helpers.CreateAddFact(mouse_focus2));
+                                           CallOfTheWild.Helpers.CreateAddFact(mouse_focus2));
             mouse_focus2f.HideInUI = true;
             mouse_focus2f.HideInCharacterSheetAndLevelUp = true;
 
@@ -1152,12 +1152,12 @@ namespace KingmakerRebalance
                                                                                                       BlueprintCharacterClass[] allowed_classes,
                                                                                                       BlueprintArchetype archetype)
         {
-            BlueprintComponent[] components = new BlueprintComponent[2]{ KingmakerRebalance.Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype, 
+            BlueprintComponent[] components = new BlueprintComponent[2]{ CallOfTheWild.Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype, 
                                                                                                                       ContextRankProgression.Custom,
                                                                                                                       classes: allowed_classes,
                                                                                                                       archetype: archetype,
                                                                                                                       customProgression: progression),
-                                                                       KingmakerRebalance.Helpers.CreateAddContextStatBonus(stat_type, 
+                                                                       CallOfTheWild.Helpers.CreateAddContextStatBonus(stat_type, 
                                                                                                                         descriptor,
                                                                                                                         Kingmaker.UnitLogic.Mechanics.ContextValueType.Rank)
                                                                      };
@@ -1180,7 +1180,7 @@ namespace KingmakerRebalance
                                                                                               BlueprintCharacterClass[] allowed_classes,
                                                                                               BlueprintArchetype archetype)
         {
-            BlueprintComponent[] components = new BlueprintComponent[2]{ KingmakerRebalance.Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype,
+            BlueprintComponent[] components = new BlueprintComponent[2]{ CallOfTheWild.Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype,
                                                                                                                       ContextRankProgression.Custom,
                                                                                                                       classes: allowed_classes,
                                                                                                                       archetype: archetype,
@@ -1203,7 +1203,7 @@ namespace KingmakerRebalance
                                                                                                       string buff_guid, string ability_guid,
                                                                                                       UnityEngine.Sprite icon, params BlueprintComponent[] components)
         {
-            var buff = KingmakerRebalance.Helpers.CreateBuff(name + "Buff",
+            var buff = CallOfTheWild.Helpers.CreateBuff(name + "Buff",
                                                          display_name,
                                                          description,
                                                          buff_guid,
@@ -1211,7 +1211,7 @@ namespace KingmakerRebalance
                                                          null,
                                                          components);
 
-            var Focus = KingmakerRebalance.Helpers.CreateActivatableAbility(name,
+            var Focus = CallOfTheWild.Helpers.CreateActivatableAbility(name,
                                                                          display_name,
                                                                          description,
                                                                          ability_guid,

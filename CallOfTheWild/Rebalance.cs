@@ -14,7 +14,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Enums;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
 public class Rebalance
 {

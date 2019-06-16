@@ -40,7 +40,7 @@ using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.UnitLogic.Buffs.Components;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     class Wildshape
     {

@@ -37,7 +37,7 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.Designers.Mechanics.Buffs;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
 
     class Common
@@ -1054,7 +1054,7 @@ namespace KingmakerRebalance
                                                 feature_guid,
                                                 effect.Icon,
                                                 FeatureGroup.None,
-                                                KingmakerRebalance.Helpers.CreateAddFact(ability));
+                                                CallOfTheWild.Helpers.CreateAddFact(ability));
 
             return feature;
         }

@@ -65,7 +65,7 @@ using UnityModManagerNet;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     // A few notes discovered while debugging issues:
     //

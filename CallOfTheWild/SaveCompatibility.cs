@@ -19,7 +19,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityModManagerNet;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     static class SaveCompatibility
     {

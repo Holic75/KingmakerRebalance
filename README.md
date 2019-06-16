@@ -27,9 +27,11 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 In addition mod also makes some balance changes:
 - nerfs animal compnions to make them closer to pnp (reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
 enchanced attacks).
-- sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp).
-- replaces favored enemy for Sacred huntsmater with animal focus as per pnp.
-- fixes Magic Vestment spell to work as per pnp rules.
+- sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
+- replaces favored enemy for Sacred huntsmater with animal focus as per pnp,
+- fixes Magic Vestment spell to work as per pnp rules,  
+- Legendary proportions increases size by only one category  
+
 
 Mod also changes stats of some npcs (can be corrected with respec)
 - Valerie to 16/15/14/13/8/15  and replaces bastard sword proficiency with shield focus at lvl 1

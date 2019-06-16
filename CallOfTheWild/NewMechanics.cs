@@ -28,7 +28,7 @@ using Kingmaker.Utility;
 using Kingmaker.UI.GenericSlot;
 using Kingmaker.Items;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     namespace NewMechanics
     {

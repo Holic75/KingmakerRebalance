@@ -12,7 +12,7 @@ using Kingmaker.Designers.Mechanics.Buffs;
 using System.Collections.Generic;
 using Kingmaker.Blueprints.Items;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     public class Main
     {
@@ -61,27 +61,27 @@ namespace KingmakerRebalance
                     Main.DebugLog("Loading Kingmaker Rebalance");
 
 
-                    KingmakerRebalance.Helpers.GuidStorage.load(Properties.Resources.blueprints);
-                    KingmakerRebalance.Helpers.Load();
-                    KingmakerRebalance.Rebalance.fixAnimalCompanion();
-                    KingmakerRebalance.Rebalance.fixLegendaryProportionsAC();
-                    KingmakerRebalance.Rebalance.fixSkillPoints();
-                    KingmakerRebalance.Rebalance.fixCompanions();
-                    KingmakerRebalance.Rebalance.removeJudgement19FormSHandMS();
-                    KingmakerRebalance.Rebalance.fixDomains();
-                    KingmakerRebalance.Rebalance.fixBarbarianRageAC();
-                    KingmakerRebalance.Wildshape.fixBeastShape();
-                    KingmakerRebalance.Rebalance.fixMagicVestment();
+                    CallOfTheWild.Helpers.GuidStorage.load(Properties.Resources.blueprints);
+                    CallOfTheWild.Helpers.Load();
+                    CallOfTheWild.Rebalance.fixAnimalCompanion();
+                    CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
+                    CallOfTheWild.Rebalance.fixSkillPoints();
+                    CallOfTheWild.Rebalance.fixCompanions();
+                    CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
+                    CallOfTheWild.Rebalance.fixDomains();
+                    CallOfTheWild.Rebalance.fixBarbarianRageAC();
+                    CallOfTheWild.Wildshape.fixBeastShape();
+                    CallOfTheWild.Rebalance.fixMagicVestment();
 
-                    KingmakerRebalance.Hunter.createHunterClass();
-                    KingmakerRebalance.Hunter.addAnimalFocusSH();
-                    KingmakerRebalance.Witch.createWitchClass();
-                    KingmakerRebalance.Bloodrager.test_mode = false;
-                    KingmakerRebalance.Bloodrager.createBloodragerClass();
+                    CallOfTheWild.Hunter.createHunterClass();
+                    CallOfTheWild.Hunter.addAnimalFocusSH();
+                    CallOfTheWild.Witch.createWitchClass();
+                    CallOfTheWild.Bloodrager.test_mode = false;
+                    CallOfTheWild.Bloodrager.createBloodragerClass();
 
 #if DEBUG
-                    string guid_file_name = @"C:\Repositories\KingmakerRebalance\KingmakerRebalance\blueprints.txt";
-                    KingmakerRebalance.Helpers.GuidStorage.dump(guid_file_name);
+                    string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";
+                    CallOfTheWild.Helpers.GuidStorage.dump(guid_file_name);
 #endif
                 }
                 catch (Exception ex)

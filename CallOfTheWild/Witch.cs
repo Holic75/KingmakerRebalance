@@ -32,7 +32,7 @@ using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
-namespace KingmakerRebalance
+namespace CallOfTheWild
 {
     class Witch
     {
@@ -433,7 +433,7 @@ namespace KingmakerRebalance
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
                                                            "Witches learn a number of magic tricks, called hexes, that grant them powers or weaken foes. At 1st level, a witch gains one hex of her choice. She gains an additional hex at 2nd level and for every 2 levels attained after 2nd level. A witch cannot select an individual hex more than once.\n" +
-                                                           "Unless otherwise noted, using a hex is a standard action that does not provoke an attack of opportunity. The save to resist a hex is equal to 10 + 1 / 2 the witch’s level +the witch’s Intelligence modifier.",
+                                                           "Unless otherwise noted, using a hex is a standard action that does not provoke an attack of opportunity. The save to resist a hex is equal to 10 + 1 / 2 the witch’s level + the witch’s Intelligence modifier.",
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
