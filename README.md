@@ -44,7 +44,7 @@ Mod also changes stats of some npcs
 - Nok-Nok to 8/22/14/12/10/8
 
 NOTE: Changes to animal companion bonuses, npc companions, and class skill points are optional and can be disabled (set corresponding values to false, 
-in your_game_folder/Mods/CallOfTheWild/settings.json 
+in your_game_folder/Mods/CallOfTheWild/settings.json) 
 
 Install
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later

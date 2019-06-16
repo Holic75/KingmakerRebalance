@@ -1789,6 +1789,14 @@ namespace CallOfTheWild
         }
 
 
+        public static ContextConditionHasBuffFromCaster CreateConditionHasBuffFromCaster(this BlueprintBuff buff)
+        {
+            var hasBuff = Create<ContextConditionHasBuffFromCaster>();
+            hasBuff.Buff = buff;
+            return hasBuff;
+        }
+
+
         public static ContextConditionHasFact CreateConditionHasFact(this BlueprintUnitFact fact)
         {
             var c = Create<ContextConditionHasFact>();
@@ -1833,6 +1841,19 @@ namespace CallOfTheWild
             a.Round = CreateActionList(round);
             return a;
         }
+
+
+
+        public static AbilityAreaEffectRunAction CreateAreaEffectRunAction(GameAction[] unitEnter = null, GameAction[] unitExit = null, GameAction[] unitMove = null, GameAction[] round = null)
+        {
+            var a = Create<AbilityAreaEffectRunAction>();
+            a.UnitEnter = CreateActionList(unitEnter);
+            a.UnitExit = CreateActionList(unitExit);
+            a.UnitMove = CreateActionList(unitMove);
+            a.Round = CreateActionList(round);
+            return a;
+        }
+
 
         public static ContextActionSavingThrow CreateActionSavingThrow(this SavingThrowType savingThrow, params GameAction[] actions)
         {

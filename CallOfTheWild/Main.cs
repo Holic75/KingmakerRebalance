@@ -114,6 +114,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Hunter.createHunterClass();
                     CallOfTheWild.Hunter.addAnimalFocusSH();
+                    CallOfTheWild.Witch.test_mode = false;
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Bloodrager.test_mode = false;
                     CallOfTheWild.Bloodrager.createBloodragerClass();

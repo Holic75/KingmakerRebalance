@@ -10,6 +10,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
@@ -55,6 +56,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature ameliorating;
         static internal BlueprintFeature evil_eye;
         static internal BlueprintFeature summer_heat;
+        static internal BlueprintFeature cackle;
         //major hexes
         static internal BlueprintFeature major_ameliorating;
         static internal BlueprintFeature major_healing;
@@ -81,6 +83,8 @@ namespace CallOfTheWild
         static internal BlueprintFeatureSelection hex_channeler_channel_energy_selection;
         static internal BlueprintFeature improved_channel_hex;
         static internal BlueprintFeature conduit_surge;
+
+        static internal List<BlueprintBuff> cackle_buffs = new List<BlueprintBuff>();
 
 
         internal static void createWitchClass()
@@ -429,6 +433,7 @@ namespace CallOfTheWild
             createLayToRest();
             createLifeGiver();
             createEternalSlumber();
+            createCackle();
 
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
@@ -437,7 +442,7 @@ namespace CallOfTheWild
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
-            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat,
+            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle,
                                                               major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew,
                                                               animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
@@ -1097,6 +1102,7 @@ namespace CallOfTheWild
         {
             var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "MisfortuneHexAbility", "08b6595f503f4d3c973424c217f7610e"); //touch of chaos as base
+
             hex_ability.SetName("Misfortune");
             hex_ability.LocalizedDuration = Helpers.CreateString("FortuneHexAbility.Duration", "Variable");
             hex_ability.SetDescription("Effect: The witch can cause a creature within 30 feet to suffer grave misfortune for 1 round. Anytime the creature makes an ability check, attack roll, saving throw, or skill check, it must roll twice and take the worse result. A Will save negates this hex. At 8th level and 16th level, the duration of this hex is extended by 1 round. This hex affects all rolls the target must make while it lasts. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
@@ -1107,7 +1113,9 @@ namespace CallOfTheWild
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
-            action.addAction(Common.createContextSavedApplyBuff(library.Get<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5"), DurationRate.Rounds, AbilityRankType.DamageBonus));
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "WitchMisfortuneHexBuff", "");
+            cackle_buffs.Add(hex_buff);
+            action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, AbilityRankType.DamageBonus));
 
             hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
@@ -1139,6 +1147,9 @@ namespace CallOfTheWild
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var apply_buff = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
+            apply_buff.Buff = library.CopyAndAdd<BlueprintBuff>(apply_buff.Buff, "WitchFortuneHexBuff", "");
+            cackle_buffs.Add(apply_buff.Buff);
+
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             bonus_value.Value = 1;
             bonus_value.ValueType = ContextValueType.Rank;
@@ -1292,7 +1303,8 @@ namespace CallOfTheWild
                                                         params BlueprintComponent[] components)
         {
             var buff = Helpers.CreateBuff(name + "Buff", display_name, description, buff_guid, icon, null, components);
-            buff.Stacking = StackingType.Replace;
+            buff.Stacking = StackingType.Prolong;
+            cackle_buffs.Add(buff);
 
             var ability = Helpers.CreateAbility(name + "Ability",
                                                 display_name,
@@ -1540,6 +1552,7 @@ namespace CallOfTheWild
             var hex_buff = library.CopyAndAdd<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e", "WitchAgonyHexBuff", "824364df0dc3420d98c699f95dc250c0"); //nauseted
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.AddCondition>());
             hex_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Nauseated, SavingThrowType.Fortitude));
+            cackle_buffs.Add(hex_buff);
 
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Fortitude;
@@ -1969,6 +1982,60 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             eternal_slumber.Ranks = 1;
             eternal_slumber.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 16));
+        }
+
+
+        static void createCackle()
+        {
+            var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
+            area_effect.name = "WitchCackleHexAura";
+            area_effect.AffectEnemies = true;
+            area_effect.Size = 30.Feet();
+            area_effect.Shape = AreaEffectShape.Cylinder;
+
+            List<GameAction> actions = new List<GameAction>();
+            ContextDurationValue duration = Helpers.CreateContextDuration(bonus: Common.createSimpleContextValue(1), rate: DurationRate.Rounds);
+            foreach (var b in cackle_buffs)
+            {
+                b.Stacking = StackingType.Summ;
+                var c = Helpers.CreateConditional(Helpers.CreateConditionHasBuffFromCaster(b), ifTrue: Common.createContextActionApplyBuff(b, duration));
+                actions.Add(c);
+            }
+
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: actions.ToArray()));
+            area_effect.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            library.AddAsset(area_effect, "");
+
+            var energy_drain = library.Get<BlueprintAbility>("37302f72b06ced1408bf5bb965766d46");
+
+            var cackle_buff = Helpers.CreateBuff("WitchCackleAuraBuff",
+                                                              "Cackle",
+                                                              "Effect: A witch can cackle madly as a move action. Any creature that is within 30 feet that is under the effects of an agony hex, charm hex, evil eye hex, fortune hex, or misfortune hex caused by the witch has the duration of that hex extended by 1 round.",
+                                                              "",
+                                                              energy_drain.Icon,
+                                                              null,
+                                                              Common.createAddAreaEffect(area_effect),
+                                                              Common.createAddCondition(UnitCondition.Staggered)
+                                                              );
+
+            var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
+            var cackle_ability = Helpers.CreateActivatableAbility("CreateCackleToggleAbility",
+                                                            cackle_buff.Name,
+                                                            cackle_buff.Description,
+                                                            "",
+                                                            energy_drain.Icon,
+                                                            cackle_buff,
+                                                            AbilityActivationType.Immediately,
+                                                            CommandType.Free,
+                                                            reckless_stance.ActivateWithUnitAnimation);
+
+            cackle = Helpers.CreateFeature("WitchCackleHexFeature",
+                                          cackle_ability.Name,
+                                          cackle_ability.Description,
+                                          "",
+                                          cackle_ability.Icon,
+                                          FeatureGroup.None,
+                                          Helpers.CreateAddFact(cackle_ability));
         }
 
 
