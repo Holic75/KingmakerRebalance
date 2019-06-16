@@ -924,6 +924,7 @@ namespace CallOfTheWild
             var cooldown_action = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             cooldown_action.Buff = hex_cooldown;
             cooldown_action.AsChild = true;
+            cooldown_action.IsNotDispelable = true;
             //cooldown_action.IsFromSpell = true;
             var duration = Helpers.CreateContextValue(AbilityRankType.Default);
             duration.ValueType = ContextValueType.Simple;
@@ -1951,7 +1952,7 @@ namespace CallOfTheWild
 
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
-            action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_permanent: true));
+            action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_permanent: true, is_dispellable: false));
             hex_ability.AddComponent(action);
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWitchArray()));
             var touch = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch>();

@@ -144,7 +144,7 @@ namespace CallOfTheWild
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
                                                                                                                         AbilityRankType rank_type = AbilityRankType.Default,
                                                                                                                         bool is_from_spell = true, bool is_permanent = false, bool is_child = false,
-                                                                                                                        bool on_failed_save = true)
+                                                                                                                        bool on_failed_save = true, bool is_dispellable = true)
         {
             var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
         
@@ -153,6 +153,7 @@ namespace CallOfTheWild
             apply_buff.AsChild = is_child;
             apply_buff.Permanent = is_permanent;
             apply_buff.Buff = buff;
+            apply_buff.IsNotDispelable = !is_dispellable;
             var bonus_value = Helpers.CreateContextValue(rank_type);
             bonus_value.ValueType = ContextValueType.Rank;
             apply_buff.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,

@@ -30,10 +30,10 @@ enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
 - replaces favored enemy for Sacred huntsmater with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
-- Legendary proportions increases size by only one category  
+- Legendary proportions increases size by only one category and changes Natural Armaor bonus to untyped (instead of enchancement).
 
 
-Mod also changes stats of some npcs (can be corrected with respec)
+Mod also changes stats of some npcs
 - Valerie to 16/15/14/13/8/15  and replaces bastard sword proficiency with shield focus at lvl 1
 - Amiri to 18/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
@@ -43,7 +43,8 @@ Mod also changes stats of some npcs (can be corrected with respec)
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 8/22/14/12/10/8
 
-
+NOTE: Changes to animal companion bonuses, npc companions, and class skill points are optional and can be disabled (set corresponding values to false, 
+in your_game_folder/Mods/CallOfTheWild/settings.json 
 
 Install
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later

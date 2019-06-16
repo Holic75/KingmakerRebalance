@@ -11,11 +11,35 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.Designers.Mechanics.Buffs;
 using System.Collections.Generic;
 using Kingmaker.Blueprints.Items;
+using Newtonsoft.Json;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace CallOfTheWild
 {
     public class Main
     {
+        public class Settings
+        {
+            public bool update_companions  { get;}
+            public bool nerf_animal_companion { get; }
+            public bool reduce_skill_points { get; }
+
+            public Settings(string filename)
+            {
+               
+                using (StreamReader settings_file = File.OpenText("Mods/CallOfTheWild/settings.json"))
+                using (JsonTextReader reader = new JsonTextReader(settings_file))
+                {
+                    JObject jo = (JObject)JToken.ReadFrom(reader);
+                    update_companions = (bool)jo["update_companions"];
+                    nerf_animal_companion = (bool)jo["nerf_animal_companion"];
+                    reduce_skill_points = (bool)jo["reduce_skill_points"];
+                }
+            }
+        }
+
+        static public Settings settings = new Settings("settings.json");
         public static UnityModManagerNet.UnityModManager.ModEntry.ModLogger logger;
         internal static LibraryScriptableObject library;
 
@@ -60,13 +84,28 @@ namespace CallOfTheWild
                 {
                     Main.DebugLog("Loading Kingmaker Rebalance");
 
-
                     CallOfTheWild.Helpers.GuidStorage.load(Properties.Resources.blueprints);
                     CallOfTheWild.Helpers.Load();
-                    CallOfTheWild.Rebalance.fixAnimalCompanion();
+
+                    if (settings.nerf_animal_companion)
+                    {
+                        Main.logger.Log("Upating animal companion bonuses.");
+                        CallOfTheWild.Rebalance.fixAnimalCompanion();
+                    }
+
+                    if (settings.reduce_skill_points)
+                    {
+                        Main.logger.Log("Reducing class skillpoints to 1/2 of pnp value.");
+                        CallOfTheWild.Rebalance.fixSkillPoints();
+                    }
+
+                    if (settings.update_companions)
+                    {
+                        Main.logger.Log("Updating companion stats.");
+                        CallOfTheWild.Rebalance.fixCompanions();
+                    }
+
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
-                    CallOfTheWild.Rebalance.fixSkillPoints();
-                    CallOfTheWild.Rebalance.fixCompanions();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
                     CallOfTheWild.Rebalance.fixDomains();
                     CallOfTheWild.Rebalance.fixBarbarianRageAC();
