@@ -36,6 +36,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 
 namespace CallOfTheWild
 {
@@ -1171,5 +1172,32 @@ namespace CallOfTheWild
             return p;
         }
 
+
+        static internal ContextActionRemoveBuff createContextActionRemoveBuff(BlueprintBuff buff)
+        {
+            var r = Helpers.Create<ContextActionRemoveBuff>();
+            r.Buff = buff;
+            return r;
+        }
+        
+
+        static internal SavingThrowBonusAgainstSpecificSpells createSavingThrowBonusAgainstSpecificSpells(int bonus, ModifierDescriptor descriptor, params BlueprintAbility[] spells)
+        {
+            var s = Helpers.Create<SavingThrowBonusAgainstSpecificSpells>();
+            s.Spells = spells;
+            s.ModifierDescriptor = descriptor;
+            s.Value = bonus;
+            return s;
+        }
+
+        
+        static internal AbilityTargetHasFact createAbilityTargetHasFact(bool inverted, params BlueprintUnitFact[] facts)
+        {
+
+            var a = Helpers.Create<AbilityTargetHasFact>();
+            a.CheckedFacts = facts;
+            a.Inverted = inverted;
+            return a;
+        }
     }
 }

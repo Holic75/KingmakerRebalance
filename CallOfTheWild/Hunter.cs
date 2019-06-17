@@ -775,13 +775,22 @@ namespace CallOfTheWild
             createPreciseCompanion();
             entries.Add(Helpers.LevelEntry(2, precise_companion));
             entries.Add(Helpers.LevelEntry(3, hunter_tactics, hunter_teamwork_feat));
+            entries.Add(Helpers.LevelEntry(4));
             entries.Add(Helpers.LevelEntry(5, hunter_woodland_stride));
             entries.Add(Helpers.LevelEntry(6, hunter_teamwork_feat));
+            entries.Add(Helpers.LevelEntry(7));
             entries.Add(Helpers.LevelEntry(8, animal_focus_additional_use, animal_focus_additional_use_ac));
             entries.Add(Helpers.LevelEntry(9, hunter_teamwork_feat));
+            entries.Add(Helpers.LevelEntry(10));
+            entries.Add(Helpers.LevelEntry(11));
             entries.Add(Helpers.LevelEntry(12, hunter_teamwork_feat));
+            entries.Add(Helpers.LevelEntry(13));
+            entries.Add(Helpers.LevelEntry(14));
             entries.Add(Helpers.LevelEntry(15, hunter_teamwork_feat));
+            entries.Add(Helpers.LevelEntry(16));
+            entries.Add(Helpers.LevelEntry(17));
             entries.Add(Helpers.LevelEntry(18, hunter_teamwork_feat));
+            entries.Add(Helpers.LevelEntry(19));
             entries.Add(Helpers.LevelEntry(20, animal_focus_additional_use, animal_focus_additional_use_ac));
             hunter_progression.UIGroups = new UIGroup[4] { Helpers.CreateUIGroups(precise_companion, hunter_teamwork_feat, hunter_teamwork_feat, hunter_teamwork_feat, 
                                                                                     hunter_teamwork_feat, hunter_teamwork_feat, hunter_teamwork_feat)[0],

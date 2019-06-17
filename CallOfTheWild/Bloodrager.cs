@@ -196,14 +196,21 @@ namespace CallOfTheWild
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, uncanny_dodge),
                                                                     Helpers.LevelEntry(3, blood_sanctuary),
+                                                                    Helpers.LevelEntry(4),
                                                                     Helpers.LevelEntry(5, improved_uncanny_dodge),
+                                                                    Helpers.LevelEntry(6),
                                                                     Helpers.LevelEntry(7, damage_reduction),
+                                                                    Helpers.LevelEntry(8),
+                                                                    Helpers.LevelEntry(8),
                                                                     Helpers.LevelEntry(10, damage_reduction),
                                                                     Helpers.LevelEntry(11, greater_bloodrage),
+                                                                    Helpers.LevelEntry(12),
                                                                     Helpers.LevelEntry(13, damage_reduction),
                                                                     Helpers.LevelEntry(14, indomitable_will),
+                                                                    Helpers.LevelEntry(15),
                                                                     Helpers.LevelEntry(16, damage_reduction),
                                                                     Helpers.LevelEntry(17, tireless_bloodrage),
+                                                                    Helpers.LevelEntry(18),
                                                                     Helpers.LevelEntry(19, damage_reduction),
                                                                     Helpers.LevelEntry(20, mighty_bloodrage)
                                                                     };
