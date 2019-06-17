@@ -28,6 +28,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -85,7 +86,10 @@ namespace CallOfTheWild
         static internal BlueprintFeature conduit_surge;
 
         static internal List<BlueprintBuff> cackle_buffs = new List<BlueprintBuff>();
-        static internal List<BlueprintBuff> removable_hexes = new List<BlueprintBuff>();
+        static internal BlueprintAbility hex_vulnerability_spell;
+        static internal BlueprintFeature accursed_hex_feat;
+        static internal BlueprintBuff hex_vulnerability_buff;
+        static internal BlueprintBuff accursed_hex_buff;
 
 
         internal static void createWitchClass()
@@ -129,6 +133,7 @@ namespace CallOfTheWild
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("e8308a74821762e49bc3211358e81016"), //s. mage armor
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("3c56e535129756e449af6c0e67fd937f") //s. burning hands
                                                                                        };
+            createHexVulnerabilitySpellAndAccursedHexFeat();
             createWitchProgression();
             witch_class.Progression = witch_progression;
             createLeyLineGuardian();
@@ -620,7 +625,7 @@ namespace CallOfTheWild
                                          "08ccad78cac525040919d51963f9ac39" //fiery body
                                         ),
                 createWitchPatronFeature("Mercy", "88ce8b8dc64b4343984fefd31054a913","b7b7f46389544a99b0b4846ab99ed042",
-                                         "47808d23c67033d4bbab86a1070fd62f", //cure light wounds
+                                         "5590652e1c2225c4ca30c4a699ab3649", //cure light wounds
                                          "446f7bf201dc1934f96ac0a26e324803", //eagles splendor
                                          "b48674cef2bff5e478a007cf57d8345b", //remove curse
                                          "f2115ac1148256b4ba20788f7e966830", //resoration
@@ -660,6 +665,7 @@ namespace CallOfTheWild
                                          "7c5d556b9a5883048bf030e20daebe31", //stoneskin communal
                                          "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
                                          "42aa71adc7343714fa92e471baa98d42", //protection from spells
+                                         "7ef49f184922063499b8f1346fb7f521", //seamantle
                                          "87a29febd010993419f2a4a9bee11cfc" //mindblank communal
                                          ),
                 createWitchPatronFeature("Spring", "fa8155faef214069a896e65a9073458c", "e9f7f92bf7724ec788fcd6374bfd2e82",
@@ -773,11 +779,11 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "4783c3709a74a794dbe7c8e7e0b1b038", 1), //burning hands
                 new Common.SpellId( "bd81a3931aa285a4f9844585b5d97e51", 1), //cause fear
-                new Common.SpellId( "47808d23c67033d4bbab86a1070fd62f", 1), //cure light wounds
+                new Common.SpellId( "5590652e1c2225c4ca30c4a699ab3649", 1), //cure light wounds
                 new Common.SpellId( "8e7cfa5f213a90549aadd18f8f6f4664", 1), //ear piercing scream
                 new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
-                new Common.SpellId( "e5cb4c4459e437e49a4cd73fde6b9063", 1), //inflict light wounds
+                new Common.SpellId( "e5af3674bb241f14b9a9f6b0c7dc3d27", 1), //inflict light wounds
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "450af0402422b0b4980d9c2175869612", 1), //ray of enfeeblement
                 new Common.SpellId( "fa3078b9976a5b24caf92e20ee9c0f54", 1), //ray of sickening
@@ -790,13 +796,13 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
                 new Common.SpellId( "b7731c2b4fa1c9844a092329177be4c3", 2), //boneshaker
-                new Common.SpellId( "1c1ebf5370939a9418da93176cc44cd9", 2), //cure moderate wounds
+                new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds
                 new Common.SpellId( "b48b4c5ffb4eab0469feba27fc86a023", 2), //delay poison
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( "2dbe271c979d9104c8e2e6b42e208e32", 2), //fester
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
-                new Common.SpellId( "14d749ecacca90a42b6bf1c3f580bb0c", 2), //inflict moderate wounds
+                new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
                 new Common.SpellId( "bc153808ef4884a4594bc9bec2299b69", 2), //pox postules
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
@@ -821,12 +827,12 @@ namespace CallOfTheWild
                 new Common.SpellId( "e418c20c8ce362943a8025d82c865c1c", 4), //cape of vasps
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
-                new Common.SpellId( "6e81a6679a0889a429dec9cedcf3729c", 4), //cure serious wounds
+                new Common.SpellId( "3361c5df793b4c8448756146a88026ad", 4), //cure serious wounds
                 new Common.SpellId( "0413915f355a38146bc6ad40cdf27b3f", 4), //death ward
                 new Common.SpellId( "f34fb78eaaec141469079af124bcfa0f", 4), //enervation
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
-                new Common.SpellId( "3cf05ef7606f06446ad357845cb4d430", 4), //inflict serious wounds
+                new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict serious wounds
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "d797007a142a6c0409a74b064065a15e", 4), //poison
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
@@ -837,11 +843,11 @@ namespace CallOfTheWild
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 5), //break enchantment
                 new Common.SpellId( "bacba2ff48d498b46b86384053945e83", 5), //cave fangs
                 new Common.SpellId( "548d339ba87ee56459c98e80167bdf10", 5), //cloudkill
-                new Common.SpellId( "0d657aa811b310e4bbd8586e60156a2d", 5), //cure critical wounds
+                new Common.SpellId( "41c9016596fe1de4faf67425ed691203", 5), //cure critical wounds
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "444eed6e26f773a40ab6e4d160c67faa", 5), //feeblemind
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
-                new Common.SpellId( "3cf05ef7606f06446ad357845cb4d430", 5), //inflict critical wounds
+                new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 5), //inflict critical wounds
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
@@ -915,9 +921,9 @@ namespace CallOfTheWild
             var extra_spell_list = new Common.ExtraSpellList(spell_guids);
             var learn_spell_list = extra_spell_list.createLearnSpellList("Witch" + name + "PatronSpellList", spell_list_guid, witch_class);
             string description = name + " patron grants witch the following spells: ";
-            for (int i = 1; i < 9; i++)
+            for (int i = 1; i <= 9; i++)
             {
-                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ((i == 8) ? " " :", ");
+                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ((i == 9) ? " " :", ");
             }
             description += ".";
 
@@ -931,7 +937,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown)
+        static void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown, bool allow_hex_vulnerability = true)
         {
             var cooldown_action = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             cooldown_action.Buff = hex_cooldown;
@@ -948,6 +954,7 @@ namespace CallOfTheWild
             bool has_action = (ability.GetComponents<AbilityEffectRunAction>().Count() != 0);
             if (!has_action)
             {
+                Main.logger.Log("Warning: no action on " + ability.name + " while trying to create witch hex cooldown");
                 var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
                 action.addAction(cooldown_action);
                 ability.AddComponent(action);
@@ -956,11 +963,24 @@ namespace CallOfTheWild
             {
                 ability.ReplaceComponent<AbilityEffectRunAction>(ability.GetComponent<AbilityEffectRunAction>().CreateCopy());
                 ability.GetComponent<AbilityEffectRunAction>().addAction(cooldown_action);
-
             }
-            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
-            target_checker.CheckedFacts = new BlueprintUnitFact[] { hex_cooldown };
-            target_checker.Inverted = true;
+
+            //if enemy and caster has accursed hex, apply hex_vulnerability for 1 round
+            var accursed_hex_personalized = library.CopyAndAdd<BlueprintBuff>(accursed_hex_buff.AssetGuid, ability.name + "AccursedHexBuff", "");
+            accursed_hex_personalized.SetName(accursed_hex_buff.Name + " : " + ability.Name);
+            var test_condition = new Condition[] {Helpers.CreateConditionCasterHasFact(accursed_hex_feat) };
+            var release_condtion = new Condition[] { Helpers.Create<ContextConditionIsEnemy>(), Helpers.CreateConditionCasterHasFact(accursed_hex_feat) };
+            var accursed_hex_action = Common.createContextActionApplyBuff(accursed_hex_personalized, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds));
+            var accursed_hex_conditional = Helpers.CreateConditional(test_mode ? test_condition : release_condtion,
+                                                                      Helpers.CreateConditionalSaved(accursed_hex_action, 
+                                                                      Common.createContextActionRemoveBuff(accursed_hex_personalized))
+                                                                    );
+            ability.GetComponent<AbilityEffectRunAction>().addAction(accursed_hex_conditional);
+
+
+            var target_checker = Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { hex_cooldown },
+                                                                                      new BlueprintBuff[] { accursed_hex_personalized, hex_vulnerability_buff }//allow to to reapply if has hex vulnerability
+                                                                                      );
             ability.AddComponent(target_checker);
             var scaling = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass>();
             scaling.CharacterClass = witch_class;
@@ -985,7 +1005,7 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid, string name = "")
+        static BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid, string name = "", bool allow_hex_vulnerability = true)
         {
             var hex_cooldown = Helpers.CreateBuff(ability.name + "CooldownBuff",
                                                                      name == "" ? "Cooldown " + ability.Name : name,
@@ -1470,8 +1490,8 @@ namespace CallOfTheWild
                                                 feature_guid,
                                                 heal1__hex_ability.Icon,
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, 15, getWitchArray(), new BlueprintArchetype[0], true),
-                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, 15, getWitchArray(), new BlueprintArchetype[0], false)
+                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, update_level, getWitchArray(), new BlueprintArchetype[0], true),
+                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, update_level, getWitchArray(), new BlueprintArchetype[0], false)
                                                 );
             healing.Ranks = 1;
             return healing;
@@ -1560,7 +1580,6 @@ namespace CallOfTheWild
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.AddCondition>());
             hex_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Nauseated, SavingThrowType.Fortitude));
             cackle_buffs.Add(hex_buff);
-
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Fortitude;
             action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds));
@@ -1571,6 +1590,7 @@ namespace CallOfTheWild
             hex_ability.CanTargetEnemies = true;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityAoERadius>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
+            hex_ability.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Nauseated));
 
             addWitchHexCooldownScaling(hex_ability, "512e6a19428047038a4abd8ee368dc99");
 
@@ -2014,18 +2034,17 @@ namespace CallOfTheWild
             library.AddAsset(area_effect, "");
 
             var energy_drain = library.Get<BlueprintAbility>("37302f72b06ced1408bf5bb965766d46");
-
+            var inspire_courage = library.Get<BlueprintBuff>("b4027a834204042409248889cc8abf67");
             var cackle_buff = Helpers.CreateBuff("WitchCackleAuraBuff",
                                                               "Cackle",
                                                               "Effect: A witch can cackle madly as a move action. Any creature that is within 30 feet that is under the effects of an agony hex, charm hex, evil eye hex, fortune hex, or misfortune hex caused by the witch has the duration of that hex extended by 1 round.",
                                                               "",
                                                               energy_drain.Icon,
-                                                              null,
+                                                              inspire_courage.FxOnStart,
                                                               Common.createAddAreaEffect(area_effect),
                                                               Common.createAddCondition(UnitCondition.Staggered)
                                                               );
 
-            var reckless_stance = library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
             var cackle_ability = Helpers.CreateActivatableAbility("CreateCackleToggleAbility",
                                                             cackle_buff.Name,
                                                             cackle_buff.Description,
@@ -2034,7 +2053,7 @@ namespace CallOfTheWild
                                                             cackle_buff,
                                                             AbilityActivationType.Immediately,
                                                             CommandType.Free,
-                                                            reckless_stance.ActivateWithUnitAnimation);
+                                                            null);
 
             cackle = Helpers.CreateFeature("WitchCackleHexFeature",
                                           cackle_ability.Name,
@@ -2065,55 +2084,83 @@ namespace CallOfTheWild
         }
 
 
-        static void createHexVulnerabilitySpell()
+        static void createHexVulnerabilitySpellAndAccursedHexFeat()
         {
-            var hold_person_buff = library.Get<BlueprintBuff>("c7104f7526c4c524f91474614054547e");
+            var hold_person_buff = library.Get<BlueprintBuff>("11cb2fe4fe9c44b448cfe1788ae1ab59");
             var hold_person_spell = library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e");
 
-            var cooldown_buff = Helpers.CreateBuff("HexVulnerabilityCooldownBuff",
-                                                   "Hex Vulnerability Cooldown",
+            hex_vulnerability_buff = Helpers.CreateBuff("HexVulnerabilityBuff",
+                                                   "Hex Vulnerability",
                                                    "The targeted creature becomes susceptible to a repeat use of your harmful hexes, even if you could not otherwise target that creature with a particular hex for a certain time period.For example, normally after you target a creature with a charm hex, you cannot target it again for 1 day.But after casting this spell on a creature, you could try the charm hex repeatedly as long as the spell persists. The end of this spell has no effect on any active or ongoing hex on a creature.For example, if the creature failed its save against a second use of your charm hex, it remains charmed for the normal duration, even if the spell expires before the hex does.\n"
                                                    + "Each subsequent casting of this spell on a target within a 24 - hour period gives the target a + 4 bonus on its save against the spell.",
                                                    "",
                                                    hold_person_buff.Icon,
                                                    hold_person_buff.FxOnStart
                                                   );
-            cooldown_buff.Stacking = StackingType.Stack;
-            cooldown_buff.SetBuffFlags(BuffFlags.StayOnDeath | BuffFlags.RemoveOnRest);
+           var cooldown_buff = Helpers.CreateBuff("HexVulnerabilityCooldownBuff",
+                                       "Hex Vulnerability Savingthrow Increase",
+                                       hex_vulnerability_buff.Description,
+                                       "",
+                                       hold_person_buff.Icon,
+                                       null
+                                      );
+            cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
 
-            var duration = Helpers.CreateContextDuration(Common.createSimpleContextValue(24), rate: DurationRate.Hours);
-            List<GameAction> actions = new List<GameAction>();
-            List<BlueprintUnitFact> checked_facts = new List<BlueprintUnitFact>();
-            foreach (var b in removable_hexes)
-            {
-                actions.Add(Common.createContextActionRemoveBuff(b));
-                actions.Add(Common.createContextActionApplyBuff(cooldown_buff, duration));
-                checked_facts.Add(b);
-            }
 
-            var ability = Helpers.CreateAbility("HexVulnerabilityAbility",
-                                                "Hex Vulnerability",
-                                                cooldown_buff.Description,
+            var effect = Common.createContextSavedApplyBuff(hex_vulnerability_buff, duration_rate: DurationRate.Rounds);
+            var cooldown = Common.createContextActionApplyBuff(cooldown_buff, 
+                                                                Helpers.CreateContextDuration(bonus: Common.createSimpleContextValue(24), rate: DurationRate.Hours),
+                                                                is_from_spell: true);
+            var run_action = Helpers.CreateRunActions(effect, cooldown);
+            run_action.SavingThrowType = SavingThrowType.Will;
+            hex_vulnerability_spell = Helpers.CreateAbility("HexVulnerabilityAbility",
+                                                hex_vulnerability_buff.Name,
+                                                hex_vulnerability_buff.Description,
                                                 "",
-                                                cooldown_buff.Icon,
+                                                hex_vulnerability_buff.Icon,
                                                 AbilityType.Spell,
                                                 CommandType.Standard,
                                                 AbilityRange.Close,
-                                                "",
+                                                Helpers.roundsPerLevelDuration,
                                                 "Will Negates",
-                                                Helpers.CreateRunActions(Helpers.CreateConditionalSaved(null, actions.ToArray())),
-                                                Common.createAbilityTargetHasFact(true, checked_facts.ToArray()));
-            cooldown_buff.AddComponent(Common.createSavingThrowBonusAgainstSpecificSpells(4, ModifierDescriptor.UntypedStackable, ability));
-            ability.Animation = hold_person_spell.Animation;
-            ability.AnimationStyle = hold_person_spell.AnimationStyle;
-            ability.CanTargetSelf = false;
-            ability.CanTargetEnemies = true;
-            ability.CanTargetFriends = test_mode;
-            ability.SpellResistance = true;
-            ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken | Kingmaker.UnitLogic.Abilities.Metamagic.Reach;
-            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-            ability.AddToSpellList(witch_class.Spellbook.SpellList, 1);
-            ability.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd"); //hold person
+                                                run_action
+                                                );
+            cooldown_buff.AddComponent(Common.createSavingThrowBonusAgainstSpecificSpells(4, ModifierDescriptor.UntypedStackable, hex_vulnerability_spell));
+          
+            cooldown_buff.Stacking = StackingType.Stack;
+
+
+            hex_vulnerability_spell.Animation = hold_person_spell.Animation;
+            hex_vulnerability_spell.AnimationStyle = hold_person_spell.AnimationStyle;
+            hex_vulnerability_spell.CanTargetSelf = false;
+            hex_vulnerability_spell.CanTargetEnemies = true;
+            hex_vulnerability_spell.CanTargetFriends = test_mode;
+            hex_vulnerability_spell.SpellResistance = true;
+            hex_vulnerability_spell.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken | Kingmaker.UnitLogic.Abilities.Metamagic.Reach;
+            hex_vulnerability_spell.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            hex_vulnerability_spell.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Necromancy));
+            hex_vulnerability_spell.AddToSpellList(witch_class.Spellbook.SpellList, 1);
+            hex_vulnerability_spell.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd"); //hold person
+
+
+            accursed_hex_buff = library.CopyAndAdd<BlueprintBuff>(hex_vulnerability_buff.AssetGuid, "AccursedHexBuff", "");
+            accursed_hex_buff.SetName("Accursed Hex");
+            accursed_hex_buff.SetDescription("You can make a second attempt at failed hexes.\n"
+                                             +"Benefit: When you target a creature with a hex that cannot target the same creature more than once per day, and that creature succeeds at its saving throw against the hex’s effect, you can target the creature with the same hex a second time before the end of your next turn.If the second attempt fails, you can make no further attempts to target that creature with the same hex for 1 day.\n"
+                                             + "Normal: You can only target a creature with these hexes once per day.");
+            accursed_hex_buff.Stacking = StackingType.Ignore;
+
+            accursed_hex_feat = Helpers.CreateFeature("AccursedHexFeature",
+                                                      accursed_hex_buff.Name,
+                                                      accursed_hex_buff.Description,
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.Feat,
+                                                      Helpers.PrerequisiteClassLevel(witch_class, 1));
+            library.AddFeats(accursed_hex_feat);
         }
+
+
+
     }
 }

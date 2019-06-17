@@ -811,7 +811,7 @@ namespace CallOfTheWild
             precise_companion.SetName("Precise Companion");
             precise_companion.SetDescription("At 2nd level, a hunter chooses either Precise Shot or Outflank as a bonus feat. She does not need to meet the prerequisites for this feat. If she chooses Outflank, she automatically grants this feat to her animal companion as well.");
 
-            var outflank = library.TryGet<Kingmaker.Blueprints.Classes.BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665");
+            var outflank = library.TryGet<Kingmaker.Blueprints.Classes.BlueprintFeature>("422dab7309e1ad343935f33a4d6e9f11");
             var precise_companion_outflank = Helpers.CreateFeature("PreciseCompanionOutflankFeature",
                                                                    outflank.Name,
                                                                    outflank.Description,
@@ -823,7 +823,7 @@ namespace CallOfTheWild
             precise_companion_outflank.HideInCharacterSheetAndLevelUp = true;
             precise_companion_outflank.HideInUI = true;
 
-            precise_companion.AllFeatures = new BlueprintFeature[2] {library.TryGet< Kingmaker.Blueprints.Classes.BlueprintFeature>("422dab7309e1ad343935f33a4d6e9f11"), //precise shot
+            precise_companion.AllFeatures = new BlueprintFeature[2] {library.TryGet< Kingmaker.Blueprints.Classes.BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665"), //precise shot
                                                                            precise_companion_outflank };//outflank
             precise_companion.Features = precise_companion.AllFeatures;
             precise_companion.IgnorePrerequisites = true;

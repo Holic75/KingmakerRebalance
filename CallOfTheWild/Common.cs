@@ -174,7 +174,7 @@ namespace CallOfTheWild
 
 
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
-                                                                                                                  bool is_child = false, bool is_permanent = false)
+                                                                                                                  bool is_child = false, bool is_permanent = false, bool is_dispellable = true)
         {
             var context_saved = Helpers.Create <Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
             context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
@@ -185,6 +185,7 @@ namespace CallOfTheWild
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.AsChild = is_child;
             apply_buff.Permanent = is_permanent;
+            apply_buff.IsNotDispelable = !is_dispellable;
             context_saved.Failed = Helpers.CreateActionList(apply_buff);
             return context_saved;
         }
@@ -1181,9 +1182,9 @@ namespace CallOfTheWild
         }
         
 
-        static internal SavingThrowBonusAgainstSpecificSpells createSavingThrowBonusAgainstSpecificSpells(int bonus, ModifierDescriptor descriptor, params BlueprintAbility[] spells)
+        static internal NewMechanics.SavingThrowBonusAgainstSpecificSpells createSavingThrowBonusAgainstSpecificSpells(int bonus, ModifierDescriptor descriptor, params BlueprintAbility[] spells)
         {
-            var s = Helpers.Create<SavingThrowBonusAgainstSpecificSpells>();
+            var s = Helpers.Create<NewMechanics.SavingThrowBonusAgainstSpecificSpells>();
             s.Spells = spells;
             s.ModifierDescriptor = descriptor;
             s.Value = bonus;
@@ -1198,6 +1199,16 @@ namespace CallOfTheWild
             a.CheckedFacts = facts;
             a.Inverted = inverted;
             return a;
+        }
+
+
+        static internal NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster createAbilityTargetHasNoFactUnlessBuffsFromCaster(BlueprintBuff[] target_buffs, 
+                                                                                                          BlueprintBuff[] alternative_buffs)
+        {
+            var h = Helpers.Create<NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster>();
+            h.CheckedBuffs = target_buffs;
+            h.AlternativeBuffs = alternative_buffs;
+            return h;
         }
     }
 }

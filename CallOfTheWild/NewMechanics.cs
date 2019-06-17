@@ -27,6 +27,9 @@ using Newtonsoft.Json;
 using Kingmaker.Utility;
 using Kingmaker.UI.GenericSlot;
 using Kingmaker.Items;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.EntitySystem.Entities;
+using System.Collections.Generic;
 
 namespace CallOfTheWild
 {
@@ -314,6 +317,86 @@ namespace CallOfTheWild
                 {
                     m_Armor.RecalculateStats();
                 }
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [ComponentName("Predicates/Target has fact unless alternative")]
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetHasNoFactUnlessBuffsFromCaster : BlueprintComponent, IAbilityTargetChecker
+        {
+            public BlueprintBuff[] CheckedBuffs;
+            public BlueprintBuff[] AlternativeBuffs;
+
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+                bool flag1 = false;
+
+                foreach (var CheckedBuff in this.CheckedBuffs)
+                {
+                    foreach (var b in unit.Descriptor.Buffs)
+                    {
+                        flag1 = (b.Blueprint == CheckedBuff) && (b.MaybeContext.MaybeCaster == caster);
+                        if (flag1) break;
+                    }
+                    if (flag1) break;
+                }
+
+                bool flag2 = false;
+                foreach (var AlternativeBuff in this.AlternativeBuffs)
+                {
+                    foreach (var b in unit.Descriptor.Buffs)
+                    {
+                        flag2 = (b.Blueprint == AlternativeBuff) && (b.MaybeContext.MaybeCaster == caster);
+                        if (flag2) break;
+                    }
+                    if (flag2) break;
+                }
+
+                if (flag1)
+                {
+                    return flag2;
+                }
+                return true;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SavingThrowBonusAgainstSpecificSpells : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public BlueprintAbility[] Spells;
+            public ModifierDescriptor ModifierDescriptor;
+            public int Value;
+            public BlueprintUnitFact[] BypassFeatures;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+               
+                BlueprintAbility sourceAbility = evt.Reason.Context?.SourceAbility;
+                UnitEntityData maybeCaster = evt.Reason.Context?.MaybeCaster;
+                bool flag = maybeCaster != null;
+                if (flag)
+                {
+                    flag = false;
+                    foreach (BlueprintUnitFact bypassFeature in this.BypassFeatures)
+                        flag = maybeCaster.Descriptor.HasFact(bypassFeature);
+                }
+                if (!(sourceAbility != null) || !((IEnumerable<BlueprintAbility>)this.Spells).Contains<BlueprintAbility>(sourceAbility) || flag)
+                    return;
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(this.Value, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(this.Value, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(this.Value, (GameLogicComponent)this, this.ModifierDescriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
             }
         }
 

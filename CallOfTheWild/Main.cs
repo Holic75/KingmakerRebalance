@@ -114,11 +114,12 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Hunter.createHunterClass();
                     CallOfTheWild.Hunter.addAnimalFocusSH();
-                    CallOfTheWild.Witch.test_mode = false;
+#if DEBUG
+                    CallOfTheWild.Witch.test_mode = true;
+                    CallOfTheWild.Bloodrager.test_mode = true;
+#endif
                     CallOfTheWild.Witch.createWitchClass();
-                    CallOfTheWild.Bloodrager.test_mode = false;
                     CallOfTheWild.Bloodrager.createBloodragerClass();
-
 #if DEBUG
                     string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";
                     CallOfTheWild.Helpers.GuidStorage.dump(guid_file_name);
