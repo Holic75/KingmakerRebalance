@@ -1210,5 +1210,13 @@ namespace CallOfTheWild
             h.AlternativeBuffs = alternative_buffs;
             return h;
         }
+
+
+        static internal Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetIsPartyMember createAbilityTargetIsPartyMember(bool val = false)
+        {
+            var a = Helpers.Create<AbilityTargetIsPartyMember>();
+            a.Not = !val;
+            return a;
+        }
     }
 }

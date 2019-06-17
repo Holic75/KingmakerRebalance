@@ -94,6 +94,7 @@ namespace CallOfTheWild
 
         internal static void createWitchClass()
         {
+            Main.logger.Log("Witch class test mode: " + test_mode.ToString());
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
 
             witch_class = Helpers.Create<BlueprintCharacterClass>();
@@ -2135,13 +2136,17 @@ namespace CallOfTheWild
             hex_vulnerability_spell.CanTargetSelf = false;
             hex_vulnerability_spell.CanTargetEnemies = true;
             hex_vulnerability_spell.CanTargetFriends = test_mode;
+            hex_vulnerability_spell.EffectOnAlly = test_mode ? AbilityEffectOnUnit.Harmful : AbilityEffectOnUnit.None;
             hex_vulnerability_spell.SpellResistance = true;
             hex_vulnerability_spell.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken | Kingmaker.UnitLogic.Abilities.Metamagic.Reach;
             hex_vulnerability_spell.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             hex_vulnerability_spell.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Necromancy));
             hex_vulnerability_spell.AddToSpellList(witch_class.Spellbook.SpellList, 1);
             hex_vulnerability_spell.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd"); //hold person
-
+            if (!test_mode)
+            {
+                hex_vulnerability_spell.AddComponent(Common.createAbilityTargetIsPartyMember(false));
+            }
 
             accursed_hex_buff = library.CopyAndAdd<BlueprintBuff>(hex_vulnerability_buff.AssetGuid, "AccursedHexBuff", "");
             accursed_hex_buff.SetName("Accursed Hex");
