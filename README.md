@@ -7,10 +7,11 @@ It introduces new classes:
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Stellblood.
 
-It also introduces 2 new feats related to these classes: Extra Hex and Rage Casting.
+It also introduces new feats related to these classes: Extra Hex, Accursed Hex and Rage Casting.
 
 
 It also adds the following new spells:
+- Hex Vulnerability,
 - Plant Shape I, II and III,
 -  Giant Form I and II,
 -  Shapechange.  
