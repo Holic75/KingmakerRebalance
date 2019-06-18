@@ -237,6 +237,16 @@ namespace CallOfTheWild
         }
 
 
+        internal static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClasses(BlueprintCharacterClass[] character_classes,
+                                                                                                                                            StatType stat)
+        {
+            var c = Helpers.Create<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
+            c.CharacterClasses = character_classes;
+            c.StatType = stat;
+            return c;
+        }
+
+
         internal static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
         {
             var c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks>();

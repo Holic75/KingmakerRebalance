@@ -71,6 +71,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature steelblood_proficiencies;
         static internal BlueprintFeature blood_deflection;
         static internal BlueprintFeature blood_deflection_bonus;
+        static internal BlueprintFeatureSelection bloodline_feat_selection;
 
         static internal ActivatableAbilityGroup metarage_group = ActivatableAbilityGroup.TrueMagus;
 
@@ -90,6 +91,7 @@ namespace CallOfTheWild
 
         internal static void createBloodragerClass()
         {
+            Main.logger.Log("Bloodrager class test mode: " + test_mode.ToString());
             var barbarian_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
 
             bloodrager_class = Helpers.Create<BlueprintCharacterClass>();
@@ -155,11 +157,42 @@ namespace CallOfTheWild
         }
 
 
+        static BlueprintCharacterClass[] getDraconicArray()
+        {
+            return new BlueprintCharacterClass[] { bloodrager_class, library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c") };//+dragon disciple
+        }
+
+
+        static void removeUnauthorizedbloodlinesFromDragonDisciple()
+        {
+            var dragon_disciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+            var non_dragon_bloodline = Helpers.CreateFeature("BloodragerNonDragonBloodline",
+                                                             "Bloodrager Non-Draconic Bloodline",
+                                                             "",
+                                                             "",
+                                                             null,
+                                                             FeatureGroup.None);
+            non_dragon_bloodline.HideInUI = true;
+            non_dragon_bloodline.HideInCharacterSheetAndLevelUp = true;
+
+            var allowed_features = dragon_disciple.GetComponent<PrerequisiteFeaturesFromList>();
+            foreach (var b in bloodlines)
+            {
+                if (!allowed_features.Features.Contains(b.progression))
+                {
+                    b.progression.LevelEntries[0].Features.Add(non_dragon_bloodline);
+                }
+            }
+            dragon_disciple.AddComponent(Helpers.PrerequisiteNoFeature(non_dragon_bloodline));
+        }
+
         static void createBloodragerProgression()
         {
 
             createBloodrage();
+            createBloodlineFeatSelection();
             creatBloodlineSelection();
+            removeUnauthorizedbloodlinesFromDragonDisciple();
             createBloodSanctuary();
 
             bloodrager_progression = Helpers.CreateProgression("BloodragerProgression",
@@ -198,25 +231,37 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(3, blood_sanctuary),
                                                                     Helpers.LevelEntry(4),
                                                                     Helpers.LevelEntry(5, improved_uncanny_dodge),
-                                                                    Helpers.LevelEntry(6),
+                                                                    Helpers.LevelEntry(6, bloodline_feat_selection),
                                                                     Helpers.LevelEntry(7, damage_reduction),
                                                                     Helpers.LevelEntry(8),
-                                                                    Helpers.LevelEntry(8),
+                                                                    Helpers.LevelEntry(9,  bloodline_feat_selection),
                                                                     Helpers.LevelEntry(10, damage_reduction),
                                                                     Helpers.LevelEntry(11, greater_bloodrage),
-                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(12, bloodline_feat_selection),
                                                                     Helpers.LevelEntry(13, damage_reduction),
                                                                     Helpers.LevelEntry(14, indomitable_will),
-                                                                    Helpers.LevelEntry(15),
+                                                                    Helpers.LevelEntry(15, bloodline_feat_selection),
                                                                     Helpers.LevelEntry(16, damage_reduction),
                                                                     Helpers.LevelEntry(17, tireless_bloodrage),
-                                                                    Helpers.LevelEntry(18),
+                                                                    Helpers.LevelEntry(18, bloodline_feat_selection),
                                                                     Helpers.LevelEntry(19, damage_reduction),
                                                                     Helpers.LevelEntry(20, mighty_bloodrage)
                                                                     };
 
             bloodrager_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { bloodrager_proficiencies, detect_magic, bloodline_selection };
             bloodrager_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(bloodrage, greater_bloodrage, tireless_bloodrage, mighty_bloodrage) };
+        }
+
+
+        static void createBloodlineFeatSelection()
+        {
+            bloodline_feat_selection = Helpers.CreateFeatureSelection("BloodragerBloodlineFeat",
+                                                                      "Bloodline Feat",
+                                                                      "At 6th level and every 3 levels thereafter, a bloodrager receives one bonus feat chosen from a list specific to each bloodline. The bloodrager must meet the prerequisites for these bonus feats.",
+                                                                      "",
+                                                                      null,
+                                                                      FeatureGroup.None
+                                                                      );
         }
 
 
@@ -456,7 +501,7 @@ namespace CallOfTheWild
                                                               "8a06875a5d1b4f3e93d4f7e1b54e3356",
                                                               new string[] { "1ebaa0951c4c43b69462fb6ccf0dde3f", "bbe03ed8293e435782dbfa6bc0ad10bf", "6e26e5974ab4481fa6127783bbac301c", "b7b57562edac4e01955dfa63e956b01b" },
                                                               "ccd945bba7784ae981ac66e8138439d5"
-                                                              );
+                                                              ).progression;
 
             }
 
@@ -748,7 +793,7 @@ namespace CallOfTheWild
                                                               "b42a51e28d06456bad786a0405c3a892",
                                                               new string[] { "81d09d66ac3e4faf8e58f570e1551621", "feeb29835ff34bb2a7f692d465372565", "e96cd140a81b480aa6b52ac8bdb50813", "bdf50388d3d545ae8ea5d443c21b3388" },
                                                               "cd00b25671db470182daa9c129949991"
-                                                              );
+                                                              ).progression;
             }
 
             static void createStaggeringStrike()
@@ -934,7 +979,7 @@ namespace CallOfTheWild
                                                               "356f9a6169d8480da772f02a13e2da29",
                                                               new string[] { "0921bf94bf174c8b8e0361057761ba7a", "ca818409470d4a56b8619c3604af345b", "c7dfde63fb8a41afa3f0b1fc0020bcac", "9d196e52c01c43ddbcca7b8a941144e7" },
                                                               "205d951fa55a4d9ca10f50592f1868b3"
-                                                              );
+                                                              ).progression;
             }
 
             static void createAngelicAttacks()
@@ -1022,7 +1067,8 @@ namespace CallOfTheWild
 
             static void createWingsOfHeaven()
             {
-                var angelic_wings_buff = library.CopyAndAdd<BlueprintBuff>("25699a90ed3299e438b6fd5548930809", prefix + "WingsOfHeavenBuff", "52bf0d70b8884943b83cdc96588a007f");
+                //var angelic_wings_buff = library.CopyAndAdd<BlueprintBuff>("25699a90ed3299e438b6fd5548930809", prefix + "WingsOfHeavenBuff", "52bf0d70b8884943b83cdc96588a007f");
+                var angelic_wings_buff = library.Get<BlueprintBuff>("25699a90ed3299e438b6fd5548930809");
                 wings_of_heaven = Helpers.CreateFeature(prefix + "WingsOfHeavenFeature",
                                                                                "Wings of Heaven",
                                                                                "At 12th level, you gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
@@ -1105,7 +1151,7 @@ namespace CallOfTheWild
                                                               "fe056d23f80c4c64b4ee3a8e6f2973b2",
                                                               new string[] { "78b0900bd71c454baeb5886494fb0ae0", "2dbe75eadf684985a252608ae6f86259", "bcf1a280d91e435087c1180e3188ea41", "75c37819a8f74d02a3da486c46bf4e0c" },
                                                               "30fb198d84af4b2498fa1b3f35668494"
-                                                              );
+                                                              ).progression;
             }
 
 
@@ -1271,7 +1317,7 @@ namespace CallOfTheWild
                                                               "346f332ed9b843638a228257a59743b7",
                                                               new string[] { "02339061142647e8835f6f91c1485a76", "9a2c466398d04102b43c1a78ead78937", "592cf48fec304b4f8a2a5005a0939895", "11eab4cb7d9a4081b6788bfe9cb97fc4" },
                                                               "2d083855bf614669a8dd82ac2ff93207"
-                                                              );
+                                                              ).progression;
             }
 
             static void createHellfireStrike()
@@ -1371,7 +1417,8 @@ namespace CallOfTheWild
 
             static void createDarkWings()
             {
-                var diabolic_wings_buff = library.CopyAndAdd<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f", prefix + "DarkWingsBuff", "cd8e632e520d417cb20766b7e124909a");
+                //var diabolic_wings_buff = library.CopyAndAdd<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f", prefix + "DarkWingsBuff", "cd8e632e520d417cb20766b7e124909a");
+                var diabolic_wings_buff = library.Get<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f");
                 dark_wings = Helpers.CreateFeature(prefix + "DarkWingsFeature",
                                                                                "Dark Wings",
                                                                                "At 12th level, you gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
@@ -1471,7 +1518,7 @@ namespace CallOfTheWild
                                                               "c9474ae9021543ff84633825b16b25f2",
                                                               new string[] { "290830ff3e8a470aaf1ebfd696dd1be5", "65d95f832c5649a9951d6d384085dcf2", "ca173aea1a5c41baa455f0146135ba18", "d83b97e1facf41ca9ef281a753536910" },
                                                               "e82330114e464cf193d521a47a273f5a"
-                                                              );
+                                                              ).progression;
             }
 
 
@@ -1656,7 +1703,7 @@ namespace CallOfTheWild
                                                               "",
                                                               new string[] { "", "", "", "" },
                                                               ""
-                                                              );
+                                                              ).progression;
             }
 
             static void createDestinedStrike()
@@ -1895,9 +1942,10 @@ namespace CallOfTheWild
 
                 public string energy_string;
                 public string breath_area_string;
+                public BlueprintProgression sorc_progression;
 
                 public DraconicBloodlineData(UnityEngine.Sprite bloodline_icon, BlueprintBuff wings, BlueprintAbility breath_weapon, BlueprintBuff dragon_form, DamageEnergyType energy,
-                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, string bloodline_name)
+                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, BlueprintProgression sorceror_progression, string bloodline_name)
                 {
                     icon = bloodline_icon;
                     wings_prototype = wings;
@@ -1912,6 +1960,7 @@ namespace CallOfTheWild
                     int end = breath_weapon.Description.IndexOf('.', start);
                     breath_area_string = breath_weapon.Description.Substring(start, end - start);
                     power_of_the_wyrms = power_of_the_wyrms_feat;
+                    sorc_progression = sorceror_progression;
 
                     switch (energy)
                     {
@@ -1944,34 +1993,44 @@ namespace CallOfTheWild
                 {
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34").Icon, library.Get<BlueprintBuff>("ddfe6e85e1eed7a40aa911280373c228"),
                                               library.Get<BlueprintAbility>("1e65b0b2db777e24db96d8bc52cc9207"), library.Get<BlueprintBuff>("9eb5ba8c396d2c74c8bfabd3f5e91050"),
-                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("25397838424fac04197e226a268ddce6"), "Black"),
+                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("25397838424fac04197e226a268ddce6"), 
+                                              library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34"), "Black"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("8a7f100c02d0b254d8f5f3affc8ef386").Icon, library.Get<BlueprintBuff>("800cde038f9e6304d95365edc60ab0a4"),
                                               library.Get<BlueprintAbility>("60a3047f434f38544a2878c26955d3ad"), library.Get<BlueprintBuff>("cf8b4e861226e0545a6805036ab2a21b"),
-                                              DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("582b25fef37373c4591a7994f3da9c69"), "Blue"),
+                                              DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("582b25fef37373c4591a7994f3da9c69"),
+                                              library.Get<BlueprintProgression>("8a7f100c02d0b254d8f5f3affc8ef386"), "Blue"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("5f9ecbee67db8364985e9d0500eb25f1").Icon, library.Get<BlueprintBuff>("7f5acae38fc1e0f4c9325d8a4f4f81fc"),
                                               library.Get<BlueprintAbility>("531a57e0c19f80945b68bdb3e289279a"), library.Get<BlueprintBuff>("f7fdc15aa0219104a8b38c9891cac17b"),
-                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("8f10f507dde8d86488fda84cb136de47"), "Brass"),
+                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("8f10f507dde8d86488fda84cb136de47"),
+                                              library.Get<BlueprintProgression>("5f9ecbee67db8364985e9d0500eb25f1"), "Brass"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("7e0f57d8d00464441974e303b84238ac").Icon, library.Get<BlueprintBuff>("482ee5d001527204bb86e34240e2ce65"),
                                               library.Get<BlueprintAbility>("732291d7ac20b0949aae002622e00b34"), library.Get<BlueprintBuff>("53e408cab2331bd48a3db846e531dfe8"),
-                                              DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("d81844b1f549df1418ccc40ccca3274a"), "Bronze"),
+                                              DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("d81844b1f549df1418ccc40ccca3274a"),
+                                              library.Get<BlueprintProgression>("7e0f57d8d00464441974e303b84238ac"), "Bronze"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("b522759a265897b4f8f7a1a180a692e4").Icon, library.Get<BlueprintBuff>("a25d6fc69cba80548832afc6c4787379"),
                                               library.Get<BlueprintAbility>("826ef8251d9243941b432f97d901e938"), library.Get<BlueprintBuff>("799c8b6ae43c7d741ac7887c984f2aa2"),
-                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("6a885e6b343e4b44ab56e0dd47ff83fb"), "Copper"),
+                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("6a885e6b343e4b44ab56e0dd47ff83fb"),
+                                              library.Get<BlueprintProgression>("b522759a265897b4f8f7a1a180a692e4"), "Copper"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("6c67ef823db8d7d45bb0ef82f959743d").Icon, library.Get<BlueprintBuff>("984064a3dd0f25444ad143b8a33d7d92"),
                                               library.Get<BlueprintAbility>("598e33639b662784fb07c0e4c8978aa4"), library.Get<BlueprintBuff>("4300f60c00ecabc439deab11ce6d738a"),
-                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("3247396087a747148b17e1a0e37a3e67"), "Gold"),
+                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("3247396087a747148b17e1a0e37a3e67"),
+                                              library.Get<BlueprintProgression>("6c67ef823db8d7d45bb0ef82f959743d"), "Gold"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("7181be57d1cc3bc40bc4b552e4e4ce24").Icon, library.Get<BlueprintBuff>("a4ccc396e60a00f44907e95bc8bf463f"),
                                               library.Get<BlueprintAbility>("633b622267c097d4abe3ec6445c05152"), library.Get<BlueprintBuff>("070543328d3e9af49bb514641c56911d"),
-                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("c593e3279e68cc649b976e685e5b8900"), "Green"),
+                                              DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("c593e3279e68cc649b976e685e5b8900"),
+                                              library.Get<BlueprintProgression>("7181be57d1cc3bc40bc4b552e4e4ce24"), "Green"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("8c6e5b3cf12f71e43949f52c41ae70a8").Icon, library.Get<BlueprintBuff>("08ae1c01155a2184db869e9ebedc758d"),
                                               library.Get<BlueprintAbility>("3f31704e595e78942b3640cdc9b95d8b"), library.Get<BlueprintBuff>("40a96969339f3c241b4d989910f255e1"),
-                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("a18ab74c10933e84daf76afdaabc28dd"), "Red"),
+                                              DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("a18ab74c10933e84daf76afdaabc28dd"),
+                                              library.Get<BlueprintProgression>("8c6e5b3cf12f71e43949f52c41ae70a8"), "Red"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("c7d2f393e6574874bb3fc728a69cc73a").Icon, library.Get<BlueprintBuff>("5a791c1b0bacee3459d7f5137fa0bd5f"),
                                               library.Get<BlueprintAbility>("11d03ebc508d6834cad5992056ad01a4"), library.Get<BlueprintBuff>("16857109dafc2b94eafd1e888552ef76"),
-                                              DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("a1d338a76b127b54eba7dc9a85532f3f"), "Silver"),
+                                              DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("a1d338a76b127b54eba7dc9a85532f3f"),
+                                              library.Get<BlueprintProgression>("c7d2f393e6574874bb3fc728a69cc73a"), "Silver"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("b0f79497a0d1f4f4b8293e82c8f8fa0c").Icon, library.Get<BlueprintBuff>("381a168acd79cd54baf87a17ca861d9b"),
                                               library.Get<BlueprintAbility>("84be529914c90664aa948d8266bb3fa6"), library.Get<BlueprintBuff>("2652c61dff50a24479520c84005ede8b"),
-                                              DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("c06fe7c8722ad5a42b241f11246d2679"), "White")
+                                              DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("c06fe7c8722ad5a42b241f11246d2679"),
+                                              library.Get<BlueprintProgression>("b0f79497a0d1f4f4b8293e82c8f8fa0c"), "White")
                 };
 
                 createClaws();
@@ -1996,7 +2055,7 @@ namespace CallOfTheWild
 
                 for (int i = 0; i < bloodlines.Length; i++)
                 {
-                    var progression = createBloodragerBloodline("Draconic",
+                    var bloodline_info = createBloodragerBloodline("Draconic",
                                                                   "At some point in your family’s history, a dragon interbred with your bloodline. Now, the sublime monster’s ancient power fuels your bloodrage.\n"
                                                                    + "Bonus Feats: Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Power Attack, Skill Focus (Mobility), Toughness.\n"
                                                                    + "Bonus Spells: Shield (7th), resist energy (10th), dispel magic (13th), fear (16th).",
@@ -2008,8 +2067,39 @@ namespace CallOfTheWild
                                                                   new string[] { "", "", "", "" },
                                                                   "",
                                                                   bloodlines[i].name);
-                    progressions.Add(progression);
+                    progressions.Add(bloodline_info.progression);
+                    addToDragonDisciple(bloodlines[i].sorc_progression, bloodline_info);
                 }
+            }
+
+
+            static void addToDragonDisciple(BlueprintProgression sorc_progression, BloodlineInfo bloodrager_bloodline_info)
+            {
+                var dragon_disciple_class = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+                var dd_feat_selection = Rebalance.dd_feat_subselection;
+                dd_feat_selection.AllFeatures = dd_feat_selection.AllFeatures.AddToArray(bloodrager_bloodline_info.bonus_feats);
+                dd_feat_selection.Features = dd_feat_selection.Features.AddToArray(bloodrager_bloodline_info.bonus_feats);
+
+                bloodrager_bloodline_info.progression.Classes = bloodrager_bloodline_info.progression.Classes.AddToArray(dragon_disciple_class);
+                var blood_of_dragons_selection = library.Get<BlueprintFeatureSelection>("da48f9d7f697ae44ca891bfc50727988");
+
+                var draconic_feature_prerequisites = dragon_disciple_class.GetComponent<PrerequisiteFeaturesFromList>();
+                draconic_feature_prerequisites.Features = draconic_feature_prerequisites.Features.AddToArray(bloodrager_bloodline_info.progression);
+                blood_of_dragons_selection.AllFeatures = blood_of_dragons_selection.AllFeatures.AddToArray(bloodrager_bloodline_info.progression);
+
+                BlueprintFeature[] dragon_features = new BlueprintFeature[] {library.Get<BlueprintFeature>("01971351119121d429ecf62c2ab94de3"), //elemental dmg bite
+                                                                             library.Get<BlueprintFeature>("0aadb51129cb0c147b5d2464c0db10b3"), //breath weapon
+                                                                             library.Get<BlueprintFeature>("aa36f82ab9a046c4a853dccf0cdbaf53"), //wings
+                                                                             library.Get<BlueprintFeature>("76dc9a65841190d46a8fc25dce00a242"), //dragon form I
+                                                                             library.Get<BlueprintFeature>("717699191d106eb46a7d820a872ed24d") //dragon form II
+                                                                            };
+                foreach (var f in dragon_features)
+                {
+                    var bloodline_entry = f.GetComponents<AddFeatureIfHasFact>().Where(h => h.CheckedFact == sorc_progression).ToArray()[0].CreateCopy();
+                    bloodline_entry.CheckedFact = bloodrager_progression;
+                    f.AddComponent(bloodline_entry);
+                }
+
             }
 
 
@@ -2084,10 +2174,10 @@ namespace CallOfTheWild
                                                               "",
                                                               claws1_feature.Icon,
                                                               FeatureGroup.None,
-                                                              Helpers.CreateAddFeatureOnClassLevel(claws1_feature, 1, getBloodragerArray(), null),
-                                                              Helpers.CreateAddFeatureOnClassLevel(claws2_feature, 4, getBloodragerArray(), null),
-                                                              Helpers.CreateAddFeatureOnClassLevel(claws3_feature, 8, getBloodragerArray(), null),
-                                                              Helpers.CreateAddFeatureOnClassLevel(claws4_feature, 12, getBloodragerArray(), null)
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws1_feature, 1, getDraconicArray(), null),
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws2_feature, 4, getDraconicArray(), null),
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws3_feature, 8, getDraconicArray(), null),
+                                                              Helpers.CreateAddFeatureOnClassLevel(claws4_feature, 12, getDraconicArray(), null)
                                                               );
                     Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claws4_buff_energy[i], claws4_feature);
                     claws.Add(claw);
@@ -2108,7 +2198,7 @@ namespace CallOfTheWild
                                                         Common.createEnergyDRContextRank(b.energy_type, AbilityRankType.StatBonus),
                                                                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
                                                                                          ContextRankProgression.Custom, AbilityRankType.StatBonus,
-                                                                                         classes: getBloodragerArray(),
+                                                                                         classes: getDraconicArray(),
                                                                                          customProgression: new (int, int)[] {
                                                                                                 (7, 5),
                                                                                                 (20, 10)
@@ -2116,7 +2206,7 @@ namespace CallOfTheWild
                                                         Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, rankType: AbilityRankType.DamageBonus),
                                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
                                                                                         ContextRankProgression.Custom, AbilityRankType.DamageBonus,
-                                                                                        classes: getBloodragerArray(),
+                                                                                        classes: getDraconicArray(),
                                                                                         customProgression: new (int, int)[] {
                                                                                                 (7, 1),
                                                                                                 (15, 2),
@@ -2139,17 +2229,17 @@ namespace CallOfTheWild
             static void createBreathWeapon()
             {
                 var resource = library.CopyAndAdd<BlueprintAbilityResource>("bebe2a97cc091934189fd8255e903b1f", prefix + "BreathWeaponResource", ""); //sorc bloodline resource
-                resource.SetIncreasedByLevelStartPlusDivStep(1, 16, 1, 4, 1, 0, 0.0f, getBloodragerArray());
+                resource.SetIncreasedByLevelStartPlusDivStep(1, 16, 1, 4, 1, 0, 0.0f, getDraconicArray());
                 //var add_resource = library.Get<BlueprintFeature>("7459c25b2cc9cdd4d8367cb555f0fe5a");
                 foreach (var b in bloodlines)
                 {
                     var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
                     breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a{b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
-                    var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class");
+                    var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class"); 
                     classes = classes.AddToArray(bloodrager_class);
-                    Helpers.SetField(rank_config, "m_Class", classes);
-                    breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution));
+                    Helpers.SetField(rank_config, "m_Class", classes); // will propagate to prototype to bloodrager o be combined with sorc or dd
+                    breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(getDraconicArray(), StatType.Constitution));
                     breath_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(resource));
 
                     var breath_feature = Helpers.CreateFeature(b.prefix + "BreathWeaponFeature",
@@ -2172,14 +2262,14 @@ namespace CallOfTheWild
             {
                 foreach (var b in bloodlines)
                 {
-                    var wings_buff = library.CopyAndAdd<BlueprintBuff>(b.wings_prototype.AssetGuid, b.prefix + "DragonWingsBuff", "");
+                    //var wings_buff = library.CopyAndAdd<BlueprintBuff>(b.wings_prototype.AssetGuid, b.prefix + "DragonWingsBuff", "");
                     var wings_feature = Helpers.CreateFeature(b.prefix + "DragonWings",
                                                                                    "Dragon Wings ",
                                                                                    "At 12th level, you gain a pair of leathery wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain.",
                                                                                    "",
-                                                                                   wings_buff.Icon,
+                                                                                   b.wings_prototype.Icon,
                                                                                    FeatureGroup.None);
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, wings_buff, wings_feature);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, b.wings_prototype, wings_feature);
                     dragon_wings.Add(wings_feature);
                 }
             }
@@ -2198,10 +2288,9 @@ namespace CallOfTheWild
                     var polymorph = buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
                     polymorph.Facts = new BlueprintUnitFact[0];
                     buff.ReplaceComponent<Kingmaker.UnitLogic.Buffs.Polymorph>(polymorph);
-                    var scaling = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass>();
-                    scaling.CharacterClass = bloodrager_class;
+                    var scaling = Helpers.Create<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
+                    scaling.CharacterClasses = getDraconicArray();
                     scaling.StatType = StatType.Constitution;
-                    scaling.UseKineticistMainStat = false;
                     buff.AddComponent(scaling);
 
                     var feature = Common.createSwitchActivatableAbilityBuff(b.prefix + "DragonForm", "", "", "",
@@ -2341,7 +2430,7 @@ namespace CallOfTheWild
                                                                   "",
                                                                   new string[] { "", "", "", "" },
                                                                   "",
-                                                                  bloodlines[i].name);
+                                                                  bloodlines[i].name).progression;
                     progressions.Add(progression);
                 }
             }
@@ -2510,7 +2599,7 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintProgression createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon,
+        static BloodlineInfo createBloodragerBloodline(string name, string description, UnityEngine.Sprite icon,
                                                     BlueprintAbility[] bonus_spells, BlueprintFeature[] bonus_feats, BlueprintFeature[] powers,
                                                     string feat_selection_guid, string[] spell_guids, string progression_guid, string name_ext = "")
         {
@@ -2535,6 +2624,10 @@ namespace CallOfTheWild
             feat_selection.AllFeatures = bonus_feats;
             feat_selection.Features = bonus_feats;
 
+            bloodline_feat_selection.AllFeatures = bloodline_feat_selection.AllFeatures.AddToArray(feat_selection);
+            bloodline_feat_selection.Features = bloodline_feat_selection.AllFeatures;
+
+
             BlueprintFeature[] bloodline_spells = new BlueprintFeature[bonus_spells.Length];
 
             for (int i = 0; i < bloodline_spells.Length; i++)
@@ -2555,16 +2648,12 @@ namespace CallOfTheWild
             progression.Classes = getBloodragerArray();
             progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, powers[0]),
                                                          Helpers.LevelEntry(4, powers[1]),
-                                                         Helpers.LevelEntry(6, feat_selection),
                                                          Helpers.LevelEntry(7, bloodline_spells[0]),
                                                          Helpers.LevelEntry(8, powers[2]),
-                                                         Helpers.LevelEntry(9, feat_selection),
                                                          Helpers.LevelEntry(10, bloodline_spells[1]),
-                                                         Helpers.LevelEntry(12, feat_selection, powers[3]),
+                                                         Helpers.LevelEntry(12, powers[3]),
                                                          Helpers.LevelEntry(13, bloodline_spells[2]),
-                                                         Helpers.LevelEntry(15, feat_selection),
                                                          Helpers.LevelEntry(16, powers[4], bloodline_spells[3]),
-                                                         Helpers.LevelEntry(18, feat_selection),
                                                          Helpers.LevelEntry(20, powers[5])
                                                         };
             progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(powers),
@@ -2572,9 +2661,13 @@ namespace CallOfTheWild
                                                   Helpers.CreateUIGroup(feat_selection, feat_selection, feat_selection, feat_selection, feat_selection)
                                                  };
 
-            bloodlines.Add(new BloodlineInfo(progression, feat_selection));
+            progression.AddComponent(Helpers.PrerequisiteClassLevel(bloodrager_class, 1)); //require level 1 bloodrager to not allow dd to pick bloodrager lines
+            var bloodline_info = new BloodlineInfo(progression, feat_selection);
+            bloodlines.Add(bloodline_info);
 
-            return progression;
+            feat_selection.AddComponent(Helpers.PrerequisiteFeature(progression));
+
+            return bloodline_info;
         }
 
 
@@ -2701,7 +2794,7 @@ namespace CallOfTheWild
                 feat.HideInUI = true;
                 feat.HideInCharacterSheetAndLevelUp = true;
 
-                m.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 5, getBloodragerArray(), null));
+                m.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 5, getBloodragerArray(), new BlueprintArchetype[] { metamagic_rager_archetype}));
             }
             var shadow_evocation = library.Get<BlueprintAbility>("237427308e48c3341b3d532b9d3a001f");
             metarage = Helpers.CreateFeature("BloodragerMetaRagerMetaRageFeat",

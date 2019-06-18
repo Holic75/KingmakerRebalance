@@ -107,6 +107,7 @@
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>..\..\..\Users\DenisPc\Downloads\UnityModManager-21-0-13-1-1551447200\UnityModManager\UnityModManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

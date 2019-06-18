@@ -13,6 +13,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Enums;
+using Kingmaker.Blueprints.Classes.Selection;
 
 namespace CallOfTheWild
 {
@@ -305,6 +306,30 @@ public class Rebalance
             magic_vestement_shield_buff.Stacking = StackingType.Replace;
         }
 
+        public static BlueprintFeatureSelection dd_feat_subselection;
+        public static void fixDragonDiscipleBonusFeat()
+        {
+            //to allow select feats from other bloodline classes (bloodrager for example)
+            var dd_feat_selection = Main.library.Get<BlueprintFeatureSelection>("f4b011d090e8ae543b1441bd594c7bf7");
+            dd_feat_subselection = Main.library.CopyAndAdd<BlueprintFeatureSelection>("f4b011d090e8ae543b1441bd594c7bf7", "DragonDiscipleDraconicFeatSubselection", "");
+
+            dd_feat_subselection.Features = new BlueprintFeature[] { dd_feat_selection };
+            dd_feat_subselection.AllFeatures = dd_feat_subselection.Features;
+            dd_feat_subselection.SetDescription("Upon reaching 2nd level, and every three levels thereafter, a dragon disciple receives one bonus feat, chosen from the draconic bloodline’s bonus feat list.");
+
+            var dragon_disciple_progression = Main.library.Get<BlueprintProgression>("69fc2bad2eb331346a6c777423e0d0f7");
+            foreach (var le in dragon_disciple_progression.LevelEntries)
+            {
+                for (int i = 0; i < le.Features.Count; i++)
+                {
+                    if (le.Features[i] == dd_feat_selection)
+                    {
+                        le.Features[i] = dd_feat_subselection;
+                    }
+                }
+            }
+
+        }
 
     }
 }

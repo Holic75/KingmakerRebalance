@@ -1142,6 +1142,8 @@ namespace CallOfTheWild
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
             var hex_buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "WitchMisfortuneHexBuff", "");
+            hex_buff.SetName(hex_ability.Name);
+            hex_buff.SetDescription(hex_ability.Description);
             cackle_buffs.Add(hex_buff);
             action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, AbilityRankType.DamageBonus));
 
@@ -1292,7 +1294,7 @@ namespace CallOfTheWild
             var eyebyte = library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642");
 
             var context_value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
-            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2, 
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep, 
                                             type: AbilityRankType.StatBonus, startLevel: 0, stepLevel: 8, min: 1, max: 2, classes: getWitchArray());
 
             StatType[] stats = new StatType[] { StatType.AC, StatType.AdditionalAttackBonus, StatType.SaveFortitude, StatType.SaveReflex, StatType.SaveWill };
@@ -2138,7 +2140,8 @@ namespace CallOfTheWild
             hex_vulnerability_spell.CanTargetFriends = test_mode;
             hex_vulnerability_spell.EffectOnAlly = test_mode ? AbilityEffectOnUnit.Harmful : AbilityEffectOnUnit.None;
             hex_vulnerability_spell.SpellResistance = true;
-            hex_vulnerability_spell.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken | Kingmaker.UnitLogic.Abilities.Metamagic.Reach;
+            hex_vulnerability_spell.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken 
+                                                        | Kingmaker.UnitLogic.Abilities.Metamagic.Reach | Kingmaker.UnitLogic.Abilities.Metamagic.Extend;
             hex_vulnerability_spell.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             hex_vulnerability_spell.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Necromancy));
             hex_vulnerability_spell.AddToSpellList(witch_class.Spellbook.SpellList, 1);

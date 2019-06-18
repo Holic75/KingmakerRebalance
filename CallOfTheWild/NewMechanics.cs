@@ -30,6 +30,9 @@ using Kingmaker.Items;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.EntitySystem.Entities;
 using System.Collections.Generic;
+using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.Blueprints.Validation;
 
 namespace CallOfTheWild
 {
@@ -397,6 +400,45 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleSavingThrow evt)
             {
+            }
+        }
+
+
+        public class ContextCalculateAbilityParamsBasedOnClasses : ContextAbilityParamsCalculator
+        {
+            public StatType StatType = StatType.Charisma;
+            public BlueprintCharacterClass[] CharacterClasses;
+
+            public override AbilityParams Calculate(MechanicsContext context)
+            {
+                UnitEntityData maybeCaster = context.MaybeCaster;
+                if (maybeCaster == null)
+                {
+                    return context.Params;
+                }
+                StatType statType = this.StatType;
+
+                AbilityData ability = context.SourceAbilityContext?.Ability;
+                RuleCalculateAbilityParams rule = !(ability != (AbilityData)null) ? new RuleCalculateAbilityParams(maybeCaster, context.AssociatedBlueprint, (Spellbook)null) : new RuleCalculateAbilityParams(maybeCaster, ability);
+                rule.ReplaceStat = new StatType?(statType);
+
+                int class_level = 0;
+                foreach (var c in this.CharacterClasses)
+                {
+                    class_level += maybeCaster.Descriptor.Progression.GetClassLevel(c);
+                }
+                rule.ReplaceCasterLevel = new int?(class_level);
+                rule.ReplaceSpellLevel = new int?(class_level / 2);
+                return context.TriggerRule<RuleCalculateAbilityParams>(rule).Result;
+            }
+
+            public override void Validate(ValidationContext context)
+            {
+                base.Validate(context);
+                if (this.StatType.IsAttribute() || this.StatType == StatType.BaseAttackBonus)
+                    return;
+                string str = string.Join(", ", ((IEnumerable<StatType>)StatTypeHelper.Attributes).Select<StatType, string>((Func<StatType, string>)(s => s.ToString())));
+                context.AddError("StatType must be Base Attack Bonus or an attribute: {0}", (object)str);
             }
         }
 
