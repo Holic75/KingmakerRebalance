@@ -37,6 +37,8 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 
 namespace CallOfTheWild
 {
@@ -148,7 +150,7 @@ namespace CallOfTheWild
                                                                                                                         bool on_failed_save = true, bool is_dispellable = true)
         {
             var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
-        
+
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.AsChild = is_child;
@@ -176,7 +178,7 @@ namespace CallOfTheWild
         internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool is_dispellable = true)
         {
-            var context_saved = Helpers.Create <Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
+            var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
             context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = true;
@@ -189,7 +191,7 @@ namespace CallOfTheWild
             context_saved.Failed = Helpers.CreateActionList(apply_buff);
             return context_saved;
         }
-        
+
 
         static internal Kingmaker.UnitLogic.Mechanics.Components.DeathActions createDeathActions(Kingmaker.ElementsSystem.ActionList action_list,
                                                                                                  BlueprintAbilityResource resource = null)
@@ -201,7 +203,7 @@ namespace CallOfTheWild
             return a;
         }
 
-        
+
         static internal Kingmaker.Designers.Mechanics.Facts.CriticalConfirmationACBonus createCriticalConfirmationACBonus(int bonus)
         {
             var c = Helpers.Create<CriticalConfirmationACBonus>();
@@ -294,7 +296,7 @@ namespace CallOfTheWild
 
         static internal BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
         {
-            var b = Helpers.Create <BuffDescriptorImmunity>();
+            var b = Helpers.Create<BuffDescriptorImmunity>();
             b.Descriptor = descriptor;
             return b;
         }
@@ -302,7 +304,7 @@ namespace CallOfTheWild
 
         static internal Blindsense createBlindsense(int range)
         {
-            var b = Helpers.Create <Blindsense>();
+            var b = Helpers.Create<Blindsense>();
             b.Range = range.Feet();
             return b;
         }
@@ -310,7 +312,7 @@ namespace CallOfTheWild
 
         static internal Blindsense createBlindsight(int range)
         {
-            var b = Helpers.Create <Blindsense>();
+            var b = Helpers.Create<Blindsense>();
             b.Range = range.Feet();
             b.Blindsight = true;
             return b;
@@ -319,7 +321,7 @@ namespace CallOfTheWild
 
         static internal Kingmaker.Designers.Mechanics.Facts.AddFortification createAddFortification(int bonus = 0, ContextValue value = null)
         {
-            var a = Helpers.Create <AddFortification>();
+            var a = Helpers.Create<AddFortification>();
             a.Bonus = bonus;
             a.UseContextValue = value == null ? true : false;
             a.Value = value;
@@ -330,7 +332,7 @@ namespace CallOfTheWild
         static internal Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition createBuffStatusCondition(UnitCondition condition, SavingThrowType save_type = SavingThrowType.Unknown,
                                                                                                            bool save_each_round = true)
         {
-            var c = Helpers.Create <Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition>();
+            var c = Helpers.Create<Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition>();
             c.SaveType = save_type;
             c.SaveEachRound = save_each_round;
             c.Condition = condition;
@@ -339,7 +341,7 @@ namespace CallOfTheWild
 
         static internal Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber createBuffConditionCheckRoundNumber(int round_number, bool not = false)
         {
-            var c = Helpers.Create <Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber>();
+            var c = Helpers.Create<Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber>();
             c.RoundNumber = round_number;
             c.Not = not;
             return c;
@@ -366,7 +368,7 @@ namespace CallOfTheWild
 
         static internal Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType alignment)
         {
-            var p = Helpers.Create <Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment>();
+            var p = Helpers.Create<Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment>();
             p.Alignment = alignment;
             return p;
         }
@@ -374,7 +376,7 @@ namespace CallOfTheWild
 
         static internal Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility createAddCasterLevelToAbility(BlueprintAbility spell, int bonus)
         {
-            var a = Helpers.Create <Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility>();
+            var a = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility>();
             a.Bonus = bonus;
             a.Spell = spell;
             return a;
@@ -382,7 +384,7 @@ namespace CallOfTheWild
 
         static internal PrerequisiteArchetypeLevel createPrerequisiteArchetypeLevel(BlueprintCharacterClass character_class, BlueprintArchetype archetype, int level)
         {
-            var p = Helpers.Create <PrerequisiteArchetypeLevel>();
+            var p = Helpers.Create<PrerequisiteArchetypeLevel>();
             p.CharacterClass = character_class;
             p.Archetype = archetype;
             p.Level = level;
@@ -503,7 +505,7 @@ namespace CallOfTheWild
             var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
             activated.Actions = activated.Actions.AddToArray(action);
             var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
-            var remove_buff = Helpers.Create <Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
+            var remove_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
             remove_buff.Buff = buff_to_add;
             deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);
         }
@@ -1190,7 +1192,7 @@ namespace CallOfTheWild
             r.Buff = buff;
             return r;
         }
-        
+
 
         static internal NewMechanics.SavingThrowBonusAgainstSpecificSpells createSavingThrowBonusAgainstSpecificSpells(int bonus, ModifierDescriptor descriptor, params BlueprintAbility[] spells)
         {
@@ -1201,7 +1203,7 @@ namespace CallOfTheWild
             return s;
         }
 
-        
+
         static internal AbilityTargetHasFact createAbilityTargetHasFact(bool inverted, params BlueprintUnitFact[] facts)
         {
 
@@ -1212,7 +1214,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster createAbilityTargetHasNoFactUnlessBuffsFromCaster(BlueprintBuff[] target_buffs, 
+        static internal NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster createAbilityTargetHasNoFactUnlessBuffsFromCaster(BlueprintBuff[] target_buffs,
                                                                                                           BlueprintBuff[] alternative_buffs)
         {
             var h = Helpers.Create<NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster>();
@@ -1227,6 +1229,63 @@ namespace CallOfTheWild
             var a = Helpers.Create<AbilityTargetIsPartyMember>();
             a.Not = !val;
             return a;
+        }
+
+
+        static internal AbilityShowIfCasterHasFact createAbilityShowIfCasterHasFact(BlueprintUnitFact fact)
+        {
+            var a = Helpers.Create<AbilityShowIfCasterHasFact>();
+            a.UnitFact = fact;
+            return a;
+        }
+
+
+        static internal ContextConditionHasFact createContextConditionHasFact(BlueprintUnitFact fact, bool has = true)
+        {
+            var c = Helpers.Create<ContextConditionHasFact>();
+            c.Fact = fact;
+            c.Not = !has;
+            return c;
+        }
+
+        static internal void addTemworkFeats(params BlueprintFeature[] feats)
+        {
+
+            var tactical_leader_feat_share_buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
+            var sh_teamwork_share = library.Get<BlueprintFeature>("e1f437048db80164792155102375b62c");
+            var teamwork_feat = library.Get<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb");
+            var teamwork_feat_vanguard = library.Get<BlueprintFeatureSelection>("90b882830b3988446ae681c6596460cc");
+
+            sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats);
+            Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats);
+            tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts = tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feats);
+            teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feats);
+            teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feats);
+
+
+            //update vanguard features
+            var vanguard_variants = library.Get<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8").GetComponent<AbilityVariants>();
+            foreach (var f in feats)
+            {
+                var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", "VanguardTactician" + f.name + "Buff", "");
+                var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
+                add_fact.Facts[0] = f;
+                buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
+                buff.SetName("Vanguard Tactician — " + f.Name);
+                buff.SetDescription(f.Description);
+
+                var ability = library.CopyAndAdd<BlueprintAbility>("53f4d8597163db24f8309462aadc4348", "VanguardTactician" + f.name + "Ability", "");
+                ability.ReplaceComponent<AbilityShowIfCasterHasFact>(Common.createAbilityShowIfCasterHasFact(f));
+
+                var condition_apply_buff = (Conditional)ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0];
+                var context_apply_buff = ((ContextActionApplyBuff)condition_apply_buff.IfTrue.Actions[0]).CreateCopy();
+                context_apply_buff.Buff = buff;
+                var run_action = Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(f, false), context_apply_buff));
+                ability.ReplaceComponent<AbilityEffectRunAction>(run_action);
+                ability.SetName(buff.Name);
+                ability.SetDescription(buff.Description);
+                vanguard_variants.Variants = vanguard_variants.Variants.AddToArray(ability);
+            }
         }
     }
 }

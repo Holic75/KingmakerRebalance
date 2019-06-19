@@ -66,7 +66,8 @@ namespace CallOfTheWild
                 logger = modEntry.Logger;
                 var harmony = Harmony12.HarmonyInstance.Create(modEntry.Info.Id);
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 DebugError(ex);
                 throw ex;   
@@ -130,6 +131,9 @@ namespace CallOfTheWild
 #endif
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
+
+                    CallOfTheWild.SharedSpells.load();
+
 #if DEBUG
                     string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";
                     CallOfTheWild.Helpers.GuidStorage.dump(guid_file_name);
