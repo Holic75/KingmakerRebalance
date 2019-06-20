@@ -7,14 +7,15 @@ It introduces new classes:
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Stellblood.
 
-It introduces the following new feats : Extra Hex, Accursed Hex and Rage Casting, Bonded Mind and Share Spell.
+It introduces following new feats : Extra Hex, Accursed Hex and Rage Casting, Bonded Mind and Share Spell.
 
+Mod also adds Share Spell ability for animal companions.
 
 It also adds the following new spells:
 - Hex Vulnerability,
 - Plant Shape I, II and III,
--  Giant Form I and II,
--  Shapechange.  
+- Giant Form I and II,
+- Shapechange.  
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into leopard,  
@@ -25,7 +26,7 @@ Beast shape I - IV spells were also changed to be a bit more fun and more in lin
 The changes corresponding to these spells as well as Plant Shape I, II and III were also applied to druid wildshape ability.
 
 
-In addition mod also makes some balance changes:
+In addition mod also makes some changes to existing features to make them closer to pnp:
 - nerfs animal compnions to make them closer to pnp (reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
 enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),

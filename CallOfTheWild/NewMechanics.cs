@@ -92,6 +92,7 @@ namespace CallOfTheWild
                 }
                 actual_dc = Mathf.Min(evt.Spellbook.GetSpellLevel(evt.Spell), BonusDC);
                 evt.AddBonusDC(actual_dc);
+                Common.AddBattleLogMessage($"{Owner.CharacterName}: Rage Casting increases spell level by {actual_dc}");
             }
 
             public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
@@ -149,7 +150,7 @@ namespace CallOfTheWild
                 }
                 caster_level_increase = dice_value.Calculate(this.Fact.MaybeContext);
                 evt.AddBonusCasterLevel(caster_level_increase);
-                //Log.Write($"{display_name}: spell level increased by {caster_level_increase}");
+                Common.AddBattleLogMessage($"{Owner.CharacterName}: {display_name} increases caster level by {caster_level_increase}");
             }
 
             public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)

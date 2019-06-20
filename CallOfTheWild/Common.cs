@@ -39,6 +39,10 @@ using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.UI.Log;
+using Kingmaker.Blueprints.Root.Strings.GameLog;
+using Kingmaker;
+using UnityEngine;
 
 namespace CallOfTheWild
 {
@@ -1248,6 +1252,18 @@ namespace CallOfTheWild
             return c;
         }
 
+
+        public static void AddBattleLogMessage(string message, object tooltip = null, Color? color = null)
+        {
+            var data = new LogDataManager.LogItemData(message, color ?? GameLogStrings.Instance.DefaultColor, tooltip, PrefixIcon.None);
+            if (Game.Instance.UI.BattleLogManager)
+            {
+                Game.Instance.UI.BattleLogManager.LogView.AddLogEntry(data);
+            }
+        }
+
+
+
         static internal void addTemworkFeats(params BlueprintFeature[] feats)
         {
 
@@ -1286,6 +1302,16 @@ namespace CallOfTheWild
                 ability.SetDescription(buff.Description);
                 vanguard_variants.Variants = vanguard_variants.Variants.AddToArray(ability);
             }
+        }
+
+
+        static internal AddFeatureIfHasFact createAddFeatureIfHasFact(BlueprintUnitFact fact, BlueprintFeature feature, bool not = false)
+        {
+            var a = Helpers.Create<AddFeatureIfHasFact>();
+            a.CheckedFact = fact;
+            a.Feature = feature;
+            a.Not = not;
+            return a;
         }
     }
 }

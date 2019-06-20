@@ -1921,6 +1921,7 @@ namespace CallOfTheWild
             static List<BlueprintFeature> claws = new List<BlueprintFeature>();
             static List<BlueprintFeature> draconic_resistance = new List<BlueprintFeature>();
             static List<BlueprintFeature> breath_weapon = new List<BlueprintFeature>();
+            static List<BlueprintFeature> breath_weapon_extra_use = new List<BlueprintFeature>();
             static List<BlueprintFeature> dragon_wings = new List<BlueprintFeature>();
             static List<BlueprintFeature> dragon_form = new List<BlueprintFeature>();
             static List<BlueprintFeature> power_of_the_wyrms = new List<BlueprintFeature>();
@@ -2068,12 +2069,12 @@ namespace CallOfTheWild
                                                                   "",
                                                                   bloodlines[i].name);
                     progressions.Add(bloodline_info.progression);
-                    addToDragonDisciple(bloodlines[i].sorc_progression, bloodline_info);
+                    addToDragonDisciple(bloodlines[i].sorc_progression, bloodline_info, i);
                 }
             }
 
 
-            static void addToDragonDisciple(BlueprintProgression sorc_progression, BloodlineInfo bloodrager_bloodline_info)
+            static void addToDragonDisciple(BlueprintProgression sorc_progression, BloodlineInfo bloodrager_bloodline_info, int bloodline_id)
             {
                 var dragon_disciple_class = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
                 var dd_feat_selection = Rebalance.dd_feat_subselection;
@@ -2087,16 +2088,43 @@ namespace CallOfTheWild
                 draconic_feature_prerequisites.Features = draconic_feature_prerequisites.Features.AddToArray(bloodrager_bloodline_info.progression);
                 blood_of_dragons_selection.AllFeatures = blood_of_dragons_selection.AllFeatures.AddToArray(bloodrager_bloodline_info.progression);
 
+                var dragon_wings = library.Get<BlueprintFeature>("aa36f82ab9a046c4a853dccf0cdbaf53");
+                dragon_wings.SetName("Wings");
+                dragon_wings.SetDescription("At 9th level, a dragon disciple gains the wings bloodline power, even if his level does not yet grant that power");
+                var dragon_form_give = library.Get<BlueprintFeature>("0ee31c9fc504b51489d12d43168b5009");
+                dragon_form_give.SetName("Dragon Form");
+                dragon_form_give.SetDescription("At 7th level, a dragon disciple can assume the form of a dragon. This ability works like form of the dragon I. At 10th level, this ability functions as form of the dragon II and the dragon disciple can use this ability twice per day. His caster level for this effect is equal to his effective sorcerer levels for his draconic bloodline. Whenever he casts form of the dragon, he must assume the form of a dragon of the same type as his bloodline.");
+                var dragon_form1 = library.Get<BlueprintFeature>("76dc9a65841190d46a8fc25dce00a242");
+                dragon_form1.SetName(dragon_form_give.Name);
+                dragon_form1.SetDescription(dragon_form_give.Description);
+                var dragon_form2 = library.Get<BlueprintFeature>("717699191d106eb46a7d820a872ed24d");
+                dragon_form2.SetName(dragon_form1.Name);
+                dragon_form2.SetDescription(dragon_form1.Description);
+                var breath_weapon_dd = library.Get<BlueprintFeature>("0aadb51129cb0c147b5d2464c0db10b3");
                 BlueprintFeature[] dragon_features = new BlueprintFeature[] {library.Get<BlueprintFeature>("01971351119121d429ecf62c2ab94de3"), //elemental dmg bite
-                                                                             library.Get<BlueprintFeature>("0aadb51129cb0c147b5d2464c0db10b3"), //breath weapon
-                                                                             library.Get<BlueprintFeature>("aa36f82ab9a046c4a853dccf0cdbaf53"), //wings
-                                                                             library.Get<BlueprintFeature>("76dc9a65841190d46a8fc25dce00a242"), //dragon form I
-                                                                             library.Get<BlueprintFeature>("717699191d106eb46a7d820a872ed24d") //dragon form II
+                                                                             breath_weapon_dd, //breath weapon
+                                                                             dragon_wings, //wings
+                                                                             dragon_form1, //dragon form I
+                                                                             dragon_form2 //dragon form II
                                                                             };
+                
                 foreach (var f in dragon_features)
                 {
                     var bloodline_entry = f.GetComponents<AddFeatureIfHasFact>().Where(h => h.CheckedFact == sorc_progression).ToArray()[0].CreateCopy();
-                    bloodline_entry.CheckedFact = bloodrager_progression;
+                    bloodline_entry.CheckedFact = bloodrager_bloodline_info.progression;
+                    if (f == breath_weapon_dd)
+                    {
+                        var dd_breath = Helpers.CreateFeature("Bloodrager" + bloodline_entry.Feature,
+                                                              breath_weapon[bloodline_id].Name,
+                                                              breath_weapon[bloodline_id].Description,
+                                                              "",
+                                                              breath_weapon[bloodline_id].Icon,
+                                                              FeatureGroup.None,
+                                                              Common.createAddFeatureIfHasFact(breath_weapon[bloodline_id], breath_weapon_extra_use[bloodline_id]),
+                                                              Common.createAddFeatureIfHasFact(breath_weapon[bloodline_id], breath_weapon[bloodline_id], true)
+                                                              );
+                        bloodline_entry.Feature = dd_breath;
+                    }
                     f.AddComponent(bloodline_entry);
                 }
 
@@ -2253,6 +2281,17 @@ namespace CallOfTheWild
                                                                //Helpers.CreateAddFeatureOnClassLevel(add_resource, 16, getBloodragerArray(), new BlueprintArchetype[0]),
                                                                //Helpers.CreateAddFeatureOnClassLevel(add_resource, 20, getBloodragerArray(), new BlueprintArchetype[0])
                                                                );
+
+                    var breath_extra_use = Helpers.CreateFeature(b.prefix + "BreathWeaponExtraUseFeature",
+                                           breath_ability.Name,
+                                           breath_ability.Description,
+                                           "",
+                                           breath_ability.Icon,
+                                           FeatureGroup.None,
+                                           Helpers.CreateIncreaseResourceAmount(resource,1)
+                                           );
+
+                    breath_weapon_extra_use.Add(breath_extra_use);
                     breath_weapon.Add(breath_feature);
                 }
             }

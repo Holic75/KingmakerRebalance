@@ -559,7 +559,7 @@ namespace CallOfTheWild
                                          "ea78c04f0bd13d049a1cce5daf8d83e0", //natures ally 8
                                          "a7469ef84ba50ac4cbf3d145e3173f8e"  //natures ally 9
                                         ),
-                createWitchPatronFeature("Automn", "c3c1f806206546628b7b9d44cc1141ad", "beaddc15271240d992b8149babb79fed",
+                createWitchPatronFeature("Autumn", "c3c1f806206546628b7b9d44cc1141ad", "beaddc15271240d992b8149babb79fed",
                                          "450af0402422b0b4980d9c2175869612", //ray of enfeeblement
                                          "29ccc62632178d344ad0be0865fd3113", //create pit
                                          "1a36c8b9ed655c249a9f9e8d4731f001", //soothing mud
@@ -2037,13 +2037,13 @@ namespace CallOfTheWild
             library.AddAsset(area_effect, "");
 
             var energy_drain = library.Get<BlueprintAbility>("37302f72b06ced1408bf5bb965766d46");
-            var inspire_courage = library.Get<BlueprintBuff>("b4027a834204042409248889cc8abf67");
+            var dirge_of_doom = library.Get<BlueprintBuff>("83eab9b139717ad478d84bbf48ab457f");
             var cackle_buff = Helpers.CreateBuff("WitchCackleAuraBuff",
                                                               "Cackle",
                                                               "Effect: A witch can cackle madly as a move action. Any creature that is within 30 feet that is under the effects of an agony hex, charm hex, evil eye hex, fortune hex, or misfortune hex caused by the witch has the duration of that hex extended by 1 round.",
                                                               "",
                                                               energy_drain.Icon,
-                                                              inspire_courage.FxOnStart,
+                                                              dirge_of_doom.FxOnStart,
                                                               Common.createAddAreaEffect(area_effect),
                                                               Common.createAddCondition(UnitCondition.Staggered)
                                                               );
