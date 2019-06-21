@@ -128,9 +128,11 @@ namespace CallOfTheWild
 #if DEBUG
                     CallOfTheWild.Witch.test_mode = true;
                     CallOfTheWild.Bloodrager.test_mode = true;
+                    CallOfTheWild.Skald.test_mode = true;
 #endif
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
+                    CallOfTheWild.Skald.createSkaldClass();
 
                     CallOfTheWild.SharedSpells.load();
 
