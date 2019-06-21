@@ -270,6 +270,11 @@ namespace CallOfTheWild
             feyspeaker.RemoveFeatures[3].Features.Add(mastodon_feature);
             feyspeaker.RemoveFeatures[4].Features[0] = shambling_mound_feature;
             feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, treant_feature, huge_elemental_feature));
+
+            //fix natural spell requirement
+            var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
+            natural_spell.GetComponent<PrerequisiteFeature>().Feature = leopard_feature;
+
         }
 
 

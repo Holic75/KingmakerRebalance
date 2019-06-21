@@ -2114,16 +2114,8 @@ namespace CallOfTheWild
                     bloodline_entry.CheckedFact = bloodrager_bloodline_info.progression;
                     if (f == breath_weapon_dd)
                     {
-                        var dd_breath = Helpers.CreateFeature("Bloodrager" + bloodline_entry.Feature,
-                                                              breath_weapon[bloodline_id].Name,
-                                                              breath_weapon[bloodline_id].Description,
-                                                              "",
-                                                              breath_weapon[bloodline_id].Icon,
-                                                              FeatureGroup.None,
-                                                              Common.createAddFeatureIfHasFact(breath_weapon[bloodline_id], breath_weapon_extra_use[bloodline_id]),
-                                                              Common.createAddFeatureIfHasFact(breath_weapon[bloodline_id], breath_weapon[bloodline_id], true)
-                                                              );
-                        bloodline_entry.Feature = dd_breath;
+                        var feat = library.CopyAndAdd<BlueprintFeature>(breath_weapon[bloodline_id].AssetGuid, breath_weapon[bloodline_id].name + "Disciple", "");
+                        bloodline_entry.Feature = feat;
                     }
                     f.AddComponent(bloodline_entry);
                 }
@@ -2281,7 +2273,7 @@ namespace CallOfTheWild
                                                                //Helpers.CreateAddFeatureOnClassLevel(add_resource, 16, getBloodragerArray(), new BlueprintArchetype[0]),
                                                                //Helpers.CreateAddFeatureOnClassLevel(add_resource, 20, getBloodragerArray(), new BlueprintArchetype[0])
                                                                );
-
+                    breath_feature.HideInCharacterSheetAndLevelUp = true;
                     var breath_extra_use = Helpers.CreateFeature(b.prefix + "BreathWeaponExtraUseFeature",
                                            breath_ability.Name,
                                            breath_ability.Description,
@@ -2290,9 +2282,19 @@ namespace CallOfTheWild
                                            FeatureGroup.None,
                                            Helpers.CreateIncreaseResourceAmount(resource,1)
                                            );
-
+                    breath_extra_use.HideInCharacterSheetAndLevelUp = true;
+                    var feat = Helpers.CreateFeature(b.prefix + "BreathWeaponBaseFeature",
+                                                          breath_ability.Name,
+                                                          breath_ability.Description,
+                                                          "",
+                                                          breath_ability.Icon,
+                                                          FeatureGroup.None,
+                                                          Common.createAddFeatureIfHasFact(breath_feature, breath_extra_use),
+                                                          Common.createAddFeatureIfHasFact(breath_feature, breath_feature, true)
+                                                          );
+                    feat.Ranks = 2;
                     breath_weapon_extra_use.Add(breath_extra_use);
-                    breath_weapon.Add(breath_feature);
+                    breath_weapon.Add(feat);
                 }
             }
 

@@ -5,7 +5,7 @@ This is Pathfinder: Kingmaker mod.
 It introduces new classes:  
 - Hunter  with following archetypes: Divine Hunter, Forester and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
-- Bloodrager with following archetypes: Metamagic Rager, Spelleater and Stellblood.
+- Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood.
 
 It introduces following new feats : Extra Hex, Accursed Hex and Rage Casting, Bonded Mind and Share Spell.
 
