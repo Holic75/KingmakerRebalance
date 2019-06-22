@@ -69,6 +69,9 @@ namespace CallOfTheWild
         static internal BlueprintFeature master_skald;
         static internal BlueprintBuff master_skald_buff;
         static internal BlueprintFeatureSelection skald_rage_powers;
+        static internal BlueprintFeature song_of_marching;
+        static internal BlueprintFeature song_of_strength;
+        static internal BlueprintFeature dirge_of_doom;
 
         internal static void createSkaldClass()
         {
@@ -135,9 +138,9 @@ namespace CallOfTheWild
             createInspiredRage();
             createSkaldRagePowersFeature();
             createSkaldDamageReduction();
-            //createSongOfMarching(); //remove fatigue? increase time until tired?
-            //createSongOfStrength();
-            //FixDirgeOfDoomToScaleWithSkaldLevels()
+            createSongOfMarching();
+            createSongOfStrength();
+            createDirgeOfDoom();
             //createSpellKenning();
             //createLoreMaster (+1 to knowledge at 7, 13, 19 ?)
             //createSongOfTheFallen();
@@ -177,14 +180,14 @@ namespace CallOfTheWild
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, versatile_performance, well_versed),
-                                                                    Helpers.LevelEntry(3, skald_rage_powers),
+                                                                    Helpers.LevelEntry(3, skald_rage_powers, song_of_marching),
                                                                     Helpers.LevelEntry(4, uncanny_dodge),
                                                                     Helpers.LevelEntry(5), //spell kenning
-                                                                    Helpers.LevelEntry(6, skald_rage_powers), // song of strength
+                                                                    Helpers.LevelEntry(6, skald_rage_powers, song_of_strength),
                                                                     Helpers.LevelEntry(7, versatile_performance), //loremaster
                                                                     Helpers.LevelEntry(8, improved_uncanny_dodge),
                                                                     Helpers.LevelEntry(9, skald_rage_powers, damage_reduction), 
-                                                                    Helpers.LevelEntry(10), //dirge of doom
+                                                                    Helpers.LevelEntry(10, dirge_of_doom),
                                                                     Helpers.LevelEntry(11), //spell kenning
                                                                     Helpers.LevelEntry(12, versatile_performance, skald_rage_powers),
                                                                     Helpers.LevelEntry(13),
@@ -200,17 +203,100 @@ namespace CallOfTheWild
             skald_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { skald_proficiencies, detect_magic, cantrips };
             skald_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(versatile_performance, versatile_performance, versatile_performance, versatile_performance),
                                                          Helpers.CreateUIGroup(fast_movement, uncanny_dodge, improved_uncanny_dodge),
-                                                         Helpers.CreateUIGroup(inspired_rage_feature, master_skald)
+                                                         Helpers.CreateUIGroup(inspired_rage_feature, song_of_marching, song_of_strength, dirge_of_doom, master_skald)
                                                         };
         }
 
 
-        static internal void createSkaldRagePowersFeature()
+        static void createDirgeOfDoom()
+        {
+            var dirge_of_doom_ability = library.CopyAndAdd<BlueprintActivatableAbility>("d99d63f84e180d44e8f92b9a832c609d","SkaldDirgeOfDoomToggleAbility", "");
+            dirge_of_doom_ability.SetDescription("At 10th level, a skald can create a sense of growing dread in his enemies, causing them to become shaken. This only affects enemies that are within 30 feet and able to hear the skald’s performance. The effect persists for as long as the enemy is within 30 feet and the skald continues his performance. This cannot cause a creature to become frightened or panicked, even if the targets are already shaken from another effect. This is a sonic mind-affecting fear effect, and relies on audible components.");
+            dirge_of_doom = Helpers.CreateFeature("SkaldDirgeOfDoomFeature",
+                                                  dirge_of_doom_ability.Name,
+                                                  dirge_of_doom_ability.Description,
+                                                  "",
+                                                  dirge_of_doom_ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(dirge_of_doom_ability)
+                                                  );
+        }
+
+
+        static void createSongOfStrength()
+        {
+            var strength_surge = library.Get<BlueprintAbility>("1d6364123e1f6a04c88313d83d3b70ee");
+            var song_of_strength_buff = library.CopyAndAdd<BlueprintBuff>("1fa5f733fa1d77743bf54f5f3da5a6b1", "SkaldSongOfStrengthEffectBuff", "");
+            song_of_strength_buff.SetName("Song of Strength");
+            song_of_strength_buff.SetDescription("At 6th level, a skald can use raging song to inspire his allies to superhuman feats of strength. Once each round while the skald uses this performance, allies within 30 feet who can hear the skald may add 1/2 the skald’s level to a Strength check or Strength-based skill check.");
+            song_of_strength_buff.SetIcon(strength_surge.Icon);
+            song_of_strength_buff.ComponentsArray = new BlueprintComponent[]{Helpers.CreateAddContextStatBonus(StatType.SkillAthletics, ModifierDescriptor.UntypedStackable,
+                                                                                                               ContextValueType.Rank, AbilityRankType.Default),
+                                                                             Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                                                                 ModifierDescriptor.UntypedStackable, StatType.Strength),
+                                                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                             progression: ContextRankProgression.Div2,
+                                                                                                             type: AbilityRankType.Default,
+                                                                                                             classes: getSkaldArray()
+                                                                                                             )
+                                                                             };
+            var song_of_strength_ability = Common.convertPerformance(library.Get<BlueprintActivatableAbility>("430ab3bb57f2cfc46b7b3a68afd4f74e"), song_of_strength_buff, "SkaldSongOfStrength");
+            song_of_strength_ability.DeactivateIfCombatEnded = !test_mode;
+
+            song_of_strength = Helpers.CreateFeature("SkaldSongOfStrengthFeature",
+                                                     song_of_strength_buff.Name,
+                                                     song_of_strength_buff.Description,
+                                                     "",
+                                                     song_of_strength_buff.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(song_of_strength_ability)
+                                                     );
+        }
+
+
+        static void createSongOfMarching()
+        {
+            var longstrider = library.Get<BlueprintAbility>("14c90900b690cac429b229efdf416127");
+            var song_of_marching_ability = library.CopyAndAdd<BlueprintAbility>("9b7fa6cadc0349449829873c63cc5b0b", "SkaldSongOfMarchingAbility", "");
+            song_of_marching_ability.SetName("Song of Marching");
+            song_of_marching_ability.SetDescription("At 3rd level, a skald can use raging song to inspire his allies to move without suffering from fatigue. By expending 6 rounds of raging song, skalds extends the time he and his allies can go without a rest before becoming fatigued for 6 hours. The effect lasts for one day.") ;
+            song_of_marching_ability.SetIcon(longstrider.Icon);
+            song_of_marching_ability.ReplaceComponent<AbilityResourceLogic>(c => c.Amount = 6);
+            song_of_marching_ability.ReplaceComponent<AbilitySpawnFx>(longstrider.GetComponent<AbilitySpawnFx>());
+
+            var song_of_marching_buff = Helpers.CreateBuff("SkaldSongOfMarchingBuff",
+                                                           song_of_marching_ability.Name,
+                                                           song_of_marching_ability.Description,
+                                                           "",
+                                                           song_of_marching_ability.Icon,
+                                                           null,
+                                                           Common.createAddWearinessHours(-6)
+                                                           );
+            song_of_marching_buff.Stacking = StackingType.Stack;
+            song_of_marching_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var apply_buff = Common.createContextActionApplyBuff(song_of_marching_buff,
+                                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(24), DurationRate.Hours),
+                                                                 dispellable: false);
+            song_of_marching_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
+            song_of_marching_ability.RemoveComponents<ContextRankConfig>();
+
+            song_of_marching = Helpers.CreateFeature("SkaldSongOfMarchingFeature",
+                                                     song_of_marching_ability.Name,
+                                                     song_of_marching_ability.Description,
+                                                      "",
+                                                      song_of_marching_ability.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFact(song_of_marching_ability)
+                                                     );
+        }
+
+
+        static void createSkaldRagePowersFeature()
         {
             var barbarian_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
             skald_rage_powers = library.CopyAndAdd<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e", "SkaldRagePowerSelection", "");
-            skald_rage_powers.SetDescription("At 3rd level and every 3 levels thereafter, a skald learns a rage power that affects the skald and any allies under the influence of his inspired rage. This cannot be a rage power that requires the creature to spend a standard action or rounds of rage to activate it.\n"
-                                             + "When starting an inspired rage, the skald adds rage powers (if any) as well as effect of his current stance to the song, and all affected allies gain the benefit of these rage powers, using the skald’s level as their effective barbarian level. The skald uses his skald level as his barbarian level for the purpose of selecting rage powers that require a minimum barbarian level. If the rage power’s effects depend on the skald’s ability modifier(such as lesser spirit totem), affected allies use the skald’s ability modifier instead of their own for the purposes of this effect.") ;
+            skald_rage_powers.SetDescription("At 3rd level and every 3 levels thereafter, a skald learns a rage power that affects the skald and any allies under the influence of his inspired rage. This cannot be a rage power that requires the creature to spend a standard action or rounds of rage to activate it, nor can it be a stance power.\n"
+                                             + "When starting an inspired rage, the skald adds rage powers (if any) to the song, and all affected allies gain the benefit of these rage powers, using the skald’s level as their effective barbarian level. The skald uses his skald level as his barbarian level for the purpose of selecting rage powers that require a minimum barbarian level. If the rage power’s effects depend on the skald’s ability modifier(such as lesser spirit totem), affected allies use the skald’s ability modifier instead of their own for the purposes of this effect.") ;
             skald_rage_powers.AddComponent(Common.createClassLevelsForPrerequisites(barbarian_class, skald_class));
 
             //fix rage buffs to work with skald
@@ -219,8 +305,9 @@ namespace CallOfTheWild
                                                                library.Get<BlueprintBuff>("5b5e566167a3f2746b7d3a26bc8a50a6"), //guarded stance protect vitals
                                                                library.Get<BlueprintBuff>("b209f567dc78a1440aad52d4138c5f27"), //reflexive dodge
                                                                library.Get<BlueprintBuff>("0c6e198a78210954c9fe245a26b0c315"), //deadly accuracy
-                                                               //library.Get<BlueprintBuff>("9ec69854596674a4ba40802e6337894d") //inspire ferocity buff
+                                                               library.Get<BlueprintBuff>("9ec69854596674a4ba40802e6337894d"), //inspire ferocity buff
                                                                library.Get<BlueprintBuff>("c6271b3183c48d54b8defd272bea0665"), //lethal stance
+                                                               library.Get<BlueprintBuff>("a8a733d2605c66548b652f312ea4dbf3"), //reckless stance
                                                               };
             foreach (var b in buffs_to_fix)
             {
@@ -245,7 +332,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal void createSkaldDamageReduction()
+        static void createSkaldDamageReduction()
         {
             var damage_reduction_barbarian = library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8");
             damage_reduction = library.CopyAndAdd<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8", "SkaldDamageReduction", "");
@@ -279,21 +366,21 @@ namespace CallOfTheWild
 
 
 
-        static internal void createVersatilePerformance()
+        static void createVersatilePerformance()
         {
             versatile_performance = library.CopyAndAdd<BlueprintFeatureSelection>("94e2cd84bf3a8e04f8609fe502892f4f", "SkaldVersatilePerformance", "");
             versatile_performance.SetName("Skald Talent");
             versatile_performance.SetDescription("As a skald gains experience, she learns a number of talents that aid her and confound her foes. At 2nd level, a skald gains a rogue talent, as the rogue class feature of the same name. At 6th level and every 4 levels thereafter, the skald gains an additional rogue talent. A skald cannot select a rogue talent that modifies the sneak attack ability.");
         }
 
-        static internal void createWellVersed()
+        static void createWellVersed()
         {
             well_versed = library.CopyAndAdd<BlueprintFeature>("8f4060852a4c8604290037365155662f", "SkaldWelLVersed", "");
             well_versed.SetDescription("At 2nd level, the skald becomes resistant to the bardic performance of others, and to sonic effects in general. The bard gains a +4 bonus on saving throws made against bardic performance, sonic, and language-dependent effects.");
         }
 
 
-        static internal void createPerfromanceResource()
+        static void createPerfromanceResource()
         {
             performance_resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
             var amount = Helpers.GetField(performance_resource, "m_MaxAmount");
@@ -358,20 +445,13 @@ namespace CallOfTheWild
         static void createInspiredRage()
         {
             createInspiredRageEffectBuff();
-            inspired_rage = library.CopyAndAdd<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70", "SkaldInspiredRage", "");
-            var inspired_rage_buff = library.CopyAndAdd<BlueprintBuff>(inspired_rage.Buff.AssetGuid, "SkaldInspiredRageBuff", "");
-            var inspired_rage_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(inspired_rage_buff.GetComponent<AddAreaEffect>().AreaEffect.AssetGuid, "SkaldInspiredRageArea", "");
-            inspired_rage_area.ReplaceComponent<AbilityAreaEffectBuff>(c => c.Buff = inspired_rage_effect_buff);
-            inspired_rage_buff.ReplaceComponent<AddAreaEffect>(c => c.AreaEffect = inspired_rage_area);
-            inspired_rage.Buff = inspired_rage_buff;
-            inspired_rage.DeactivateIfCombatEnded = !test_mode;
+            var inspire_courage = library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70");
 
-            inspired_rage.SetName("Inspired Rage");
-            inspired_rage.SetDescription("At 1st level, affected allies gain a +2 morale bonus to Strength and Constitution and a +1 morale bonus on Will saving throws, but also take a –1 penalty to AC. While under the effects of inspired rage, allies other than the skald cannot use any ability that requires patience or concentration. At 4th level and every 4 levels thereafter, the song’s bonuses on Will saves increase by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Strength and Constitution increase by 2. (Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends.)");
-            inspired_rage_buff.SetName(inspired_rage.Name);
-            inspired_rage_buff.SetDescription(inspired_rage.Description);
+            inspired_rage_effect_buff.SetIcon(inspire_courage.Icon);
+            inspired_rage_effect_buff.SetName("Inspired Rage");
+            inspired_rage_effect_buff.SetDescription("At 1st level, affected allies gain a +2 morale bonus to Strength and Constitution and a +1 morale bonus on Will saving throws, but also take a –1 penalty to AC. While under the effects of inspired rage, allies other than the skald cannot use any ability that requires patience or concentration. At 4th level and every 4 levels thereafter, the song’s bonuses on Will saves increase by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Strength and Constitution increase by 2. (Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends.)");
+            inspired_rage = Common.convertPerformance(inspire_courage, inspired_rage_effect_buff, "SkaldInspiredRage");
 
-            inspired_rage_buff.SetIcon(inspired_rage.Icon);
             inspired_rage_feature = Helpers.CreateFeature("SkaldInspiredRageFeature",
                                                           inspired_rage.Name,
                                                           inspired_rage.Description,
@@ -380,8 +460,6 @@ namespace CallOfTheWild
                                                           FeatureGroup.None,
                                                           Helpers.CreateAddFact(inspired_rage)
                                                           );
-            inspired_rage_effect_buff.SetIcon(inspired_rage.Icon);
-            inspired_rage_effect_buff.SetName(inspired_rage.Name);
         }   
 
 
@@ -466,6 +544,11 @@ namespace CallOfTheWild
         static void replaceContextConditionHasFactToContextConditionCasterHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
                                                                                   BlueprintUnitFact inner_buff_to_add = null, string prefix = "")
         {
+            var personal_buffs = new BlueprintUnitFact[] {library.Get<BlueprintBuff>("c52e4fdad5df5d047b7ab077a9907937"), //reckless stance
+                                                     library.Get<BlueprintBuff>("16649b2e80602eb48bbeaad77f9f365f"), //lethal stance
+                                                     library.Get<BlueprintBuff>("fd0fb6aef4000a443bdc45363410e377"), //guarded stance
+                                                     library.Get<BlueprintBuff>("4b3fb3c9473a00f4fa526f4bd3fc8b7a") //inspire ferocity
+                                                     };
             List<BlueprintUnitFact> patched_buffs = new List<BlueprintUnitFact>();
             var component = buff.GetComponent<AddFactContextActions>();
             if (component == null)
@@ -481,6 +564,7 @@ namespace CallOfTheWild
                 {
                     var new_a = (Conditional)activated_actions[i].CreateCopy();
                     new_a.ConditionsChecker = Helpers.CreateConditionsCheckerAnd(new_a.ConditionsChecker.Conditions);
+                    bool is_personal = false;
                     for (int j = 0; j < new_a.ConditionsChecker.Conditions.Length; j++)
                     {
                         if (new_a.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
@@ -488,13 +572,22 @@ namespace CallOfTheWild
                             var condition_entry = (ContextConditionHasFact)new_a.ConditionsChecker.Conditions[j];
                             var fact = condition_entry.Fact;
 
+                            if (fact is BlueprintBuff && personal_buffs.Contains(fact))
+                            {
+                                is_personal = true;
+                            }
                             if (fact is BlueprintBuff && inner_buff_to_locate != null && !patched_buffs.Contains(fact))
                             {
-                                Common.addToFactInContextConditionHasFact((BlueprintBuff)(fact), inner_buff_to_locate, inner_buff_to_add);
+                                Common.addToFactInContextConditionHasFact((BlueprintBuff)(fact), inner_buff_to_locate, Common.createContextConditionCasterHasFact(inner_buff_to_add));
                                 patched_buffs.Add(fact);
                             }
                             new_a.ConditionsChecker.Conditions[j] = Common.createContextConditionCasterHasFact(fact, !condition_entry.Not);
                         }
+                    }
+                    if (is_personal)
+                    {
+                        //personal buff
+                        new_a.ConditionsChecker.Conditions = new_a.ConditionsChecker.Conditions.AddToArray(Common.createContextConditionIsCaster());
                     }
                     activated_actions[i] = new_a;
                 }

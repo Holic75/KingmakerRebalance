@@ -112,6 +112,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
                     CallOfTheWild.Rebalance.fixDomains();
                     CallOfTheWild.Rebalance.fixBarbarianRageAC();
+                    CallOfTheWild.Rebalance.fixInspiredFerocity();
 
                     CallOfTheWild.Rebalance.fixMagicVestment();
                     CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();

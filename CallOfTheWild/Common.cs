@@ -43,6 +43,8 @@ using Kingmaker.UI.Log;
 using Kingmaker.Blueprints.Root.Strings.GameLog;
 using Kingmaker;
 using UnityEngine;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.ElementsSystem;
 
 namespace CallOfTheWild
 {
@@ -270,13 +272,14 @@ namespace CallOfTheWild
 
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
-                                                                                                                  bool is_child = false, bool is_permanent = false)
+                                                                                                                  bool is_child = false, bool is_permanent = false, bool dispellable = true)
         {
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.Buff = buff;
             apply_buff.Permanent = is_permanent;
             apply_buff.DurationValue = duration;
+            apply_buff.IsNotDispelable = !dispellable;
             return apply_buff;
         }
 
@@ -1368,8 +1371,49 @@ namespace CallOfTheWild
         }
 
 
+        static internal AddWearinessHours createAddWearinessHours(int hours)
+        {
+            var a = Helpers.Create<AddWearinessHours>();
+            a.Hours = hours;
+            return a;
+        }
+
+
+        static internal AbilityScoreCheckBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor, StatType stat)
+        {
+            var a = Helpers.Create<AbilityScoreCheckBonus>();
+            a.Bonus = bonus;
+            a.Descriptor = descriptor;
+            a.Stat = stat;
+            return a;
+        }
+
+
+        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintBuff effect_buff, string prefix)
+        {
+            var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
+            var ability_buff = library.CopyAndAdd<BlueprintBuff>(base_ability.Buff.AssetGuid, prefix + "Buff", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(ability_buff.GetComponent<AddAreaEffect>().AreaEffect.AssetGuid, prefix + "Area", "");
+
+            area.ReplaceComponent<AbilityAreaEffectBuff>(c => { c.Buff = effect_buff; });
+
+            ability_buff.ReplaceComponent<AddAreaEffect>(c => { c.AreaEffect = area; });
+            ability_buff.SetName(effect_buff.Name);
+            ability_buff.SetDescription(effect_buff.Description);
+            ability_buff.SetIcon(effect_buff.Icon);
+
+           
+            ability.SetName(effect_buff.Name);
+            ability.SetDescription(effect_buff.Description);
+            ability.SetIcon(effect_buff.Icon);
+            ability.Buff = ability_buff;
+
+            return ability;
+        }
+
+
         static internal void addToFactInContextConditionHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
-                                                        BlueprintUnitFact inner_buff_to_add = null)
+                                                       Condition condition_to_add = null)
         {
             var component = buff.GetComponent<AddFactContextActions>();
             if (component == null)
@@ -1393,9 +1437,10 @@ namespace CallOfTheWild
                             if (fact == inner_buff_to_locate)
                             {
                                 //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
-                                c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(Common.createContextConditionHasFact(inner_buff_to_add));
+                                c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
                                 c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
-                                return;
+                                activated_actions[i] = c_action;
+                                break;
                             }
                         }
                     }
