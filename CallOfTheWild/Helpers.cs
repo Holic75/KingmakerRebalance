@@ -113,6 +113,23 @@ namespace CallOfTheWild
             return result;
         }
 
+
+        public static T[] RemoveFromArrayByType<T, V>(this T[] array)
+        {
+            List<T> list = new List<T>();
+
+            foreach (var c in array)
+            {
+                if (!(c is V))
+                {
+                    list.Add(c);
+                }
+            }
+
+            return list.ToArray();
+        }
+
+
         public static T[] AddToArray<T>(this T[] array, params T[] values)
         {
             var len = array.Length;
@@ -1308,13 +1325,14 @@ namespace CallOfTheWild
             return addStat;
         }
 
-        public static AddContextStatBonus CreateAddContextStatBonus(StatType stat, ModifierDescriptor descriptor, ContextValueType type = ContextValueType.Rank, AbilityRankType rankType = AbilityRankType.Default)
+        public static AddContextStatBonus CreateAddContextStatBonus(StatType stat, ModifierDescriptor descriptor, ContextValueType type = ContextValueType.Rank, AbilityRankType rankType = AbilityRankType.Default, int multiplier = 1)
         {
             var addStat = Create<AddContextStatBonus>();
             addStat.Stat = stat;
             addStat.Value = new ContextValue() { ValueType = type };
             addStat.Descriptor = descriptor;
             addStat.Value.ValueRank = rankType;
+            addStat.Multiplier = multiplier;
             return addStat;
         }
 
