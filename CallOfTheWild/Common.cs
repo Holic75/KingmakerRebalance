@@ -52,6 +52,9 @@ namespace CallOfTheWild
     class Common
     {
 
+        static internal string[] roman_id = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
+
+
         static internal BlueprintFeatureSelection EldritchKnightSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("dc3ab8d0484467a4787979d93114ebc3");
         static internal BlueprintFeatureSelection ArcaneTricksterSelection = Main.library.Get<BlueprintFeatureSelection>("ae04b7cdeb88b024b9fd3882cc7d3d76");
         static internal BlueprintFeatureSelection DragonDiscipleSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("8c1ba14c0b6dcdb439c56341385ee474");
@@ -1389,6 +1392,15 @@ namespace CallOfTheWild
         }
 
 
+        static internal ContextActionResurrect createContextActionResurrect(float result_health, bool full_restore = false)
+        {
+            var c = Helpers.Create<ContextActionResurrect>();
+            c.ResultHealth = result_health;
+            c.FullRestore = full_restore;
+            return c;
+        }
+
+
         static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintBuff effect_buff, string prefix)
         {
             var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
@@ -1409,6 +1421,36 @@ namespace CallOfTheWild
             ability.Buff = ability_buff;
 
             return ability;
+        }
+
+
+        internal static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
+        {
+
+            var clear_variants = variants.Distinct().ToArray();
+            List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
+
+            foreach (var v in clear_variants)
+            {
+                var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, "");
+                var variants_comp = processed_spell.GetComponent<AbilityVariants>();
+
+                if (action != null)
+                {
+                    action(processed_spell);
+                }
+                if (variants_comp != null)
+                {
+                    var variant_spells = CreateAbilityVariantsReplace(parent, prefix, action, variants_comp.Variants);
+                    processed_spells = processed_spells.Concat(variant_spells).ToList();
+                }
+                else
+                {
+                    processed_spell.Parent = parent;
+                    processed_spells.Add(processed_spell);
+                }
+            }
+            return processed_spells.ToArray();
         }
 
 

@@ -41,6 +41,7 @@ using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.ElementsSystem;
+using static Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility;
 
 namespace CallOfTheWild
 {
@@ -72,6 +73,10 @@ namespace CallOfTheWild
         static internal BlueprintFeature song_of_marching;
         static internal BlueprintFeature song_of_strength;
         static internal BlueprintFeature dirge_of_doom;
+        static internal BlueprintFeature song_of_the_fallen;
+        static internal BlueprintFeature lore_master;
+        static internal BlueprintFeature spell_kenning;
+        static internal BlueprintFeature spell_kenning_extra_use;
 
         internal static void createSkaldClass()
         {
@@ -141,9 +146,10 @@ namespace CallOfTheWild
             createSongOfMarching();
             createSongOfStrength();
             createDirgeOfDoom();
-            //createSpellKenning();
-            //createLoreMaster (+1 to knowledge at 7, 13, 19 ?)
-            //createSongOfTheFallen();
+            createSongOfTheFallen();
+            createLoreMaster();
+            createSpellKenning();
+
 
             skald_progression = Helpers.CreateProgression("SkaldProgression",
                            skald_class.Name,
@@ -182,19 +188,19 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(2, versatile_performance, well_versed),
                                                                     Helpers.LevelEntry(3, skald_rage_powers, song_of_marching),
                                                                     Helpers.LevelEntry(4, uncanny_dodge),
-                                                                    Helpers.LevelEntry(5), //spell kenning
+                                                                    Helpers.LevelEntry(5, spell_kenning),
                                                                     Helpers.LevelEntry(6, skald_rage_powers, song_of_strength),
-                                                                    Helpers.LevelEntry(7, versatile_performance), //loremaster
+                                                                    Helpers.LevelEntry(7, versatile_performance, lore_master),
                                                                     Helpers.LevelEntry(8, improved_uncanny_dodge),
                                                                     Helpers.LevelEntry(9, skald_rage_powers, damage_reduction), 
                                                                     Helpers.LevelEntry(10, dirge_of_doom),
-                                                                    Helpers.LevelEntry(11), //spell kenning
+                                                                    Helpers.LevelEntry(11, spell_kenning_extra_use),
                                                                     Helpers.LevelEntry(12, versatile_performance, skald_rage_powers),
                                                                     Helpers.LevelEntry(13),
-                                                                    Helpers.LevelEntry(14, damage_reduction), // song of the fallen
+                                                                    Helpers.LevelEntry(14, damage_reduction, song_of_the_fallen), 
                                                                     Helpers.LevelEntry(15, skald_rage_powers),
                                                                     Helpers.LevelEntry(16),
-                                                                    Helpers.LevelEntry(17, versatile_performance), //spell kenning
+                                                                    Helpers.LevelEntry(17, versatile_performance, spell_kenning_extra_use),
                                                                     Helpers.LevelEntry(18, skald_rage_powers), 
                                                                     Helpers.LevelEntry(19, damage_reduction),
                                                                     Helpers.LevelEntry(20, master_skald)
@@ -203,8 +209,161 @@ namespace CallOfTheWild
             skald_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { skald_proficiencies, detect_magic, cantrips };
             skald_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(versatile_performance, versatile_performance, versatile_performance, versatile_performance),
                                                          Helpers.CreateUIGroup(fast_movement, uncanny_dodge, improved_uncanny_dodge),
-                                                         Helpers.CreateUIGroup(inspired_rage_feature, song_of_marching, song_of_strength, dirge_of_doom, master_skald)
+                                                         Helpers.CreateUIGroup(inspired_rage_feature, song_of_marching, song_of_strength, dirge_of_doom, song_of_the_fallen, master_skald),
+                                                         Helpers.CreateUIGroup(well_versed, lore_master, spell_kenning, spell_kenning_extra_use, spell_kenning_extra_use)
                                                         };
+        }
+
+
+        static void createSpellKenning()
+        {
+            var resource = Helpers.CreateAbilityResource("SkaldSpellKenningResource", "", "", "", null);
+            resource.SetFixedResource(1);
+            var cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var wizard_class = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+
+            var classes = new (BlueprintCharacterClass, UnityEngine.Sprite)[] { (skald_class, library.Get<BlueprintFeature>("c459c8200e666ef4c990873d3e501b91").Icon), //transmutation
+                                                                                (cleric_class, library.Get<BlueprintFeature>("30f20e6f850519b48aa59e8c0ff66ae9").Icon), //abjuration
+                                                                                (wizard_class, library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6").Icon)}; //evocation 
+            const int max_level = 6;
+            const int min_level = 1;
+            const int max_variants_in_list = 12;
+            List<BlueprintComponent> spell_kenning_base = new List<BlueprintComponent>();
+
+            var icon = library.Get<BlueprintAbility>("da2447792e4ced74c80f35e29eb7a9e8").Icon; //secret of s
+            for (int i = min_level; i <= max_level; i++)
+            {
+                var spell_kenning_base_i = Helpers.CreateAbility($"SkaldSpellKenning{i}BaseAbility",
+                                                                 $"Spell Kenning {Common.roman_id[i]}",
+                                                                 $"This ability allows to cast any Cleric, Skald or Wizard spell of level {i}.",
+                                                                 "",
+                                                                 icon,
+                                                                 AbilityType.Spell,
+                                                                 CommandType.Standard,
+                                                                 AbilityRange.Personal,
+                                                                 "",
+                                                                 "");
+                Helpers.SetField(spell_kenning_base_i, "m_IsFullRoundAction", true);
+                List<BlueprintAbility> base_i_variants = new List<BlueprintAbility>();
+
+                
+                foreach (var c in classes)
+                {
+                    var variant_spells = Common.CreateAbilityVariantsReplace(null, "SkaldSpellKenning" + c.Item1.name,
+                                                                                    s => {
+                                                                                        s.ActionType = CommandType.Standard;
+                                                                                        Helpers.SetField(s, "m_IsFullRoundAction", true);
+                                                                                        if (s.GetComponent<AbilityResourceLogic>() == null)
+                                                                                        {
+                                                                                            s.AddComponent(Helpers.CreateResourceLogic(resource));
+                                                                                        }
+                                                                                    },
+                                                                                  c.Item1.Spellbook.SpellList.SpellsByLevel[i].Spells.ToArray()
+                                                                                  );
+                    for (int j = 0; j < variant_spells.Length - 1; j+= max_variants_in_list)
+                    {
+                        int id = j / max_variants_in_list + 1;
+                        var spell_kenning_class = Helpers.CreateAbility($"SkaldSpellKenning{i}Base{c.Item1.name}{id}Ability",
+                                                     spell_kenning_base_i.Name + $" ({c.Item1.Name}, {id})",
+                                                     $"This ability allows to cast any {c.Item1.Name} spell of level {i}.",
+                                                     "",
+                                                     c.Item2,
+                                                     AbilityType.Spell,
+                                                     CommandType.Standard,
+                                                     AbilityRange.Close,
+                                                     "",
+                                                     "");
+                        int num_spells = j + max_variants_in_list > variant_spells.Length - 1 ? variant_spells.Length - j : max_variants_in_list;
+                        var variants_to_add = variant_spells.Skip(j).Take(num_spells).ToArray();
+                        spell_kenning_class.AddComponent(Helpers.CreateAbilityVariants(spell_kenning_class, variants_to_add));
+                        spell_kenning_base.Add(Helpers.CreateAddKnownSpell(spell_kenning_class, skald_class, i));
+                    }         
+                }
+            }
+
+
+            spell_kenning = Helpers.CreateFeature("SkaldSpellKenningFeature",
+                                      "Spell Kenning",
+                                      "At 5th level, a skald is learned in the magic of other spellcasters, and can use his own magic to duplicate those classes’ spells. Once per day, a skald can cast any spell on the bard, cleric, or sorcerer/wizard spell list as if it were one of his skald spells known, expending a skald spell slot of the same spell level to cast the desired spell. Casting a spell with spell kenning always has a minimum casting time of 1 full round, regardless of the casting time of the spell.\n"
+                                       + ",At 11th level, a skald can use this ability twice per day.At 17th level, he can use this ability three times per day.",
+                                      "",
+                                      icon,
+                                      FeatureGroup.None,
+                                      spell_kenning_base.ToArray().AddToArray(Helpers.CreateAddAbilityResource(resource))
+                                      );
+
+            spell_kenning_extra_use = Helpers.CreateFeature("SkaldSpellKenningExtraUseFeature",
+                          spell_kenning.Name,
+                          spell_kenning.Description,
+                          "",
+                          icon,
+                          FeatureGroup.None,
+                          Helpers.CreateIncreaseResourceAmount(resource, 1)
+                          );
+        }
+
+
+        static void createLoreMaster()
+        {
+            lore_master = Helpers.CreateFeature("SkaldLoreMasterFeature",
+                                                "Lore Master",
+                                                "At 7th level skald receives + 1 bonus to all lore and knowledge skills, this bonus increases by one every 6 levels thereafter.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeArcana, ModifierDescriptor.UntypedStackable, ContextValueType.Rank),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeWorld, ModifierDescriptor.UntypedStackable, ContextValueType.Rank),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.UntypedStackable, ContextValueType.Rank),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.UntypedStackable, ContextValueType.Rank),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(),
+                                                                                progression: ContextRankProgression.StartPlusDivStep,
+                                                                                startLevel: 7, stepLevel: 6)
+                                               );
+        }
+
+
+        static void createSongOfTheFallen()
+        {
+            var song_of_the_fallen_ability = library.CopyAndAdd<BlueprintAbility>("80a1a388ee938aa4e90d427ce9a7a3e9", "SkaldSongOfTheFallen", "");
+            song_of_the_fallen_ability.MaterialComponent = new MaterialComponentData();
+            song_of_the_fallen_ability.SetName("Song of the fallen");
+            song_of_the_fallen_ability.SetDescription("At 14th level, a skald can temporarily revive dead allies to continue fighting, with the same limitations as raise dead.The skald selects a dead ally within 30 feet and expends 6 rounds of raging song to bring that ally back to life for number of rounds equal to half of skald level. The revived ally is alive but staggered.");
+            song_of_the_fallen_ability.Type = AbilityType.Supernatural;
+            song_of_the_fallen_ability.Range = AbilityRange.Close;
+            var staggered_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var buff = Helpers.CreateBuff("SkaldSongOfTheFallenEffectBuff",
+                              song_of_the_fallen_ability.Name,
+                              song_of_the_fallen_ability.Description,
+                              "",
+                              song_of_the_fallen_ability.Icon,
+                              null
+                              );
+
+            buff.SetBuffFlags(BuffFlags.StayOnDeath);
+            
+            buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: Common.createContextActionApplyBuff(staggered_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true),
+                                                                  deactivated:Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionKillTarget>()
+                                                                  )
+                            );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+
+
+            song_of_the_fallen_ability.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(apply_buff)));
+            song_of_the_fallen_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(),
+                                                                                    progression: ContextRankProgression.Div2, type: AbilityRankType.Default)
+                                                                                    );
+            song_of_the_fallen_ability.AddComponent(Helpers.CreateResourceLogic(performance_resource, true, 6));
+
+
+            song_of_the_fallen = Helpers.CreateFeature("SkaldSongOfTheFallenFeature",
+                                                     song_of_the_fallen_ability.Name,
+                                                     song_of_the_fallen_ability.Description,
+                                                     "",
+                                                     song_of_the_fallen_ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(song_of_the_fallen_ability)
+                                                     );
         }
 
 

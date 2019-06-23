@@ -1369,11 +1369,12 @@ namespace CallOfTheWild
             return resource;
         }
 
-        public static AbilityResourceLogic CreateResourceLogic(this BlueprintAbilityResource resource, bool spend = true)
+        public static AbilityResourceLogic CreateResourceLogic(this BlueprintAbilityResource resource, bool spend = true, int amount = 1)
         {
             var a = Create<AbilityResourceLogic>();
             a.IsSpendResource = spend;
             a.RequiredResource = resource;
+            a.Amount = amount;
             return a;
         }
 
@@ -1751,6 +1752,7 @@ namespace CallOfTheWild
             c.IfFalse = CreateActionList(ifFalse);
             return c;
         }
+
 
 
         public static Conditional CreateConditional(ConditionsChecker conditions, GameAction ifTrue, GameAction ifFalse = null)

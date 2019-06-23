@@ -344,8 +344,7 @@ public class Rebalance
             var apply_ferocity = Common.createContextActionApplyBuff(inspire_ferocity_rage_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true);
             condition_on.IfTrue.Actions = condition_on.IfTrue.Actions.AddToArray(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(inspire_ferocity_switch_buff),
                                                                                  apply_ferocity, null)
-                                                                                 );
-                                                                                
+                                                                                 );                                                       
         }
     }
 }

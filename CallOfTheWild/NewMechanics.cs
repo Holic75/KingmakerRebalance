@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.Blueprints.Validation;
+using Kingmaker.Blueprints.Root;
 
 namespace CallOfTheWild
 {
@@ -443,6 +444,39 @@ namespace CallOfTheWild
             }
         }
 
+
+
+        public class ContextActionResurrectInstant: ContextAction
+        {
+            public bool FullRestore;
+            [HideIf("FullRestore")]
+            public float ResultHealth = 0.5f;
+
+            public override string GetCaption()
+            {
+                return "Resurrect";
+            }
+
+            public override void RunAction()
+            {
+                UnitEntityData unit = this.Target.Unit;
+                if (unit != null && this.Context.MaybeCaster != null)
+                {
+                    UnitEntityData pair = UnitPartDualCompanion.GetPair(unit);
+                    if (this.FullRestore)
+                    {
+                        unit.Descriptor.ResurrectAndFullRestore();
+                        pair?.Descriptor.ResurrectAndFullRestore();
+                    }
+                    else
+                    {
+                        unit.Descriptor.Resurrect(this.ResultHealth, true);
+                        pair?.Descriptor.Resurrect(this.ResultHealth, true);
+                    }
+
+                }
+            }
+        }
 
     }
 }
