@@ -721,19 +721,12 @@ namespace CallOfTheWild
                                                    FeatureGroup.None);
             hunter_progression.Classes = new BlueprintCharacterClass[1] { hunter_class };
 
-            var hunter_orisons = library.CopyAndAdd<BlueprintFeature>("f2ed91cc202bd344691eef91eb6d5d1a",
+            var hunter_orisons = library.CopyAndAdd<BlueprintFeature>("f2ed91cc202bd344691eef91eb6d5d1a", //druid orisons
                                                                        "HunterOrisionsFeature",
                                                                        "5838ceedcf344dfe8d3e0538c67a7884");
             hunter_orisons.SetDescription("Hunters learn a number of orisons, or 0 - level spells. These spells are cast like any other spell, but they do not consume any slots and may be used again.");
-            hunter_orisons.SetComponents(hunter_orisons.ComponentsArray.Select(c =>
-            {
-                var bind = c as BindAbilitiesToClass;
-                if (bind == null) return c;
-                bind = UnityEngine.Object.Instantiate(bind);
-                bind.CharacterClass = hunter_class;
-                bind.Stat = StatType.Wisdom;
-                return bind;
-            }));
+            hunter_orisons.ReplaceComponent<BindAbilitiesToClass>(c => {c.CharacterClass = hunter_class;});
+            hunter_orisons.RemoveComponents<AddFeatureOnClassLevel>();
 
             var hunter_proficiencies = library.CopyAndAdd<BlueprintFeature>("c5e479367d07d62428f2fe92f39c0341",
                                                                             "HunterProficiencies",
@@ -766,11 +759,6 @@ namespace CallOfTheWild
                                                            library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                            library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")  // touch calculate feature
                                                            )) ;
-            hunter_orisons.GetComponent<BindAbilitiesToClass>().CharacterClass = hunter_class;
-            var learn_orisons = Helpers.Create<Kingmaker.UnitLogic.FactLogic.LearnSpells>();
-            learn_orisons.CharacterClass = hunter_class;
-            learn_orisons.Spells = hunter_orisons.GetComponent<BindAbilitiesToClass>().Abilites;
-            hunter_orisons.AddComponent(learn_orisons);
 
             createPreciseCompanion();
             entries.Add(Helpers.LevelEntry(2, precise_companion));

@@ -1175,6 +1175,7 @@ namespace CallOfTheWild
             hex_ability.SetDescription("The witch can grant a creature within 30 feet a bit of good luck for 1 round. The target can call upon this good luck once per round, allowing him to reroll any ability check, attack roll, saving throw, or skill check, taking the better result. He must decide to use this ability before the first roll is made. At 8th level and 16th level, the duration of this hex is extended by 1 round. Once a creature has benefited from the fortune hex, it cannot benefit from it again for 24 hours.");
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.Designers.Mechanics.Facts.ReplaceAbilitiesStat>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
+            hex_ability.Range = AbilityRange.Close;
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var apply_buff = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
             apply_buff.Buff = library.CopyAndAdd<BlueprintBuff>(apply_buff.Buff, "WitchFortuneHexBuff", "");
@@ -1391,6 +1392,7 @@ namespace CallOfTheWild
         static void createSummerHeat()
         {
             var fatigued_buff = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var exhausted_buff = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
             var nonlethal_full = library.CopyAndAdd<BlueprintBuff>("95b1c0d55f30996429a3a4eba4d2b4a6", "WitchSummerHeatHexDamageFullBuff", "0c2bce51244647329e7e753b07548d10");
             nonlethal_full.RemoveComponent(nonlethal_full.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
             var dmg = nonlethal_full.GetComponent<Kingmaker.UnitLogic.FactLogic.AddContextStatBonus>().CreateCopy();

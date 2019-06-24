@@ -136,14 +136,14 @@ namespace CallOfTheWild
             BlueprintAbility magic_fang = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33");
             ac_share_spell = Helpers.CreateFeature("ShareSpellAnimalCompanion",
                                          "Share Spells (Animal Companion)",
-                                         "You may cast a spell with a range of Personal on your animal companion (as a touch range spell) instead of on herself. You may cast spells on your animal companion even if the spells normally do not affect creatures of the companion’s type (animal). Spells cast in this way must come from a class that grants an animal companion. This ability does not allow the animal to share abilities that are not spells, even if they function like spells.",
+                                         "You may cast a spell with a range of Personal on your animal companion (as a touch range spell) instead of on herself. Spells cast in this way must come from a class that grants an animal companion. This ability does not allow the animal to share abilities that are not spells, even if they function like spells.",
                                          "",
                                          magic_fang.Icon,
                                          FeatureGroup.None);
 
             familiar_share_spell = Helpers.CreateFeature("ShareSpellFamiliar",
                                          "Share Spells (Familiar)",
-                                         "You may cast a spell with a range of Personal on your familiar (as a touch spell) instead of on himself. You may cast spells on your familiar even if the spells do not normally affect creatures of the familiar’s type (magical beast).",
+                                         "You may cast a spell with a range of Personal on your familiar (as a touch spell) instead of on himself.",
                                          "",
                                          magic_fang.Icon,
                                          FeatureGroup.None);

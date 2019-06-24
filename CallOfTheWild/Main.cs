@@ -112,11 +112,10 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
                     CallOfTheWild.Rebalance.fixDomains();
                     CallOfTheWild.Rebalance.fixBarbarianRageAC();
+                    CallOfTheWild.Rebalance.fixInspiredFerocity();
 
                     CallOfTheWild.Rebalance.fixMagicVestment();
                     CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();
-
-                    CallOfTheWild.Hunter.createHunterClass();
 
                     if (settings.sacred_huntsmaster_animal_focus)
                     {
@@ -125,12 +124,17 @@ namespace CallOfTheWild
                     }
 
                     CallOfTheWild.Wildshape.fixBeastShape();
+
 #if DEBUG
                     CallOfTheWild.Witch.test_mode = true;
                     CallOfTheWild.Bloodrager.test_mode = true;
+                    CallOfTheWild.Skald.test_mode = true;
 #endif
+                    CallOfTheWild.Hunter.createHunterClass();
                     CallOfTheWild.Witch.createWitchClass();
+                    CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
+
 
                     CallOfTheWild.SharedSpells.load();
 

@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Enums;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 
 namespace CallOfTheWild
 {
@@ -331,5 +332,19 @@ public class Rebalance
 
         }
 
+
+        static internal void fixInspiredFerocity()
+        {
+            var reckless_stance_switch = Main.library.Get<BlueprintBuff>("c52e4fdad5df5d047b7ab077a9907937");
+            var inspire_ferocity_rage_buff = Main.library.Get<BlueprintBuff>("9a8a16f5734eec7439c5c77000316742");
+            var inspire_ferocity_switch_buff = Main.library.Get<BlueprintBuff>("4b3fb3c9473a00f4fa526f4bd3fc8b7a");
+            var c = reckless_stance_switch.GetComponent<AddFactContextActions>();
+            c.Deactivated.Actions = c.Deactivated.Actions.AddToArray(Common.createContextActionRemoveBuff(inspire_ferocity_rage_buff)); //remove inspired ferocity when reckless stance is deactivated
+            var condition_on = (Conditional)c.Activated.Actions[0];
+            var apply_ferocity = Common.createContextActionApplyBuff(inspire_ferocity_rage_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true);
+            condition_on.IfTrue.Actions = condition_on.IfTrue.Actions.AddToArray(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(inspire_ferocity_switch_buff),
+                                                                                 apply_ferocity, null)
+                                                                                 );                                                       
+        }
     }
 }

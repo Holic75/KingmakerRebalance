@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.Blueprints.Validation;
+using Kingmaker.Blueprints.Root;
 
 namespace CallOfTheWild
 {
@@ -40,17 +41,20 @@ namespace CallOfTheWild
     {
         [ComponentName("Apply metamagic for resource")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
-        public class MetaRage : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        public class MetaRage : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
         {
             public Metamagic metamagic;
             public BlueprintAbilityResource resource;
+            private int cost = 0;
 
             public MetaRage(Metamagic metamagic_to_apply, BlueprintAbilityResource resource_to_use)
             {
                 metamagic = metamagic_to_apply;
                 resource = resource_to_use;
             }
-            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 bool is_metamagic_available = ((evt.Spell.AvailableMetamagic & metamagic) != 0);
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell || !is_metamagic_available)
@@ -58,33 +62,57 @@ namespace CallOfTheWild
                     return;
                 }
 
-                int resource_needed = 2 * (evt.Spellbook.GetSpellLevel(evt.Spell) + MetamagicHelper.DefaultCost(metamagic));
-                Main.logger.Log(resource_needed.ToString());
-                if (this.resource == null || this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < resource_needed)
+                cost = 2 * (evt.Spellbook.GetSpellLevel(evt.Spell) + MetamagicHelper.DefaultCost(metamagic));
+                if (this.resource == null || this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
                 {
+                    cost = 0;
                     return;
                 }
 
                 evt.AddMetamagic(this.metamagic);
-                this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, resource_needed);
             }
 
-            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (cost == 0)
+                {
+                    return;
+                }
+                this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, cost);
+            }
+
+
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
             {
             }
         }
 
-
-        [ComponentName("Increase spell descriptor DC for 1d6 damage")]
+        [ComponentName("Increase spell descriptor DC by spell level up to BonusDC and then deals dc_increase d6 damage")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
-        public class RageCasting : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        public class RageCasting : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
         {
             public int BonusDC;
             private int actual_dc = 0;
 
-            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-                actual_dc = 0;
+
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
                 bool no_save = evt.Spell.EffectOnEnemy != AbilityEffectOnUnit.Harmful; //TODO: properly check for saving throw
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell || no_save)
                 {
@@ -92,23 +120,23 @@ namespace CallOfTheWild
                 }
                 actual_dc = Mathf.Min(evt.Spellbook.GetSpellLevel(evt.Spell), BonusDC);
                 evt.AddBonusDC(actual_dc);
-                Common.AddBattleLogMessage($"{Owner.CharacterName}: Rage Casting increases spell level by {actual_dc}");
             }
 
-            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            public override void OnEventDidTrigger(RuleCastSpell evt)
             {
                 if (actual_dc == 0)
                 {
                     return;
                 }
+                Common.AddBattleLogMessage($"{Owner.CharacterName}: Rage Casting increases spell DC by {actual_dc}");
                 RuleDealDamage evt_dmg = new RuleDealDamage(this.Owner.Unit, this.Owner.Unit, new DamageBundle(new BaseDamage[1]
                 {
                 (BaseDamage) new EnergyDamage(new DiceFormula(actual_dc, DiceType.D6), Kingmaker.Enums.Damage.DamageEnergyType.Holy)
                 }));
                 evt_dmg.Reason = (RuleReason)this.Fact;
                 //temporary remove temp hp
-                var temp_hd_modifiers = this.Owner.Stats.TemporaryHitPoints.Modifiers.ToArray();
-                foreach (var m in temp_hd_modifiers)
+                var temp_hp_modifiers = this.Owner.Stats.TemporaryHitPoints.Modifiers.ToArray();
+                foreach (var m in temp_hp_modifiers)
                 {
                     this.Owner.Stats.TemporaryHitPoints.RemoveModifier(m);
                 }
@@ -118,7 +146,7 @@ namespace CallOfTheWild
                 { //do not give hp back if owner is unconscious
                     return;
                 }
-                foreach (var m in temp_hd_modifiers)
+                foreach (var m in temp_hp_modifiers)
                 {
                     this.Owner.Stats.TemporaryHitPoints.AddModifier(m.ModValue, m.Source, m.SourceComponent, m.ModDescriptor);
                 }
@@ -127,9 +155,9 @@ namespace CallOfTheWild
         }
 
 
-        [ComponentName("increase caster level by value and apply on caster debuff for duration equal to rate*spell_level if it fails saving throw against (dc_base + spell_level + caster_level_increase)")]
+        [ComponentName("Increase caster level by value and apply on caster debuff for duration equal to rate*spell_level if it fails saving throw against (dc_base + spell_level + caster_level_increase)")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
-        public class ConduitSurge : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        public class ConduitSurge : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
         {
             public BlueprintBuff buff;
             public DurationRate rate = DurationRate.Rounds;
@@ -138,10 +166,16 @@ namespace CallOfTheWild
             public int dc_base = 10;
             public string display_name = "Conduit Surge";
             public BlueprintAbilityResource resource;
-            private int caster_level_increase;
+            private int caster_level_increase = -1;
 
 
-            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+
+            }
+
+
+                public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 caster_level_increase = -1;
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
@@ -150,19 +184,24 @@ namespace CallOfTheWild
                 }
                 caster_level_increase = dice_value.Calculate(this.Fact.MaybeContext);
                 evt.AddBonusCasterLevel(caster_level_increase);
-                Common.AddBattleLogMessage($"{Owner.CharacterName}: {display_name} increases caster level by {caster_level_increase}");
             }
 
-            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
             {
                 if (caster_level_increase == -1)
                 {
                     return;
                 }
-                RuleSavingThrow ruleSavingThrow = this.Fact.MaybeContext.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(this.Owner.Unit, save_type, dc_base + evt.SpellLevel + caster_level_increase));
+                Common.AddBattleLogMessage($"{Owner.CharacterName}: {display_name} increases caster level by {caster_level_increase}");
+                RuleSavingThrow ruleSavingThrow = this.Fact.MaybeContext.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(this.Owner.Unit, save_type, dc_base + evt.Spell.SpellLevel + caster_level_increase));
                 if (!ruleSavingThrow.IsPassed)
                 {
-                    this.Owner.Buffs.AddBuff(buff, this.Owner.Unit, (rate.ToRounds() * evt.SpellLevel).Seconds);
+                    this.Owner.Buffs.AddBuff(buff, this.Owner.Unit, (rate.ToRounds() * evt.Spell.SpellLevel).Seconds);
                 }
                 if (resource != null)
                 {
@@ -440,6 +479,40 @@ namespace CallOfTheWild
                     return;
                 string str = string.Join(", ", ((IEnumerable<StatType>)StatTypeHelper.Attributes).Select<StatType, string>((Func<StatType, string>)(s => s.ToString())));
                 context.AddError("StatType must be Base Attack Bonus or an attribute: {0}", (object)str);
+            }
+        }
+
+
+
+        public class ContextActionResurrectInstant: ContextAction
+        {
+            public bool FullRestore;
+            [HideIf("FullRestore")]
+            public float ResultHealth = 0.5f;
+
+            public override string GetCaption()
+            {
+                return "Resurrect";
+            }
+
+            public override void RunAction()
+            {
+                UnitEntityData unit = this.Target.Unit;
+                if (unit != null && this.Context.MaybeCaster != null)
+                {
+                    UnitEntityData pair = UnitPartDualCompanion.GetPair(unit);
+                    if (this.FullRestore)
+                    {
+                        unit.Descriptor.ResurrectAndFullRestore();
+                        pair?.Descriptor.ResurrectAndFullRestore();
+                    }
+                    else
+                    {
+                        unit.Descriptor.Resurrect(this.ResultHealth, true);
+                        pair?.Descriptor.Resurrect(this.ResultHealth, true);
+                    }
+
+                }
             }
         }
 

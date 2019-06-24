@@ -43,12 +43,17 @@ using Kingmaker.UI.Log;
 using Kingmaker.Blueprints.Root.Strings.GameLog;
 using Kingmaker;
 using UnityEngine;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.ElementsSystem;
 
 namespace CallOfTheWild
 {
 
     class Common
     {
+
+        static internal string[] roman_id = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
+
 
         static internal BlueprintFeatureSelection EldritchKnightSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("dc3ab8d0484467a4787979d93114ebc3");
         static internal BlueprintFeatureSelection ArcaneTricksterSelection = Main.library.Get<BlueprintFeatureSelection>("ae04b7cdeb88b024b9fd3882cc7d3d76");
@@ -270,13 +275,14 @@ namespace CallOfTheWild
 
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
-                                                                                                                  bool is_child = false, bool is_permanent = false)
+                                                                                                                  bool is_child = false, bool is_permanent = false, bool dispellable = true)
         {
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
             apply_buff.Buff = buff;
             apply_buff.Permanent = is_permanent;
             apply_buff.DurationValue = duration;
+            apply_buff.IsNotDispelable = !dispellable;
             return apply_buff;
         }
 
@@ -506,8 +512,25 @@ namespace CallOfTheWild
                 condition[i] = Helpers.CreateConditionHasFact(facts[i]);
             }
             var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(), false, true, true)));
-            var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
+            addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, buff_to_add, action);
+            /*(var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
             activated.Actions = activated.Actions.AddToArray(action);
+            var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
+            var remove_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
+            remove_buff.Buff = buff_to_add;
+            deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);*/
+        }
+
+
+        static internal void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Conditional conditional_action)
+        {
+            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }
+
+            var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
+            activated.Actions = activated.Actions.AddToArray(conditional_action);
             var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
             var remove_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
             remove_buff.Buff = buff_to_add;
@@ -1253,6 +1276,15 @@ namespace CallOfTheWild
         }
 
 
+        static internal ContextConditionCasterHasFact createContextConditionCasterHasFact(BlueprintUnitFact fact, bool has = true)
+        {
+            var c = Helpers.Create<ContextConditionCasterHasFact>();
+            c.Fact = fact;
+            c.Not = !has;
+            return c;
+        }
+
+
         public static void AddBattleLogMessage(string message, object tooltip = null, Color? color = null)
         {
             var data = new LogDataManager.LogItemData(message, color ?? GameLogStrings.Instance.DefaultColor, tooltip, PrefixIcon.None);
@@ -1262,6 +1294,16 @@ namespace CallOfTheWild
             }
         }
 
+
+        static internal ClassLevelsForPrerequisites createClassLevelsForPrerequisites(BlueprintCharacterClass fake_class, BlueprintCharacterClass actual_class, double modifier = 1.0, int summand = 0)
+        {
+            var c = Helpers.Create<ClassLevelsForPrerequisites>();
+            c.ActualClass = actual_class;
+            c.FakeClass = fake_class;
+            c.Modifier = modifier;
+            c.Summand = summand;
+            return c;
+        }
 
 
         static internal void addTemworkFeats(params BlueprintFeature[] feats)
@@ -1312,6 +1354,140 @@ namespace CallOfTheWild
             a.Feature = feature;
             a.Not = not;
             return a;
+        }
+
+
+        static internal BuffExtraAttack createBuffExtraAttack(int num, bool haste)
+        {
+            var b = Helpers.Create<BuffExtraAttack>();
+            b.Number = num;
+            b.Haste = haste;
+            return b;
+        }
+
+
+        static internal ContextConditionIsCaster createContextConditionIsCaster(bool not = false)
+        {
+            var c = Helpers.Create<ContextConditionIsCaster>();
+            c.Not = not;
+            return c;
+        }
+
+
+        static internal AddWearinessHours createAddWearinessHours(int hours)
+        {
+            var a = Helpers.Create<AddWearinessHours>();
+            a.Hours = hours;
+            return a;
+        }
+
+
+        static internal AbilityScoreCheckBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor, StatType stat)
+        {
+            var a = Helpers.Create<AbilityScoreCheckBonus>();
+            a.Bonus = bonus;
+            a.Descriptor = descriptor;
+            a.Stat = stat;
+            return a;
+        }
+
+
+        static internal ContextActionResurrect createContextActionResurrect(float result_health, bool full_restore = false)
+        {
+            var c = Helpers.Create<ContextActionResurrect>();
+            c.ResultHealth = result_health;
+            c.FullRestore = full_restore;
+            return c;
+        }
+
+
+        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintBuff effect_buff, string prefix)
+        {
+            var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
+            var ability_buff = library.CopyAndAdd<BlueprintBuff>(base_ability.Buff.AssetGuid, prefix + "Buff", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(ability_buff.GetComponent<AddAreaEffect>().AreaEffect.AssetGuid, prefix + "Area", "");
+
+            area.ReplaceComponent<AbilityAreaEffectBuff>(c => { c.Buff = effect_buff; });
+
+            ability_buff.ReplaceComponent<AddAreaEffect>(c => { c.AreaEffect = area; });
+            ability_buff.SetName(effect_buff.Name);
+            ability_buff.SetDescription(effect_buff.Description);
+            ability_buff.SetIcon(effect_buff.Icon);
+
+           
+            ability.SetName(effect_buff.Name);
+            ability.SetDescription(effect_buff.Description);
+            ability.SetIcon(effect_buff.Icon);
+            ability.Buff = ability_buff;
+
+            return ability;
+        }
+
+
+        internal static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
+        {
+
+            var clear_variants = variants.Distinct().ToArray();
+            List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
+
+            foreach (var v in clear_variants)
+            {
+                var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, "");
+                var variants_comp = processed_spell.GetComponent<AbilityVariants>();
+
+                if (action != null)
+                {
+                    action(processed_spell);
+                }
+                if (variants_comp != null)
+                {
+                    var variant_spells = CreateAbilityVariantsReplace(parent, prefix, action, variants_comp.Variants);
+                    processed_spells = processed_spells.Concat(variant_spells).ToList();
+                }
+                else
+                {
+                    processed_spell.Parent = parent;
+                    processed_spells.Add(processed_spell);
+                }
+            }
+            return processed_spells.ToArray();
+        }
+
+
+        static internal void addToFactInContextConditionHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
+                                                       Condition condition_to_add = null)
+        {
+            var component = buff.GetComponent<AddFactContextActions>();
+            if (component == null)
+            {
+                return;
+            }
+
+            var activated_actions = component.Activated.Actions;
+
+            for (int i = 0; i < activated_actions.Length; i++)
+            {
+                if (activated_actions[i] is Conditional)
+                {
+                    var c_action = (Conditional)activated_actions[i].CreateCopy();
+                    for (int j = 0; j < c_action.ConditionsChecker.Conditions.Length; j++)
+                    {
+                        if (c_action.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
+                        {
+                            var condition_entry = (ContextConditionHasFact)c_action.ConditionsChecker.Conditions[j];
+                            var fact = condition_entry.Fact;
+                            if (fact == inner_buff_to_locate)
+                            {
+                                //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
+                                c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
+                                c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
+                                activated_actions[i] = c_action;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

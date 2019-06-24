@@ -126,6 +126,7 @@
     <Compile Include="Rebalance.cs" />
     <Compile Include="SaveCompatibility.cs" />
     <Compile Include="SharedSpells.cs" />
+    <Compile Include="Skald.cs" />
     <Compile Include="Wildshape.cs" />
     <Compile Include="Witch.cs" />
   </ItemGroup>

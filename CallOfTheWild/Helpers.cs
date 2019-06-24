@@ -113,6 +113,23 @@ namespace CallOfTheWild
             return result;
         }
 
+
+        public static T[] RemoveFromArrayByType<T, V>(this T[] array)
+        {
+            List<T> list = new List<T>();
+
+            foreach (var c in array)
+            {
+                if (!(c is V))
+                {
+                    list.Add(c);
+                }
+            }
+
+            return list.ToArray();
+        }
+
+
         public static T[] AddToArray<T>(this T[] array, params T[] values)
         {
             var len = array.Length;
@@ -1308,13 +1325,14 @@ namespace CallOfTheWild
             return addStat;
         }
 
-        public static AddContextStatBonus CreateAddContextStatBonus(StatType stat, ModifierDescriptor descriptor, ContextValueType type = ContextValueType.Rank, AbilityRankType rankType = AbilityRankType.Default)
+        public static AddContextStatBonus CreateAddContextStatBonus(StatType stat, ModifierDescriptor descriptor, ContextValueType type = ContextValueType.Rank, AbilityRankType rankType = AbilityRankType.Default, int multiplier = 1)
         {
             var addStat = Create<AddContextStatBonus>();
             addStat.Stat = stat;
             addStat.Value = new ContextValue() { ValueType = type };
             addStat.Descriptor = descriptor;
             addStat.Value.ValueRank = rankType;
+            addStat.Multiplier = multiplier;
             return addStat;
         }
 
@@ -1351,11 +1369,12 @@ namespace CallOfTheWild
             return resource;
         }
 
-        public static AbilityResourceLogic CreateResourceLogic(this BlueprintAbilityResource resource, bool spend = true)
+        public static AbilityResourceLogic CreateResourceLogic(this BlueprintAbilityResource resource, bool spend = true, int amount = 1)
         {
             var a = Create<AbilityResourceLogic>();
             a.IsSpendResource = spend;
             a.RequiredResource = resource;
+            a.Amount = amount;
             return a;
         }
 
@@ -1593,6 +1612,14 @@ namespace CallOfTheWild
             ReplaceComponent(obj, obj.GetComponent<T>(), replacement);
         }
 
+
+        public static void ReplaceComponent<T>(this BlueprintScriptableObject obj, Action<T> action) where T : BlueprintComponent
+        {
+            var replacement = obj.GetComponent<T>().CreateCopy();
+            action(replacement);
+            ReplaceComponent(obj, obj.GetComponent<T>(), replacement);
+        }
+
         public static void ReplaceComponent(this BlueprintScriptableObject obj, BlueprintComponent original, BlueprintComponent replacement)
         {
             // Note: make a copy so we don't mutate the original component
@@ -1725,6 +1752,7 @@ namespace CallOfTheWild
             c.IfFalse = CreateActionList(ifFalse);
             return c;
         }
+
 
 
         public static Conditional CreateConditional(ConditionsChecker conditions, GameAction ifTrue, GameAction ifFalse = null)
