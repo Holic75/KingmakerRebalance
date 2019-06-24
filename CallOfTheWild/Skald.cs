@@ -77,6 +77,9 @@ namespace CallOfTheWild
         static internal BlueprintFeature lore_master;
         static internal BlueprintFeature spell_kenning;
         static internal BlueprintFeature spell_kenning_extra_use;
+        static internal BlueprintFeature bardic_knowledge;
+        static internal BlueprintFeature bardic_performance_move;
+        static internal BlueprintFeature bardic_performance_swift;
 
         internal static void createSkaldClass()
         {
@@ -120,10 +123,18 @@ namespace CallOfTheWild
             skald_class.Progression = skald_progression;
 
           
-            skald_class.Archetypes = new BlueprintArchetype[] {}; //battle scion, spellwarrior?, court poet ? urban skald? herald_of_the_horn?
+            skald_class.Archetypes = new BlueprintArchetype[] {}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             //addToPrestigeClasses(); //to at, mt, ek, dd
-            //fixExtraPerformance
+            fixExtraRagePower();
+        }
+
+
+        static void fixExtraRagePower()
+        {
+            var extra_rage_power = library.Get<BlueprintFeatureSelection>("0c7f01fbbe687bb4baff8195cb02fe6a");
+            extra_rage_power.GetComponent<PrerequisiteFeature>().Group = Prerequisite.GroupType.Any;
+            extra_rage_power.AddComponent(Helpers.PrerequisiteFeature(skald_rage_powers, true));
         }
 
 
@@ -159,16 +170,23 @@ namespace CallOfTheWild
                            FeatureGroup.None);
             skald_progression.Classes = getSkaldArray();
 
-            skald_proficiencies = library.CopyAndAdd<BlueprintFeature>(Bloodrager.bloodrager_proficiencies.AssetGuid,
+            skald_proficiencies = library.CopyAndAdd<BlueprintFeature>("acc15a2d19f13864e8cce3ba133a1979", //barbarian proficiencies
                                                                             "SkaldProficiencies",
                                                                             "");
+            skald_proficiencies.AddComponent(Common.createArcaneArmorProficiency(Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Buckler,
+                                                                                      Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.LightShield,
+                                                                                      Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.HeavyShield,
+                                                                                      Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.TowerShield,
+                                                                                      Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Light,
+                                                                                      Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Medium)
+                                                                                      );
             skald_proficiencies.SetName("Skald Proficiencies");
             skald_proficiencies.SetDescription("A skald is proficient with all simple and martial weapons, light and medium armor, and shields (except tower shields). A skald can cast skald spells while wearing light or medium armor and even using a shield without incurring the normal arcane spell failure chance. ");
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
-            fast_movement = Bloodrager.fast_movement;
-            uncanny_dodge = Bloodrager.uncanny_dodge;
-            improved_uncanny_dodge = Bloodrager.improved_uncanny_dodge;
+            fast_movement = library.Get<BlueprintFeature>("d294a5dddd0120046aae7d4eb6cbc4fc");
+            uncanny_dodge = library.Get<BlueprintFeature>("3c08d842e802c3e4eb19d15496145709");
+            improved_uncanny_dodge = library.Get<BlueprintFeature>("485a18c05792521459c7d06c63128c79");
 
             var cantrips = library.CopyAndAdd<BlueprintFeature>("4f422e8490ec7d94592a8069cce47f98", //bard cantrips
                                                                      "SkaldCantripsFeature",
@@ -179,10 +197,17 @@ namespace CallOfTheWild
             cantrips.ReplaceComponent<LearnSpells>(c => { c.CharacterClass = skald_class; });
 
 
-
+            bardic_knowledge = library.CopyAndAdd<BlueprintFeature>("65cff8410a336654486c98fd3bacd8c5", "SkaldKnowledge", "");
+            bardic_knowledge.SetDescription("A skald adds half his class level (minimum 1) to all Knowledge and Lore skill checks and may make all Knowledge and Lore skill checks untrained.");
+            bardic_performance_move = library.CopyAndAdd<BlueprintFeature>("36931765983e96d4bb07ce7844cd897e", "SkaldMovePerformance", "");
+            bardic_performance_move.SetName("Skald performance (Move Action)");
+            bardic_performance_move.SetDescription("At 7th level, a skald can start a bardic performance as a move action instead of a standard action.");
+            bardic_performance_swift = library.CopyAndAdd<BlueprintFeature>("fd4ec50bc895a614194df6b9232004b9", "SkaldSwiftPerformance", "");
+            bardic_performance_swift.SetName("Skald performance (Swift Action)");
+            bardic_performance_swift.SetDescription("At 13th level, a skald can start a bardic performance as a swift action.");
 
             skald_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, skald_proficiencies, fast_movement, detect_magic, cantrips,
-                                                                                        give_performance_resource, inspired_rage_feature,
+                                                                                        give_performance_resource, inspired_rage_feature, bardic_knowledge,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, versatile_performance, well_versed),
@@ -190,13 +215,13 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(4, uncanny_dodge),
                                                                     Helpers.LevelEntry(5, spell_kenning),
                                                                     Helpers.LevelEntry(6, skald_rage_powers, song_of_strength),
-                                                                    Helpers.LevelEntry(7, versatile_performance, lore_master),
+                                                                    Helpers.LevelEntry(7, versatile_performance, bardic_performance_move),
                                                                     Helpers.LevelEntry(8, improved_uncanny_dodge),
                                                                     Helpers.LevelEntry(9, skald_rage_powers, damage_reduction), 
                                                                     Helpers.LevelEntry(10, dirge_of_doom),
                                                                     Helpers.LevelEntry(11, spell_kenning_extra_use),
                                                                     Helpers.LevelEntry(12, versatile_performance, skald_rage_powers),
-                                                                    Helpers.LevelEntry(13),
+                                                                    Helpers.LevelEntry(13, bardic_performance_swift),
                                                                     Helpers.LevelEntry(14, damage_reduction, song_of_the_fallen), 
                                                                     Helpers.LevelEntry(15, skald_rage_powers),
                                                                     Helpers.LevelEntry(16),
@@ -206,10 +231,11 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20, master_skald)
                                                                     };
 
-            skald_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { skald_proficiencies, detect_magic, cantrips };
+            skald_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { skald_proficiencies, detect_magic, cantrips, bardic_knowledge };
             skald_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(versatile_performance, versatile_performance, versatile_performance, versatile_performance),
                                                          Helpers.CreateUIGroup(fast_movement, uncanny_dodge, improved_uncanny_dodge),
-                                                         Helpers.CreateUIGroup(inspired_rage_feature, song_of_marching, song_of_strength, dirge_of_doom, song_of_the_fallen, master_skald),
+                                                         Helpers.CreateUIGroup(inspired_rage_feature, song_of_marching, song_of_strength, dirge_of_doom, song_of_the_fallen, master_skald, 
+                                                                               bardic_performance_move, bardic_performance_swift),
                                                          Helpers.CreateUIGroup(well_versed, lore_master, spell_kenning, spell_kenning_extra_use, spell_kenning_extra_use)
                                                         };
         }
