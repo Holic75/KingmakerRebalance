@@ -330,7 +330,6 @@ namespace CallOfTheWild
                 var armor = unit.Body.Armor.MaybeArmor;
                 if (armor == null) return;
 
-              
                 int bonus = value.Calculate(Context) - 1;
                 if (bonus <0)
                 {
@@ -420,7 +419,6 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
-               
                 BlueprintAbility sourceAbility = evt.Reason.Context?.SourceAbility;
                 UnitEntityData maybeCaster = evt.Reason.Context?.MaybeCaster;
                 bool flag = maybeCaster != null;
@@ -513,6 +511,38 @@ namespace CallOfTheWild
                     }
 
                 }
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class CrowdAlliesACBonus : RuleTargetLogicComponent<RuleCalculateAC>
+        {
+            public int num_allies_around;
+            public int Radius;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                int num = 0;
+                foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, (float)this.Radius, true, false))
+                {
+                    if ((unitEntityData != this.Owner.Unit && !unitEntityData.IsEnemy(this.Owner.Unit)))
+                    {
+                        num++;
+                    }
+                }
+                if (num < num_allies_around)
+                {
+                    return;
+                }
+                var ac_bonus = value.Calculate(this.Fact.MaybeContext);
+                evt.AddBonus(ac_bonus, this.Fact);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAC evt)
+            {
             }
         }
 

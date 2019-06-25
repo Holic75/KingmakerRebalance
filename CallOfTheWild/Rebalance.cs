@@ -15,6 +15,7 @@ using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Enums;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.EntitySystem.Stats;
 
 namespace CallOfTheWild
 {
@@ -330,6 +331,14 @@ public class Rebalance
                 }
             }
 
+        }
+
+
+        static internal void fixNaturalACStackking()
+        {
+            ModifiableValue.DefaultStackingDescriptors.Remove(ModifierDescriptor.NaturalArmor);
+            //replace natural armor on dd to racial to allow it to stack
+            ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("aa4f9fd22a07ddb49982500deaed88f9").GetComponent<AddStatBonus>().Descriptor = ModifierDescriptor.Racial;
         }
 
 

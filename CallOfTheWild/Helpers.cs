@@ -170,7 +170,7 @@ namespace CallOfTheWild
             BlueprintScriptableObject existing;
             if (library.BlueprintsByAssetId.TryGetValue(guid, out existing))
             {
-                throw Main.Error($"Duplicate AssetId, existing entry ID: {guid}, name: {existing.name}, type: {existing.GetType().Name}");
+                throw Main.Error($"Duplicate AssetId for {blueprint.name}, existing entry ID: {guid}, name: {existing.name}, type: {existing.GetType().Name}");
             }
             else if (guid == "")
             {
@@ -1104,7 +1104,6 @@ namespace CallOfTheWild
                 low ^= ParseGuidLow(guid3);
                 high ^= ParseGuidHigh(guid3);
             }
-
             return high.ToString("x16") + low.ToString("x16");
         }
 

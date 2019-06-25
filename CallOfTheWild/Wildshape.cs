@@ -109,7 +109,7 @@ namespace CallOfTheWild
         static internal BlueprintAbility shapechange;
 
 
-        static internal void fixBeastShape()
+        static internal void load()
         {
             fixBeastShape1();
             fixBeastShape2();

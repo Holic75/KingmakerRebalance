@@ -116,14 +116,13 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Rebalance.fixMagicVestment();
                     CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();
-
+                    CallOfTheWild.Rebalance.fixNaturalACStackking();
                     if (settings.sacred_huntsmaster_animal_focus)
                     {
                         Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");
                         CallOfTheWild.Hunter.addAnimalFocusSH();
                     }
-
-                    CallOfTheWild.Wildshape.fixBeastShape();
+                    CallOfTheWild.Wildshape.load();
 
 #if DEBUG
                     CallOfTheWild.Witch.test_mode = true;

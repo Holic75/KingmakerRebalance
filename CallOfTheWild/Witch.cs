@@ -171,7 +171,7 @@ namespace CallOfTheWild
                            Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype,1));
 
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "DragonDiscipleLeyLineGuardian",
-                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 1),
                            Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype, 1));
         }
 

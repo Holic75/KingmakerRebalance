@@ -1424,15 +1424,47 @@ namespace CallOfTheWild
         }
 
 
+
+        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintAbilityAreaEffect area, string prefix, 
+                                                                                                                                     UnityEngine.Sprite icon,  string display_name, string description)
+        {
+            var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
+            var ability_buff = library.CopyAndAdd<BlueprintBuff>(base_ability.Buff.AssetGuid, prefix + "Buff", "");
+
+            ability_buff.ReplaceComponent<AddAreaEffect>(c => { c.AreaEffect = area; });
+            ability_buff.SetName(display_name);
+            ability_buff.SetDescription(description);
+            ability_buff.SetIcon(icon);
+
+
+            ability.SetName(display_name);
+            ability.SetDescription(description);
+            ability.SetIcon(icon);
+            ability.Buff = ability_buff;
+
+            return ability;
+        }
+
+
+        static internal NewMechanics.CrowdAlliesACBonus createCrowdAlliesACBonus(int min_num_allies_around, ContextValue value, int radius = 2)
+        {
+            var c = Helpers.Create<NewMechanics.CrowdAlliesACBonus>();
+            c.num_allies_around = min_num_allies_around;
+            c.value = value;
+            c.Radius = radius;
+            return c;
+        }
+
+
         internal static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
         {
-
+            
             var clear_variants = variants.Distinct().ToArray();
             List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
-
+            
             foreach (var v in clear_variants)
             {
-                var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, "");
+                var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
                 var variants_comp = processed_spell.GetComponent<AbilityVariants>();
 
                 if (action != null)
@@ -1478,7 +1510,6 @@ namespace CallOfTheWild
                             var fact = condition_entry.Fact;
                             if (fact == inner_buff_to_locate)
                             {
-                                //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
                                 c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
                                 c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
                                 activated_actions[i] = c_action;

@@ -42,6 +42,7 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.ElementsSystem;
 using static Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility;
+using Kingmaker.ResourceLinks;
 
 namespace CallOfTheWild
 {
@@ -64,6 +65,8 @@ namespace CallOfTheWild
         static internal BlueprintAbilityResource performance_resource;
         static internal BlueprintFeature give_performance_resource;
 
+        static internal BlueprintBuff no_spell_casting_buff;
+
         static internal BlueprintFeature inspired_rage_feature;
         static internal BlueprintActivatableAbility inspired_rage;
         static internal BlueprintBuff inspired_rage_effect_buff;
@@ -80,6 +83,19 @@ namespace CallOfTheWild
         static internal BlueprintFeature bardic_knowledge;
         static internal BlueprintFeature bardic_performance_move;
         static internal BlueprintFeature bardic_performance_swift;
+
+
+        static internal BlueprintArchetype urban_skald_archetype;
+        static internal BlueprintFeature urban_skald_proficiencies;
+        static internal BlueprintFeature controlled_rage_feature;
+        static internal BlueprintBuff controlled_rage_str_buff;
+        static internal BlueprintBuff controlled_rage_con_buff;
+        static internal BlueprintBuff controlled_rage_dex_buff;
+        static internal BlueprintFeature infuriating_mockery;
+        static internal BlueprintFeature back_of_the_crowd;
+
+        static internal BlueprintArchetype herald_of_the_horn_archetype;
+        static internal BlueprintArchetype war_drummer_archetype;
 
         internal static void createSkaldClass()
         {
@@ -122,8 +138,8 @@ namespace CallOfTheWild
             createSkaldProgression();
             skald_class.Progression = skald_progression;
 
-          
-            skald_class.Archetypes = new BlueprintArchetype[] {}; //wardrummer, urban skald, herald of the horn
+            createUrbanSkaldArchetype();
+            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             //addToPrestigeClasses(); //to at, mt, ek, dd
             fixExtraRagePower();
@@ -137,6 +153,18 @@ namespace CallOfTheWild
             extra_rage_power.AddComponent(Helpers.PrerequisiteFeature(skald_rage_powers, true));
         }
 
+        static void createForbidSpellCastingBuff()
+        {
+            no_spell_casting_buff = Helpers.CreateBuff("SkaldForbidSpellCastingBuff",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   null,
+                                                   Helpers.Create<ForbidSpellCasting>()
+                                                   );
+            no_spell_casting_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+        }
 
         static BlueprintCharacterClass[] getSkaldArray()
         {
@@ -146,7 +174,7 @@ namespace CallOfTheWild
 
         static void createSkaldProgression()
         {
-
+            createForbidSpellCastingBuff();
             createVersatilePerformance();
             createWellVersed();
             createPerfromanceResource();
@@ -241,6 +269,156 @@ namespace CallOfTheWild
         }
 
 
+
+        static void createUrbanSkaldArchetype()
+        {
+            urban_skald_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "UrbanSkaldArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Urban Skald");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The urban skald finds that challenging and mocking foes is sometimes more effective than inspiring uncontrolled rage in a city.");
+            });
+            Helpers.SetField(urban_skald_archetype, "m_ParentClass", skald_class);
+            library.AddAsset(urban_skald_archetype, "");
+            urban_skald_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, inspired_rage_feature, skald_proficiencies),
+                                                                          Helpers.LevelEntry(3, song_of_marching),
+                                                                          Helpers.LevelEntry(9, damage_reduction),
+                                                                          Helpers.LevelEntry(10, dirge_of_doom),
+                                                                          Helpers.LevelEntry(14, damage_reduction),
+                                                                          Helpers.LevelEntry(19, damage_reduction)
+                                                                        };
+            urban_skald_proficiencies = library.CopyAndAdd<BlueprintFeature>("fa3d3b2211a51994785d85e753f612d3", //bard proficiencies
+                                                                            "SkaldUrbanSkaldProficiencies",
+                                                                            "");
+
+            urban_skald_proficiencies.SetName("Urban Skald Proficiencies");
+            urban_skald_proficiencies.SetDescription("An urban skald is not proficient with medium armor.");
+
+            createControlledRage();
+            createInfuriatingMockery();
+            createBackOfTheCrowd();
+
+            urban_skald_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, controlled_rage_feature, urban_skald_proficiencies),
+                                                                  Helpers.LevelEntry(3, back_of_the_crowd),
+                                                                  Helpers.LevelEntry(10, infuriating_mockery),
+                                                                };
+            skald_progression.UIDeterminatorsGroup = skald_progression.UIDeterminatorsGroup.AddToArray(urban_skald_proficiencies);
+
+            skald_progression.UIGroups[1].Features.Add(back_of_the_crowd);
+            skald_progression.UIGroups[2].Features.Add(controlled_rage_feature);
+            skald_progression.UIGroups[2].Features.Add(infuriating_mockery);
+        }
+
+
+        static internal void createControlledRage()
+        {
+            var str_bonus = Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+            var con_bonus = Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+            var dex_bonus = Helpers.CreateAddContextStatBonus(StatType.Dexterity, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+           
+            var stat_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus,
+                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                           classes: getSkaldArray(),
+                                                                           progression: ContextRankProgression.OnePlusDivStep,
+                                                                           stepLevel: 8);
+
+
+            controlled_rage_dex_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageDexBuff", dex_bonus, stat_context_rank_config);
+            controlled_rage_str_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageStrBuff",str_bonus, stat_context_rank_config);
+            controlled_rage_con_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageConBuff", con_bonus, stat_context_rank_config);
+
+            var transmuter_con = library.Get<BlueprintActivatableAbility>("99cf556b967c2074ca284e127d815711");
+            var transmuter_str = library.Get<BlueprintActivatableAbility>("c7773d1b408fea24dbbb0f7bf3eb864e");
+            var transmuter_dex = library.Get<BlueprintActivatableAbility>("3553bda4d6dfe6344ad89b25f7be939a");
+
+            (BlueprintBuff, string, UnityEngine.Sprite)[] rages = new (BlueprintBuff, string, UnityEngine.Sprite)[]
+            {
+                (controlled_rage_str_buff, "Strength", transmuter_str.Icon),
+                (controlled_rage_dex_buff, "Dexterity", transmuter_dex.Icon),
+                (controlled_rage_con_buff, "Constitution", transmuter_con.Icon),
+            };
+
+            controlled_rage_feature = Helpers.CreateFeature("SkaldUrbanSkaldControlledRageFeature",
+                                              "Controlled Inspired Rage",
+                                              "When the urban skald inspires rage, he does not grant the normal benefits.\n"
+                                              + "Instead, he can apply a + 2 morale bonus to his allies’ Strength, Dexterity, or Constitution. This bonus increases to + 4 at 8th level and to + 6 at 16th level. The choice applies to all affected allies. The controlled inspired rage grants no bonus on Will saves, imposes no penalties to AC.",
+                                              "",
+                                              transmuter_str.Icon,
+                                              FeatureGroup.None
+                                              );
+            var inspire_courage = library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70");
+
+            foreach (var r in rages)
+            {
+                r.Item1.SetIcon(r.Item3);
+                r.Item1.SetName($"Controlled Inspired Rage ({r.Item2})");
+                r.Item1.SetDescription($"At 1st level, affected allies gain a +2 morale bonus to {r.Item2}. While under the effects of inspired rage, allies other than the skald cannot use any ability that requires patience or concentration. At 8th and 16th levels, the song’s bonus to {r.Item2} increases by 2. (Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends.)");
+                var rage_ability = Common.convertPerformance(inspire_courage, r.Item1, $"SkaldUrbanSkaldControlledRage{r.Item2}Ability");
+                controlled_rage_feature.AddComponent(Helpers.CreateAddFact(rage_ability));
+            }
+        }
+
+
+        static void createInfuriatingMockery()
+        {
+            var hideous_laughter = library.Get<BlueprintBuff>("4b1f07a71a982824988d7f48cd49f3f8");
+            var buff = Helpers.CreateBuff("SkaldUrbanSkaldInfuriatingMockeryEffectBuff",
+                                          "Infuriating Mockery",
+                                          "At 10th level, the urban skald can inspire reckless fury in all foes within 30 feet. If they fail a Will saving throw, they take a –2 penalty to AC and on attack rolls, cannot use any Intelligence-, Dexterity-, or Charisma-based skills, and must succeed at a concentration check to cast spells (DC = 15 + spell level) for as long as they remain in range of the skald and the performance is maintained",
+                                          "",
+                                          hideous_laughter.Icon,
+                                          hideous_laughter.FxOnStart,
+                                          Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -2, ModifierDescriptor.UntypedStackable),
+                                          Common.createAddCondition(UnitCondition.SpellCastingIsDifficult)
+                                          );
+
+
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("55c526a79761a3c48a3cc974a09bfef7", "SkaldUrbanSkaldInfuriatingMockeryArea", "");//frightening tune area
+            var apply_buff = Common.createContextSavedApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true);
+            var area_action = Helpers.CreateAreaEffectRunAction(Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(),
+                                                                                          Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_buff))
+                                                                                         ),
+                                                                Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(),
+                                                                                          Common.createContextActionRemoveBuff(buff)
+                                                                                         )
+                                                               );
+
+            area_effect.ReplaceComponent<AbilityAreaEffectRunAction>(area_action);
+            var frightening_tune = library.Get<BlueprintActivatableAbility>("ad8a93dfa2db7ac4e85133b5e4f14a5f");
+            var ability = Common.convertPerformance(frightening_tune, area_effect, "SkaldUrbanSkaldInfuriatingMockery", buff.Icon, buff.Name, buff.Description);
+            ability.DeactivateIfCombatEnded = !test_mode;
+
+            infuriating_mockery = Helpers.CreateFeature("SkaldUrbanSkaldInfuriatingMockeryFeature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     "",
+                                                     ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(ability)
+                                                     );
+        }
+
+
+        static void createBackOfTheCrowd()
+        {
+            var crowd_ac_bonus = Common.createCrowdAlliesACBonus(2, Helpers.CreateContextValue(AbilityRankType.Default));
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                      classes: getSkaldArray(), startLevel: 3, stepLevel: 6, type: AbilityRankType.Default);
+
+            var mirror_image = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564");
+            back_of_the_crowd = Helpers.CreateFeature("SkaldUrbanSkaldBackOfTheCrowd",
+                                                      "Back of the Crowd",
+                                                      "At 3rd level, an urban skald has learned to maximize the defensive benefit of being near allies. He gains a +1 dodge bonus to AC when adjacent to 2 or more allies. This bonus increases to +2 at 9th level and to +3 at 15th level.",
+                                                      "",
+                                                      mirror_image.Icon,
+                                                      FeatureGroup.None,
+                                                      crowd_ac_bonus,
+                                                      context_rank_config
+                                                      );
+        }
+
+
         static void createSpellKenning()
         {
             var resource = Helpers.CreateAbilityResource("SkaldSpellKenningResource", "", "", "", null);
@@ -254,28 +432,26 @@ namespace CallOfTheWild
             const int max_level = 6;
             const int min_level = 1;
             const int max_variants_in_list = 12;
+            const int max_spell_holders = 10;
             List<BlueprintComponent> spell_kenning_base = new List<BlueprintComponent>();
 
             var icon = library.Get<BlueprintAbility>("da2447792e4ced74c80f35e29eb7a9e8").Icon; //secret of s
             for (int i = min_level; i <= max_level; i++)
             {
-                var spell_kenning_base_i = Helpers.CreateAbility($"SkaldSpellKenning{i}BaseAbility",
-                                                                 $"Spell Kenning {Common.roman_id[i]}",
-                                                                 $"This ability allows to cast any Cleric, Skald or Wizard spell of level {i}.",
-                                                                 "",
-                                                                 icon,
-                                                                 AbilityType.Spell,
-                                                                 CommandType.Standard,
-                                                                 AbilityRange.Personal,
-                                                                 "",
-                                                                 "");
-                Helpers.SetField(spell_kenning_base_i, "m_IsFullRoundAction", true);
-                List<BlueprintAbility> base_i_variants = new List<BlueprintAbility>();
-
-                
                 foreach (var c in classes)
                 {
-                    var variant_spells = Common.CreateAbilityVariantsReplace(null, "SkaldSpellKenning" + c.Item1.name,
+                    var spell_kenning_class_c = Helpers.CreateAbility($"SkaldSpellKenning{i}Base{c.Item1.name}PrototypeAbility",
+                             $"Spell Kenning {Common.roman_id[i]}",
+                             $"This ability allows to cast any {c.Item1.Name} spell of level {i}.",
+                             "",
+                             c.Item2,
+                             AbilityType.Spell,
+                             CommandType.Standard,
+                             AbilityRange.Close,
+                             "",
+                             "");
+
+                    var variant_spells = Common.CreateAbilityVariantsReplace(spell_kenning_class_c, "SkaldSpellKenning" + c.Item1.name,
                                                                                     s => {
                                                                                         s.ActionType = CommandType.Standard;
                                                                                         Helpers.SetField(s, "m_IsFullRoundAction", true);
@@ -286,12 +462,13 @@ namespace CallOfTheWild
                                                                                     },
                                                                                   c.Item1.Spellbook.SpellList.SpellsByLevel[i].Spells.ToArray()
                                                                                   );
-                    for (int j = 0; j < variant_spells.Length - 1; j+= max_variants_in_list)
+
+                    for (int j = 0; j < max_variants_in_list * max_spell_holders; j+= max_variants_in_list)
                     {
                         int id = j / max_variants_in_list + 1;
                         var spell_kenning_class = Helpers.CreateAbility($"SkaldSpellKenning{i}Base{c.Item1.name}{id}Ability",
-                                                     spell_kenning_base_i.Name + $" ({c.Item1.Name}, {id})",
-                                                     $"This ability allows to cast any {c.Item1.Name} spell of level {i}.",
+                                                     spell_kenning_class_c.Name + $" ({c.Item1.Name}, {id})",
+                                                     spell_kenning_class_c.Description,
                                                      "",
                                                      c.Item2,
                                                      AbilityType.Spell,
@@ -299,6 +476,11 @@ namespace CallOfTheWild
                                                      AbilityRange.Close,
                                                      "",
                                                      "");
+                        Helpers.SetField(spell_kenning_class, "m_IsFullRoundAction", true);
+                        if (j >= variant_spells.Length - 1)
+                        {//we intentionally generate more holders to accomodate for additional spells
+                            break;
+                        }
                         int num_spells = j + max_variants_in_list > variant_spells.Length - 1 ? variant_spells.Length - j : max_variants_in_list;
                         var variants_to_add = variant_spells.Skip(j).Take(num_spells).ToArray();
                         spell_kenning_class.AddComponent(Helpers.CreateAbilityVariants(spell_kenning_class, variants_to_add));
@@ -629,7 +811,28 @@ namespace CallOfTheWild
 
         static void createInspiredRage()
         {
-            createInspiredRageEffectBuff();
+            var ac_penalty = Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.UntypedStackable, ContextValueType.Rank, AbilityRankType.DamageBonus);
+            var will_bonus = Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.Default);
+            var str_bonus = Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+            var con_bonus = Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+            var ac_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus,
+                                                               baseValueType: ContextRankBaseValueType.FeatureListRanks,
+                                                               progression: ContextRankProgression.BonusValue,
+                                                               stepLevel: -1,
+                                                               featureList: new BlueprintFeature[] { master_skald }
+                                                               );
+            var will_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.Default,
+                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                           classes: getSkaldArray(),
+                                                                           progression: ContextRankProgression.OnePlusDivStep,
+                                                                           stepLevel: 4);
+            var stat_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus,
+                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                           classes: getSkaldArray(),
+                                                                           progression: ContextRankProgression.OnePlusDivStep,
+                                                                           stepLevel: 8);
+            inspired_rage_effect_buff = createRagingSongEffectBuff("SkaldInspiredRageEffectBuff", 
+                                                                      ac_penalty, will_bonus, str_bonus, con_bonus, ac_context_rank_config, will_context_rank_config, stat_context_rank_config);
             var inspire_courage = library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70");
 
             inspired_rage_effect_buff.SetIcon(inspire_courage.Icon);
@@ -648,69 +851,35 @@ namespace CallOfTheWild
         }   
 
 
-        static internal void createInspiredRageEffectBuff()
+        static internal BlueprintBuff createRagingSongEffectBuff(string name, params BlueprintComponent[] components)
         {
-            inspired_rage_effect_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", "SkaldInspiredRageEffectBuff", "");
+            var raging_song_effect_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", name, "");//standard rage buff
             //in AddFactContextActions in Activated we will need to replace all ContextConditionHasFact with ContextConditionCasterHasFact
             //moreover if fact is a switch buff, then in its AddFactContextActions we will also need to add  inspired rage buff to StandardRage
             //remove all logic in NewRound (since we do not need to count number of rage rounds for after rage fatigue)
             //in Deactivated remove Conditional (to apply fatigue)
             //also add skald to all contexts
             var standard_rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
-            replaceContextConditionHasFactToContextConditionCasterHasFact(inspired_rage_effect_buff, standard_rage_buff, inspired_rage_effect_buff, "Skald");
+            replaceContextConditionHasFactToContextConditionCasterHasFact(raging_song_effect_buff, standard_rage_buff, raging_song_effect_buff, "Skald");
 
-            var component =  inspired_rage_effect_buff.GetComponent<AddFactContextActions>();
+            var component =  raging_song_effect_buff.GetComponent<AddFactContextActions>();
             component.NewRound = Helpers.CreateActionList();
 
             var deactivate_actions = component.Deactivated.Actions;
             component.Deactivated = Helpers.CreateActionList(deactivate_actions.RemoveFromArrayByType<Kingmaker.ElementsSystem.GameAction, Conditional>());
 
             //clear everything
-            inspired_rage_effect_buff.RemoveComponents<TemporaryHitPointsPerLevel>();
-            inspired_rage_effect_buff.RemoveComponents<AttackTypeAttackBonus>();
-            inspired_rage_effect_buff.RemoveComponents<WeaponGroupDamageBonus>();
-            inspired_rage_effect_buff.RemoveComponents<SpellDescriptorComponent>();
-            inspired_rage_effect_buff.RemoveComponents<WeaponAttackTypeDamageBonus>();
-            inspired_rage_effect_buff.RemoveComponents<ContextCalculateSharedValue>();
-            inspired_rage_effect_buff.RemoveComponents<AddContextStatBonus>();
-            inspired_rage_effect_buff.RemoveComponents<ContextRankConfig>();
+            raging_song_effect_buff.RemoveComponents<TemporaryHitPointsPerLevel>();
+            raging_song_effect_buff.RemoveComponents<AttackTypeAttackBonus>();
+            raging_song_effect_buff.RemoveComponents<WeaponGroupDamageBonus>();
+            raging_song_effect_buff.RemoveComponents<SpellDescriptorComponent>();
+            raging_song_effect_buff.RemoveComponents<WeaponAttackTypeDamageBonus>();
+            raging_song_effect_buff.RemoveComponents<ContextCalculateSharedValue>();
+            raging_song_effect_buff.RemoveComponents<AddContextStatBonus>();
+            raging_song_effect_buff.RemoveComponents<ContextRankConfig>();
 
-
-            inspired_rage_effect_buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.UntypedStackable, ContextValueType.Rank, AbilityRankType.DamageBonus));
-            inspired_rage_effect_buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.Default));
-            inspired_rage_effect_buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2));
-            inspired_rage_effect_buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2));
-            var ac_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus,
-                                                               baseValueType: ContextRankBaseValueType.FeatureListRanks,
-                                                               progression: ContextRankProgression.BonusValue,
-                                                               stepLevel: -1,
-                                                               featureList: new BlueprintFeature[] {master_skald}
-                                                               );
-            var will_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.Default,
-                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                           classes: getSkaldArray(),
-                                                                           progression: ContextRankProgression.OnePlusDivStep,
-                                                                           stepLevel: 4);
-            var stat_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus,
-                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                           classes: getSkaldArray(),
-                                                                           progression: ContextRankProgression.OnePlusDivStep,
-                                                                           stepLevel: 8);
-            inspired_rage_effect_buff.AddComponent(will_context_rank_config);
-            inspired_rage_effect_buff.AddComponent(stat_context_rank_config);
-            inspired_rage_effect_buff.AddComponent(ac_context_rank_config);
-            inspired_rage_effect_buff.RemoveComponents<ForbidSpellCasting>();
-
-
-            var no_spell_casting_buff = Helpers.CreateBuff("SkaldForbidSpellCastingBuff",
-                                                           "",
-                                                           "",
-                                                           "",
-                                                           null,
-                                                           null,
-                                                           Helpers.Create<ForbidSpellCasting>()
-                                                           );
-            no_spell_casting_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            raging_song_effect_buff.AddComponents(components);
+            raging_song_effect_buff.RemoveComponents<ForbidSpellCasting>();
 
             var forbid_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true), Common.createContextConditionCasterHasFact(master_skald, has:false)},
                                                              Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true),
@@ -721,8 +890,9 @@ namespace CallOfTheWild
                                                  null
                                                 );
 
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, no_spell_casting_buff, forbid_condition);
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, master_skald_buff, master_skald_condition);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, no_spell_casting_buff, forbid_condition);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, master_skald_buff, master_skald_condition);
+            return raging_song_effect_buff;
         }
 
 
@@ -763,6 +933,7 @@ namespace CallOfTheWild
                             }
                             if (fact is BlueprintBuff && inner_buff_to_locate != null && !patched_buffs.Contains(fact))
                             {
+                                //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
                                 Common.addToFactInContextConditionHasFact((BlueprintBuff)(fact), inner_buff_to_locate, Common.createContextConditionCasterHasFact(inner_buff_to_add));
                                 patched_buffs.Add(fact);
                             }
