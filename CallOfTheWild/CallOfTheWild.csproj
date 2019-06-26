@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bloodrager.cs" />
+    <Compile Include="CleanUp.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Hunter.cs" />

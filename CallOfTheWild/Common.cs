@@ -45,6 +45,7 @@ using Kingmaker;
 using UnityEngine;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
+using Kingmaker.RuleSystem.Rules;
 
 namespace CallOfTheWild
 {
@@ -577,6 +578,15 @@ namespace CallOfTheWild
         }
 
 
+
+        static internal NewMechanics.ContextWeaponTypeDamageBonus createContextWeaponTypeDamageBonus(ContextValue bonus, params BlueprintWeaponType[] weapon_types)
+        {
+            var c = Helpers.Create<NewMechanics.ContextWeaponTypeDamageBonus>();
+            c.Value = bonus;
+            c.weapon_types = weapon_types;
+            return c;
+        }
+
         internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description, string selection_guid, string[] feature_guids)
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
@@ -589,7 +599,7 @@ namespace CallOfTheWild
             var old_features = old_selection.AllFeatures;
             if (new_features.Length != old_features.Length)
             {
-                throw Main.Error($"Incorrect number of guids passed to Common.createFavoredTerrainSelection:: guids.Length =  {new_features.Length}, terrains.Length: {old_features.Length}");
+                throw Main.Error($"Incorrect number of guids passed to Common.copyRenameSelection:: guids.Length =  {new_features.Length}, terrains.Length: {old_features.Length}");
             }
             for (int i = 0; i < old_features.Length; i++)
             {
@@ -1153,6 +1163,13 @@ namespace CallOfTheWild
             return a;
         }
 
+        static internal Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddWeaponProficiencies(params WeaponCategory[] weapons)
+        {
+            var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
+            a.WeaponProficiencies = weapons;
+            return a;
+        }
+
 
         static internal AddEnergyVulnerability createAddEnergyVulnerability(DamageEnergyType energy)
         {
@@ -1401,6 +1418,14 @@ namespace CallOfTheWild
         }
 
 
+        static internal NewMechanics.ContextActionRemoveBuffFromCaster createContextActionRemoveBuffFromCaster(BlueprintBuff buff)
+        {
+            var c = Helpers.Create<NewMechanics.ContextActionRemoveBuffFromCaster>();
+            c.Buff = buff;
+            return c;
+        }
+
+
         static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintBuff effect_buff, string prefix)
         {
             var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
@@ -1446,6 +1471,28 @@ namespace CallOfTheWild
         }
 
 
+        static internal ContextActionDispelMagic createContextActionDispelMagic(SpellDescriptor spell_descriptor, SpellSchool[] schools, RuleDispelMagic.CheckType check_type,
+                                                                                 ContextValue max_spell_level = null, ContextValue max_caster_level = null)
+        {
+            var c = Helpers.Create<ContextActionDispelMagic>();
+            c.Descriptor = spell_descriptor;
+            c.Schools = schools;
+            var spell_level = max_spell_level == null ? createSimpleContextValue(9) : max_spell_level;
+            Helpers.SetField(c, "m_MaxSpellLevel", spell_level);
+            if (max_caster_level == null)
+            {
+                Helpers.SetField(c, "m_UseMaxCasterLevel", false);
+            }
+            else
+            {
+                Helpers.SetField(c, "m_UseMaxCasterLevel", true);
+                Helpers.SetField(c, "m_MaxCasterLevel", max_caster_level);
+            }
+            Helpers.SetField(c, "m_CheckType", check_type);
+            return c;
+        }
+
+
         static internal NewMechanics.CrowdAlliesACBonus createCrowdAlliesACBonus(int min_num_allies_around, ContextValue value, int radius = 2)
         {
             var c = Helpers.Create<NewMechanics.CrowdAlliesACBonus>();
@@ -1456,9 +1503,27 @@ namespace CallOfTheWild
         }
 
 
+        static internal BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true)
+        {
+            var feature = Helpers.CreateFeature(ability.name + "Feature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     "",
+                                                     ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(ability)
+                                                     );
+            if (hide)
+            {
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+            }
+            return feature;
+        }
+
+
         internal static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
         {
-            
             var clear_variants = variants.Distinct().ToArray();
             List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
             
@@ -1479,6 +1544,7 @@ namespace CallOfTheWild
                 else
                 {
                     processed_spell.Parent = parent;
+                    processed_spell.RemoveComponents<SpellListComponent>();
                     processed_spells.Add(processed_spell);
                 }
             }

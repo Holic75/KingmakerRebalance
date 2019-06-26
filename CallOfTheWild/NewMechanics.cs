@@ -34,6 +34,10 @@ using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.Blueprints.Validation;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.ElementsSystem;
 
 namespace CallOfTheWild
 {
@@ -543,6 +547,92 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateAC evt)
             {
+            }
+        }
+
+
+        [ComponentName("Increase context spells DC by descriptor")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseDescriptorSpellsDC : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+            public SpellDescriptorWrapper Descriptor;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                bool? nullable = evt.Spell.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                if (!nullable.HasValue || !nullable.Value)
+                    return;
+                evt.AddBonusDC(this.Value.Calculate(this.Context));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        [ComponentName("Buffs/Damage bonus for specific weapon types")]
+        public class ContextWeaponTypeDamageBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public BlueprintWeaponType[] weapon_types;
+            public ContextValue Value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                int num = Value.Calculate(this.Fact.MaybeContext);
+                foreach (var w in weapon_types)
+                {
+                    if (evt.Weapon.Blueprint.Type == w)
+                    {
+                        evt.AddBonusDamage(num);
+                        return;
+                    }
+                }
+
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        public class ContextActionRemoveBuffFromCaster : ContextAction
+        {
+            public BlueprintBuff Buff;
+
+            public override string GetCaption()
+            {
+                return "Remove Buff From Caster: " + this.Buff.Name;
+            }
+
+            public override void RunAction()
+            {
+                MechanicsContext context = ElementsContext.GetData<MechanicsContext.Data>()?.Context;
+                if (context == null)
+                    return;
+                UnitEntityData maybeCaster = this.Context.MaybeCaster;
+                foreach (var b in this.Target.Unit.Buffs)
+                {
+                    if (b.Blueprint == Buff && b.Context.MaybeCaster == maybeCaster)
+                    {
+                        this.Target.Unit.Buffs.RemoveFact((BlueprintFact)this.Buff);
+                    }
+                }
             }
         }
 

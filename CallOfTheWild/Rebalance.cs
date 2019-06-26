@@ -116,6 +116,8 @@ public class Rebalance
         class_skill_map.Add(new KeyValuePair<string, int>("d5917881586ff1d4d96d5b7cebda9464", 1));//stalwart defender
         class_skill_map.Add(new KeyValuePair<string, int>("90e4d7da3ccd1a8478411e07e91d5750", 2));//aldori swordlord
         class_skill_map.Add(new KeyValuePair<string, int>("ba34257984f4c41408ce1dc2004e342e", 1));//wizard
+        class_skill_map.Add(new KeyValuePair<string, int>("c75e0971973957d4dbad24bc7957e4fb", 2));//slayer
+        class_skill_map.Add(new KeyValuePair<string, int>("90e4d7da3ccd1a8478411e07e91d5750", 2));//swordlord
         foreach (var class_skill in class_skill_map)
         {
             var current_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>(class_skill.Key);
@@ -334,7 +336,7 @@ public class Rebalance
         }
 
 
-        static internal void fixNaturalACStackking()
+        static internal void fixNaturalACStacking()
         {
             ModifiableValue.DefaultStackingDescriptors.Remove(ModifierDescriptor.NaturalArmor);
             //replace natural armor on dd to racial to allow it to stack

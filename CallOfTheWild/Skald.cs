@@ -95,7 +95,16 @@ namespace CallOfTheWild
         static internal BlueprintFeature back_of_the_crowd;
 
         static internal BlueprintArchetype herald_of_the_horn_archetype;
+        static internal BlueprintFeature bonded_object_feature;
+        static internal BlueprintFeature rousing_retort_feature;
+        static internal BlueprintFeature horn_call_feature;
+        static internal BlueprintFeature crumbling_blast_feature;
+
         static internal BlueprintArchetype war_drummer_archetype;
+        static internal BlueprintFeature war_drummer_proficiencies;
+        static internal BlueprintFeature fearsome_mien_feature;
+        static internal BlueprintFeature deadly_rythm_feature;
+        static internal BlueprintFeatureSelection club_improved_critical_selection;
 
         internal static void createSkaldClass()
         {
@@ -139,7 +148,9 @@ namespace CallOfTheWild
             skald_class.Progression = skald_progression;
 
             createUrbanSkaldArchetype();
-            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype}; //wardrummer, urban skald, herald of the horn
+            createHeraldOfTheHorn();
+            createWarDrummer();
+            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             //addToPrestigeClasses(); //to at, mt, ek, dd
             fixExtraRagePower();
@@ -227,6 +238,8 @@ namespace CallOfTheWild
 
             bardic_knowledge = library.CopyAndAdd<BlueprintFeature>("65cff8410a336654486c98fd3bacd8c5", "SkaldKnowledge", "");
             bardic_knowledge.SetDescription("A skald adds half his class level (minimum 1) to all Knowledge and Lore skill checks and may make all Knowledge and Lore skill checks untrained.");
+            bardic_knowledge.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getSkaldArray()));
+
             bardic_performance_move = library.CopyAndAdd<BlueprintFeature>("36931765983e96d4bb07ce7844cd897e", "SkaldMovePerformance", "");
             bardic_performance_move.SetName("Skald performance (Move Action)");
             bardic_performance_move.SetDescription("At 7th level, a skald can start a bardic performance as a move action instead of a standard action.");
@@ -269,6 +282,254 @@ namespace CallOfTheWild
         }
 
 
+        static void createWarDrummer()
+        {
+            war_drummer_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "WarDrummerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "War Drummer");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "These fierce drummers are equally adept at tapping out a driving rhythm and rapping enemies upside the head with the same massive clubs they use to beat the crude hide-covered drums they carry into battle.");
+            });
+            Helpers.SetField(war_drummer_archetype, "m_ParentClass", skald_class);
+            library.AddAsset(war_drummer_archetype, "");
+            war_drummer_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, bardic_knowledge),
+                                                                          Helpers.LevelEntry(7, versatile_performance)
+                                                                        };
+            createWarDrummerProficiencies();
+            createFearsomeMien();
+            createDeadlyRythm();
+            createClubImprovedCriticalSelection();
+
+            war_drummer_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, war_drummer_proficiencies, fearsome_mien_feature),
+                                                                  Helpers.LevelEntry(3, deadly_rythm_feature),
+                                                                  Helpers.LevelEntry(6, club_improved_critical_selection)
+                                                                };
+
+
+            skald_progression.UIGroups[0].Features.Add(war_drummer_proficiencies);
+            skald_progression.UIGroups[0].Features.Add(club_improved_critical_selection);
+            skald_progression.UIGroups[0].Features.Add(deadly_rythm_feature);
+
+            skald_progression.UIDeterminatorsGroup = skald_progression.UIDeterminatorsGroup.AddToArray(war_drummer_proficiencies, fearsome_mien_feature);
+        }
+
+
+        static void createWarDrummerProficiencies()
+        {
+            war_drummer_proficiencies = library.CopyAndAdd<BlueprintFeature>(skald_proficiencies.AssetGuid, "SkaldWarDrummerProficiencies", "");
+            war_drummer_proficiencies.ReplaceComponent<AddFacts>(c => c.Facts.RemoveFromArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"))); //martial weapons
+            war_drummer_proficiencies.AddComponent(Common.createAddWeaponProficiencies(WeaponCategory.Greatclub));
+            war_drummer_proficiencies.SetName("War Drummer Proficiencies");
+            war_drummer_proficiencies.SetDescription("A war drummer is proficient with all simple weapons and the greatclub.");
+        }
+
+
+        static void createFearsomeMien()
+        {
+            var confusion = library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949");
+            fearsome_mien_feature = library.CopyAndAdd<BlueprintFeature>(bardic_knowledge.AssetGuid, "SkaldWarDrummerFearsomeMien", "");
+            fearsome_mien_feature.RemoveComponents<AddContextStatBonus>();
+            fearsome_mien_feature.AddComponent(Helpers.CreateAddContextStatBonus(StatType.CheckBluff, ModifierDescriptor.UntypedStackable));
+            fearsome_mien_feature.AddComponent(Helpers.CreateAddContextStatBonus(StatType.CheckIntimidate, ModifierDescriptor.UntypedStackable));
+            fearsome_mien_feature.SetName("Fearsome Mien");
+            fearsome_mien_feature.SetDescription("A war drummer adds 1/2 his class level (minimum 1) to all Intimidate and Bluff skill checks.");
+            fearsome_mien_feature.SetIcon(confusion.Icon);
+        }
+
+
+        static void createDeadlyRythm()
+        {
+            deadly_rythm_feature = Helpers.CreateFeature("SkaldWarDrummerDeadlyRythmFeature",
+                                                     "Deadly Rhythm",
+                                                     " At 3rd level while under effect of inspired rage, the war drummer gains a +1 bonus on damage rolls for attacks made with clubs or greatclubs. At 7th level and every 4 levels thereafter, this bonus increases by 1 (to a maximum of +5)",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None
+                                                     );
+
+            var club = library.Get<BlueprintWeaponType>("26aa0672af2c7d84ba93bec37758c712");
+            var great_club = library.Get<BlueprintWeaponType>("1b8c24cd1f9358c48839bb39266468c3");
+            var deadly_rythm_buff = Helpers.CreateBuff("SkaldWarDrummerDeadlyRythmBuff",
+                                                       deadly_rythm_feature.Name,
+                                                       deadly_rythm_feature.Description,
+                                                       "",
+                                                       null,
+                                                       null,
+                                                       Common.createContextWeaponTypeDamageBonus(Helpers.CreateContextValue(AbilityRankType.Default), club, great_club),
+                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(),
+                                                                                     type: AbilityRankType.Default, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                     startLevel: 3, stepLevel: 4)
+                                                      );
+            deadly_rythm_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(deadly_rythm_buff), Common.createContextConditionIsCaster()}, 
+                                                   Common.createContextActionApplyBuff(deadly_rythm_buff, Helpers.CreateContextDuration(), false, true, true));
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, deadly_rythm_buff, action);
+        }
+
+
+        static void createClubImprovedCriticalSelection()
+        {
+            var great_club_improved_critical = library.Get<BlueprintFeature>("9d0ffb9b55cb7324e99129a37168ea20");
+            var club_improved_critical = library.Get<BlueprintFeature>("2447a3b507c32144bbe7fa6197a53e21");
+            club_improved_critical_selection = Helpers.CreateFeatureSelection("SkaldWarDrummerImprovedCriticalSelection",
+                                                                               "Improved Critical (Club or Greatclub)",
+                                                                               "At 6th level, the war drummer gains Improved Critical with the club or the greatclub as a bonus feat.",
+                                                                               "",
+                                                                               great_club_improved_critical.Icon,
+                                                                               FeatureGroup.None
+                                                                               );
+            club_improved_critical_selection.IgnorePrerequisites = true;
+            club_improved_critical_selection.AllFeatures = new BlueprintFeature[] { great_club_improved_critical, club_improved_critical };
+            club_improved_critical_selection.Features = club_improved_critical_selection.AllFeatures;
+        }
+
+
+
+        static void createHeraldOfTheHorn()
+        {
+            herald_of_the_horn_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "HeraldOfTheHornArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Herald of the Horn");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Even the loudest voice can often times be drowned out by the din of battle. Whether with the polished metal trumpet of a standing army or the crude curved animal horn of savage raiders, a herald of the horn sounds his raging song with thunderous blasts, which can bolster allies or shatter castle walls.");
+            });
+            Helpers.SetField(herald_of_the_horn_archetype, "m_ParentClass", skald_class);
+            library.AddAsset(herald_of_the_horn_archetype, "");
+            herald_of_the_horn_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(5, spell_kenning),
+                                                                          Helpers.LevelEntry(7, versatile_performance),
+                                                                          Helpers.LevelEntry(11, spell_kenning_extra_use),
+                                                                          Helpers.LevelEntry(17, spell_kenning_extra_use),
+                                                                        };
+            createArcaneBond();
+            createRousingRetort();
+            createHornCall();
+            createCrumblingBlast();
+
+            herald_of_the_horn_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bonded_object_feature),
+                                                                  Helpers.LevelEntry(5, rousing_retort_feature),
+                                                                  Helpers.LevelEntry(7, horn_call_feature),
+                                                                  Helpers.LevelEntry(11, crumbling_blast_feature)
+                                                                };
+
+
+            skald_progression.UIGroups[2].Features.Add(rousing_retort_feature);
+            skald_progression.UIGroups[3].Features.Add(bonded_object_feature);
+            skald_progression.UIGroups[3].Features.Add(horn_call_feature);
+            skald_progression.UIGroups[3].Features.Add(crumbling_blast_feature);
+        }
+
+
+
+
+
+        static void createArcaneBond()
+        {
+            var arcane_bond_ability = library.CopyAndAdd<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1", "SkaldHeraldOfTheHornBondedObjectAbility", "");
+            arcane_bond_ability.SetDescription("A bonded object can be used once per day to restore any one spell that the Herald of the Horn had prepared for this day.");
+            var resource = arcane_bond_ability.GetComponent<AbilityResourceLogic>().RequiredResource;
+
+            bonded_object_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornBondedObjectFeature",
+                                                     arcane_bond_ability.Name,
+                                                     arcane_bond_ability.Description,
+                                                     "",
+                                                     arcane_bond_ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(arcane_bond_ability),
+                                                     Helpers.CreateAddAbilityResource(resource)
+                                                     );
+
+
+        }
+
+
+        static void createRousingRetort()
+        {
+
+            var break_enchantment = library.Get<BlueprintAbility>("7792da00c85b9e042a0fdfc2b66ec9a8");
+            var rousing_retort = library.CopyAndAdd<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de", "SkaldHeraldOfTheHornRousingRetortAbility", "");
+            rousing_retort.SetIcon(break_enchantment.Icon);
+            rousing_retort.SetName("Rousing Retort");
+            rousing_retort.SetDescription("At 5th level, a herald of the horn can use raging song to free allies from enchantment effects and fear. He can expend 4 rounds of that ability to attempt a caster level check to remove any of such effects.");
+
+
+            var action = Helpers.CreateRunActions(Common.createContextActionDispelMagic(SpellDescriptor.Fear,
+                                     new SpellSchool[] { SpellSchool.Enchantment },
+                                     Kingmaker.RuleSystem.Rules.RuleDispelMagic.CheckType.CasterLevel)
+                                     );
+            rousing_retort.ReplaceComponent<AbilityEffectRunAction>(action);
+            rousing_retort.RemoveComponents<SpellListComponent>();
+            rousing_retort.RemoveComponents<SpellComponent>();
+            rousing_retort.Range = AbilityRange.Personal;
+            rousing_retort.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Omni;
+            rousing_retort.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            rousing_retort.Type = AbilityType.Supernatural;
+            rousing_retort.AddComponent(Helpers.CreateResourceLogic(performance_resource, true, 4));
+
+            rousing_retort_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornRousingRetortFeature",
+                                                     rousing_retort.Name,
+                                                     rousing_retort.Description,
+                                                     "",
+                                                     rousing_retort.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(rousing_retort)
+                                                     );
+        }
+
+
+        static void createHornCall()
+        {
+            var sound_burst = library.Get<BlueprintAbility>("c3893092a333b93499fd0a21845aa265");
+            var increase_dc = Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>();
+            increase_dc.Descriptor = SpellDescriptor.Sonic;
+            increase_dc.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+            horn_call_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornCallFeature",
+                                                     "Horn Call",
+                                                     "At 7th level, a herald’s horn enhances his sonic spells. If a skald spell with the sonic descriptor is cast using the horn, its DC increases by 1. These DCs increase by an additional 1 at 13th and 19th levels.",
+                                                     "",
+                                                     sound_burst.Icon,
+                                                     FeatureGroup.None,
+                                                     increase_dc,
+                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(),
+                                                                                     type: AbilityRankType.Default, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                     startLevel: 7, stepLevel: 6)
+                                                     );
+        }
+
+
+        static void createCrumblingBlast()
+        {
+            var shout_resource = Helpers.CreateAbilityResource("SkaldHeraldOfTheHornShoutResource", "", "", "", null);
+            shout_resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 0, 6, 1, 0, 0, getSkaldArray());
+            var shout = library.CopyAndAdd<BlueprintAbility>("f09453607e683784c8fca646eec49162", "SkaldHeraldOfTheHornShoutAbility", "");
+            shout.Type = AbilityType.Supernatural;
+            shout.RemoveComponents<SpellComponent>();
+            shout.RemoveComponents<SpellListComponent>();
+            shout.AddComponent(Helpers.CreateResourceLogic(shout_resource));
+            shout.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(skald_class, StatType.Charisma));
+
+            var greater_shout = library.CopyAndAdd<BlueprintAbility>("fd0d3840c48cafb44bb29e8eb74df204", "SkaldHeraldOfTheHornGreaterShoutAbility", "");
+            greater_shout.Type = AbilityType.Supernatural;
+            greater_shout.RemoveComponents<SpellComponent>();
+            greater_shout.RemoveComponents<SpellListComponent>();
+            greater_shout.AddComponent(Helpers.CreateResourceLogic(shout_resource));
+            greater_shout.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(skald_class, StatType.Charisma));
+
+            crumbling_blast_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornCrumblingBlastFeature",
+                                                     "Crumbling Blast",
+                                                     "At 11th level, a herald of the horn can use his horn to create a devastating shock wave of energy. Once per day, he can sound a note on the horn that functions like a Shout spell (DC = 10 + 1/2 the herald of the horn’s level + his Charisma bonus). At 17th level, the herald of the horn can use this ability twice per day and it functions like a Shout, Greater.",
+                                                     "",
+                                                     shout.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddAbilityResource(shout_resource),
+                                                     Helpers.CreateAddFeatureOnClassLevel(Common.AbilityToFeature(shout), 17, getSkaldArray(),
+                                                                                          new BlueprintArchetype[] { herald_of_the_horn_archetype }, true),
+                                                     Helpers.CreateAddFeatureOnClassLevel(Common.AbilityToFeature(greater_shout), 17, getSkaldArray(),
+                                                                                          new BlueprintArchetype[] { herald_of_the_horn_archetype }, false)
+                                                     );
+        }
+
+
 
         static void createUrbanSkaldArchetype()
         {
@@ -290,6 +551,8 @@ namespace CallOfTheWild
             urban_skald_proficiencies = library.CopyAndAdd<BlueprintFeature>("fa3d3b2211a51994785d85e753f612d3", //bard proficiencies
                                                                             "SkaldUrbanSkaldProficiencies",
                                                                             "");
+            urban_skald_proficiencies.RemoveComponents<AddProficiencies>();
+            urban_skald_proficiencies.ReplaceComponent<AddFacts>(c => c.Facts = c.Facts.AddToArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"))); //add martial weapons
 
             urban_skald_proficiencies.SetName("Urban Skald Proficiencies");
             urban_skald_proficiencies.SetDescription("An urban skald is not proficient with medium armor.");
