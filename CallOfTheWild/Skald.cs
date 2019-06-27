@@ -292,7 +292,7 @@ namespace CallOfTheWild
             });
             Helpers.SetField(war_drummer_archetype, "m_ParentClass", skald_class);
             library.AddAsset(war_drummer_archetype, "");
-            war_drummer_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, bardic_knowledge),
+            war_drummer_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, bardic_knowledge, skald_proficiencies),
                                                                           Helpers.LevelEntry(7, versatile_performance)
                                                                         };
             createWarDrummerProficiencies();
@@ -317,7 +317,7 @@ namespace CallOfTheWild
         static void createWarDrummerProficiencies()
         {
             war_drummer_proficiencies = library.CopyAndAdd<BlueprintFeature>(skald_proficiencies.AssetGuid, "SkaldWarDrummerProficiencies", "");
-            war_drummer_proficiencies.ReplaceComponent<AddFacts>(c => c.Facts.RemoveFromArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"))); //martial weapons
+            war_drummer_proficiencies.ReplaceComponent<AddFacts>(c => c.Facts = c.Facts.RemoveFromArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"))); //martial weapons
             war_drummer_proficiencies.AddComponent(Common.createAddWeaponProficiencies(WeaponCategory.Greatclub));
             war_drummer_proficiencies.SetName("War Drummer Proficiencies");
             war_drummer_proficiencies.SetDescription("A war drummer is proficient with all simple weapons and the greatclub.");
@@ -362,7 +362,7 @@ namespace CallOfTheWild
                                                       );
             deadly_rythm_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            var action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(deadly_rythm_buff), Common.createContextConditionIsCaster()}, 
+            var action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(deadly_rythm_feature), Common.createContextConditionIsCaster()}, 
                                                    Common.createContextActionApplyBuff(deadly_rythm_buff, Helpers.CreateContextDuration(), false, true, true));
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, deadly_rythm_buff, action);
         }
@@ -406,7 +406,7 @@ namespace CallOfTheWild
             createHornCall();
             createCrumblingBlast();
 
-            herald_of_the_horn_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bonded_object_feature),
+            herald_of_the_horn_archetype.AddFeatures = new LevelEntry[] { //Helpers.LevelEntry(1, bonded_object_feature),
                                                                   Helpers.LevelEntry(5, rousing_retort_feature),
                                                                   Helpers.LevelEntry(7, horn_call_feature),
                                                                   Helpers.LevelEntry(11, crumbling_blast_feature)
@@ -453,11 +453,15 @@ namespace CallOfTheWild
             rousing_retort.SetDescription("At 5th level, a herald of the horn can use raging song to free allies from enchantment effects and fear. He can expend 4 rounds of that ability to attempt a caster level check to remove any of such effects.");
 
 
-            var action = Helpers.CreateRunActions(Common.createContextActionDispelMagic(SpellDescriptor.Fear,
-                                     new SpellSchool[] { SpellSchool.Enchantment },
-                                     Kingmaker.RuleSystem.Rules.RuleDispelMagic.CheckType.CasterLevel)
+            var action = Helpers.CreateRunActions(Common.createContextActionDispelMagic(SpellDescriptor.None,
+                                                                                         new SpellSchool[] { SpellSchool.Enchantment },
+                                                                                         Kingmaker.RuleSystem.Rules.RuleDispelMagic.CheckType.CasterLevel),
+                                                  Common.createContextActionDispelMagic(SpellDescriptor.Fear,
+                                                                                         new SpellSchool[0] ,
+                                                                                         Kingmaker.RuleSystem.Rules.RuleDispelMagic.CheckType.CasterLevel)
                                      );
             rousing_retort.ReplaceComponent<AbilityEffectRunAction>(action);
+            //rousing_retort.ReplaceComponent<AbilityEffectRunAction>(break_enchantment.GetComponent< AbilityEffectRunAction>());
             rousing_retort.RemoveComponents<SpellListComponent>();
             rousing_retort.RemoveComponents<SpellComponent>();
             rousing_retort.Range = AbilityRange.Personal;
@@ -465,6 +469,7 @@ namespace CallOfTheWild
             rousing_retort.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
             rousing_retort.Type = AbilityType.Supernatural;
             rousing_retort.AddComponent(Helpers.CreateResourceLogic(performance_resource, true, 4));
+            rousing_retort.LocalizedDuration = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").LocalizedDuration; //from firebal (instant)
 
             rousing_retort_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornRousingRetortFeature",
                                                      rousing_retort.Name,

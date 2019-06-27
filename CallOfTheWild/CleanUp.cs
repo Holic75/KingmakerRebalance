@@ -106,9 +106,61 @@ namespace CallOfTheWild
                     var buff_to_remove = ((ContextActionRemoveBuff)deactivated_actions.Actions[i]).Buff;
                     deactivated_actions.Actions[i] = Common.createContextActionRemoveBuffFromCaster(buff_to_remove);
                 }
-
             }
+            addRageRejection();
+
         }
+
+
+        static void addRageRejection()
+        {
+            //adds activatable ability which allows to reject raging songs of skalds and rage spell
+            var basic_feat_progression = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("5b72dd2ca2cb73b49903806ee8986325");
+
+            (BlueprintBuff, bool)[] rage_buffs = new (BlueprintBuff, bool)[] { (Skald.inspired_rage_effect_buff, true),
+                                                                               (Skald.controlled_rage_str_buff, true),
+                                                                               (Skald.controlled_rage_dex_buff, true),
+                                                                               (Skald.controlled_rage_con_buff, true),
+                                                                               (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("6928adfa56f0dcc468162efde545786b"), false) //rage spell
+                                                                             };
+
+            var mind_blank = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("35f3724d4e8877845af488d167cb8a89");
+            BlueprintBuff rejection_buff = Helpers.CreateBuff("RejectRageBuff",
+                                                             "Reject Rage",
+                                                             "When this ability is activated, character will reject rage from external sources (Rage Spell or Skald Songs).",
+                                                             "",
+                                                             mind_blank.Icon,
+                                                             null);
+            foreach (var b in rage_buffs)
+            {
+                rejection_buff.AddComponent(Common.createSpecificBuffImmunityExceptCaster(b.Item1, b.Item2));
+            }
+
+            var reject_rage_ability = Helpers.CreateActivatableAbility("RejectRageActivatableAbility",
+                                                                       rejection_buff.Name,
+                                                                       rejection_buff.Description,
+                                                                       "",
+                                                                       rejection_buff.Icon,
+                                                                       rejection_buff,
+                                                                       AbilityActivationType.Immediately,
+                                                                       CommandType.Free,
+                                                                       null);
+
+            var reject_rage_feature = Helpers.CreateFeature("RejectRageFeature",
+                                                        rejection_buff.Name,
+                                                        rejection_buff.Description,
+                                                        "",
+                                                        rejection_buff.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddFact(reject_rage_ability)
+                                                        );
+            reject_rage_feature.HideInUI = true;
+            reject_rage_feature.HideInCharacterSheetAndLevelUp = true;
+
+
+            basic_feat_progression.LevelEntries[0].Features.Add(reject_rage_feature);
+        }
+
 
     }
 }

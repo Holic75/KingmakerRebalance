@@ -636,5 +636,28 @@ namespace CallOfTheWild
             }
         }
 
+
+        //gives target immunity to buff unless target is caster
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SpecificBuffImmunityExceptCaster : RuleInitiatorLogicComponent<RuleApplyBuff>
+        {
+            public BlueprintBuff Buff;
+            public bool except_caster = false;
+
+            public override void OnEventAboutToTrigger(RuleApplyBuff evt)
+            {
+                if (evt.Context.MaybeCaster == this.Owner.Unit && except_caster)
+                    return;
+                if (evt.Blueprint != this.Buff)
+                    return;
+                evt.CanApply = false;
+            }
+
+            public override void OnEventDidTrigger(RuleApplyBuff evt)
+            {
+            }
+        }
+
     }
 }

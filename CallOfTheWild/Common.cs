@@ -313,6 +313,22 @@ namespace CallOfTheWild
         }
 
 
+        static internal SpecificBuffImmunity createSpecificBuffImmunity(BlueprintBuff buff)
+        {
+            var b = Helpers.Create<SpecificBuffImmunity>();
+            b.Buff = buff;
+            return b;
+        }
+
+
+        static internal NewMechanics.SpecificBuffImmunityExceptCaster createSpecificBuffImmunityExceptCaster(BlueprintBuff buff, bool except_caster = true)
+        {
+            var b = Helpers.Create<NewMechanics.SpecificBuffImmunityExceptCaster>();
+            b.Buff = buff;
+            b.except_caster = except_caster;
+            return b;
+        }
+
         static internal Blindsense createBlindsense(int range)
         {
             var b = Helpers.Create<Blindsense>();

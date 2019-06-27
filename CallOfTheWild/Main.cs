@@ -137,7 +137,6 @@ namespace CallOfTheWild
 
                     CallOfTheWild.SharedSpells.load();
 
-
                     CallOfTheWild.CleanUp.processRage();
 
 #if DEBUG
