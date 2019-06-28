@@ -121,7 +121,8 @@ namespace CallOfTheWild
                                                                                (Skald.controlled_rage_str_buff, true),
                                                                                (Skald.controlled_rage_dex_buff, true),
                                                                                (Skald.controlled_rage_con_buff, true),
-                                                                               (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("6928adfa56f0dcc468162efde545786b"), false) //rage spell
+                                                                               (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("6928adfa56f0dcc468162efde545786b"), false), //rage spell
+                                                                               (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("9ec69854596674a4ba40802e6337894d"), false) //inspire ferocity
                                                                              };
 
             var mind_blank = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("35f3724d4e8877845af488d167cb8a89");

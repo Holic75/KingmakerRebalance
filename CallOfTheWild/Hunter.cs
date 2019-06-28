@@ -130,7 +130,7 @@ namespace CallOfTheWild
             //in order to compensate I decided to remove additional animal focus uses at levels 8 and, 20 and give only one only at level 14
             createFeykillerAnimalFocusFeat();
             var resist_nature_lure = library.Get<BlueprintFeature>("ad6a5b0e1a65c3540986cf9a7b006388");
-            resist_nature_lure.SetDescription("Starting at 4th level, a feykiller gains a +4 bonus on saving throws against the spell-like and supernatural abilities of fey");
+            resist_nature_lure.SetDescription("Starting at 4th level, a character gains a +4 bonus on saving throws against the spell-like and supernatural abilities of fey");
             var grounded = library.CopyAndAdd<BlueprintFeature>("c532e8f7a393d0c4580f017d225d4fe2", "ForesterGroundedFeature", "6a62762fb54a4671aa58d79490631822"); //from beguiling immunity
             grounded.SetDescription("At 17th level, a feykiller gains a +4 insight bonus on saving throws against illusion and enchantment effects, and she is immune to illusion and enchantment effects created by fey.");
             grounded.SetName("Grounded");

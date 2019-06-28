@@ -85,7 +85,7 @@ namespace CallOfTheWild
                 Main.library = self;
                 try
                 {
-                    Main.DebugLog("Loading Kingmaker Rebalance");
+                    Main.DebugLog("Loading Call of the Wild");
 
                     CallOfTheWild.Helpers.GuidStorage.load(Properties.Resources.blueprints);
                     CallOfTheWild.Helpers.Load();

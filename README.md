@@ -9,7 +9,7 @@ It introduces new classes:
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer.
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers) 
-with skald Inpiring Rage. Also an ability was added to reject rage either from skald Inspired Rage or Rage Spell, everyone should get it at lvl 1, 
+with skald Inpiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1, 
 for already exisitng characters you will need to respec them to level 1 to get this ability.
 
 Mod introduces following new feats : Extra Hex, Accursed Hex and Rage Casting, Bonded Mind and Share Spell.
