@@ -64,6 +64,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature well_versed;
         static internal BlueprintAbilityResource performance_resource;
         static internal BlueprintFeature give_performance_resource;
+        static internal BlueprintFeature fake_barbarian;
 
         static internal BlueprintBuff no_spell_casting_buff;
 
@@ -152,8 +153,21 @@ namespace CallOfTheWild
             createWarDrummer();
             skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
-            //addToPrestigeClasses(); //to at, mt, ek, dd
+            addToPrestigeClasses(); //to at, mt, ek, dd
             fixExtraRagePower();
+        }
+
+
+        static void addToPrestigeClasses()
+        {
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, skald_class.Spellbook, "EldritchKnightSkald",
+                                       Common.createPrerequisiteClassSpellLevel(skald_class, 3));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, skald_class.Spellbook, "ArcaneTricksterSkald",
+                                        Common.createPrerequisiteClassSpellLevel(skald_class, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, skald_class.Spellbook, "MysticTheurgeSkald",
+                                        Common.createPrerequisiteClassSpellLevel(skald_class, 2));
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, skald_class.Spellbook, "DragonDiscipleSkald",
+                                      Common.createPrerequisiteClassSpellLevel(skald_class, 1));
         }
 
 
@@ -185,6 +199,7 @@ namespace CallOfTheWild
 
         static void createSkaldProgression()
         {
+            createFakeBarbarian();
             createForbidSpellCastingBuff();
             createVersatilePerformance();
             createWellVersed();
@@ -247,7 +262,7 @@ namespace CallOfTheWild
             bardic_performance_swift.SetName("Skald performance (Swift Action)");
             bardic_performance_swift.SetDescription("At 13th level, a skald can start a bardic performance as a swift action.");
 
-            skald_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, skald_proficiencies, fast_movement, detect_magic, cantrips,
+            skald_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, skald_proficiencies, fast_movement, detect_magic, cantrips, fake_barbarian,
                                                                                         give_performance_resource, inspired_rage_feature, bardic_knowledge,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
@@ -279,6 +294,23 @@ namespace CallOfTheWild
                                                                                bardic_performance_move, bardic_performance_swift),
                                                          Helpers.CreateUIGroup(well_versed, lore_master, spell_kenning, spell_kenning_extra_use, spell_kenning_extra_use)
                                                         };
+        }
+
+
+        static void createFakeBarbarian()
+        {    //consider skald levels as that of barbarian
+            var barbarian_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
+            fake_barbarian = Helpers.CreateFeature("SkaldFakeBarbarian",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Common.createClassLevelsForPrerequisites(barbarian_class, skald_class)
+                                                   );
+            fake_barbarian.HideInUI = true;
+            fake_barbarian.HideInCharacterSheetAndLevelUp = true;
+
         }
 
 
@@ -932,7 +964,7 @@ namespace CallOfTheWild
             skald_rage_powers = library.CopyAndAdd<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e", "SkaldRagePowerSelection", "");
             skald_rage_powers.SetDescription("At 3rd level and every 3 levels thereafter, a skald learns a rage power that affects the skald and any allies under the influence of his inspired rage. This cannot be a rage power that requires the creature to spend a standard action or rounds of rage to activate it, nor can it be a stance power.\n"
                                              + "When starting an inspired rage, the skald adds rage powers (if any) to the song, and all affected allies gain the benefit of these rage powers, using the skald’s level as their effective barbarian level. The skald uses his skald level as his barbarian level for the purpose of selecting rage powers that require a minimum barbarian level. If the rage power’s effects depend on the skald’s ability modifier(such as lesser spirit totem), affected allies use the skald’s ability modifier instead of their own for the purposes of this effect.") ;
-            skald_rage_powers.AddComponent(Common.createClassLevelsForPrerequisites(barbarian_class, skald_class));
+            skald_rage_powers.AddComponent(Common.createAddFeatureIfHasFact(fake_barbarian, fake_barbarian, true)); //for save compatibility
 
             //fix rage buffs to work with skald
             BlueprintBuff[] buffs_to_fix = new BlueprintBuff[]{library.Get<BlueprintBuff>("ec7db4946877f73439c4ee661f645452"), //beast totem ac buff
