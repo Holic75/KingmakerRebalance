@@ -42,6 +42,8 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("SetupInfo", Harmony12.MethodType.Normal)]
         class CharDollBase__SetupInfo__Patch
         {
+
+            static EquipSlotBase.SlotType[] allowed_slots = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist };
             static bool Prefix(CharDollBase __instance, UnitEntityData player)
             {
                 var tr = Harmony12.Traverse.Create(__instance);
@@ -54,8 +56,7 @@ namespace CallOfTheWild
                 {
                     slot.Clear();
                     slot.SetupInfo(player.Body);
-                    if (player.Descriptor.IsPet
-                        && (slot.Type != EquipSlotBase.SlotType.Belt && slot.Type != EquipSlotBase.SlotType.Neck) )
+                    if (player.Descriptor.IsPet && !allowed_slots.Contains(slot.Type))
                     {
                         if (!slot.Slot.Lock)
                         {
