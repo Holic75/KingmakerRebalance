@@ -515,7 +515,7 @@ namespace CallOfTheWild
 
             var ac_resist_cae = Helpers.CreateFeature("AnimalCompanionCelestialResistFeature",
                         "Celestial Resistance",
-                        "Animal commanpanion gains reist acid 5, resist cold 5 and resist electricity 5. At 5th level these resistances increase to 10, at 11th level to 15.",
+                        "Animal commanpanion gains resist acid 5, resist cold 5 and resist electricity 5. At 5th level these resistances increase to 10, at 11th level to 15.",
                         "46a19a521e0d40f792d8b4f64931be8a",
                         damage_resistance.Icon,
                         FeatureGroup.None,

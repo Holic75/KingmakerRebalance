@@ -276,7 +276,8 @@ namespace CallOfTheWild
 
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
-                                                                                                                  bool is_child = false, bool is_permanent = false, bool dispellable = true)
+                                                                                                                  bool is_child = false, bool is_permanent = false, bool dispellable = true, 
+                                                                                                                  bool use_duration_seconds = false)
         {
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
@@ -284,6 +285,7 @@ namespace CallOfTheWild
             apply_buff.Permanent = is_permanent;
             apply_buff.DurationValue = duration;
             apply_buff.IsNotDispelable = !dispellable;
+            apply_buff.UseDurationSeconds = use_duration_seconds;
             return apply_buff;
         }
 

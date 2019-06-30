@@ -6,5 +6,6 @@
   "ManagerVersion": "0.13.0",
   "Requirements": [],
   "AssemblyName": "CallOfTheWild.dll",
+  "HomePage": "https://www.nexusmods.com/pathfinderkingmaker/mods/112",
   "EntryMethod": "CallOfTheWild.Main.Load"
 }

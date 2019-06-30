@@ -54,6 +54,14 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseInstall|AnyCPU'">
+    <OutputPath>..\..\..\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker\Mods\CallOfTheWild\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony12">
       <HintPath>..\..\..\Users\DenisPc\Downloads\UnityModManager-21-0-13-1-1551447200\UnityModManager\0Harmony12.dll</HintPath>
@@ -113,6 +121,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="Bloodrager.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="Main.cs" />
