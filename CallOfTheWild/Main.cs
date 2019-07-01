@@ -117,11 +117,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixMagicVestment();
                     CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
-                    if (settings.sacred_huntsmaster_animal_focus)
-                    {
-                        Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");
-                        CallOfTheWild.Hunter.addAnimalFocusSH();
-                    }
+
                     CallOfTheWild.Wildshape.load();
 
 #if DEBUG
@@ -130,6 +126,11 @@ namespace CallOfTheWild
                     CallOfTheWild.Skald.test_mode = true;
 #endif
                     CallOfTheWild.Hunter.createHunterClass();
+                    if (settings.sacred_huntsmaster_animal_focus)
+                    {
+                        Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");
+                        CallOfTheWild.Hunter.addAnimalFocusSH();
+                    }
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
