@@ -38,6 +38,8 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.ElementsSystem;
+using Kingmaker.Controllers;
+using Kingmaker;
 
 namespace CallOfTheWild
 {
@@ -658,6 +660,40 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ComeAndGetMe : RuleTargetLogicComponent<RuleCalculateAC>
+        {
+            public BlueprintBuff buff = null;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                Main.logger.Log("Here");
+                if (!evt.Initiator.Descriptor.Unit.Body.PrimaryHand.Weapon.Blueprint.IsMelee)
+                {
+                    return;
+                }
+                if (buff != null)
+                {
+                    Main.logger.Log("Here1");
+                    evt.Initiator.Descriptor.AddBuff(buff, null, new TimeSpan?(1.0f.Seconds()));
+                }
+                Main.logger.Log("Here2");
+                if (!this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMelee)
+                {
+                    return;
+                }
+                Main.logger.Log("Here3");
+                Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
+            }
+            public override void OnEventDidTrigger(RuleCalculateAC evt)
+            {
+            }
+        }
+        
 
     }
 }

@@ -15,7 +15,7 @@ namespace CallOfTheWild
 {
     class AnimalCompanionInventory
     {
-        [Harmony12.HarmonyPatch(typeof(Inventory))]
+       [Harmony12.HarmonyPatch(typeof(Inventory))]
         [Harmony12.HarmonyPatch("SetCharacter", Harmony12.MethodType.Normal)]
         class Inventory__SetCharacter__Patch
         {
@@ -24,13 +24,17 @@ namespace CallOfTheWild
                 UnitEntityData currentCharacter = GroupController.Instance.GetCurrentCharacter();
                 __instance.Placeholder.gameObject.SetActive(currentCharacter.Body.IsPolymorphed);
                 __instance.Sheet.SetCharacter(currentCharacter.Descriptor);
+                __instance.VisualSettings.Initialize(currentCharacter);
                 if (__instance.Doll.gameObject.activeSelf)
+                {
                     __instance.Doll.SetupInfo(currentCharacter);
+                }
                 __instance.Stash.SetupCanEquipLayer();
                 var tr = Harmony12.Traverse.Create(__instance);
                 tr.Method("UpdatePlayerMoneyAndInventoryWeight").GetValue();
-                tr.Property("UnitCapacity").SetValue(EncumbranceHelper.GetCarryingCapacity(currentCharacter.Descriptor));
-                __instance.CharacterEncumbrance.Initialize(tr.Property("UnitCapacity").GetValue<CarryingCapacity>(), true);
+                tr.Field("UnitCapacity").SetValue(EncumbranceHelper.GetCarryingCapacity(currentCharacter.Descriptor));
+                Main.logger.Log(tr.Field("UnitCapacity").GetValue<CarryingCapacity>().ToString());
+                __instance.CharacterEncumbrance.Initialize(tr.Field("UnitCapacity").GetValue<CarryingCapacity>(), true);
                 __instance.CharacterEncumbrance.SetTooltipData((object)currentCharacter, TooltipType.EncumbranceCharacter);
 
                 return false;

@@ -129,6 +129,7 @@
     <Compile Include="Hunter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics.cs" />
+    <Compile Include="NewRagePowers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

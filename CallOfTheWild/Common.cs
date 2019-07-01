@@ -1540,6 +1540,14 @@ namespace CallOfTheWild
         }
 
 
+        static internal NewMechanics.ComeAndGetMe createComeAndGetMe(BlueprintBuff buff)
+        {
+            var c = Helpers.Create<NewMechanics.ComeAndGetMe>();
+            c.buff = buff;
+            return c;
+        }
+
+
         internal static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
         {
             var clear_variants = variants.Distinct().ToArray();

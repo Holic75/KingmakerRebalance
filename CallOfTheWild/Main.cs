@@ -119,6 +119,7 @@ namespace CallOfTheWild
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                     CallOfTheWild.Wildshape.load();
+                    //CallOfTheWild.NewRagePowers.load();
 
 #if DEBUG
                     CallOfTheWild.Witch.test_mode = true;
