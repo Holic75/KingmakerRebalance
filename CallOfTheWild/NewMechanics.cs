@@ -665,31 +665,31 @@ namespace CallOfTheWild
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class ComeAndGetMe : RuleTargetLogicComponent<RuleCalculateAC>
+        public class ComeAndGetMe : RuleTargetLogicComponent<RuleCalculateAC>, ITargetRulebookHandler<RuleDealDamage>
         {
-            public BlueprintBuff buff = null;
-
             public override void OnEventAboutToTrigger(RuleCalculateAC evt)
             {
-                Main.logger.Log("Here");
-                if (!evt.Initiator.Descriptor.Unit.Body.PrimaryHand.Weapon.Blueprint.IsMelee)
+                if (this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee)
                 {
-                    return;
+                    Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
                 }
-                if (buff != null)
-                {
-                    Main.logger.Log("Here1");
-                    evt.Initiator.Descriptor.AddBuff(buff, null, new TimeSpan?(1.0f.Seconds()));
-                }
-                Main.logger.Log("Here2");
-                if (!this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMelee)
-                {
-                    return;
-                }
-                Main.logger.Log("Here3");
-                Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
+                evt.AddBonus(-4, this.Fact);
+                return;
             }
             public override void OnEventDidTrigger(RuleCalculateAC evt)
+            {
+            }
+
+
+            public  void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+                if (evt.DamageBundle.Count() > 0 && evt.Reason.Rule is RuleAttackWithWeapon)
+                {
+                    evt.DamageBundle.ElementAt(0).AddBonus(4);
+                }
+                
+            }
+            public void OnEventDidTrigger(RuleDealDamage evt)
             {
             }
         }

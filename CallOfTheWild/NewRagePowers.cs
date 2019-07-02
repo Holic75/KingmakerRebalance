@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
@@ -21,13 +22,13 @@ namespace CallOfTheWild
         static BlueprintActivatableAbility reckless_stance => library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
         static BlueprintCharacterClass barbarian_class => ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
 
-        static BlueprintFeature come_and_get_me;
+        static BlueprintFeature taunting_stance;
 
 
 
         static internal void load()
         {
-            createComeAndGetMe();
+            createTauntingStance();
         }
 
 
@@ -38,36 +39,30 @@ namespace CallOfTheWild
         }
 
 
-        static void createComeAndGetMe()
+        static void createTauntingStance()
         {
             var shout = library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162");
 
-            var enemy_buff = Helpers.CreateBuff("ComeAndGetMeEnemyBuff",
-                                                "",
-                                                "",
-                                                "",
-                                                null,
-                                                null,
-                                                Helpers.CreateAddStatBonus(Kingmaker.EntitySystem.Stats.StatType.AdditionalDamage, 4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable),
-                                                Helpers.CreateAddStatBonus(Kingmaker.EntitySystem.Stats.StatType.AdditionalAttackBonus, 4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable)
-                                                );
 
-            var buff = Helpers.CreateBuff("ComeAndGetMeEfectBuff",
-                                          "Come and Get Me",
-                                          "While raging, as a free action the barbarian may leave herself open to attack while preparing devastating counterattacks. Enemies gain a +4 bonus on attack and damage rolls against the barbarian, but every attack against the barbarian provokes an attack of opportunity from her, which is resolved prior to resolving each enemy attack.",
+
+            var buff = Helpers.CreateBuff("TauntingStanceEffectBuff",
+                                          "Taunting Stance",
+                                          "The barbarian can leave herself open to attacks while preparing devastating counterattacks. Enemies gain a +4 bonus on attack and damage rolls against the barbarian while she’s in this stance, but every attack against the barbarian provokes an attack of opportunity from her. This is a stance rage power.",
                                           "",
                                           shout.Icon,
                                           null,
-                                          Common.createComeAndGetMe(enemy_buff)
+                                          Common.createComeAndGetMe()
                                           );
 
-            come_and_get_me = Common.createSwitchActivatableAbilityBuff("ComeAndGetMeFeature", "", "", "",
+            taunting_stance = Common.createSwitchActivatableAbilityBuff("TauntingStance", "", "", "",
                                                       buff, rage_buff,
-                                                      reckless_stance.ActivateWithUnitAnimation);
+                                                      reckless_stance.ActivateWithUnitAnimation,
+                                                      ActivatableAbilityGroup.BarbarianStance,
+                                                      command_type: CommandType.Standard);
 
-            //come_and_get_me.AddComponent(Helpers.PrerequisiteClassLevel(barbarian_class, 8));
+            //taunting_stance.AddComponent(Helpers.PrerequisiteClassLevel(barbarian_class, 12));
 
-            addToSelection(come_and_get_me);
+            addToSelection(taunting_stance);
         }
     }
 }

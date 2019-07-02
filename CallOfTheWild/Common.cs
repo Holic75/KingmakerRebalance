@@ -81,6 +81,11 @@ namespace CallOfTheWild
             }
         }
 
+        internal static BlueprintFeature createSwitchActivatableAbilityBuff(string v1, string v2, string v3, string v4, BlueprintBuff buff, BlueprintBuff rage_buff, AnimationClip activateWithUnitAnimation, ActivatableAbilityGroup barbarianStance, object command_type)
+        {
+            throw new NotImplementedException();
+        }
+
         internal class ExtraSpellList
         {
             SpellId[] spells;
@@ -1540,10 +1545,9 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ComeAndGetMe createComeAndGetMe(BlueprintBuff buff)
+        static internal NewMechanics.ComeAndGetMe createComeAndGetMe()
         {
             var c = Helpers.Create<NewMechanics.ComeAndGetMe>();
-            c.buff = buff;
             return c;
         }
 
