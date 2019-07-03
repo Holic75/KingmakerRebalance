@@ -693,7 +693,28 @@ namespace CallOfTheWild
             {
             }
         }
-        
+
+
+        public class WeaponTypeSizeChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public int SizeCategoryChange;
+            public BlueprintWeaponType[] WeaponTypes;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (!this.WeaponTypes.Contains(evt.Weapon.Blueprint.Type) || this.SizeCategoryChange == 0)
+                    return;
+                if (this.SizeCategoryChange > 0)
+                    evt.IncreaseWeaponSize();
+                else
+                    evt.DecreaseWeaponSize();
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
 
     }
 }

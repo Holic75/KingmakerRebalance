@@ -234,6 +234,15 @@ namespace CallOfTheWild
             return c;
         }
 
+
+        internal static ContextActionSpawnFx createContextActionSpawnFx(Kingmaker.ResourceLinks.PrefabLink prefab)
+        {
+            var c = Helpers.Create<ContextActionSpawnFx>();
+            c.PrefabLink = prefab;
+            return c;
+        }
+
+
         internal static ContextActionSavingThrow createContextActionSavingThrow(SavingThrowType saving_throw, Kingmaker.ElementsSystem.ActionList action)
         {
             var c = Helpers.Create<ContextActionSavingThrow>();
@@ -543,6 +552,15 @@ namespace CallOfTheWild
             var remove_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
             remove_buff.Buff = buff_to_add;
             deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);*/
+        }
+
+
+        static internal NewMechanics.WeaponTypeSizeChange createWeaponTypeSizeChange(int size_change, params BlueprintWeaponType[] types)
+        {
+            var w = Helpers.Create<NewMechanics.WeaponTypeSizeChange>();
+            w.SizeCategoryChange = size_change;
+            w.WeaponTypes = types;
+            return w;
         }
 
 
@@ -1387,7 +1405,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddFeatureIfHasFact createAddFeatureIfHasFact(BlueprintUnitFact fact, BlueprintFeature feature, bool not = false)
+        static internal AddFeatureIfHasFact createAddFeatureIfHasFact(BlueprintUnitFact fact, BlueprintUnitFact feature, bool not = false)
         {
             var a = Helpers.Create<AddFeatureIfHasFact>();
             a.CheckedFact = fact;

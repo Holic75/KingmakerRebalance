@@ -996,6 +996,9 @@ namespace CallOfTheWild
                     Helpers.SetField(config, "m_Class", classes);
                 }
             }
+
+            var howl_scaling = NewRagePowers.terrifying_howl_ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
+            howl_scaling.CharacterClasses = howl_scaling.CharacterClasses.AddToArray(skald_class);
         }
 
 

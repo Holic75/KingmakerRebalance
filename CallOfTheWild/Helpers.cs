@@ -1816,18 +1816,20 @@ namespace CallOfTheWild
         }
 
 
-        public static ContextConditionHasBuffFromCaster CreateConditionHasBuffFromCaster(this BlueprintBuff buff)
+        public static ContextConditionHasBuffFromCaster CreateConditionHasBuffFromCaster(this BlueprintBuff buff, bool not = false)
         {
             var hasBuff = Create<ContextConditionHasBuffFromCaster>();
             hasBuff.Buff = buff;
+            hasBuff.Not = not;
             return hasBuff;
         }
 
 
-        public static ContextConditionHasFact CreateConditionHasFact(this BlueprintUnitFact fact)
+        public static ContextConditionHasFact CreateConditionHasFact(this BlueprintUnitFact fact, bool not = false)
         {
             var c = Create<ContextConditionHasFact>();
             c.Fact = fact;
+            c.Not = not;
             return c;
         }
 
