@@ -32,6 +32,8 @@ namespace CallOfTheWild
         static BlueprintActivatableAbility reckless_stance => library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
         static BlueprintCharacterClass barbarian_class => ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
 
+        static internal BlueprintBuff rage_marker_caster;
+
         static internal BlueprintFeature taunting_stance;
         static internal BlueprintFeature terrifying_howl_feature;
         static internal BlueprintAbility terrifying_howl_ability;
@@ -41,16 +43,37 @@ namespace CallOfTheWild
         static internal BlueprintFeature atavism_totem;
         static internal BlueprintFeature greater_atavism_totem;
 
+        static internal BlueprintFeature unrestrained_rage_feature;
+
 
 
         static internal void load()
         {
+            createRageMarker();
             createTauntingStance();
             createTerrefyingHowl();
             createQuickReflexes();
             createLesserAtavismTotem();
             createAtavismTotem();
             createGreaterAtavismTotem();
+            createUnrestrainedRage();
+        }
+
+
+        static void createRageMarker()
+        {
+            rage_marker_caster = Helpers.CreateBuff("RageMarkerBuff",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     null);
+            rage_marker_caster.SetBuffFlags(BuffFlags.HiddenInUi);
+            var conditional_caster = Helpers.CreateConditional(Common.createContextConditionIsCaster(),
+                                                               Common.createContextActionApplyBuff(rage_marker_caster, Helpers.CreateContextDuration(),
+                                                                                                   is_child: true, dispellable: false, is_permanent: true)
+                                                              );                                                                                                                          
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, rage_marker_caster, conditional_caster);
         }
 
 
@@ -58,6 +81,31 @@ namespace CallOfTheWild
         {
             extra_rage_power_selection.AllFeatures = extra_rage_power_selection.AllFeatures.AddToArray(rage_power);
             rage_powers_selection.AllFeatures = rage_powers_selection.AllFeatures.AddToArray(rage_power);
+        }
+
+
+        static internal void createUnrestrainedRage()
+        {
+            var buff = Helpers.CreateBuff("UnrestrainedRageEffectBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.Paralyzed),
+                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            unrestrained_rage_feature = Helpers.CreateFeature("UnrestrainedRageFeature",
+                                                              "Unrestrained Rage",
+                                                              "While raging, the barbarian is immune to paralysis.",
+                                                              "",
+                                                              null,
+                                                              FeatureGroup.RagePower,
+                                                              Helpers.PrerequisiteClassLevel(barbarian_class, 12)
+                                                              );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(rage_buff,buff, unrestrained_rage_feature);
+            addToSelection(unrestrained_rage_feature);
         }
 
 
@@ -134,29 +182,22 @@ namespace CallOfTheWild
 
         static internal void createGreaterAtavismTotem()
         {
-            var overrun = library.Get<BlueprintAbility>("1a3b471ecea51f7439a946b23577fd70");
+            var overrun = library.CopyAndAdd<BlueprintAbility>("1a3b471ecea51f7439a946b23577fd70", "GreaterAtavismTrample", "");
             var trample = library.Get<BlueprintFeature>("9292099e5fd70f84fb07fbb9b8b6a5a5");
-            var atavism_totem_greater_buff = Helpers.CreateBuff("AtavismTotemGreaterBuff",
-                                                        "",
-                                                        "",
-                                                        "",
-                                                        null,
-                                                        null,
-                                                        Helpers.CreateAddFact(overrun),
-                                                        Helpers.CreateAddFact(trample)
-                                                        );
-            atavism_totem_greater_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
             greater_atavism_totem = Helpers.CreateFeature("AtavismTotemGreaterFeature",
                                                   "Atavism Totem, Greater",
                                                   "The barbarian gains trample.",
                                                   "",
                                                   lesser_atavism_totem.Icon,
                                                   FeatureGroup.RagePower,
+                                                  Helpers.CreateAddFact(overrun),
+                                                  Helpers.CreateAddFact(trample),
                                                   Helpers.PrerequisiteClassLevel(barbarian_class, 10),
                                                   Helpers.PrerequisiteFeature(atavism_totem)
                                                   );
 
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(rage_buff, atavism_totem_greater_buff, greater_atavism_totem);
+            overrun.AddComponent(Common.createAbilityCasterHasFacts(rage_marker_caster));
             addToSelection(greater_atavism_totem);
         }
 
@@ -236,6 +277,7 @@ namespace CallOfTheWild
             terrifying_howl_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(condition));
             terrifying_howl_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[]{barbarian_class}, StatType.Strength));
             terrifying_howl_ability.AddComponent(dazzling_display.GetComponent<AbilitySpawnFx>());
+            terrifying_howl_ability.AddComponent(Common.createAbilityCasterHasFacts(rage_marker_caster)); // allow to use only on rage
             terrifying_howl_feature = Common.AbilityToFeature(terrifying_howl_ability, false);
             terrifying_howl_feature.Groups = new FeatureGroup[] { FeatureGroup.RagePower };
             terrifying_howl_feature.AddComponent(Helpers.PrerequisiteClassLevel(barbarian_class, 8));

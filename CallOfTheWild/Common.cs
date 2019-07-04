@@ -1227,6 +1227,13 @@ namespace CallOfTheWild
             return a;
         }
 
+        static internal AbilityCasterHasFacts createAbilityCasterHasFacts(params BlueprintUnitFact[] facts)
+        {
+            var a = Helpers.Create<AbilityCasterHasFacts>();
+            a.Facts = facts;
+            return a;
+        }
+
 
         static internal AddGenericStatBonus createAddGenericStatBonus(int bonus, ModifierDescriptor descriptor, StatType stat)
         {
@@ -1361,6 +1368,16 @@ namespace CallOfTheWild
             c.Modifier = modifier;
             c.Summand = summand;
             return c;
+        }
+
+
+        static internal ACBonusAgainstFactOwner createACBonusAgainstFactOwner(int bonus, ModifierDescriptor descriptor, BlueprintUnitFact fact)
+        {
+            var a = Helpers.Create<ACBonusAgainstFactOwner>();
+            a.Bonus = bonus;
+            a.Descriptor = descriptor;
+            a.CheckedFact = fact;
+            return a;
         }
 
 

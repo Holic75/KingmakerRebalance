@@ -172,7 +172,7 @@ namespace CallOfTheWild
 
             var wildshape_mastodon_buff = library.CopyAndAdd<BlueprintBuff>(mastodon_form.AssetGuid, "DruidWildshapeIIIMastodonBuff", "");
             wildshape_mastodon_buff.SetName("Wild Shape (Mastodon)");
-            var wildshape_mastodon = replaceForm(wildshape_wolf, wildshape_mastodon_buff, "DruidWildshapeIIIMastodonAbility", wildshape_mastodon_buff.Name, smilodon_form_spell.Description);
+            var wildshape_mastodon = replaceForm(wildshape_wolf, wildshape_mastodon_buff, "DruidWildshapeIIIMastodonAbility", wildshape_mastodon_buff.Name, mastodon_form_spell.Description);
 
             var wildshape_mandragora_buff = library.CopyAndAdd<BlueprintBuff>(mandragora_form.AssetGuid, "DruidWildshapeIIIMandragoraBuff", "");
             wildshape_mandragora_buff.SetName("Wild Shape (Mandragora)");
@@ -224,11 +224,11 @@ namespace CallOfTheWild
                                                         };
             foreach (var s in shape_features)
             {
-                var facts = s.GetComponent<AddFacts>().Facts;
+                /*var facts = s.GetComponent<AddFacts>().Facts;
                 foreach (var f in facts)
                 {
                     ((BlueprintAbility)f).SetDescription(description);
-                }
+                }*/
                 s.SetDescription(description);
             }
 

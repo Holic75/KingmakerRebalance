@@ -671,6 +671,7 @@ namespace CallOfTheWild
             {
                 if (this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee)
                 {
+                    //this.Owner.Unit.CombatState.AttackOfOpportunity(evt.Initiator);
                     Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
                 }
                 evt.AddBonus(-4, this.Fact);
