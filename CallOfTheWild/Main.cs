@@ -138,6 +138,7 @@ namespace CallOfTheWild
 
 
                     CallOfTheWild.SharedSpells.load();
+                    CallOfTheWild.NewFeats.load();
 
                     CallOfTheWild.CleanUp.processRage();
 
@@ -145,6 +146,7 @@ namespace CallOfTheWild
                     string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";
                     CallOfTheWild.Helpers.GuidStorage.dump(guid_file_name);
 #endif
+                    CallOfTheWild.Helpers.GuidStorage.dump(@"Mods\CallOfTheWild\loaded_blueprints.txt");
                 }
                 catch (Exception ex)
                 {

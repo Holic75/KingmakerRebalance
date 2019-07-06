@@ -396,7 +396,7 @@ namespace CallOfTheWild
 
             var action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(deadly_rythm_feature), Common.createContextConditionIsCaster()}, 
                                                    Common.createContextActionApplyBuff(deadly_rythm_buff, Helpers.CreateContextDuration(), false, true, true));
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, deadly_rythm_buff, action);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, action);
         }
 
 
@@ -1031,7 +1031,7 @@ namespace CallOfTheWild
                                                              null
                                                             );
 
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, dr_share_buff, share_dr_condition);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(inspired_rage_effect_buff, share_dr_condition);
         }
 
 
@@ -1193,8 +1193,8 @@ namespace CallOfTheWild
                                                  null
                                                 );
 
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, no_spell_casting_buff, forbid_condition);
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, master_skald_buff, master_skald_condition);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, forbid_condition);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, master_skald_condition);
             return raging_song_effect_buff;
         }
 

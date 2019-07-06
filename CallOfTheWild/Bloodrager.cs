@@ -564,10 +564,10 @@ namespace CallOfTheWild
                                                           Helpers.CreateAddFeatureOnClassLevel(claws4_feature, 12, getBloodragerArray(), null)
                                                           );
 
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff1, claws1_feature);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff2, claws2_feature);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff3, claws3_feature);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff4, claws4_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff1, claws1_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff2, claws2_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff3, claws3_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff4, claws4_feature);
             }
 
 
@@ -601,6 +601,7 @@ namespace CallOfTheWild
                                                                         enlarge_buff.Icon,
                                                                         FeatureGroup.None,
                                                                         CallOfTheWild.Helpers.CreateAddFact(demonic_bulk_ability));
+                enlarge_buff.SetBuffFlags(BuffFlags.HiddenInUi | enlarge_buff.GetBuffFlags());
             }
 
 
@@ -630,7 +631,7 @@ namespace CallOfTheWild
                                                                                "f5926c928da34a3ebaf0c9183742fb91",
                                                                                resist_caf.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_caf, demonic_resistances);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, resist_caf, demonic_resistances);
             }
 
 
@@ -660,7 +661,7 @@ namespace CallOfTheWild
                                                                                "9167d9245c9140ae94f834186c98b700",
                                                                                buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, abyssal_bloodrage);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, buff, abyssal_bloodrage);
             }
 
 
@@ -695,7 +696,7 @@ namespace CallOfTheWild
                                                                               "Demonic Aura",
                                                                               "At 16th level, when entering a bloodrage you can choose to exude an aura of fire. The aura is a 5-foot burst centered on you, and deals 2d6 + your Constitution modifier points of fire damage to creatures that end their turns within it.",
                                                                               "44d877ef2428424082761e94dd3d55b3",
-                                                                              firebelly.Icon,
+                                                                              null,
                                                                               null,
                                                                               Common.createAddAreaEffect(area_effect));
 
@@ -726,7 +727,7 @@ namespace CallOfTheWild
                                                                         firebelly.Icon,
                                                                         FeatureGroup.None,
                                                                         CallOfTheWild.Helpers.CreateAddFact(demonic_aura_ability));
-
+                demonic_aura_buff.SetBuffFlags(BuffFlags.HiddenInUi | demonic_aura_buff.GetBuffFlags());
             }
 
 
@@ -819,7 +820,7 @@ namespace CallOfTheWild
                                                                "a225ba5a080041b2b78f33b8a704e821",
                                                                staggering_strike_buff.Icon,
                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, staggering_strike_buff, staggering_strike);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, staggering_strike_buff, staggering_strike);
             }
 
 
@@ -840,7 +841,7 @@ namespace CallOfTheWild
                                                "19b74174db5a42c4b1d90ae9e54e8fe8",
                                                abnormal_reach_buff.Icon,
                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, abnormal_reach_buff, abnormal_reach);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, abnormal_reach_buff, abnormal_reach);
             }
 
 
@@ -863,7 +864,7 @@ namespace CallOfTheWild
                                                "c3c215fb034e4b5b9f929f1d0c4e51a7",
                                                aberrant_fortitude_buff.Icon,
                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, aberrant_fortitude_buff, aberrant_fortitude);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, aberrant_fortitude_buff, aberrant_fortitude);
             }
 
 
@@ -884,7 +885,7 @@ namespace CallOfTheWild
                                                "f8a61a0dd8bc49fbb7ae43b5bd1b4387",
                                                unusual_anatomy_buff.Icon,
                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, unusual_anatomy_buff, unusual_anatomy);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, unusual_anatomy_buff, unusual_anatomy);
             }
 
 
@@ -908,7 +909,7 @@ namespace CallOfTheWild
                                                "c35f914518a047c6b49ba024588357ef",
                                                aberrant_resistance_buff.Icon,
                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, aberrant_resistance_buff, aberrant_resistance);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, aberrant_resistance_buff, aberrant_resistance);
             }
 
 
@@ -1012,7 +1013,7 @@ namespace CallOfTheWild
                                                                "300f0d5f0a9446078465bafc693a17ef",
                                                                angelic_attacks_buff.Icon,
                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, angelic_attacks_buff, angelic_attacks);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, angelic_attacks_buff, angelic_attacks);
             }
 
 
@@ -1041,7 +1042,7 @@ namespace CallOfTheWild
                                                                                "4f59478befb0468081599205fbbce42a",
                                                                                resist_ca_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_ca_buff, celestial_resistances);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, resist_ca_buff, celestial_resistances);
             }
 
 
@@ -1062,7 +1063,7 @@ namespace CallOfTheWild
                                                                                "223df27c2390449594a4d0fb78e9019e",
                                                                                conviction_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, conviction_buff, celestial_resistances);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, conviction_buff, conviction);
             }
 
 
@@ -1076,7 +1077,7 @@ namespace CallOfTheWild
                                                                                "b5d48e26779048499194ade26ff0a741",
                                                                                angelic_wings_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, angelic_wings_buff, wings_of_heaven);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, angelic_wings_buff, wings_of_heaven);
             }
 
 
@@ -1093,7 +1094,7 @@ namespace CallOfTheWild
                                                                                "4ae1b076c2984982a9b2474ff0b980e7",
                                                                                angelic_protection_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, angelic_protection_buff, angelic_protection);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, angelic_protection_buff, angelic_protection);
             }
 
 
@@ -1178,7 +1179,7 @@ namespace CallOfTheWild
                                                                "54d034a7d7de4da083464496ab4aba61",
                                                                confusing_critical_buff.Icon,
                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, confusing_critical_buff, confusing_critical);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, confusing_critical_buff, confusing_critical);
             }
 
 
@@ -1194,13 +1195,16 @@ namespace CallOfTheWild
             static void createBlurringMovement()
             {
                 var blur_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", prefix + "BlurringMovementBuff", "f2c369b10d9049c79ec6660ad0a0bece");
+                var blur_buff0 = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
                 blurring_movement = Helpers.CreateFeature(prefix + "BlurringMovementFeature",
                                                                                "Blurring Movement",
                                                                                "At 8th level, you become a blur of motion when you bloodrage. You gain effect of blur spell while in bloodrage.",
                                                                                "c7027b9ddd534fc09025ae807e5af38a",
                                                                                blur_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, blur_buff, blurring_movement);
+                blur_buff.SetName(blurring_movement.Name);
+                blur_buff.SetDescription(blurring_movement.Description);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, blur_buff0, blurring_movement);
             }
 
 
@@ -1208,8 +1212,7 @@ namespace CallOfTheWild
             {
                 var haste_buff0 = library.Get<BlueprintBuff>("8d20b0a6129bd814eb0146041879f38a");
                 var haste_buff = library.CopyAndAdd<BlueprintBuff>("03464790f40c3c24aa684b57155f3280", prefix + "QuicklingBloodrageBuff", "ff4c584a792149ff9d0246bc77cc2a85");
-                haste_buff.SetName(haste_buff0.Name);
-                haste_buff.SetDescription(haste_buff0.Description);
+
 
                 //change haste bonus types to enchancement to avoid stacking
                 var haste_boni = haste_buff.GetComponents<Kingmaker.UnitLogic.FactLogic.AddStatBonus>().ToArray();
@@ -1225,7 +1228,9 @@ namespace CallOfTheWild
                                                                                "f08420c83d6443068038b9160406438a",
                                                                                haste_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, haste_buff, quickling_bloodrage);
+                haste_buff.SetName(quickling_bloodrage.Name);
+                haste_buff.SetDescription(quickling_bloodrage.Description);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, haste_buff0, quickling_bloodrage);
             }
 
 
@@ -1266,7 +1271,7 @@ namespace CallOfTheWild
                                                                                "9234d31a673840f6954d1baad879bbb8",
                                                                                bane_weapon_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, bane_weapon_buff, fury_of_the_fey);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, bane_weapon_buff, fury_of_the_fey);
             }
 
         }
@@ -1349,7 +1354,7 @@ namespace CallOfTheWild
                                                                "1740de7601f94a109bee9c7061c4085e",
                                                                hellfire_strike_buff.Icon,
                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, hellfire_strike_buff, hellfire_strike);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, hellfire_strike_buff, hellfire_strike);
             }
 
 
@@ -1389,7 +1394,7 @@ namespace CallOfTheWild
                                                                                "b40f0fc02adb43ad9ffd8341154b1980",
                                                                                resist_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, resist_buff, infernal_resistance);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, resist_buff, infernal_resistance);
             }
 
 
@@ -1412,7 +1417,7 @@ namespace CallOfTheWild
                                                                                "487473aa12bb4829885341e889b5cb97",
                                                                                buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, diabolical_arrogance);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, buff, diabolical_arrogance);
             }
 
 
@@ -1426,7 +1431,7 @@ namespace CallOfTheWild
                                                                                "9c451731dd7f4f96adec8e9621610841",
                                                                                diabolic_wings_buff.Icon,
                                                                                FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, diabolic_wings_buff, dark_wings);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, diabolic_wings_buff, dark_wings);
             }
 
 
@@ -1567,7 +1572,7 @@ namespace CallOfTheWild
                                                                                 "85c240197d8d4f1f86b4f55f7bf51397",
                                                                                 weapon_enchant_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, weapon_enchant_buff, ghost_strike);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, weapon_enchant_buff, ghost_strike);
             }
 
 
@@ -1590,7 +1595,7 @@ namespace CallOfTheWild
                                                                                 "19cdee308a0b4492a2b780adb115ab00",
                                                                                 buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, deaths_gift);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, buff, deaths_gift);
             }
 
 
@@ -1624,6 +1629,7 @@ namespace CallOfTheWild
                                                                                 command_type: CommandType.Swift,
                                                                                 unit_command: CommandType.Swift
                                                                                 );
+                frightening_strikes_buff.SetBuffFlags(BuffFlags.HiddenInUi | frightening_strikes_buff.GetBuffFlags());
 
             }
 
@@ -1783,7 +1789,7 @@ namespace CallOfTheWild
                                                                                 "",
                                                                                 fated_bloodrager_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, fated_bloodrager_buff, fated_bloodrager);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, fated_bloodrager_buff, fated_bloodrager);
             }
 
 
@@ -1864,7 +1870,7 @@ namespace CallOfTheWild
                                    FeatureGroup.None,
                                    Helpers.CreateAddAbilityResource(resource)
                                    );
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, defy_death_buff, defy_death);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, defy_death_buff, defy_death);
             }
 
 
@@ -1887,7 +1893,7 @@ namespace CallOfTheWild
                                                                                 "",
                                                                                 unstoppable_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, unstoppable_buff, unstoppable);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, unstoppable_buff, unstoppable);
             }
 
 
@@ -2175,9 +2181,9 @@ namespace CallOfTheWild
                                                           Common.createRemoveFeatureOnApply(claws1_feature));
                 claws3_feature.HideInCharacterSheetAndLevelUp = true;
 
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff1, claws1_feature);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff2, claws2_feature);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claw_buff3, claws3_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff1, claws1_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff2, claws2_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claw_buff3, claws3_feature);
 
                 for (int i = 0; i < bloodlines.Length; i++)
                 {
@@ -2200,7 +2206,7 @@ namespace CallOfTheWild
                                                               Helpers.CreateAddFeatureOnClassLevel(claws3_feature, 8, getDraconicArray(), null),
                                                               Helpers.CreateAddFeatureOnClassLevel(claws4_feature, 12, getDraconicArray(), null)
                                                               );
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, claws4_buff_energy[i], claws4_feature);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, claws4_buff_energy[i], claws4_feature);
                     claws.Add(claw);
                 }
             }
@@ -2242,7 +2248,7 @@ namespace CallOfTheWild
                                                      FeatureGroup.None
                                                     );
                     draconic_resistance.Add(feat);
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, feat);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, buff, feat);
                 }
             }
 
@@ -2271,8 +2277,6 @@ namespace CallOfTheWild
                                                                FeatureGroup.None,
                                                                Helpers.CreateAddFact(breath_ability),
                                                                Helpers.CreateAddAbilityResource(resource)
-                                                               //Helpers.CreateAddFeatureOnClassLevel(add_resource, 16, getBloodragerArray(), new BlueprintArchetype[0]),
-                                                               //Helpers.CreateAddFeatureOnClassLevel(add_resource, 20, getBloodragerArray(), new BlueprintArchetype[0])
                                                                );
                     breath_feature.HideInCharacterSheetAndLevelUp = true;
                     var breath_extra_use = Helpers.CreateFeature(b.prefix + "BreathWeaponExtraUseFeature",
@@ -2311,7 +2315,7 @@ namespace CallOfTheWild
                                                                                    "",
                                                                                    b.wings_prototype.Icon,
                                                                                    FeatureGroup.None);
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, b.wings_prototype, wings_feature);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, b.wings_prototype, wings_feature);
                     dragon_wings.Add(wings_feature);
                 }
             }
@@ -2340,6 +2344,7 @@ namespace CallOfTheWild
                                                                             bloodrage_buff,
                                                                             new Kingmaker.ElementsSystem.GameAction[] { remove_polymorph },
                                                                             reckless_stance.ActivateWithUnitAnimation);
+                    buff.SetBuffFlags(BuffFlags.HiddenInUi | buff.GetBuffFlags());
                     dragon_form.Add(feature);
                 }
             }
@@ -2569,7 +2574,7 @@ namespace CallOfTheWild
                                                      FeatureGroup.None
                                                     );
                     elemental_resistance.Add(feat);
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, feat);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, buff, feat);
                 }
             }
 
@@ -2593,7 +2598,7 @@ namespace CallOfTheWild
                                                      FeatureGroup.None
                                                     );
                     elemental_movement.Add(feat);
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, buff, feat);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, buff, feat);
                 }
             }
 
@@ -2622,6 +2627,7 @@ namespace CallOfTheWild
                                                                             bloodrage_buff,
                                                                             new Kingmaker.ElementsSystem.GameAction[] { remove_polymorph },
                                                                             reckless_stance.ActivateWithUnitAnimation);
+                    buff.SetBuffFlags(BuffFlags.HiddenInUi | buff.GetBuffFlags());
                     elemental_form.Add(feature);
                 }
             }
@@ -2910,7 +2916,7 @@ namespace CallOfTheWild
                                                                                                                  }
                                                                             )
                                            );
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(bloodrage_buff, blood_of_life_buff, blood_of_life);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, blood_of_life_buff, blood_of_life);
         }
 
 

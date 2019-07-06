@@ -81,11 +81,6 @@ namespace CallOfTheWild
             }
         }
 
-        internal static BlueprintFeature createSwitchActivatableAbilityBuff(string v1, string v2, string v3, string v4, BlueprintBuff buff, BlueprintBuff rage_buff, AnimationClip activateWithUnitAnimation, ActivatableAbilityGroup barbarianStance, object command_type)
-        {
-            throw new NotImplementedException();
-        }
-
         internal class ExtraSpellList
         {
             SpellId[] spells;
@@ -544,25 +539,10 @@ namespace CallOfTheWild
             {
                 condition[i] = Helpers.CreateConditionHasFact(facts[i]);
             }
-            var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(), false, true, true)));
+            var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(),
+                                                                                     dispellable: false, is_child: true, is_permanent: true)));
             addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, buff_to_add, action);
-            /*(var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
-            activated.Actions = activated.Actions.AddToArray(action);
-            var deactivated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Deactivated;
-            var remove_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveBuff>();
-            remove_buff.Buff = buff_to_add;
-            deactivated.Actions = deactivated.Actions.AddToArray(remove_buff);*/
         }
-
-
-        static internal NewMechanics.WeaponTypeSizeChange createWeaponTypeSizeChange(int size_change, params BlueprintWeaponType[] types)
-        {
-            var w = Helpers.Create<NewMechanics.WeaponTypeSizeChange>();
-            w.SizeCategoryChange = size_change;
-            w.WeaponTypes = types;
-            return w;
-        }
-
 
         static internal void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Conditional conditional_action)
         {
@@ -580,9 +560,55 @@ namespace CallOfTheWild
         }
 
 
+
+        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                                              params BlueprintUnitFact[] facts)
+        {
+            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }
+            var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact[facts.Length];
+            for (int i = 0; i < facts.Length; i++)
+            {
+                condition[i] = Helpers.CreateConditionHasFact(facts[i]);
+            }
+            var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(),
+                                                                                     dispellable: false, is_child: true, is_permanent: true)));
+            addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, action);
+        }
+
+
+        static internal void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, Conditional conditional_action)
+        {
+            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }
+
+            var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
+            activated.Actions = activated.Actions.AddToArray(conditional_action);
+        }
+
+
+        static internal NewMechanics.WeaponTypeSizeChange createWeaponTypeSizeChange(int size_change, params BlueprintWeaponType[] types)
+        {
+            var w = Helpers.Create<NewMechanics.WeaponTypeSizeChange>();
+            w.SizeCategoryChange = size_change;
+            w.WeaponTypes = types;
+            return w;
+        }
+
+
         static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
         {
             addContextActionApplyBuffOnFactsToActivatedAbilityBuff(target_buff, buff_to_add, new Kingmaker.ElementsSystem.GameAction[0], facts);
+        }
+
+
+        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
+        {
+            addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(target_buff, buff_to_add, new Kingmaker.ElementsSystem.GameAction[0], facts);
         }
 
 
@@ -1650,6 +1676,39 @@ namespace CallOfTheWild
                     }
                 }
             }
+        }
+
+
+
+        static internal NewMechanics.ContextWeaponDamageBonus createContextWeaponDamageBonus(ContextValue bonus, bool apply_to_melee = true, bool apply_to_ranged = false, bool apply_to_thrown = true,
+                                                                                             bool scale_2h = true)
+        {
+            var c = Helpers.Create<NewMechanics.ContextWeaponDamageBonus>();
+            c.apply_to_melee = apply_to_melee;
+            c.apply_to_ranged = apply_to_ranged;
+            c.apply_to_thrown = apply_to_thrown;
+            c.value = bonus;
+            c.scale_for_2h = scale_2h;
+            return c;
+        }
+
+
+        static internal NewMechanics.VitalStrikeScalingDamage createVitalStrikeScalingDamage(ContextValue value, int multiplier = 1)
+        {
+            var v = Helpers.Create<NewMechanics.VitalStrikeScalingDamage>();
+            v.Value = value;
+            v.multiplier = multiplier;
+            return v;
+        }
+
+
+        static internal SavingThrowBonusAgainstAbilityType createSavingThrowBonusAgainstAbilityType(int base_value, ContextValue bonus, AbilityType ability_type)
+        {
+            var b = Helpers.Create<SavingThrowBonusAgainstAbilityType>();
+            b.Value = base_value;
+            b.Bonus = bonus;
+            b.AbilityType = ability_type;
+            return b;
         }
     }
 }

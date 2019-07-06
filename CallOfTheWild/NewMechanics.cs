@@ -40,6 +40,7 @@ using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Controllers;
 using Kingmaker;
+using static Kingmaker.UnitLogic.Abilities.Components.AbilityCustomMeleeAttack;
 
 namespace CallOfTheWild
 {
@@ -713,6 +714,110 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class ContextWeaponDamageBonus: RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public ContextValue value;
+            public bool apply_to_melee = true;
+            public bool apply_to_ranged = false;
+            public bool apply_to_thrown = true;
+            public bool scale_for_2h = true;
+
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                int damage_bonus = value.Calculate(this.Context);
+                if (damage_bonus <= 0)
+                {
+                    return;
+                }
+
+                var weapon = evt.Weapon;
+                if (weapon == null)
+                {
+                    return;
+                }
+                if (weapon.Blueprint.IsMelee && !apply_to_melee
+                    || weapon.Blueprint.IsRanged && !apply_to_ranged && weapon.Blueprint.FighterGroup != WeaponFighterGroup.Thrown
+                    || weapon.Blueprint.FighterGroup == WeaponFighterGroup.Thrown && !apply_to_thrown)
+                {
+                    return;
+                }
+                if (scale_for_2h 
+                    && (weapon.Blueprint.IsTwoHanded || (weapon.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands && !evt.Initiator.Body.SecondaryHand.HasItem))
+                    )
+                {
+                    damage_bonus += damage_bonus / 2;
+                }
+                evt.AddBonusDamage(damage_bonus);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+        [AllowedOn(typeof(BlueprintFeature))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class VitalStrikeScalingDamage : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public ContextValue Value;
+            public int multiplier = 1;
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+        }
+
+
+
+        [Harmony12.HarmonyPatch(typeof(VitalStrike))]
+        [Harmony12.HarmonyPatch("OnEventDidTrigger", Harmony12.MethodType.Normal)]
+        class VitalStrike__OnEventDidTrigger__Patch
+        {
+            static void Postfix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
+            {
+                DamageDescription damageDescription = evt.DamageDescription.FirstItem<DamageDescription>();
+                if (damageDescription == null || damageDescription.TypeDescription.Type != DamageType.Physical)
+                    return;
+
+                int bonus = 0;
+                foreach (var b in evt.Initiator.Buffs)
+                {
+                    var dmg = b.Get<VitalStrikeScalingDamage>();
+                    if (dmg == null || b.Context == null)
+                    {
+                        continue;
+                    }
+                    bonus += dmg.Value.Calculate(b.Context) * dmg.multiplier;
+                }
+                bonus *= ___m_DamageMod - 1;
+                if (bonus <= 0)
+                {
+                    return;
+                }
+                damageDescription.Bonus += bonus;
             }
         }
 

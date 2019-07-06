@@ -33,7 +33,6 @@ namespace CallOfTheWild
                 var tr = Harmony12.Traverse.Create(__instance);
                 tr.Method("UpdatePlayerMoneyAndInventoryWeight").GetValue();
                 tr.Field("UnitCapacity").SetValue(EncumbranceHelper.GetCarryingCapacity(currentCharacter.Descriptor));
-                Main.logger.Log(tr.Field("UnitCapacity").GetValue<CarryingCapacity>().ToString());
                 __instance.CharacterEncumbrance.Initialize(tr.Field("UnitCapacity").GetValue<CarryingCapacity>(), true);
                 __instance.CharacterEncumbrance.SetTooltipData((object)currentCharacter, TooltipType.EncumbranceCharacter);
 

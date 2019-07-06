@@ -28,7 +28,7 @@ namespace CallOfTheWild
         static LibraryScriptableObject library => Main.library;
         static BlueprintFeatureSelection rage_powers_selection => Main.library.Get<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e");
         static BlueprintFeatureSelection extra_rage_power_selection => Main.library.Get<BlueprintFeatureSelection>("0c7f01fbbe687bb4baff8195cb02fe6a");
-        static BlueprintBuff rage_buff => library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
+        static internal BlueprintBuff rage_buff => library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
         static BlueprintActivatableAbility reckless_stance => library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
         static BlueprintCharacterClass barbarian_class => ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
 
@@ -73,7 +73,7 @@ namespace CallOfTheWild
                                                                Common.createContextActionApplyBuff(rage_marker_caster, Helpers.CreateContextDuration(),
                                                                                                    is_child: true, dispellable: false, is_permanent: true)
                                                               );                                                                                                                          
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, rage_marker_caster, conditional_caster);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_caster);
         }
 
 
@@ -104,7 +104,7 @@ namespace CallOfTheWild
                                                               FeatureGroup.RagePower,
                                                               Helpers.PrerequisiteClassLevel(barbarian_class, 12)
                                                               );
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(rage_buff,buff, unrestrained_rage_feature);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff,buff, unrestrained_rage_feature);
             addToSelection(unrestrained_rage_feature);
         }
 
@@ -146,8 +146,8 @@ namespace CallOfTheWild
                                             Common.createContextActionApplyBuff(animal_fury_buff, Helpers.CreateContextDuration(),
                                                                                  is_child: true, is_permanent: true, dispellable: false)
                                            );
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, lesser_atavism_buff_size, conditional_size);
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, animal_fury_buff, conditional_bite);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_size);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_bite);
 
             addToSelection(lesser_atavism_totem);
         }
@@ -175,7 +175,7 @@ namespace CallOfTheWild
                                                   Helpers.PrerequisiteFeature(lesser_atavism_totem)
                                                   );
 
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(rage_buff, atavism_totem_buff, atavism_totem);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, atavism_totem_buff, atavism_totem);
             addToSelection(atavism_totem);
         }
 
@@ -223,7 +223,7 @@ namespace CallOfTheWild
                                                            null,
                                                            FeatureGroup.RagePower);
 
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(rage_buff, quick_reflexes_buff, quick_reflexes_feature);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, quick_reflexes_buff, quick_reflexes_feature);
             addToSelection(quick_reflexes_feature);
         }
 
