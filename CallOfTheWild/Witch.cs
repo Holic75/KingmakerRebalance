@@ -2078,7 +2078,7 @@ namespace CallOfTheWild
                                                             + "Special: You can take this feat multiple times. Each time you do, you gain another hex.",
                                                             "5d3b5b72afb940d4b9aab740d8925b53",
                                                             null,
-                                                            FeatureGroup.None,
+                                                            FeatureGroup.Feat,
                                                             Helpers.PrerequisiteClassLevel(witch_class, 1));
             extra_hex_feat_selection.AllFeatures = hex_selection.Features;
             extra_hex_feat_selection.Features = hex_selection.Features;

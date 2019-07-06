@@ -24,12 +24,13 @@ namespace CallOfTheWild
         static internal BlueprintFeature raging_brutality;
         static internal BlueprintFeature blooded_arcane_strike;
         static internal BlueprintFeature riving_strike;
-
+        
         static internal void load()
         {
             createRagingBrutality();
             createBloodedArcaneStrike();
             createRivingStrike();
+            FeralCombatTraining.load();
         }
 
 
@@ -121,6 +122,7 @@ namespace CallOfTheWild
 
             //library.AddFeats(blooded_arcane_strike);
             library.AddCombatFeats(blooded_arcane_strike);
+            blooded_arcane_strike.Groups = blooded_arcane_strike.Groups.AddToArray(FeatureGroup.Feat);
         }
 
 
@@ -162,6 +164,8 @@ namespace CallOfTheWild
                                                   Helpers.PrerequisiteFeature(arcane_strike_feature));
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(arcane_strike_buff, buff, riving_strike);
             library.AddCombatFeats(riving_strike);
+            riving_strike.Groups = riving_strike.Groups.AddToArray(FeatureGroup.Feat);
         }
+
     }
 }

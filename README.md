@@ -12,8 +12,10 @@ Regarding skald mechanics: it is different from pnp in the fact that it allows o
 with skald Inpiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1, 
 for already exisitng characters you will need to respec them to level 1 to get this ability.
 
-New feats: Extra Hex, Accursed Hex and Rage Casting, Bonded Mind and Share Spell.
+New feats: Extra Hex, Accursed Hex, Rage Casting, Raging Brutality, Blooded Arcane Strike, Riving Strike, Feral Combat Training, Bonded Mind and Share Spell.
+
 New rage powers: Terrifying Howl, Taunting Stance, Unrestrained Rage, Quick Reflexes, Atavism Totem Lesser, Atavism Totem, Atavism Totem Greater.
+
 New features: Share Spell for animal companions, animal companions can now equip belts, bracers and amulets.
 
 New spells:

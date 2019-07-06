@@ -41,6 +41,9 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.Controllers;
 using Kingmaker;
 using static Kingmaker.UnitLogic.Abilities.Components.AbilityCustomMeleeAttack;
+using Kingmaker.UnitLogic.Mechanics.ContextData;
+using Kingmaker.Controllers.Projectiles;
+using Kingmaker.Designers.Mechanics.Facts;
 
 namespace CallOfTheWild
 {
@@ -820,7 +823,6 @@ namespace CallOfTheWild
                 damageDescription.Bonus += bonus;
             }
         }
-
 
     }
 }

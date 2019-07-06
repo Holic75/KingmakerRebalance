@@ -1710,5 +1710,15 @@ namespace CallOfTheWild
             b.AbilityType = ability_type;
             return b;
         }
+
+        static internal PrerequisiteParametrizedFeature createPrerequisiteParametrizedFeatureWeapon(BlueprintParametrizedFeature feature, WeaponCategory category, bool any = false)
+        {
+            var p = Helpers.Create<PrerequisiteParametrizedFeature>();
+            p.Feature = feature;
+            p.ParameterType = FeatureParameterType.WeaponCategory;
+            p.WeaponCategory = category;
+            p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
+            return p;
+        }
     }
 }

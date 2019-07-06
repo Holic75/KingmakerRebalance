@@ -124,6 +124,7 @@
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="Bloodrager.cs" />
     <Compile Include="CleanUp.cs" />
+    <Compile Include="FeralCombatTraining.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Hunter.cs" />

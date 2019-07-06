@@ -147,14 +147,13 @@ namespace CallOfTheWild
             skald_class.StartingItems = bard_class.StartingItems;
             createSkaldProgression();
             skald_class.Progression = skald_progression;
-
             createUrbanSkaldArchetype();
             createHeraldOfTheHorn();
             createWarDrummer();
             skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
-            fixExtraRagePower();
+            //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
         }
 
 
