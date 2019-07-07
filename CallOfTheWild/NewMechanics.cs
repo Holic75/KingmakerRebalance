@@ -185,7 +185,7 @@ namespace CallOfTheWild
             }
 
 
-                public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 caster_level_increase = -1;
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
@@ -255,7 +255,7 @@ namespace CallOfTheWild
         {
             public ModifierDescriptor Descriptor;
             public int Value;
-            
+
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 var caster = evt.Reason.Caster;
@@ -341,7 +341,7 @@ namespace CallOfTheWild
                 if (armor == null) return;
 
                 int bonus = value.Calculate(Context) - 1;
-                if (bonus <0)
+                if (bonus < 0)
                 {
                     bonus = 0;
                 }
@@ -492,7 +492,7 @@ namespace CallOfTheWild
 
 
 
-        public class ContextActionResurrectInstant: ContextAction
+        public class ContextActionResurrectInstant : ContextAction
         {
             public bool FullRestore;
             [HideIf("FullRestore")]
@@ -686,13 +686,13 @@ namespace CallOfTheWild
             }
 
 
-            public  void OnEventAboutToTrigger(RuleDealDamage evt)
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
             {
                 if (evt.DamageBundle.Count() > 0 && evt.Reason.Rule is RuleAttackWithWeapon)
                 {
                     evt.DamageBundle.ElementAt(0).AddBonus(4);
                 }
-                
+
             }
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
@@ -723,7 +723,7 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
-        public class ContextWeaponDamageBonus: RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        public class ContextWeaponDamageBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
         {
             public ContextValue value;
             public bool apply_to_melee = true;
@@ -762,7 +762,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                if (scale_for_2h 
+                if (scale_for_2h
                     && (weapon.Blueprint.IsTwoHanded || (weapon.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands && !evt.Initiator.Body.SecondaryHand.HasItem))
                     )
                 {
@@ -824,5 +824,104 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ForbidSpellCastingUnlessHasClass : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public bool ForbidMagicItems;
+            public BlueprintCharacterClass[] allowed_classes;
+            private bool activated = false;
+
+            public override void OnTurnOn()
+            {
+                foreach (var c in allowed_classes)
+                {
+                    foreach (Kingmaker.UnitLogic.ClassData classData in this.Owner.Progression.Classes)
+                    {
+                        if (classData.CharacterClass == c)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                activated = true;
+                this.Owner.State.SpellCastingForbidden.Retain();
+                if (!this.ForbidMagicItems)
+                    return;
+                this.Owner.State.MagicItemsForbidden.Retain();
+            }
+
+            public override void OnTurnOff()
+            {
+                if (!activated)
+                {
+                    return;
+                }
+                activated = false;
+                this.Owner.State.SpellCastingForbidden.Release();
+                if (!this.ForbidMagicItems)
+                    return;
+                this.Owner.State.MagicItemsForbidden.Release();
+            }
+        }
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReflectDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
+        {
+            
+            public bool reflect_melee_weapon = false;
+            public bool reflect_ranged_weapon = false;
+            public bool reflect_magic = false;
+
+            public float reflection_coefficient = 0.0f;
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                if (evt.Target == evt.Initiator)
+                {
+                    return;
+                }
+                if ((evt.Reason.Rule is RuleAttackWithWeapon))
+                {
+                    var rule_attack_with_weapon = (RuleAttackWithWeapon)evt.Reason.Rule;
+                    bool is_melee = (rule_attack_with_weapon.Weapon == null || rule_attack_with_weapon.Weapon.Blueprint.IsMelee);
+                    bool is_ranged = (rule_attack_with_weapon.Weapon != null && rule_attack_with_weapon.Weapon.Blueprint.IsRanged);
+                    if (is_melee && !reflect_melee_weapon)
+                    {
+                        return;
+                    }
+                    
+                    if (is_ranged && !reflect_ranged_weapon)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!reflect_magic)
+                    {
+                        return;
+                    }
+                }
+
+                int reflected_dmage = (int)(reflection_coefficient * evt.Damage);
+                if (reflected_dmage <= 0)
+                {
+                    return;
+                }
+
+                var base_dmg = new EnergyDamage(DiceFormula.Zero, Kingmaker.Enums.Damage.DamageEnergyType.Holy);
+                base_dmg.AddBonus(reflected_dmage);
+
+                RuleDealDamage evt_dmg = new RuleDealDamage(this.Owner.Unit, this.Owner.Unit, new DamageBundle(base_dmg));
+                Rulebook.Trigger<RuleDealDamage>(evt_dmg);
+            }
+        }
     }
 }

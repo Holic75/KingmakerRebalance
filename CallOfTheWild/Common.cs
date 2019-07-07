@@ -1720,5 +1720,14 @@ namespace CallOfTheWild
             p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
             return p;
         }
+
+
+        static internal NewMechanics.ForbidSpellCastingUnlessHasClass createForbidSpellCastingUnlessHasClass(bool forbid_magic_items, params BlueprintCharacterClass[] classes)
+        {
+            var f = Helpers.Create<NewMechanics.ForbidSpellCastingUnlessHasClass>();
+            f.allowed_classes = classes;
+            f.ForbidMagicItems = forbid_magic_items;
+            return f;
+        }
     }
 }

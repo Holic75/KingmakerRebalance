@@ -1182,6 +1182,7 @@ namespace CallOfTheWild
 
             raging_song_effect_buff.AddComponents(components);
             raging_song_effect_buff.RemoveComponents<ForbidSpellCasting>();
+            raging_song_effect_buff.RemoveComponents<NewMechanics.ForbidSpellCastingUnlessHasClass>();
 
             var forbid_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true), Common.createContextConditionCasterHasFact(master_skald, has:false)},
                                                              Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true),

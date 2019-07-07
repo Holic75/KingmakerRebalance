@@ -301,6 +301,7 @@ namespace CallOfTheWild
             //but it is apparently impossible to allow casting only bloodrager spells while under the effect of such buff
             bloodrage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
             bloodrage_buff.RemoveComponent(bloodrage_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ForbidSpellCasting>());
+            bloodrage_buff.AddComponent(Common.createForbidSpellCastingUnlessHasClass(false, getBloodragerArray()));
 
             if (test_mode)
             {

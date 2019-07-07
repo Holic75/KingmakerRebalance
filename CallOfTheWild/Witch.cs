@@ -69,7 +69,8 @@ namespace CallOfTheWild
         static internal BlueprintFeature harrowing_curse;
         static internal BlueprintFeature ice_tomb;
         static internal BlueprintFeature regenerative_sinew;
-        //retribution ?, restless slumber? withering ?
+        static internal BlueprintFeature retribution;
+        // restless slumber? withering ?
         // grand hexes
         static internal BlueprintFeature animal_servant;
         static internal BlueprintFeature death_curse;
@@ -436,6 +437,7 @@ namespace CallOfTheWild
             createHarrowingCurse();
             createIceTomb();
             createRegenerativeSinew();
+            createRetribution();
 
             createAnimalServant();
             createDeathCurse();
@@ -452,7 +454,7 @@ namespace CallOfTheWild
                                                            null,
                                                            FeatureGroup.None);
             hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle,
-                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew,
+                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew, retribution,
                                                               animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
         }
@@ -1683,6 +1685,67 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             harrowing_curse.Ranks = 1;
             harrowing_curse.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+        }
+
+
+        static void createRetribution()
+        {
+            var resounding_blow = library.Get < BlueprintAbility>("9047cb1797639924487ec0ad566a3fea");
+            var serenity = library.Get<BlueprintAbility>("d316d3d94d20c674db2c24d7de96f6a7");
+
+            var reflect_damage = Helpers.Create<NewMechanics.ReflectDamage>();
+            reflect_damage.reflection_coefficient = 0.5f;
+            reflect_damage.reflect_melee_weapon = true;
+
+            var buff = Helpers.CreateBuff("WitchRetributionHexBuff",
+                                          "Retribution",
+                                          "Effect: A witch can place a retribution hex on a creature within 60 feet, causing terrible wounds to open across the target’s flesh whenever it deals damage to another creature in melee.Immediately after the hexed creature deals damage in melee, it takes half that damage(round down).This damage bypasses any resistances, immunities, or damage reduction the creature possesses.This effect lasts for a number of rounds equal to the witch’s Intelligence modifier.A Will save negates this effect.",
+                                          "",
+                                          resounding_blow.Icon,
+                                          null,
+                                          reflect_damage);
+            //buff.Stacking = StackingType.Replace;
+
+            var apply_buff = Common.createContextSavedApplyBuff(buff,
+                                                            Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), rate: DurationRate.Rounds)
+                                                            );
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_buff));
+            var ability = Helpers.CreateAbility("WitchRetributionHexAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Medium,
+                                                "1 round per witch's intelligence modifier",
+                                                "Will negates",
+                                                Helpers.CreateRunActions(action),
+                                                serenity.GetComponent<AbilitySpawnFx>(),
+                                                Common.createContextCalculateAbilityParamsBasedOnClass(witch_class, StatType.Intelligence),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
+                                                                                stat: StatType.Intelligence,
+                                                                                progression: ContextRankProgression.AsIs, 
+                                                                                type: AbilityRankType.DamageBonus, min: 1)
+                                                );
+            ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Directional;
+            ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionDirectional;
+            ability.CanTargetEnemies = true;
+            ability.CanTargetFriends = test_mode;
+            ability.CanTargetSelf = test_mode;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
+
+            retribution = Helpers.CreateFeature("WitchRetributionHexFeature",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFact(ability)
+                                                );
+            retribution.Ranks = 1;
+            retribution.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
         }
 
 
