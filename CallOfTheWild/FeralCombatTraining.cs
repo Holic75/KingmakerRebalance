@@ -347,8 +347,8 @@ namespace CallOfTheWild
 
             public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
             {
-               // if (slot.Owner != this.Owner)
-               //     return;
+                if (slot.Owner != this.Owner)
+                    return;
                 this.CheckEligibility();
             }
 

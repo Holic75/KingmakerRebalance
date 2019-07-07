@@ -15,11 +15,13 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.Localization;
+using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
 using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
@@ -1311,11 +1313,11 @@ namespace CallOfTheWild
 
 
             var evil_eye_ac = createEvilEyeComponent("EvilEyeACHex", "Evil Eye: AC Penalty", description, "1c8855dc3c9846a8addb4db4375eafe8", "4a8fcd47dc9244f7ac6deb8dd9b741e2",
-                                                     eyebyte.Icon, penalties[0], context_rank_config);
+                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[0], context_rank_config);
             var evil_eye_attack = createEvilEyeComponent("EvilEyeAttackHex", "Evil Eye: Attack Rolls Penalty", description, "ad14718b3f65491183dd97c4b9f57246", "a11119164c7d430f81f6f3ec15e56e44",
-                                                     eyebyte.Icon, penalties[1], context_rank_config);
+                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[1], context_rank_config);
             var evil_eye_saves = createEvilEyeComponent("EvilEyeSavesHex", "Evil Eye: Saving Throws Penalty", description, "cb406009170b447489b32d5b43d88f3f", "2598782fac2a44b6a607f5d0d2a059bb",
-                                                     eyebyte.Icon, penalties[2], penalties[3], penalties[4], context_rank_config);
+                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[2], penalties[3], penalties[4], context_rank_config);
 
 
             evil_eye = Helpers.CreateFeature("EvilEyeHexFeature",
@@ -1330,10 +1332,10 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintAbility createEvilEyeComponent(string name, string display_name, string description, string guid, string buff_guid, UnityEngine.Sprite icon, 
+        static BlueprintAbility createEvilEyeComponent(string name, string display_name, string description, string guid, string buff_guid, UnityEngine.Sprite icon, PrefabLink prefab,
                                                         params BlueprintComponent[] components)
         {
-            var buff = Helpers.CreateBuff(name + "Buff", display_name, description, buff_guid, icon, null, components);
+            var buff = Helpers.CreateBuff(name + "Buff", display_name, description, buff_guid, icon, prefab, components);
             buff.Stacking = StackingType.Prolong;
             cackle_buffs.Add(buff);
 
@@ -2050,7 +2052,8 @@ namespace CallOfTheWild
                                                               Common.createAddCondition(UnitCondition.Staggered)
                                                               );
 
-            var cackle_ability = Helpers.CreateActivatableAbility("CreateCackleToggleAbility",
+
+            var cackle_activatable_ability = Helpers.CreateActivatableAbility("CreateCackleToggleAbility",
                                                             cackle_buff.Name,
                                                             cackle_buff.Description,
                                                             "",
@@ -2060,13 +2063,33 @@ namespace CallOfTheWild
                                                             CommandType.Free,
                                                             null);
 
+            var bane = library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734");
+            var cackle_ability = Helpers.CreateAbility("WitchCackleAbility",
+                                                           "Cackle (Move Action)",
+                                                           cackle_activatable_ability.Description,
+                                                           "",
+                                                           cackle_activatable_ability.Icon,
+                                                           AbilityType.Supernatural,
+                                                           CommandType.Move,
+                                                           AbilityRange.Personal,
+                                                           Helpers.oneRoundDuration,
+                                                           Helpers.savingThrowNone,
+                                                           Helpers.CreateRunActions(actions.ToArray()),
+                                                           Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any, spreadSpeed: 15.Feet()),
+                                                           bane.GetComponents<AbilitySpawnFx>().ElementAt(1),
+                                                           Common.createAbilityCasterHasNoFacts(cackle_buff)
+                                                         );
+
+
             cackle = Helpers.CreateFeature("WitchCackleHexFeature",
-                                          cackle_ability.Name,
-                                          cackle_ability.Description,
+                                          cackle_activatable_ability.Name,
+                                          cackle_activatable_ability.Description,
                                           "",
                                           cackle_ability.Icon,
                                           FeatureGroup.None,
-                                          Helpers.CreateAddFact(cackle_ability));
+                                          Helpers.CreateAddFact(cackle_activatable_ability),
+                                          Helpers.CreateAddFact(cackle_ability)
+                                          );
         }
 
 
