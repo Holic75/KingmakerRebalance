@@ -120,6 +120,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Wildshape.load();
                     CallOfTheWild.NewRagePowers.load();
+                    CallOfTheWild.NewSpells.load();
 
 #if DEBUG
                     CallOfTheWild.Witch.test_mode = true;

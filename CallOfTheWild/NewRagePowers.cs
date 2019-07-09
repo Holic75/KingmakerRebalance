@@ -7,13 +7,18 @@ using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums.Damage;
 using Kingmaker.ResourceLinks;
+using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +48,17 @@ namespace CallOfTheWild
         static internal BlueprintFeature atavism_totem;
         static internal BlueprintFeature greater_atavism_totem;
 
+
+        static internal BlueprintFeature lesser_spirit_totem;
+        static BlueprintBuff lesser_spirit_totem_buff;
+        static internal BlueprintFeature spirit_totem;
+        static internal BlueprintFeature greater_spirit_totem;
+        static internal BlueprintItemWeapon lesser_spirit_totem_slam_attack;
+        static internal BlueprintItemWeapon greater_spirit_totem_slam_attack;
+
         static internal BlueprintFeature unrestrained_rage_feature;
+
+        static internal List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
 
 
@@ -57,7 +72,11 @@ namespace CallOfTheWild
             createAtavismTotem();
             createGreaterAtavismTotem();
             createUnrestrainedRage();
+            createLesserSpiritTotem();
+            createSpiritTotem();
+            createGreaterSpiritTotem();
         }
+
 
 
         static void createRageMarker()
@@ -77,10 +96,151 @@ namespace CallOfTheWild
         }
 
 
-        static void addToSelection(BlueprintFeature rage_power)
+        static void addToSelection(BlueprintFeature rage_power, bool is_totem = false)
         {
             extra_rage_power_selection.AllFeatures = extra_rage_power_selection.AllFeatures.AddToArray(rage_power);
             rage_powers_selection.AllFeatures = rage_powers_selection.AllFeatures.AddToArray(rage_power);
+
+            if (!is_totem)
+            {
+                return;
+            }
+            
+            foreach (var t in totems)
+            {
+                t.AddComponent(Helpers.PrerequisiteNoFeature(rage_power));
+                rage_power.AddComponent(Helpers.PrerequisiteNoFeature(t));
+            }
+            totems.Add(rage_power);
+        }
+
+
+        static internal void createLesserSpiritTotem()
+        {
+            var blur = library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1");
+
+            lesser_spirit_totem_slam_attack = library.CopyAndAdd<BlueprintItemWeapon>("7445b0b255796d34495a8bca81b2e2d4", "LesserSpiritTotemSlam", "");
+            Helpers.SetField(lesser_spirit_totem_slam_attack, "m_OverrideDamageDice", true);
+            Helpers.SetField(lesser_spirit_totem_slam_attack, "m_DamageDice", new DiceFormula(1, DiceType.D4));
+            Helpers.SetField(lesser_spirit_totem_slam_attack, "m_OverrideDamageType", true);
+            Helpers.SetField(lesser_spirit_totem_slam_attack, "m_DamageType", Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.NegativeEnergy));
+
+            var enchant = Common.createWeaponEnchantment("LesserSpiritTotemSlamEnchantment",
+                                                         "Spirit", 
+                                                         "Spirit weapon uses wielders Charisma modifier for attack and damage bonus.", 
+                                                         "Spirit", "",
+                                                         "",
+                                                         0,
+                                                         Common.createWeaponAttackStatReplacementEnchantment(StatType.Charisma),
+                                                         Common.createWeaponDamageStatReplacementEnchantment(StatType.Charisma)
+                                                         );
+
+            Common.addEnchantment(lesser_spirit_totem_slam_attack, enchant);
+
+            lesser_spirit_totem_buff = Helpers.CreateBuff("LesserSpiritTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddSecondaryAttacks(lesser_spirit_totem_slam_attack)
+                                          );
+            lesser_spirit_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            lesser_spirit_totem = Helpers.CreateFeature("LesserSpiritTotemFeature",
+                                                        "Sprit Totem, Lesser",
+                                                        "While raging, the barbarian is surrounded by spirit wisps that harass her foes. These spirits make one slam attack each round against a living foe that is adjacent to the barbarian. This slam attack is made using the barbarian’s full base attack bonus, plus the barbarian’s Charisma modifier. The slam deals 1d4 points of negative energy damage, plus the barbarian’s Charisma modifier.\n"
+                                                        + "Note: Totem rage powers grant powers related to a theme.A barbarian cannot select from more than one group of totem rage powers; for example, a barbarian who selects a beast totem rage power cannot later choose to gain any of the dragon totem rage powers(any rage power with “dragon totem” in its title).",
+                                                        "",
+                                                        blur.Icon,
+                                                        FeatureGroup.RagePower
+                                                        );
+
+            addToSelection(lesser_spirit_totem, is_totem: true);
+        }
+
+
+        static internal void createSpiritTotem()
+        {
+            var chameleon_stride_buff = library.Get<BlueprintBuff>("49786ccc94a5ee848a5637b4145b2092");
+
+
+            var buff = Helpers.CreateBuff("SpiritTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          chameleon_stride_buff.FxOnStart,
+                                          chameleon_stride_buff.GetComponent<AddConcealment>()
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            spirit_totem = Helpers.CreateFeature("SpiritTotemFeature",
+                                                "Sprit Totem",
+                                                "While raging, the spirits that surround the barbarian make it difficult for her enemies to see her. The spirits grant the barbarian a 20% miss chance against ranged attacks and melee attacks made by creatures that are not adjacent to the barbarian (typically due to reach).",
+                                                "",
+                                                lesser_spirit_totem.Icon,
+                                                FeatureGroup.RagePower,
+                                                Helpers.PrerequisiteClassLevel(barbarian_class, 6),
+                                                Helpers.PrerequisiteFeature(lesser_spirit_totem)
+                                                );
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, spirit_totem);
+            addToSelection(spirit_totem);
+        }
+
+
+        static internal void createGreaterSpiritTotem()
+        {
+
+            var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
+            area_effect.name = "GreaterSpiritTotemAura";
+            area_effect.AffectEnemies = true;
+            area_effect.AggroEnemies = true;
+            area_effect.Size = 5.Feet();
+            area_effect.Shape = AreaEffectShape.Cylinder;
+            var damage = Helpers.CreateContextDiceValue(DiceType.D8, Common.createSimpleContextValue(1));
+            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, damage, isAoE: true);
+            var conditional_damage = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsEnemy>() },
+                                                                                 damage_action);
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_damage));
+            area_effect.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            library.AddAsset(area_effect, "");
+
+            greater_spirit_totem_slam_attack = library.CopyAndAdd<BlueprintItemWeapon>(lesser_spirit_totem_slam_attack.AssetGuid, "GreaterSpiritTotemSlam", "");
+            Helpers.SetField(greater_spirit_totem_slam_attack, "m_DamageDice", new DiceFormula(1, DiceType.D6));
+            var buff = Helpers.CreateBuff("GreaterSpiritTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddSecondaryAttacks(greater_spirit_totem_slam_attack),
+                                          Common.createAddAreaEffect(area_effect)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            greater_spirit_totem = Helpers.CreateFeature("GreaterSpiritTotemFeature",
+                                                "Sprit Totem, Greater",
+                                                "While raging, the spirits that surround the barbarian become dangerous to any enemy adjacent to the barbarian. Living enemies adjacent to the barbarian at the start of her turn take 1d8 points of negative energy damage. In addition slam attack deals 1d6 points of negative energy damage.",
+                                                "",
+                                                lesser_spirit_totem.Icon,
+                                                FeatureGroup.RagePower,
+                                                Helpers.PrerequisiteClassLevel(barbarian_class, 10),
+                                                Helpers.PrerequisiteFeature(spirit_totem)
+                                                );
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, greater_spirit_totem);
+
+            var conditional_lesser = Helpers.CreateConditional(new Condition[] {Common.createContextConditionHasFact(greater_spirit_totem, false),
+                                                                              Common.createContextConditionHasFact(lesser_spirit_totem) },
+                                            Common.createContextActionApplyBuff(lesser_spirit_totem_buff, Helpers.CreateContextDuration(),
+                                                                                 is_child: true, is_permanent: true, dispellable: false)
+                                           );
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_lesser);
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, greater_spirit_totem);
+            addToSelection(greater_spirit_totem);
         }
 
 
@@ -114,7 +274,6 @@ namespace CallOfTheWild
             var animal_fury_buff = library.Get<BlueprintBuff>("a67b51a8074ae47438280be0a87b01b6");
             var animal_fury = library.Get<BlueprintFeature>("25954b1652bebc2409f9cb9d5728bceb");
             var acid_maw = library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
-            var lesser_beast_totem = library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729");
 
             var lesser_atavism_buff_size = Helpers.CreateBuff("LesserAtavismTotemBiteBuff",
                                            "",
@@ -132,9 +291,8 @@ namespace CallOfTheWild
                                                          + " Note: Totem rage powers grant powers related to a theme.A barbarian cannot select from more than one group of totem rage powers; for example, a barbarian who selects a beast totem rage power cannot later choose to gain any of the dragon totem rage powers(any rage power with \"dragon totem\" in its title)",
                                                          "",
                                                          acid_maw.Icon,
-                                                         FeatureGroup.RagePower,
-                                                         Helpers.PrerequisiteNoFeature(lesser_beast_totem));
-            lesser_beast_totem.AddComponent(Helpers.PrerequisiteNoFeature(lesser_atavism_totem));
+                                                         FeatureGroup.RagePower
+                                                         );
 
             var conditional_size = Helpers.CreateConditional(new Condition[] {Common.createContextConditionHasFact(animal_fury),
                                                                          Common.createContextConditionHasFact(lesser_atavism_totem) },
@@ -149,7 +307,7 @@ namespace CallOfTheWild
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_size);
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_bite);
 
-            addToSelection(lesser_atavism_totem);
+            addToSelection(lesser_atavism_totem, is_totem: true);
         }
 
 

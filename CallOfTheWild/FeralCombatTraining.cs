@@ -100,7 +100,7 @@ namespace CallOfTheWild
         }
 
 
-        static bool checkHasFeralCombat(UnitEntityData unit, ItemEntityWeapon weapon)
+        public static bool checkHasFeralCombat(UnitEntityData unit, ItemEntityWeapon weapon)
         {
             if (weapon == null || unit == null)
             {
@@ -443,6 +443,45 @@ namespace CallOfTheWild
             public string GetReason()
             {
                 return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+    }
+
+    namespace FeralCombatTrainingPatches
+    {
+        //fix deflect arrows
+        [Harmony12.HarmonyPatch(typeof(DeflectArrows))]
+        [Harmony12.HarmonyPatch("CheckRestriction", Harmony12.MethodType.Normal)]
+        public class Patch_DeflectArrows_CheckRestriction_PAtch
+        {
+            static void Postfix(DeflectArrows __instance, ref bool __result)
+            {
+                if (__result)
+                {
+                    return;
+                }
+
+                if (!__instance.Owner.Body.HandsAreEnabled)
+                {
+                    return;
+                }
+                var tr = Harmony12.Traverse.Create(__instance);
+                int restriction = (int)(tr.Field("m_Restriction").GetValue());
+
+                if (restriction != 0)
+                {
+                    return;
+                }
+
+                if (!FeralCombatTraining.checkHasFeralCombat(__instance.Owner.Unit, __instance.Owner.Body.PrimaryHand.MaybeWeapon))
+                {
+                    __result = FeralCombatTraining.checkHasFeralCombat(__instance.Owner.Unit, __instance.Owner.Body.SecondaryHand.MaybeWeapon);
+                }
+                else
+                {
+                    __result = true;
+                }
+                return;
             }
         }
     }

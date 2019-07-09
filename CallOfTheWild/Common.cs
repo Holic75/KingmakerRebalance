@@ -46,6 +46,9 @@ using UnityEngine;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.Designers.Mechanics.WeaponEnchants;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.RuleSystem.Rules.Damage;
 
 namespace CallOfTheWild
 {
@@ -285,7 +288,7 @@ namespace CallOfTheWild
 
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
-                                                                                                                  bool is_child = false, bool is_permanent = false, bool dispellable = true, 
+                                                                                                                  bool is_child = false, bool is_permanent = false, bool dispellable = true,
                                                                                                                   bool use_duration_seconds = false)
         {
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
@@ -1523,7 +1526,7 @@ namespace CallOfTheWild
             ability_buff.SetDescription(effect_buff.Description);
             ability_buff.SetIcon(effect_buff.Icon);
 
-           
+
             ability.SetName(effect_buff.Name);
             ability.SetDescription(effect_buff.Description);
             ability.SetIcon(effect_buff.Icon);
@@ -1534,8 +1537,8 @@ namespace CallOfTheWild
 
 
 
-        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintAbilityAreaEffect area, string prefix, 
-                                                                                                                                     UnityEngine.Sprite icon,  string display_name, string description)
+        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintAbilityAreaEffect area, string prefix,
+                                                                                                                                     UnityEngine.Sprite icon, string display_name, string description)
         {
             var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
             var ability_buff = library.CopyAndAdd<BlueprintBuff>(base_ability.Buff.AssetGuid, prefix + "Buff", "");
@@ -1617,7 +1620,7 @@ namespace CallOfTheWild
         {
             var clear_variants = variants.Distinct().ToArray();
             List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
-            
+
             foreach (var v in clear_variants)
             {
                 var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
@@ -1728,6 +1731,78 @@ namespace CallOfTheWild
             f.allowed_classes = classes;
             f.ForbidMagicItems = forbid_magic_items;
             return f;
+        }
+
+
+        static internal NewMechanics.WeaponDamageStatReplacement createWeaponDamageStatReplacementEnchantment(StatType stat)
+        {
+            var w = Helpers.Create<NewMechanics.WeaponDamageStatReplacement>();
+            w.Stat = stat;
+            return w;
+        }
+
+
+
+        static internal BlueprintWeaponEnchantment createWeaponEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, params BlueprintComponent[] components)
+        {
+            var e = Helpers.Create<BlueprintWeaponEnchantment>();
+            Helpers.SetField(e, "m_IdentifyDC", identify_dc);
+            e.name = name;
+            
+            Helpers.SetField(e, "m_EnchantName", Helpers.CreateString($"{name}.DisplayName", display_name));
+            Helpers.SetField(e, "m_Description", Helpers.CreateString($"{name}.Description", description));
+            Helpers.SetField(e, "m_Prefix", Helpers.CreateString($"{name}.Prefix", prefix));
+            Helpers.SetField(e, "m_Suffix", Helpers.CreateString($"{name}.Suffix", suffix));
+            e.AddComponents(components);
+            library.AddAsset(e, guid);
+
+            return e;
+        }
+
+        static internal NewMechanics.WeaponAttackStatReplacement createWeaponAttackStatReplacementEnchantment(StatType stat)
+        {
+            var w = Helpers.Create<NewMechanics.WeaponAttackStatReplacement>();
+            w.Stat = stat;
+            return w;
+        }
+
+        static internal void addEnchantment(BlueprintItemWeapon weapon, params BlueprintWeaponEnchantment[] enchantments)
+        {
+            BlueprintWeaponEnchantment[] original_enchantments = Helpers.GetField< BlueprintWeaponEnchantment[]>(weapon, "m_Enchantments");
+            Helpers.SetField(weapon, "m_Enchantments", original_enchantments.AddToArray(enchantments));
+        }
+
+        static internal DamageTypeDescription createEnergyDamageDescription(DamageEnergyType energy)
+        {
+            var d = new DamageTypeDescription();
+            d.Energy = energy;
+            d.Type = DamageType.Energy;
+            return d;
+        }
+
+
+        static internal NewMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
+                                                                                                                   bool only_non_magical, bool remove_on_unequip,
+                                                                                                                   BlueprintWeaponType[] allowed_types,
+                                                                                                                   params BlueprintWeaponEnchantment[] enchantments)
+
+                                                                                                                   
+        {
+            var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeapon>();
+            b.only_non_magical = only_non_magical;
+            b.allowed_types = allowed_types;
+            b.remove_on_unequip = remove_on_unequip;
+            b.enchantments = enchantments;
+            b.value = value;
+            return b;
+        }
+
+
+        static internal AbilityCasterMainWeaponCheck createAbilityCasterMainWeaponCheck(params WeaponCategory[] category)
+        {
+            var a = Helpers.Create<AbilityCasterMainWeaponCheck>();
+            a.Category = category;
+            return a;
         }
     }
 }

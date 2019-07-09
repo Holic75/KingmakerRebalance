@@ -272,6 +272,69 @@ namespace CallOfTheWild
         }
 
 
+        public class BuffContextEnchantPrimaryHandWeapon : BuffLogic
+        {
+            public BlueprintWeaponEnchantment[] enchantments;
+            public ContextValue value;
+            public BlueprintWeaponType[] allowed_types;
+            public bool remove_on_unequip = false;
+            public bool only_non_magical = false;
+            [JsonProperty]
+            private ItemEnchantment m_Enchantment;
+            private ItemEntityWeapon m_Weapon;
+
+
+            public override void OnFactActivate()
+            {
+                var unit = this.Owner;
+                if (unit == null) return;
+
+                var weapon = unit.Body.PrimaryHand.MaybeWeapon;
+                if (weapon == null)
+                {
+                    return;
+                }
+
+                if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
+                {
+                    return;
+                }
+
+                int bonus = value.Calculate(Context) - 1;
+                if (bonus < 0)
+                {
+                    bonus = 0;
+                }
+                if (bonus >= enchantments.Length)
+                {
+                    bonus = enchantments.Length - 1;
+                }
+
+                var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                if (fact != null && fact.IsTemporary)
+                {
+                    weapon.RemoveEnchantment(fact);
+                }
+
+                if (weapon.EnchantmentValue != 0  && only_non_magical)
+                {
+                    return;
+                }
+
+                m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+                m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
+                m_Weapon = weapon;
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Enchantment == null)
+                    return;
+                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+            }
+        }
+
+
         public class BuffContextEnchantShield : BuffLogic
         {
             public BlueprintArmorEnchantment[] enchantments;
@@ -710,9 +773,19 @@ namespace CallOfTheWild
                 if (!this.WeaponTypes.Contains(evt.Weapon.Blueprint.Type) || this.SizeCategoryChange == 0)
                     return;
                 if (this.SizeCategoryChange > 0)
-                    evt.IncreaseWeaponSize();
+                {
+                    for (int i = 0; i < this.SizeCategoryChange; i++)
+                    {
+                        evt.IncreaseWeaponSize();
+                    }
+                }
                 else
-                    evt.DecreaseWeaponSize();
+                {
+                    for (int i = 0; i > this.SizeCategoryChange; i--)
+                    {
+                        evt.DecreaseWeaponSize();
+                    }
+                }
             }
 
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
@@ -921,6 +994,77 @@ namespace CallOfTheWild
 
                 RuleDealDamage evt_dmg = new RuleDealDamage(this.Owner.Unit, this.Owner.Unit, new DamageBundle(base_dmg));
                 Rulebook.Trigger<RuleDealDamage>(evt_dmg);
+            }
+        }
+
+
+        [ComponentName("Weapon Attack Stat Replacement")]
+        public class   WeaponAttackStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
+        {
+            public StatType Stat;
+
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                evt.AttackBonusStat = Stat;
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Weapon Damage Stat Replacement")]
+        public class WeaponDamageStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public StatType Stat;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                    return;
+                evt.OverrideDamageBonusStat(this.Stat);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Weapon size Change")]
+        public class WeaponDamageChange : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public DiceFormula dice_formula;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+
+                evt.WeaponDamageDiceOverride = dice_formula;
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Remove Weapon Damage Stat")]
+        public class RemoveWeaponDamageStat : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public StatType Stat;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                    return;
+
+                Helpers.SetField(evt, "DamageBonusStat", new StatType?());
+                evt.OverrideDamageBonusStat(this.Stat);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
             }
         }
     }
