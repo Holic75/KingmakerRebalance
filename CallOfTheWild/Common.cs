@@ -57,6 +57,8 @@ namespace CallOfTheWild
     class Common
     {
 
+        static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
+
         static internal string[] roman_id = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
 
 
@@ -1818,6 +1820,21 @@ namespace CallOfTheWild
             b.remove_on_unequip = remove_on_unequip;
             b.metamagic = metamagic;
             return b;
+        }
+
+
+        static internal AddParametrizedFeatures createAddParametrizedFeatures(BlueprintParametrizedFeature feature, WeaponCategory category)
+        {
+            var data = Activator.CreateInstance(ParametrizedFeatureData);
+            Helpers.SetField(data, "Feature", feature);
+            Helpers.SetField(data, "ParamWeaponCategory", category);
+
+            var data_array = Array.CreateInstance(ParametrizedFeatureData, 1);
+            data_array.SetValue(data, 0);
+
+            var a = Helpers.Create<AddParametrizedFeatures>();
+            Helpers.SetField(a, "m_Features", data_array);
+            return a;
         }
     }
 }

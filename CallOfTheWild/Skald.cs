@@ -401,13 +401,35 @@ namespace CallOfTheWild
 
         static void createClubImprovedCriticalSelection()
         {
-            var great_club_improved_critical = library.Get<BlueprintFeature>("9d0ffb9b55cb7324e99129a37168ea20");
-            var club_improved_critical = library.Get<BlueprintFeature>("2447a3b507c32144bbe7fa6197a53e21");
+            var improved_critical = library.Get<BlueprintParametrizedFeature>("f4201c85a991369408740c6888362e20");
+            var great_club_improved_critical_f = library.Get<BlueprintFeature>("9d0ffb9b55cb7324e99129a37168ea20");
+            var club_improved_critical_f = library.Get<BlueprintFeature>("2447a3b507c32144bbe7fa6197a53e21");
+            var great_club_improved_critical = Helpers.CreateFeature("WarDrummerImprovedCriticalGreatClubFeature",
+                                                                      great_club_improved_critical_f.Name,
+                                                                      great_club_improved_critical_f.Description,
+                                                                      "",
+                                                                      great_club_improved_critical_f.Icon,
+                                                                      FeatureGroup.None,
+                                                                      Common.createAddParametrizedFeatures(improved_critical, WeaponCategory.Greatclub)
+                                                                      );
+            great_club_improved_critical.HideInCharacterSheetAndLevelUp = true;
+            var club_improved_critical = Helpers.CreateFeature("WarDrummerImprovedCriticalClubFeature",
+                                                          club_improved_critical_f.Name,
+                                                          club_improved_critical_f.Description,
+                                                          "",
+                                                          club_improved_critical_f.Icon,
+                                                          FeatureGroup.None,
+                                                          Common.createAddParametrizedFeatures(improved_critical, WeaponCategory.Club)
+                                                          );
+            club_improved_critical.HideInCharacterSheetAndLevelUp = true;
+
+            //var great_club_improved_critical = library.Get<BlueprintFeature>("9d0ffb9b55cb7324e99129a37168ea20");
+            //var club_improved_critical = library.Get<BlueprintFeature>("2447a3b507c32144bbe7fa6197a53e21");
             club_improved_critical_selection = Helpers.CreateFeatureSelection("SkaldWarDrummerImprovedCriticalSelection",
                                                                                "Improved Critical (Club or Greatclub)",
                                                                                "At 6th level, the war drummer gains Improved Critical with the club or the greatclub as a bonus feat.",
                                                                                "",
-                                                                               great_club_improved_critical.Icon,
+                                                                               improved_critical.Icon,
                                                                                FeatureGroup.None
                                                                                );
             club_improved_critical_selection.IgnorePrerequisites = true;
