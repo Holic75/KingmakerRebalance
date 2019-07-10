@@ -131,6 +131,7 @@ namespace CallOfTheWild
                                                          "Spirit", "",
                                                          "",
                                                          0,
+                                                         null,
                                                          Common.createWeaponAttackStatReplacementEnchantment(StatType.Charisma),
                                                          Common.createWeaponDamageStatReplacementEnchantment(StatType.Charisma)
                                                          );

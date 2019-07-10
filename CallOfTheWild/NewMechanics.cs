@@ -335,6 +335,65 @@ namespace CallOfTheWild
         }
 
 
+
+        public class BuffContextEnchantPrimaryHandWeaponIfHasMetamagic : BuffLogic
+        {
+            public BlueprintWeaponEnchantment enchantment;
+            public Metamagic metamagic;
+            public BlueprintWeaponType[] allowed_types;
+            public bool remove_on_unequip = false;
+            public bool only_non_magical = false;
+            [JsonProperty]
+            private ItemEnchantment m_Enchantment;
+            private ItemEntityWeapon m_Weapon;
+
+
+            public override void OnFactActivate()
+            {
+                var unit = this.Owner;
+                if (unit == null) return;
+
+                var weapon = unit.Body.PrimaryHand.MaybeWeapon;
+                if (weapon == null)
+                {
+                    return;
+                }
+
+                if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
+                {
+                    return;
+                }
+
+                if (!Context.HasMetamagic(metamagic))
+                {
+                    return;
+                }
+
+                var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantment);
+                if (fact != null && fact.IsTemporary)
+                {
+                    weapon.RemoveEnchantment(fact);
+                }
+
+                if (weapon.EnchantmentValue != 0 && only_non_magical)
+                {
+                    return;
+                }
+
+                m_Enchantment = weapon.AddEnchantment(enchantment, Context, new Rounds?());
+                m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
+                m_Weapon = weapon;
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Enchantment == null)
+                    return;
+                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+            }
+        }
+
+
         public class BuffContextEnchantShield : BuffLogic
         {
             public BlueprintArmorEnchantment[] enchantments;
@@ -1032,38 +1091,85 @@ namespace CallOfTheWild
         }
 
 
-        [ComponentName("Weapon size Change")]
+        [ComponentName("change weapon damage")]
         public class WeaponDamageChange : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
             public DiceFormula dice_formula;
+            public int bonus_damage;
+            public DamageTypeDescription damage_type_description = null;
 
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
 
                 evt.WeaponDamageDiceOverride = dice_formula;
+                evt.AddBonusDamage(bonus_damage);
             }
 
             public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
+               if (damage_type_description != null && evt.DamageDescription.Count()>0)
+                {
+                    evt.DamageDescription[0].TypeDescription = damage_type_description;
+                }
             }
         }
 
 
         [ComponentName("Remove Weapon Damage Stat")]
-        public class RemoveWeaponDamageStat : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        public class Immaterial : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
         {
-            public StatType Stat;
-
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
                 if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
                     return;
-
-                Helpers.SetField(evt, "DamageBonusStat", new StatType?());
-                evt.OverrideDamageBonusStat(this.Stat);
+                Harmony12.Traverse.Create(evt).Property("DamageBonusStat").SetValue(new StatType?());
+                //Helpers.SetField(evt, "DamageBonusStat", new StatType?());
             }
 
             public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+
+                evt.AttackType = AttackType.Touch;
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+
+        [ComponentName("Metamagic effect on weapon damage")]
+        public class WeaponMetamagicDamage : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RulePrepareDamage>, IRulebookHandler<RulePrepareDamage>, IInitiatorRulebookSubscriber
+        {
+            public bool maximize = false;
+            public bool empower = false;
+
+            public void OnEventAboutToTrigger(RulePrepareDamage evt)
+            {
+                if (evt.DamageBundle.Count() == 0)
+                {
+                    return;
+                }
+
+                if (empower)
+                {
+                    evt.DamageBundle.First().EmpowerBonus = 1.5f;
+                }
+
+                if (maximize)
+                {
+                    evt.DamageBundle.First().Maximized = true;
+                }
+
+            }
+
+            public void OnEventDidTrigger(RulePrepareDamage evt)
             {
             }
         }

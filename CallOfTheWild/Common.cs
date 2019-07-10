@@ -49,6 +49,7 @@ using Kingmaker.RuleSystem.Rules;
 using Kingmaker.Designers.Mechanics.WeaponEnchants;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.RuleSystem.Rules.Damage;
+using Kingmaker.UnitLogic.Abilities;
 
 namespace CallOfTheWild
 {
@@ -1743,7 +1744,7 @@ namespace CallOfTheWild
 
 
 
-        static internal BlueprintWeaponEnchantment createWeaponEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, params BlueprintComponent[] components)
+        static internal BlueprintWeaponEnchantment createWeaponEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, GameObject fx_prefab, params BlueprintComponent[] components)
         {
             var e = Helpers.Create<BlueprintWeaponEnchantment>();
             Helpers.SetField(e, "m_IdentifyDC", identify_dc);
@@ -1754,6 +1755,7 @@ namespace CallOfTheWild
             Helpers.SetField(e, "m_Prefix", Helpers.CreateString($"{name}.Prefix", prefix));
             Helpers.SetField(e, "m_Suffix", Helpers.CreateString($"{name}.Suffix", suffix));
             e.AddComponents(components);
+            e.WeaponFxPrefab = fx_prefab;
             library.AddAsset(e, guid);
 
             return e;
@@ -1803,6 +1805,19 @@ namespace CallOfTheWild
             var a = Helpers.Create<AbilityCasterMainWeaponCheck>();
             a.Category = category;
             return a;
+        }
+
+
+        static internal NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool remove_on_unequip,
+                                                                                                                            BlueprintWeaponType[] allowed_types, BlueprintWeaponEnchantment enchantment)
+        {
+            var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic>();
+            b.allowed_types = allowed_types;
+            b.enchantment = enchantment;
+            b.only_non_magical = only_non_magical;
+            b.remove_on_unequip = remove_on_unequip;
+            b.metamagic = metamagic;
+            return b;
         }
     }
 }
