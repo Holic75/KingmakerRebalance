@@ -44,6 +44,7 @@ using static Kingmaker.UnitLogic.Abilities.Components.AbilityCustomMeleeAttack;
 using Kingmaker.UnitLogic.Mechanics.ContextData;
 using Kingmaker.Controllers.Projectiles;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 
 namespace CallOfTheWild
 {
@@ -277,15 +278,17 @@ namespace CallOfTheWild
             public BlueprintWeaponEnchantment[] enchantments;
             public ContextValue value;
             public BlueprintWeaponType[] allowed_types;
-            public bool remove_on_unequip = false;
+            public bool lock_slot = false;
             public bool only_non_magical = false;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
             private ItemEntityWeapon m_Weapon;
+            private bool m_unlock;
 
 
             public override void OnFactActivate()
             {
+                m_unlock = false;
                 var unit = this.Owner;
                 if (unit == null) return;
 
@@ -311,7 +314,7 @@ namespace CallOfTheWild
                 }
 
                 var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null && fact.IsTemporary)
+                if (fact != null)
                 {
                     weapon.RemoveEnchantment(fact);
                 }
@@ -320,14 +323,26 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
                 m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-                m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
+
+                if (lock_slot && !weapon.IsNonRemovable)
+                {
+                    weapon.IsNonRemovable = true;
+                    m_unlock = true;
+                }
+                //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
                 m_Weapon = weapon;
             }
 
             public override void OnFactDeactivate()
             {
+                if (this.m_Weapon == null)
+                    return;
+                //m_Weapon.IsNonRemovable = false;
+                if (m_unlock)
+                {
+                    m_Weapon.IsNonRemovable = false;
+                }
                 if (this.m_Enchantment == null)
                     return;
                 this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
@@ -341,15 +356,17 @@ namespace CallOfTheWild
             public BlueprintWeaponEnchantment enchantment;
             public Metamagic metamagic;
             public BlueprintWeaponType[] allowed_types;
-            public bool remove_on_unequip = false;
+            public bool lock_slot = false;
             public bool only_non_magical = false;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
             private ItemEntityWeapon m_Weapon;
+            private bool m_unlock;
 
 
             public override void OnFactActivate()
             {
+                m_unlock = false;
                 var unit = this.Owner;
                 if (unit == null) return;
 
@@ -370,7 +387,7 @@ namespace CallOfTheWild
                 }
 
                 var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantment);
-                if (fact != null && fact.IsTemporary)
+                if (fact != null)
                 {
                     weapon.RemoveEnchantment(fact);
                 }
@@ -381,12 +398,25 @@ namespace CallOfTheWild
                 }
 
                 m_Enchantment = weapon.AddEnchantment(enchantment, Context, new Rounds?());
-                m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
+
+                if (lock_slot && !weapon.IsNonRemovable)
+                {
+                    weapon.IsNonRemovable = true;
+                    m_unlock = true;
+                }
+                //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
                 m_Weapon = weapon;
             }
 
             public override void OnFactDeactivate()
             {
+                if (this.m_Weapon == null)
+                    return;
+                //m_Weapon.IsNonRemovable = false;
+                if (m_unlock)
+                {
+                    m_Weapon.IsNonRemovable = false;
+                }
                 if (this.m_Enchantment == null)
                     return;
                 this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
@@ -423,11 +453,12 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                var fact = shield.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null && fact.IsTemporary)
+                var fact = shield.ArmorComponent.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                if (fact != null)
                 {
                     shield.RemoveEnchantment(fact);
                 }
+
                 m_Enchantment = shield.ArmorComponent.AddEnchantment(enchantments[bonus], Context, new Rounds?());
                 shield.ArmorComponent.RecalculateStats();
                 m_Shield = shield;
@@ -473,11 +504,13 @@ namespace CallOfTheWild
                 }
 
                 var fact = armor.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null && fact.IsTemporary)
+                if (fact != null )
                 {
                     armor.RemoveEnchantment(fact);
                 }
+
                 m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+
                 armor.RecalculateStats();
                 m_Armor = armor;
             }
@@ -1171,6 +1204,90 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RulePrepareDamage evt)
             {
+            }
+        }
+
+
+
+        public class ConsumeResourceIfAbilitiesFromGroupActivated : ContextAction
+        {
+            public ActivatableAbilityGroup group;
+            public int num_abilities_activated;
+            public BlueprintAbilityResource resource;
+
+
+            public override string GetCaption()
+            {
+                return $"Consume resource ({resource.Name}) on {num_abilities_activated} from {group.ToString()}";
+            }
+
+            public override void RunAction()
+            {
+                if (resource == null)
+                {
+                    return;
+                }
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return;
+                }
+
+                if (unit.Descriptor.Resources.GetResourceAmount(resource) <= 0)
+                {
+                    return;
+                }
+
+                int num_activated = 0;
+                foreach (var a in unit.ActivatableAbilities)
+                {
+                    if (a.Blueprint.Group == group && a.IsOn)
+                    {
+                        num_activated++;
+                    }
+                }
+                if (num_activated >= num_abilities_activated)
+                {
+                    unit.Descriptor.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
+                }
+            }
+        }
+
+
+        public class DeactivatedAbilityFromGroup : ContextAction
+        {
+            public ActivatableAbilityGroup group;
+            public int num_abilities_activated;
+
+
+            public override string GetCaption()
+            {
+                return $"Deactivated Ability From Group {group.ToString()} if more than {num_abilities_activated}.";
+            }
+
+            public override void RunAction()
+            {
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return;
+                }
+                int num_activated = 0;
+                foreach (var a in unit.ActivatableAbilities)
+                {
+                    if (a.Blueprint.Group == group && a.IsOn)
+                    {
+                        if (num_activated < num_abilities_activated)
+                        {
+                            num_activated++;
+                        }
+                        else
+                        {
+                            a.Deactivate();
+                        }
+                    }
+                    
+                }
             }
         }
     }

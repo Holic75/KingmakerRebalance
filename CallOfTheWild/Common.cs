@@ -627,7 +627,8 @@ namespace CallOfTheWild
 
 
         static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
-                                                                                                      bool check_weapon_range_type = false,
+                                                                                                      bool check_weapon_range_type = false, bool reduce_hp_to_zero = false,
+                                                                                                      bool on_initiator = false,
                                                                                                       AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
         {
             var t = Helpers.Create<AddInitiatorAttackWithWeaponTrigger>();
@@ -636,6 +637,8 @@ namespace CallOfTheWild
             t.CriticalHit = critical_hit;
             t.CheckWeaponRangeType = check_weapon_range_type;
             t.RangeType = range_type;
+            t.ReduceHPToZero = reduce_hp_to_zero;
+            t.ActionsOnInitiator = on_initiator;
             return t;
         }
 
@@ -768,6 +771,17 @@ namespace CallOfTheWild
             feat.Value.ValueType = ContextValueType.Simple;
             feat.Value.Value = dr_value;
 
+            return feat;
+        }
+
+
+
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createPhysicalDR(int dr_value)
+        {
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
+            feat.BypassedByMaterial = false;
+            feat.Value.ValueType = ContextValueType.Simple;
+            feat.Value.Value = dr_value;
             return feat;
         }
 
@@ -1751,7 +1765,7 @@ namespace CallOfTheWild
             var e = Helpers.Create<BlueprintWeaponEnchantment>();
             Helpers.SetField(e, "m_IdentifyDC", identify_dc);
             e.name = name;
-            
+
             Helpers.SetField(e, "m_EnchantName", Helpers.CreateString($"{name}.DisplayName", display_name));
             Helpers.SetField(e, "m_Description", Helpers.CreateString($"{name}.Description", description));
             Helpers.SetField(e, "m_Prefix", Helpers.CreateString($"{name}.Prefix", prefix));
@@ -1772,7 +1786,7 @@ namespace CallOfTheWild
 
         static internal void addEnchantment(BlueprintItemWeapon weapon, params BlueprintWeaponEnchantment[] enchantments)
         {
-            BlueprintWeaponEnchantment[] original_enchantments = Helpers.GetField< BlueprintWeaponEnchantment[]>(weapon, "m_Enchantments");
+            BlueprintWeaponEnchantment[] original_enchantments = Helpers.GetField<BlueprintWeaponEnchantment[]>(weapon, "m_Enchantments");
             Helpers.SetField(weapon, "m_Enchantments", original_enchantments.AddToArray(enchantments));
         }
 
@@ -1786,16 +1800,16 @@ namespace CallOfTheWild
 
 
         static internal NewMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
-                                                                                                                   bool only_non_magical, bool remove_on_unequip,
+                                                                                                                   bool only_non_magical, bool lock_slot,
                                                                                                                    BlueprintWeaponType[] allowed_types,
                                                                                                                    params BlueprintWeaponEnchantment[] enchantments)
 
-                                                                                                                   
+
         {
             var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeapon>();
             b.only_non_magical = only_non_magical;
             b.allowed_types = allowed_types;
-            b.remove_on_unequip = remove_on_unequip;
+            b.lock_slot = lock_slot;
             b.enchantments = enchantments;
             b.value = value;
             return b;
@@ -1810,14 +1824,14 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool remove_on_unequip,
+        static internal NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool lock_slot,
                                                                                                                             BlueprintWeaponType[] allowed_types, BlueprintWeaponEnchantment enchantment)
         {
             var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic>();
             b.allowed_types = allowed_types;
             b.enchantment = enchantment;
             b.only_non_magical = only_non_magical;
-            b.remove_on_unequip = remove_on_unequip;
+            b.lock_slot = lock_slot;
             b.metamagic = metamagic;
             return b;
         }
@@ -1835,6 +1849,13 @@ namespace CallOfTheWild
             var a = Helpers.Create<AddParametrizedFeatures>();
             Helpers.SetField(a, "m_Features", data_array);
             return a;
+        }
+
+        static internal IncreaseActivatableAbilityGroupSize createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup group)
+        {
+            var i = Helpers.Create<IncreaseActivatableAbilityGroupSize>();
+            i.Group = group;
+            return i;
         }
     }
 }

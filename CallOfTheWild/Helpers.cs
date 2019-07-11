@@ -1815,6 +1815,14 @@ namespace CallOfTheWild
             return hasBuff;
         }
 
+        public static ContextConditionHasBuff CreateConditionHasNoBuff(this BlueprintBuff buff)
+        {
+            var hasBuff = Create<ContextConditionHasBuff>();
+            hasBuff.Buff = buff;
+            hasBuff.Not = true;
+            return hasBuff;
+        }
+
 
         public static ContextConditionHasBuffFromCaster CreateConditionHasBuffFromCaster(this BlueprintBuff buff, bool not = false)
         {

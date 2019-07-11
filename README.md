@@ -8,18 +8,42 @@ It introduces new classes:
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer.
 
-Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers) 
-with skald Inpiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1, 
-for already exisitng characters you will need to respec them to level 1 to get this ability.
+Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
+with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1,
+for already existng characters you will need to respec them to level 1 to get this ability.
 
-New feats: Extra Hex, Accursed Hex, Rage Casting, Raging Brutality, Blooded Arcane Strike, Riving Strike, Feral Combat Training, Bonded Mind and Share Spell.
+New feats:
+- Extra Hex,
+- Accursed Hex,
+- Rage Casting,
+- Raging Brutality,
+- Blooded Arcane Strike,
+- Riving Strike,
+- Feral Combat Training,
+- Bonded Mind and Share Spell.
 
-New rage powers: Terrifying Howl, Taunting Stance, Unrestrained Rage, Quick Reflexes, Atavism Totem Lesser, Atavism Totem, Atavism Totem Greater.
+New rage powers:
+- Terrifying Howl
+- Taunting Stance,
+- Unrestrained Rage,
+- Quick Reflexes,
+- Atavism Totem Lesser,
+- Atavism Totem,
+- Atavism Totem Greater,
+- Spirit Totem, Lesser,
+- Spirit Totem,
+- Spirit Totem, Greater.
 
-New features: Share Spell for animal companions, animal companions can now equip belts, bracers and amulets.
+New features:
+- Share Spell for animal companions,
+- Animal companions can now equip belts, bracers and amulets.
 
 New spells:
 - Hex Vulnerability,
+- Shillelagh,
+- Flame Blade,
+- Deadly Juggernaut,
+- Virtuoso Performance,
 - Plant Shape I, II and III,
 - Giant Form I and II,
 - Shapechange.  
@@ -52,8 +76,8 @@ Mod also changes stats of some npcs
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 8/22/14/12/10/8
 
-NOTE: Changes to animal companion bonuses, npc companions, and class skill points are optional and can be disabled (set corresponding values to false, 
-in your_game_folder/Mods/CallOfTheWild/settings.json) 
+NOTE: Changes to animal companion bonuses, npc companions, and class skill points are optional and can be disabled (set corresponding values to false,
+in your_game_folder/Mods/CallOfTheWild/settings.json)
 
 Install
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
