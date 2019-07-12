@@ -21,6 +21,7 @@ namespace CallOfTheWild
 {
 public class Rebalance
 {
+    static LibraryScriptableObject library => Main.library;
     public static void fixAnimalCompanion()
     {
         //animal companion rebalance

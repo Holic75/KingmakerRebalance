@@ -1436,7 +1436,7 @@ namespace CallOfTheWild
             var teamwork_feat_vanguard = library.Get<BlueprintFeatureSelection>("90b882830b3988446ae681c6596460cc");
 
             sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats);
-            Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats);
+            //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
             tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts = tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feats);
             teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feats);
             teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feats);

@@ -452,7 +452,7 @@ namespace CallOfTheWild
         //fix deflect arrows
         [Harmony12.HarmonyPatch(typeof(DeflectArrows))]
         [Harmony12.HarmonyPatch("CheckRestriction", Harmony12.MethodType.Normal)]
-        public class Patch_DeflectArrows_CheckRestriction_PAtch
+        public class Patch_DeflectArrows_CheckRestriction_Patch
         {
             static void Postfix(DeflectArrows __instance, ref bool __result)
             {

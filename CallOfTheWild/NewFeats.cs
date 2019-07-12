@@ -24,20 +24,18 @@ namespace CallOfTheWild
         static internal BlueprintFeature raging_brutality;
         static internal BlueprintFeature blooded_arcane_strike;
         static internal BlueprintFeature riving_strike;
+        static internal BlueprintFeature coordinated_shot;
         
         static internal void load()
         {
             createRagingBrutality();
             createBloodedArcaneStrike();
             createRivingStrike();
+            createCoordiantedShot();
             FeralCombatTraining.load();
-        }
-
-
-        static internal void addToCombatFeatSelection()
-        {
 
         }
+
 
         static internal void createRagingBrutality()
         {
@@ -165,6 +163,29 @@ namespace CallOfTheWild
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(arcane_strike_buff, buff, riving_strike);
             library.AddCombatFeats(riving_strike);
             riving_strike.Groups = riving_strike.Groups.AddToArray(FeatureGroup.Feat);
+        }
+
+
+        static void createCoordiantedShot()
+        {
+            var point_blank_shot = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");
+            coordinated_shot = Helpers.CreateFeature("CoordinatedShotFeature",
+                                                     "Coordinated Shot",
+                                                     "If your ally with this feat is threatening an opponent and is not providing cover to that opponent against your ranged attacks, you gain a +1 bonus on ranged attacks against that opponent. If your ally with this feat is flanking that opponent with another ally (even if that other ally doesn’t have this feat), this bonus increases to +2.",
+                                                     "",
+                                                     point_blank_shot.Icon,
+                                                     FeatureGroup.Feat);
+
+            coordinated_shot.AddComponent(Helpers.Create<NewMechanics.CoordinatedShotAttackBonus>(c =>
+                                                                                                 {
+                                                                                                     c.AttackBonus = 1;
+                                                                                                     c.AdditionalFlankBonus = 1;
+                                                                                                     c.CoordinatedShotFact = coordinated_shot;
+                                                                                                 })
+                                         );
+            coordinated_shot.Groups = coordinated_shot.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat);
+            library.AddCombatFeats(coordinated_shot);
+            Common.addTemworkFeats(coordinated_shot);
         }
 
     }

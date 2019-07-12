@@ -208,7 +208,7 @@ namespace CallOfTheWild
         static void createVirtuosoPerformance()
         {
             var performance_resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
-
+            var inspire_competence = library.Get<BlueprintActivatableAbility>("430ab3bb57f2cfc46b7b3a68afd4f74e");
             var increase_group_size = Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.BardicPerformance);
             var consume_additional_resource = Helpers.Create<NewMechanics.ConsumeResourceIfAbilitiesFromGroupActivated>(c =>
                                                                                                                         {
@@ -224,6 +224,7 @@ namespace CallOfTheWild
                                                                                                     }
                                                                                                   );
             virtuoso_performance = library.CopyAndAdd<BlueprintAbility>("20b548bf09bb3ea4bafea78dcb4f3db6", "VirtuosoPerformanceAbility", ""); //echolocation
+            virtuoso_performance.SetIcon(inspire_competence.Icon);
             virtuoso_performance.SetName("Virtuoso Performance");
             virtuoso_performance.SetDescription("While this spell is active, you may start a second bardic performance while maintaining another. Starting the second performance costs 2 rounds of bardic performance instead of 1. Maintaining both performances costs a total of 3 rounds of bardic performance for each round they are maintained. When this spell ends, one of the performances ends immediately.");
             virtuoso_performance.RemoveComponents<SpellListComponent>();
@@ -251,19 +252,20 @@ namespace CallOfTheWild
 
         static internal void createDeadlyJuggernaut()
         {
+            var sneak_attack = library.Get<BlueprintFeature>("df4f34f7cac73ab40986bc33f87b1a3c");
             var false_life = library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762");
             deadly_juggernaut = library.CopyAndAdd<BlueprintAbility>("779179912e6c6fe458fa4cfb90d96e10", "DeadlyJuggernautAbility", "");
             deadly_juggernaut.RemoveComponents<SpellListComponent>();
             deadly_juggernaut.ReplaceComponent<AbilitySpawnFx>(false_life.GetComponent<AbilitySpawnFx>());
             deadly_juggernaut.ReplaceComponent<SpellComponent>(false_life.GetComponent<SpellComponent>());
 
+            deadly_juggernaut.SetIcon(sneak_attack.Icon);
             deadly_juggernaut.SetName("Deadly Juggernaut");
             deadly_juggernaut.SetDescription("With every enemy life you take, you become increasingly dangerous and difficult to stop. During the duration of the spell, you gain a cumulative +1 luck bonus on melee attack rolls, melee weapon damage rolls, Strength checks, and Strength-based skill checks as well as DR 2/— each time you reduce a qualifying opponent to 0 or few hit points (maximum +5 bonus and DR 10/—) with a melee attack.");
             deadly_juggernaut.RemoveComponents<AbilityEffectRunAction>();
 
 
             BlueprintBuff[] buffs = new BlueprintBuff[5];
-            var reckless_stance = library.Get<BlueprintBuff>("c52e4fdad5df5d047b7ab077a9907937");
 
             for (int i = 0; i < buffs.Length; i++)
             {
@@ -273,7 +275,7 @@ namespace CallOfTheWild
                                               deadly_juggernaut.Description,
                                               "",
                                               deadly_juggernaut.Icon,
-                                              reckless_stance.FxOnStart,
+                                              null,
                                               Common.createAttackTypeAttackBonus(Common.createSimpleContextValue(bonus), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.Luck),
                                               Helpers.CreateAddStatBonus(StatType.AdditionalDamage, bonus, ModifierDescriptor.Luck),
                                               Common.createAbilityScoreCheckBonus(Common.createSimpleContextValue(bonus), ModifierDescriptor.Luck, StatType.Strength),
