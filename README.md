@@ -20,6 +20,7 @@ New feats:
 - Blooded Arcane Strike,
 - Riving Strike,
 - Feral Combat Training,
+- Coordinated Shot,
 - Bonded Mind and Share Spell.
 
 New rage powers:
