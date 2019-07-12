@@ -174,7 +174,8 @@ namespace CallOfTheWild
                                                      "If your ally with this feat is threatening an opponent and is not providing cover to that opponent against your ranged attacks, you gain a +1 bonus on ranged attacks against that opponent. If your ally with this feat is flanking that opponent with another ally (even if that other ally doesn’t have this feat), this bonus increases to +2.",
                                                      "",
                                                      point_blank_shot.Icon,
-                                                     FeatureGroup.Feat);
+                                                     FeatureGroup.Feat,
+                                                     Helpers.PrerequisiteFeature(point_blank_shot));
 
             coordinated_shot.AddComponent(Helpers.Create<NewMechanics.CoordinatedShotAttackBonus>(c =>
                                                                                                  {
