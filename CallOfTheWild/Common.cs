@@ -292,7 +292,7 @@ namespace CallOfTheWild
 
         static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool dispellable = true,
-                                                                                                                  bool use_duration_seconds = false)
+                                                                                                                  int duration_seconds = 0)
         {
             var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             apply_buff.IsFromSpell = is_from_spell;
@@ -300,7 +300,8 @@ namespace CallOfTheWild
             apply_buff.Permanent = is_permanent;
             apply_buff.DurationValue = duration;
             apply_buff.IsNotDispelable = !dispellable;
-            apply_buff.UseDurationSeconds = use_duration_seconds;
+            apply_buff.UseDurationSeconds = duration_seconds > 0;
+            apply_buff.DurationSeconds = duration_seconds;
             return apply_buff;
         }
 
@@ -740,15 +741,21 @@ namespace CallOfTheWild
             spell_resistance.SetDescription(description);
             spell_resistance.Groups = new FeatureGroup[0];
             spell_resistance.RemoveComponent(spell_resistance.GetComponent<Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteClassLevel>());
-            var context_rank_config = spell_resistance.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
+            var context_rank_config = spell_resistance.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>().CreateCopy();
             Helpers.SetField(context_rank_config, "m_StepLevel", start_value);
             Helpers.SetField(context_rank_config, "m_Class", new BlueprintCharacterClass[] { character_class });
-
+            spell_resistance.ReplaceComponent<ContextRankConfig>(context_rank_config);
             return spell_resistance;
         }
 
 
-
+        internal static SpellResistanceAgainstSpellDescriptor createSpellResistanceAgainstSpellDescriptor(ContextValue value, SpellDescriptor descriptor)
+        {
+            var sr = Helpers.Create<SpellResistanceAgainstSpellDescriptor>();
+            sr.SpellDescriptor = descriptor;
+            sr.Value = value;
+            return sr;
+        }
 
 
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDR(int dr_value, DamageAlignment alignment)
@@ -1096,6 +1103,16 @@ namespace CallOfTheWild
         }
 
 
+        static internal SavingThrowBonusAgainstAlignment createSavingThrowBonusAgainstAlignment(int bonus, ModifierDescriptor descriptor, AlignmentComponent alignment)
+        {
+            var c = Helpers.Create<SavingThrowBonusAgainstAlignment>();
+            c.Value = bonus;
+            c.Descriptor = descriptor;
+            c.Alignment = alignment;
+            return c;
+        }
+
+
         static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor createContextSavingThrowBonusAgainstDescriptor(ContextValue value, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
         {
             var c = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor>();
@@ -1219,10 +1236,11 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value)
+        static internal NewMechanics.AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value, int multiplier = 1)
         {
             var a = Helpers.Create<NewMechanics.AddContextEffectFastHealing>();
             a.Value = value;
+            a.Multiplier = multiplier;
             return a;
         }
 

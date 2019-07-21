@@ -975,7 +975,8 @@ namespace CallOfTheWild
             accursed_hex_personalized.SetName(accursed_hex_buff.Name + " : " + ability.Name);
             var test_condition = new Condition[] {Helpers.CreateConditionCasterHasFact(accursed_hex_feat) };
             var release_condtion = new Condition[] { Helpers.Create<ContextConditionIsEnemy>(), Helpers.CreateConditionCasterHasFact(accursed_hex_feat) };
-            var accursed_hex_action = Common.createContextActionApplyBuff(accursed_hex_personalized, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds));
+            var accursed_hex_action = Common.createContextActionApplyBuff(accursed_hex_personalized, Helpers.CreateContextDuration(),
+                                                                          dispellable: false, duration_seconds: 9); //set duration to 9 seconds to simulate "until end of your turn"
             var accursed_hex_conditional = Helpers.CreateConditional(test_mode ? test_condition : release_condtion,
                                                                       Helpers.CreateConditionalSaved(accursed_hex_action, 
                                                                       Common.createContextActionRemoveBuff(accursed_hex_personalized))
@@ -1799,7 +1800,6 @@ namespace CallOfTheWild
                                           Helpers.CreateAddFact(hex_ability));
             ice_tomb.Ranks = 1;
             ice_tomb.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
-
         }
 
 

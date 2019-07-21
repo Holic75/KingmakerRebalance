@@ -64,6 +64,7 @@ using UnityEngine.UI;
 using UnityModManagerNet;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
+using Kingmaker.RuleSystem.Rules;
 
 namespace CallOfTheWild
 {
@@ -1977,6 +1978,21 @@ namespace CallOfTheWild
             c.HalfIfSaved = halfIfSaved;
             return c;
         }
+
+        public static ContextActionDealDamage CreateActionEnergyDrain(ContextDiceValue damage, ContextDurationValue duration_value, EnergyDrainType drain_type,
+                                                                               bool isAoE = false, bool halfIfSaved = false)
+        {
+            var c = Create<ContextActionDealDamage>();
+            SetField(c, "m_Type", 2 /*EnergyDrain*/);
+            c.Duration = duration_value;
+            c.EnergyDrainType = drain_type;
+            c.Value = damage;
+            c.IsAoE = isAoE;
+            c.HalfIfSaved = halfIfSaved;
+
+            return c;
+        }
+
 
         public static ContextActionDealDamage CreateActionDealDamage(StatType abilityType, ContextDiceValue damage, bool drain = false, bool isAoE = false, bool halfIfSaved = false)
         {

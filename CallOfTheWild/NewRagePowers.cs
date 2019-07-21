@@ -7,6 +7,7 @@ using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
@@ -16,7 +17,10 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
 using System;
@@ -58,6 +62,19 @@ namespace CallOfTheWild
 
         static internal BlueprintFeature unrestrained_rage_feature;
 
+
+        static internal BlueprintFeature lesser_celestial_totem;
+        static internal BlueprintBuff lesser_celestial_totem_buff;
+        static internal BlueprintFeature celestial_totem;
+        static internal BlueprintFeature greater_celestial_totem;
+        static internal BlueprintBuff greater_celestial_totem_buff;
+
+
+        static internal BlueprintFeature lesser_daemon_totem;
+        static internal BlueprintBuff lesser_daemon_totem_buff;
+        static internal BlueprintFeature daemon_totem;
+        static internal BlueprintFeature greater_daemon_totem;
+
         static internal List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
 
@@ -68,15 +85,25 @@ namespace CallOfTheWild
             createTauntingStance();
             createTerrefyingHowl();
             createQuickReflexes();
+
             createLesserAtavismTotem();
             createAtavismTotem();
             createGreaterAtavismTotem();
+
             createUnrestrainedRage();
+
             createLesserSpiritTotem();
             createSpiritTotem();
             createGreaterSpiritTotem();
-        }
 
+            createLesserCelestialTotem();
+            createCelestialTotem();
+            createGreaterCelestialTotem();
+
+            createLesserDaemonTotem();
+            createDaemonTotem();
+            createGreaterDaemonTotem();
+        }
 
 
         static void createRageMarker()
@@ -112,6 +139,214 @@ namespace CallOfTheWild
                 rage_power.AddComponent(Helpers.PrerequisiteNoFeature(t));
             }
             totems.Add(rage_power);
+        }
+
+
+        static internal void createLesserDaemonTotem()
+        {
+            lesser_daemon_totem = Helpers.CreateFeature("LesserDaemonTotemFeature",
+                                                           "Daemon Totem, Lesser",
+                                                           "While raging, the barbarian gains a +2 bonus on saving throws against acid damage, death effects, disease, and poison. This bonus increases by 1 for each daemon totem rage power the barbarian has, excluding this one.",
+                                                           "",
+                                                           library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon, //infernal
+                                                           FeatureGroup.RagePower);
+            lesser_daemon_totem_buff = Helpers.CreateBuff("LesserDaemonTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus), 
+                                                                                                ModifierDescriptor.UntypedStackable, 
+                                                                                                SpellDescriptor.Acid),
+                                          Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                ModifierDescriptor.UntypedStackable,
+                                                                                                SpellDescriptor.Disease),
+                                          Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                ModifierDescriptor.UntypedStackable,
+                                                                                                SpellDescriptor.Poison),
+                                          Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                ModifierDescriptor.UntypedStackable,
+                                                                                                SpellDescriptor.Death)
+                                          );
+            lesser_daemon_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, lesser_daemon_totem_buff, lesser_daemon_totem);
+            addToSelection(lesser_daemon_totem, is_totem: true);
+        }
+
+
+        static internal void createDaemonTotem()
+        {
+
+            daemon_totem = Helpers.CreateFeature("DaemonTotemFeature",
+                                                           "Daemon Totem",
+                                                           "While raging, the barbarian gains a +2 bonus on saving throws against acid damage, death effects, disease, and poison. This bonus increases by 1 for each daemon totem rage power the barbarian has, excluding this one.",
+                                                           "",
+                                                           lesser_daemon_totem.Icon,
+                                                           FeatureGroup.RagePower,
+                                                           Helpers.PrerequisiteClassLevel(barbarian_class, 6),
+                                                           Helpers.PrerequisiteFeature(lesser_daemon_totem));
+            var undead = library.Get<BlueprintUnitFact>("734a29b693e9ec346ba2951b27987e33");
+            var construct = library.Get<BlueprintUnitFact>("fd389783027d63343b4a5634bd81645f");
+
+            var energy_drain = Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Common.createSimpleContextValue(1)),
+                                                               Helpers.CreateContextDuration(bonus: Common.createSimpleContextValue(1), rate: DurationRate.Hours),
+                                                               Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary);
+            var effect_action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(undead, not: true), Helpers.CreateConditionHasFact(construct, not: true) },
+                                                                    energy_drain);
+            var action = Helpers.CreateActionList(effect_action);
+
+            var buff = Helpers.CreateBuff("DaemonTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(action, critical_hit: true)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, daemon_totem);
+            addToSelection(daemon_totem);
+        }
+
+
+        static internal void createGreaterDaemonTotem()
+        {
+
+            greater_daemon_totem = Helpers.CreateFeature("GreaterDaemonTotemFeature",
+                                                           "Daemon Totem, Greater",
+                                                           "If the barbarian kills a creature while raging, she heals 5 hit points.",
+                                                           "",
+                                                           lesser_daemon_totem.Icon,
+                                                           FeatureGroup.RagePower,
+                                                           Helpers.PrerequisiteClassLevel(barbarian_class, 10),
+                                                           Helpers.PrerequisiteFeature(daemon_totem));
+
+            var effect_action = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Common.createSimpleContextValue(5)));
+            var action = Helpers.CreateActionList(effect_action);
+
+            var buff = Helpers.CreateBuff("GreaterDaemonTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(action, reduce_hp_to_zero: true, on_initiator: true)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, greater_daemon_totem);
+            lesser_daemon_totem_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: Kingmaker.UnitLogic.Mechanics.Components.ContextRankBaseValueType.FeatureListRanks,
+                                                                                  type: AbilityRankType.StatBonus,
+                                                                                  progression: Kingmaker.UnitLogic.Mechanics.Components.ContextRankProgression.AsIs,
+                                                                                  featureList: new BlueprintFeature[] { lesser_daemon_totem, lesser_daemon_totem, daemon_totem, greater_daemon_totem }
+                                                                                  )
+                                                 );
+                                                                                    
+            addToSelection(greater_daemon_totem);
+        }
+
+
+
+        static internal void createLesserCelestialTotem()
+        {
+            lesser_celestial_totem = Helpers.CreateFeature("LesserCelestialTotemFeature",
+                                                           "Celestial Totem, Lesser",
+                                                           "Whenever barbarian is subject to a spell that cures hit point damage, she heals 1 additional point of damage per caster level. In the case of non-spell healing effects (such as channeled energy or lay on hands), she heals a number of additional points equal to the class level of the character performing the magical healing. This does not affect fast healing or regeneration.",
+                                                           "",
+                                                           library.Get<BlueprintAbility>("75a10d5a635986641bfbcceceec87217").Icon, //angelic aspect
+                                                           FeatureGroup.RagePower);
+            lesser_celestial_totem_buff = Helpers.CreateBuff("LesserCelestialTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null
+                                          );
+            lesser_celestial_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, lesser_celestial_totem_buff, lesser_celestial_totem);
+            addToSelection(lesser_celestial_totem, is_totem: true);
+        }
+
+
+        static internal void createCelestialTotem()
+        {
+            var invisibility = library.Get<BlueprintBuff>("525f980cb29bc2240b93e953974cb325");
+            var invisibility_greater = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
+            var halo_buff = library.Get<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95"); //asimar halo
+
+            var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
+            area_effect.name = "CelestialTotemArea";
+            area_effect.AffectEnemies = true;
+            area_effect.AggroEnemies = true;
+            area_effect.Size = 5.Feet();
+            area_effect.Shape = AreaEffectShape.Cylinder;
+
+            var remove_invisibility = new GameAction[] { Common.createContextActionRemoveBuff(invisibility), Common.createContextActionRemoveBuff(invisibility_greater) };
+            var remove_invisibility_on_condition = Helpers.CreateConditional(Helpers.CreateContextConditionAlignment(AlignmentComponent.Good, check_caster: false, not: true),
+                                                                             remove_invisibility);
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(unitEnter: remove_invisibility_on_condition, 
+                                                                           round: remove_invisibility_on_condition));
+            area_effect.Fx = new PrefabLink();
+            library.AddAsset(area_effect, "");
+
+            var buff = Helpers.CreateBuff("CelestialTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          halo_buff.FxOnStart,
+                                          Common.createAddAreaEffect(area_effect)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            celestial_totem = Helpers.CreateFeature("CelestialTotemFeature",
+                                                    "Celestial Totem",
+                                                    "This effect bestows upon the barbarian a halo of gleaming light that shines as if it were daylight and triggers an invisibility purge effect in the barbarian’s square and each adjacent square. The invisibility purge only affects non-good creatures.",
+                                                    "",
+                                                    lesser_celestial_totem.Icon,
+                                                    FeatureGroup.RagePower,
+                                                    Helpers.PrerequisiteClassLevel(barbarian_class, 8),
+                                                    Helpers.PrerequisiteFeature(lesser_celestial_totem)
+                                                    );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, celestial_totem);
+            addToSelection(celestial_totem);
+        }
+
+
+        static internal void createGreaterCelestialTotem()
+        {
+            greater_celestial_totem_buff = Helpers.CreateBuff("GreaterCelestialTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createSavingThrowBonusAgainstAlignment(2, ModifierDescriptor.UntypedStackable, AlignmentComponent.Evil),
+                                          Common.createSpellResistanceAgainstSpellDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus), SpellDescriptor.Evil),
+                                          Helpers.CreateContextRankConfig(baseValueType: Kingmaker.UnitLogic.Mechanics.Components.ContextRankBaseValueType.ClassLevel,
+                                                                          progression: Kingmaker.UnitLogic.Mechanics.Components.ContextRankProgression.BonusValue,
+                                                                          type: AbilityRankType.StatBonus,
+                                                                          stepLevel: 11,
+                                                                          classes: new BlueprintCharacterClass[]{ barbarian_class }
+                                                                          )
+                                          );
+            greater_celestial_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            greater_celestial_totem = Helpers.CreateFeature("GreaterCelestialTotemFeature",
+                                                    "Celestial Totem, Greater",
+                                                    "While raging, the barbarian gains spell resistance equal to 11 + the barbarian’s class level against spells with the evil descriptor. She also gains a +2 bonus on all saving throws against spells and effects from evil creatures.",
+                                                    "",
+                                                    lesser_celestial_totem.Icon,
+                                                    FeatureGroup.RagePower,
+                                                    Helpers.PrerequisiteClassLevel(barbarian_class, 12),
+                                                    Helpers.PrerequisiteFeature(celestial_totem)
+                                                    );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, greater_celestial_totem_buff, greater_celestial_totem);
+            addToSelection(greater_celestial_totem);
         }
 
 
@@ -468,6 +703,27 @@ namespace CallOfTheWild
             taunting_stance.AddComponent(Helpers.PrerequisiteClassLevel(barbarian_class, 12));
             taunting_stance.Groups = new FeatureGroup[] { FeatureGroup.RagePower };
             addToSelection(taunting_stance);
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(ContextActionHealTarget))]
+    [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
+    class Patch_ContextActionHealTarget_RunAction_Postfix
+    {
+
+        static public void Postfix(ContextActionHealTarget __instance)
+        {
+            var tr = Harmony12.Traverse.Create(__instance);
+            var context = tr.Property("Context").GetValue<MechanicsContext>();
+            var target = tr.Property("Target").GetValue<TargetWrapper>().Unit;
+            if (target == null || context.MaybeCaster == null)
+                return;
+
+            if (target.Descriptor.Buffs.HasFact(NewRagePowers.lesser_celestial_totem_buff) && context.SourceAbility != null)
+            {
+                int bonus = context.Params.CasterLevel;
+                context.TriggerRule<RuleHealDamage>(new RuleHealDamage(target, target, DiceFormula.Zero, bonus));
+            }
         }
     }
 }

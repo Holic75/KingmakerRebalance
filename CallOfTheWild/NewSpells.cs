@@ -14,8 +14,10 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +33,7 @@ namespace CallOfTheWild
         static internal BlueprintAbility flame_blade;
         static internal BlueprintAbility virtuoso_performance;
         static internal BlueprintAbility deadly_juggernaut;
+        static internal BlueprintAbility invisibility_purge;
 
 
         static public void load()
@@ -39,6 +42,7 @@ namespace CallOfTheWild
             createFlameBlade();
             createVirtuosoPerformance();
             createDeadlyJuggernaut();
+            createInvisibilityPurge();
         }
 
 
@@ -199,6 +203,7 @@ namespace CallOfTheWild
                                                 );
             flame_blade.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
             flame_blade.AvailableMetamagic = flame_blade.AvailableMetamagic | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+            flame_blade.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
 
             flame_blade.AddToSpellList(Helpers.druidSpellList, 2);
             flame_blade.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502"); //bless weapon
@@ -245,7 +250,7 @@ namespace CallOfTheWild
                                                                  is_from_spell: true);
 
             virtuoso_performance.AddComponent(Helpers.CreateRunActions(apply_buff));
-            virtuoso_performance.AddToSpellList(Helpers.bardSpellList, 5);
+            virtuoso_performance.AddToSpellList(Helpers.bardSpellList, 4);
             virtuoso_performance.AddSpellAndScroll("33770ff24b320e343bb767815f800fc4"); //echolocation
         }
 
@@ -336,6 +341,68 @@ namespace CallOfTheWild
             deadly_juggernaut.AddToSpellList(Helpers.inquisitorSpellList, 3);
             deadly_juggernaut.AddToSpellList(Helpers.paladinSpellList, 3);
             deadly_juggernaut.AddSpellAndScroll("539ff89add7d8e4409ab92df30e6afee"); //lead_blades
+        }
+
+
+        static internal void createInvisibilityPurge()
+        {
+            var invisibility = library.Get<BlueprintBuff>("525f980cb29bc2240b93e953974cb325");
+            var invisibility_greater = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
+            var divination_area = library.Get<BlueprintAbilityAreaEffect>("4ba26a4641c911d4487e3f7f11bcf801");
+            var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
+            area_effect.name = "InvisibilityPurgeArea";
+            area_effect.AffectEnemies = true;
+            area_effect.AggroEnemies = true;
+            area_effect.Size = 30.Feet();
+            area_effect.Shape = AreaEffectShape.Cylinder;
+
+            var remove_invisibility = new GameAction[] { Common.createContextActionRemoveBuff(invisibility), Common.createContextActionRemoveBuff(invisibility_greater) };
+
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(unitEnter: remove_invisibility, round: remove_invisibility));
+            area_effect.Fx = divination_area.Fx;
+            library.AddAsset(area_effect, "");
+
+            var see_invisibility = library.Get<BlueprintAbility>("30e5dc243f937fc4b95d2f8f4e1b7ff3");
+            var buff = Helpers.CreateBuff("InvisibilityPurgeBuff",
+                                          "Invisibility Purge",
+                                          "You surround yourself with a sphere of power with a radius of 30 feet that negates all forms of invisibility.\n" +
+                                          "Anything invisible becomes visible while in the area.",
+                                          "",
+                                          see_invisibility.Icon,
+                                          null,
+                                          Common.createAddAreaEffect(area_effect)
+                                          );
+
+            var apply_buff = Helpers.CreateApplyBuff(buff, 
+                                                     Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), 
+                                                     fromSpell: true, dispellable: true, asChild: true);
+            invisibility_purge = Helpers.CreateAbility("InvisibilityPurgeAbility",
+                                                       buff.Name,
+                                                       buff.Description,
+                                                       "",
+                                                       buff.Icon,
+                                                       AbilityType.Spell,
+                                                       Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Personal,
+                                                       Helpers.minutesPerLevelDuration,
+                                                       Helpers.savingThrowNone,
+                                                       Helpers.CreateRunActions(apply_buff),
+                                                       Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                       see_invisibility.GetComponent<AbilitySpawnFx>(),
+                                                       see_invisibility.GetComponent<ContextRankConfig>()
+                                                       );
+            invisibility_purge.Animation = see_invisibility.Animation;
+            invisibility_purge.AnimationStyle = see_invisibility.AnimationStyle;
+            invisibility_purge.CanTargetSelf = true;
+            invisibility_purge.CanTargetPoint = false;
+            invisibility_purge.CanTargetEnemies = false;
+            invisibility_purge.CanTargetFriends = false;
+            invisibility_purge.AvailableMetamagic = see_invisibility.AvailableMetamagic;
+
+            invisibility_purge.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            invisibility_purge.AddToSpellList(Helpers.clericSpellList, 3);
+
+            invisibility_purge.AddSpellAndScroll("12f4ee72c02537244b5b2bacfa236bc7"); //see invisibility scroll
         }
     }
 }

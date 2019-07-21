@@ -79,7 +79,6 @@ namespace CallOfTheWild
                     cost = 0;
                     return;
                 }
-
                 evt.AddMetamagic(this.metamagic);
             }
 
@@ -282,7 +281,9 @@ namespace CallOfTheWild
             public bool only_non_magical = false;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
+            [JsonProperty]
             private ItemEntityWeapon m_Weapon;
+            [JsonProperty]
             private bool m_unlock;
 
 
@@ -360,7 +361,9 @@ namespace CallOfTheWild
             public bool only_non_magical = false;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
+            [JsonProperty]
             private ItemEntityWeapon m_Weapon;
+            [JsonProperty]
             private bool m_unlock;
 
 
@@ -430,6 +433,7 @@ namespace CallOfTheWild
             public ContextValue value;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
+            [JsonProperty]
             private ItemEntityShield m_Shield;
 
             public override void OnFactActivate()
@@ -483,6 +487,7 @@ namespace CallOfTheWild
             public ContextValue value;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
+            [JsonProperty]
             private ItemEntityArmor m_Armor;
 
             public override void OnFactActivate()
@@ -1325,6 +1330,48 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateAttackBonus evt)
             {
+            }
+        }
+
+
+        [ComponentName("Healing bonus")]
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class HealingBonusCasterLevel : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookSubscriber, ITargetRulebookHandler<RuleCalculateAbilityParams>, ITargetRulebookHandler<RuleHealDamage>,
+                                               IRulebookHandler<RuleHealDamage>, IRulebookHandler<RuleCalculateAbilityParams>
+        {
+            private int bonus = 0;
+            public  void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                bonus = 0;
+                Main.logger.Log($"triggered + {bonus}");
+            }
+
+            public  void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+                bonus = evt.Result.CasterLevel;
+                Main.logger.Log($"triggered + {bonus}");
+            }
+
+
+
+            public void OnEventAboutToTrigger(RuleHealDamage evt)
+            {
+
+            }
+
+
+            public void OnEventDidTrigger(RuleHealDamage evt)
+            {
+                Main.logger.Log($"here + {bonus}");
+                if (bonus == 0 || evt.Target.Descriptor != this.Owner)
+                {
+                    bonus = 0;
+                    return;
+                }
+                int old_value = bonus;
+                bonus = 0;
+                GameHelper.HealDamage(evt.Target, evt.Target, old_value);
+                Main.logger.Log($"{this.Fact} restores {old_value} HP");
             }
         }
     }

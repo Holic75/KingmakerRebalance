@@ -1195,13 +1195,13 @@ namespace CallOfTheWild
 
             static void createBlurringMovement()
             {
-                var blur_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", prefix + "BlurringMovementBuff", "f2c369b10d9049c79ec6660ad0a0bece");
+                var blur_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", prefix + "BlurringMovementBuff", "f2c369b10d9049c79ec6660ad0a0bece"); //for compatibility
                 var blur_buff0 = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
                 blurring_movement = Helpers.CreateFeature(prefix + "BlurringMovementFeature",
                                                                                "Blurring Movement",
                                                                                "At 8th level, you become a blur of motion when you bloodrage. You gain effect of blur spell while in bloodrage.",
                                                                                "c7027b9ddd534fc09025ae807e5af38a",
-                                                                               blur_buff.Icon,
+                                                                               blur_buff0.Icon,
                                                                                FeatureGroup.None);
                 blur_buff.SetName(blurring_movement.Name);
                 blur_buff.SetDescription(blurring_movement.Description);
@@ -1211,26 +1211,29 @@ namespace CallOfTheWild
 
             static void createQuicklingBloodrage()
             {
-                var haste_buff0 = library.Get<BlueprintBuff>("8d20b0a6129bd814eb0146041879f38a");
-                var haste_buff = library.CopyAndAdd<BlueprintBuff>("03464790f40c3c24aa684b57155f3280", prefix + "QuicklingBloodrageBuff", "ff4c584a792149ff9d0246bc77cc2a85");
+                var haste_spell = library.Get<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98");
+                var haste_buff0 = library.Get<BlueprintBuff>("03464790f40c3c24aa684b57155f3280");
+                haste_buff0.SetName(haste_spell.Name);
+                haste_buff0.SetDescription(haste_spell.Description);
+                haste_buff0.SetIcon(haste_spell.Icon);
+                var haste_buff = library.CopyAndAdd<BlueprintBuff>("03464790f40c3c24aa684b57155f3280", prefix + "QuicklingBloodrageBuff", "ff4c584a792149ff9d0246bc77cc2a85"); //for compatibility
 
 
                 //change haste bonus types to enchancement to avoid stacking
-                var haste_boni = haste_buff.GetComponents<Kingmaker.UnitLogic.FactLogic.AddStatBonus>().ToArray();
+                /*var haste_boni = haste_buff.GetComponents<Kingmaker.UnitLogic.FactLogic.AddStatBonus>().ToArray();
                 foreach (var b in haste_boni)
                 {
                     b.Descriptor = ModifierDescriptor.Enhancement;
-                }
+                }*/
 
 
                 quickling_bloodrage = Helpers.CreateFeature(prefix + "QuicklingBloodrageFeature",
                                                                                "Quickling Bloodrage",
                                                                                "At 12th level, while bloodraging you’re treated as if you are under the effects of haste.",
                                                                                "f08420c83d6443068038b9160406438a",
-                                                                               haste_buff.Icon,
+                                                                               haste_spell.Icon,
                                                                                FeatureGroup.None);
-                haste_buff.SetName(quickling_bloodrage.Name);
-                haste_buff.SetDescription(quickling_bloodrage.Description);
+
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bloodrage_buff, haste_buff0, quickling_bloodrage);
             }
 

@@ -67,6 +67,9 @@ namespace CallOfTheWild
         static internal BlueprintFeature fake_barbarian;
 
         static internal BlueprintBuff no_spell_casting_buff;
+        static internal BlueprintFeature skald_vigor_feat;
+        static internal BlueprintFeature greater_skald_vigor_feat;
+        static internal BlueprintBuff skald_vigor_buff;
 
         static internal BlueprintFeature inspired_rage_feature;
         static internal BlueprintActivatableAbility inspired_rage;
@@ -145,6 +148,7 @@ namespace CallOfTheWild
             skald_class.FemaleEquipmentEntities = bard_class.FemaleEquipmentEntities;
             skald_class.ComponentsArray =  bard_class.ComponentsArray;
             skald_class.StartingItems = bard_class.StartingItems;
+            createSkaldsVigor();
             createSkaldProgression();
             skald_class.Progression = skald_progression;
             createUrbanSkaldArchetype();
@@ -154,6 +158,47 @@ namespace CallOfTheWild
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
             //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
+        }
+
+
+        static void createSkaldsVigor()
+        {
+            skald_vigor_feat = Helpers.CreateFeature("SkaldsVigorFeature",
+                                                     "Skald's Vigor",
+                                                     "While maintaining a raging song, you gain fast healing equal to the Strength bonus your song provides, starting in the round after you begin the song.",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.Feat,
+                                                     Helpers.PrerequisiteClassLevel(skald_class, 1)
+                                                     );
+
+            greater_skald_vigor_feat = Helpers.CreateFeature("GreaterSkaldsVigorFeature",
+                                         "Greater Skald's Vigor",
+                                         "Your allies share in the fast healing granted by your Skald’s Vigor, starting in the round when you begin your performance. They must be able to hear the performance.",
+                                         "",
+                                         null,
+                                         FeatureGroup.Feat,
+                                         Helpers.PrerequisiteClassLevel(skald_class, 10),
+                                         Helpers.PrerequisiteFeature(skald_vigor_feat)
+                                         );
+
+            library.AddFeats(skald_vigor_feat, greater_skald_vigor_feat);
+
+            var stat_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus,
+                                                               baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                               classes: getSkaldArray(),
+                                                               progression: ContextRankProgression.OnePlusDivStep,
+                                                               stepLevel: 8);
+
+            skald_vigor_buff = Helpers.CreateBuff("SkaldVigorBuff",
+                                                  "",
+                                                  "",
+                                                  "",
+                                                  null,
+                                                  null,
+                                                  Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.StatBonus), 2),
+                                                  stat_context_rank_config);
+            skald_vigor_buff.SetBuffFlags(BuffFlags.HiddenInUi);
         }
 
 
@@ -800,7 +845,7 @@ namespace CallOfTheWild
                         Helpers.SetField(spell_kenning_class, "m_IsFullRoundAction", true);
                         if (j >= variant_spells.Length - 1)
                         {//we intentionally generate more holders to accomodate for additional spells
-                            break;
+                            continue;
                         }
                         int num_spells = j + max_variants_in_list > variant_spells.Length - 1 ? variant_spells.Length - j : max_variants_in_list;
                         var variants_to_add = variant_spells.Skip(j).Take(num_spells).ToArray();
@@ -996,6 +1041,7 @@ namespace CallOfTheWild
                                                                library.Get<BlueprintBuff>("9ec69854596674a4ba40802e6337894d"), //inspire ferocity buff
                                                                library.Get<BlueprintBuff>("c6271b3183c48d54b8defd272bea0665"), //lethal stance
                                                                library.Get<BlueprintBuff>("a8a733d2605c66548b652f312ea4dbf3"), //reckless stance
+                                                               NewRagePowers.greater_celestial_totem_buff,
                                                               };
             foreach (var b in buffs_to_fix)
             {
@@ -1207,16 +1253,29 @@ namespace CallOfTheWild
             raging_song_effect_buff.RemoveComponents<NewMechanics.ForbidSpellCastingUnlessHasClass>();
 
             var forbid_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true), Common.createContextConditionCasterHasFact(master_skald, has:false)},
-                                                             Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true),
+                                                             Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true, false),
                                                              null
                                                             );
             var master_skald_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(master_skald, has: true),
-                                                 Common.createContextActionApplyBuff(master_skald_buff, Helpers.CreateContextDuration(), false, true, true),
+                                                 Common.createContextActionApplyBuff(master_skald_buff, Helpers.CreateContextDuration(), false, true, true, false),
                                                  null
                                                 );
 
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, forbid_condition);
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, master_skald_condition);
+
+            var skald_vigor_condition1 = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(skald_vigor_feat, has: true),
+                                                                                  Common.createContextConditionCasterHasFact(greater_skald_vigor_feat, has: false),
+                                                                                  Common.createContextConditionIsCaster() },
+                                                                  Common.createContextActionApplyBuff(skald_vigor_buff, Helpers.CreateContextDuration(), false, true, true, false),
+                                                                  null
+                                                                  );
+            var skald_vigor_condition2 = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(greater_skald_vigor_feat, has: true),
+                                                                   Common.createContextActionApplyBuff(skald_vigor_buff, Helpers.CreateContextDuration(), false, true, true, false),
+                                                                   null
+                                                                   );
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, skald_vigor_condition1);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, skald_vigor_condition2);
             return raging_song_effect_buff;
         }
 
