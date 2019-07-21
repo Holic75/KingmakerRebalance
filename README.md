@@ -15,12 +15,15 @@ for already existng characters you will need to respec them to level 1 to get th
 New feats:
 - Extra Hex,
 - Accursed Hex,
+- Amplified Hex,
 - Rage Casting,
 - Raging Brutality,
 - Blooded Arcane Strike,
 - Riving Strike,
 - Feral Combat Training,
 - Coordinated Shot,
+- Skald's Vigor and Greater Skald's Vigor,
+- Quick Channel,
 - Bonded Mind and Share Spell.
 
 New rage powers:
@@ -33,7 +36,13 @@ New rage powers:
 - Atavism Totem Greater,
 - Spirit Totem, Lesser,
 - Spirit Totem,
-- Spirit Totem, Greater.
+- Spirit Totem, Greater,
+- Celestial Totem, Lesser,
+- Celestial Totem,
+- Celestial Totem, Greater,
+- Daemon Totem, Lesser,
+- Daemon Totem,
+- Daemon Totem, Greater.
 
 New features:
 - Share Spell for animal companions,
@@ -41,6 +50,7 @@ New features:
 
 New spells:
 - Hex Vulnerability,
+- Invisibility Purge,
 - Shillelagh,
 - Flame Blade,
 - Deadly Juggernaut,
