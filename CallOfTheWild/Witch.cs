@@ -85,7 +85,8 @@ namespace CallOfTheWild
         static internal BlueprintArchetype hex_channeler_archetype;
 
         static internal BlueprintFeatureSelection hex_channeler_channel_energy_selection;
-        static internal BlueprintFeature improved_channel_hex;
+        static internal BlueprintFeature improved_channel_hex_positive;
+        static internal BlueprintFeature improved_channel_hex_negative;
         static internal BlueprintFeature conduit_surge;
 
         static internal List<BlueprintBuff> cackle_buffs = new List<BlueprintBuff>();
@@ -321,14 +322,6 @@ namespace CallOfTheWild
         {
             var bless_spell = library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638");
 
-            var positive_heal = library.CopyAndAdd<BlueprintAbility>("f5fc9a1a2a3c1a946a31b320d1dd31b2", "WitchPostiveHeal", "b305df2f8ec34684867db7402677388b");
-            var positive_harm = library.CopyAndAdd<BlueprintAbility>("279447a6bf2d3544d93a0a39c3b8e91d", "WitchPostiveHarm", "4ca35352f0eb49a49faf4a1057ed5d6e");
-            var negative_heal = library.CopyAndAdd<BlueprintAbility>("9be3aa47a13d5654cbcb8dbd40c325f2", "WitchNegativeHeal", "a39b06c274c843f19fa10cc6b7be5f39");
-            var negative_harm = library.CopyAndAdd<BlueprintAbility>("89df18039ef22174b81052e2e419c728", "WitchNegativeHarm", "ba94b10d81bb4497886e50ce9d4d96ce");
-
-            var channel_energy_fact = library.Get<BlueprintUnitFact>("93f062bc0bf70e84ebae436e325e30e8");
-
-
             var select_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
             var select_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
 
@@ -338,7 +331,6 @@ namespace CallOfTheWild
                                                                "2cca6a04afd64ebd84ee6aad6d1cea5f",
                                                                select_positive.Icon,
                                                                FeatureGroup.ChannelEnergy,
-                                                               Helpers.CreateAddFacts(channel_energy_fact, positive_heal, positive_harm),
                                                                Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good
                                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral
                                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
@@ -352,13 +344,46 @@ namespace CallOfTheWild
                                                                 "bffcdc859c954a08bbbbe1eddb4b2115",
                                                                 select_negative.Icon,
                                                                 FeatureGroup.ChannelEnergy,
-                                                                Helpers.CreateAddFacts(channel_energy_fact, negative_heal, negative_harm),
                                                                 Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil
                                                                                                     | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral
                                                                                                     | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
                                                                                                     | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
                                                                                                     )
                                                                );
+            var channel_energy_fact = library.Get<BlueprintUnitFact>("93f062bc0bf70e84ebae436e325e30e8");
+            improved_channel_hex_positive = Helpers.CreateFeature("WitchImprovedChannelHex",
+                                             "Increase Channel Energy Amount",
+                                             "Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                             "6638ec10b97b4e5bad312f58b80db844",
+                                             bless_spell.Icon,
+                                             FeatureGroup.None,
+                                             Common.createPrerequisiteArchetypeLevel(witch_class, hex_channeler_archetype, 2),
+                                             Helpers.PrerequisiteFeature(witch_channel_positive));
+            improved_channel_hex_positive.Ranks = 20;
+            improved_channel_hex_negative = Helpers.CreateFeature("WitchImprovedChannelHexNegative",
+                                 "Increase Channel Energy Amount",
+                                 "Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                 "6e5bbc077cc34af0ab934a2b84760807",
+                                 bless_spell.Icon,
+                                 FeatureGroup.None,
+                                 Common.createPrerequisiteArchetypeLevel(witch_class, hex_channeler_archetype, 2),
+                                 Helpers.PrerequisiteFeature(witch_channel_negative)
+                                 );
+            improved_channel_hex_negative.Ranks = 20;
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+                                                          featureList: new BlueprintFeature[] { witch_channel_positive, witch_channel_negative,
+                                                                                                improved_channel_hex_positive, improved_channel_hex_negative });
+
+            var positive_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal, "WitchPostiveHeal", "b305df2f8ec34684867db7402677388b",
+                                                                        witch_channel_positive, context_rank_config);
+            var positive_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm, "WitchPostiveHarm", "4ca35352f0eb49a49faf4a1057ed5d6e",
+                                                                        witch_channel_positive, context_rank_config);
+            var negative_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal, "WitchNegativeHeal", "a39b06c274c843f19fa10cc6b7be5f39",
+                                                                        witch_channel_negative, context_rank_config);
+            var negative_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm, "WitchNegativeHarm", "ba94b10d81bb4497886e50ce9d4d96ce",
+                                                                        witch_channel_negative, context_rank_config);
+            witch_channel_positive.AddComponent(Helpers.CreateAddFacts(channel_energy_fact, positive_heal, positive_harm));
+            witch_channel_negative.AddComponent(Helpers.CreateAddFacts(channel_energy_fact, negative_heal, negative_harm));
 
 
             hex_channeler_channel_energy_selection = Helpers.CreateFeatureSelection("WitchChannelEnergySelection",
@@ -372,47 +397,21 @@ namespace CallOfTheWild
             hex_channeler_channel_energy_selection.Features = new BlueprintFeature[] { witch_channel_positive, witch_channel_negative };
             hex_channeler_channel_energy_selection.AllFeatures = hex_channeler_channel_energy_selection.Features;
 
-            improved_channel_hex = Helpers.CreateFeature("WitchImprovedChannelHex",
-                                                         "Increase Channel Energy Amount",
-                                                         "Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
-                                                         "6638ec10b97b4e5bad312f58b80db844",
-                                                         bless_spell.Icon,
-                                                         FeatureGroup.None,
-                                                         Common.createPrerequisiteArchetypeLevel(witch_class, hex_channeler_archetype, 2));
-            improved_channel_hex.Ranks = 20;
-            hex_selection.Features = hex_selection.Features.AddToArray(improved_channel_hex);
-            hex_selection.AllFeatures = hex_selection.AllFeatures.AddToArray(improved_channel_hex);
 
-            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
-                                                                      featureList: new BlueprintFeature[]{ witch_channel_positive, witch_channel_negative, improved_channel_hex });
-
-            positive_heal.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
-            positive_harm.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
-            negative_heal.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
-            negative_harm.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(context_rank_config);
+            hex_selection.Features = hex_selection.Features.AddToArray(improved_channel_hex_positive, improved_channel_hex_negative);
+            hex_selection.AllFeatures = hex_selection.AllFeatures.AddToArray(improved_channel_hex_positive, improved_channel_hex_negative);
 
             //phylacteries bonuses
-            var negative_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316");
-            var positive_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("f5d0bf8c1b4574848acb8d1fbb544807");
-            var negative_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("cb4a39044b59f5e47ad5bc08ff9d6669");
-            var positive_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("e988cf802d403d941b2ed8b6016de68f");
-
             var bonus1 = Helpers.Create<Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment>();
-            bonus1.Feature = improved_channel_hex;
-            negative_bonus1.AddComponent(bonus1);
-            positive_bonus1.AddComponent(bonus1);
-            negative_bonus2.AddComponent(bonus1);
-            negative_bonus2.AddComponent(bonus1);
-            positive_bonus2.AddComponent(bonus1);
-            positive_bonus2.AddComponent(bonus1);
+            bonus1.Feature = improved_channel_hex_positive;
+            var bonus2 = Helpers.Create<Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment>();
+            bonus2.Feature = improved_channel_hex_negative;
+            ChannelEnergyEngine.updateItems(ChannelEnergyEngine.ChannelType.PositiveHeal | ChannelEnergyEngine.ChannelType.PositiveHarm, bonus1);
+            ChannelEnergyEngine.updateItems(ChannelEnergyEngine.ChannelType.NegativeHeal | ChannelEnergyEngine.ChannelType.NegativeHarm, bonus2);
 
-            //allow selective channel
-            var selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
-            selective_channel.AddComponent(Helpers.PrerequisiteFeature(hex_channeler_channel_energy_selection, true));
-            var extra_channel = library.CopyAndAdd<BlueprintFeature>("cd9f19775bd9d3343a31a065e93f0c47", "ExtraChannelWitch", "9c90fbbe75dc4bd0951e6d5be6da5627");
-            extra_channel.ReplaceComponent<Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteFeature>(Helpers.PrerequisiteFeature(hex_channeler_channel_energy_selection));
-            extra_channel.SetName("Extra Channel (Hex Channeler)");
-            library.AddFeats(extra_channel);
+            ChannelEnergyEngine.createExtraChannelFeat(positive_heal, hex_channeler_channel_energy_selection, "ExtraChannelWitch", "Extra Channel (Hex Channeler)",
+                                                       "9c90fbbe75dc4bd0951e6d5be6da5627");
+
         }
 
 
@@ -1870,7 +1869,8 @@ namespace CallOfTheWild
             hex_ability.SetDescription("Effect: The witch can use this hex to turn a humanoid enemy into an animal and rob it of its free will.\n"
                                        + "The transformation works as beast shape II and is negated by a successful Will save. The transformed creature retains its Intelligence score and known languages, if any, but the witch controls its mind. This effect functions as dominate monster, except the creature does not receive further saving throws to resist the hex.The effect can be removed only with wish or similar magic, although slaying the witch also ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
             var dominate_person_buff = library.Get<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f");
-            var hex_buff = Wildshape.bear_form;  //library.CopyAndAdd<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc", "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c"); //beast_shape2;
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>(Wildshape.bear_form.AssetGuid, "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c");
+            //library.CopyAndAdd<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc", "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c"); //beast_shape2;
             hex_buff.SetDescription(hex_ability.Description);
             hex_buff.SetName(hex_ability.Name);
             hex_buff.SetIcon(hex_ability.Icon);

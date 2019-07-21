@@ -1625,12 +1625,12 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true)
+        static internal BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",
                                                      ability.Name,
                                                      ability.Description,
-                                                     "",
+                                                     guid,
                                                      ability.Icon,
                                                      FeatureGroup.None,
                                                      Helpers.CreateAddFact(ability)

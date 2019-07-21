@@ -34,6 +34,7 @@ namespace CallOfTheWild
             createCoordiantedShot();
             FeralCombatTraining.load();
 
+            ChannelEnergyEngine.createQuickChannel();
         }
 
 

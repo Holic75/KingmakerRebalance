@@ -123,6 +123,7 @@
   <ItemGroup>
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="Bloodrager.cs" />
+    <Compile Include="ChannelEnergyEngine.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="FeralCombatTraining.cs" />
     <Compile Include="Main.cs" />
