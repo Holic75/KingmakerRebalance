@@ -1374,5 +1374,27 @@ namespace CallOfTheWild
                 Main.logger.Log($"{this.Fact} restores {old_value} HP");
             }
         }
+
+
+        [ComponentName("Increase specified spells  DC")]
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class IncreaseSpecifiedSpellsDC : BuffLogic, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintAbility[] spells;
+            public int BonusDC;
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (!spells.Contains(evt.Spell))
+                    return;
+                evt.AddBonusDC(this.BonusDC);
+
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+        }
     }
 }

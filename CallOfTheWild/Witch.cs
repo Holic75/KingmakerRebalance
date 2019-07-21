@@ -95,6 +95,10 @@ namespace CallOfTheWild
         static internal BlueprintBuff hex_vulnerability_buff;
         static internal BlueprintBuff accursed_hex_buff;
 
+        static internal BlueprintFeature amplified_hex_feat;
+        static internal BlueprintBuff amplified_hex_buff;
+       
+
 
         internal static void createWitchClass()
         {
@@ -138,6 +142,7 @@ namespace CallOfTheWild
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("e8308a74821762e49bc3211358e81016"), //s. mage armor
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("3c56e535129756e449af6c0e67fd937f") //s. burning hands
                                                                                        };
+            createAmplifiedHex();
             createHexVulnerabilitySpellAndAccursedHexFeat();
             createWitchProgression();
             witch_class.Progression = witch_progression;
@@ -1054,7 +1059,7 @@ namespace CallOfTheWild
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734", "BeastOfIllOmenHexAbility", "c19d55421e6f436580423fffc78c11bd");
             hex_ability.SetName("Beast of Ill-Omen");
             hex_ability.SetDescription("The witch imbues her familiar with strange magic, putting a minor curse upon the next enemy to see it.\n"
-                                        + "Effect: The enemy must make a Will save or be affected by bane(caster level equal to the witch’s level).The witch can use this hex on her familiar at a range of up to 60 feet.The affected enemy must be no more than 60 feet from the familiar to trigger the effect; seeing the familiar from a greater distance has no effect(though if the enemy and familiar approach to within 60 feet of each other, the hex takes effect). The bane affects the closest creature to the familiar(ties affect the creature with the highest initiative score)\n"
+                                        + "Effect: The target enemy must make a Will save or be affected by bane (caster level equal to the witch’s level).\n"
                                         + " Whether or not the target’s save is successful, the creature cannot be the target of the bane effect for 1 day(later uses of this hex ignore that creature when determining who is affected).");
             hex_ability.Range = AbilityRange.Medium;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
@@ -1073,6 +1078,7 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
             beast_of_ill_omen.Ranks = 1;
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1084,7 +1090,7 @@ namespace CallOfTheWild
             var hex_ability = Helpers.CreateAbility("SlumberHexAbility",
                                                     "Slumber",
                                                     "Effect: A witch can cause a creature within 30 feet to fall into a deep, magical sleep, as per the spell sleep. The creature receives a Will save to negate the effect. If the save fails, the creature falls asleep for a number of rounds equal to the witch’s level.\n"
-                                                    + "This hex can affect a creature of any HD.The creature will not wake due to noise or light, but others can rouse it with a standard action.This hex ends immediately if the creature takes damage. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
+                                                    + "This hex can affect a creature of any HD. The creature will not wake due to noise or light, but others can rouse it with a standard action. This hex ends immediately if the creature takes damage. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
                                                     "31f0fa4235ad435e95ebc89d8549c2ce",
                                                     sleep_buff.Icon,
                                                     AbilityType.Supernatural,
@@ -1127,6 +1133,7 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
             slumber_hex.Ranks = 1;
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1168,6 +1175,7 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
             misfortune_hex.Ranks = 1;
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1321,7 +1329,6 @@ namespace CallOfTheWild
             var evil_eye_saves = createEvilEyeComponent("EvilEyeSavesHex", "Evil Eye: Saving Throws Penalty", description, "cb406009170b447489b32d5b43d88f3f", "2598782fac2a44b6a607f5d0d2a059bb",
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[2], penalties[3], penalties[4], context_rank_config);
 
-
             evil_eye = Helpers.CreateFeature("EvilEyeHexFeature",
                                           "Evil Eye",
                                           description,
@@ -1389,6 +1396,7 @@ namespace CallOfTheWild
             ability.AddComponent(scaling);
             var eyebyte = library.Get<BlueprintAbility>("582009cf6013790469d6e98e5210477a");
             ability.AddComponent(eyebyte.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+            addToAmplifyHex(ability);
             return ability;
         }
 
@@ -1437,6 +1445,7 @@ namespace CallOfTheWild
                               Helpers.CreateAddFact(hex_ability)
                               );
             summer_heat.Ranks = 1;
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1461,19 +1470,19 @@ namespace CallOfTheWild
         static BlueprintFeature createHealingHex(string name, string display_name, string description, string heal1_guid, string heal2_guid, string ability1_guid, string ability2_guid,
                                                     string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid, int update_level)
         {
-            var heal1__hex_ability = library.CopyAndAdd<BlueprintAbility>(heal1_guid, name + "1Ability", ability1_guid);
-            heal1__hex_ability.SetName(display_name);
-            heal1__hex_ability.SetDescription(description);
+            var heal1_hex_ability = library.CopyAndAdd<BlueprintAbility>(heal1_guid, name + "1Ability", ability1_guid);
+            heal1_hex_ability.SetName(display_name);
+            heal1_hex_ability.SetDescription(description);
 
-            heal1__hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+            heal1_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                                                                                        classes: new BlueprintCharacterClass[] { witch_class },
                                                                                                                                                        max: update_level));
-            var hex_cooldown = addWitchHexCooldownScaling(heal1__hex_ability, cooldown_guid);
+            var hex_cooldown = addWitchHexCooldownScaling(heal1_hex_ability, cooldown_guid);
 
 
             var heal2_hex_ability = library.CopyAndAdd<BlueprintAbility>(heal2_guid, name + "2Ability", ability2_guid);
-            heal2_hex_ability.SetName(heal1__hex_ability.Name);
-            heal2_hex_ability.SetDescription(heal1__hex_ability.Description);
+            heal2_hex_ability.SetName(heal1_hex_ability.Name);
+            heal2_hex_ability.SetDescription(heal1_hex_ability.Description);
 
 
             heal2_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
@@ -1481,28 +1490,30 @@ namespace CallOfTheWild
                                                                                                                                                        max: update_level+5));
             addWitchHexCooldownScaling(heal2_hex_ability, hex_cooldown);
 
-            var healing_hex1_feature = Helpers.CreateFeature(name + "1Feature", heal1__hex_ability.Name, heal1__hex_ability.Description,
+            var healing_hex1_feature = Helpers.CreateFeature(name + "1Feature", heal1_hex_ability.Name, heal1_hex_ability.Description,
                                                              feature1_guid,
-                                                             heal1__hex_ability.Icon,
+                                                             heal1_hex_ability.Icon,
                                                              FeatureGroup.None,
-                                                             Helpers.CreateAddFact(heal1__hex_ability));
+                                                             Helpers.CreateAddFact(heal1_hex_ability));
             healing_hex1_feature.HideInCharacterSheetAndLevelUp = true;
-            var healing_hex2_feature = Helpers.CreateFeature(name + "2Feature", heal1__hex_ability.Name, heal1__hex_ability.Description,
+            var healing_hex2_feature = Helpers.CreateFeature(name + "2Feature", heal1_hex_ability.Name, heal1_hex_ability.Description,
                                                  feature2_guid,
-                                                 heal1__hex_ability.Icon,
+                                                 heal1_hex_ability.Icon,
                                                  FeatureGroup.None,
                                                  Helpers.CreateAddFact(heal2_hex_ability));
             healing_hex2_feature.HideInCharacterSheetAndLevelUp = true;
             var healing = Helpers.CreateFeature(name+"Feature",
-                                                heal1__hex_ability.Name,
-                                                heal1__hex_ability.Description,
+                                                heal1_hex_ability.Name,
+                                                heal1_hex_ability.Description,
                                                 feature_guid,
-                                                heal1__hex_ability.Icon,
+                                                heal1_hex_ability.Icon,
                                                 FeatureGroup.None,
                                                 Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, update_level, getWitchArray(), new BlueprintArchetype[0], true),
                                                 Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, update_level, getWitchArray(), new BlueprintArchetype[0], false)
                                                 );
             healing.Ranks = 1;
+            addToAmplifyHex(heal1_hex_ability);
+            addToAmplifyHex(heal2_hex_ability);
             return healing;
         }
 
@@ -1612,6 +1623,7 @@ namespace CallOfTheWild
                                               Helpers.CreateAddFact(hex_ability));
             agony.Ranks = 1;
             agony.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1685,6 +1697,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             harrowing_curse.Ranks = 1;
             harrowing_curse.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1746,6 +1759,7 @@ namespace CallOfTheWild
                                                 );
             retribution.Ranks = 1;
             retribution.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+            addToAmplifyHex(ability);
         }
 
 
@@ -1799,6 +1813,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddFact(hex_ability));
             ice_tomb.Ranks = 1;
             ice_tomb.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1897,6 +1912,7 @@ namespace CallOfTheWild
                               Helpers.CreateAddFact(hex_ability));
             animal_servant.Ranks = 1;
             animal_servant.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 18));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1955,6 +1971,7 @@ namespace CallOfTheWild
                               Helpers.CreateAddFact(hex_ability));
             death_curse.Ranks = 1;
             death_curse.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 18));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -1985,6 +2002,7 @@ namespace CallOfTheWild
                               Helpers.CreateAddFact(hex_ability));
             lay_to_rest.Ranks = 1;
             lay_to_rest.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 18));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -2079,6 +2097,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             eternal_slumber.Ranks = 1;
             eternal_slumber.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 18));
+            addToAmplifyHex(hex_ability);
         }
 
 
@@ -2254,6 +2273,79 @@ namespace CallOfTheWild
                                                       FeatureGroup.Feat,
                                                       Helpers.PrerequisiteClassLevel(witch_class, 1));
             library.AddFeats(accursed_hex_feat);
+        }
+
+
+        static internal void createAmplifiedHex()
+        {
+            amplified_hex_feat = Helpers.CreateFeature("AmplifiedHexFeature",
+                                                       "Amplified Hex",
+                                                       "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level.Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd - level spell the second time, a 3rdlevel spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.Feat,
+                                                       Helpers.PrerequisiteClassLevel(witch_class, 1));
+            var circle_of_death = library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"); //circle of death
+            amplified_hex_buff = Helpers.CreateBuff("AmplifiedHexBuff",
+                                                     amplified_hex_feat.Name,
+                                                     amplified_hex_feat.Description,
+                                                     "",
+                                                     circle_of_death.Icon,
+                                                     null,
+                                                     Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c =>
+                                                        {
+                                                            c.BonusDC = 1;
+                                                            c.spells = new BlueprintAbility[0];
+                                                        })
+                                                     );
+            amplified_hex_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+            BlueprintAbility[] sacrifice_spells = new BlueprintAbility[10];
+            sacrifice_spells[0] = null;
+          
+            var action_apply_buff = Common.createContextActionApplyBuff(amplified_hex_buff,
+                                                                        Helpers.CreateContextDuration(),
+                                                                        is_permanent: true, dispellable: false);
+
+            for (int i = 1; i < sacrifice_spells.Length; i++)
+            {
+                var cooldown_buff = Helpers.CreateBuff($"AmplifiedHex{i}CooldownBuff",
+                                                       "",
+                                                       "",
+                                                       "",
+                                                       null,
+                                                       null);
+                cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.HiddenInUi);
+                var action_apply_cooldown_buff = Common.createContextActionApplyBuff(cooldown_buff,
+                                                                                     Helpers.CreateContextDuration(),
+                                                                                     is_permanent: true, dispellable: false);
+                sacrifice_spells[i] = Helpers.CreateAbility($"AmplifiedHex{i}Ability",
+                                                            $"Amplified Hex {Common.roman_id[i]}",
+                                                            amplified_hex_buff.Description,
+                                                            "",
+                                                            amplified_hex_buff.Icon,
+                                                            AbilityType.Special,
+                                                            CommandType.Free,
+                                                            AbilityRange.Personal,
+                                                            "",
+                                                            "",
+                                                            Helpers.CreateRunActions(action_apply_buff, action_apply_cooldown_buff),
+                                                            Common.createAbilityCasterHasNoFacts(cooldown_buff, amplified_hex_buff)                                );
+            }
+
+            amplified_hex_feat.AddComponent(Common.createSpontaneousSpellConversion(witch_class, sacrifice_spells));
+            library.AddFeats(amplified_hex_feat);
+        }
+
+
+        static void addToAmplifyHex(BlueprintAbility hex)
+        {
+            var c = amplified_hex_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+            c.spells = c.spells.AddToArray(hex);
+            var run_action = hex.GetComponent<AbilityEffectRunAction>().CreateCopy();
+            var action_on_caster = Helpers.Create<ContextActionOnContextCaster>(a => a.Actions = Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(amplified_hex_buff)).Actions);
+            run_action.addAction(action_on_caster);
+            hex.ReplaceComponent<AbilityEffectRunAction>(run_action);
         }
 
 
