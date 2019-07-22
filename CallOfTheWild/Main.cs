@@ -15,10 +15,9 @@ using Newtonsoft.Json;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
-namespace CallOfTheWild
+
+public class Main
 {
-    public class Main
-    {
         public class Settings
         {
             public bool update_companions  { get;}
@@ -26,7 +25,7 @@ namespace CallOfTheWild
             public bool reduce_skill_points { get; }
             public bool sacred_huntsmaster_animal_focus { get;  }
 
-            public Settings(string filename)
+            public Settings()
             {
                
                 using (StreamReader settings_file = File.OpenText("Mods/CallOfTheWild/settings.json"))
@@ -41,7 +40,7 @@ namespace CallOfTheWild
             }
         }
 
-        static public Settings settings = new Settings("settings.json");
+        static public Settings settings = new Settings();
         public static UnityModManagerNet.UnityModManager.ModEntry.ModLogger logger;
         internal static LibraryScriptableObject library;
 
@@ -87,7 +86,7 @@ namespace CallOfTheWild
                 {
                     Main.DebugLog("Loading Call of the Wild");
 
-                    CallOfTheWild.Helpers.GuidStorage.load(Properties.Resources.blueprints);
+                    CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints);
                     CallOfTheWild.Helpers.Load();
 
                     if (settings.nerf_animal_companion)
@@ -161,6 +160,4 @@ namespace CallOfTheWild
             logger?.Log(message);
             return new InvalidOperationException(message);
         }
-
-    }
 }

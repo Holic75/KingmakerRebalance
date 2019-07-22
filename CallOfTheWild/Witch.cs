@@ -619,7 +619,8 @@ namespace CallOfTheWild
                                          "be2062d6d85f4634ea4f26e9e858c3b8", //cleanse
                                          "788d72e7713cf90418ee1f38449416dc", //inspiring recovery
                                          "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
-                                         "1f173a16120359e41a20fc75bb53d449", //cure critical wounds mass
+                                         library.CopyAndAdd<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449", "WitchHealingPatronCureCriticalWoundsMassAbility", "").AssetGuid, 
+                                         //cure critical wounds mass
                                          "867524328b54f25488d371214eea0d90" // heal mass
                                          ),
                 createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b",
@@ -683,7 +684,7 @@ namespace CallOfTheWild
                                          "d219494150ac1f24f9ce14a3d4f66d26", //feather step mass
                                          "a5e23522eda32dc45801e32c05dc9f96", //good hope
                                          "3fce8e988a51a2a4ea366324d6153001", //constricting coils
-                                         "645558d63604747428d55f0dd3a4cb58", //chain lightning
+                                         library.CopyAndAdd<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58", "WitchSpringPatronChainLightningAbility", "").AssetGuid, //chain lightning
                                          "26be70c4664d07446bdfe83504c1d757", //change staff
                                          "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
                                          "d8144161e352ca846a73cf90e85bf9ac" //tsunami
@@ -726,7 +727,7 @@ namespace CallOfTheWild
                                          "c83447189aabc72489164dfc246f3a36", //frigid touch
                                          "fcb028205a71ee64d98175ff39a0abf9", //ice storm
                                          "65e8d23aef5e7784dbeb27b1fca40931", //icy prison
-                                         "e7c530f8137630f4d9d7ee1aa7b1edc0", //cone of cold
+                                         library.CopyAndAdd<BlueprintAbility>("e7c530f8137630f4d9d7ee1aa7b1edc0", "WinterPatronConeOfColdABility","").AssetGuid, //cone of cold
                                          "5ef85d426783a5347b420546f91a677b", //cold ice strike
                                          "3e4d3b9a5bd03734d9b053b9067c2f38", //waves of exhaustion
                                          "17696c144a0194c478cbe402b496cb23", //polar ray
@@ -2280,7 +2281,7 @@ namespace CallOfTheWild
         {
             amplified_hex_feat = Helpers.CreateFeature("AmplifiedHexFeature",
                                                        "Amplified Hex",
-                                                       "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level.Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd - level spell the second time, a 3rdlevel spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
+                                                       "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level. Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd - level spell the second time, a 3rdlevel spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
                                                        "",
                                                        null,
                                                        FeatureGroup.Feat,
