@@ -841,6 +841,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "0413915f355a38146bc6ad40cdf27b3f", 4), //death ward
                 new Common.SpellId( "f34fb78eaaec141469079af124bcfa0f", 4), //enervation
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
+                new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict serious wounds
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
