@@ -73,6 +73,7 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\Program Files (x86)\GOG Galaxy\Games\Pathfinder Kingmaker\Kingmaker_Data\Managed\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -110,6 +111,7 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\Program Files (x86)\GOG Galaxy\Games\Pathfinder Kingmaker\Kingmaker_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>C:\KingmakerMods\UnityModManager-21-0-20-0-1562837509\UnityModManager\UnityModManager.dll</HintPath>
