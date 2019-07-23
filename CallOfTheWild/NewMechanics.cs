@@ -1102,6 +1102,10 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
             {
+                if (evt.Weapon != this.Owner)
+                {
+                    return;
+                }
                 evt.AttackBonusStat = Stat;
             }
 
@@ -1138,14 +1142,21 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
-
+                if (evt.Weapon != this.Owner)
+                {
+                    return;
+                }
                 evt.WeaponDamageDiceOverride = dice_formula;
                 evt.AddBonusDamage(bonus_damage);
             }
 
             public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
-               if (damage_type_description != null && evt.DamageDescription.Count()>0)
+                if (evt.Weapon != this.Owner)
+                {
+                    return;
+                }
+                if (damage_type_description != null && evt.DamageDescription.Count()>0)
                 {
                     evt.DamageDescription[0].TypeDescription = damage_type_description;
                 }
@@ -1190,7 +1201,8 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RulePrepareDamage evt)
             {
-                if (evt.DamageBundle.Count() == 0)
+
+                if (evt.DamageBundle.Count() == 0 || evt.DamageBundle.Weapon != this.Owner)
                 {
                     return;
                 }
