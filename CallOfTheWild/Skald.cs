@@ -859,7 +859,7 @@ namespace CallOfTheWild
             spell_kenning = Helpers.CreateFeature("SkaldSpellKenningFeature",
                                       "Spell Kenning",
                                       "At 5th level, a skald is learned in the magic of other spellcasters, and can use his own magic to duplicate those classes’ spells. Once per day, a skald can cast any spell on the bard, cleric, or sorcerer/wizard spell list as if it were one of his skald spells known, expending a skald spell slot of the same spell level to cast the desired spell. Casting a spell with spell kenning always has a minimum casting time of 1 full round, regardless of the casting time of the spell.\n"
-                                       + ",At 11th level, a skald can use this ability twice per day.At 17th level, he can use this ability three times per day.",
+                                       + "At 11th level, a skald can use this ability twice per day. At 17th level, he can use this ability three times per day.",
                                       "",
                                       icon,
                                       FeatureGroup.None,

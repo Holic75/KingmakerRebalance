@@ -1145,7 +1145,7 @@ namespace CallOfTheWild
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "MisfortuneHexAbility", "08b6595f503f4d3c973424c217f7610e"); //touch of chaos as base
 
             hex_ability.SetName("Misfortune");
-            hex_ability.LocalizedDuration = Helpers.CreateString("FortuneHexAbility.Duration", "Variable");
+            hex_ability.LocalizedDuration = Helpers.CreateString("MisfortuneHexAbility.Duration", "Variable");
             hex_ability.SetDescription("Effect: The witch can cause a creature within 30 feet to suffer grave misfortune for 1 round. Anytime the creature makes an ability check, attack roll, saving throw, or skill check, it must roll twice and take the worse result. A Will save negates this hex. At 8th level and 16th level, the duration of this hex is extended by 1 round. This hex affects all rolls the target must make while it lasts. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.");
             hex_ability.Range = AbilityRange.Close;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;

@@ -64,8 +64,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony12">
-      <HintPath>C:\KingmakerMods\UnityModManager-21-0-20-0-1562837509\UnityModManager\0Harmony12.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\KingmakerMods\UnityModManager\0Harmony12.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\Program Files (x86)\GOG Galaxy\Games\Pathfinder Kingmaker\Kingmaker_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -114,8 +113,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityModManager">
-      <HintPath>C:\KingmakerMods\UnityModManager-21-0-20-0-1562837509\UnityModManager\UnityModManager.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\KingmakerMods\UnityModManager\UnityModManager.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +122,7 @@
     <Compile Include="ChannelEnergyEngine.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="FeralCombatTraining.cs" />
+    <Compile Include="HexEngine.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Hunter.cs" />
