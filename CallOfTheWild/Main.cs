@@ -122,7 +122,7 @@ public class Main
                     CallOfTheWild.NewSpells.load();
 
 #if DEBUG
-                    CallOfTheWild.Witch.test_mode = true;
+                    CallOfTheWild.HexEngine.test_mode = true;
                     CallOfTheWild.Bloodrager.test_mode = true;
                     CallOfTheWild.Skald.test_mode = true;
 #endif
@@ -132,6 +132,7 @@ public class Main
                         Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");
                         CallOfTheWild.Hunter.addAnimalFocusSH();
                     }
+                    CallOfTheWild.HexEngine.Initialize();
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();

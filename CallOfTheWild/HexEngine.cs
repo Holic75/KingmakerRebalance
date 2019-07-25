@@ -41,17 +41,17 @@ namespace CallOfTheWild
 {
     class HexEngine
     {
-        static internal LibraryScriptableObject library => Main.library;
+        static LibraryScriptableObject library => Main.library;
         static internal bool test_mode = false;
 
        
-        static internal BlueprintAbility hex_vulnerability_spell;
-        static internal BlueprintFeature accursed_hex_feat;
-        static internal BlueprintBuff hex_vulnerability_buff;
-        static internal BlueprintBuff accursed_hex_buff;
+        static public BlueprintAbility hex_vulnerability_spell;
+        static public BlueprintFeature accursed_hex_feat;
+        static BlueprintBuff hex_vulnerability_buff;
+        static BlueprintBuff accursed_hex_buff;
 
-        static internal BlueprintFeature amplified_hex_feat;
-        static internal BlueprintBuff amplified_hex_buff;
+        static public BlueprintFeature amplified_hex_feat;
+        static BlueprintBuff amplified_hex_buff;
         static private BlueprintAbility[] amplified_hex_sacrifice_spells = new BlueprintAbility[10];
 
         private BlueprintCharacterClass[] hex_classes;
@@ -63,7 +63,7 @@ namespace CallOfTheWild
         {
             createHexVulnerabilitySpellAndAccursedHexFeat();
             createAmplifiedHex();
-
+            Main.logger.Log("Hex Engine test mode: " + test_mode.ToString());
         }
 
         public HexEngine(BlueprintCharacterClass[] scaling_classes, StatType scaling_stat)
@@ -185,7 +185,7 @@ namespace CallOfTheWild
         public BlueprintFeature createHealing(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid, 
                                               string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid)
         {
-            var healing = createHealingHex(name_prefix, display_name,
+            var healing = createHealingHex(name_prefix + "Hex", display_name,
                                         description,
                                         "47808d23c67033d4bbab86a1070fd62f", //cure light wounds
                                         "1c1ebf5370939a9418da93176cc44cd9", //cure moderate wounds
@@ -203,7 +203,7 @@ namespace CallOfTheWild
         public BlueprintFeature createBeastOfIllOmen(string name_prefix, string display_name, string description, string ability_guid, string feature_guid, string cooldown_guid)
         {
             var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734", name_prefix + "Ability", ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734", name_prefix + "HexAbility", ability_guid);
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             hex_ability.Range = AbilityRange.Medium;
@@ -233,7 +233,7 @@ namespace CallOfTheWild
             var sleep_spell = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
             var dominate_spell = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
             var sleep_buff = library.Get<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a");
-            var hex_ability = Helpers.CreateAbility(name_prefix + "Ability",
+            var hex_ability = Helpers.CreateAbility(name_prefix + "HexAbility",
                                                     display_name,
                                                     description,
                                                     ability_guid,
@@ -254,7 +254,7 @@ namespace CallOfTheWild
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             hex_ability.ActionType = CommandType.Standard;
             hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix+"Ability1.Duration", "1 round/level");
+            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix+"HexAbility1.Duration", "1 round/level");
             var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
                                                                     library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
@@ -270,7 +270,7 @@ namespace CallOfTheWild
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var slumber_hex = Helpers.CreateFeature(name_prefix + "Feature",
+            var slumber_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       feature_guid,
@@ -286,10 +286,10 @@ namespace CallOfTheWild
         public BlueprintFeature createMisfortune(string name_prefix, string display_name, string description, string ability_guid, string buff_guid, string feature_guid, string cooldown_guid)
         {
             var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", name_prefix + "Ability", ability_guid); //touch of chaos as base
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", name_prefix + "HexAbility", ability_guid); //touch of chaos as base
 
             hex_ability.SetName(display_name);
-            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix + "Ability.Duration", "Variable");
+            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix + "HexAbility.Duration", "Variable");
             hex_ability.SetDescription(description);
             hex_ability.Range = AbilityRange.Close;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
@@ -298,7 +298,7 @@ namespace CallOfTheWild
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             action.SavingThrowType = SavingThrowType.Will;
-            var hex_buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", name_prefix + "Buff", buff_guid);
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "Witch" + name_prefix + "HexBuff", buff_guid);
             hex_buff.SetName(hex_ability.Name);
             hex_buff.SetDescription(hex_ability.Description);
             cackle_buffs.Add(hex_buff);
@@ -313,7 +313,7 @@ namespace CallOfTheWild
                                                                      classes: hex_classes));
             hex_ability.AddComponent(doom_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var misfortune_hex = Helpers.CreateFeature(name_prefix + "Feature",
+            var misfortune_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       feature_guid,
@@ -328,16 +328,16 @@ namespace CallOfTheWild
 
         public BlueprintFeature createFortuneHex(string name_prefix, string display_name, string description, string ability_guid, string buff_guid, string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", name_prefix + "Ability", ability_guid); //bit of luck
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", name_prefix + "HexAbility", ability_guid); //bit of luck
             hex_ability.SetName(display_name);
-            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix + "Ability.Duration", "Variable");
+            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix + "HexAbility.Duration", "Variable");
             hex_ability.SetDescription(description);
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.Designers.Mechanics.Facts.ReplaceAbilitiesStat>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
             hex_ability.Range = AbilityRange.Close;
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var apply_buff = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
-            apply_buff.Buff = library.CopyAndAdd<BlueprintBuff>(apply_buff.Buff, name_prefix + "Buff", buff_guid);
+            apply_buff.Buff = library.CopyAndAdd<BlueprintBuff>(apply_buff.Buff, "Witch" + name_prefix + "HexBuff", buff_guid);
             cackle_buffs.Add(apply_buff.Buff);
 
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
@@ -354,7 +354,7 @@ namespace CallOfTheWild
                                             classes: hex_classes);
             hex_ability.AddComponent(context_rank);
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var fortune_hex = Helpers.CreateFeature(name_prefix + "Feature",
+            var fortune_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       feature_guid,
@@ -370,7 +370,7 @@ namespace CallOfTheWild
         public BlueprintFeature createIceplantHex(string name_prefix, string display_name, string description, string feature_guid)
         {
             var frigid_touch = library.Get<BlueprintAbility>("c83447189aabc72489164dfc246f3a36");
-            var iceplant_hex = Helpers.CreateFeature(name_prefix + "Feature",
+            var iceplant_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   display_name,
                                                   description,
                                                   feature_guid,
@@ -386,7 +386,7 @@ namespace CallOfTheWild
         public BlueprintFeature createMurksightHex(string name_prefix, string display_name, string description, string feature_guid)
         {
             var remove_blindness = library.Get<BlueprintAbility>("c927a8b0cd3f5174f8c0b67cdbfde539");
-            var murksight_hex = Helpers.CreateFeature(name_prefix + "Feature",
+            var murksight_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                   display_name,
                                   description,
                                   feature_guid,
@@ -401,7 +401,7 @@ namespace CallOfTheWild
         public BlueprintFeature createAmeliorating(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,
                                                    string feature_guid, string buff1_guid, string buff2_guid, string cooldown_guid)
         {
-            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140", name_prefix + "ImmAbility", abil1_guid);
+            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140", name_prefix + "HexImmAbility", abil1_guid);
             hex_ability1.LocalizedDuration = Helpers.minutesPerLevelDuration;
             hex_ability1.SetName($"{display_name}: Suppress Condition");
             hex_ability1.SetDescription(description);
@@ -409,8 +409,8 @@ namespace CallOfTheWild
             hex_ability1.Range = AbilityRange.Touch;
             hex_ability1.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
             hex_ability1.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
-            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("414d6c8fd5fc46c5a83b596a9bcf3322", name_prefix + "SaveAbility", abil2_guid);
-            var hex_ability1_buff = Helpers.CreateBuff(name_prefix + "ImmBuff", hex_ability1.Name, hex_ability1.Description, buff1_guid,
+            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("414d6c8fd5fc46c5a83b596a9bcf3322", name_prefix + "HexSaveAbility", abil2_guid);
+            var hex_ability1_buff = Helpers.CreateBuff(name_prefix + "HexImmBuff", hex_ability1.Name, hex_ability1.Description, buff1_guid,
                                                        hex_ability1.Icon, null,
                                                        Common.createAddConditionImmunity(UnitCondition.Sickened),
                                                        Common.createAddConditionImmunity(UnitCondition.Dazzled),
@@ -425,8 +425,8 @@ namespace CallOfTheWild
             hex_ability1.AddComponent(action);
 
             hex_ability2.SetName($"{display_name}: Saving Throws Bonus");
-            hex_ability2.LocalizedDuration = Helpers.CreateString(name_prefix + "SaveAbility.Duration", "24 hours");
-            var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "SaveBuff", hex_ability2.Name, hex_ability2.Description, buff2_guid,
+            hex_ability2.LocalizedDuration = Helpers.CreateString(name_prefix + "HexSaveAbility.Duration", "24 hours");
+            var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "HexSaveBuff", hex_ability2.Name, hex_ability2.Description, buff2_guid,
                                                        hex_ability2.Icon, null,
                                                        Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Circumstance,
                                                                 SpellDescriptor.Fatigue | SpellDescriptor.Shaken | SpellDescriptor.Sickened | SpellDescriptor.Blindness)
@@ -442,7 +442,7 @@ namespace CallOfTheWild
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "b58d93d94e834ada903a91d8cf46d650", $"Cooldown {display_name}");
             addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
 
-            var ameliorating = Helpers.CreateFeature(name_prefix + "Feature",
+            var ameliorating = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       display_name,
                                                       hex_ability1.Description,
                                                       feature_guid,
@@ -553,19 +553,19 @@ namespace CallOfTheWild
         {
             var fatigued_buff = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
             var exhausted_buff = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
-            var nonlethal_full = library.CopyAndAdd<BlueprintBuff>("95b1c0d55f30996429a3a4eba4d2b4a6", name_prefix + "DamageFullBuff", buff1_guid);
+            var nonlethal_full = library.CopyAndAdd<BlueprintBuff>("95b1c0d55f30996429a3a4eba4d2b4a6", name_prefix + "HexDamageFullBuff", buff1_guid);
             nonlethal_full.RemoveComponent(nonlethal_full.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
             var dmg = nonlethal_full.GetComponent<Kingmaker.UnitLogic.FactLogic.AddContextStatBonus>().CreateCopy();
             dmg.Value.ValueRank = AbilityRankType.DamageBonus;
             nonlethal_full.ComponentsArray[0] = dmg;
-            var nonlethal_half = library.CopyAndAdd<BlueprintBuff>("0c2bce51244647329e7e753b07548d10", name_prefix + "DamageHalfBuff", buff2_guid);
+            var nonlethal_half = library.CopyAndAdd<BlueprintBuff>("0c2bce51244647329e7e753b07548d10", name_prefix + "HexDamageHalfBuff", buff2_guid);
 
             nonlethal_full.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
                                         type: AbilityRankType.DamageBonus, classes: hex_classes));
             nonlethal_half.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
                             type: AbilityRankType.DamageBonus, classes: hex_classes));
 
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("f2f1efac32ea2884e84ecaf14657298b", name_prefix, ability_guid);//bonshatter
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("f2f1efac32ea2884e84ecaf14657298b", name_prefix + "Hex", ability_guid);//bonshatter
             hex_ability.SetIcon(fatigued_buff.Icon);
             hex_ability.ComponentsArray = new BlueprintComponent[] { hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>() };
             hex_ability.CanTargetFriends = test_mode;
@@ -584,7 +584,7 @@ namespace CallOfTheWild
             hex_ability.AddComponent(action);
 
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var summer_heat = Helpers.CreateFeature(name_prefix + "Feature",
+            var summer_heat = Helpers.CreateFeature(name_prefix + "HexFeature",
                               hex_ability.Name,
                               hex_ability.Description,
                               feature_guid,
@@ -601,7 +601,7 @@ namespace CallOfTheWild
         public BlueprintFeature createMajorHealing(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,
                                               string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid)
         {
-            var major_healing = createHealingHex(name_prefix, display_name,
+            var major_healing = createHealingHex(name_prefix + "Hex", display_name,
                                              description,
                                              "6e81a6679a0889a429dec9cedcf3729c", //cure serious wounds
                                              "0d657aa811b310e4bbd8586e60156a2d", //cure critical wounds
@@ -672,7 +672,7 @@ namespace CallOfTheWild
         public BlueprintFeature createMajorAmeliorating(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,
                                                         string feature_guid, string buff2_guid, string cooldown_guid)
         {
-            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "RemoveAbility", abil1_guid);
+            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "HexRemoveAbility", abil1_guid);
             hex_ability1.SetName($"{display_name}: Remove Condition");
             hex_ability1.SetDescription(description);
 
@@ -683,12 +683,12 @@ namespace CallOfTheWild
             run_action.Actions = Helpers.CreateActionList(action1);
             hex_ability1.AddComponent(run_action);
 
-            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "SaveAbility", abil2_guid);
+            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "HexSaveAbility", abil2_guid);
 
 
             hex_ability2.SetName($"{display_name}: Saving Throws Bonus");
-            hex_ability2.LocalizedDuration = Helpers.CreateString(name_prefix + "Ability.Duration", "24 hours");
-            var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "SaveBuff", hex_ability2.Name, hex_ability2.Description, buff2_guid,
+            hex_ability2.LocalizedDuration = Helpers.CreateString(name_prefix + "HexAbility.Duration", "24 hours");
+            var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "HexSaveBuff", hex_ability2.Name, hex_ability2.Description, buff2_guid,
                                                        hex_ability2.Icon, null,
                                                        Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Circumstance,
                                                                 SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
@@ -705,10 +705,10 @@ namespace CallOfTheWild
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, cooldown_guid, $"Cooldown {display_name}");
             addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
 
-            var major_ameliorating = Helpers.CreateFeature(name_prefix + "Feature",
-                                                      "Major Ameliorating",
+            var major_ameliorating = Helpers.CreateFeature("Witch" + name_prefix + "HexFeature",
+                                                      display_name,
                                                       hex_ability1.Description,
-                                                      "2c4d412a48844be184f2bd2ecc587ea6",
+                                                      feature_guid,
                                                       hex_ability1.Icon,
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFacts(hex_ability1, hex_ability2));
@@ -718,19 +718,21 @@ namespace CallOfTheWild
         }
 
 
-        public BlueprintFeature createAnimalSkin(string name_prefix, string display_name, string description, string ability1_guid, string ability2_guid, string feature_guid)
+        public BlueprintFeature createAnimalSkin(string name_prefix, string display_name, string description, string ability1_guid, string ability2_guid, string ability3_guid, string feature_guid)
         {
-            var hex_abilities = new BlueprintAbility[]{library.CopyAndAdd<BlueprintAbility>(Wildshape.bear_form_spell, name_prefix + "Ability1", ability1_guid),
-                                                       library.CopyAndAdd<BlueprintAbility>(Wildshape.dire_wolf_form_spell, name_prefix + "Ability2", ability2_guid) };
+            var hex_abilities = new BlueprintAbility[]{library.CopyAndAdd<BlueprintAbility>(Wildshape.bear_form_spell, name_prefix + "HexAbility", ability1_guid),
+                                                       library.CopyAndAdd<BlueprintAbility>(Wildshape.dire_wolf_form_spell, name_prefix + "HexAbility2", ability2_guid),
+                                                       library.CopyAndAdd<BlueprintAbility>(Wildshape.leopard_form_spell, name_prefix + "HexAbility3", ability3_guid)};
             foreach (var h in hex_abilities)
             {
                 h.Type = AbilityType.Supernatural;
-                h.SetName(display_name + $" ({display_name})");
+                h.SetName(display_name + $": {h.Name}");
                 var spell_list_components = h.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>().ToArray();
                 foreach (var c in spell_list_components)
                 {
                     h.RemoveComponent(c);
                 }
+                h.RemoveComponents<SpellDescriptorComponent>();
                 h.RemoveComponent(h.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
                 h.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
             }
@@ -751,11 +753,11 @@ namespace CallOfTheWild
         public BlueprintFeature createAgony(string name_prefix, string display_name, string description, string ability_guid, string buff_guid,
                                                  string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", name_prefix + "Ability", ability_guid);//stinking cloud
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", name_prefix + "HexAbility", ability_guid);//stinking cloud
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            var hex_buff = library.CopyAndAdd<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e", name_prefix + "Buff", buff_guid); //nauseted
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e", name_prefix + "HexBuff", buff_guid); //nauseted
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.AddCondition>());
             hex_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Nauseated, SavingThrowType.Fortitude));
             cackle_buffs.Add(hex_buff);
@@ -773,7 +775,7 @@ namespace CallOfTheWild
 
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
 
-            var agony = Helpers.CreateFeature(name_prefix + "Feature",
+            var agony = Helpers.CreateFeature(name_prefix + "HexFeature",
                                               hex_ability.Name,
                                               hex_ability.Description,
                                               feature_guid,
@@ -799,7 +801,7 @@ namespace CallOfTheWild
                                           Common.createAddSecondaryAttacks(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218")) //bite 1d8
                                           );
 
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33", name_prefix + "Ability", ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33", name_prefix + "HexAbility", ability_guid);
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
@@ -812,7 +814,7 @@ namespace CallOfTheWild
             hex_ability.SetDescription(buff.Description);
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
 
-            var beast_gift = Helpers.CreateFeature(name_prefix + "Feature",
+            var beast_gift = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   hex_ability.Name,
                                                   hex_ability.Description,
                                                   feature_guid,
@@ -828,7 +830,7 @@ namespace CallOfTheWild
         public BlueprintFeature createHarrowingCurse(string name_prefix, string display_name, string description, string ability_guid,
                                                       string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("69851cc3b821c2d479ac1f2d86e8ffa5", name_prefix, ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("69851cc3b821c2d479ac1f2d86e8ffa5", name_prefix + "Hex", ability_guid);
             BlueprintBuff[] curses = new BlueprintBuff[] {library.Get<BlueprintBuff>("caae9592917719a41b601b678a8e6ddf"),
                                                               library.Get<BlueprintBuff>("c092750ba895e014cb24a25e2e8274a7"),
                                                               library.Get<BlueprintBuff>("7fbb7799e8684434e80487cef9cc7f09"),
@@ -851,7 +853,7 @@ namespace CallOfTheWild
             hex_ability.AddComponent(action);
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
 
-            var harrowing_curse = Helpers.CreateFeature(name_prefix + "Feature",
+            var harrowing_curse = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       feature_guid,
@@ -875,7 +877,7 @@ namespace CallOfTheWild
             reflect_damage.reflection_coefficient = 0.5f;
             reflect_damage.reflect_melee_weapon = true;
 
-            var buff = Helpers.CreateBuff(name_prefix + "Buff",
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
                                           display_name,
                                           description,
                                           buff_guid,
@@ -888,7 +890,7 @@ namespace CallOfTheWild
                                                             Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), rate: DurationRate.Rounds)
                                                             );
             var action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_buff));
-            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+            var ability = Helpers.CreateAbility(name_prefix + "HexAbility",
                                                 buff.Name,
                                                 buff.Description,
                                                 ability_guid,
@@ -914,7 +916,7 @@ namespace CallOfTheWild
             ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
 
-            var retribution = Helpers.CreateFeature(name_prefix + "Feature",
+            var retribution = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                 buff.Name,
                                                 buff.Description,
                                                 feature_guid,
@@ -932,7 +934,7 @@ namespace CallOfTheWild
         public BlueprintFeature createIceTomb(string name_prefix, string display_name, string description, string ability_guid, string buff_guid,
                                                string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931", name_prefix + "Ability", ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931", name_prefix + "HexAbility", ability_guid);
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
@@ -945,7 +947,7 @@ namespace CallOfTheWild
             var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D8, damage_value), halfIfSaved: true);
 
             var sleep_buff = library.Get<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a");
-            var ice_tomb_buff = library.CopyAndAdd<BlueprintBuff>("6f0e450771cc7d446aea798e1fef1c7a", name_prefix + "Buff", buff_guid);//icy prison buff
+            var ice_tomb_buff = library.CopyAndAdd<BlueprintBuff>("6f0e450771cc7d446aea798e1fef1c7a", name_prefix + "HexBuff", buff_guid);//icy prison buff
             ice_tomb_buff.RemoveComponent(ice_tomb_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
             ice_tomb_buff.RemoveComponent(ice_tomb_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>());
             ice_tomb_buff.SetName(hex_ability.Name);
@@ -971,7 +973,7 @@ namespace CallOfTheWild
             run_action.Actions = Helpers.CreateActionList(damage_action, action_buff);
             hex_ability.AddComponent(run_action);
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var ice_tomb = Helpers.CreateFeature(name_prefix + "Feature",
+            var ice_tomb = Helpers.CreateFeature(name_prefix + "HexFeature",
                                           hex_ability.Name,
                                           hex_ability.Description,
                                           feature_guid,
@@ -992,7 +994,7 @@ namespace CallOfTheWild
             fast_healing_buff.SetDescription(description);
             fast_healing_buff.SetName($"{display_name}: Fast Healing");
 
-            var fast_healing_ability = library.CopyAndAdd<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830", name_prefix + "FHHexAbility", ability2_guid); //restoration
+            var fast_healing_ability = library.CopyAndAdd<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830", name_prefix + "FHHexAbility", ability1_guid); //restoration
             fast_healing_ability.RemoveComponent(fast_healing_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             fast_healing_ability.RemoveComponent(fast_healing_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
 
@@ -1044,7 +1046,7 @@ namespace CallOfTheWild
         public BlueprintFeature createAnimalServant(string name_prefix, string display_name, string description, string ability_guid, string buff_guid,
                                                string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61", name_prefix + "Ability", ability_guid);//dominate  person
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61", name_prefix + "HexAbility", ability_guid);//dominate  person
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.CanTargetSelf = test_mode;
             hex_ability.ActionType = CommandType.Standard;
@@ -1052,7 +1054,7 @@ namespace CallOfTheWild
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             var dominate_person_buff = library.Get<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f");
-            var hex_buff = library.CopyAndAdd<BlueprintBuff>(Wildshape.bear_form.AssetGuid, name_prefix + "Buff", buff_guid);
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>(Wildshape.bear_form.AssetGuid, name_prefix + "HexBuff", buff_guid);
             //library.CopyAndAdd<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc", "WitchAnimalServantHexBuff", "32b4b11964724f59a9034e61014dbb3c"); //beast_shape2;
             hex_buff.SetDescription(hex_ability.Description);
             hex_buff.SetName(hex_ability.Name);
@@ -1071,7 +1073,7 @@ namespace CallOfTheWild
 
 
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var animal_servant = Helpers.CreateFeature(name_prefix + "Feature",
+            var animal_servant = Helpers.CreateFeature(name_prefix + "HexFeature",
                               hex_ability.Name,
                               hex_ability.Description,
                               feature_guid,
@@ -1088,7 +1090,7 @@ namespace CallOfTheWild
         public BlueprintFeature createDeathCurse(string name_prefix, string display_name, string description, string ability_guid, string buff_guid,
                                                string feature_guid, string cooldown_guid)
         {
-            var hex_buff = library.CopyAndAdd<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4", name_prefix + "Buff", buff_guid); //fatigue buff
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4", name_prefix + "HexBuff", buff_guid); //fatigue buff
             var exhausted_buff = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
             var death_effect = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSavingThrow>();
             death_effect.Type = SavingThrowType.Fortitude;
@@ -1105,7 +1107,7 @@ namespace CallOfTheWild
                                                              round3_death);
             hex_buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: round2_exhausted));
 
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("6f1dcf6cfa92d1948a740195707c0dbe", name_prefix + "Ability", ability_guid); //finger of death
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("6f1dcf6cfa92d1948a740195707c0dbe", name_prefix + "HexAbility", ability_guid); //finger of death
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
@@ -1131,7 +1133,7 @@ namespace CallOfTheWild
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.ActionType = CommandType.Standard;
             Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
-            var death_curse = Helpers.CreateFeature(name_prefix + "Feature",
+            var death_curse = Helpers.CreateFeature(name_prefix + "HexFeature",
                               hex_ability.Name,
                               hex_ability.Description,
                               feature_guid,
@@ -1148,7 +1150,7 @@ namespace CallOfTheWild
         public BlueprintFeature createLayToRest(string name_prefix, string display_name, string description, string ability_guid,
                                                string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("a9a52760290591844a96d0109e30e04d", name_prefix + "Ability", ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("a9a52760290591844a96d0109e30e04d", name_prefix + "HexAbility", ability_guid);
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             hex_ability.CanTargetPoint = false;
@@ -1164,10 +1166,10 @@ namespace CallOfTheWild
             hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>(destruction.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
 
-            var lay_to_rest = Helpers.CreateFeature("WitchLayToRestHexFeature",
+            var lay_to_rest = Helpers.CreateFeature(name_prefix + "HexFeature",
                               hex_ability.Name,
                               hex_ability.Description,
-                              "3fcdc34afbb74b15a4236740d299afaf",
+                              feature_guid,
                               hex_ability.Icon,
                               FeatureGroup.None,
                               Helpers.CreateAddFact(hex_ability));
@@ -1178,14 +1180,14 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createLifeGiver(string name_prefix, string display_name, string description, string ability_guid,
+        public BlueprintFeature createLifeGiver(string name_prefix, string display_name, string description, string ability_guid,
                                                string feature_guid, string resource_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("80a1a388ee938aa4e90d427ce9a7a3e9", name_prefix + "Ability", ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("80a1a388ee938aa4e90d427ce9a7a3e9", name_prefix + "HexAbility", ability_guid);
             hex_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
-            var hex_resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", resource_guid, null);
+            var hex_resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", resource_guid, null);
             hex_resource.SetFixedResource(1);
             hex_ability.AddComponent(Helpers.CreateResourceLogic(hex_resource));
 
@@ -1197,7 +1199,7 @@ namespace CallOfTheWild
                 hex_ability.RemoveComponent(s);
             }
 
-            var life_giver = Helpers.CreateFeature(name_prefix + "Feature",
+            var life_giver = Helpers.CreateFeature(name_prefix + "HexFeature",
                               hex_ability.Name,
                               hex_ability.Description,
                               feature_guid,
@@ -1217,10 +1219,10 @@ namespace CallOfTheWild
             var touch_of_fatigue_spell = library.Get<BlueprintAbility>("5bf3315ce1ed4d94e8805706820ef64d");
             var sleep_spell = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
             var dominate_spell = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
-            var hex_buff = library.CopyAndAdd<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a", name_prefix + "Buff", buff_guid);
+            var hex_buff = library.CopyAndAdd<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a", name_prefix + "HexBuff", buff_guid);
             hex_buff.SetIcon(touch_of_fatigue_spell.Icon);
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>());
-            var hex_ability = Helpers.CreateAbility(name_prefix + "Ability",
+            var hex_ability = Helpers.CreateAbility(name_prefix + "HexAbility",
                                                     display_name,
                                                     description,
                                                     ability_guid,
@@ -1262,7 +1264,7 @@ namespace CallOfTheWild
             hex_ability.AddComponent(touch);
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
-            var eternal_slumber = Helpers.CreateFeature(name_prefix + "Feature",
+            var eternal_slumber = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       feature_guid,
@@ -1409,8 +1411,7 @@ namespace CallOfTheWild
                                                         | Kingmaker.UnitLogic.Abilities.Metamagic.Reach | Kingmaker.UnitLogic.Abilities.Metamagic.Extend;
             hex_vulnerability_spell.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             hex_vulnerability_spell.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Necromancy));
- 
-            hex_vulnerability_spell.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd"); //hold person
+
             if (!test_mode)
             {
                 hex_vulnerability_spell.AddComponent(Common.createAbilityTargetIsPartyMember(false));
