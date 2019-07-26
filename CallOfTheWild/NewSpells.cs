@@ -34,6 +34,8 @@ namespace CallOfTheWild
         static internal BlueprintAbility virtuoso_performance;
         static internal BlueprintAbility deadly_juggernaut;
         static internal BlueprintAbility invisibility_purge;
+        static internal BlueprintAbility sanctuary;
+        static internal BlueprintBuff sanctuary_buff;
 
 
         static public void load()
@@ -43,6 +45,55 @@ namespace CallOfTheWild
             createVirtuosoPerformance();
             createDeadlyJuggernaut();
             createInvisibilityPurge();
+            createSanctuary();
+        }
+
+
+        static void createSanctuary()
+        {
+            var lesser_restoration = library.Get<BlueprintAbility>("e84fc922ccf952943b5240293669b171");
+            var sancturay_logic = Helpers.Create<NewMechanics.Sanctuary>(c =>
+                                                                         {
+                                                                             c.save_type = SavingThrowType.Will;
+                                                                             c.offensive_action_effect = NewMechanics.Sanctuary.OffensiveActionEffect.REMOVE_FROM_OWNER;
+                                                                         }
+                                                                         );
+            sanctuary_buff = library.CopyAndAdd<BlueprintBuff>("525f980cb29bc2240b93e953974cb325", "SanctuaryBuff", "");//invisibility
+
+            sanctuary_buff.ComponentsArray = new BlueprintComponent[] { sancturay_logic };
+
+            var apply_buff = Common.createContextActionApplyBuff(sanctuary_buff,
+                                                                Helpers.CreateContextDuration(bonus: Helpers.CreateContextValue(AbilityRankType.Default), rate: DurationRate.Rounds),
+                                                                is_from_spell: true);
+
+            sanctuary = Helpers.CreateAbility("SanctuaryAbility",
+                                                "Sanctuary",
+                                                "Any opponent attempting to directly attack the warded creature, even with a targeted spell, must attempt a Will save. If the save succeeds, the opponent can attack normally and is unaffected by that casting of the spell. If the save fails, the opponent can’t follow through with the attack, that part of its action is lost, and it can’t directly attack the warded creature for the duration of the spell. Those not attempting to attack the subject remain unaffected. This spell does not prevent the warded creature from being attacked or affected by area of effect spells. The subject cannot attack without breaking the spell but may use non-attack spells or otherwise act.",
+                                                "",
+                                                lesser_restoration.Icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                Helpers.roundsPerLevelDuration,
+                                                "Will negates",
+                                                Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                                Helpers.CreateRunActions(apply_buff)
+                                                );
+
+            sanctuary_buff.SetDescription(sanctuary.Description);
+            sanctuary_buff.SetIcon(sanctuary.Icon);
+
+            sanctuary.CanTargetSelf = true;
+            sanctuary.CanTargetPoint = false;
+            sanctuary.CanTargetFriends = true;
+            sanctuary.CanTargetEnemies = false;
+            sanctuary.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            sanctuary.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionTouch;
+            sanctuary.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten;
+            sanctuary.AddToSpellList(Helpers.clericSpellList, 1);
+            sanctuary.AddToSpellList(Helpers.inquisitorSpellList, 1);
+
+            sanctuary.AddSpellAndScroll("c0af0b5277e91e347ade3aa8994b0d17"); //invisibility
         }
 
 
@@ -404,5 +455,8 @@ namespace CallOfTheWild
 
             invisibility_purge.AddSpellAndScroll("12f4ee72c02537244b5b2bacfa236bc7"); //see invisibility scroll
         }
+
+
+
     }
 }
