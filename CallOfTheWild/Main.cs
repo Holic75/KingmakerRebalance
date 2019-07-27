@@ -88,6 +88,7 @@ public class Main
 
                     CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints);
                     CallOfTheWild.Helpers.Load();
+                    CallOfTheWild.ArmorEnchantments.initialize();
 
                     if (settings.nerf_animal_companion)
                     {

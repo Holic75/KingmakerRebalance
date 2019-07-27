@@ -118,6 +118,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimalCompanionInventory.cs" />
+    <Compile Include="ArmorEnchantments.cs" />
     <Compile Include="Bloodrager.cs" />
     <Compile Include="ChannelEnergyEngine.cs" />
     <Compile Include="CleanUp.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="SaveCompatibility.cs" />
     <Compile Include="SharedSpells.cs" />
     <Compile Include="Skald.cs" />
+    <Compile Include="Warpriest.cs" />
     <Compile Include="Wildshape.cs" />
     <Compile Include="Witch.cs" />
   </ItemGroup>

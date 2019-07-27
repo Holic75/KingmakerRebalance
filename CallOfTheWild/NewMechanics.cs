@@ -47,6 +47,9 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.EntitySystem;
+using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
+using Kingmaker.UnitLogic.Alignments;
 
 namespace CallOfTheWild
 {
@@ -274,6 +277,99 @@ namespace CallOfTheWild
         }
 
 
+        public class BuffRemainingGroupsSizeEnchantPrimaryHandWeapon : BuffLogic
+        {
+            public ActivatableAbilityGroup group;
+            public BlueprintWeaponEnchantment[] enchantments;
+            public BlueprintWeaponType[] allowed_types;
+            public bool lock_slot = false;
+            public bool only_non_magical = false;
+            [JsonProperty]
+            private ItemEnchantment m_Enchantment;
+            [JsonProperty]
+            private ItemEntityWeapon m_Weapon;
+            [JsonProperty]
+            private bool m_unlock;
+
+
+            private int getRemainingGroupSize()
+            {
+                int remaining_group_size = Context.MaybeCaster.Ensure<UnitPartActivatableAbility>().GetGroupSize(this.group);
+
+                foreach (var a in Owner.ActivatableAbilities)
+                {
+                    if (a.Blueprint.Group == group && a.IsOn)
+                    {
+                        remaining_group_size--;
+                    }
+                }
+                return remaining_group_size;
+            }
+
+            public override void OnFactActivate()
+            {
+                m_unlock = false;
+                var unit = this.Owner;
+                if (unit == null) return;
+
+                var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+                if (weapon == null)
+                {
+                    return;
+                }
+
+                if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
+                {
+                    return;
+                }
+                int bonus = getRemainingGroupSize() - 1;
+                if (bonus < 0)
+                {
+                    return;
+                }
+
+                if (bonus >= enchantments.Length)
+                {
+                    bonus = enchantments.Length - 1;
+                }
+
+                /*var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                if (fact != null)
+                {
+                    weapon.RemoveEnchantment(fact);
+                }*/
+
+                if (weapon.EnchantmentValue != 0 && only_non_magical)
+                {
+                    return;
+                }
+                m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+
+                if (lock_slot && !weapon.IsNonRemovable)
+                {
+                    weapon.IsNonRemovable = true;
+                    m_unlock = true;
+                }
+                //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
+                m_Weapon = weapon;
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Weapon == null)
+                    return;
+                //m_Weapon.IsNonRemovable = false;
+                if (m_unlock)
+                {
+                    m_Weapon.IsNonRemovable = false;
+                }
+                if (this.m_Enchantment == null)
+                    return;
+                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+            }
+        }
+
+
         public class BuffContextEnchantPrimaryHandWeapon : BuffLogic
         {
             public BlueprintWeaponEnchantment[] enchantments;
@@ -295,7 +391,7 @@ namespace CallOfTheWild
                 var unit = this.Owner;
                 if (unit == null) return;
 
-                var weapon = unit.Body.PrimaryHand.MaybeWeapon;
+                var weapon = unit.Body.PrimaryHand.HasWeapon? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
                 if (weapon == null)
                 {
                     return;
@@ -316,11 +412,11 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                /*var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
                 if (fact != null)
                 {
                     weapon.RemoveEnchantment(fact);
-                }
+                }*/
 
                 if (weapon.EnchantmentValue != 0  && only_non_magical)
                 {
@@ -375,7 +471,7 @@ namespace CallOfTheWild
                 var unit = this.Owner;
                 if (unit == null) return;
 
-                var weapon = unit.Body.PrimaryHand.MaybeWeapon;
+                var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
                 if (weapon == null)
                 {
                     return;
@@ -391,11 +487,11 @@ namespace CallOfTheWild
                     return;
                 }
 
-                var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantment);
+                /*var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantment);
                 if (fact != null)
                 {
                     weapon.RemoveEnchantment(fact);
-                }
+                }*/
 
                 if (weapon.EnchantmentValue != 0 && only_non_magical)
                 {
@@ -433,6 +529,9 @@ namespace CallOfTheWild
         {
             public BlueprintArmorEnchantment[] enchantments;
             public ContextValue value;
+            public bool lock_slot = false;
+            [JsonProperty]
+            private bool m_unlock;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
             [JsonProperty]
@@ -440,6 +539,7 @@ namespace CallOfTheWild
 
             public override void OnFactActivate()
             {
+                m_unlock = false;
                 var unit = this.Owner;
                 if (unit == null) return;
 
@@ -459,15 +559,20 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                var fact = shield.ArmorComponent.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                /*var fact = shield.ArmorComponent.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
                 if (fact != null)
                 {
                     shield.RemoveEnchantment(fact);
-                }
+                }*/
 
                 m_Enchantment = shield.ArmorComponent.AddEnchantment(enchantments[bonus], Context, new Rounds?());
                 shield.ArmorComponent.RecalculateStats();
                 m_Shield = shield;
+                if (lock_slot && !shield.IsNonRemovable)
+                {
+                    shield.IsNonRemovable = true;
+                    m_unlock = true;
+                }
             }
 
             public override void OnFactDeactivate()
@@ -479,6 +584,106 @@ namespace CallOfTheWild
                 {
                     m_Shield.ArmorComponent.RecalculateStats();
                 }
+                else
+                {
+                    return;
+                }
+                if (m_unlock)
+                {
+                    m_Shield.IsNonRemovable = false;
+                }
+            }
+        }
+
+
+        public class BuffRemainingGroupSizetEnchantArmor : BuffLogic
+        {
+            public BlueprintArmorEnchantment[] enchantments;
+            public ActivatableAbilityGroup group;
+            public bool shift_with_current_enchantment = true;
+            public ContextValue value;
+            public bool lock_slot = false;
+            public bool only_non_magical = false;
+            [JsonProperty]
+            private bool m_unlock;
+            [JsonProperty]
+            private ItemEnchantment m_Enchantment;
+            [JsonProperty]
+            private ItemEntityArmor m_Armor;
+
+
+            private int getRemainingGroupSize()
+            {
+                int remaining_group_size = Context.MaybeCaster.Ensure<UnitPartActivatableAbility>().GetGroupSize(this.group);
+
+                foreach (var a in Owner.ActivatableAbilities)
+                {
+                    if (a.Blueprint.Group == group && a.IsOn)
+                    {
+                        remaining_group_size--;
+                    }
+                }
+                return remaining_group_size;
+            }
+
+            public override void OnFactActivate()
+            {
+                m_unlock = false;
+                var unit = this.Owner;
+                if (unit == null) return;
+
+                var armor = unit.Body.Armor.MaybeArmor;
+                if (armor == null) return;
+
+                int bonus = getRemainingGroupSize() - 1;
+                if (bonus < 0)
+                {
+                    return;
+                }
+
+                if (shift_with_current_enchantment)
+                {
+                    bonus += GameHelper.GetItemEnhancementBonus(armor);
+                    if (bonus >= enchantments.Length)
+                    {
+                        return;
+                    }
+                }
+
+                if (bonus >= enchantments.Length && shift_with_current_enchantment)
+                {
+                    bonus = enchantments.Length - 1;
+                }
+
+
+                m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+
+                armor.RecalculateStats();
+                m_Armor = armor;
+                if (lock_slot && !armor.IsNonRemovable)
+                {
+                    armor.IsNonRemovable = true;
+                    m_unlock = true;
+                }
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Enchantment == null)
+                    return;
+                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+                if (m_Armor != null)
+                {
+                    m_Armor.RecalculateStats();
+                }
+                else
+                {
+                    return;
+                }
+                if (m_unlock)
+                {
+                    m_Armor.IsNonRemovable = false;
+                }
             }
         }
 
@@ -487,6 +692,10 @@ namespace CallOfTheWild
         {
             public BlueprintArmorEnchantment[] enchantments;
             public ContextValue value;
+            public bool lock_slot = false;
+            public bool only_non_magical = false;
+            [JsonProperty]
+            private bool m_unlock;
             [JsonProperty]
             private ItemEnchantment m_Enchantment;
             [JsonProperty]
@@ -494,6 +703,7 @@ namespace CallOfTheWild
 
             public override void OnFactActivate()
             {
+                m_unlock = false;
                 var unit = this.Owner;
                 if (unit == null) return;
 
@@ -510,16 +720,21 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                var fact = armor.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
+                /*var fact = armor.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
                 if (fact != null )
                 {
                     armor.RemoveEnchantment(fact);
-                }
+                }*/
 
                 m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
 
                 armor.RecalculateStats();
                 m_Armor = armor;
+                if (lock_slot && !armor.IsNonRemovable)
+                {
+                    armor.IsNonRemovable = true;
+                    m_unlock = true;
+                }
             }
 
             public override void OnFactDeactivate()
@@ -530,6 +745,14 @@ namespace CallOfTheWild
                 if (m_Armor != null)
                 {
                     m_Armor.RecalculateStats();
+                }
+                else
+                {
+                    return;
+                }
+                if (m_unlock)
+                {
+                    m_Armor.IsNonRemovable = false;
                 }
             }
         }
@@ -1166,6 +1389,64 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextWeaponDamageDiceReplacement : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintParametrizedFeature required_parametrized_feature;
+            public DiceFormula[] dice_formulas;
+            public ContextValue value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+
+            private bool checkFeature(WeaponCategory category)
+            {
+                if (required_parametrized_feature == null)
+                {
+                    return true;
+                }
+                return this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == required_parametrized_feature).Any(p => p.Param == category);
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (!checkFeature(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                int dice_id = value.Calculate(this.Context);
+                if (dice_id < 0)
+                {
+                    dice_id = 0;
+                }
+                if (dice_id >= dice_formulas.Length)
+                {
+                    dice_id = dice_formulas.Length - 1;
+                }
+
+                int new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2;
+                int current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2;
+
+                if (new_avg_dmg > current_avg_damage)
+                {
+                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+
+            }
+        }
+
+
         [ComponentName("Remove Weapon Damage Stat")]
         public class Immaterial : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
         {
@@ -1503,6 +1784,18 @@ namespace CallOfTheWild
                         }
                     }
                 }
+            }
+        }
+
+
+        public class ActivatableAbilityAlignmentRestriction : ActivatableAbilityRestriction
+        {
+            [AlignmentMask]
+            public AlignmentMaskType Alignment;
+
+            public override bool IsAvailable()
+            {
+                return (Owner.Alignment.Value.ToMask() & this.Alignment) != AlignmentMaskType.None;
             }
         }
 

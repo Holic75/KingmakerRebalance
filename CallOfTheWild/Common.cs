@@ -1169,11 +1169,12 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
-                                                                    BlueprintBuff effect, BlueprintBuff target_buff, Kingmaker.ElementsSystem.GameAction[] pre_actions,
-                                                                    UnityEngine.AnimationClip animation,
-                                                                    ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
-                                                                    CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
+
+        static internal BlueprintActivatableAbility createSwitchActivatableAbilityOnlyBuff(string name, string switch_guid, string ability_guid,
+                                                            BlueprintBuff effect, BlueprintBuff target_buff, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                            UnityEngine.AnimationClip animation,
+                                                            ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
+                                                            CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
 
         {
             effect.SetBuffFlags(BuffFlags.HiddenInUi | effect.GetBuffFlags());
@@ -1204,6 +1205,23 @@ namespace CallOfTheWild
             }
             ability.Group = group;
             ability.WeightInGroup = weight;
+
+            return ability;
+        }
+
+
+        static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
+                                                                    BlueprintBuff effect, BlueprintBuff target_buff, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                                    UnityEngine.AnimationClip animation,
+                                                                    ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
+                                                                    CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
+
+        {
+            var ability = createSwitchActivatableAbilityOnlyBuff(name, switch_guid, ability_guid,
+                                                                    effect, target_buff, pre_actions,
+                                                                    animation,
+                                                                    group, weight,
+                                                                    command_type, unit_command);
             var feature = Helpers.CreateFeature(name + "Feature",
                                                 effect.Name,
                                                 effect.Description,
@@ -1795,6 +1813,24 @@ namespace CallOfTheWild
             return e;
         }
 
+
+        static internal BlueprintArmorEnchantment createArmorEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, int cost, params BlueprintComponent[] components)
+        {
+            var e = Helpers.Create<BlueprintArmorEnchantment>();
+            Helpers.SetField(e, "m_IdentifyDC", identify_dc);
+            e.name = name;
+
+            Helpers.SetField(e, "m_EnchantName", Helpers.CreateString($"{name}.DisplayName", display_name));
+            Helpers.SetField(e, "m_Description", Helpers.CreateString($"{name}.Description", description));
+            Helpers.SetField(e, "m_Prefix", Helpers.CreateString($"{name}.Prefix", prefix));
+            Helpers.SetField(e, "m_Suffix", Helpers.CreateString($"{name}.Suffix", suffix));
+            Helpers.SetField(e, "m_EnchantmentCost", cost);
+            e.AddComponents(components);
+            library.AddAsset(e, guid);
+
+            return e;
+        }
+
         static internal NewMechanics.WeaponAttackStatReplacement createWeaponAttackStatReplacementEnchantment(StatType stat)
         {
             var w = Helpers.Create<NewMechanics.WeaponAttackStatReplacement>();
@@ -1874,6 +1910,40 @@ namespace CallOfTheWild
             var i = Helpers.Create<IncreaseActivatableAbilityGroupSize>();
             i.Group = group;
             return i;
+        }
+
+
+        static internal ReplaceStatForPrerequisites createReplace34BabWithClassLevel(BlueprintCharacterClass character_class)
+        {
+            var r = Helpers.Create<ReplaceStatForPrerequisites>();
+            r.Policy = ReplaceStatForPrerequisites.StatReplacementPolicy.MagusBaseAttack;
+            r.CharacterClass = character_class;
+            r.OldStat = StatType.BaseAttackBonus;
+            return r;
+        }
+
+
+        static internal NewMechanics.ContextWeaponDamageDiceReplacement createContextWeaponDamageDiceReplacement(BlueprintParametrizedFeature required_parametrized_feature,
+                                                                                                                 ContextValue value, params DiceFormula[] dice_formulas)
+        {
+            var c = Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacement>();
+            c.required_parametrized_feature = required_parametrized_feature;
+            c.value = value;
+            c.dice_formulas = dice_formulas;
+            return c;
+        }
+
+
+        static internal NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group ,bool only_non_magical, 
+                                                                                                                                       bool lock_slot, params BlueprintWeaponEnchantment[] enchants)
+        {
+            var b = Helpers.Create<NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
+            b.allowed_types = new BlueprintWeaponType[0];
+            b.enchantments = enchants;
+            b.lock_slot = lock_slot;
+            b.only_non_magical = only_non_magical;
+            b.group = group;
+            return b;
         }
     }
 }
