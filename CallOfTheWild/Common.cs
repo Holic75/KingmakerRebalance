@@ -1870,6 +1870,19 @@ namespace CallOfTheWild
         }
 
 
+        static internal NewMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
+                                                                                                           bool only_non_magical, bool lock_slot,
+                                                                                                           params BlueprintArmorEnchantment[] enchantments)
+        {
+            var b = Helpers.Create<NewMechanics.BuffContextEnchantArmor>();
+            b.only_non_magical = only_non_magical;
+            b.lock_slot = lock_slot;
+            b.enchantments = enchantments;
+            b.value = value;
+            return b;
+        }
+
+
         static internal AbilityCasterMainWeaponCheck createAbilityCasterMainWeaponCheck(params WeaponCategory[] category)
         {
             var a = Helpers.Create<AbilityCasterMainWeaponCheck>();
@@ -1934,7 +1947,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group ,bool only_non_magical, 
+        static internal NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical, 
                                                                                                                                        bool lock_slot, params BlueprintWeaponEnchantment[] enchants)
         {
             var b = Helpers.Create<NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
@@ -1943,6 +1956,19 @@ namespace CallOfTheWild
             b.lock_slot = lock_slot;
             b.only_non_magical = only_non_magical;
             b.group = group;
+            return b;
+        }
+
+
+        static internal NewMechanics.BuffRemainingGroupSizetEnchantArmor createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup group, bool only_non_magical,
+                                                                                                                                       bool lock_slot, params BlueprintArmorEnchantment[] enchants)
+        {
+            var b = Helpers.Create<NewMechanics.BuffRemainingGroupSizetEnchantArmor>();
+            b.enchantments = enchants;
+            b.group = group;
+            b.lock_slot = lock_slot;
+            b.only_non_magical = only_non_magical;
+            b.shift_with_current_enchantment = true;
             return b;
         }
     }

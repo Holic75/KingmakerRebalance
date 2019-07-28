@@ -1799,5 +1799,65 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMainWeaponCheckHasParametrizedFeature : BlueprintComponent, IAbilityCasterChecker
+        {
+            public BlueprintParametrizedFeature feature;
+
+
+            private bool checkFeature(UnitEntityData caster, WeaponCategory category)
+            {
+                if (feature == null)
+                {
+                    return true;
+                }
+                return caster.Descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == category);
+            }
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                var weapon = caster.Body.PrimaryHand.HasWeapon ? caster.Body.PrimaryHand.MaybeWeapon : caster.Body.EmptyHandWeapon;
+                if (weapon == null)
+                {
+                    return false;
+                }
+
+                return checkFeature(caster, weapon.Blueprint.Category);
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
+        public class ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction : ActivatableAbilityRestriction
+        {
+            public BlueprintParametrizedFeature feature;
+
+            private bool checkFeature(WeaponCategory category)
+            {
+                if (feature == null)
+                {
+                    return true;
+                }
+                return Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == category);
+            }
+
+            public override bool IsAvailable()
+            {
+                var weapon = Owner.Body.PrimaryHand.HasWeapon ? Owner.Body.PrimaryHand.MaybeWeapon : Owner.Body.EmptyHandWeapon;
+                if (weapon == null)
+                {
+                    return false;
+                }
+
+                return checkFeature(weapon.Blueprint.Category);
+            }
+        }
+
     }
 }

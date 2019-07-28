@@ -3,8 +3,10 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using System;
@@ -229,7 +231,7 @@ namespace CallOfTheWild
         }
 
 
-        static public void updateItems(ChannelType channel_type, params BlueprintComponent[] components_to_add)
+        static public void updateItemsFeature(ChannelType channel_type, BlueprintFeature feature)
         {
             //phylacteries bonuses
             var negative_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316");
@@ -237,21 +239,26 @@ namespace CallOfTheWild
             var negative_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("cb4a39044b59f5e47ad5bc08ff9d6669");
             var positive_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("e988cf802d403d941b2ed8b6016de68f");
 
-            foreach (var c in components_to_add)
+            var linnorm_buff = library.Get<BlueprintBuff>("b5ebb94df76531c4ca4f13bfd91efd4e");
+
+            var c = Helpers.Create<Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment>();
+            c.Feature = feature;
+
+            if ((channel_type | ChannelType.PositiveHeal) >0 || (channel_type | ChannelType.PositiveHarm) >0)
             {
-                if ((channel_type | ChannelType.PositiveHeal) >0 || (channel_type | ChannelType.PositiveHarm) >0)
-                {
-                    positive_bonus1.AddComponent(c);
-                    positive_bonus2.AddComponent(c);
-                    positive_bonus2.AddComponent(c);
-                }
-                else if ((channel_type | ChannelType.NegativeHarm) > 0 || (channel_type | ChannelType.NegativeHeal) > 0)
-                {
-                    negative_bonus1.AddComponent(c);
-                    negative_bonus2.AddComponent(c);
-                    negative_bonus2.AddComponent(c);
-                }
+                positive_bonus1.AddComponent(c);
+                positive_bonus2.AddComponent(c);
+                positive_bonus2.AddComponent(c);
+                linnorm_buff.AddComponent(Helpers.CreateAddFact(feature));
+                linnorm_buff.AddComponent(Helpers.CreateAddFact(feature));
             }
+            else if ((channel_type | ChannelType.NegativeHarm) > 0 || (channel_type | ChannelType.NegativeHeal) > 0)
+            {
+                negative_bonus1.AddComponent(c);
+                negative_bonus2.AddComponent(c);
+                negative_bonus2.AddComponent(c);
+            }
+
         }
 
 
@@ -277,6 +284,24 @@ namespace CallOfTheWild
                     }
                 }
             }
+
+
+            BlueprintBuff[] buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("b5ebb94df76531c4ca4f13bfd91efd4e") };
+
+            foreach (var buff in buffs)
+            {
+                var boni = buff.GetComponents<AddCasterLevelForAbility>().ToArray();
+                foreach (var b in boni)
+                {
+                    if (b.Spell == original_ability)
+                    {
+                        var b2 = b.CreateCopy();
+                        b2.Spell = quicken_ability;
+                        buff.AddComponent(b2);
+                    }
+                }
+            }
+
         }
 
     }

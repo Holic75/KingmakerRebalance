@@ -147,6 +147,7 @@ namespace CallOfTheWild
 
         static void createEnergyResistanceEnchantments()
         {
+            energy_resistance_enchantments = new Dictionary<DamageEnergyType, BlueprintArmorEnchantment[]>();
             DamageEnergyType[] energies = new DamageEnergyType[] { DamageEnergyType.Fire, DamageEnergyType.Cold, DamageEnergyType.Electricity, DamageEnergyType.Acid};
             int[] dr_values = new int[] { 10, 20, 30 };
             int[] enchantment_cost = new int[] { 1, 2, 4 };
