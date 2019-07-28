@@ -300,7 +300,7 @@ namespace CallOfTheWild
                 {
                     if (a.Blueprint.Group == group && a.IsOn)
                     {
-                        remaining_group_size--;
+                        remaining_group_size -= a.Blueprint.WeightInGroup;
                     }
                 }
                 return remaining_group_size;
@@ -391,7 +391,7 @@ namespace CallOfTheWild
                 var unit = this.Owner;
                 if (unit == null) return;
 
-                var weapon = unit.Body.PrimaryHand.HasWeapon? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+                var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
                 if (weapon == null)
                 {
                     return;
@@ -418,7 +418,7 @@ namespace CallOfTheWild
                     weapon.RemoveEnchantment(fact);
                 }*/
 
-                if (weapon.EnchantmentValue != 0  && only_non_magical)
+                if (weapon.EnchantmentValue != 0 && only_non_magical)
                 {
                     return;
                 }
@@ -620,7 +620,7 @@ namespace CallOfTheWild
                 {
                     if (a.Blueprint.Group == group && a.IsOn)
                     {
-                        remaining_group_size--;
+                        remaining_group_size -= a.Blueprint.WeightInGroup;
                     }
                 }
                 return remaining_group_size;
@@ -644,13 +644,9 @@ namespace CallOfTheWild
                 if (shift_with_current_enchantment)
                 {
                     bonus += GameHelper.GetItemEnhancementBonus(armor);
-                    if (bonus >= enchantments.Length)
-                    {
-                        return;
-                    }
                 }
 
-                if (bonus >= enchantments.Length && shift_with_current_enchantment)
+                if (bonus >= enchantments.Length)
                 {
                     bonus = enchantments.Length - 1;
                 }
@@ -1264,7 +1260,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ReflectDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
         {
-            
+
             public bool reflect_melee_weapon = false;
             public bool reflect_ranged_weapon = false;
             public bool reflect_magic = false;
@@ -1291,7 +1287,7 @@ namespace CallOfTheWild
                     {
                         return;
                     }
-                    
+
                     if (is_ranged && !reflect_ranged_weapon)
                     {
                         return;
@@ -1321,7 +1317,7 @@ namespace CallOfTheWild
 
 
         [ComponentName("Weapon Attack Stat Replacement")]
-        public class   WeaponAttackStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
+        public class WeaponAttackStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
         {
             public StatType Stat;
 
@@ -1381,7 +1377,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                if (damage_type_description != null && evt.DamageDescription.Count()>0)
+                if (damage_type_description != null && evt.DamageDescription.Count() > 0)
                 {
                     evt.DamageDescription[0].TypeDescription = damage_type_description;
                 }
@@ -1586,7 +1582,7 @@ namespace CallOfTheWild
                             a.Deactivate();
                         }
                     }
-                    
+
                 }
             }
         }
@@ -1603,7 +1599,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAttackBonus evt)
             {
-                if  (!evt.Weapon.Blueprint.IsRanged)
+                if (!evt.Weapon.Blueprint.IsRanged)
                     return;
 
                 int bonus = AttackBonus + (evt.Target.CombatState.IsFlanked ? 0 : AdditionalFlankBonus);
@@ -1635,13 +1631,13 @@ namespace CallOfTheWild
                                                IRulebookHandler<RuleHealDamage>, IRulebookHandler<RuleCalculateAbilityParams>
         {
             private int bonus = 0;
-            public  void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 bonus = 0;
                 Main.logger.Log($"triggered + {bonus}");
             }
 
-            public  void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
             {
                 bonus = evt.Result.CasterLevel;
                 Main.logger.Log($"triggered + {bonus}");

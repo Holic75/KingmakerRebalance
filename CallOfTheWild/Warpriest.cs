@@ -74,12 +74,16 @@ namespace CallOfTheWild
         static internal BlueprintFeature warpriest_spontaneous_harm;
         static internal BlueprintFeatureSelection warpriest_energy_selection;
         static internal BlueprintAbilityResource warpriest_fervor_resource;
+        static internal BlueprintFeature warpriest_fervor;
         static internal BlueprintFeature fervor_positive;
         static internal BlueprintFeature fervor_negative;
         static internal BlueprintFeature warpriest_channel_energy;
-        static internal BlueprintFeature warpriest_aspect_of_war;
         static internal ActivatableAbilityGroup sacred_weapon_enchancement_group = ActivatableAbilityGroup.TrueMagus;
         static internal ActivatableAbilityGroup sacred_armor_enchancement_group = ActivatableAbilityGroup.ArcaneWeaponProperty;
+
+        static internal BlueprintBuff warpriest_aspect_of_war_buff;
+        static internal BlueprintFeature warpriest_aspect_of_war;
+        static internal BlueprintAbilityResource warpriest_aspect_of_war_resource;
 
 
         internal static void createWarpriestClass()
@@ -106,7 +110,7 @@ namespace CallOfTheWild
             warpriest_class.ReflexSave = cleric_class.ReflexSave;
             warpriest_class.WillSave = cleric_class.WillSave;
             warpriest_class.Spellbook = createWarpriestSpellbook();
-            warpriest_class.ClassSkills = cleric_class.ClassSkills;
+            warpriest_class.ClassSkills = cleric_class.ClassSkills.AddToArray(StatType.SkillAthletics, StatType.SkillLoreNature);
             warpriest_class.IsDivineCaster = true;
             warpriest_class.IsArcaneCaster = false;
             warpriest_class.StartingGold = cleric_class.StartingGold;
@@ -173,9 +177,68 @@ namespace CallOfTheWild
             createSacredWeaponEnhancement();
             createSpontaneousConversion();
             createFervor();
-            //createChannelEnergy();
+            createChannelEnergy();
             createSacredArmor();
-            //createAspectOfWar();
+            createAspectOfWar();
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+            var fighter_feat = library.Get<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f");
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            var weapon_focus_selection = Helpers.CreateFeatureSelection("WarpriestWeaponFocusSelection",
+                                                                        "Focus Weapon",
+                                                                        "At 1st level, a warpriest receives Weapon Focus as a bonus feat (she can choose any weapon, not just his deity’s favored weapon).",
+                                                                        "",
+                                                                        weapon_focus.Icon,
+                                                                        FeatureGroup.None);
+            weapon_focus_selection.IgnorePrerequisites = true;
+            weapon_focus_selection.AllFeatures = new BlueprintFeature[] { weapon_focus };
+
+            warpriest_progression = Helpers.CreateProgression("WarpriestProgression",
+                                                               warpriest_class.Name,
+                                                               warpriest_class.Description,
+                                                               "",
+                                                               warpriest_class.Icon,
+                                                               FeatureGroup.None);
+            warpriest_progression.Classes = getWarpriestArray();
+
+            warpriest_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies, detect_magic, warpriest_orisons,
+                                                                                        warpriest_fighter_feat_prerequisite_replacement,
+                                                                                        warpriest_deity_selection,
+                                                                                        warpriest_energy_selection,
+                                                                                        weapon_focus_selection,
+                                                                                        warpriest_sacred_weapon_damage,
+                                                                                        library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
+                                                                    Helpers.LevelEntry(2, warpriest_fervor),
+                                                                    Helpers.LevelEntry(3, fighter_feat),
+                                                                    Helpers.LevelEntry(4, warpriest_channel_energy, warpriest_sacred_weapon_enhancement),
+                                                                    Helpers.LevelEntry(5),
+                                                                    Helpers.LevelEntry(6, fighter_feat),
+                                                                    Helpers.LevelEntry(7, warpriest_sacred_armor),
+                                                                    Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
+                                                                    Helpers.LevelEntry(9, fighter_feat),
+                                                                    Helpers.LevelEntry(10, warpriest_sacred_armor2),
+                                                                    Helpers.LevelEntry(11),
+                                                                    Helpers.LevelEntry(12, fighter_feat, warpriest_sacred_weapon_enhancement3),
+                                                                    Helpers.LevelEntry(13, warpriest_sacred_armor3),
+                                                                    Helpers.LevelEntry(14),
+                                                                    Helpers.LevelEntry(15, fighter_feat),
+                                                                    Helpers.LevelEntry(16, warpriest_sacred_weapon_enhancement4, warpriest_sacred_armor4),
+                                                                    Helpers.LevelEntry(17),
+                                                                    Helpers.LevelEntry(18, fighter_feat),
+                                                                    Helpers.LevelEntry(19, warpriest_sacred_armor5),
+                                                                    Helpers.LevelEntry(20, warpriest_sacred_weapon_enhancement5, warpriest_aspect_of_war)
+                                                                    };
+
+            warpriest_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] {warpriest_proficiencies, detect_magic, warpriest_orisons,
+                                                                                        warpriest_fighter_feat_prerequisite_replacement,
+                                                                                        warpriest_deity_selection};
+            warpriest_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(weapon_focus_selection, fighter_feat, fighter_feat, fighter_feat, fighter_feat, fighter_feat, fighter_feat),
+                                                         Helpers.CreateUIGroup(warpriest_energy_selection, warpriest_fervor, warpriest_channel_energy, warpriest_aspect_of_war),
+                                                         Helpers.CreateUIGroup(warpriest_sacred_weapon_damage, warpriest_sacred_weapon_enhancement, warpriest_sacred_weapon_enhancement2,
+                                                                               warpriest_sacred_weapon_enhancement3, warpriest_sacred_weapon_enhancement4, warpriest_sacred_weapon_enhancement5),
+                                                         Helpers.CreateUIGroup(warpriest_sacred_armor, warpriest_sacred_armor2, warpriest_sacred_armor3,
+                                                                               warpriest_sacred_armor4, warpriest_sacred_armor5)
+                                                        };
         }
 
 
@@ -222,13 +285,23 @@ namespace CallOfTheWild
             
             foreach (var f in warpriest_deity_selection.AllFeatures)
             {
-                f.GetComponent<ForbidSpellbookOnAlignmentDeviation>().Spellbooks = f.GetComponent<ForbidSpellbookOnAlignmentDeviation>().Spellbooks.AddToArray(warpriest_class.Spellbook);
-                f.GetComponent<AddStartingEquipment>().RestrictedByClass = f.GetComponent<AddStartingEquipment>().RestrictedByClass.AddToArray(warpriest_class);
-
-                var ff = f.GetComponent<AddFeatureOnClassLevel>();
-                if (ff != null)
+                var f1 = f.GetComponent<ForbidSpellbookOnAlignmentDeviation>();
+                if (f1 != null)
                 {
-                    ff.AdditionalClasses = ff.AdditionalClasses.AddToArray(warpriest_class);
+                    f1.Spellbooks = f1.Spellbooks.AddToArray(warpriest_class.Spellbook);
+                }
+
+                var f2 = f.GetComponent<AddStartingEquipment>();
+                if (f2 != null)
+                {
+                    f2.RestrictedByClass = f2.RestrictedByClass.AddToArray(warpriest_class);
+                }
+
+
+                var f3 = f.GetComponent<AddFeatureOnClassLevel>();
+                if (f3 != null)
+                {
+                    f3.AdditionalClasses = f3.AdditionalClasses.AddToArray(warpriest_class);
                 }
             }
         }
@@ -264,8 +337,8 @@ namespace CallOfTheWild
         static void createFervor()
         {
             warpriest_fervor_resource = Helpers.CreateAbilityResource("WarpriestFervorResource", "", "", "", null);
-            warpriest_fervor_resource.SetIncreasedByLevelStartPlusDivStep(1, 2, 1, 2, 1, 0, 0.0f, getWarpriestArray());
-            warpriest_fervor_resource.SetIncreasedByStat(1, StatType.Wisdom);
+            warpriest_fervor_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, getWarpriestArray());
+            warpriest_fervor_resource.SetIncreasedByStat(0, StatType.Wisdom);
 
             var cure_light_wounds = library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f");
             var inflict_light_wounds = library.Get<BlueprintAbility>("244a214d3b0188e4eb43d3a72108b67b");
@@ -278,7 +351,7 @@ namespace CallOfTheWild
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
 
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                      type: AbilityRankType.DamageBonus, classes: getWarpriestArray(), startLevel: 5, stepLevel: 3); 
+                                                                      type: AbilityRankType.DamageBonus, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3); 
 
             var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersAbility",
                                                                         "Fervor (Postive Energy) Others",
@@ -313,6 +386,7 @@ namespace CallOfTheWild
             var fervor_positive_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_positive_ability_others, "WarpriestFervorPositiveSelfAbility", "");
             fervor_positive_ability_self.SetName("Fervor (Postive Energy) Self");
             fervor_positive_ability_self.Range = AbilityRange.Personal;
+            fervor_positive_ability_self.CanTargetSelf = true;
             fervor_positive_ability_self.CanTargetFriends = false;
             fervor_positive_ability_self.CanTargetEnemies = false;
             fervor_positive_ability_self.ActionType = CommandType.Swift;
@@ -324,8 +398,7 @@ namespace CallOfTheWild
                                                     "",
                                                     fervor_positive_ability_others.Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.CreateAddFacts(fervor_positive_ability_self, fervor_positive_ability_others),
-                                                    Helpers.PrerequisiteFeature(warpriest_spontaneous_heal)
+                                                    Helpers.CreateAddFacts(fervor_positive_ability_self, fervor_positive_ability_others)
                                                     );
 
 
@@ -361,6 +434,7 @@ namespace CallOfTheWild
             var fervor_negative_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_negative_ability_others, "WarpriestFervorNegativeSelfAbility", "");
             fervor_negative_ability_self.SetName("Fervor (Negative Energy) Self");
             fervor_negative_ability_self.Range = AbilityRange.Personal;
+            fervor_negative_ability_self.CanTargetSelf = true;
             fervor_negative_ability_self.CanTargetFriends = false;
             fervor_negative_ability_self.CanTargetEnemies = false;
             fervor_negative_ability_self.ActionType = CommandType.Swift;
@@ -372,10 +446,96 @@ namespace CallOfTheWild
                                                     "",
                                                     fervor_negative_ability_others.Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.CreateAddFacts(fervor_negative_ability_self, fervor_negative_ability_others),
-                                                    Helpers.PrerequisiteFeature(warpriest_spontaneous_harm)
+                                                    Helpers.CreateAddFacts(fervor_negative_ability_self, fervor_negative_ability_others)
                                                     );
+
+            warpriest_fervor = Helpers.CreateFeature("WarpriestFervorFeature",
+                                                     "Fervor",
+                                                     "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.\n"
+                                                     + "An evil warpriest(or one who worships an evil deity) can use this ability to instead deal damage to living creatures with a melee touch attack and heal undead creatures with a touch.This counts as negative energy.\n"
+                                                     + "A neutral warpriest who worships a neutral deity(or one who is not devoted to a particular deity) uses this ability as a good warpriest if he chose to spontaneously cast cure spells or as an evil warpriest if he chose to spontaneously cast inflict spells.",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None,
+                                                     Common.createAddFeatureIfHasFact(warpriest_spontaneous_heal, fervor_positive),
+                                                     Common.createAddFeatureIfHasFact(warpriest_spontaneous_harm, fervor_negative),
+                                                     Helpers.CreateAddAbilityResource(warpriest_fervor_resource)
+                                                     );
         }
+
+
+
+        static void createChannelEnergy()
+        {
+            var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var negative_energy_feature = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                  type: AbilityRankType.Default, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3);
+
+            var channel_positive_energy = Helpers.CreateFeature("WarpriestChannelPositiveEnergyFeature",
+                                                                "Channel Positive Energy",
+                                                                "A good warpriest (or a neutral warpriest who worships a good deity) channels positive energy and can choose to deal damage to undead creatures or to heal living creatures.\n"
+                                                                + "Channeling energy causes a burst that either heals all living creatures or damages all undead creatures in a 30-foot radius centered on the warpriest. The amount of damage dealt or healed is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the warpriest's level + the warpriest's Wisdom modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. Channeling positive energy consumes two uses of fervor ability. This is a standard action that does not provoke an attack of opportunity.",
+                                                                "",
+                                                                positive_energy_feature.Icon,
+                                                                FeatureGroup.None);
+
+            var heal_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
+                                                                      "WarpriestChannelEnergyHealLiving",
+                                                                      "",
+                                                                      channel_positive_energy,
+                                                                      context_rank_config,
+                                                                      Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
+                                                                      true);
+            heal_living.SetDescription("Channeling positive energy causes a burst that heals all living creatures in a 30 - foot radius centered on the warpriest. The amount of damage healed is equal to that of fervor ability.");
+            var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                                          "WarpriestChannelEnergyHarmUndead",
+                                                          "",
+                                                          channel_positive_energy,
+                                                          context_rank_config,
+                                                          Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
+                                                          true);
+            harm_undead.SetDescription("Channeling energy causes a burst that damages all undead creatures in a 30-foot radius centered on the warpriest. The amount of damage dealt is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the warpriest's level + the warpriest's Wisdom modifier.");
+            channel_positive_energy.AddComponent(Helpers.CreateAddFacts(heal_living, harm_undead));
+
+            var channel_negative_energy = Helpers.CreateFeature("WarpriestChannelNegativeEnergyFeature",
+                                                    "Channel Negative Energy",
+                                                    "An evil warpriest (or a neutral cleric who worships an evil deity) channels negative energy and can choose to deal damage to living creatures or to heal undead creatures.\n"
+                                                    + "Channeling energy causes a burst that either heals all undead creatures or damages all living creatures in a 30-foot radius centered on the warpriest. The amount of damage dealt or healed is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the warpriest's level + the warpriest's Wisdom modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. Channeling positive energy consumes two uses of fervor ability. This is a standard action that does not provoke an attack of opportunity.",
+                                                    "",
+                                                    negative_energy_feature.Icon,
+                                                    FeatureGroup.None);
+
+            var harm_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm,
+                                                          "WarpriestChannelEnergyHarmLiving",
+                                                          "",
+                                                          channel_negative_energy,
+                                                          context_rank_config,
+                                                          Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
+                                                          true);
+            harm_living.SetDescription("Channeling energy causes a burst that damages all living creatures in a 30 - foot radius centered on the warpriest. The amount of damage dealt is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage.The DC of this save is equal to 10 + 1 / 2 the warpriest's level + the warpriest's Wisdom modifier. Channeling positive energy consumes two uses of fervor ability. This is a standard action that does not provoke an attack of opportunity.");
+
+            var heal_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal,
+                                              "WarpriestChannelEnergyHealUndead",
+                                              "",
+                                              channel_negative_energy,
+                                              context_rank_config,
+                                              Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
+                                              true);
+            heal_undead.SetDescription("Channeling positive energy causes a burst that heals all undead creatures in a 30 - foot radius centered on the warpriest. The amount of damage healed is equal to that of fervor ability.");
+
+            channel_negative_energy.AddComponent(Helpers.CreateAddFacts(harm_living, heal_undead));
+            warpriest_channel_energy = Helpers.CreateFeature("WarpriestChannelEnergyFeature",
+                                                             "Channel energy",
+                                                             "Starting at 4th level, a warpriest can release a wave of energy by channeling the power of his faith through his holy (or unholy) symbol. This energy can be used to deal or heal damage, depending on the type of energy channeled and the creatures targeted. Using this ability is a standard action that expends two uses of his fervor ability and doesn’t provoke an attack of opportunity. The warpriest must present a holy (or unholy) symbol to use this ability. A good warpriest (or one who worships a good deity) channels positive energy and can choose to heal living creatures or to deal damage to undead creatures. An evil warpriest (or one who worships an evil deity) channels negative energy and can choose to deal damage to living creatures or heal undead creatures. A neutral warpriest who worships a neutral deity (or one who is not devoted to a particular deity) channels positive energy if he chose to spontaneously cast cure spells or negative energy if he chose to spontaneously cast inflict spells.\n"
+                                                             + "Channeling energy causes a burst that affects all creatures of one type(either undead or living) in a 30 - foot radius centered on the warpriest.The amount of damage dealt or healed is equal to the amount listed in the fervor ability. Creatures that take damage from channeled energy must succeed at a Will saving throw to halve the damage. The save DC is 10 + 1 / 2 the warpriest’s level + the warpriest’s Wisdom modifier.Creatures healed by channeled energy cannot exceed their maximum hit point total—all excess healing is lost.A warpriest can choose whether or not to include himself in this effect.",
+                                                             "",
+                                                             null,
+                                                             FeatureGroup.None,
+                                                             Common.createAddFeatureIfHasFact(warpriest_spontaneous_heal, channel_positive_energy),
+                                                             Common.createAddFeatureIfHasFact(warpriest_spontaneous_harm, channel_negative_energy)
+                                                             );
+        } 
 
 
         static void createSacredWeaponDamage()
@@ -410,7 +570,12 @@ namespace CallOfTheWild
         {
             var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
             var divine_weapon = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
-            var enchants = divine_weapon.GetComponent<ContextActionWeaponEnchantPool>().DefaultEnchantments;
+            var enchants = new BlueprintWeaponEnchantment[] {library.Get<BlueprintWeaponEnchantment>("d704f90f54f813043a525f304f6c0050"),
+                                                             library.Get<BlueprintWeaponEnchantment>("9e9bab3020ec5f64499e007880b37e52"),
+                                                             library.Get<BlueprintWeaponEnchantment>("d072b841ba0668846adeb007f623bd6c"),
+                                                             library.Get<BlueprintWeaponEnchantment>("6a6a0901d799ceb49b33d4851ff72132"),
+                                                             library.Get<BlueprintWeaponEnchantment>("746ee366e50611146821d61e391edf16") };
+
             var enhancement_buff = Helpers.CreateBuff("WarpriestSacredWeaponEnchancementBaseBuff",
                                          "",
                                          "",
@@ -419,10 +584,9 @@ namespace CallOfTheWild
                                          null,
                                          Common.createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(sacred_armor_enchancement_group,
                                                                                                       false, true,
-                                                                                                      enchants.Cast<BlueprintWeaponEnchantment>().ToArray()
+                                                                                                      enchants
                                                                                                       )
                                          );
-
             sacred_weapon_enhancement_buff = Helpers.CreateBuff("WarpriestSacredWeaponEnchancementSwitchBuff",
                                                                  "Sacred Weapon Enhancement",
                                                                  "At 4th level, the warpriest gains the ability to enhance one of his sacred weapons with divine power as a swift action. This power grants the weapon a +1 enhancement bonus. For every 4 levels beyond 4th, this bonus increases by 1 (to a maximum of +5 at 20th level). The warpriest can use this ability a number of rounds per day equal to his warpriest level, but these rounds need not be consecutive.\n"
@@ -431,11 +595,10 @@ namespace CallOfTheWild
                                                                  divine_weapon.Icon,
                                                                  null,
                                                                  Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(enhancement_buff, Helpers.CreateContextDuration(),
-                                                                                                                is_child: true, dispellable: false)
+                                                                                                                is_child: true, is_permanent: true, dispellable: false)
                                                                                                      )
                                                                  );
             sacred_weapon_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-
             var brilliant_energy = createSacredEnhancementFeature("WarpriestSacredWeaponEnchancementBrilliantEnergy",
                                                                         "Sacred Weapon - Brilliant Energy",
                                                                         "A warpriest can add the brilliant energy property to her sacred weapon, but this consumes 4 points of enhancement bonus granted to this weapon.\nA brilliant energy weapon ignores nonliving matter.Armor and shield bonuses to AC(including any enhancement bonuses to that armor) do not count against it because the weapon passes through armor. (Dexterity, deflection, dodge, natural armor, and other such bonuses still apply.) A brilliant energy weapon cannot harm undead, constructs, or objects.",
@@ -529,7 +692,6 @@ namespace CallOfTheWild
                                                 2, sacred_weapon_enchancement_group,
                                                 AlignmentMaskType.Chaotic);
 
-
             sacred_weapon_resource = Helpers.CreateAbilityResource("WarpriestSacredWeaponResource", "", "", "", null);
             sacred_weapon_resource.SetIncreasedByLevel(0, 1, getWarpriestArray());
 
@@ -546,7 +708,7 @@ namespace CallOfTheWild
                                                                          Helpers.Create<NewMechanics.ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction>(c => c.feature = weapon_focus));
 
             warpriest_sacred_weapon_enhancement = Helpers.CreateFeature("WarpriestSacredWeaponEnchancementFeature",
-                                                                        sacred_weapon_ability.Name,
+                                                                        "Sacred Weapon +1",
                                                                         sacred_weapon_ability.Description,
                                                                         "",
                                                                         sacred_weapon_ability.Icon,
@@ -556,7 +718,7 @@ namespace CallOfTheWild
                                                                         );
 
             warpriest_sacred_weapon_enhancement2 = Helpers.CreateFeature("WarpriestSacredWeaponEnchancement2Feature",
-                                                            sacred_weapon_ability.Name,
+                                                            "Sacred Weapon +2",
                                                             sacred_weapon_ability.Description,
                                                             "",
                                                             sacred_weapon_ability.Icon,
@@ -566,7 +728,7 @@ namespace CallOfTheWild
                                                             );
 
             warpriest_sacred_weapon_enhancement3 = Helpers.CreateFeature("WarpriestSacredWeaponEnchancement3Feature",
-                                                                            sacred_weapon_ability.Name,
+                                                                            "Sacred Weapon +3",
                                                                             sacred_weapon_ability.Description,
                                                                             "",
                                                                             sacred_weapon_ability.Icon,
@@ -575,7 +737,7 @@ namespace CallOfTheWild
                                                                             );
 
             warpriest_sacred_weapon_enhancement4 = Helpers.CreateFeature("WarpriestSacredWeaponEnchancement4Feature",
-                                                                            sacred_weapon_ability.Name,
+                                                                            "Sacred Weapon +4",
                                                                             sacred_weapon_ability.Description,
                                                                             "",
                                                                             sacred_weapon_ability.Icon,
@@ -585,7 +747,7 @@ namespace CallOfTheWild
                                                                             );
 
             warpriest_sacred_weapon_enhancement5 = Helpers.CreateFeature("WarpriestSacredWeaponEnchancement5Feature",
-                                                                            sacred_weapon_ability.Name,
+                                                                            "Sacred Weapon +5",
                                                                             sacred_weapon_ability.Description,
                                                                             "",
                                                                             sacred_weapon_ability.Icon,
@@ -678,7 +840,7 @@ namespace CallOfTheWild
                                                                                                       enchants
                                                                                                       )
                                          );
-
+            enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             sacred_armor_enhancement_buff = Helpers.CreateBuff("WarpriestSacredArmorEnhancementSwitchBuff",
                                                                  "Sacred Armor",
                                                                  "At 7th level, the warpriest gains the ability to enhance his armor with divine power as a swift action. This power grants the armor a +1 enhancement bonus. For every 3 levels beyond 7th, this bonus increases by 1 (to a maximum of +5 at 19th level). The warpriest can use this ability a number of minutes per day equal to his warpriest level. This duration must be used in 1-minute increments, but they don’t need to be consecutive.\n"
@@ -687,10 +849,10 @@ namespace CallOfTheWild
                                                                  mage_armor.Icon,
                                                                  null,
                                                                  Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(enhancement_buff, Helpers.CreateContextDuration(),
-                                                                                                                is_child: true, dispellable: false)
+                                                                                                                is_child: true, dispellable: false, is_permanent: true)
                                                                                                      )
                                                                  );
-            sacred_armor_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            //sacred_armor_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             //energy resistance - normal (10 +2), improved (20 +4), greater (+5)  - fire, cold, shock, acid = 12 //pick existing
             //fortification - light (25% +1), medium(50% +3), heavy (75% +5) //create
             //spell resistance (+13 +2), (+17 +3), (+21 +4), (+25, +5) //create
@@ -754,12 +916,12 @@ namespace CallOfTheWild
                                                                          Helpers.savingThrowNone,
                                                                          mage_armor.GetComponent<AbilitySpawnFx>(),
                                                                          Helpers.CreateRunActions(apply_buff),
-                                                                         Helpers.CreateAddAbilityResource(sacred_armor_resource)
+                                                                         Helpers.CreateResourceLogic(sacred_armor_resource)
                                                                          );
                                                                          
 
             warpriest_sacred_armor = Helpers.CreateFeature("WarpriestSacredArmorFeature",
-                                                                        sacred_armor_ability.Name,
+                                                                        "Sacred Armor +1",
                                                                         sacred_armor_ability.Description,
                                                                         "",
                                                                         sacred_armor_ability.Icon,
@@ -770,7 +932,7 @@ namespace CallOfTheWild
                                                                         );
 
             warpriest_sacred_armor2 = Helpers.CreateFeature("WarpriestSacredArmor2Feature",
-                                                            sacred_armor_ability.Name,
+                                                            "Sacred Armor +2",
                                                             sacred_armor_ability.Description,
                                                             "",
                                                             sacred_armor_ability.Icon,
@@ -780,7 +942,7 @@ namespace CallOfTheWild
                                                             );
 
             warpriest_sacred_armor3 = Helpers.CreateFeature("WarpriestSacredArmor3Feature",
-                                                 sacred_armor_ability.Name,
+                                                 "Sacred Armor +3",
                                                  sacred_armor_ability.Description,
                                                  "",
                                                  sacred_armor_ability.Icon,
@@ -790,7 +952,7 @@ namespace CallOfTheWild
                                                  );
 
             warpriest_sacred_armor4 = Helpers.CreateFeature("WarpriestSacredArmor4Feature",
-                                                sacred_armor_ability.Name,
+                                                "Sacred Armor +4",
                                                 sacred_armor_ability.Description,
                                                 "",
                                                 sacred_armor_ability.Icon,
@@ -800,7 +962,7 @@ namespace CallOfTheWild
                                                 );
 
             warpriest_sacred_armor5 = Helpers.CreateFeature("WarpriestSacredArmor5Feature",
-                                                sacred_armor_ability.Name,
+                                                "Sacred Armor +5",
                                                 sacred_armor_ability.Description,
                                                 "",
                                                 sacred_armor_ability.Icon,
@@ -808,6 +970,62 @@ namespace CallOfTheWild
                                                 Common.createIncreaseActivatableAbilityGroupSize(sacred_armor_enchancement_group),
                                                 Helpers.CreateAddFacts(enchant_abilities[4].ToArray())
                                                 );
+        }
+
+
+        static void createAspectOfWar()
+        {
+            var weapon_mastery = library.Get<BlueprintFeature>("73c471386ce917c4c8c9f70d46b48eeb");
+            warpriest_aspect_of_war_resource = Helpers.CreateAbilityResource("WarpriestAspectOfWarResource", "", "", "", null);
+            warpriest_aspect_of_war_resource.SetFixedResource(1);
+            var remove_armor_speed_penalty_feature = Helpers.CreateFeature("RemoveArmorSpeedPenaltyFeature",
+                                                                           "",
+                                                                           "",
+                                                                           "",
+                                                                           null,
+                                                                           FeatureGroup.None,
+                                                                           Helpers.Create<ArmorSpeedPenaltyRemoval>()
+                                                                           );
+            remove_armor_speed_penalty_feature.HideInCharacterSheetAndLevelUp = true;
+
+            var transformation = library.Get<BlueprintAbility>("27203d62eb3d4184c9aced94f22e1806");
+            var transformation_buff = library.Get<BlueprintBuff>("287682389d2011b41b5a65195d9cbc84");
+            warpriest_aspect_of_war_buff = Helpers.CreateBuff("WarpriestAspectOfWarBuff",
+                                          "Aspect of War",
+                                          "At 20th level, the warpriest can channel an aspect of war, growing in power and martial ability. Once per day as a swift action, a warpriest can treat his level as his base attack bonus, gains DR 10/—, and can move at his full speed regardless of the armor he is wearing. In addition, the blessings he calls upon don’t count against his daily limit during this time. This ability lasts for 1 minute.",
+                                          "",
+                                          weapon_mastery.Icon,
+                                          transformation_buff.FxOnStart,
+                                          Common.createPhysicalDR(10),
+                                          Helpers.Create<RaiseBAB>(c => c.TargetValue = Common.createSimpleContextValue(20)),
+                                          Helpers.CreateAddFact(remove_armor_speed_penalty_feature),
+                                          Helpers.CreateAddFact(remove_armor_speed_penalty_feature)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(warpriest_aspect_of_war_buff,
+                                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes),
+                                                                 true, false, false, false);
+
+            var warpriest_aspect_of_war_ability = Helpers.CreateAbility("WarpriestAspectOfWarFeature",
+                                                                    warpriest_aspect_of_war_buff.Name,
+                                                                    warpriest_aspect_of_war_buff.Description,
+                                                                    "",
+                                                                    warpriest_aspect_of_war_buff.Icon,
+                                                                    AbilityType.Supernatural,
+                                                                    CommandType.Swift,
+                                                                    AbilityRange.Personal,
+                                                                    "1 minute",
+                                                                    Helpers.savingThrowNone,
+                                                                    Helpers.CreateRunActions(apply_buff),
+                                                                    transformation.GetComponent<AbilitySpawnFx>(),
+                                                                    Helpers.CreateResourceLogic(warpriest_aspect_of_war_resource)
+                                                                    );
+            warpriest_aspect_of_war_ability.CanTargetSelf = true;
+            warpriest_aspect_of_war_ability.Animation = transformation.Animation;
+            warpriest_aspect_of_war_ability.AnimationStyle = transformation.AnimationStyle;
+
+            warpriest_aspect_of_war = Common.AbilityToFeature(warpriest_aspect_of_war_ability, false);
+            warpriest_aspect_of_war.AddComponent(Helpers.CreateAddAbilityResource(warpriest_aspect_of_war_resource));
         }
     }
 }
