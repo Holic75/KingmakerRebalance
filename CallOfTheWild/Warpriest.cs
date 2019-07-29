@@ -10,6 +10,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
@@ -84,6 +85,9 @@ namespace CallOfTheWild
         static internal BlueprintBuff warpriest_aspect_of_war_buff;
         static internal BlueprintFeature warpriest_aspect_of_war;
         static internal BlueprintAbilityResource warpriest_aspect_of_war_resource;
+        static internal BlueprintFeatureSelection warpriest_blessings;
+        static internal BlueprintAbilityResource warpriest_blessing_resource;
+        static internal BlueprintFeature add_warpriest_blessing_resource;
 
 
         internal static void createWarpriestClass()
@@ -171,7 +175,7 @@ namespace CallOfTheWild
             createWarpriestProficiencies();
             createWarpriestFighterFeatPrerequisiteReplacement();
             createWarpriestOrisions();
-            //createBlessingSelection();
+            createWarpriestBlessings();
             createDeitySelection();
             createSacredWeaponDamage();
             createSacredWeaponEnhancement();
@@ -206,6 +210,10 @@ namespace CallOfTheWild
                                                                                         warpriest_energy_selection,
                                                                                         weapon_focus_selection,
                                                                                         warpriest_sacred_weapon_damage,
+                                                                                        add_warpriest_blessing_resource,
+                                                                                        add_warpriest_blessing_resource,
+                                                                                        warpriest_blessings,
+                                                                                        warpriest_blessings,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, warpriest_fervor),
@@ -231,7 +239,7 @@ namespace CallOfTheWild
 
             warpriest_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] {warpriest_proficiencies, detect_magic, warpriest_orisons,
                                                                                         warpriest_fighter_feat_prerequisite_replacement,
-                                                                                        warpriest_deity_selection};
+                                                                                        warpriest_deity_selection, warpriest_blessings, warpriest_blessings};
             warpriest_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(weapon_focus_selection, fighter_feat, fighter_feat, fighter_feat, fighter_feat, fighter_feat, fighter_feat),
                                                          Helpers.CreateUIGroup(warpriest_energy_selection, warpriest_fervor, warpriest_channel_energy, warpriest_aspect_of_war),
                                                          Helpers.CreateUIGroup(warpriest_sacred_weapon_damage, warpriest_sacred_weapon_enhancement, warpriest_sacred_weapon_enhancement2,
@@ -844,7 +852,7 @@ namespace CallOfTheWild
             sacred_armor_enhancement_buff = Helpers.CreateBuff("WarpriestSacredArmorEnhancementSwitchBuff",
                                                                  "Sacred Armor",
                                                                  "At 7th level, the warpriest gains the ability to enhance his armor with divine power as a swift action. This power grants the armor a +1 enhancement bonus. For every 3 levels beyond 7th, this bonus increases by 1 (to a maximum of +5 at 19th level). The warpriest can use this ability a number of minutes per day equal to his warpriest level. This duration must be used in 1-minute increments, but they don’t need to be consecutive.\n"
-                                                                 + "These bonuses stack with any existing bonuses the armor might have, to a maximum of +5. The warpriest can enhance armor any of the following armor special abilities: energy resistance (normal, improved, and greater), fortification (heavy, light, or moderate), and spell resistance (13, 17, 21, and 25). Adding any of these special abilities replaces an amount of bonus equal to the special ability’s base cost. For this purpose, energy resistance counts as +2, improved energy resistance counts as +4, and greater energy resistance counts as +5. Duplicate abilities do not stack.",
+                                                                 + "These bonuses stack with any existing bonuses the armor might have, to a maximum of +5. The warpriest can enhance armor any of the following armor special abilities: energy resistance (normal, improved, and greater), fortification (heavy, light, or moderate), and spell resistance (13, 17, 21, and 25). Adding any of these special abilities replaces an amount of bonus equal to the special ability’s base cost. Duplicate abilities do not stack.",
                                                                  "",
                                                                  mage_armor.Icon,
                                                                  null,
@@ -875,7 +883,7 @@ namespace CallOfTheWild
             foreach (var e in ArmorEnchantments.spell_resistance_enchantments)
             {
                 int cost = e.EnchantmentCost;
-                var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description, sr_icon, sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
+                var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description +$"\nThis consumes {cost} point(s) of armor enhancement bonus.", sr_icon, sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
                 enchant_abilities[cost - 1].Add(ability);
             }
 
@@ -883,7 +891,7 @@ namespace CallOfTheWild
             foreach (var e in ArmorEnchantments.fortification_enchantments)
             {
                 int cost = e.EnchantmentCost;
-                var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description, fortification_icon, sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
+                var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of armor enhancement bonus.", fortification_icon, sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
                 enchant_abilities[cost - 1].Add(ability);
             }
 
@@ -892,7 +900,7 @@ namespace CallOfTheWild
                 foreach (var e in item.Value)
                 {
                     int cost = e.EnchantmentCost;
-                    var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description, energy_resistance_icons[item.Key], sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
+                    var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of armor enhancement bonus.", energy_resistance_icons[item.Key], sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
                     enchant_abilities[cost - 1].Add(ability);
                 }
             }
@@ -975,18 +983,19 @@ namespace CallOfTheWild
 
         static void createAspectOfWar()
         {
-            var weapon_mastery = library.Get<BlueprintFeature>("73c471386ce917c4c8c9f70d46b48eeb");
+            var rage = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2");
             warpriest_aspect_of_war_resource = Helpers.CreateAbilityResource("WarpriestAspectOfWarResource", "", "", "", null);
             warpriest_aspect_of_war_resource.SetFixedResource(1);
             var remove_armor_speed_penalty_feature = Helpers.CreateFeature("RemoveArmorSpeedPenaltyFeature",
-                                                                           "",
+                                                                           "Remove Armor Penalty",
                                                                            "",
                                                                            "",
                                                                            null,
                                                                            FeatureGroup.None,
                                                                            Helpers.Create<ArmorSpeedPenaltyRemoval>()
                                                                            );
-            remove_armor_speed_penalty_feature.HideInCharacterSheetAndLevelUp = true;
+            remove_armor_speed_penalty_feature.Ranks = 2;
+            //remove_armor_speed_penalty_feature.HideInCharacterSheetAndLevelUp = true;
 
             var transformation = library.Get<BlueprintAbility>("27203d62eb3d4184c9aced94f22e1806");
             var transformation_buff = library.Get<BlueprintBuff>("287682389d2011b41b5a65195d9cbc84");
@@ -994,7 +1003,7 @@ namespace CallOfTheWild
                                           "Aspect of War",
                                           "At 20th level, the warpriest can channel an aspect of war, growing in power and martial ability. Once per day as a swift action, a warpriest can treat his level as his base attack bonus, gains DR 10/—, and can move at his full speed regardless of the armor he is wearing. In addition, the blessings he calls upon don’t count against his daily limit during this time. This ability lasts for 1 minute.",
                                           "",
-                                          weapon_mastery.Icon,
+                                          rage.Icon,
                                           transformation_buff.FxOnStart,
                                           Common.createPhysicalDR(10),
                                           Helpers.Create<RaiseBAB>(c => c.TargetValue = Common.createSimpleContextValue(20)),
@@ -1026,6 +1035,185 @@ namespace CallOfTheWild
 
             warpriest_aspect_of_war = Common.AbilityToFeature(warpriest_aspect_of_war_ability, false);
             warpriest_aspect_of_war.AddComponent(Helpers.CreateAddAbilityResource(warpriest_aspect_of_war_resource));
+        }
+
+
+        static void createWarpriestBlessings()
+        {
+            warpriest_blessings = Helpers.CreateFeatureSelection("WarpriestBlessingsSelection",
+                                                                 "Blessing",
+                                                                 "A warpriest can select any two blessings granted by his deity. Deities grant blessings of the same name as the domains they grant.\n"
+                                                                 + "Each blessing grants a minor power at 1st level and a major power at 10th level. A warpriest can call upon the power of his blessings a number of times per day (in any combination) equal to 3 + 1 / 2 his warpriest level (to a maximum of 13 times per day at 20th level). Each time he calls upon any one of his blessings, it counts against his daily limit.The save DC for these blessings is equal to 10 + 1 / 2 the warpriest’s level + the warpriest’s Wisdom modifier.",
+                                                                 "",
+                                                                 null,
+                                                                 FeatureGroup.None);
+            warpriest_blessing_resource = Helpers.CreateAbilityResource("WarpriestBlessingsResource", "", "", "", null);
+            warpriest_blessing_resource.SetIncreasedByLevelStartPlusDivStep(1, 2, 0, 2, 1, 0, 0.0f, getWarpriestArray());
+            warpriest_blessing_resource.SetIncreasedByStat(1, StatType.Wisdom);
+            add_warpriest_blessing_resource = Helpers.CreateFeature("AddWarpriestBlessingsResource",
+                                                                    "",
+                                                                    "",
+                                                                    "",
+                                                                    null,
+                                                                    FeatureGroup.None,
+                                                                    Helpers.CreateAddAbilityResource(warpriest_blessing_resource)
+                                                                    );
+            add_warpriest_blessing_resource.HideInCharacterSheetAndLevelUp = true;
+
+
+
+        }
+
+
+        static void createAirBlessing()
+        {
+            var hurricane_bow = library.Get<BlueprintAbility>("3e9d1119d43d07c4c8ba9ebfd1671952");
+            var hurricane_bow_buff = library.Get<BlueprintBuff>("002c51d933574824c8ef2b04c9d09ff5");
+
+            var minor_buff = Helpers.CreateBuff("WarpriestAirBlessingMinorBuff",
+                                                "Zephyr's Gift",
+                                                "At 1st level, you can touch any one ranged weapon and enhance it with the quality of air. For 1 minute, any attacks made with the weapon receive + 1 bonus on attack and damage rolls. In addition, making a ranged attack with this weapon doesn’t provoke an attack of opportunity.",
+                                                "",
+                                                hurricane_bow.Icon,
+                                                hurricane_bow_buff.FxOnStart,
+                                                Common.createWeaponGroupAttackBonus(1, ModifierDescriptor.UntypedStackable, Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Bows),
+                                                Common.createWeaponGroupAttackBonus(1, ModifierDescriptor.UntypedStackable, Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Crossbows),
+                                                Common.createWeaponGroupAttackBonus(1, ModifierDescriptor.UntypedStackable, Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Thrown),
+                                                Helpers.Create<NewMechanics.SpecifiedWeaponCategoryIgnoreAoo>(s => s.WeaponGroups = new WeaponFighterGroup[] { WeaponFighterGroup.Bows,
+                                                                                                                                                               WeaponFighterGroup.Crossbows,
+                                                                                                                                                               WeaponFighterGroup.Thrown})
+                                                );
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestAirBlessingMinorAbility",
+                                                      minor_buff.Name,
+                                                      minor_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      Helpers.savingThrowNone,
+                                                      hurricane_bow.GetComponent<AbilitySpawnFx>(),
+                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      );
+            minor_ability.CanTargetFriends = true;
+            minor_ability.CanTargetEnemies = false;
+            minor_ability.CanTargetSelf = true;
+            minor_ability.CanTargetPoint = false;
+            minor_ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            minor_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            minor_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            minor_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            addBlessingResourceLogic(minor_ability);
+
+            var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
+            var wings_demon = library.Get<BlueprintBuff>("3c958be25ab34dc448569331488bee27");
+            var wings_angel = library.Get<BlueprintBuff>("d596694ff285f3f429528547f441b1c0");
+
+
+            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+
+            var major_buff = Helpers.CreateBuff("WarpriestAirBlessingMajorBuff",
+                                                "Soaring Assault",
+                                                "At 10th level, you can touch an ally and give her the gift of flight for 1 minute. The ally gains immunity to ground based abilities and difficult terrain, as well as receives +3 dodge bonus against melee attacks. Whenever the ally succeeds at a charge attack, that attack deals an amount of additional electricity damage equal to your level.",
+                                                "",
+                                                wings_angel.Icon,
+                                                null,
+                                                Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => a.Action = Helpers.CreateActionList(damage_action)),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWarpriestArray(),
+                                                                                type: AbilityRankType.DamageBonus, progression: ContextRankProgression.AsIs)
+                                                );
+
+            var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var apply_wings_angel = Common.createContextActionApplyBuff(wings_angel, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var apply_wings_demon = Common.createContextActionApplyBuff(wings_demon, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var major_ability = Helpers.CreateAbility("WarpriestAirBlessingMajorAbility",
+                                                      major_buff.Name,
+                                                      major_buff.Description,
+                                                      "",
+                                                      major_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      Helpers.savingThrowNone,
+                                                      Helpers.CreateRunActions(apply_major_buff, Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(warpriest_spontaneous_heal), 
+                                                                                                                           apply_wings_angel,
+                                                                                                                           apply_wings_demon
+                                                                                                                           )
+                                                                              )
+                                                      );
+            major_ability.CanTargetFriends = true;
+            major_ability.CanTargetEnemies = false;
+            major_ability.CanTargetSelf = true;
+            major_ability.CanTargetPoint = false;
+            major_ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            major_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            major_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            major_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingAir", "Air", minor_ability, major_ability, "6e5f4ff5a7010754ca78708ce1a9b233");
+        }
+
+
+        static void addBlessing(string name_prefix, string Name, BlueprintAbility minor_blessing, BlueprintAbility major_blessing, string allowed_key)
+        {
+            addBlessing(name_prefix, Name, Common.AbilityToFeature(minor_blessing, false), Common.AbilityToFeature(major_blessing, false), allowed_key);
+        }
+
+
+        static void addBlessing(string name_prefix, string Name, BlueprintFeature minor_blessing, BlueprintFeature major_blessing, string allowed_key)
+        {
+            var allowed_blessings = Helpers.CreateFeature(name_prefix + "AllowedFeature",
+                                                          "",
+                                                          "",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None);
+            allowed_blessings.HideInCharacterSheetAndLevelUp = true;
+
+            foreach (var a in warpriest_deity_selection.AllFeatures)
+            {
+                var add_facts = a.GetComponent<AddFacts>();
+                if (add_facts == null)
+                {
+                    continue;
+                }
+                var facts = add_facts.Facts;
+                foreach (var f in facts)
+                {
+                    if (f.AssetGuid == allowed_key)
+                    {
+                        add_facts.Facts = add_facts.Facts.AddToArray(allowed_blessings);
+                    }
+                }
+            }
+
+            var progression = Helpers.CreateProgression(name_prefix + "Progression",
+                                                        Name,
+                                                        minor_blessing.Name + " (minor): " + minor_blessing.Description + "\n"
+                                                        + major_blessing.Name + " (major): " + major_blessing.Description,
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.Domain,
+                                                        Helpers.PrerequisiteFeature(allowed_blessings));
+            progression.Classes = getWarpriestArray();
+            progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, minor_blessing),
+                                                         Helpers.LevelEntry(10, major_blessing)
+                                                        };
+            progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(minor_blessing, major_blessing)};
+
+            warpriest_blessings.AllFeatures = warpriest_blessings.AllFeatures.AddToArray(progression);
+        }
+
+
+        static void addBlessingResourceLogic(BlueprintAbility blessing, int amount = 1)
+        {
+            blessing.AddComponent(Helpers.CreateResourceLogic(warpriest_blessing_resource, amount: 1, cost_is_custom: true));
+            blessing.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasincFacts>(r => r.cost_reducing_facts = new BlueprintFact[] { warpriest_aspect_of_war_buff }));
         }
     }
 }

@@ -50,6 +50,8 @@ using Kingmaker.EntitySystem;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
+using Kingmaker.UnitLogic.Mechanics.Properties;
+using Kingmaker.UnitLogic.Abilities.Components;
 
 namespace CallOfTheWild
 {
@@ -1855,5 +1857,123 @@ namespace CallOfTheWild
             }
         }
 
+
+        [ComponentName("Ignores Aoo with specified weapons")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class SpecifiedWeaponCategoryIgnoreAoo : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public WeaponFighterGroup[] WeaponGroups;
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Weapon == null || !WeaponGroups.Contains(evt.Weapon.Blueprint.FighterGroup))
+                    return;
+                evt.DoNotProvokeAttacksOfOpportunity = true;
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+
+        [AllowMultipleComponents]
+        public class AddInitiatorAttackWithWeaponTriggerOnCharge : GameLogicComponent, IInitiatorRulebookHandler<RuleAttackWithWeapon>, IInitiatorRulebookHandler<RuleAttackWithWeaponResolve>, IRulebookHandler<RuleAttackWithWeapon>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleAttackWithWeaponResolve>
+        {
+            static private BlueprintBuff charge_buff => ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("f36da144a379d534cad8e21667079066");
+
+            public bool WaitForAttackResolve;
+            public BlueprintWeaponType WeaponType;
+            public bool CheckWeaponCategory;
+            [ShowIf("CheckWeaponCategory")]
+            public WeaponCategory Category;
+            public bool ActionsOnInitiator;
+            [Tooltip("For melee attacks only")]
+            public bool ReduceHPToZero;
+            public bool AllNaturalAndUnarmed;
+            public ActionList Action;
+
+            public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+                if (this.WaitForAttackResolve)
+                    return;
+                this.TryRunActions(evt);
+            }
+
+            public void OnEventAboutToTrigger(RuleAttackWithWeaponResolve evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleAttackWithWeaponResolve evt)
+            {
+                if (!this.WaitForAttackResolve)
+                    return;
+                this.TryRunActions(evt.AttackWithWeapon);
+            }
+
+            private void TryRunActions(RuleAttackWithWeapon rule)
+            {
+                if (!this.CheckCondition(rule))
+                    return;
+                if (!this.ActionsOnInitiator)
+                {
+                    using (new ContextAttackData(rule.AttackRoll, (Projectile)null))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)rule.Target);
+                }
+                else
+                {
+                    using (new ContextAttackData(rule.AttackRoll, (Projectile)null))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)rule.Initiator);
+                }
+            }
+
+            private bool CheckCondition(RuleAttackWithWeapon evt)
+            {
+                ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+
+                if (owner != null && owner != evt.Weapon || !evt.AttackRoll.IsHit || ((bool)(this.WeaponType) && this.WeaponType != evt.Weapon.Blueprint.Type || this.CheckWeaponCategory && this.Category != evt.Weapon.Blueprint.Category) || (this.AllNaturalAndUnarmed && !evt.Weapon.Blueprint.Type.IsNatural && !evt.Weapon.Blueprint.Type.IsUnarmed))
+                    return false;
+
+                if (!evt.Initiator.Buffs.HasFact(charge_buff))
+                {
+                    return false;
+                }
+
+                if (this.ReduceHPToZero)
+                {
+                    if (evt.MeleeDamage == null || evt.MeleeDamage.IsFake || evt.Target.HPLeft > 0)
+                        return false;
+                    return evt.Target.HPLeft + evt.MeleeDamage.Damage > 0;
+                }
+                bool flag = evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Light) || evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.OneHandedPiercing) || (bool)evt.Initiator.Descriptor.State.Features.DuelingMastery && evt.Weapon.Blueprint.Category == WeaponCategory.DuelingSword || evt.Initiator.Descriptor.Ensure<DamageGracePart>().HasEntry(evt.Weapon.Blueprint.Category);
+                return flag;
+            }
+        }
+
+
+        public class ResourseCostCalculatorWithDecreasincFacts: BlueprintComponent, IAbilityResourceCostCalculator
+        {
+            public BlueprintFact[] cost_reducing_facts;
+
+            public int Calculate(AbilityData ability)
+            {
+                var cost = ability.Blueprint.GetComponent<AbilityResourceLogic>().Amount;
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (ability.Caster.Buffs.HasFact(f))
+                    {
+                        cost--;
+                    }
+                }
+
+                return cost < 0 ? 0 : cost;
+            }
+        }
     }
 }

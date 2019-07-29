@@ -1971,5 +1971,15 @@ namespace CallOfTheWild
             b.shift_with_current_enchantment = true;
             return b;
         }
+
+
+        static internal WeaponGroupAttackBonus createWeaponGroupAttackBonus(int bonus, ModifierDescriptor descriptor, WeaponFighterGroup group)
+        {
+            WeaponGroupAttackBonus w = Helpers.Create<WeaponGroupAttackBonus>();
+            w.AttackBonus = bonus;
+            w.Descriptor = descriptor;
+            w.WeaponGroup = group;
+            return w;
+        }
     }
 }

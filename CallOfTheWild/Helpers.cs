@@ -794,7 +794,7 @@ namespace CallOfTheWild
 
         public static BlueprintRace human, halfElf, halfOrc, elf, dwarf, halfling, gnome, aasimar, tiefling;
 
-        public static LocalizedString tenMinPerLevelDuration, minutesPerLevelDuration, hourPerLevelDuration, roundsPerLevelDuration, oneRoundDuration;
+        public static LocalizedString tenMinPerLevelDuration, minutesPerLevelDuration, hourPerLevelDuration, roundsPerLevelDuration, oneRoundDuration, oneMinuteDuration;
 
         public static LocalizedString reflexHalfDamage, savingThrowNone;
 
@@ -844,6 +844,7 @@ namespace CallOfTheWild
             hourPerLevelDuration = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568").LocalizedDuration; // mage armor
             roundsPerLevelDuration = library.Get<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98").LocalizedDuration; // haste
             oneRoundDuration = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00").LocalizedDuration; // true strike
+            oneMinuteDuration = library.Get<BlueprintAbility>("93f391b0c5a99e04e83bbfbe3bb6db64").LocalizedDuration; // protection from evil communal
             reflexHalfDamage = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").LocalizedSavingThrow; // fireball
             savingThrowNone = library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").LocalizedSavingThrow; // magic missle
 
@@ -1369,12 +1370,13 @@ namespace CallOfTheWild
             return resource;
         }
 
-        public static AbilityResourceLogic CreateResourceLogic(this BlueprintAbilityResource resource, bool spend = true, int amount = 1)
+        public static AbilityResourceLogic CreateResourceLogic(this BlueprintAbilityResource resource, bool spend = true, int amount = 1, bool cost_is_custom = false)
         {
             var a = Create<AbilityResourceLogic>();
             a.IsSpendResource = spend;
             a.RequiredResource = resource;
             a.Amount = amount;
+            a.CostIsCustom = cost_is_custom;
             return a;
         }
 
