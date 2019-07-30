@@ -52,6 +52,8 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.EntitySystem.Persistence.Versioning;
+using JetBrains.Annotations;
 
 namespace CallOfTheWild
 {
@@ -1338,6 +1340,31 @@ namespace CallOfTheWild
         }
 
 
+
+        [ComponentName("Ignore Damage Reduction if target has fact")]
+        public class WeaponIgnoreDRIfTargetHasFact : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintUnitFact fact;
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+                if (evt.Reason.Item != this.Owner)
+                {
+                    return;
+                }
+
+                if (evt.Target.Descriptor.HasFact(fact))
+                {
+                    evt.IgnoreDamageReduction = true;
+                }
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+            }
+        }
+
+
         [ComponentName("Weapon Damage Stat Replacement")]
         public class WeaponDamageStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
@@ -1713,7 +1740,14 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-
+                var spell_descriptor = this.Buff.Blueprint.GetComponent<SpellDescriptorComponent>();
+                if (spell_descriptor != null 
+                    && (UnitDescriptionHelper.GetDescription(unit.Blueprint).Immunities.SpellDescriptorImmunity.Value & spell_descriptor.Descriptor.Value) != 0)
+                {
+                    Common.AddBattleLogMessage($"{unit.CharacterName} is immune to {this.Fact.Name} of {Owner.CharacterName}");
+                    can_not_attack.Add(unit);
+                    return false;
+                }
                 RuleSavingThrow ruleSavingThrow = this.Context.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(unit, save_type, this.Context.Params.DC));
                 if (ruleSavingThrow.IsPassed)
                 {
@@ -1756,7 +1790,7 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("CommandTargetUntargetable", Harmony12.MethodType.Normal)]
         class UnitCommand__CommandTargetUntargetable__Patch
         {
-            static BlueprintBuff[] sanctuary_buffs = new BlueprintBuff[] { NewSpells.sanctuary_buff };
+            static BlueprintBuff[] sanctuary_buffs = new BlueprintBuff[] { NewSpells.sanctuary_buff, Warpriest.warpriest_blessing_special_sancturay_buff };
             static void Postfix(EntityDataBase sourceEntity, UnitEntityData targetUnit, RulebookEvent evt, ref bool __result)
             {
                 if (__result)
@@ -1973,6 +2007,182 @@ namespace CallOfTheWild
                 }
 
                 return cost < 0 ? 0 : cost;
+            }
+        }
+
+
+        [ComponentName("Actions depending on context value")]
+        [AllowMultipleComponents]
+        [PlayerUpgraderAllowed]
+        public class RunActionsDependingOnContextValue : ContextAction
+        {
+            public string Comment;
+            public ContextValue value;
+            public ActionList[] actions;
+
+            public override void RunAction()
+            {
+                int action_id = value.Calculate(this.Context) - 1;
+                if (action_id < 0)
+                {
+                    action_id = 0;
+                }
+                if (action_id >= actions.Length)
+                {
+                    action_id = actions.Length - 1;
+                }
+                actions[action_id].Run();
+            }
+
+            public override string GetCaption()
+            {
+                return "Actions based on context (" + this.Comment + " )";
+            }
+        }
+
+
+        namespace SpellStorage
+        {
+            [AllowedOn(typeof(BlueprintUnitFact))]
+            public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
+            {
+                [JsonProperty]
+                private AbilityData spell = null;
+                public bool remove_buff_on_release = false;
+
+                public void releaseSpellOnTarget(TargetWrapper target)
+                {
+                    if (spell != null)
+                    {
+                        Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, target));
+                        Common.AddBattleLogMessage($"{this.Owner.CharacterName} released {spell.Name} from {this.Fact.Name}.");
+                    }
+                    spell = null;
+                }
+
+                public void storeSpell(AbilityData new_spell)
+                {
+                    spell = new_spell;
+                    Common.AddBattleLogMessage($"{this.Owner.CharacterName} stored {new_spell.Name} for {this.Fact.Name}.");
+                }
+            }
+
+
+            [ComponentName("Release spell stored in specified fact")]
+            [AllowMultipleComponents]
+            [PlayerUpgraderAllowed]
+            public class ReleaseSpellStoredInSpecifiedBuff : ContextAction
+            {
+                public string Comment;
+                public BlueprintUnitFact fact;
+                
+
+                public override void RunAction()
+                {
+                    var stored_buff = this.Context.MaybeOwner.Buffs.GetFact(fact);
+
+                    if (stored_buff != null)
+                    {
+                        stored_buff.Blueprint.GetComponent<FactStoreSpell>().releaseSpellOnTarget(this.Context.MainTarget);
+                    }
+                }
+
+                public override string GetCaption()
+                {
+                    return "Release Spell Stored in Specified Buff (" + this.Comment + " )";
+                }
+            }
+
+
+            public class AbilityStoreSpellInFact : AbilityApplyEffect, IAbilityAvailabilityProvider, IAbilityParameterRequirement
+            {
+                public BlueprintUnitFact fact;
+                public Predicate<SpellSlot> check_slot_predicate;
+
+                public bool RequireSpellSlot
+                {
+                    get
+                    {
+                        return true;
+                    }
+                }
+
+                public bool RequireSpellbook
+                {
+                    get
+                    {
+                        return false;
+                    }
+                }
+
+                public bool RequireSpellLevel
+                {
+                    get
+                    {
+                        return false;
+                    }
+                }
+
+                public override void Apply(AbilityExecutionContext context, TargetWrapper target)
+                {
+                    if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)
+                        return;
+                    else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
+                        return;
+
+                    else
+                    {
+                        SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
+                        if (availableSpellSlot == null)
+                            return;
+                        else
+                        {
+                            storeSpell(availableSpellSlot, context);
+                        }
+
+                    }
+                }
+
+                public bool IsAvailableFor(AbilityData ability)
+                {
+                    AbilityData spell = ability.ParamSpellSlot?.Spell;
+                    Spellbook spellbook = (object)spell != null ? spell.Spellbook : (Spellbook)null;
+                    if (spell == (AbilityData)null || spellbook == null)
+                        return false;
+                    return GetAvailableSpellSlot(spell) != null;
+                }
+
+
+                public string GetReason()
+                {
+                    return string.Empty;
+                }
+
+
+                [CanBeNull]
+                private SpellSlot GetAvailableSpellSlot(AbilityData ability)
+                {
+                    if (ability.Spellbook == null)
+                        return (SpellSlot)null;
+                    foreach (SpellSlot memorizedSpellSlot in ability.Spellbook.GetMemorizedSpellSlots(ability.SpellLevel))
+                    {
+                        if (memorizedSpellSlot.Available && memorizedSpellSlot.Spell == ability && check_slot_predicate(memorizedSpellSlot))
+                            return memorizedSpellSlot;
+                    }
+                    return (SpellSlot)null;
+                }
+
+
+                private void storeSpell(SpellSlot spell_slot, AbilityExecutionContext context)
+                {
+                    var store_buff = context.MaybeOwner.Buffs.GetFact(fact);
+
+                    if (store_buff != null)
+                    {
+                        store_buff.Blueprint.GetComponent<FactStoreSpell>().storeSpell(spell_slot.Spell);
+                        spell_slot.Available = false;
+                    }
+                }
             }
         }
     }

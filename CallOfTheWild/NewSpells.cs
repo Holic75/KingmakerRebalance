@@ -12,6 +12,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
@@ -37,6 +38,8 @@ namespace CallOfTheWild
         static internal BlueprintAbility sanctuary;
         static internal BlueprintBuff sanctuary_buff;
 
+        static internal BlueprintAbility command;
+
 
         static public void load()
         {
@@ -46,7 +49,74 @@ namespace CallOfTheWild
             createDeadlyJuggernaut();
             createInvisibilityPurge();
             createSanctuary();
+            createCommand();
         }
+
+
+        static void createCommand()
+        {
+            var dominate_person = library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61");
+            BlueprintBuff[] buffs = new BlueprintBuff[]{library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759"), //daze
+                                                         library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97"), //prone
+                                                         library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf") //frightened
+                                                        };
+            string[] names = { "Halt", "Fall", "Run" };
+            string[] descriptions = { "The subject stands in place for 1 round.It may not take any actions but is not considered helpless.",
+                                      "On its turn, the subject falls to the ground and remains prone for 1 round. It may act normally while prone but takes any appropriate penalties.",
+                                      "On its turn, the subject moves away from you as quickly as possible for 1 round.It may do nothing but move during its turn, and it provokes attacks of opportunity for this movement as normal." };
+
+            List<BlueprintAbility> commands = new List<BlueprintAbility>();
+
+
+            command = Helpers.CreateAbility("CommandSpellAbility",
+                                            "Command",
+                                            "You give the subject a single command, which it obeys to the best of its ability at its earliest opportunity.You may select from the following options.",
+                                            "",
+                                            dominate_person.Icon,
+                                            AbilityType.Spell,
+                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                            AbilityRange.Close,
+                                            Helpers.oneRoundDuration,
+                                            Helpers.willNegates);
+
+            command.CanTargetEnemies = true;
+            command.CanTargetFriends = true;
+            command.CanTargetSelf = false;
+            command.CanTargetPoint = false;
+            command.Animation = dominate_person.Animation;
+            command.AnimationStyle = dominate_person.AnimationStyle;
+            command.AddComponent(dominate_person.GetComponent<SpellDescriptorComponent>());
+            command.AddComponent(dominate_person.GetComponent<SpellComponent>());
+
+
+
+
+            for (int i = 0; i< buffs.Length; i++)
+            {
+                var variant_command = library.CopyAndAdd<BlueprintAbility>(command.AssetGuid, $"CommandSpell{i + 1}Ability", "");
+                variant_command.SetDescription(descriptions[i]);
+                variant_command.SetName($"Command ({names[i]})");
+
+                var buff_action = Common.createContextSavedApplyBuff(buffs[i],
+                                                                      Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes)
+                                                                     );
+                var buff_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(buff_action));
+
+                variant_command.AddComponent(Helpers.CreateRunActions(buff_save));
+                variant_command.AddComponent(dominate_person.GetComponent<AbilitySpawnFx>());
+                variant_command.AddComponent(dominate_person.GetComponent<AbilityTargetHasFact>());
+                variant_command.AddComponents(dominate_person.GetComponents<AbilityTargetHasNoFactUnless>());
+                commands.Add(variant_command);
+            }
+
+            command.CreateAbilityVariants(commands);
+            command.AddToSpellList(Helpers.clericSpellList, 1);
+            command.AddToSpellList(Helpers.inquisitorSpellList, 1);
+
+            command.AddSpellAndScroll("f199f6e5026488c499042900b572eb7f"); //dominate person
+        }
+
+
 
 
         static void createSanctuary()
@@ -75,7 +145,7 @@ namespace CallOfTheWild
                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                 AbilityRange.Touch,
                                                 Helpers.roundsPerLevelDuration,
-                                                "Will negates",
+                                                Helpers.willNegates,
                                                 Helpers.CreateSpellComponent(SpellSchool.Abjuration),
                                                 Helpers.CreateRunActions(apply_buff)
                                                 );

@@ -69,7 +69,7 @@ namespace CallOfTheWild
                                                               Main.library.Get< BlueprintArmorEnchantment>("84d191a748edef84ba30c13b8ab83bd9")  //+5
                                                              };
 
-            BlueprintArmorEnchantment[] temporary_shield_enchantments = new BlueprintArmorEnchantment[shield_enchantments.Length];
+            temporary_shield_enchantments = new BlueprintArmorEnchantment[shield_enchantments.Length];
 
             for (int i = 0; i < temporary_shield_enchantments.Length; i++)
             {

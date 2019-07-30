@@ -1870,6 +1870,16 @@ namespace CallOfTheWild
         }
 
 
+        static internal NewMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
+                                                                                                           bool only_non_magical, bool lock_slot,
+                                                                                                           params BlueprintWeaponEnchantment[] enchantments)
+
+
+        {
+            return createBuffContextEnchantPrimaryHandWeapon(value, only_non_magical, lock_slot, new BlueprintWeaponType[0], enchantments);
+        }
+
+
         static internal NewMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintArmorEnchantment[] enchantments)
@@ -1979,6 +1989,27 @@ namespace CallOfTheWild
             w.AttackBonus = bonus;
             w.Descriptor = descriptor;
             w.WeaponGroup = group;
+            return w;
+        }
+
+
+        static internal NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValue(ContextValue value, params ActionList[] actions)
+        {
+            var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
+            r.value = value;
+            r.actions = actions;
+            return r;
+        }
+
+
+        static internal WeaponDamageAgainstAlignment createWeaponDamageAgainstAlignment(DamageEnergyType energy, DamageAlignment damage_alignment, AlignmentComponent enemy_alignment, 
+                                                                                        ContextDiceValue value)
+        {
+            var w = Helpers.Create<WeaponDamageAgainstAlignment>();
+            w.DamageType = energy;
+            w.WeaponAlignment = damage_alignment;
+            w.EnemyAlignment = enemy_alignment;
+            w.Value = value;
             return w;
         }
     }

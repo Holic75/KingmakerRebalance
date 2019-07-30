@@ -794,6 +794,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "8fd74eddd9b6c224693d9ab241f25e84", 1), //summon monster 1
                 new Common.SpellId( "dd38f33c56ad00a4da386c1afaa49967", 1), //ubreakable heart
                 new Common.SpellId( HexEngine.hex_vulnerability_spell.AssetGuid, 1), //hex vilnerability
+                new Common.SpellId( NewSpells.command.AssetGuid, 1), //command
 
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
                 new Common.SpellId( "b7731c2b4fa1c9844a092329177be4c3", 2), //boneshaker
