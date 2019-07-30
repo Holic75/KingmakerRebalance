@@ -630,7 +630,8 @@ namespace CallOfTheWild
         static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
                                                                                                       bool check_weapon_range_type = false, bool reduce_hp_to_zero = false,
                                                                                                       bool on_initiator = false,
-                                                                                                      AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
+                                                                                                      AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee,
+                                                                                                      bool wait_for_attack_to_resolve = false, bool only_first_hit = false)
         {
             var t = Helpers.Create<AddInitiatorAttackWithWeaponTrigger>();
             t.Action = action;
@@ -640,6 +641,8 @@ namespace CallOfTheWild
             t.RangeType = range_type;
             t.ReduceHPToZero = reduce_hp_to_zero;
             t.ActionsOnInitiator = on_initiator;
+            t.WaitForAttackResolve = wait_for_attack_to_resolve;
+            t.OnlyOnFirstHit = only_first_hit;
             return t;
         }
 
@@ -2011,6 +2014,16 @@ namespace CallOfTheWild
             w.EnemyAlignment = enemy_alignment;
             w.Value = value;
             return w;
+        }
+
+
+        static internal NewMechanics.ContextActionSpendResource createContextActionSpendResource(BlueprintAbilityResource resource, int amount, params BlueprintUnitFact[] cost_reducing_facts)
+        {
+            var c = Helpers.Create<NewMechanics.ContextActionSpendResource>();
+            c.amount = amount;
+            c.resource = resource;
+            c.cost_reducing_facts = cost_reducing_facts;
+            return c;
         }
     }
 }

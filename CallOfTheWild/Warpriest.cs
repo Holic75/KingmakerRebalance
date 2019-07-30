@@ -23,8 +23,10 @@ using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
@@ -1068,6 +1070,9 @@ namespace CallOfTheWild
             createArtificeBlessing();
             createChaosBlessing();
             createCharmBlessing();
+            createCommunityBlessing();
+            createDarknessBlessing();
+            createCreateDeathBlessing();
         }
 
 
@@ -1404,7 +1409,7 @@ namespace CallOfTheWild
                                                 Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, enchantment));
 
             var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
-            var minor_ability = Helpers.CreateAbility("WarpriestAnimalBlessingMinorAbility",
+            var minor_ability = Helpers.CreateAbility("WarpriestChaosBlessingMinorAbility",
                                                       minor_buff.Name,
                                                       minor_buff.Description,
                                                       "",
@@ -1466,7 +1471,7 @@ namespace CallOfTheWild
                 c.save_type = SavingThrowType.Will;
                 c.offensive_action_effect = NewMechanics.Sanctuary.OffensiveActionEffect.REMOVE_FROM_TARGET;
             }                                                   );
-            warpriest_blessing_special_sancturay_buff = library.CopyAndAdd<BlueprintBuff>("525f980cb29bc2240b93e953974cb325", "SanctuaryBuff", "");//invisibility
+            warpriest_blessing_special_sancturay_buff = library.CopyAndAdd<BlueprintBuff>("525f980cb29bc2240b93e953974cb325", "WarpriestSpecialSanctuaryBuff", "");//invisibility
             warpriest_blessing_special_sancturay_buff.ComponentsArray = new BlueprintComponent[] { sancturay_logic, Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting) };
 
             var lesser_restoration = library.Get<BlueprintAbility>("e84fc922ccf952943b5240293669b171");
@@ -1527,6 +1532,313 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       "",
                                                       Helpers.CreateRunActions(apply_minor_buff));
+            major_ability.CanTargetFriends = false;
+            major_ability.CanTargetEnemies = false;
+            major_ability.CanTargetSelf = true;
+            major_ability.CanTargetPoint = false;
+            major_ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            major_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            major_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self;
+            major_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            addBlessingResourceLogic(major_ability);
+            addBlessing("WarpriestBlessingCharm", "Charm", minor_ability, major_ability, "f1ceba79ee123cc479cece27bc994ff2");
+        }
+
+
+        static void createCommunityBlessing()
+        {
+            var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
+            var remove_fear_buff = library.Get<BlueprintBuff>("c5c86809a1c834e42a2eb33133e90a28");
+            var eccli_blessing = library.Get<BlueprintAbility>("db0f61cd985ca09498cafde9a4b27a16");
+            var remove_self_action = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+            BlueprintBuff[] aid_another_buffs = new BlueprintBuff[2];
+            aid_another_buffs[0] = Helpers.CreateBuff("WarpriestCommunityBlessingAidAnother1Buff",
+                                                                "Aid Another (Attack Bonus)",
+                                                                "In melee combat, you can help a friend attack or defend by distracting or interfering with an opponents. If you’re in position to make a melee attack on an opponent that is engaging a friend in melee combat, you can attempt to aid your friend as a standard action. Your friend gains either a +2 bonus on his next attack roll or a +2 bonus to AC against next attack (your choice), as long as that attack comes before the beginning of your next turn. Multiple characters can aid the same friend, and similar bonuses stack.",
+                                                                "",
+                                                                remove_fear.Icon,
+                                                                null,
+                                                                Common.createAttackTypeAttackBonus(Common.createSimpleContextValue(4), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true)
+                                                                );
+            aid_another_buffs[0].Stacking = StackingType.Stack;
+
+            aid_another_buffs[1] = Helpers.CreateBuff("WarpriestCommunityBlessingAidAnother2Buff",
+                                                    "Aid Another (AC)",
+                                                    aid_another_buffs[0].Description,
+                                                    "",
+                                                    remove_fear.Icon,
+                                                    null,
+                                                    Helpers.Create<ACBonusAgainstAttacks>(a => { a.Value = Common.createSimpleContextValue(4); a.Descriptor = ModifierDescriptor.UntypedStackable; a.AgainstMeleeOnly = true; }),
+                                                    Helpers.Create<AddTargetAttackWithWeaponTrigger>(a =>
+                                                                                                    {
+                                                                                                        a.ActionOnSelf = remove_self_action;
+                                                                                                        a.WaitForAttackResolve = true;
+                                                                                                        a.OnlyMelee = true;
+                                                                                                    })
+                                                    );
+            aid_another_buffs[1].Stacking = StackingType.Stack;
+
+            BlueprintAbility[] aid_another_abilities = new BlueprintAbility[aid_another_buffs.Length];
+
+            for (int i = 0; i < aid_another_buffs.Length; i++)
+            {
+                var apply_buff = Common.createContextActionApplyBuff(aid_another_buffs[i], Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false);
+                aid_another_abilities[i] = Helpers.CreateAbility($"WarpriestCommunityBlessingAidAnother{i + 1}Ability",
+                                                                 aid_another_buffs[i].Name,
+                                                                 aid_another_buffs[i].Description,
+                                                                 "",
+                                                                 aid_another_buffs[i].Icon,
+                                                                 AbilityType.Special,
+                                                                 CommandType.Standard,
+                                                                 AbilityRange.Touch,
+                                                                 Helpers.oneRoundDuration,
+                                                                 "",
+                                                                 Helpers.CreateAreaEffectRunAction(apply_buff)
+                                                                 );
+                aid_another_abilities[i].CanTargetFriends = true;
+                aid_another_abilities[i].CanTargetEnemies = false;
+                aid_another_abilities[i].CanTargetSelf = true;
+                aid_another_abilities[i].CanTargetPoint = false;
+                aid_another_abilities[i].EffectOnEnemy = AbilityEffectOnUnit.None;
+                aid_another_abilities[i].EffectOnAlly = AbilityEffectOnUnit.Helpful;
+                aid_another_abilities[i].Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+                aid_another_abilities[i].AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            }
+
+            var minor_buff = Helpers.CreateBuff("WarpriestCommunityMinorBlessingBuff",
+                                                "Communal Aid",
+                                                "At 1st level, you can touch an ally and grant it the blessing of community. For the next minute, whenever that ally uses the aid another action, the bonus granted increases to +4. You can instead use this ability on yourself as a swift action.",
+                                                "",
+                                                remove_fear.Icon,
+                                                remove_fear_buff.FxOnStart,
+                                                Helpers.CreateAddFacts(aid_another_abilities)
+                                                );
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(warpriest_blessing_special_sancturay_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestCommunityMinorBlessingAbility",
+                                                      minor_buff.Name + " (Others)",
+                                                      minor_buff.Description,
+                                                      "",
+                                                      eccli_blessing.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      Helpers.willNegates,
+                                                      Helpers.CreateRunActions(apply_minor_buff));
+            minor_ability.CanTargetFriends = true;
+            minor_ability.CanTargetEnemies = false;
+            minor_ability.CanTargetSelf = false;
+            minor_ability.CanTargetPoint = false;
+            minor_ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            minor_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            minor_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            minor_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            addBlessingResourceLogic(minor_ability);
+
+            var minor_ability2 = library.CopyAndAdd<BlueprintAbility>(minor_ability.AssetGuid, "WarpriestCommunityMinorBlessingSelfAbility", "");
+            minor_ability2.CanTargetFriends = false;
+            minor_ability2.CanTargetSelf = true;
+            minor_ability2.ActionType = CommandType.Swift;
+            minor_ability2.SetName(minor_buff.Name + " (Self)");
+            addBlessingResourceLogic(minor_ability2);
+
+            var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
+
+            var target_melee_buff = Helpers.CreateBuff("WarpriestCommunityMajorBlessingMeleeTargetBuff",
+                                                       "",
+                                                       "",
+                                                       "",
+                                                       null,
+                                                       null);
+            target_melee_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var target_ranged_buff = library.CopyAndAdd<BlueprintBuff>(target_melee_buff.AssetGuid, "WarpriestCommunityMajorBlessingRangedTargetBuff", "");
+            var target_melee_buff2 = library.CopyAndAdd<BlueprintBuff>(target_melee_buff.AssetGuid, "WarpriestCommunityMajorBlessingMeleeTarget2Buff", "");
+            var target_ranged_buff2 = library.CopyAndAdd<BlueprintBuff>(target_melee_buff.AssetGuid, "WarpriestCommunityMajorBlessingRangedTarget2Buff", "");
+
+            var apply_melee_buff1 = Common.createContextActionApplyBuff(target_melee_buff,
+                                                             Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
+                                                             dispellable: false);
+            var apply_melee_buff2 = Common.createContextActionApplyBuff(target_melee_buff2,
+                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
+                                                 dispellable: false);
+            var apply_ranged_buff1 = Common.createContextActionApplyBuff(target_ranged_buff,
+                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
+                                                 dispellable: false);
+            var apply_ranged_buff2 = Common.createContextActionApplyBuff(target_ranged_buff2,
+                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
+                                                 dispellable: false);
+
+            var ally_buff = Helpers.CreateBuff("WarpriestCommunityMajorBlessingAllyBuff",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     null,
+                                                     Helpers.Create<NewMechanics.AttackBonusAgainstFactsOwner>(a =>
+                                                                                                              {
+                                                                                                                  a.Bonus = Common.createSimpleContextValue(2);
+                                                                                                                  a.attack_types = new AttackType[] { AttackType.Melee, AttackType.Touch };
+                                                                                                                  a.Descriptor = ModifierDescriptor.Insight;
+                                                                                                                  a.only_from_caster = true;
+                                                                                                                  a.CheckedFacts = new BlueprintUnitFact[] { target_melee_buff, target_melee_buff2 };
+                                                                                                              }),
+                                                      Helpers.Create<NewMechanics.AttackBonusAgainstFactsOwner>(a =>
+                                                                                                          {
+                                                                                                              a.Bonus = Common.createSimpleContextValue(2);
+                                                                                                              a.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch };
+                                                                                                              a.Descriptor = ModifierDescriptor.Insight;
+                                                                                                              a.only_from_caster = true;
+                                                                                                              a.CheckedFacts = new BlueprintUnitFact[] { target_ranged_buff, target_ranged_buff2 };
+                                                                                                          })
+                                                      );
+            ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("8c5617838c1195443b584e005d0913eb", "WarpriestCommunityMajorBlessingArea", "");
+            area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = ally_buff);
+            var major_buff = Helpers.CreateBuff("WarpriestCommunityMajorBlessingCasterBuff",
+                                                 "Fight as One",
+                                                 "At 10th level, you can rally your allies to fight together. For 1 minute, whenever you make a successful melee or ranged attack against a foe, allies within 10 feet of you gain a +2 insight bonus on attacks of the same type you made against that foe—melee attacks if you made a melee attack, or ranged attacks if you made a ranged attack. If you score a critical hit, this bonus increases to +4 until the start of your next turn.",
+                                                 "",
+                                                 true_strike.Icon,
+                                                 null,
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_melee_buff1),
+                                                                                                  check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_melee_buff2), critical_hit: true,
+                                                                                                  check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_ranged_buff1),
+                                                                                                  check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_ranged_buff2), critical_hit: true,
+                                                                                                  check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                 Common.createAddAreaEffect(area_effect)
+                                                 );
+
+            var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var major_ability = Helpers.CreateAbility("WarpriestCommunityMajorBlessingAbility",
+                                                      major_buff.Name,
+                                                      major_buff.Description,
+                                                      "",
+                                                      major_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_major_buff),
+                                                      true_strike.GetComponent<AbilitySpawnFx>()
+                                                      );
+            major_ability.CanTargetFriends = false;
+            major_ability.CanTargetEnemies = false;
+            major_ability.CanTargetSelf = true;
+            major_ability.CanTargetPoint = false;
+            major_ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            major_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            major_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self;
+            major_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            addBlessingResourceLogic(major_ability);
+
+
+            addBlessing("WarpriestBlessingCommunity", "Community",
+                        Helpers.CreateFeature("WarpriesCommunityBlessingMinorFeature",
+                                              minor_buff.Name,
+                                              minor_buff.Description,
+                                              "",
+                                              minor_buff.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddFacts(minor_ability, minor_ability2)
+                                              ),
+                        Common.AbilityToFeature(major_ability, false),
+                        "c87004460f3328c408d22c5ead05291f");
+        }
+
+
+        static void createDarknessBlessing()
+        {
+            var blur_buff = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674"); //blur
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(blur_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestDarknessMinorBlessingAbility",
+                                                      "Enshrouding Darkness",
+                                                      "At 1st level, you can touch an ally and bestow a darkness blessing. For 1 minute, the ally becomes enshrouded in shadows while in combat, granting it concealment (20%). Creatures that are normally able to see in supernatural darkness ignore this concealment.",
+                                                      "",
+                                                      blur_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff));
+            minor_ability.CanTargetFriends = true;
+            minor_ability.CanTargetEnemies = false;
+            minor_ability.CanTargetSelf = true;
+            minor_ability.CanTargetPoint = false;
+            minor_ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            minor_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            minor_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            minor_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+            addBlessingResourceLogic(minor_ability);
+
+
+            var blindness_buff = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+            var blindness_spell = library.Get<BlueprintAbility>("46fd02ad56c35224c9c91c88cd457791");
+
+            var apply_major_buff = Common.createContextActionApplyBuff(blindness_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var major_ability = Helpers.CreateAbility("WarpriestDarknessMajorBlessingAbility",
+                                                      "Darkened Vision",
+                                                      "At 10th level, you can place a shroud of darkness around the eyes of one foe within 30 feet. The target must succeed at a Will saving throw or be blinded for 1 minute.",
+                                                      "",
+                                                      blindness_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Close,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_major_buff),
+                                                      blindness_spell.GetComponent<AbilityTargetHasFact>(),
+                                                      Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
+                                                      );
+            major_ability.CanTargetFriends = true;
+            major_ability.CanTargetEnemies = true;
+            major_ability.CanTargetSelf = false;
+            major_ability.CanTargetPoint = false;
+            major_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            major_ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
+            major_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
+            major_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingDarkness", "Darkness", minor_ability, major_ability, "6d8e7accdd882e949a63021af5cde4b8");
+        }
+
+
+        static void createCreateDeathBlessing()
+        {
+            var undead_bloodline_progression = library.Get<BlueprintProgression>("a1a8bf61cadaa4143b2d4966f2d1142e");
+            var vampiric_touch = library.Get<BlueprintAbility>("6cbb040023868574b992677885390f92");
+            var false_life = library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762");
+            var minor_buff = Helpers.CreateBuff("WarpriestDeathMinorBlessingBuff",
+                                                "From the Grave",
+                                                "At 1st level, you can take on a corpse-like visage for 1 minute, making you more intimidating and giving you undead-like protection from harm. You gain a +4 bonus on Intimidate checks, as well as a +2 profane bonus on saving throws against disease, mind-affecting effects, paralysis, poison, and stun.",
+                                                "",
+                                                undead_bloodline_progression.Icon,
+                                                null,
+                                                Helpers.CreateAddStatBonus(StatType.CheckIntimidate, 4, ModifierDescriptor.Profane),
+                                                Common.createSavingThrowBonusAgainstDescriptor(2, ModifierDescriptor.Profane, SpellDescriptor.Disease | SpellDescriptor.MindAffecting | SpellDescriptor.Paralysis | SpellDescriptor.Poison | SpellDescriptor.Stun)
+                                                );
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestDeathMinorBlessingAbility",
+                                                      minor_buff.Name,
+                                                      minor_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      false_life.GetComponent<AbilitySpawnFx>());
             minor_ability.CanTargetFriends = false;
             minor_ability.CanTargetEnemies = false;
             minor_ability.CanTargetSelf = true;
@@ -1535,8 +1847,103 @@ namespace CallOfTheWild
             minor_ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
             minor_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self;
             minor_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
-            addBlessingResourceLogic(major_ability);
-            addBlessing("WarpriestBlessingCharm", "Charm", minor_ability, major_ability, "f1ceba79ee123cc479cece27bc994ff2");
+            addBlessingResourceLogic(minor_ability);
+
+
+            var undead = library.Get<BlueprintUnitFact>("734a29b693e9ec346ba2951b27987e33");
+            var construct = library.Get<BlueprintUnitFact>("fd389783027d63343b4a5634bd81645f");
+
+            var energy_drain = Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Common.createSimpleContextValue(1)),
+                                                               Helpers.CreateContextDuration(bonus: Common.createSimpleContextValue(1), rate: DurationRate.Minutes),
+                                                               Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary);
+            var effect_action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(undead, not: true), Helpers.CreateConditionHasFact(construct, not: true) },
+                                                                    energy_drain);
+            var projectile_action = vampiric_touch.GetComponent<AbilityEffectRunAction>().Actions.Actions.Last();
+           
+            var ability = Helpers.CreateAbility("WarpriestDeathMajorBlessingBaseAbility",
+                                                "Death’s Touch",
+                                                "At 10th level, you can make a melee touch attack against an opponent to deliver grim suffering. If you succeed, you inflict 1 temporary negative level on the target for 1 minute. Alternatively, you can activate this ability as a swift action upon hitting an opponent with a melee attack. These temporary negative levels stack. You gain no benefit from imposing these negative levels (such as the temporary hit points undead gain from enervation).",
+                                                "",
+                                                vampiric_touch.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                Helpers.oneMinuteDuration,
+                                                Helpers.savingThrowNone,
+                                                vampiric_touch.GetComponent<AbilityDeliverTouch>(),
+                                                Helpers.CreateRunActions(effect_action, projectile_action),
+                                                vampiric_touch.GetComponent<AbilityTargetHasFact>()
+                                                );
+
+            ability.CanTargetEnemies = true;
+            ability.CanTargetSelf = true;
+            ability.CanTargetPoint = false;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
+            ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionTouch;
+
+            var major_ability_touch = Helpers.CreateAbility("WarpriestDeathMajorBlessingTouchAbility",
+                                                            ability.Name,
+                                                            ability.Description,
+                                                            "",
+                                                            ability.Icon,
+                                                            AbilityType.Supernatural,
+                                                            CommandType.Standard,
+                                                            AbilityRange.Touch,
+                                                            "",
+                                                            Helpers.savingThrowNone,
+                                                            Helpers.CreateStickyTouch(ability)
+                                                            );
+
+            major_ability_touch.CanTargetEnemies = true;
+            major_ability_touch.CanTargetSelf = true;
+            major_ability_touch.CanTargetPoint = false;
+            major_ability_touch.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            major_ability_touch.EffectOnAlly = AbilityEffectOnUnit.Harmful;
+            major_ability_touch.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
+            major_ability_touch.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionTouch;
+            addBlessingResourceLogic(major_ability_touch);
+
+            var on_hit_action = Helpers.CreateActionList(effect_action, 
+                                                         projectile_action);
+            var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
+            var on_hit_buff = Helpers.CreateBuff("WarpriestDeathMajorOnHitBuff",
+                                                 major_ability_touch.Name,
+                                                 major_ability_touch.Description,
+                                                 "",
+                                                 major_ability_touch.Icon,
+                                                 null,
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_action, check_weapon_range_type: true, only_first_hit: true),
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(spend_resource), on_initiator: true, 
+                                                                                                  check_weapon_range_type: true, only_first_hit: true)
+                                                 );
+            var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestDeathMajorBlessingOnHitActivatable",
+                                                                             major_ability_touch.Name + " (On Hit)",
+                                                                             major_ability_touch.Description,
+                                                                             "",
+                                                                             major_ability_touch.Icon,
+                                                                             on_hit_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Swift,
+                                                                             null,
+                                                                             Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
+                                                                             );
+            major_ability_touch.AddComponent(Common.createAbilityCasterHasNoFacts(on_hit_buff));
+
+            addBlessing("WarpriestDeathBlessing", "Death",
+                        Common.AbilityToFeature(minor_ability, false),
+                        Helpers.CreateFeature("WarpriestDeathMajorBlessingFeature",
+                                              major_ability_touch.Name,
+                                              major_ability_touch.Description,
+                                              "",
+                                              major_ability_touch.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddFacts(major_ability_touch, major_activatable_ability)
+                                              ),
+                         "a099afe1b0b32554199b230699a69525");
         }
+
+
     }
 }

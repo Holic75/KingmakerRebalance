@@ -8,6 +8,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
@@ -61,16 +62,16 @@ namespace CallOfTheWild
                                                          library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf") //frightened
                                                         };
             string[] names = { "Halt", "Fall", "Run" };
-            string[] descriptions = { "The subject stands in place for 1 round.It may not take any actions but is not considered helpless.",
+            string[] descriptions = { "The subject stands in place for 1 round. It may not take any actions but is not considered helpless.",
                                       "On its turn, the subject falls to the ground and remains prone for 1 round. It may act normally while prone but takes any appropriate penalties.",
-                                      "On its turn, the subject moves away from you as quickly as possible for 1 round.It may do nothing but move during its turn, and it provokes attacks of opportunity for this movement as normal." };
+                                      "On its turn, the subject moves away from you as quickly as possible for 1 round. It may do nothing but move during its turn, and it provokes attacks of opportunity for this movement as normal." };
 
             List<BlueprintAbility> commands = new List<BlueprintAbility>();
 
 
             command = Helpers.CreateAbility("CommandSpellAbility",
                                             "Command",
-                                            "You give the subject a single command, which it obeys to the best of its ability at its earliest opportunity.You may select from the following options.",
+                                            "You give the subject a single command, which it obeys to the best of its ability at its earliest opportunity.",
                                             "",
                                             dominate_person.Icon,
                                             AbilityType.Spell,
@@ -87,7 +88,7 @@ namespace CallOfTheWild
             command.AnimationStyle = dominate_person.AnimationStyle;
             command.AddComponent(dominate_person.GetComponent<SpellDescriptorComponent>());
             command.AddComponent(dominate_person.GetComponent<SpellComponent>());
-
+            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
 
 
 
@@ -98,7 +99,7 @@ namespace CallOfTheWild
                 variant_command.SetName($"Command ({names[i]})");
 
                 var buff_action = Common.createContextSavedApplyBuff(buffs[i],
-                                                                      Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes)
+                                                                      Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds)
                                                                      );
                 var buff_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(buff_action));
 
@@ -109,7 +110,7 @@ namespace CallOfTheWild
                 commands.Add(variant_command);
             }
 
-            command.CreateAbilityVariants(commands);
+            command.AddComponent(command.CreateAbilityVariants(commands));
             command.AddToSpellList(Helpers.clericSpellList, 1);
             command.AddToSpellList(Helpers.inquisitorSpellList, 1);
 

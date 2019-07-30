@@ -2185,5 +2185,115 @@ namespace CallOfTheWild
                 }
             }
         }
+
+
+        [ComponentName("Attack bonus against fact owner for attack type")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AttackBonusAgainstFactsOwner : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public BlueprintUnitFact[] CheckedFacts;
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+            public AttackType[] attack_types;
+            public bool only_from_caster = false;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (!attack_types.Contains(evt.AttackType))
+                {
+                    return;
+                }
+
+                
+                var bonus = Bonus.Calculate(this.Context);
+                int total_bonus = 0;
+                if (!only_from_caster)
+                {
+                    foreach (var f in CheckedFacts)
+                    {
+                        if (evt.Target.Descriptor.HasFact(f))
+                        {
+                           
+                        }
+                    }
+                }
+
+                if (only_from_caster)
+                {
+                    var caster = this.Context.MaybeCaster;
+                    foreach (var b in evt.Target.Buffs)
+                    {
+                        if (CheckedFacts.Contains(b.Blueprint) && b.MaybeContext.MaybeCaster == caster)
+                        {
+                            total_bonus += bonus;
+                        }
+                    }
+                }
+
+                if (total_bonus > 0)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(total_bonus, this, Descriptor));
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+        [ComponentName("spend resource")]
+        [AllowMultipleComponents]
+        [PlayerUpgraderAllowed]
+        public class ContextActionSpendResource : ContextAction
+        {
+            public BlueprintAbilityResource resource;
+            public int amount = 1;
+            public BlueprintUnitFact[] cost_reducing_facts;
+
+
+            public override void RunAction()
+            {
+                int need_resource = amount;
+
+                var owner = this.Context.MaybeOwner.Descriptor;
+
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (owner.HasFact(f))
+                    {
+                        need_resource--;
+                    }
+                }
+                if (need_resource < 0)
+                {
+                    need_resource = 0;
+                }
+
+                if (this.resource == null || owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < need_resource)
+                {
+                    return;
+                }
+                owner.Resources.Spend((BlueprintScriptableObject)this.resource, need_resource);
+            }
+
+
+            public override string GetCaption()
+            {
+                return $"Spend {resource.name} ({amount})";
+            }
+        }
     }
 }
