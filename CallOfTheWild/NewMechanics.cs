@@ -54,6 +54,7 @@ using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.EntitySystem.Persistence.Versioning;
 using JetBrains.Annotations;
+using Kingmaker.Enums.Damage;
 
 namespace CallOfTheWild
 {
@@ -2293,6 +2294,34 @@ namespace CallOfTheWild
             public override string GetCaption()
             {
                 return $"Spend {resource.name} ({amount})";
+            }
+        }
+
+
+        [ComponentName("Buffs/AddEffect/EnergyDurability")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class AddEnergyDamageDurability : RuleTargetLogicComponent<RuleCalculateDamage>
+        {
+            public DamageEnergyType Type;
+            public float scaling = 0.5f;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                foreach (BaseDamage baseDamage in evt.DamageBundle)
+                {
+                    EnergyDamage energyDamage = baseDamage as EnergyDamage;
+                    if (energyDamage != null && energyDamage.EnergyType == this.Type)
+                    {
+                        energyDamage.Durability = scaling;
+                        Main.logger.Log("Scaling Damage");
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
             }
         }
     }

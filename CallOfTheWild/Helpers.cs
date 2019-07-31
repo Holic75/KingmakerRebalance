@@ -417,6 +417,84 @@ namespace CallOfTheWild
             return CasterSpellProgression.UnknownCaster;
         }
 
+
+        public static void setMiscAbilityParametersSingleTargetRangedHarmful(this BlueprintAbility ability, bool works_on_allies =  false,
+                                                               Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point,
+                                                               Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint)
+        {
+            ability.CanTargetFriends = works_on_allies;
+            ability.CanTargetEnemies = true;
+            ability.CanTargetSelf = false;
+            ability.CanTargetPoint = false;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            ability.EffectOnAlly = works_on_allies ? AbilityEffectOnUnit.Harmful : AbilityEffectOnUnit.None;
+            ability.Animation = animation;
+            ability.AnimationStyle = animation_style;
+        }
+
+
+        public static void setMiscAbilityParametersSingleTargetRangedFriendly(this BlueprintAbility ability, bool works_on_self = false,
+                                                       Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point,
+                                                       Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint)
+        {
+            ability.CanTargetFriends = true;
+            ability.CanTargetEnemies = false;
+            ability.CanTargetSelf = works_on_self;
+            ability.CanTargetPoint = false;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            ability.Animation = animation;
+            ability.AnimationStyle = animation_style;
+        }
+
+
+        public static void setMiscAbilityParametersTouchHarmful(this BlueprintAbility ability, bool works_on_allies = false,
+                                                       Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch,
+                                                       Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionTouch)
+        {
+            ability.CanTargetFriends = works_on_allies;
+            ability.CanTargetEnemies = true;
+            ability.CanTargetSelf = false;
+            ability.CanTargetPoint = false;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            ability.EffectOnAlly = works_on_allies ? AbilityEffectOnUnit.Harmful : AbilityEffectOnUnit.None;
+            ability.Animation = animation;
+            ability.AnimationStyle = animation_style;
+        }
+
+
+        public static void setMiscAbilityParametersTouchFriendly(this BlueprintAbility ability, bool works_on_self = true,
+                                               Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch,
+                                               Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionTouch)
+        {
+            ability.CanTargetFriends = true;
+            ability.CanTargetEnemies = false;
+            ability.CanTargetSelf = works_on_self;
+            ability.CanTargetPoint = false;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            ability.Animation = animation;
+            ability.AnimationStyle = animation_style;
+        }
+
+
+        public static void setMiscAbilityParametersSelfOnly(this BlueprintAbility ability, 
+                                                               Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self,
+                                                               Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionSelf)
+        {
+            ability.CanTargetFriends = true;
+            ability.CanTargetEnemies = false;
+            ability.CanTargetSelf = true;
+            ability.CanTargetPoint = false;
+            ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            ability.EffectOnAlly = AbilityEffectOnUnit.Helpful;
+            ability.Animation = animation;
+            ability.AnimationStyle = animation_style;
+        }
+
+
+
+
         static readonly FastSetter blueprintArchetype_set_Icon = Helpers.CreateFieldSetter<BlueprintArchetype>("m_Icon");
 
         public static void SetIcon(this BlueprintArchetype self, Sprite icon)

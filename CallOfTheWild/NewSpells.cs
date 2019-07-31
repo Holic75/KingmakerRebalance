@@ -7,6 +7,7 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.Enums.Damage;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -40,7 +41,9 @@ namespace CallOfTheWild
         static internal BlueprintBuff sanctuary_buff;
 
         static internal BlueprintAbility command;
-
+        static internal BlueprintAbility fire_shield;
+        static internal Dictionary<DamageEnergyType, BlueprintBuff> fire_shield_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
+        static internal Dictionary<DamageEnergyType, BlueprintAbility> fire_shield_variants = new Dictionary<DamageEnergyType, BlueprintAbility>();
 
         static public void load()
         {
@@ -51,6 +54,98 @@ namespace CallOfTheWild
             createInvisibilityPurge();
             createSanctuary();
             createCommand();
+            createFireShield();
+        }
+
+
+        static void createFireShield()
+        {
+            var shield_of_dawn = library.Get<BlueprintAbility>("62888999171921e4dafb46de83f4d67d");
+            var shield = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4");
+            var shield_of_dawn_buff = library.Get<BlueprintBuff>("07abad76e7b688242b56749cd25f5d3d");
+            var shield_buff = library.Get<BlueprintBuff>("9c0fa9b438ada3f43864be8dd8b3e741");
+
+
+            DamageEnergyType[] energy = new DamageEnergyType[] { DamageEnergyType.Fire, DamageEnergyType.Cold };
+            SpellDescriptor[] descriptors = new SpellDescriptor[] { SpellDescriptor.Fire, SpellDescriptor.Cold };
+            BlueprintBuff[] prototype_buffs = new BlueprintBuff[] { shield_of_dawn_buff, shield_buff };
+            BlueprintAbility[] prototype_spells = new BlueprintAbility[] { shield_of_dawn, shield };
+            string[] names = new string[] { "Warm Shield", "Chill Shield" };
+            string[] descriptions = new string[] { "The flames are warm to the touch. You take only half damage from cold-based attacks. If such an attack allows a Reflex save for half damage, you take no damage on a successful saving throw.",
+                                                   "The flames are cool to the touch. You take only half damage from fire-based attacks. If such an attack allows a Reflex save for half damage, you take no damage on a successful saving throw." };
+
+
+            BlueprintAbility[] shields = new BlueprintAbility[energy.Length];
+
+            for (int i = 0; i < shields.Length; i++)
+            {
+                var deal_damage = Helpers.CreateActionDealDamage(energy[i],
+                                                                 Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1), Helpers.CreateContextValue(AbilityRankType.DamageBonus))
+                                                                 );
+
+                var dmg_component = shield_of_dawn_buff.GetComponent<AddTargetAttackRollTrigger>().CreateCopy();
+                dmg_component.ActionsOnAttacker = Helpers.CreateActionList(deal_damage);
+                var buff = Helpers.CreateBuff($"FireShield{i + 1}Buff",
+                                              names[i],
+                                              descriptions[i],
+                                              "",
+                                              prototype_buffs[i].Icon,
+                                              prototype_buffs[i].FxOnStart,
+                                              Common.createAddEnergyDamageDurability(energy[i], 0.5f),
+                                              Common.createEvasionAgainstDescriptor(descriptors[i], SavingThrowType.Fortitude),
+                                              Common.createEvasionAgainstDescriptor(descriptors[i], SavingThrowType.Reflex),
+                                              Common.createEvasionAgainstDescriptor(descriptors[i], SavingThrowType.Will),
+                                              Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, max: 15),
+                                              dmg_component,
+                                              Helpers.CreateSpellDescriptor(descriptors[i])
+                                              );
+
+                fire_shield_buffs.Add(energy[i], buff);
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), true);
+                shields[i] = Helpers.CreateAbility($"FireShield{i + 1}Ability",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Personal,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  Helpers.savingThrowNone,
+                                                  Helpers.CreateRunActions(apply_buff),
+                                                  prototype_spells[i].GetComponent<AbilitySpawnFx>(),
+                                                  Helpers.CreateSpellDescriptor(descriptors[i]),
+                                                  shield_of_dawn.GetComponent<SpellComponent>()
+                                                  );
+                shields[i].setMiscAbilityParametersSelfOnly();
+                fire_shield_variants.Add(energy[i], shields[i]);
+                shields[i].SpellResistance = true;
+            }
+
+            fire_shield = Helpers.CreateAbility("FireShieldAbility",
+                                                "Fire Shield",
+                                                "This spell wreathes you in flame and causes damage to each creature that attacks you in melee. The flames also protect you from either cold-based or fire-based attacks, depending on if you choose cool or warm flames for your fire shield.\n"
+                                                + "Any creature striking you with its body or a hand - held weapon deals normal damage, but at the same time the attacker takes 1d6 points of damage + 1 point per caster level(maximum + 15). This damage is either cold damage (if you choose a chill shield) or fire damage (if you choose a warm shield). If the attacker has spell resistance, it applies to this effect. Creatures wielding melee weapons with reach are not subject to this damage if they attack you.",
+                                                "",
+                                                shield_of_dawn.Icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.roundsPerLevelDuration,
+                                                Helpers.savingThrowNone,
+                                                shield_of_dawn.GetComponent<SpellComponent>());
+            fire_shield.AvailableMetamagic = shield_of_dawn.AvailableMetamagic;
+            fire_shield.setMiscAbilityParametersSelfOnly();
+            fire_shield.SpellResistance = true;
+
+            fire_shield.AddComponent(fire_shield.CreateAbilityVariants(shields));
+            fire_shield.AddToSpellList(Helpers.wizardSpellList, 4);
+            fire_shield.AddToSpellList(Helpers.magusSpellList, 4);
+            fire_shield.AddToSpellList(Helpers.alchemistSpellList, 4);
+
+            fire_shield.AddSpellAndScroll("8e0c81ac23fe75b4288c21ee57f55e3f"); // shield of dawn
+
         }
 
 

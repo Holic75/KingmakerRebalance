@@ -417,6 +417,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
+                new Common.SpellId( NewSpells.fire_shield.AssetGuid, 4), //fire shield
             };
 
             foreach (var spell_id in spells)
@@ -1319,9 +1320,9 @@ namespace CallOfTheWild
                 progression = createBloodragerBloodline("Infernal",
                                                               "The Pit lives in your blood. Maybe one of your ancestors was seduced by the powers of Hell or made a deal with a devil. Either way, its corruption seethes within your lineage.\n"
                                                                + "Bonus Feats: Blind - Fight, Combat Reflexes, Deceitful, Improved Disarm, Improved Sunder, Intimidating Prowess, Iron Will.\n"
-                                                               + "Bonus Spells: Protection from good (7th), scorching ray(10th), hold preson(13th), shield of dawn(16th).",
+                                                               + "Bonus Spells: Protection from good (7th), scorching ray(10th), hold preson(13th), fire_shield(16th).",
                                                               library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon, // sorcerer infernal bloodline
-                                                              new BlueprintAbility[] { protection_from_good, scorching_ray, hold_person, shield_of_dawn },
+                                                              new BlueprintAbility[] { protection_from_good, scorching_ray, hold_person, NewSpells.fire_shield },
                                                               new BlueprintFeature[] { combat_reflexes, deceitful, blindfight, improved_disarm, improved_sunder, intimidating_prowess, iron_will },
                                                               new BlueprintFeature[] { hellfire_strike, infernal_resistance, diabolical_arrogance, dark_wings, hellfire_charge, fiend_of_the_pit },
                                                               "346f332ed9b843638a228257a59743b7",

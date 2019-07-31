@@ -796,6 +796,15 @@ namespace CallOfTheWild
         }
 
 
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextPhysicalDR(ContextValue value)
+        {
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
+            feat.BypassedByMaterial = false;
+            feat.Value = value;
+            return feat;
+        }
+
+
         internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(int dr_value)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
@@ -1960,7 +1969,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical, 
+        static internal NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical,
                                                                                                                                        bool lock_slot, params BlueprintWeaponEnchantment[] enchants)
         {
             var b = Helpers.Create<NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
@@ -2005,7 +2014,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal WeaponDamageAgainstAlignment createWeaponDamageAgainstAlignment(DamageEnergyType energy, DamageAlignment damage_alignment, AlignmentComponent enemy_alignment, 
+        static internal WeaponDamageAgainstAlignment createWeaponDamageAgainstAlignment(DamageEnergyType energy, DamageAlignment damage_alignment, AlignmentComponent enemy_alignment,
                                                                                         ContextDiceValue value)
         {
             var w = Helpers.Create<WeaponDamageAgainstAlignment>();
@@ -2025,5 +2034,34 @@ namespace CallOfTheWild
             c.cost_reducing_facts = cost_reducing_facts;
             return c;
         }
+
+
+        static internal WeaponEnergyDamageDice weaponEnergyDamageDice(DamageEnergyType energy, DiceFormula dice_formula)
+        {
+            var w = Helpers.Create<WeaponEnergyDamageDice>();
+            w.Element = energy;
+            w.EnergyDamageDice = dice_formula;
+            return w;
+        }
+
+
+        static internal EvasionAgainstDescriptor createEvasionAgainstDescriptor(SpellDescriptor descriptor, SavingThrowType save_type)
+        {
+            var e = Helpers.Create<EvasionAgainstDescriptor>();
+            e.SpellDescriptor = descriptor;
+            e.SavingThrow = save_type;
+            return e;
+        }
+
+
+        static internal NewMechanics.AddEnergyDamageDurability createAddEnergyDamageDurability(DamageEnergyType energy, float scaling_factor)
+        {
+            var a = Helpers.Create<NewMechanics.AddEnergyDamageDurability>();
+            a.scaling = scaling_factor;
+            a.Type = energy;
+            return a;
+        }
+
+
     }
 }
