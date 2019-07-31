@@ -448,7 +448,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void setMiscAbilityParametersTouchHarmful(this BlueprintAbility ability, bool works_on_allies = false,
+        public static void setMiscAbilityParametersTouchHarmful(this BlueprintAbility ability, bool works_on_allies = true,
                                                        Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch,
                                                        Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionTouch)
         {

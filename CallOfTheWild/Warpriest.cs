@@ -12,6 +12,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
@@ -1083,6 +1084,8 @@ namespace CallOfTheWild
             createGloryBlessing();
             createGoodBlessing();
             createHealingBlessing();
+            createKnowledgeBlessing();
+            createLawBlessing();
         }
 
 
@@ -1339,7 +1342,8 @@ namespace CallOfTheWild
                                                                                     return slot.SpellLevel <= 3
                                                                                             && slot.Spell.Blueprint.Range != AbilityRange.Personal
                                                                                             && slot.Spell.Blueprint.CanTargetEnemies
-                                                                                            && !slot.Spell.Blueprint.HasAreaEffect();
+                                                                                            && !slot.Spell.Blueprint.HasAreaEffect()
+                                                                                            && !slot.Spell.Blueprint.HasVariants;
                                                                                   };
             var major_ability = Helpers.CreateAbility("WarpriestArtificeBlessingMajorAbility",
                                                       major_feature.Name,
@@ -1554,14 +1558,7 @@ namespace CallOfTheWild
                                                                  "",
                                                                  Helpers.CreateAreaEffectRunAction(apply_buff)
                                                                  );
-                aid_another_abilities[i].CanTargetFriends = true;
-                aid_another_abilities[i].CanTargetEnemies = false;
-                aid_another_abilities[i].CanTargetSelf = true;
-                aid_another_abilities[i].CanTargetPoint = false;
-                aid_another_abilities[i].EffectOnEnemy = AbilityEffectOnUnit.None;
-                aid_another_abilities[i].EffectOnAlly = AbilityEffectOnUnit.Helpful;
-                aid_another_abilities[i].Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
-                aid_another_abilities[i].AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+                aid_another_abilities[i].setMiscAbilityParametersTouchFriendly();
             }
 
             var minor_buff = Helpers.CreateBuff("WarpriestCommunityMinorBlessingBuff",
@@ -1719,7 +1716,8 @@ namespace CallOfTheWild
             var blindness_buff = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
             var blindness_spell = library.Get<BlueprintAbility>("46fd02ad56c35224c9c91c88cd457791");
 
-            var apply_major_buff = Common.createContextActionApplyBuff(blindness_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var apply_major_buff = Common.createContextSavedApplyBuff(blindness_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), is_dispellable: true);
+            var apply_major_buff_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_major_buff));
             var major_ability = Helpers.CreateAbility("WarpriestDarknessMajorBlessingAbility",
                                                       "Darkened Vision",
                                                       "At 10th level, you can place a shroud of darkness around the eyes of one foe within 30 feet. The target must succeed at a Will saving throw or be blinded for 1 minute.",
@@ -1730,7 +1728,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Close,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_major_buff),
+                                                      Helpers.CreateRunActions(apply_major_buff_save),
                                                       blindness_spell.GetComponent<AbilityTargetHasFact>(),
                                                       Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
                                                       );
@@ -2217,7 +2215,7 @@ namespace CallOfTheWild
             var holy_enchantment = library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140");
 
             var enchantment = Common.createWeaponEnchantment("WarpriestGoodMinorBlessingWeaponEcnchantment",
-                                                             "Holy Strike Strike",
+                                                             "Holy Strike",
                                                              "This weapon glows green, white, or yellow-gold and deals an additional 1d6 points of damage against evil creatures. During this time, it’s treated as good for the purposes of overcoming damage reduction.",
                                                              "",
                                                              "",
@@ -2351,6 +2349,172 @@ namespace CallOfTheWild
                         );
         }
 
+
+        static void createKnowledgeBlessing()
+        {
+            var aid = library.Get<BlueprintAbility>("03a9630394d10164a9410882d31572f0");
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+
+            var lore_action = Helpers.Create<NewMechanics.MonsterLore.ContextMonsterLoreCheckUsingClassAndStat>(c =>
+                                                                                                               {
+                                                                                                                   c.bonus = 15;
+                                                                                                                   c.character_class = warpriest_class;
+                                                                                                                   c.stat_type = StatType.Wisdom;
+                                                                                                               }
+                                                                                                               );
+
+            var minor_ability_resolve = Helpers.CreateAbility("WarpriestKnowledgeMinorBlessingResolveAbility",
+                                                              "Lore Keeper",
+                                                              "At 1st level, you can touch a creature to learn about its abilities and weaknesses. With a successful touch attack, you gain information as if your result on the appropriate Knowledge skill check were equal to 15 + your warpriest level + your Wisdom modifier.",
+                                                              "",
+                                                              aid.Icon,
+                                                              AbilityType.Supernatural,
+                                                              CommandType.Standard,
+                                                              AbilityRange.Touch,
+                                                              "",
+                                                              Helpers.savingThrowNone,
+                                                              Helpers.CreateDeliverTouch(),
+                                                              Helpers.CreateRunActions(lore_action),
+                                                              Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(),
+                                                              aid.GetComponent<AbilitySpawnFx>()
+                                                              );
+            minor_ability_resolve.setMiscAbilityParametersTouchHarmful();
+            
+            var minor_ability      = Helpers.CreateAbility("WarpriestKnowledgeMinorBlessingAbility",
+                                                            minor_ability_resolve.Name,
+                                                            minor_ability_resolve.Description,
+                                                            "",
+                                                            minor_ability_resolve.Icon,
+                                                            AbilityType.Supernatural,
+                                                            CommandType.Standard,
+                                                            AbilityRange.Touch,
+                                                            "",
+                                                            Helpers.savingThrowNone,
+                                                            Helpers.CreateStickyTouch(minor_ability_resolve),
+                                                            Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(),
+                                                            aid.GetComponent<AbilitySpawnFx>()
+                                                           );
+            minor_ability.setMiscAbilityParametersTouchHarmful();
+            addBlessingResourceLogic(minor_ability);
+            var major_target_buff = Helpers.CreateBuff("WarpriestKnowledgBlessingeMajorTargetBuff",
+                                                "Monster Lore",
+                                                "At 10th level, you can as a swift action gain a +2 insight bonus on attacks, saving throws, as well as to your AC against the creature that was previously sucessfully inspected by you or your allies. This effect lasts for 1 minute.",
+                                                "",
+                                                detect_magic.Icon,
+                                                null,
+                                                Helpers.Create<AttackBonusAgainstTarget>(c => { c.Value = Common.createSimpleContextValue(2); c.CheckCaster = true; }),
+                                                Helpers.Create<ACBonusAgainstTarget>(c => { c.Value = Common.createSimpleContextValue(2); c.CheckCaster = true; c.Descriptor = ModifierDescriptor.Insight; })
+                                                );
+
+            var major_caster_buff = Helpers.CreateBuff("WarpriestKnowledgBlessingeMajorCasterBuff",
+                                    "",
+                                    "",
+                                    "",
+                                    detect_magic.Icon,
+                                    null,
+                                    Helpers.Create<NewMechanics.SavingThrowBonusAgainstFactFromCaster>(c =>
+                                                                                                       { c.Value = Common.createSimpleContextValue(2);
+                                                                                                         c.CheckedFact = major_target_buff;
+                                                                                                         c.Descriptor = ModifierDescriptor.Insight;
+                                                                                                       })
+                                    );
+            major_caster_buff.Stacking = StackingType.Stack;
+            major_caster_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_target_buff = Common.createContextActionApplyBuff(major_target_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: true);
+            var apply_caster_buff = Common.createContextActionApplyBuff(major_caster_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: true);
+            var major_ability = Helpers.CreateAbility("WarpriestKnowledgeBlessingMajorAbility",
+                                                      major_target_buff.Name,
+                                                      major_target_buff.Description,
+                                                      "",
+                                                      major_target_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Swift,
+                                                      AbilityRange.Close,
+                                                      Helpers.oneMinuteDuration,
+                                                      Helpers.savingThrowNone,
+                                                      aid.GetComponent<AbilitySpawnFx>(),
+                                                      Helpers.CreateRunActions(apply_target_buff, Helpers.Create<ContextActionOnContextCaster>(c => c.Actions = Helpers.CreateActionList(apply_caster_buff)))
+                                                      );
+            major_ability.setMiscAbilityParametersTouchHarmful();
+            addBlessingResourceLogic(major_ability);
+            addBlessing("WarpriestBlessingKnowledge", "Knowledge", minor_ability, major_ability, "443d44b3e0ea84046a9bf304c82a0425");
+        }
+
+
+        static void createLawBlessing()
+        {
+            var axiomatic_weapon = library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1");
+            var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
+            var axiomatic_enchantment = library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4");
+
+            var enchantment = Common.createWeaponEnchantment("WarpriestLawMinorBlessingWeaponEcnchantment",
+                                                             "Axiomatic Strike",
+                                                             "This weapon glows blue, pale yellow, or white and deals an additional 1d6 points of damage against chaotic creatures. During this time, it’s treated as lawful for the purposes of overcoming damage reduction.",
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             0,
+                                                             axiomatic_enchantment.WeaponFxPrefab,
+                                                             Common.createWeaponDamageAgainstAlignment(DamageEnergyType.Holy, DamageAlignment.Lawful, AlignmentComponent.Chaotic,
+                                                                                                       Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)))
+                                                             );
+
+            var minor_buff = Helpers.CreateBuff("WarpriestLawMinorBuff",
+                                                enchantment.Name,
+                                                "At 1st level, you can touch one weapon and enhance it with the essence of law. For 1 minute, this weapon glows blue, pale yellow, or white and deals an additional 1d6 points of damage against chaotic creatures. During this time, it’s treated as lawful for the purposes of overcoming damage reduction.",
+                                                "",
+                                                axiomatic_weapon.Icon,
+                                                null,
+                                                Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, enchantment));
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestLawBlessingMinorAbility",
+                                                      minor_buff.Name,
+                                                      minor_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      Helpers.savingThrowNone,
+                                                      bless_weapon.GetComponent<AbilitySpawnFx>(),
+                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      );
+
+            minor_ability.setMiscAbilityParametersTouchFriendly();
+            addBlessingResourceLogic(minor_ability);
+
+            string[] summon_monster_guids = new string[] {"efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
+                                                      "2920d48574933c24391fbb9e18f87bf5", "eb6df7ddfc0669d4fb3fc9af4bd34bca", "e96593e67d206ab49ad1b567327d1e75" };
+
+            var summon_m9 = library.Get<BlueprintAbility>("e96593e67d206ab49ad1b567327d1e75");
+
+            List<ActionList> summon_actions = new List<ActionList>();
+            foreach (var s in summon_monster_guids)
+            {
+                summon_actions.Add(library.Get<BlueprintAbility>(s).GetComponent<AbilityEffectRunAction>().Actions);
+            }
+
+            var major_ability = library.CopyAndAdd<BlueprintAbility>(summon_m9.AssetGuid, "WarpirestLawBlessingMajorAbility", "");
+            major_ability.SetName("Battle Companion");
+            major_ability.SetDescription("At 10th level, you can summon a battle companion. This ability functions as summon monster IV with a duration of 1 minute. This ability can summon only one creature, regardless of the list used. For every 2 levels beyond 10th, the level of the summon monster spell increases by 1 (to a maximum of summon monster IX at 20th level).");
+            major_ability.RemoveComponents<SpellComponent>();
+            major_ability.Type = AbilityType.Supernatural;
+            var action = Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus), summon_actions.ToArray()));
+            major_ability.ReplaceComponent<AbilityEffectRunAction>(action);
+            major_ability.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(min: 10, max: 10));
+            major_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWarpriestArray(),
+                                                                       progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                       startLevel: 10, stepLevel: 2, max: 6, type: AbilityRankType.StatBonus
+                                                                      )
+                                      );
+            major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
+            major_ability.Parent = null;
+            addBlessingResourceLogic(major_ability);
+            addBlessing("WarpriestBlessingLaw", "Law", minor_ability, major_ability, "092714336606cfc45a37d2ab39fabfa8");
+        }
 
     }
 }

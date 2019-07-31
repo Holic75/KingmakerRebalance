@@ -55,6 +55,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.EntitySystem.Persistence.Versioning;
 using JetBrains.Annotations;
 using Kingmaker.Enums.Damage;
+using Kingmaker.Inspect;
 
 namespace CallOfTheWild
 {
@@ -1742,7 +1743,7 @@ namespace CallOfTheWild
                     return false;
                 }
                 var spell_descriptor = this.Buff.Blueprint.GetComponent<SpellDescriptorComponent>();
-                if (spell_descriptor != null 
+                if (spell_descriptor != null
                     && (UnitDescriptionHelper.GetDescription(unit.Blueprint).Immunities.SpellDescriptorImmunity.Value & spell_descriptor.Descriptor.Value) != 0)
                 {
                     Common.AddBattleLogMessage($"{unit.CharacterName} is immune to {this.Fact.Name} of {Owner.CharacterName}");
@@ -1992,7 +1993,7 @@ namespace CallOfTheWild
         }
 
 
-        public class ResourseCostCalculatorWithDecreasincFacts: BlueprintComponent, IAbilityResourceCostCalculator
+        public class ResourseCostCalculatorWithDecreasincFacts : BlueprintComponent, IAbilityResourceCostCalculator
         {
             public BlueprintFact[] cost_reducing_facts;
 
@@ -2076,7 +2077,7 @@ namespace CallOfTheWild
             {
                 public string Comment;
                 public BlueprintUnitFact fact;
-                
+
 
                 public override void RunAction()
                 {
@@ -2217,7 +2218,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                
+
                 var bonus = Bonus.Calculate(this.Context);
                 int total_bonus = 0;
                 if (!only_from_caster)
@@ -2226,7 +2227,7 @@ namespace CallOfTheWild
                     {
                         if (evt.Target.Descriptor.HasFact(f))
                         {
-                           
+
                         }
                     }
                 }
@@ -2335,7 +2336,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact reason = null;
             public StatType skill;
             public BlueprintCharacterClass character_class;
-            
+
 
             public override void OnEventAboutToTrigger(RuleSkillCheck evt)
             {
@@ -2429,5 +2430,115 @@ namespace CallOfTheWild
                 this.Owner.Resources.Spend(resource, cost_to_pay);
             }
         }
+
+
+        namespace MonsterLore
+        {
+            public class ContextMonsterLoreCheckUsingClassAndStat : ContextAction
+            {
+                public int bonus;
+                public BlueprintCharacterClass character_class;
+                public StatType stat_type;
+
+                public override string GetCaption()
+                {
+                    return "Monster Lore Check";
+                }
+
+                public override void RunAction()
+                {
+                    var target = this.Target.Unit;
+                    var initiator = this.Context.MaybeCaster;
+                    var result = bonus + initiator.Descriptor.Progression.GetClassLevel(character_class) + initiator.Descriptor.Stats.GetStat(stat_type);
+                    if (!InspectUnitsHelper.IsInspectAllow(target))
+                        return;
+
+                    BlueprintUnit blueprintForInspection = target.Descriptor.BlueprintForInspection;
+                    InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
+
+                    if (info == null)
+                        return;
+
+                    if (info.KnownPartsCount == 4)
+                        return;
+
+                    int dc = info.DC;
+                    Common.AddBattleLogMessage($"{initiator.CharacterName} forced DC {dc} monster lore check: {result}");
+                    info.SetCheck(result, initiator);
+                }
+            }
+
+
+            [ComponentName("Checks if monster can be inspected")]
+            [AllowedOn(typeof(BlueprintAbility))]
+            [AllowMultipleComponents]
+            public class AbilityTargetCanBeInspected : BlueprintComponent, IAbilityTargetChecker
+            {
+                public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+                {
+                    UnitEntityData unit = target.Unit;
+                    BlueprintUnit blueprintForInspection = unit.BlueprintForInspection;
+                    InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
+                    if (info == null)
+                        return false;
+
+                    return info.KnownPartsCount < 4;
+                }
+            }
+
+
+            [ComponentName("Checks if monster is inspected")]
+            [AllowedOn(typeof(BlueprintAbility))]
+            [AllowMultipleComponents]
+            public class AbilityTargetInspected : BlueprintComponent, IAbilityTargetChecker
+            {
+                public int min_inspection_level = 1;
+
+                public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+                {
+                    UnitEntityData unit = target.Unit;
+                    BlueprintUnit blueprintForInspection = unit.BlueprintForInspection;
+                    InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
+                    if (info == null)
+                        return false;
+
+                    return info.KnownPartsCount >= min_inspection_level;
+                }
+            }
+        }
+
+        [AllowMultipleComponents]
+        [ComponentName("Saving throw bonus against fact from caster")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SavingThrowBonusAgainstFactFromCaster : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public BlueprintUnitFact CheckedFact;
+            public ModifierDescriptor Descriptor;
+            public ContextValue Value;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                UnitDescriptor descriptor = evt.Reason.Caster?.Descriptor;
+                if (descriptor == null)
+                    return;
+                int bonus = Value.Calculate(this.Fact.MaybeContext);
+                foreach (var b in descriptor.Buffs)
+                {
+                    if (b.Blueprint == CheckedFact && b.Context.MaybeCaster == evt.Initiator)
+                    {
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        return;
+                    }
+                }
+
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
     }
+
 }
