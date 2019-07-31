@@ -1674,6 +1674,25 @@ namespace CallOfTheWild
         }
 
 
+        static internal BlueprintFeature ActivatableAbilityToFeature(BlueprintActivatableAbility ability, bool hide = true, string guid = "")
+        {
+            var feature = Helpers.CreateFeature(ability.name + "Feature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     guid,
+                                                     ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(ability)
+                                                     );
+            if (hide)
+            {
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+            }
+            return feature;
+        }
+
+
         static internal NewMechanics.ComeAndGetMe createComeAndGetMe()
         {
             var c = Helpers.Create<NewMechanics.ComeAndGetMe>();

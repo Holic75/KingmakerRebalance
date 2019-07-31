@@ -2324,5 +2324,110 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        [ComponentName("ReplaceSkillRankWithClassLevel")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class ReplaceSkillRankWithClassLevel : RuleInitiatorLogicComponent<RuleSkillCheck>
+        {
+            public BlueprintUnitFact reason = null;
+            public StatType skill;
+            public BlueprintCharacterClass character_class;
+            
+
+            public override void OnEventAboutToTrigger(RuleSkillCheck evt)
+            {
+                if (evt.StatType != skill)
+                {
+                    return;
+                }
+
+                if (reason != null && (evt.Reason.Fact == null || evt.Reason.Fact.Blueprint != reason))
+                {
+                    return;
+                }
+                int class_level = evt.Initiator.Descriptor.Progression.GetClassLevel(character_class);
+                if (class_level <= evt.StatValue)
+                {
+                    return;
+                }
+                Main.logger.Log($"check {evt.ToString()} --- {evt.StatType} --- {evt.Reason.Fact.ToString()}");
+                evt.AddTemporaryModifier(new ModifiableValue(skill).AddModifier(class_level - evt.StatValue, this, ModifierDescriptor.UntypedStackable));
+            }
+
+            public override void OnEventDidTrigger(RuleSkillCheck evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class MetamagicOnSpellDescriptor : BuffLogic, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public Metamagic Metamagic;
+            public SpellDescriptorWrapper spell_descriptor;
+            public BlueprintAbilityResource resource = null;
+            public int amount;
+            public BlueprintUnitFact[] cost_reducing_facts;
+            private int cost_to_pay;
+
+
+
+            private int calculate_cost(UnitEntityData caster)
+            {
+                var cost = amount;
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (caster.Buffs.HasFact(f))
+                    {
+                        cost--;
+                    }
+                }
+
+                return cost < 0 ? 0 : cost;
+            }
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                cost_to_pay = 0;
+                if ((evt.Spell.AvailableMetamagic & Metamagic) == 0)
+                {
+                    return;
+                }
+
+                if (!spell_descriptor.HasAnyFlag(evt.Spell.SpellDescriptor))
+                {
+                    return;
+                }
+
+                cost_to_pay = calculate_cost(this.Owner.Unit);
+                if (resource != null && this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost_to_pay)
+                {
+                    cost_to_pay = 0;
+                    return;
+                }
+
+                evt.AddMetamagic(Metamagic);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (cost_to_pay == 0)
+                {
+                    return;
+                }
+                this.Owner.Resources.Spend(resource, cost_to_pay);
+            }
+        }
     }
 }
