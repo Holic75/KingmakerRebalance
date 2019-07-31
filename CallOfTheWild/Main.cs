@@ -126,6 +126,7 @@ public class Main
                     CallOfTheWild.HexEngine.test_mode = true;
                     CallOfTheWild.Bloodrager.test_mode = true;
                     CallOfTheWild.Skald.test_mode = true;
+                    CallOfTheWild.Warpriest.test_mode = true;
 #endif
                     CallOfTheWild.Hunter.createHunterClass();
                     if (settings.sacred_huntsmaster_animal_focus)

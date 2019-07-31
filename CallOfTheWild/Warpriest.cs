@@ -96,9 +96,9 @@ namespace CallOfTheWild
 
         static internal BlueprintBuff warpriest_blessing_special_sancturay_buff;
 
-
         internal static void createWarpriestClass()
         {
+            Main.logger.Log("Warpriest class test mode: " + test_mode.ToString());
             var cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
 
             warpriest_class = Helpers.Create<BlueprintCharacterClass>();
@@ -718,9 +718,12 @@ namespace CallOfTheWild
                                                                          AbilityActivationType.Immediately,
                                                                          CommandType.Swift,
                                                                          null,
-                                                                         Common.createActivatableAbilityUnitCommand(CommandType.Swift),
                                                                          Helpers.CreateActivatableResourceLogic(sacred_weapon_resource, ResourceSpendType.NewRound),
                                                                          Helpers.Create<NewMechanics.ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction>(c => c.feature = weapon_focus));
+            if (!test_mode)
+            {
+                sacred_weapon_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
 
             warpriest_sacred_weapon_enhancement = Helpers.CreateFeature("WarpriestSacredWeaponEnchancementFeature",
                                                                         "Sacred Weapon +1",
@@ -1178,7 +1181,8 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
                                                       hurricane_bow.GetComponent<AbilitySpawnFx>(),
-                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      Helpers.Create<NewMechanics.MonsterLore.AbilityTargetInspected>()
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
@@ -1836,9 +1840,12 @@ namespace CallOfTheWild
                                                                              AbilityActivationType.Immediately,
                                                                              CommandType.Free,
                                                                              null,
-                                                                             Common.createActivatableAbilityUnitCommand(CommandType.Swift),
                                                                              Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
                                                                              );
+            if (!test_mode)
+            {
+                major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
             major_ability_touch.AddComponent(Common.createAbilityCasterHasNoFacts(on_hit_buff));
 
             addBlessing("WarpriestDeathBlessing", "Death",
@@ -1908,7 +1915,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      Helpers.CreateRunActions(apply_major_buff)
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
@@ -1984,7 +1991,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      Helpers.CreateRunActions(apply_major_buff)
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
@@ -2161,7 +2168,7 @@ namespace CallOfTheWild
             minor_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic(minor_ability);
 
-            var scare = library.Get<BlueprintAbility>("08cb5f4c3b2695e44971bf5c45205df0");
+            var heroism = library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63");
             var cornugon_smash = library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14");
             var demoralize_action = ((Conditional)cornugon_smash.GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0]).IfTrue.Actions[0];
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
@@ -2176,7 +2183,7 @@ namespace CallOfTheWild
                                                 "Demoralizing Glory",
                                                 "At 10th level, when you successfully damage an opponent with a melee attack or attack spell, as a swift action you can attempt to demoralize that opponent with the Intimidate skill using your ranks in Intimidate or your warpriest level, whichever is higher.",
                                                 "",
-                                                 scare.Icon,
+                                                 heroism.Icon,
                                                  null,
                                                  demoralize_on_damage);
 
@@ -2197,9 +2204,12 @@ namespace CallOfTheWild
                                                                              AbilityActivationType.Immediately,
                                                                              CommandType.Free,
                                                                              null,
-                                                                             Common.createActivatableAbilityUnitCommand(CommandType.Swift),
                                                                              Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
                                                                              );
+            if (!test_mode)
+            {
+                major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
             addBlessing("WarpriestGloryBlessing", "Glory",
                         Common.AbilityToFeature(minor_ability, false),
                         Common.ActivatableAbilityToFeature(major_activatable_ability, false),
@@ -2313,9 +2323,13 @@ namespace CallOfTheWild
                                                                              AbilityActivationType.Immediately,
                                                                              CommandType.Free,
                                                                              null,
-                                                                             Common.createActivatableAbilityUnitCommand(CommandType.Swift),
                                                                              Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
                                                                              );
+
+            if (!test_mode)
+            {
+                minor_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
 
             var major_buff = Helpers.CreateBuff("WarpriestHealingMajorBuff",
                                                 "Fast Healing",

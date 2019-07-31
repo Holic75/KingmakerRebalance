@@ -2007,8 +2007,44 @@ namespace CallOfTheWild
                         cost--;
                     }
                 }
-
                 return cost < 0 ? 0 : cost;
+            }
+        }
+
+        //fix for 0 cost ability data to avoid division by 0
+        //we temporary IsSpendResource to false
+        //and restore it in prefix
+        [Harmony12.HarmonyPatch(typeof(AbilityData))]
+        [Harmony12.HarmonyPatch("GetAvailableForCastCount", Harmony12.MethodType.Normal)]
+        class AbilityData__GetAvailableCostCount__Patch
+        {
+            static bool Prefix(AbilityData __instance, ref bool __state, ref int __result)
+            {
+                __state = false;
+                if (__instance.Fact != null)
+                {
+                    AbilityResourceLogic abilityResourceLogic = __instance.Fact.Blueprint.GetComponents<AbilityResourceLogic>().FirstOrDefault<AbilityResourceLogic>();
+                    if (abilityResourceLogic == null)
+                    {
+                        return true;
+                    }
+                    if (abilityResourceLogic.CalculateCost(__instance) == 0 && abilityResourceLogic.IsSpendResource)
+                    {
+                        abilityResourceLogic.IsSpendResource = false;
+                        __state = true;
+                    }
+                }
+                return true;
+            }
+
+
+            static void Postfix(AbilityData __instance, ref bool __state, ref int __result)
+            {
+                if (__state)
+                {
+                    AbilityResourceLogic abilityResourceLogic = __instance.Fact.Blueprint.GetComponents<AbilityResourceLogic>().FirstOrDefault<AbilityResourceLogic>();
+                    abilityResourceLogic.IsSpendResource = true;
+                }
             }
         }
 
@@ -2340,22 +2376,24 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleSkillCheck evt)
             {
+                var stat_value = evt.Initiator.Stats.GetStat(skill);
                 if (evt.StatType != skill)
                 {
                     return;
                 }
-
                 if (reason != null && (evt.Reason.Fact == null || evt.Reason.Fact.Blueprint != reason))
                 {
                     return;
                 }
+
                 int class_level = evt.Initiator.Descriptor.Progression.GetClassLevel(character_class);
-                if (class_level <= evt.StatValue)
+                if (class_level <= stat_value.PermanentValue)
                 {
                     return;
                 }
-                Main.logger.Log($"check {evt.ToString()} --- {evt.StatType} --- {evt.Reason.Fact.ToString()}");
-                evt.AddTemporaryModifier(new ModifiableValue(skill).AddModifier(class_level - evt.StatValue, this, ModifierDescriptor.UntypedStackable));
+
+                evt.Bonus.AddModifier(class_level - stat_value.PermanentValue, this, ModifierDescriptor.UntypedStackable);
+
             }
 
             public override void OnEventDidTrigger(RuleSkillCheck evt)

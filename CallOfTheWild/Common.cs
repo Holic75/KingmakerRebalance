@@ -368,7 +368,7 @@ namespace CallOfTheWild
         {
             var a = Helpers.Create<AddFortification>();
             a.Bonus = bonus;
-            a.UseContextValue = value == null ? true : false;
+            a.UseContextValue = value == null ? false : true;
             a.Value = value;
             return a;
         }
