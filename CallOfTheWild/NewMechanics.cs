@@ -2373,10 +2373,13 @@ namespace CallOfTheWild
             public StatType skill;
             public BlueprintCharacterClass character_class;
 
-
             public override void OnEventAboutToTrigger(RuleSkillCheck evt)
             {
-                var stat_value = evt.Initiator.Stats.GetStat(skill);
+                ModifiableValue stat_value = evt.Initiator.Stats.GetStat(skill);
+                if (skill == StatType.CheckIntimidate || skill == StatType.CheckDiplomacy || skill == StatType.CheckBluff)
+                {
+                    stat_value = evt.Initiator.Stats.GetStat(StatType.SkillPersuasion);
+                }
                 if (evt.StatType != skill)
                 {
                     return;
@@ -2387,12 +2390,12 @@ namespace CallOfTheWild
                 }
 
                 int class_level = evt.Initiator.Descriptor.Progression.GetClassLevel(character_class);
-                if (class_level <= stat_value.PermanentValue)
+                if (class_level <= stat_value.BaseValue)
                 {
                     return;
                 }
 
-                evt.Bonus.AddModifier(class_level - stat_value.PermanentValue, this, ModifierDescriptor.UntypedStackable);
+                evt.Bonus.AddModifier(class_level - stat_value.BaseValue, this, ModifierDescriptor.UntypedStackable);
 
             }
 
