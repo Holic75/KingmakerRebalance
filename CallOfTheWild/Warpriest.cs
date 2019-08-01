@@ -23,6 +23,7 @@ using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
 using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -1239,6 +1240,7 @@ namespace CallOfTheWild
             minor_buff.SetBuffFlags(0);
             var animal_fury = library.Get<BlueprintFeature>("25954b1652bebc2409f9cb9d5728bceb");
             var magic_fang = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33");
+            minor_buff.AddComponent(animal_fury.GetComponent<AddCalculatedWeapon>());
             var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
             var minor_ability = Helpers.CreateAbility("WarpriestAnimalBlessingMinorAbility",
                                                       "Animal Fury",
@@ -1337,34 +1339,38 @@ namespace CallOfTheWild
                                                 "",
                                                 spell_combat.Icon,
                                                 FeatureGroup.None,
-                                                Helpers.Create<NewMechanics.SpellStorage.FactStoreSpell>());
+                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
 
-            var release_action = Helpers.Create<NewMechanics.SpellStorage.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = major_feature);
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = major_feature);
             major_feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_action)));
 
-            Predicate<SpellSlot> check_slot_predicate = delegate (SpellSlot slot) {
-                                                                                    return slot.SpellLevel <= 3
-                                                                                            && slot.Spell.Blueprint.Range != AbilityRange.Personal
-                                                                                            && slot.Spell.Blueprint.CanTargetEnemies
-                                                                                            && !slot.Spell.Blueprint.HasAreaEffect()
-                                                                                            && !slot.Spell.Blueprint.HasVariants;
-                                                                                  };
-            var major_ability = Helpers.CreateAbility("WarpriestArtificeBlessingMajorAbility",
-                                                      major_feature.Name,
-                                                      major_feature.Description,
-                                                      "",
-                                                      major_feature.Icon,
-                                                      AbilityType.Supernatural,
-                                                      CommandType.Standard,
-                                                      AbilityRange.Personal,
-                                                      "",
-                                                      "",
-                                                      Helpers.Create<NewMechanics.SpellStorage.AbilityStoreSpellInFact>(s => { s.fact = major_feature; s.check_slot_predicate = check_slot_predicate; })
-                                                      );
-
-            major_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(major_ability);
-            major_feature.AddComponent(Helpers.CreateAddFact(major_ability));
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell) {
+                                                                                        return spell.SpellLevel <= 3
+                                                                                                && spell.Blueprint.Range != AbilityRange.Personal
+                                                                                                && spell.Blueprint.CanTargetEnemies
+                                                                                                && !spell.Blueprint.HasAreaEffect();
+            
+                                                                            };
+            int max_variants = 6;
+            for (int i = 0; i < max_variants; i++)
+            {
+                var major_ability = Helpers.CreateAbility($"WarpriestArtificeBlessingMajor{i+1}Ability",
+                                                          $"{ major_feature.Name} {Common.roman_id[i+1]}",
+                                                          major_feature.Description,
+                                                          "",
+                                                          major_feature.Icon,
+                                                          AbilityType.Supernatural,
+                                                          CommandType.Standard,
+                                                          AbilityRange.Personal,
+                                                          "",
+                                                          "",
+                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = major_feature; s.check_slot_predicate = check_slot_predicate; s.variant = i;})
+                                                          );
+                major_ability.setMiscAbilityParametersSelfOnly();
+                addBlessingResourceLogic(major_ability);
+                major_feature.AddComponent(Helpers.CreateAddFact(major_ability));
+            }
+            
             addBlessing("WarpriestBlessingArtifice", "Artifice", Common.AbilityToFeature(minor_ability, false), major_feature, "9656b1c7214180f4b9a6ab56f83b92fb");
         }
 
@@ -1504,7 +1510,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Personal,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_minor_buff));
+                                                      Helpers.CreateRunActions(apply_major_buff));
             major_ability.setMiscAbilityParametersSelfOnly();
             addBlessingResourceLogic(major_ability);
             addBlessing("WarpriestBlessingCharm", "Charm", minor_ability, major_ability, "f1ceba79ee123cc479cece27bc994ff2");
@@ -1549,7 +1555,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < aid_another_buffs.Length; i++)
             {
-                var apply_buff = Common.createContextActionApplyBuff(aid_another_buffs[i], Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false);
+                var apply_buff = Common.createContextActionApplyBuff(aid_another_buffs[i], Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
                 aid_another_abilities[i] = Helpers.CreateAbility($"WarpriestCommunityBlessingAidAnother{i + 1}Ability",
                                                                  aid_another_buffs[i].Name,
                                                                  aid_another_buffs[i].Description,
@@ -1560,21 +1566,21 @@ namespace CallOfTheWild
                                                                  AbilityRange.Touch,
                                                                  Helpers.oneRoundDuration,
                                                                  "",
-                                                                 Helpers.CreateAreaEffectRunAction(apply_buff)
+                                                                 Helpers.CreateRunActions(apply_buff)
                                                                  );
-                aid_another_abilities[i].setMiscAbilityParametersTouchFriendly();
+                aid_another_abilities[i].setMiscAbilityParametersTouchFriendly(works_on_self: false);
             }
 
             var minor_buff = Helpers.CreateBuff("WarpriestCommunityMinorBlessingBuff",
                                                 "Communal Aid",
                                                 "At 1st level, you can touch an ally and grant it the blessing of community. For the next minute, whenever that ally uses the aid another action, the bonus granted increases to +4. You can instead use this ability on yourself as a swift action.",
                                                 "",
-                                                remove_fear.Icon,
+                                                eccli_blessing.Icon,
                                                 remove_fear_buff.FxOnStart,
                                                 Helpers.CreateAddFacts(aid_another_abilities)
                                                 );
 
-            var apply_minor_buff = Common.createContextActionApplyBuff(warpriest_blessing_special_sancturay_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
             var minor_ability = Helpers.CreateAbility("WarpriestCommunityMinorBlessingAbility",
                                                       minor_buff.Name + " (Others)",
                                                       minor_buff.Description,

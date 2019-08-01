@@ -715,7 +715,7 @@ namespace CallOfTheWild
                 createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
                                          "9f10909f0be1f5141bf1c102041f93d9", //snowball
                                          "c83447189aabc72489164dfc246f3a36", //frigid touch
-                                         "fcb028205a71ee64d98175ff39a0abf9", //ice storm
+                                         library.CopyAndAdd<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9", "WitchWinterPatronIceStormAbility", "").AssetGuid, //ice storm
                                          "65e8d23aef5e7784dbeb27b1fca40931", //icy prison
                                          library.CopyAndAdd<BlueprintAbility>("e7c530f8137630f4d9d7ee1aa7b1edc0", "WinterPatronConeOfColdABility","").AssetGuid, //cone of cold
                                          "5ef85d426783a5347b420546f91a677b", //cold ice strike

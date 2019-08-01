@@ -642,7 +642,7 @@ namespace CallOfTheWild
             t.ReduceHPToZero = reduce_hp_to_zero;
             t.ActionsOnInitiator = on_initiator;
             t.WaitForAttackResolve = wait_for_attack_to_resolve;
-            t.OnlyOnFirstHit = only_first_hit;
+            t.OnlyOnFirstAttack = only_first_hit;
             return t;
         }
 

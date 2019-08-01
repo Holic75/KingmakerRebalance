@@ -2079,152 +2079,6 @@ namespace CallOfTheWild
         }
 
 
-        namespace SpellStorage
-        {
-            [AllowedOn(typeof(BlueprintUnitFact))]
-            public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
-            {
-                [JsonProperty]
-                private AbilityData spell = null;
-                public bool remove_buff_on_release = false;
-
-                public void releaseSpellOnTarget(TargetWrapper target)
-                {
-                    if (spell != null)
-                    {
-                        Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, target));
-                        Common.AddBattleLogMessage($"{this.Owner.CharacterName} released {spell.Name} from {this.Fact.Name}.");
-                    }
-                    spell = null;
-                }
-
-                public void storeSpell(AbilityData new_spell)
-                {
-                    spell = new_spell;
-                    Common.AddBattleLogMessage($"{this.Owner.CharacterName} stored {new_spell.Name} for {this.Fact.Name}.");
-                }
-            }
-
-
-            [ComponentName("Release spell stored in specified fact")]
-            [AllowMultipleComponents]
-            [PlayerUpgraderAllowed]
-            public class ReleaseSpellStoredInSpecifiedBuff : ContextAction
-            {
-                public string Comment;
-                public BlueprintUnitFact fact;
-
-
-                public override void RunAction()
-                {
-                    var stored_buff = this.Context.MaybeOwner.Buffs.GetFact(fact);
-
-                    if (stored_buff != null)
-                    {
-                        stored_buff.Blueprint.GetComponent<FactStoreSpell>().releaseSpellOnTarget(this.Context.MainTarget);
-                    }
-                }
-
-                public override string GetCaption()
-                {
-                    return "Release Spell Stored in Specified Buff (" + this.Comment + " )";
-                }
-            }
-
-
-            public class AbilityStoreSpellInFact : AbilityApplyEffect, IAbilityAvailabilityProvider, IAbilityParameterRequirement
-            {
-                public BlueprintUnitFact fact;
-                public Predicate<SpellSlot> check_slot_predicate;
-
-                public bool RequireSpellSlot
-                {
-                    get
-                    {
-                        return true;
-                    }
-                }
-
-                public bool RequireSpellbook
-                {
-                    get
-                    {
-                        return false;
-                    }
-                }
-
-                public bool RequireSpellLevel
-                {
-                    get
-                    {
-                        return false;
-                    }
-                }
-
-                public override void Apply(AbilityExecutionContext context, TargetWrapper target)
-                {
-                    if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)
-                        return;
-                    else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
-                        return;
-
-                    else
-                    {
-                        SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
-                        if (availableSpellSlot == null)
-                            return;
-                        else
-                        {
-                            storeSpell(availableSpellSlot, context);
-                        }
-
-                    }
-                }
-
-                public bool IsAvailableFor(AbilityData ability)
-                {
-                    AbilityData spell = ability.ParamSpellSlot?.Spell;
-                    Spellbook spellbook = (object)spell != null ? spell.Spellbook : (Spellbook)null;
-                    if (spell == (AbilityData)null || spellbook == null)
-                        return false;
-                    return GetAvailableSpellSlot(spell) != null;
-                }
-
-
-                public string GetReason()
-                {
-                    return string.Empty;
-                }
-
-
-                [CanBeNull]
-                private SpellSlot GetAvailableSpellSlot(AbilityData ability)
-                {
-                    if (ability.Spellbook == null)
-                        return (SpellSlot)null;
-                    foreach (SpellSlot memorizedSpellSlot in ability.Spellbook.GetMemorizedSpellSlots(ability.SpellLevel))
-                    {
-                        if (memorizedSpellSlot.Available && memorizedSpellSlot.Spell == ability && check_slot_predicate(memorizedSpellSlot))
-                            return memorizedSpellSlot;
-                    }
-                    return (SpellSlot)null;
-                }
-
-
-                private void storeSpell(SpellSlot spell_slot, AbilityExecutionContext context)
-                {
-                    var store_buff = context.MaybeOwner.Buffs.GetFact(fact);
-
-                    if (store_buff != null)
-                    {
-                        store_buff.Blueprint.GetComponent<FactStoreSpell>().storeSpell(spell_slot.Spell);
-                        spell_slot.Available = false;
-                    }
-                }
-            }
-        }
-
-
         [ComponentName("Attack bonus against fact owner for attack type")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
@@ -2433,6 +2287,11 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 cost_to_pay = 0;
+                if (evt.Spellbook == null)
+                {
+                    return;
+                }
+                
                 if ((evt.Spell.AvailableMetamagic & Metamagic) == 0)
                 {
                     return;
@@ -2464,11 +2323,14 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleCastSpell evt)
             {
+               
                 if (cost_to_pay == 0)
                 {
                     return;
                 }
+                Main.logger.Log($"{evt.Spell.Name} -- {cost_to_pay}");
                 this.Owner.Resources.Spend(resource, cost_to_pay);
+                cost_to_pay = 0;
             }
         }
 
@@ -2496,7 +2358,7 @@ namespace CallOfTheWild
 
                     BlueprintUnit blueprintForInspection = target.Descriptor.BlueprintForInspection;
                     InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
-
+                    
                     if (info == null)
                         return;
 
@@ -2522,7 +2384,6 @@ namespace CallOfTheWild
                     InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
                     if (info == null)
                         return false;
-
                     return info.KnownPartsCount < 4;
                 }
             }
