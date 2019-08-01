@@ -94,7 +94,7 @@ namespace CallOfTheWild
         static internal BlueprintAbilityResource warpriest_blessing_resource;
         static internal BlueprintFeature add_warpriest_blessing_resource;
 
-
+        static internal ActivatableAbilityGroup confusion_control_group = ActivatableAbilityGroup.DivineWeaponProperty;
         static internal BlueprintBuff warpriest_blessing_special_sancturay_buff;
 
         internal static void createWarpriestClass()
@@ -1090,6 +1090,9 @@ namespace CallOfTheWild
             createHealingBlessing();
             createKnowledgeBlessing();
             createLawBlessing();
+            createLiberationBlessing();
+            createLuckBlessing();
+            createMadnessBlessing();
         }
 
 
@@ -1343,15 +1346,16 @@ namespace CallOfTheWild
 
             var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = major_feature);
             major_feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_action)));
-
+            int max_variants = 6; //due to ui limitation
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell) {
                                                                                         return spell.SpellLevel <= 3
                                                                                                 && spell.Blueprint.Range != AbilityRange.Personal
                                                                                                 && spell.Blueprint.CanTargetEnemies
+                                                                                                && !spell.Blueprint.IsFullRoundAction
+                                                                                                && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
                                                                                                 && !spell.Blueprint.HasAreaEffect();
-            
-                                                                            };
-            int max_variants = 6;
+                                                                                       };
+           
             for (int i = 0; i < max_variants; i++)
             {
                 var major_ability = Helpers.CreateAbility($"WarpriestArtificeBlessingMajor{i+1}Ability",
@@ -2535,6 +2539,191 @@ namespace CallOfTheWild
             addBlessingResourceLogic(major_ability);
             addBlessing("WarpriestBlessingLaw", "Law", minor_ability, major_ability, "092714336606cfc45a37d2ab39fabfa8");
         }
+
+
+        static void createLiberationBlessing()
+        {
+            var freedom_of_movement_buff = library.Get<BlueprintBuff>("1533e782fca42b84ea370fc1dcbf4fc1");
+            var buff = library.CopyAndAdd<BlueprintBuff>("60906dd9e4ddec14c8ac9a0f4e47f54c", "WarpriestLiberationBlessingBuff", ""); //freedom of movement no strings
+            var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
+            var spend_resource_caster = Helpers.CreateConditional(Common.createContextConditionIsCaster(), spend_resource);
+            buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: spend_resource_caster));
+            buff.FxOnStart = freedom_of_movement_buff.FxOnStart;
+            buff.SetIcon(null);
+
+            var minor_activatable_ability = Helpers.CreateActivatableAbility("WarpriestLiberationBlessingMinorActivatableAbility",
+                                                                            "Liberation",
+                                                                            "At 1st level, for 1 round as a swift action, you can ignore impediments to your mobility and effects that cause paralysis (as freedom of movement).",
+                                                                             "",
+                                                                             freedom_of_movement_buff.Icon,
+                                                                             buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
+                                                                             );
+            if (!test_mode)
+            {
+                minor_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
+
+
+
+
+
+            var major_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("cd23b709497500142b59802d7bc85edc", "WarpriestLiberationMajorBlessingArea", "");
+            major_area.ReplaceComponent<AbilityAreaEffectBuff>(c => c.Buff = buff);
+
+            var major_buff = library.CopyAndAdd<BlueprintBuff>("aa561f70d2260524e82c794d6140677c", "WarpriestMajorBlessingBuff", "");
+            major_buff.SetName("Freedom’s Shout");
+            major_buff.SetDescription("At 10th level, as a swift action you can emit a 30-foot aura that affects all allies with the liberation blessing");
+
+            var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestLiberationBlessingMajorActivatableAbility",
+                                                                             major_buff.Name,
+                                                                             major_buff.Description,
+                                                                             "",
+                                                                             major_buff.Icon,
+                                                                             major_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
+                                                                             );
+            if (!test_mode)
+            {
+                major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
+
+            addBlessing("WarpriestLiberationBlessing", "Liberation",
+                        Common.ActivatableAbilityToFeature(minor_activatable_ability, false),
+                        Common.ActivatableAbilityToFeature(major_activatable_ability, false),
+                        "801ca88338451a546bca2ee59da87c53"
+                        );
+        }
+
+
+        static void createLuckBlessing()
+        {
+            var minor_ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", "WarpriestLuckBlessingMinorAbility", "");
+            minor_ability.RemoveComponents<ReplaceAbilitiesStat>();
+            minor_ability.RemoveComponents<AbilityResourceLogic>();
+            minor_ability.SetName("Lucky Presence");
+            minor_ability.SetDescription("You can touch a willing creature as a standard action, giving it a bit of luck. For the next round, any time the target rolls a d20, he may roll twice and take the more favorable result.");
+            addBlessingResourceLogic(minor_ability);
+
+            var major_ability = library.CopyAndAdd<BlueprintAbility>("0e0668a703fbfcf499d9aa9d918b71ea", "WarpriestLuckBlessingMajorAbility", ""); //divine fortune
+            major_ability.SetDescription("At 10th level, you can call on your deity to give you unnatural luck. This ability functions like Lucky Presence, but it affects you and lasts for a number of rounds equal to 1/2 your warpriest level.");
+            major_ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
+            major_ability.RemoveComponents<AbilityResourceLogic>();
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingLuck", "Luck", minor_ability, major_ability, "d4e192475bb1a1045859c7664addd461");
+        }
+
+
+        static void createMadnessBlessing()
+        {
+            var minor_buff = library.CopyAndAdd<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df", "WarpriestMadnessBlessingMinorBuff", ""); //confusion
+            var confusion = library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949");
+            minor_buff.SetName("Madness Supremacy");
+            minor_buff.SetDescription("At 1st level, as a swift action you can target a creature within 30 feet that has frightened or paralyzed condition. That condition is suspended for 1 round, and the chosen creature gains the confused condition instead. The confused creature rerolls any result other than “attack self” or “attack nearest creature.” The round spent confused counts toward the duration of the suspended effect. At the end of the confused round, the suspended condition resumes.");
+            minor_buff.AddComponent(Common.createAddConditionImmunity(UnitCondition.Frightened));
+            minor_buff.AddComponent(Common.createAddConditionImmunity(UnitCondition.Paralyzed));
+            minor_buff.AddComponent(Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { ConfusionState.AttackNearest, ConfusionState.SelfHarm }));
+
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestMadnessBlessingMinorAbility",
+                                                      minor_buff.Name,
+                                                      minor_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Swift,
+                                                      AbilityRange.Close,
+                                                      Helpers.oneRoundDuration,
+                                                      Helpers.savingThrowNone,
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      confusion.GetComponent<AbilitySpawnFx>(),
+                                                      confusion.GetComponent<SpellDescriptorComponent>(),
+                                                      Common.createAbilityTargetCompositeOr(false, Common.createAbilityTargetHasCondition(UnitCondition.Paralyzed),
+                                                                                                   Common.createAbilityTargetHasCondition(UnitCondition.Frightened)
+                                                                                            )
+                                                     );
+            minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+            addBlessingResourceLogic(minor_ability);
+            ConfusionState[] confusion_states = { ConfusionState.AttackNearest, ConfusionState.SelfHarm, ConfusionState.ActNormally, ConfusionState.DoNothing };
+            string[] names = new string[] { "Attack Nearest", "Attack Self", "Act Normally", "Do Nothing" };
+
+            BlueprintActivatableAbility[] major_abilities = new BlueprintActivatableAbility[confusion_states.Length];
+            var hideous_laughter = library.Get<BlueprintBuff>("4b1f07a71a982824988d7f48cd49f3f8");
+            var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
+            var spend_resource_caster = Helpers.CreateConditional(Common.createContextConditionIsCaster(), spend_resource);
+
+            for (int i = 0; i < confusion_states.Length; i++)
+            {
+               
+                var buff = Helpers.CreateBuff($"WarpriestMadnessBlessingMajor{i+1}Buff",
+                                              $"Control Madness ({names[i]})",
+                                              "At 10th level, as a swift action you can choose one behavior for all confused creatures within 30 feet to exhibit (as if all creatures rolled the same result). This effect lasts for 1 round. You can use this ability even while you are confused.",
+                                              "",
+                                              hideous_laughter.Icon,
+                                              hideous_laughter.FxOnStart,
+                                              Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { confusion_states[i] }),
+                                              Helpers.CreateAddFactContextActions(spend_resource_caster)
+                                              );
+                
+
+                var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", $"WarpriestMadnessBlessingMajor{i+1}Area", "");//dirge of doom area
+                area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a =>
+                                                                    {
+                                                                        a.Buff = buff;
+                                                                        a.Condition = Helpers.CreateConditionsCheckerOr();
+                                                                    }
+                                                                    );
+                var caster_buff = Helpers.CreateBuff($"WarpriestMadnessBlessingMajor{i + 1}CasterBuff",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     null,
+                                                     Common.createAddAreaEffect(area_effect)
+                                                     );
+                caster_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+                major_abilities[i] = Helpers.CreateActivatableAbility($"WarpriestMadnessBlessingMajor{i + 1}Ability",
+                                                                     buff.Name,
+                                                                     buff.Description,
+                                                                     "",
+                                                                     buff.Icon,
+                                                                     caster_buff,
+                                                                     AbilityActivationType.Immediately,
+                                                                     CommandType.Free,
+                                                                     null,
+                                                                     Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
+                                                                     );
+                major_abilities[i].Group = confusion_control_group;
+                if (!test_mode)
+                {
+                    major_abilities[i].AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+                }
+            }
+
+
+            addBlessing("WarpriestBlessingMadness", "Madness",
+                        Common.AbilityToFeature(minor_ability),
+                        Helpers.CreateFeature("WarpriestBlessingMadness",
+                                              "Control Madness",
+                                              major_abilities[0].Description,
+                                              "",
+                                              major_abilities[0].Icon,
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddFacts(major_abilities)
+                                              ),
+                        "c346bcc77a6613040b3aa915b1ceddec");
+        }
+
+
+
 
     }
 }

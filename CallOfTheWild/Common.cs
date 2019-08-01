@@ -50,6 +50,7 @@ using Kingmaker.Designers.Mechanics.WeaponEnchants;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 
 namespace CallOfTheWild
 {
@@ -2079,6 +2080,24 @@ namespace CallOfTheWild
             a.scaling = scaling_factor;
             a.Type = energy;
             return a;
+        }
+
+
+        static internal NewMechanics.AbilityTargetCompositeOr createAbilityTargetCompositeOr(bool not, params IAbilityTargetChecker[] checkers)
+        {
+            var c = Helpers.Create<NewMechanics.AbilityTargetCompositeOr>();
+            c.ability_checkers = checkers;
+            c.Not = not;
+            return c;
+        }
+
+
+        static internal AbilityTargetHasCondition createAbilityTargetHasCondition(UnitCondition condition, bool not = false)
+        {
+            var c = Helpers.Create<AbilityTargetHasCondition>();
+            c.Condition = condition;
+            c.Not = not;
+            return c;
         }
 
 

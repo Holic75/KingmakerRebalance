@@ -2291,7 +2291,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                
+
                 if ((evt.Spell.AvailableMetamagic & Metamagic) == 0)
                 {
                     return;
@@ -2323,7 +2323,7 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleCastSpell evt)
             {
-               
+
                 if (cost_to_pay == 0)
                 {
                     return;
@@ -2358,7 +2358,7 @@ namespace CallOfTheWild
 
                     BlueprintUnit blueprintForInspection = target.Descriptor.BlueprintForInspection;
                     InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
-                    
+
                     if (info == null)
                         return;
 
@@ -2439,6 +2439,25 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleSavingThrow evt)
             {
+            }
+        }
+
+        public class AbilityTargetCompositeOr : BlueprintComponent, IAbilityTargetChecker
+        {
+            public IAbilityTargetChecker[] ability_checkers;
+
+            public bool Not;
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                bool result = false;
+
+                foreach (var c in ability_checkers)
+                {
+                    result = result || c.CanTarget(caster, target);
+                }
+
+                return result != Not;
             }
         }
     }
