@@ -184,6 +184,7 @@ namespace CallOfTheWild
             command.AddComponent(dominate_person.GetComponent<SpellDescriptorComponent>());
             command.AddComponent(dominate_person.GetComponent<SpellComponent>());
             command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            command.SpellResistance = true;
 
 
 

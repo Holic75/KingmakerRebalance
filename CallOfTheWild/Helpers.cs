@@ -478,6 +478,23 @@ namespace CallOfTheWild
         }
 
 
+        public static void setMiscAbilityParametersRangedDirectional(this BlueprintAbility ability, bool works_on_units = true,
+                                                                     AbilityEffectOnUnit effect_on_ally = AbilityEffectOnUnit.Harmful,
+                                                                     AbilityEffectOnUnit effect_on_enemy = AbilityEffectOnUnit.Harmful,
+                                                                     Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Directional,
+                                                                     Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionDirectional)
+        { 
+            ability.CanTargetFriends = works_on_units;
+            ability.CanTargetEnemies = works_on_units;
+            ability.CanTargetSelf = works_on_units;
+            ability.CanTargetPoint = true;
+            ability.EffectOnEnemy = effect_on_enemy;
+            ability.EffectOnAlly = effect_on_ally;
+            ability.Animation = animation;
+            ability.AnimationStyle = animation_style;
+        }
+
+
         public static void setMiscAbilityParametersSelfOnly(this BlueprintAbility ability, 
                                                                Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self,
                                                                Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionSelf)

@@ -59,6 +59,8 @@ using Kingmaker.Inspect;
 using Kingmaker.UI.ActionBar;
 using Kingmaker.UI.UnitSettings;
 using Kingmaker.UI.Constructor;
+using Kingmaker.UI.Tooltip;
+using Kingmaker.Blueprints.Root.Strings;
 
 namespace CallOfTheWild
 {
@@ -250,6 +252,21 @@ namespace CallOfTheWild
                     return variants.Variants.Length > variant ? new AbilityData(ability, variants.Variants[variant]) : null;
                 }
             }
+
+
+            public BlueprintAbility getSpellOrVariantBlueprint(BlueprintAbility ability)
+            {
+                var variants = ability.GetComponent<AbilityVariants>();
+
+                if (variants == null)
+                {
+                    return variant == 0 ? ability : null;
+                }
+                else
+                {
+                    return variants.Variants.Length > variant ? variants.Variants[variant] : null;
+                }
+            }
         }
 
 
@@ -303,6 +320,38 @@ namespace CallOfTheWild
                 if (!___Conversion.Any<AbilityData>((Func<AbilityData, bool>)(s => s.Blueprint != spellBlueprint)) && (spellBlueprint.Variants == null || !(spellBlueprint.Variants).Any<BlueprintAbility>()) || ___ToggleAdditionalSpells == null)
                     return false;
                 ___ToggleAdditionalSpells.gameObject.SetActive(true);
+                return false;
+            }
+        }
+
+        //update name of spell on store abilities
+        [Harmony12.HarmonyPatch(typeof(DescriptionTemplatesAbility))]
+        [Harmony12.HarmonyPatch("AbilityDataHeader", Harmony12.MethodType.Normal)]
+        class DescriptionTemplatesAbility__AbilityDataHeader__Patch
+        {
+            static bool Prefix(DescriptionTemplatesAbility __instance,  bool isTooltip, DescriptionBricksBox box, AbilityData abilityData)
+            {
+                if (abilityData.ParamSpellSlot == null || abilityData.Blueprint.GetComponent<AbilityStoreSpellInFact>() == null)
+                {
+                    return true;
+                }
+
+                string name = abilityData.Blueprint.Name;
+                var c = abilityData.Blueprint.GetComponent<AbilityStoreSpellInFact>().getSpellOrVariantBlueprint(abilityData.ParamSpellSlot.Spell.Blueprint);
+                if (c != null)
+                {
+                    name += $" ({c.Name})";
+                }
+                DescriptionBrick descriptionBrick = DescriptionBuilder.Templates.IconNameHeader(box, name, abilityData.Blueprint.Icon, isTooltip);
+                string text1 = LocalizedTexts.Instance.AbilityTypes.GetText(abilityData.Blueprint.Type);
+                string text2 = abilityData.Blueprint.School == SpellSchool.None ? string.Empty : LocalizedTexts.Instance.SpellSchoolNames.GetText(abilityData.Blueprint.School);
+                string text3 = abilityData.Blueprint.School == SpellSchool.None ? string.Empty : (string)UIStrings.Instance.SpellBookTexts.Level + ": " + (object)abilityData.SpellLevel;
+                descriptionBrick.SetText(text1, 1);
+                descriptionBrick.SetText(text2, 2);
+                if (abilityData.Blueprint.Type != AbilityType.Spell)
+                    return false;
+                descriptionBrick.SetText(text3, 3);
+
                 return false;
             }
         }

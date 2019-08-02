@@ -65,6 +65,8 @@ namespace CallOfTheWild
 
         static BlueprintFeature selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
 
+        static Dictionary<string, string> normal_quick_channel_map = new Dictionary<string, string>();
+
 
         static BlueprintFeature quick_channel = null;
 
@@ -135,6 +137,18 @@ namespace CallOfTheWild
             parent_feature.AddComponent(Common.createAddFeatureIfHasFact(quick_channel, quicken_feature));
 
             storeChannel(quicken_ability, parent_feature, channel_type);
+
+            normal_quick_channel_map.Add(channel.AssetGuid, quicken_ability.AssetGuid);
+        }
+
+
+        public static BlueprintAbility getQuickChannelVariant(BlueprintAbility normal_channel_ability)
+        {
+            if (quick_channel == null)
+            {
+                return null;
+            }
+            return library.Get<BlueprintAbility>(normal_quick_channel_map[normal_channel_ability.AssetGuid]);
         }
 
         public static BlueprintAbility createChannelEnergy(ChannelType channel_type, string name, string guid, BlueprintFeature parent_feature, 
@@ -262,7 +276,7 @@ namespace CallOfTheWild
         }
 
 
-        static void updateItemsForQuick(BlueprintAbility original_ability, BlueprintAbility quicken_ability)
+        static internal void updateItemsForQuick(BlueprintAbility original_ability, BlueprintAbility quicken_ability)
         {
             //phylacteries bonuses
             BlueprintEquipmentEnchantment[] enchants = new BlueprintEquipmentEnchantment[]{library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316"),

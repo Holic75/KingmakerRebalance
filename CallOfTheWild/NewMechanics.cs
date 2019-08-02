@@ -78,8 +78,9 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
-                bool is_metamagic_available = ((evt.Spell.AvailableMetamagic & metamagic) != 0);
-                if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell || !is_metamagic_available)
+                bool is_metamagic_available = evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell  
+                                              || ((evt.Spell.AvailableMetamagic & metamagic) == 0 && evt.HasMetamagic(metamagic));
+                if (!is_metamagic_available)
                 {
                     return;
                 }
@@ -1665,13 +1666,11 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 bonus = 0;
-                Main.logger.Log($"triggered + {bonus}");
             }
 
             public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
             {
                 bonus = evt.Result.CasterLevel;
-                Main.logger.Log($"triggered + {bonus}");
             }
 
 
@@ -1684,7 +1683,6 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleHealDamage evt)
             {
-                Main.logger.Log($"here + {bonus}");
                 if (bonus == 0 || evt.Target.Descriptor != this.Owner)
                 {
                     bonus = 0;
@@ -1693,7 +1691,6 @@ namespace CallOfTheWild
                 int old_value = bonus;
                 bonus = 0;
                 GameHelper.HealDamage(evt.Target, evt.Target, old_value);
-                Main.logger.Log($"{this.Fact} restores {old_value} HP");
             }
         }
 
@@ -2206,7 +2203,6 @@ namespace CallOfTheWild
                     if (energyDamage != null && energyDamage.EnergyType == this.Type)
                     {
                         energyDamage.Durability = scaling;
-                        Main.logger.Log("Scaling Damage");
                     }
                 }
             }
@@ -2292,7 +2288,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if ((evt.Spell.AvailableMetamagic & Metamagic) == 0)
+                if ((evt.Spell.AvailableMetamagic & Metamagic) == 0 || evt.HasMetamagic(Metamagic))
                 {
                     return;
                 }
@@ -2328,7 +2324,83 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                Main.logger.Log($"{evt.Spell.Name} -- {cost_to_pay}");
+                this.Owner.Resources.Spend(resource, cost_to_pay);
+                cost_to_pay = 0;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class MetamagicOnPersonalSpell : BuffLogic, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookSubscriber
+        {
+            public Metamagic Metamagic;
+            public BlueprintAbilityResource resource = null;
+            public int amount;
+            public BlueprintUnitFact[] cost_reducing_facts;
+            private int cost_to_pay;
+
+
+
+            private int calculate_cost(UnitEntityData caster)
+            {
+                var cost = amount;
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (caster.Buffs.HasFact(f))
+                    {
+                        cost--;
+                    }
+                }
+
+                return cost < 0 ? 0 : cost;
+            }
+
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+                cost_to_pay = 0;
+                if (evt.Spell.Spellbook == null)
+                {
+                    return;
+                }
+
+                
+                if ((evt.Spell.Blueprint.AvailableMetamagic & Metamagic) == 0 || evt.Spell.HasMetamagic(Metamagic))
+                {
+                    return;
+                }
+
+                if (evt.Spell.Blueprint.StickyTouch != null)
+                {
+                    return;
+                }
+
+
+                bool is_ok = evt.Spell.Blueprint.CanTargetSelf
+                       && !evt.Spell.Blueprint.HasAreaEffect()
+                       && evt.SpellTarget.Unit == evt.Initiator;
+                if (!is_ok)
+                {
+                    return;
+                }
+
+                cost_to_pay = calculate_cost(this.Owner.Unit);
+                if (resource != null && this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost_to_pay)
+                {
+                    cost_to_pay = 0;
+                    return;
+                }
+
+                evt.Spell.MetamagicData.Add(Metamagic);
+            }
+
+            public void OnEventDidTrigger(RuleCastSpell evt)
+            {
+
+                if (cost_to_pay == 0)
+                {
+                    return;
+                }
+
                 this.Owner.Resources.Spend(resource, cost_to_pay);
                 cost_to_pay = 0;
             }

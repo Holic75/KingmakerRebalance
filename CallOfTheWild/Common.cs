@@ -846,11 +846,13 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy, AbilityRankType rank = AbilityRankType.StatBonus)
+        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy, AbilityRankType rank = AbilityRankType.StatBonus, int multiplier = 1)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>();
             feat.Type = energy;
             feat.Value = Helpers.CreateContextValueRank(rank);
+            feat.UseValueMultiplier = multiplier != 1;
+            feat.ValueMultiplier = Common.createSimpleContextValue(multiplier);
             return feat;
         }
 

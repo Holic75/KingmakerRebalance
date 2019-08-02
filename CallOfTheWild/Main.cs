@@ -138,11 +138,12 @@ public class Main
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
-                    CallOfTheWild.Warpriest.createWarpriestClass();
 
 
                     CallOfTheWild.SharedSpells.load();
                     CallOfTheWild.NewFeats.load();
+
+                    CallOfTheWild.Warpriest.createWarpriestClass();
 
                     CallOfTheWild.CleanUp.processRage();
 
