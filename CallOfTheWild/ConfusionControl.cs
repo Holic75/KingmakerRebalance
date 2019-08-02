@@ -104,7 +104,7 @@ namespace CallOfTheWild
                             int num = ruleRollDice.Result;
                             part.State = num >= 26 ? (num >= 51 ? (num >= 76 ? ConfusionState.AttackNearest : ConfusionState.SelfHarm) : ConfusionState.DoNothing) : ConfusionState.ActNormally;
                         } while (!allowed_states.Contains(part.State));
-
+                        Main.logger.Log(part.State.ToString());
                         if (part.State == ConfusionState.ActNormally)
                             part.ReleaseControl();
                         else
@@ -120,20 +120,20 @@ namespace CallOfTheWild
                         switch (part.State)
                         {
                             case ConfusionState.DoNothing:
-                                part.Cmd = tr.Method("DoNothing").GetValue<UnitCommand>(part);
+                                part.Cmd = tr.Method("DoNothing", part).GetValue<UnitCommand>();
                                 break;
                             case ConfusionState.SelfHarm:
-                                part.Cmd = tr.Method("SelfHarm").GetValue<UnitCommand>(part);
+                                part.Cmd = tr.Method("SelfHarm", part).GetValue<UnitCommand>();
                                 break;
                             case ConfusionState.AttackNearest:
-                                part.Cmd = tr.Method("AttackNearest").GetValue<UnitCommand>(part);
+                                part.Cmd = tr.Method("AttackNearest", part).GetValue<UnitCommand>();
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }
                     }
                     else
-                        part.Cmd = tr.Method("DoNothing").GetValue<UnitCommand>(part);
+                        part.Cmd = tr.Method("DoNothing", part).GetValue<UnitCommand>();
                     if (part.Cmd == null)
                         return false;
                     part.Owner.Unit.Commands.Run(part.Cmd);

@@ -100,6 +100,7 @@ namespace CallOfTheWild
         static BlueprintAbility heal_living;
         static BlueprintAbility harm_undead;
         static BlueprintFeature spell_store;
+        static BlueprintFeature remove_armor_speed_penalty_feature;
 
 
         internal static void createWarpriestClass()
@@ -501,7 +502,8 @@ namespace CallOfTheWild
                                                      "Fervor",
                                                      "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.\n"
                                                      + "An evil warpriest(or one who worships an evil deity) can use this ability to instead deal damage to living creatures with a melee touch attack and heal undead creatures with a touch.This counts as negative energy.\n"
-                                                     + "A neutral warpriest who worships a neutral deity(or one who is not devoted to a particular deity) uses this ability as a good warpriest if he chose to spontaneously cast cure spells or as an evil warpriest if he chose to spontaneously cast inflict spells.",
+                                                     + "A neutral warpriest who worships a neutral deity(or one who is not devoted to a particular deity) uses this ability as a good warpriest if he chose to spontaneously cast cure spells or as an evil warpriest if he chose to spontaneously cast inflict spells.\n"
+                                                     +"As a swift action, a warpriest can expend one use of this ability to cast any one warpriest spell he has prepared with a casting time of 1 round or shorter. When cast in this way, the spell can target only the warpriest, even if it could normally affect other or multiple targets. Spells cast in this way ignore somatic components and do not provoke attacks of opportunity. The warpriest does not need to have a free hand to cast a spell in this way.",
                                                      "",
                                                      null,
                                                      FeatureGroup.None,
@@ -1030,7 +1032,7 @@ namespace CallOfTheWild
             var rage = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2");
             warpriest_aspect_of_war_resource = Helpers.CreateAbilityResource("WarpriestAspectOfWarResource", "", "", "", null);
             warpriest_aspect_of_war_resource.SetFixedResource(1);
-            var remove_armor_speed_penalty_feature = Helpers.CreateFeature("RemoveArmorSpeedPenaltyFeature",
+            remove_armor_speed_penalty_feature = Helpers.CreateFeature("RemoveArmorSpeedPenaltyFeature",
                                                                            "Remove Armor Penalty",
                                                                            "",
                                                                            "",
@@ -1132,6 +1134,9 @@ namespace CallOfTheWild
             createProtectionBlessing();
             createReposeBlessing();
             createRuneBlessing();
+            createStrengthBlessing();
+            createSunBlessing();
+            createTravelBlessing();
         }
 
 
@@ -1189,7 +1194,7 @@ namespace CallOfTheWild
         static void addBlessingResourceLogic(BlueprintAbility blessing, int amount = 1)
         {
             blessing.AddComponent(Helpers.CreateResourceLogic(warpriest_blessing_resource, amount: 1, cost_is_custom: true));
-            blessing.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasincFacts>(r => r.cost_reducing_facts = new BlueprintFact[] { warpriest_aspect_of_war_buff }));
+            blessing.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasincFacts>(r => r.cost_reducing_facts = Enumerable.Repeat<BlueprintFact>( warpriest_aspect_of_war_buff, amount).ToArray()));
         }
 
 
@@ -1224,11 +1229,10 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
                                                       hurricane_bow.GetComponent<AbilitySpawnFx>(),
-                                                      Helpers.CreateRunActions(apply_minor_buff),
-                                                      Helpers.Create<NewMechanics.MonsterLore.AbilityTargetInspected>()
+                                                      Helpers.CreateRunActions(apply_minor_buff)
                                                       );
 
-            minor_ability.setMiscAbilityParametersTouchFriendly();
+            minor_ability.setMiscAbilityParametersTouchFriendly(works_on_self: true);
             addBlessingResourceLogic(minor_ability);
 
             var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
@@ -1789,7 +1793,7 @@ namespace CallOfTheWild
                                                       blindness_spell.GetComponent<AbilityTargetHasFact>(),
                                                       Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
                                                       );
-            major_ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+            major_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addBlessingResourceLogic(major_ability);
 
             addBlessing("WarpriestBlessingDarkness", "Darkness", minor_ability, major_ability, "6d8e7accdd882e949a63021af5cde4b8");
@@ -2263,7 +2267,7 @@ namespace CallOfTheWild
             {
                 major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }
-            addBlessing("WarpriestGloryBlessing", "Glory",
+            addBlessing("WarpriestBlessingGlory", "Glory",
                         Common.AbilityToFeature(minor_ability, false),
                         Common.ActivatableAbilityToFeature(major_activatable_ability, false),
                         "2418251fa9c8ada4bbfbaaf5c90ac200"
@@ -2459,7 +2463,8 @@ namespace CallOfTheWild
                                                             Helpers.savingThrowNone,
                                                             Helpers.CreateStickyTouch(minor_ability_resolve),
                                                             Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(),
-                                                            aid.GetComponent<AbilitySpawnFx>()
+                                                            aid.GetComponent<AbilitySpawnFx>(),
+                                                            Helpers.Create<NewMechanics.MonsterLore.AbilityTargetInspected>()
                                                            );
             minor_ability.setMiscAbilityParametersTouchHarmful();
             addBlessingResourceLogic(minor_ability);
@@ -2589,7 +2594,8 @@ namespace CallOfTheWild
             var freedom_of_movement_buff = library.Get<BlueprintBuff>("1533e782fca42b84ea370fc1dcbf4fc1");
             var buff = library.CopyAndAdd<BlueprintBuff>("60906dd9e4ddec14c8ac9a0f4e47f54c", "WarpriestLiberationBlessingBuff", ""); //freedom of movement no strings
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
-            var spend_resource_caster = Helpers.CreateConditional(Common.createContextConditionIsCaster(), spend_resource);
+            var spend_resource_caster = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(), Common.createContextConditionCasterHasFact(warpriest_aspect_of_war_buff, false)},
+                                                                  spend_resource);
             buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: spend_resource_caster));
             buff.FxOnStart = freedom_of_movement_buff.FxOnStart;
             buff.SetIcon(null);
@@ -2620,7 +2626,7 @@ namespace CallOfTheWild
             var major_buff = library.CopyAndAdd<BlueprintBuff>("aa561f70d2260524e82c794d6140677c", "WarpriestMajorBlessingBuff", "");
             major_buff.SetName("Freedom’s Shout");
             major_buff.SetDescription("At 10th level, as a swift action you can emit a 30-foot aura that affects all allies with the liberation blessing");
-
+            major_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = major_area);
             var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestLiberationBlessingMajorActivatableAbility",
                                                                              major_buff.Name,
                                                                              major_buff.Description,
@@ -2637,7 +2643,7 @@ namespace CallOfTheWild
                 major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }
 
-            addBlessing("WarpriestLiberationBlessing", "Liberation",
+            addBlessing("WarpriestBlessingLiberation", "Liberation",
                         Common.ActivatableAbilityToFeature(minor_activatable_ability, false),
                         Common.ActivatableAbilityToFeature(major_activatable_ability, false),
                         "801ca88338451a546bca2ee59da87c53"
@@ -2675,7 +2681,7 @@ namespace CallOfTheWild
             minor_buff.AddComponent(Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { ConfusionState.AttackNearest, ConfusionState.SelfHarm }));
 
 
-            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
             var minor_ability = Helpers.CreateAbility("WarpriestMadnessBlessingMinorAbility",
                                                       minor_buff.Name,
                                                       minor_buff.Description,
@@ -2693,15 +2699,16 @@ namespace CallOfTheWild
                                                                                                    Common.createAbilityTargetHasCondition(UnitCondition.Frightened)
                                                                                             )
                                                      );
-            minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+            minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             addBlessingResourceLogic(minor_ability);
             ConfusionState[] confusion_states = { ConfusionState.AttackNearest, ConfusionState.SelfHarm, ConfusionState.ActNormally, ConfusionState.DoNothing };
             string[] names = new string[] { "Attack Nearest", "Attack Self", "Act Normally", "Do Nothing" };
 
             BlueprintActivatableAbility[] major_abilities = new BlueprintActivatableAbility[confusion_states.Length];
-            var hideous_laughter = library.Get<BlueprintBuff>("4b1f07a71a982824988d7f48cd49f3f8");
+            var harm = library.Get<BlueprintAbility>("137af566f68fd9b428e2e12da43c1482");
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
-            var spend_resource_caster = Helpers.CreateConditional(Common.createContextConditionIsCaster(), spend_resource);
+            var spend_resource_caster = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(warpriest_aspect_of_war_buff, false),
+                                                                  spend_resource);
 
             for (int i = 0; i < confusion_states.Length; i++)
             {
@@ -2710,10 +2717,9 @@ namespace CallOfTheWild
                                               $"Control Madness ({names[i]})",
                                               "At 10th level, as a swift action you can choose one behavior for all confused creatures within 30 feet to exhibit (as if all creatures rolled the same result). This effect lasts for 1 round. You can use this ability even while you are confused.",
                                               "",
-                                              hideous_laughter.Icon,
-                                              hideous_laughter.FxOnStart,
-                                              Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { confusion_states[i] }),
-                                              Helpers.CreateAddFactContextActions(spend_resource_caster)
+                                              harm.Icon,
+                                              null,
+                                              Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { confusion_states[i] })
                                               );
                 
 
@@ -2730,7 +2736,8 @@ namespace CallOfTheWild
                                                      "",
                                                      buff.Icon,
                                                      null,
-                                                     Common.createAddAreaEffect(area_effect)
+                                                     Common.createAddAreaEffect(area_effect),
+                                                     Helpers.CreateAddFactContextActions(newRound: spend_resource_caster)
                                                      );
                 caster_buff.SetBuffFlags(BuffFlags.HiddenInUi);
                 major_abilities[i] = Helpers.CreateActivatableAbility($"WarpriestMadnessBlessingMajor{i + 1}Ability",
@@ -2753,7 +2760,7 @@ namespace CallOfTheWild
 
 
             addBlessing("WarpriestBlessingMadness", "Madness",
-                        Common.AbilityToFeature(minor_ability),
+                        Common.AbilityToFeature(minor_ability, false),
                         Helpers.CreateFeature("WarpriestBlessingMadness",
                                               "Control Madness",
                                               major_abilities[0].Description,
@@ -2868,7 +2875,7 @@ namespace CallOfTheWild
             area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = ally_buff);
             var major_buff = Helpers.CreateBuff("WarpriestNobilityMajorBlessingCasterBuff",
                                                  "Lead by Example",
-                                                 "At 10th level, you can inspire your allies to follow your lead. During One minutei if you sucessfully hit an opponent, all allies within 30 feet will receive +4 morale bonus on attack rolls against that opponent.",
+                                                 "At 10th level, you can inspire your allies to follow your lead. For one minute if you sucessfully hit an opponent, all allies within 30 feet will receive +4 morale bonus on attack rolls against that opponent.",
                                                  "",
                                                  true_strike.Icon,
                                                  null,
@@ -2903,7 +2910,7 @@ namespace CallOfTheWild
             var entangle_buff = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
           
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
-            var apply_entangle_buff_saved = Common.createContextSavedApplyBuff(entangle_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), is_dispellable: false);
+            var apply_entangle_buff_saved = Common.createContextSavedApplyBuff(entangle_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), is_dispellable: false);
 
             var on_hit_action = Helpers.CreateActionList(spend_resource,
                                                          Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(apply_entangle_buff_saved)));
@@ -2913,7 +2920,8 @@ namespace CallOfTheWild
                                                 "",
                                                 entangle_buff.Icon,
                                                 null,
-                                                Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_action, check_weapon_range_type: true, only_first_hit: true)
+                                                Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_action, check_weapon_range_type: true, only_first_hit: true),
+                                                Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
                                                 );
 
             var minor_activatable_ability = Helpers.CreateActivatableAbility("WarpriestPlantMinorBlessingActivatable",
@@ -2955,7 +2963,7 @@ namespace CallOfTheWild
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
             addBlessingResourceLogic(major_ability);
-            addBlessing("WarpriestBlessingPalnt", "Animal", Common.ActivatableAbilityToFeature(minor_activatable_ability, false), 
+            addBlessing("WarpriestBlessingPalnt", "Plant", Common.ActivatableAbilityToFeature(minor_activatable_ability, false), 
                                                             Common.AbilityToFeature(major_ability, false), "0e03c2a03222b0b42acf96096b286327");
         }
 
@@ -3151,5 +3159,205 @@ namespace CallOfTheWild
             addBlessing("WarpriestBlessingRune", "Rune", Common.AbilityToFeature(minor_ability, false), spell_store, "77637f81d6aa33b4f82873d7934e8c4b");
         }
 
+
+        static void createStrengthBlessing()
+        {
+            var minor_buff = library.CopyAndAdd<BlueprintBuff>("94dfcf5f3a72ce8478c8de5db69e752b", "WarpriestStrengthBlessingMinorBuff", "");
+            minor_buff.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
+
+            var minor_ability = Helpers.CreateAbility("WarpriestStrengthBlessingMinorAbility",
+                                                      "Strength Surge",
+                                                      "At 1st level, as a swift action you can focus your own strength. You gain an enhancement bonus equal to 1/2 your warpriest level (minimum +1) on melee attack rolls, combat maneuver checks that rely on Strength, Strength-based skills, and Strength checks for 1 round.",
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Swift,
+                                                      AbilityRange.Personal,
+                                                      Helpers.oneRoundDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      );
+            minor_ability.setMiscAbilityParametersSelfOnly();
+            addBlessingResourceLogic(minor_ability);
+
+            var greater_strength_feature = library.Get<BlueprintFeature>("3298fd30e221ef74189a06acbf376d29");
+            var bull_strength = library.Get<BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d");
+            var major_buff = Helpers.CreateBuff("WarpriestStrengthBlessingMajorBuff",
+                                                "Strength of Will",
+                                                "At 10th level, as a swift action you can ignore the movement penalties caused by wearing medium or heavy armor or by carrying a medium or heavy load. This effect lasts for 1 minute. During this time, you can add your Strength modifier on saving throws against effects that would cause you to become entangled, staggered, or paralyzed.",
+                                                "",
+                                                greater_strength_feature.Icon,
+                                                null,
+                                                Helpers.CreateAddFact(remove_armor_speed_penalty_feature),
+                                                Helpers.CreateAddFact(remove_armor_speed_penalty_feature),
+                                                Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                      ModifierDescriptor.UntypedStackable,
+                                                                                                      SpellDescriptor.Paralysis | SpellDescriptor.Staggered | SpellDescriptor.MovementImpairing),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, type: AbilityRankType.StatBonus,
+                                                                                stat: StatType.Strength)
+                                                );
+
+            var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+
+            var major_ability = Helpers.CreateAbility("WarpriestStrengthBlessingMajorAbility",
+                                                      major_buff.Name,
+                                                      major_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Swift,
+                                                      AbilityRange.Personal,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_major_buff),
+                                                      bull_strength.GetComponent<AbilitySpawnFx>()
+                                                      );
+
+            major_ability.setMiscAbilityParametersSelfOnly();
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingStrength", "Strength", minor_ability, major_ability, "58d2867520de17247ac6988a31f9e397");
+        }
+
+
+        static void createSunBlessing()
+        {
+            var blindness_buff = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+            var dazzled_buff = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
+
+            var apply_blindess_buff = Common.createContextActionApplyBuff(blindness_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
+            var apply_dazzzled_buff = Common.createContextActionApplyBuff(dazzled_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
+
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Reflex,
+                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(apply_blindess_buff, apply_dazzzled_buff))
+                                                               );
+            var flare = library.Get<BlueprintAbility>("f0f8e5b9808f44e4eadd22b138131d52");
+
+            var minor_ability = Helpers.CreateAbility("WarpriestSunBlessingMinorAbility",
+                                                      "Blinding Strike",
+                                                      "At 1st level, you can create a flash of sunlight in the eyes of one of your opponents. The target is blinded for 1 round. If it succeeds at a Reflex saving throw, it’s instead dazzled for 1 round. This is a light effect. Sightless creatures are unaffected by this ability.",
+                                                      "",
+                                                      flare.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Swift,
+                                                      AbilityRange.Close,
+                                                      Helpers.oneRoundDuration,
+                                                      "Reflex partial",
+                                                      Helpers.CreateRunActions(effect),
+                                                      flare.GetComponent<AbilitySpawnFx>(),
+                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased)
+                                                      );
+
+            addBlessingResourceLogic(minor_ability);
+            minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            minor_ability.SpellResistance = false;
+
+            var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
+            var bane_undead = library.Get<BlueprintWeaponEnchantment>("eebb4d3f20b8caa43af1fed8f2773328");
+            var flaming = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
+
+            BlueprintWeaponEnchantment[][] enchant_lists = new BlueprintWeaponEnchantment[][] { new BlueprintWeaponEnchantment[1]{flaming},
+                                                                                              new BlueprintWeaponEnchantment[1]{bane_undead},
+                                                                                              new BlueprintWeaponEnchantment[2]{flaming, bane_undead},
+                                                                                            };
+            List<BlueprintAbility> major_abilities = new List<BlueprintAbility>();
+            string name = "Cleansing Fire";
+            string description = "At 10th level, you can touch a weapon and grant it either the flaming or undead–bane weapon special ability for 1 minute. If you spend two uses of your blessing when activating this ability, the weapon can have both weapon special abilities.";
+            for(int i = 0; i < enchant_lists.Length; i++)
+            {
+                var el = enchant_lists[i];
+                string postfix = el.Length == 1 ? el[0].Name : el[0].Name + ", " + el[1].Name;
+                var buff = Helpers.CreateBuff($"WarpriestSunBlessingMajor{i + 1}Buff",
+                                              $"{name} ({postfix})",
+                                              description,
+                                              "",
+                                              bless_weapon.Icon,
+                                              null);
+                for (int j = 0; j < el.Length; j++)
+                {
+                    buff.AddComponent(Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, el[j]));
+                }
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+                var ability = Helpers.CreateAbility($"WarpriestSunBlessingMajor{i + 1}Ability",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Supernatural,
+                                                   CommandType.Standard,
+                                                   AbilityRange.Touch,
+                                                   Helpers.oneMinuteDuration,
+                                                   "",
+                                                   Helpers.CreateRunActions(apply_buff),
+                                                   bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                   );
+                addBlessingResourceLogic(ability, el.Length);
+                ability.setMiscAbilityParametersTouchFriendly();
+                major_abilities.Add(ability);
+            }
+
+            addBlessing("WarpriestBlessingSun", "Sun",
+                         Common.AbilityToFeature(minor_ability, false),
+                         Helpers.CreateFeature("WarpriestBlessingSunMajorFeature",
+                                               name,
+                                               description,
+                                               "",
+                                               bless_weapon.Icon,
+                                               FeatureGroup.None,
+                                               Helpers.CreateAddFacts(major_abilities.ToArray())
+                                               ),
+                        "e28412c548ff21a49ac5b8b792b0aa9b");            
+        }
+
+
+        static void createTravelBlessing()
+        {
+            var minor_ability = library.CopyAndAdd<BlueprintAbility>("ce5ec0a87ad5c4746bdd4e9a1552b397", "WarpriestTravelBlessingMinorAbility", "");//from travel domain
+            minor_ability.SetDescription("At 1st level, as a swift action you gain increased mobility. For 1 round, you ignore all difficult terrain (including magical terrain) and take no penalties for moving through it.");
+            minor_ability.RemoveComponents<AbilityResourceLogic>();
+            minor_ability.Type = AbilityType.Supernatural;
+            minor_ability.ActionType = CommandType.Swift;
+            addBlessingResourceLogic(minor_ability);
+
+            var name = "Dimensional Hop";
+            var description = "At 10th level, you can teleport up to 25 feet as a move action. You can increase this distance by expending another use of your blessing—each use spent grants an additional 20 feet. You must have line of sight to your destination. This teleportation doesn’t provoke attacks of opportunity. You can bring other willing creatures with you, but each such creature requires expending one additional use of your blessing.";
+            
+            var major_ability_self = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "WarpriestTravelBlessingMajor1Ability", "");
+            major_ability_self.SetName(name);
+            major_ability_self.SetDescription(description);
+            major_ability_self.RemoveComponents<SpellComponent>();
+            major_ability_self.RemoveComponents<SpellListComponent>();
+            major_ability_self.Type = AbilityType.Supernatural;
+            major_ability_self.ActionType = CommandType.Move;
+            major_ability_self.Range = AbilityRange.Close;
+            addBlessingResourceLogic(major_ability_self, 1);
+
+
+            var major_ability_mass = library.CopyAndAdd<BlueprintAbility>("5bdc37e4acfa209408334326076a43bc", "WarpriestTravelBlessingMajor2Ability", "");
+            major_ability_mass.SetName(name + " - Mass");
+            major_ability_mass.SetDescription(description);
+            major_ability_mass.RemoveComponents<SpellComponent>();
+            major_ability_mass.RemoveComponents<SpellListComponent>();
+            major_ability_mass.Type = AbilityType.Supernatural;
+            major_ability_mass.ActionType = CommandType.Move;
+            major_ability_mass.Range = AbilityRange.Close;
+            addBlessingResourceLogic(major_ability_mass, 2);
+
+
+            addBlessing("WarpriestBlessingTraverl", "Travel",
+                        Common.AbilityToFeature(minor_ability, false),
+                        Helpers.CreateFeature("WarpriestBlessingTravelMajorFeature",
+                                                name,
+                                                description,
+                                                "",
+                                                major_ability_self.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFacts(major_ability_self, major_ability_mass)
+                                                ),
+                        "c008853fe044bd442ae8bd22260592b7"
+                        );
+        }
     }
 }

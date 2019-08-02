@@ -175,6 +175,8 @@ namespace CallOfTheWild
                                             Helpers.oneRoundDuration,
                                             Helpers.willNegates);
 
+            command.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
+            command.EffectOnAlly = AbilityEffectOnUnit.Harmful;
             command.CanTargetEnemies = true;
             command.CanTargetFriends = true;
             command.CanTargetSelf = false;

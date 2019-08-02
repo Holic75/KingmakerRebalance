@@ -1984,8 +1984,8 @@ namespace CallOfTheWild
                         return false;
                     return evt.Target.HPLeft + evt.MeleeDamage.Damage > 0;
                 }
-                bool flag = evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Light) || evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.OneHandedPiercing) || (bool)evt.Initiator.Descriptor.State.Features.DuelingMastery && evt.Weapon.Blueprint.Category == WeaponCategory.DuelingSword || evt.Initiator.Descriptor.Ensure<DamageGracePart>().HasEntry(evt.Weapon.Blueprint.Category);
-                return flag;
+                
+                return true;
             }
         }
 
@@ -2331,7 +2331,7 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintBuff))]
-        public class MetamagicOnPersonalSpell : BuffLogic, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookSubscriber
+        public class MetamagicOnPersonalSpell : BuffLogic, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
             public Metamagic Metamagic;
             public BlueprintAbilityResource resource = null;
@@ -2351,33 +2351,26 @@ namespace CallOfTheWild
                         cost--;
                     }
                 }
-
                 return cost < 0 ? 0 : cost;
             }
 
-            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 cost_to_pay = 0;
-                if (evt.Spell.Spellbook == null)
+                if (evt.Spellbook == null)
                 {
                     return;
                 }
 
-                
-                if ((evt.Spell.Blueprint.AvailableMetamagic & Metamagic) == 0 || evt.Spell.HasMetamagic(Metamagic))
-                {
-                    return;
-                }
-
-                if (evt.Spell.Blueprint.StickyTouch != null)
+                if ((evt.Spell.AvailableMetamagic & Metamagic) == 0 || evt.HasMetamagic(Metamagic))
                 {
                     return;
                 }
 
 
-                bool is_ok = evt.Spell.Blueprint.CanTargetSelf
-                       && !evt.Spell.Blueprint.HasAreaEffect()
-                       && evt.SpellTarget.Unit == evt.Initiator;
+                bool is_ok = evt.Spell.CanTargetSelf
+                       && !evt.Spell.HasAreaEffect();
+
                 if (!is_ok)
                 {
                     return;
@@ -2390,12 +2383,31 @@ namespace CallOfTheWild
                     return;
                 }
 
-                evt.Spell.MetamagicData.Add(Metamagic);
+                evt.AddMetamagic(Metamagic);
+            }
+
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+              
+            }
+
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+              
+                if(cost_to_pay == 0)
+                {
+                    return;
+                }
+
+                if (evt.SpellTarget.Unit != evt.Initiator)
+                {
+                    cost_to_pay = 0;
+                }
             }
 
             public void OnEventDidTrigger(RuleCastSpell evt)
             {
-
                 if (cost_to_pay == 0)
                 {
                     return;
