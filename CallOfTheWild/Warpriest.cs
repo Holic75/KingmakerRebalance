@@ -1137,6 +1137,10 @@ namespace CallOfTheWild
             createStrengthBlessing();
             createSunBlessing();
             createTravelBlessing();
+            createTrickeryBlessing();
+            createWarBlessing();
+            createWaterBlessing();
+            createWeatherBlessing();
         }
 
 
@@ -1905,7 +1909,7 @@ namespace CallOfTheWild
             }
             major_ability_touch.AddComponent(Common.createAbilityCasterHasNoFacts(on_hit_buff));
 
-            addBlessing("WarpriestDeathBlessing", "Death",
+            addBlessing("WarpriestBlessingDeath", "Death",
                         Common.AbilityToFeature(minor_ability, false),
                         Helpers.CreateFeature("WarpriestDeathMajorBlessingFeature",
                                               major_ability_touch.Name,
@@ -1986,7 +1990,7 @@ namespace CallOfTheWild
         {
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var acid_enchantment = library.Get<BlueprintWeaponEnchantment>("633b38ff1d11de64a91d490c683ab1c8");
-            var corrosive_touch = library.Get<BlueprintAbility>("1a40fc88aeac9da4aa2fbdbb88335f5d");
+            var acid_ray = library.Get<BlueprintAbility>("435222be97067a447b2b40d3c58a058e");
 
             var enchantment = Common.createWeaponEnchantment("WarpriestEarthMinorBlessingWeaponEcnchantment",
                                                              "Acid Strike",
@@ -2002,7 +2006,7 @@ namespace CallOfTheWild
                                      enchantment.Name,
                                      "At 1st level, you can touch one weapon and enhance it with acidic potency. For 1 minute, this weapon emits acrid fumes that deal an additional 1d4 points of acid damage with each strike.",
                                      "",
-                                     corrosive_touch.Icon,
+                                     acid_ray.Icon,
                                      null,
                                      Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, enchantment)
                                     );
@@ -2146,7 +2150,7 @@ namespace CallOfTheWild
                                                              "",
                                                              0,
                                                              flaming_enchantment.WeaponFxPrefab,
-                                                             Common.weaponEnergyDamageDice(DamageEnergyType.Acid, new DiceFormula(1, DiceType.D4))
+                                                             Common.weaponEnergyDamageDice(DamageEnergyType.Fire, new DiceFormula(1, DiceType.D4))
                                                              );
             var minor_buff = Helpers.CreateBuff("WarpriestFireMinorBlessingBuff",
                                      enchantment.Name,
@@ -3204,7 +3208,7 @@ namespace CallOfTheWild
                                                       major_buff.Name,
                                                       major_buff.Description,
                                                       "",
-                                                      minor_buff.Icon,
+                                                      greater_strength_feature.Icon,
                                                       AbilityType.Supernatural,
                                                       CommandType.Swift,
                                                       AbilityRange.Personal,
@@ -3358,6 +3362,299 @@ namespace CallOfTheWild
                                                 ),
                         "c008853fe044bd442ae8bd22260592b7"
                         );
+        }
+
+
+        static void createTrickeryBlessing()
+        {
+            var minor_ability = library.CopyAndAdd<BlueprintAbility>("ee7eb5b9c644a0347b36eec653d3dfcb", "WarpriestTrickeryBlessingMinorAbility", "");
+            minor_ability.SetDescription("At 1st level, as a move action you can create an illusory double of yourself. This double functions as a single mirror image, and lasts for a number of rounds equal to your warpriest level, or until the illusory duplicate is dispelled or destroyed. You can have no more than one double at a time. The double created by this ability doesn’t stack with the additional images from the mirror image spell.");
+            minor_ability.RemoveComponents<AbilityResourceLogic>();
+            minor_ability.Type = AbilityType.Supernatural;
+
+            addBlessingResourceLogic(minor_ability);
+
+            var major_buff = library.CopyAndAdd<BlueprintBuff>("e6b35473a237a6045969253beb09777c", "WarpriestTrickeryBlessingMajorBuff", "");
+            var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
+            major_buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: spend_resource));
+
+            major_buff.SetDescription("At 10th level, as a swift action you can become invisible for 1 round (as greater invisibility)");
+            major_buff.SetName("Greater Invisibility");
+
+            var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestTrickeryBlessingMajorActivatableAbility",
+                                                                 major_buff.Name,
+                                                                 major_buff.Description,
+                                                                 "",
+                                                                 major_buff.Icon,
+                                                                 major_buff,
+                                                                 AbilityActivationType.Immediately,
+                                                                 CommandType.Free,
+                                                                 null);
+            if (!test_mode)
+            {
+                major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
+
+            addBlessing("WarpriestBlessingTrickery", "Trickery", Common.AbilityToFeature(minor_ability, false), Common.ActivatableAbilityToFeature(major_activatable_ability, false), "eaa368e08628a8641b16cd41cbd2cb33");
+        }
+
+
+        static void createWarBlessing()
+        {
+             AddStatBonus[][] boni = new AddStatBonus[][] {new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)},
+                                                          new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.Dodge) },
+                                                          new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.Insight) },
+                                                           new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.SaveFortitude, 1, ModifierDescriptor.Luck),
+                                                                              Helpers.CreateAddStatBonus(StatType.SaveReflex, 1, ModifierDescriptor.Luck),
+                                                                              Helpers.CreateAddStatBonus(StatType.SaveWill, 1, ModifierDescriptor.Luck)
+                                                                            }
+                                                     };
+            string[] postfix = new string[] { "Speed", "AC", "Attack Bonus", "Saving Throws" };
+            List<BlueprintAbility> minor_variants = new List<BlueprintAbility>();
+
+            var minor_name = "War Mind";
+            var minor_description = "At 1st level, you can touch an ally and grant it a tactical advantage for 1 minute. The ally gets one of the following bonuses: +10 feet to base land speed, +1 dodge bonus to AC, +1 insight bonus on attack rolls, or a +1 luck bonus on saving throws.";
+
+            var mind_blank_buff = library.Get<BlueprintBuff>("35f3724d4e8877845af488d167cb8a89");
+            
+            for (int i = 0; i < boni.Length; i++)
+            {
+                var buff = Helpers.CreateBuff($"WarpriestWarBlessingMinor{i}Buff",
+                                              minor_name + $" ({postfix[i]})",
+                                              minor_description,
+                                              "",
+                                              mind_blank_buff.Icon,
+                                              mind_blank_buff.FxOnStart,
+                                              boni[i]);
+
+                var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                     Helpers.CreateContextDuration(Common.createSimpleContextValue(1), rate: DurationRate.Minutes),
+                                                     dispellable: false);
+                var ability = Helpers.CreateAbility($"WarpriestWarBlessinMinor{i}Ability",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Supernatural,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Touch,
+                                                    Helpers.oneMinuteDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(apply_buff)
+                                                    );
+                ability.setMiscAbilityParametersTouchFriendly();
+                addBlessingResourceLogic(ability);
+
+                minor_variants.Add(ability);
+            }
+
+            var minor_ability = Helpers.CreateAbility("WarpriestWarBlessinMinorAbility",
+                                    minor_name,
+                                    minor_description,
+                                    "",
+                                    mind_blank_buff.Icon,
+                                    AbilityType.Supernatural,
+                                    CommandType.Standard,
+                                    AbilityRange.Touch,
+                                    Helpers.oneMinuteDuration,
+                                    ""
+                                    );
+            minor_ability.setMiscAbilityParametersTouchFriendly();
+            addBlessingResourceLogic(minor_ability);
+            minor_ability.AddComponent(minor_ability.CreateAbilityVariants(minor_variants.ToArray()));
+
+            var vicious_enchantment = library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56");
+            var resounding_blow_buff = library.Get<BlueprintBuff>("06173a778d7067a439acffe9004916e9");
+
+
+            var major_buff = Helpers.CreateBuff("WarpriestWarMajorBlessingBuff",
+                                     "Battle Lust",
+                                     "At 10th level, you can touch an ally and grant it a thirst for battle. All of the ally’s melee attacks are treated as if they had the vicious weapon special ability. In addition, the ally receives a +4 insight bonus on attack rolls made to confirm critical hits and fast healing 1. These benefits last for 1 minute.",
+                                     "",
+                                     resounding_blow_buff.Icon,
+                                     resounding_blow_buff.FxOnStart,
+                                     Helpers.Create<CriticalConfirmationBonus>(c =>
+                                                                                 {
+                                                                                     c.Bonus = 4;
+                                                                                     c.CheckWeaponRangeType = true;
+                                                                                     c.Type = AttackTypeAttackBonus.WeaponRangeType.Melee;
+                                                                                 }
+                                                                                 ),
+                                      Helpers.Create<AddEffectFastHealing>(c => c.Heal = 1)
+                                    );
+
+            foreach (var a in vicious_enchantment.GetComponents<AddInitiatorAttackRollTrigger>())
+            {
+                major_buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(a.Action, check_weapon_range_type: true, on_initiator: a.OnOwner));
+            }
+
+            var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var major_ability = Helpers.CreateAbility("WarpriestWarMajorBlessingAbility",
+                                                      major_buff.Name,
+                                                      major_buff.Description,
+                                                      "",
+                                                      major_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_major_buff)
+                                                      );
+
+            major_ability.setMiscAbilityParametersTouchFriendly();
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingWar", "War", minor_ability, major_ability, "3795653d6d3b291418164b27be88cb43");
+        }
+
+
+        static void createWaterBlessing()
+        {
+            var cold_ray = library.Get<BlueprintAbility>("7ef096fdc8394e149a9e8dced7576fee");
+            var frost_enchantment = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
+            var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
+
+            var enchantment = Common.createWeaponEnchantment("WarpriestWaterMinorBlessingWeaponEcnchantment",
+                                                             "Ice Strike",
+                                                             "This weapon  glows with a blue-white chill and deals an additional 1d4 points of cold damage with each strike.",
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             0,
+                                                             frost_enchantment.WeaponFxPrefab,
+                                                             Common.weaponEnergyDamageDice(DamageEnergyType.Cold, new DiceFormula(1, DiceType.D4))
+                                                             );
+            var minor_buff = Helpers.CreateBuff("WarpriestWaterMinorBlessingBuff",
+                                     enchantment.Name,
+                                     "At 1st level, you can touch one weapon and enhance it with the power of water. For 1 minute, this weapon glows with a blue-white chill and deals an additional 1d4 points of cold damage with each strike.",
+                                     "",
+                                     cold_ray.Icon,
+                                     null,
+                                     Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, enchantment)
+                                    );
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestWaterMinorBlessingAbility",
+                                                      minor_buff.Name,
+                                                      minor_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                      );
+
+            minor_ability.setMiscAbilityParametersTouchFriendly();
+            addBlessingResourceLogic(minor_ability);
+
+            var chill_shield = NewSpells.fire_shield_variants[DamageEnergyType.Cold];
+            var major_buff = library.CopyAndAdd<BlueprintBuff>(NewSpells.fire_shield_buffs[DamageEnergyType.Cold], "WarpriestWaterMajorBlessingBuff", "");
+            major_buff.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWarpriestArray(),
+                                                                                           max: 15, type: AbilityRankType.DamageBonus
+                                                                                           )
+                                                          );
+            major_buff.SetName("Armor of Ice");
+            major_buff.SetDescription("At 10th level, you can touch any one ally and wreath it in freezing mist. This works as fire shield (chill shield only) with a duration 1 minute.");
+
+            var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var major_ability = Helpers.CreateAbility("WarpriestWaterMajorBlessingAbility",
+                                                      major_buff.Name,
+                                                      major_buff.Description,
+                                                      "",
+                                                      major_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      chill_shield.GetComponent<SpellDescriptorComponent>(),
+                                                      chill_shield.GetComponent<AbilitySpawnFx>()
+                                                      );
+
+            major_ability.setMiscAbilityParametersTouchFriendly();
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingWater", "Water", minor_ability, major_ability, "8f49469c40e2c6e4db61296558e08966");
+        }
+
+
+        static void createWeatherBlessing()
+        {
+            var lightning = library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73");
+            var shock_enchantment = library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658");
+            var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
+
+            var enchantment = Common.createWeaponEnchantment("WarpriestWeatherBlessingWeaponEcnchantment",
+                                                             "Storm Strike",
+                                                             "this weapon glows with blue or yellow sparks and deals an additional 1d4 points of electricity damage with each hit.",
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             0,
+                                                             shock_enchantment.WeaponFxPrefab,
+                                                             Common.weaponEnergyDamageDice(DamageEnergyType.Electricity, new DiceFormula(1, DiceType.D4))
+                                                             );
+            var minor_buff = Helpers.CreateBuff("WarpriestWeatherMinorBlessingBuff",
+                                     enchantment.Name,
+                                     "At 1st level, you can touch one weapon and grant it a blessing of stormy weather. For 1 minute, this weapon glows with blue or yellow sparks and deals an additional 1d4 points of electricity damage with each hit.",
+                                     "",
+                                     lightning.Icon,
+                                     null,
+                                     Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, enchantment)
+                                    );
+
+            var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var minor_ability = Helpers.CreateAbility("WarpriestWeatherMinorBlessingAbility",
+                                                      minor_buff.Name,
+                                                      minor_buff.Description,
+                                                      "",
+                                                      minor_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Touch,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                      );
+
+            minor_ability.setMiscAbilityParametersTouchFriendly();
+            addBlessingResourceLogic(minor_ability);
+
+            var blur_buff = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
+
+            var major_buff = Helpers.CreateBuff("WarpriestWeatherBlessingMajorBuff",
+                                                "Wind Barrier",
+                                                "At 10th level, you can create a barrier of fast winds around yourself for 1 minute. It gives you complete immunity to ranged attacks.",
+                                                "",
+                                                blur_buff.Icon,
+                                                blur_buff.FxOnStart,
+                                                Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch })
+                                                );
+            var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var major_ability = Helpers.CreateAbility("WarpriestWeatherMajorBlessingAbility",
+                                                      major_buff.Name,
+                                                      major_buff.Description,
+                                                      "",
+                                                      major_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      Helpers.oneMinuteDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      );
+
+            major_ability.setMiscAbilityParametersSelfOnly();
+            addBlessingResourceLogic(major_ability);
+
+            addBlessing("WarpriestBlessingWeather", "Weather", minor_ability, major_ability, "9dfdfd4904e98fa48b80c8f63ec2cf11");
         }
     }
 }
