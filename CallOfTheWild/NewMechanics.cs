@@ -1343,6 +1343,22 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Weapon Damage Stat Replacement")]
+        public class WeaponDamageStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public StatType Stat;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                    return;
+                evt.OverrideDamageBonusStat(this.Stat);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
 
         [ComponentName("Ignore Damage Reduction if target has fact")]
         public class WeaponIgnoreDRIfTargetHasFact : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
@@ -1368,22 +1384,67 @@ namespace CallOfTheWild
         }
 
 
-        [ComponentName("Weapon Damage Stat Replacement")]
-        public class WeaponDamageStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        [ComponentName("Weapon Stat Replacement")]
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class BuffWeaponStatReplacement : BuffLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber,
+                                                           IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
         {
             public StatType Stat;
-
+            public BlueprintItemWeapon weapon;
+            public bool use_caster_value = false;
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
-                if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                if (evt.Weapon == null)
+                {
                     return;
+                }
+
+                if (evt.Weapon.Blueprint != weapon)
+                    return;
+
                 evt.OverrideDamageBonusStat(this.Stat);
+
+                var caster = this.Fact.MaybeContext?.MaybeCaster;
+                if (use_caster_value && caster != null)
+                {
+                    int caster_bonus = caster.Stats.GetStat<ModifiableValueAttributeStat>(Stat).Bonus;
+                    int owner_bonus = evt.Initiator.Stats.GetStat<ModifiableValueAttributeStat>(Stat).Bonus;
+                    evt.AddBonusDamage(caster_bonus - owner_bonus);
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
             }
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                if (evt.Weapon == null)
+                {
+                    return;
+                }
+
+                if (evt.Weapon.Blueprint != weapon)
+                    return;
+
+                evt.AttackBonusStat = Stat;
+
+                var caster = this.Fact.MaybeContext?.MaybeCaster;
+                if (use_caster_value && caster != null)
+                {
+                    int caster_bonus = caster.Stats.GetStat<ModifiableValueAttributeStat>(Stat).Bonus;
+                    int owner_bonus = evt.Initiator.Stats.GetStat<ModifiableValueAttributeStat>(Stat).Bonus;
+                    evt.AddBonus(caster_bonus - owner_bonus, this.Fact);
+                }
+               
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+            }
         }
+
 
 
         [ComponentName("change weapon damage")]

@@ -371,7 +371,7 @@ namespace CallOfTheWild
                                                          Common.createWeaponDamageStatReplacementEnchantment(StatType.Charisma)
                                                          );
 
-            Common.addEnchantment(lesser_spirit_totem_slam_attack, enchant);
+            //Common.addEnchantment(lesser_spirit_totem_slam_attack, enchant);
 
             lesser_spirit_totem_buff = Helpers.CreateBuff("LesserSpiritTotemBuff",
                                           "",
@@ -379,7 +379,14 @@ namespace CallOfTheWild
                                           "",
                                           null,
                                           null,
-                                          Common.createAddSecondaryAttacks(lesser_spirit_totem_slam_attack)
+                                          Common.createAddSecondaryAttacks(lesser_spirit_totem_slam_attack),
+                                          Helpers.Create<NewMechanics.BuffWeaponStatReplacement>(b =>
+                                                                                                  {
+                                                                                                      b.use_caster_value = true;
+                                                                                                      b.weapon = lesser_spirit_totem_slam_attack;
+                                                                                                      b.Stat = StatType.Charisma;
+                                                                                                  }
+                                                                                                  )
                                           );
             lesser_spirit_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
@@ -452,6 +459,13 @@ namespace CallOfTheWild
                                           null,
                                           null,
                                           Common.createAddSecondaryAttacks(greater_spirit_totem_slam_attack),
+                                          Helpers.Create<NewMechanics.BuffWeaponStatReplacement>(b =>
+                                                                                                {
+                                                                                                    b.use_caster_value = true;
+                                                                                                    b.weapon = greater_spirit_totem_slam_attack;
+                                                                                                    b.Stat = StatType.Charisma;
+                                                                                                }
+                                                                                                ),
                                           Common.createAddAreaEffect(area_effect)
                                           );
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
