@@ -1197,7 +1197,7 @@ namespace CallOfTheWild
 
         static void addBlessingResourceLogic(BlueprintAbility blessing, int amount = 1)
         {
-            blessing.AddComponent(Helpers.CreateResourceLogic(warpriest_blessing_resource, amount: 1, cost_is_custom: true));
+            blessing.AddComponent(Helpers.CreateResourceLogic(warpriest_blessing_resource, amount: amount, cost_is_custom: true));
             blessing.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasincFacts>(r => r.cost_reducing_facts = Enumerable.Repeat<BlueprintFact>( warpriest_aspect_of_war_buff, amount).ToArray()));
         }
 
@@ -2199,7 +2199,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      Helpers.CreateRunActions(apply_major_buff),
                                                       warm_shield.GetComponent<SpellDescriptorComponent>(),
                                                       warm_shield.GetComponent<AbilitySpawnFx>()
                                                       );
@@ -2417,7 +2417,7 @@ namespace CallOfTheWild
             major_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic(major_ability);
 
-            addBlessing("WarpriestHealingBlessing", "Healing",
+            addBlessing("WarpriestBlessingHealing", "Healing",
                         Common.ActivatableAbilityToFeature(minor_activatable_ability, false),
                         Common.AbilityToFeature(major_ability, false),
                         "73ae164c388990c43ade94cfe8ed5755"
@@ -3114,6 +3114,15 @@ namespace CallOfTheWild
                                                 Helpers.CreateAddFact(major_ability)
                                                 );
 
+            var remove_buff = Helpers.Create<ContextActionOnContextCaster>(c =>
+            {
+                c.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuff(major_buff));
+            }
+            );
+
+            major_ability.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(remove_buff)));
+
+
             var caster_action = Helpers.Create<ContextActionOnContextCaster>(c =>
             {
                 var apply_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false);
@@ -3167,6 +3176,9 @@ namespace CallOfTheWild
         static void createStrengthBlessing()
         {
             var minor_buff = library.CopyAndAdd<BlueprintBuff>("94dfcf5f3a72ce8478c8de5db69e752b", "WarpriestStrengthBlessingMinorBuff", "");
+            minor_buff.AddComponent(Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.Enhancement, StatType.Strength));
+            minor_buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.AdditionalCMB, ModifierDescriptor.Enhancement));
+
             minor_buff.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
             var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
 
@@ -3234,7 +3246,7 @@ namespace CallOfTheWild
             var apply_dazzzled_buff = Common.createContextActionApplyBuff(dazzled_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
 
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Reflex,
-                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(apply_blindess_buff, apply_dazzzled_buff))
+                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(apply_dazzzled_buff, apply_blindess_buff))
                                                                );
             var flare = library.Get<BlueprintAbility>("f0f8e5b9808f44e4eadd22b138131d52");
 
@@ -3371,6 +3383,7 @@ namespace CallOfTheWild
             minor_ability.SetDescription("At 1st level, as a move action you can create an illusory double of yourself. This double functions as a single mirror image, and lasts for a number of rounds equal to your warpriest level, or until the illusory duplicate is dispelled or destroyed. You can have no more than one double at a time. The double created by this ability doesn’t stack with the additional images from the mirror image spell.");
             minor_ability.RemoveComponents<AbilityResourceLogic>();
             minor_ability.Type = AbilityType.Supernatural;
+            minor_ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
 
             addBlessingResourceLogic(minor_ability);
 
@@ -3389,7 +3402,8 @@ namespace CallOfTheWild
                                                                  major_buff,
                                                                  AbilityActivationType.Immediately,
                                                                  CommandType.Free,
-                                                                 null);
+                                                                 null,
+                                                                 Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never));
             if (!test_mode)
             {
                 major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
@@ -3411,6 +3425,7 @@ namespace CallOfTheWild
                                                      };
             string[] postfix = new string[] { "Speed", "AC", "Attack Bonus", "Saving Throws" };
             List<BlueprintAbility> minor_variants = new List<BlueprintAbility>();
+            List<BlueprintBuff> minor_buffs = new List<BlueprintBuff>();
 
             var minor_name = "War Mind";
             var minor_description = "At 1st level, you can touch an ally and grant it a tactical advantage for 1 minute. The ally gets one of the following bonuses: +10 feet to base land speed, +1 dodge bonus to AC, +1 insight bonus on attack rolls, or a +1 luck bonus on saving throws.";
@@ -3444,8 +3459,23 @@ namespace CallOfTheWild
                                                     );
                 ability.setMiscAbilityParametersTouchFriendly();
                 addBlessingResourceLogic(ability);
+                minor_buffs.Add(buff);
 
                 minor_variants.Add(ability);
+            }
+
+            //remove other buffs
+            foreach (var b in minor_buffs)
+            {
+                List<GameAction> remove_buffs = new List<GameAction>();
+                foreach (var b2 in minor_buffs)
+                {
+                    if (b2 != b)
+                    {
+                        remove_buffs.Add(Common.createContextActionRemoveBuff(b2));
+                    }
+                    b.AddComponent(Helpers.CreateAddFactContextActions(remove_buffs.ToArray()));
+;                }
             }
 
             var minor_ability = Helpers.CreateAbility("WarpriestWarBlessinMinorAbility",
@@ -3572,7 +3602,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      Helpers.CreateRunActions(apply_major_buff),
                                                       chill_shield.GetComponent<SpellDescriptorComponent>(),
                                                       chill_shield.GetComponent<AbilitySpawnFx>()
                                                       );
@@ -3648,7 +3678,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Personal,
                                                       Helpers.oneMinuteDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(apply_minor_buff)
+                                                      Helpers.CreateRunActions(apply_major_buff)
                                                       );
 
             major_ability.setMiscAbilityParametersSelfOnly();

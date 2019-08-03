@@ -340,17 +340,19 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                /*var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null)
+
+                if (weapon.Enchantments.HasFact(enchantments[bonus]))
                 {
-                    weapon.RemoveEnchantment(fact);
-                }*/
+                    return;
+                }
 
                 if (weapon.EnchantmentValue != 0 && only_non_magical)
                 {
                     return;
                 }
                 m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+
+
 
                 if (lock_slot && !weapon.IsNonRemovable)
                 {
@@ -419,11 +421,10 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                /*var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null)
+                if (weapon.Enchantments.HasFact(enchantments[bonus]))
                 {
-                    weapon.RemoveEnchantment(fact);
-                }*/
+                    return;
+                }
 
                 if (weapon.EnchantmentValue != 0 && only_non_magical)
                 {
@@ -490,6 +491,11 @@ namespace CallOfTheWild
                 }
 
                 if (!Context.HasMetamagic(metamagic))
+                {
+                    return;
+                }
+
+                if (weapon.Enchantments.HasFact(enchantment))
                 {
                     return;
                 }
@@ -566,11 +572,10 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                /*var fact = shield.ArmorComponent.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null)
+                if (shield.ArmorComponent.Enchantments.HasFact(enchantments[bonus]))
                 {
-                    shield.RemoveEnchantment(fact);
-                }*/
+                    return;
+                }
 
                 m_Enchantment = shield.ArmorComponent.AddEnchantment(enchantments[bonus], Context, new Rounds?());
                 shield.ArmorComponent.RecalculateStats();
@@ -658,6 +663,11 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
+                if (armor.Enchantments.HasFact(enchantments[bonus]))
+                {
+                    return;
+                }
+
 
                 m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
 
@@ -723,11 +733,10 @@ namespace CallOfTheWild
                     bonus = enchantments.Length - 1;
                 }
 
-                /*var fact = armor.Enchantments.Find(x => x.Blueprint == enchantments[bonus]);
-                if (fact != null )
+                if (armor.Enchantments.HasFact(enchantments[bonus]))
                 {
-                    armor.RemoveEnchantment(fact);
-                }*/
+                    return;
+                }
 
                 m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
 
