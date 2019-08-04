@@ -50,6 +50,8 @@ New features:
 
 New spells:
 - Hex Vulnerability,
+- Sanctuary,
+- Command,
 - Invisibility Purge,
 - Shillelagh,
 - Flame Blade,
