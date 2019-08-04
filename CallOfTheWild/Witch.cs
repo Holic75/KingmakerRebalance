@@ -87,6 +87,8 @@ namespace CallOfTheWild
         static internal BlueprintFeatureSelection hex_channeler_channel_energy_selection;
         static internal BlueprintFeature improved_channel_hex_positive;
         static internal BlueprintFeature improved_channel_hex_negative;
+        static internal BlueprintFeature witch_channel_negative;
+        static internal BlueprintFeature witch_channel_positive;
         static internal BlueprintFeature conduit_surge;
 
         static HexEngine hex_engine;
@@ -312,6 +314,19 @@ namespace CallOfTheWild
 
             createHexChannelerChannelEnergySelection();
             hex_channeler_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, hex_channeler_channel_energy_selection) };
+
+            //replace improved_channel_hex_positive for negative energy channeler 
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor u)
+            {
+                if (u.HasFact(witch_channel_negative))
+                {
+                    while (u.Progression.Features.HasFact(improved_channel_hex_positive))
+                    {
+                        u.Progression.ReplaceFeature(improved_channel_hex_positive, improved_channel_hex_negative);
+                    }
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 
@@ -322,7 +337,7 @@ namespace CallOfTheWild
             var select_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
             var select_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
 
-            var witch_channel_positive = Helpers.CreateFeature("WitchChannelPositive",
+            witch_channel_positive = Helpers.CreateFeature("WitchChannelPositive",
                                                                select_positive.Name,
                                                                select_negative.Description,
                                                                "2cca6a04afd64ebd84ee6aad6d1cea5f",
@@ -335,7 +350,7 @@ namespace CallOfTheWild
                                                                                                   )
                                                              );
 
-            var witch_channel_negative = Helpers.CreateFeature("WitchChannelNegative",
+            witch_channel_negative = Helpers.CreateFeature("WitchChannelNegative",
                                                                 select_negative.Name,
                                                                 select_negative.Description,
                                                                 "bffcdc859c954a08bbbbe1eddb4b2115",

@@ -103,6 +103,10 @@ namespace CallOfTheWild
         static BlueprintFeature remove_armor_speed_penalty_feature;
 
 
+        static internal BlueprintArchetype sacred_fist_archetype;
+        static internal BlueprintArchetype cult_leader_archetype;
+
+
         internal static void createWarpriestClass()
         {
             Main.logger.Log("Warpriest class test mode: " + test_mode.ToString());
@@ -150,7 +154,7 @@ namespace CallOfTheWild
             warpriest_class.Archetypes = new BlueprintArchetype[] { }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
             Helpers.RegisterClass(warpriest_class);
 
-            //addToPrestigeClasses(); //mt
+            //addToPrestigeClasses(); //mt ?
         }
 
         static BlueprintCharacterClass[] getWarpriestArray()
@@ -3685,6 +3689,13 @@ namespace CallOfTheWild
             addBlessingResourceLogic(major_ability);
 
             addBlessing("WarpriestBlessingWeather", "Weather", minor_ability, major_ability, "9dfdfd4904e98fa48b80c8f63ec2cf11");
+        }
+
+
+
+        static void createSacredFist()
+        {
+
         }
     }
 }

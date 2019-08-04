@@ -160,6 +160,15 @@ namespace CallOfTheWild
 
 
             basic_feat_progression.LevelEntries[0].Features.Add(reject_rage_feature);
+
+            Action<UnitDescriptor> save_game_action = delegate (UnitDescriptor u)
+            {
+                if (!u.HasFact(reject_rage_feature))
+                {
+                    u.AddFact(reject_rage_feature);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_action);
         }
 
 
