@@ -54,6 +54,8 @@ namespace CallOfTheWild
         internal static bool test_mode = false;
         static internal BlueprintCharacterClass warpriest_class;
         static internal BlueprintProgression warpriest_progression;
+        static internal BlueprintFeatureSelection fighter_feat;
+        static internal BlueprintFeatureSelection weapon_focus_selection;
 
         static internal BlueprintFeature warpriest_fighter_feat_prerequisite_replacement;
         static internal BlueprintFeature warpriest_orisons;
@@ -104,14 +106,22 @@ namespace CallOfTheWild
 
 
         static internal BlueprintArchetype sacred_fist_archetype;
+        static internal BlueprintFeature sacred_fist_ki_pool;
+        static internal BlueprintFeatureSelection sacred_fist_syle_feat_selection;
+        static internal BlueprintFeature sacred_fist_proficiencies;
+        static internal BlueprintFeature sacred_fist_fake_monk_level;
+        static internal BlueprintFeature blessed_fortitude;
+        static internal BlueprintFeature miraculous_fortitude;
+
         static internal BlueprintArchetype cult_leader_archetype;
+
 
 
         internal static void createWarpriestClass()
         {
             Main.logger.Log("Warpriest class test mode: " + test_mode.ToString());
             var cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-
+            var paladin_class = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
             warpriest_class = Helpers.Create<BlueprintCharacterClass>();
             warpriest_class.name = "WarpriestClass";
             library.AddAsset(warpriest_class, "");
@@ -135,23 +145,23 @@ namespace CallOfTheWild
             warpriest_class.ClassSkills = cleric_class.ClassSkills.AddToArray(StatType.SkillAthletics, StatType.SkillLoreNature);
             warpriest_class.IsDivineCaster = true;
             warpriest_class.IsArcaneCaster = false;
-            warpriest_class.StartingGold = cleric_class.StartingGold;
-            warpriest_class.PrimaryColor = cleric_class.PrimaryColor;
-            warpriest_class.SecondaryColor = cleric_class.SecondaryColor;
+            warpriest_class.StartingGold = paladin_class.StartingGold;
+            warpriest_class.PrimaryColor = paladin_class.PrimaryColor;
+            warpriest_class.SecondaryColor = paladin_class.SecondaryColor;
             warpriest_class.RecommendedAttributes = cleric_class.RecommendedAttributes;
             warpriest_class.NotRecommendedAttributes = cleric_class.NotRecommendedAttributes;
-            warpriest_class.EquipmentEntities = cleric_class.EquipmentEntities;
-            warpriest_class.MaleEquipmentEntities = cleric_class.MaleEquipmentEntities;
-            warpriest_class.FemaleEquipmentEntities = cleric_class.FemaleEquipmentEntities;
+            warpriest_class.EquipmentEntities = paladin_class.EquipmentEntities;
+            warpriest_class.MaleEquipmentEntities = paladin_class.MaleEquipmentEntities;
+            warpriest_class.FemaleEquipmentEntities = paladin_class.FemaleEquipmentEntities;
             warpriest_class.ComponentsArray = cleric_class.ComponentsArray;
-            warpriest_class.StartingItems = cleric_class.StartingItems;
+            warpriest_class.StartingItems = paladin_class.StartingItems;
 
             createWarpriestProgression();
             warpriest_class.Progression = warpriest_progression;
-            //createSacredFist();
+            createSacredFist();
             //createChampionOfTheFaith();
             //createCultLeader();
-            warpriest_class.Archetypes = new BlueprintArchetype[] { }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
+            warpriest_class.Archetypes = new BlueprintArchetype[] {sacred_fist_archetype }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
             Helpers.RegisterClass(warpriest_class);
 
             //addToPrestigeClasses(); //mt ?
@@ -203,9 +213,9 @@ namespace CallOfTheWild
             createAspectOfWar();
             createWarpriestBlessings();
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
-            var fighter_feat = library.Get<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f");
+            fighter_feat = library.Get<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f");
             var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
-            var weapon_focus_selection = Helpers.CreateFeatureSelection("WarpriestWeaponFocusSelection",
+            weapon_focus_selection = Helpers.CreateFeatureSelection("WarpriestWeaponFocusSelection",
                                                                         "Focus Weapon",
                                                                         "At 1st level, a warpriest receives Weapon Focus as a bonus feat (she can choose any weapon, not just his deity’s favored weapon).",
                                                                         "",
@@ -3697,7 +3707,264 @@ namespace CallOfTheWild
 
         static void createSacredFist()
         {
+            createSacredFistProficiencies();
+            createSacredFistFakeMonkLevels();
+            //unarmed damage
+            var fist1d6 = library.CopyAndAdd<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0", "WarpriestSacredFistUnarmed1d6Feature", "");
+            fist1d6.SetDescription("At 1st level, a sacred fist gains Improved Unarmed Strike as a bonus feat. The damage dealt by a Medium sacred fist's unarmed strike increases with level: 1d6 at levels 1–3, 1d8 at levels 4–7, 1d10 at levels 8–11, 2d6 at levels 12–15, 2d8 at levels 16–19, and 2d10 at level 20.\nIf the sacred fist is Small, his unarmed strike damage increases as follows: 1d4 at levels 1–3, 1d6 at levels 4–7, 1d8 at levels 8–11, 1d10 at levels 12–15, 2d6 at levels 16–19, and 2d8 at level 20.\nIf the sacred fist is Large, his unarmed strike damage increases as follows: 1d8 at levels 1–3, 2d6 at levels 4–7, 2d8 at levels 8–11, 3d6 at levels 12–15, 3d8 at levels 16–19, and 4d8 at level 20.");
+            var fist1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
+            var fist1d10 = library.Get<BlueprintFeature>("f790a36b5d6f85a45a41244f50b947ca");
+            var fist2d6 = library.Get<BlueprintFeature>("b3889f445dbe42948b8bb1ba02e6d949");
+            var fist2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
+            var fist2d10 = library.Get<BlueprintFeature>("df38e56fa8b3f0f469d55f9aa26b3f5c");
 
+            var ac_bonus = library.CopyAndAdd<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4", "ACBonusSacredFistACBonusFeature", "");
+            ac_bonus.SetDescription("When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
+            foreach (var c in ac_bonus.GetComponents<ContextRankConfig>().ToArray())
+            {
+                if (c.IsBasedOnClassLevel)
+                {
+                    var new_c = c.CreateCopy();
+                    Helpers.SetField(new_c, "m_Class", getWarpriestArray());
+                    ac_bonus.ReplaceComponent(c, new_c);
+                    break;
+                }
+            }
+
+            var unlock_ac_bonus = Common.createMonkFeatureUnlock(ac_bonus, false);
+            var flurry2 = library.CopyAndAdd<BlueprintFeature>("332362f3bd39ebe46a740a36960fdcb4", "WarpriestSacredFistFlurryOfBlows1Feature", "");
+            flurry2.SetDescription("At 2nd level, a sacred fist can make a flurry of blows as a full attack. When making a flurry of blows, the sacred fist can make one additional attack at his highest base attack bonus. This additional attack stacks with the bonus attacks from haste and other similar effects. When using this ability, the sacred fist can make these attacks with any combination of his unarmed strikes and weapons that have the sacred fist special weapon quality. He takes no penalty for using multiple weapons when making a flurry of blows, but he does not gain any additional attacks beyond what's already granted by the flurry for doing so. (He can still gain additional attacks from a high base attack bonus, from this ability, and from haste and similar effects).\nAt 15th level, a sacred fist can make an additional attack at his highest base attack bonus whenever he makes a flurry of blows. This stacks with the first attack from this ability and additional attacks from haste and similar effects.");
+            var flurry15 = library.CopyAndAdd<BlueprintFeature>("de25523acc24b1448aa90f74d6512a08", "WarpriestSacredFistFlurryOfBlows2Feature", "");
+            var flurry2_unlock = Common.createMonkFeatureUnlock(flurry2, true);
+            var flurry15_unlock = Common.createMonkFeatureUnlock(flurry15, true);
+            flurry15_unlock.HideInCharacterSheetAndLevelUp = true;
+            flurry15_unlock.HideInUI = true;
+
+            createSacredFistKiPowers();
+
+            var ki_strike_cold_iron_silver = library.CopyAndAdd<BlueprintFeature>("7b657938fde78b14cae10fc0d3dcb991", "WarpriestSacredFistKiStrikeColdIronSilver", "");
+            ki_strike_cold_iron_silver.SetDescription("At 10th level, the sacred fist's unarmed attacks are treated as cold iron and silver for the purpose of overcoming damage reduction.");
+
+            var ki_strike_lawful = library.CopyAndAdd<BlueprintFeature>("34439e527a8f5fb4588024e71960dd42", "WarpriestSacredFistKiStrikeLawful", "");
+            ki_strike_lawful.SetDescription("At 13th level, the sacred fist's unarmed attacks are treated as lawful weapons for the purpose of overcoming damage reduction.");
+
+            var ki_strike_adamantine = library.CopyAndAdd<BlueprintFeature>("ddc10a3463bd4d54dbcbe993655cf64e", "WarpriestSacredFistKiStrikeAdamantine", "");
+            ki_strike_adamantine.SetDescription("At 19th level, the sacred fist's unarmed attacks are treated as adamantine weapons for the purpose of overcoming damage reduction and bypassing hardness.");
+
+            createSacredFistStyleFeatsSelection();
+            createSacredFistudeFortitudeEvasion();
+
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+
+            sacred_fist_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SacredFistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Sacred Fist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Unlike many warpriests, sacred fists leave behind armor and shield and instead rely on their fists and whatever protection their deity bestows on them.");
+            });
+            Helpers.SetField(sacred_fist_archetype, "m_ParentClass", warpriest_class);
+            library.AddAsset(sacred_fist_archetype, "");
+            sacred_fist_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies,
+                                                                                        warpriest_fighter_feat_prerequisite_replacement,
+                                                                                        weapon_focus_selection,
+                                                                                        warpriest_sacred_weapon_damage), 
+                                                                    Helpers.LevelEntry(3, fighter_feat),
+                                                                    Helpers.LevelEntry(4, warpriest_sacred_weapon_enhancement),
+                                                                    Helpers.LevelEntry(6, fighter_feat),
+                                                                    Helpers.LevelEntry(7, warpriest_sacred_armor),
+                                                                    Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
+                                                                    Helpers.LevelEntry(9, fighter_feat),
+                                                                    Helpers.LevelEntry(10, warpriest_sacred_armor2),
+                                                                    Helpers.LevelEntry(12, fighter_feat, warpriest_sacred_weapon_enhancement3),
+                                                                    Helpers.LevelEntry(13, warpriest_sacred_armor3),
+                                                                    Helpers.LevelEntry(14),
+                                                                    Helpers.LevelEntry(15, fighter_feat),
+                                                                    Helpers.LevelEntry(16, warpriest_sacred_weapon_enhancement4, warpriest_sacred_armor4),
+                                                                    Helpers.LevelEntry(17),
+                                                                    Helpers.LevelEntry(18, fighter_feat),
+                                                                    Helpers.LevelEntry(19, warpriest_sacred_armor5),
+                                                                    Helpers.LevelEntry(20, warpriest_sacred_weapon_enhancement5)
+                                                                    };
+
+            sacred_fist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, sacred_fist_proficiencies, improved_unarmed_strike, unlock_ac_bonus, sacred_fist_fake_monk_level,
+                                                                                      fist1d6),
+                                                                  Helpers.LevelEntry(2, flurry2_unlock),
+                                                                  Helpers.LevelEntry(3, blessed_fortitude),
+                                                                  Helpers.LevelEntry(4, fist1d8),
+                                                                  Helpers.LevelEntry(6, sacred_fist_syle_feat_selection),
+                                                                  Helpers.LevelEntry(7, sacred_fist_ki_pool),
+                                                                  Helpers.LevelEntry(8, fist1d10),
+                                                                  Helpers.LevelEntry(9, miraculous_fortitude),
+                                                                  Helpers.LevelEntry(10, ki_strike_cold_iron_silver),
+                                                                  Helpers.LevelEntry(12, sacred_fist_syle_feat_selection, fist2d6),
+                                                                  Helpers.LevelEntry(13, ki_strike_lawful),
+                                                                  Helpers.LevelEntry(15, flurry15_unlock),
+                                                                  Helpers.LevelEntry(16, fist2d8),
+                                                                  Helpers.LevelEntry(18, sacred_fist_syle_feat_selection),
+                                                                  Helpers.LevelEntry(19, ki_strike_adamantine),
+                                                                  Helpers.LevelEntry(20, fist2d10),
+                                                                };
+
+            warpriest_progression.UIGroups[0].Features.Add(improved_unarmed_strike);
+            warpriest_progression.UIGroups[0].Features.Add(sacred_fist_syle_feat_selection);
+            warpriest_progression.UIGroups[0].Features.Add(sacred_fist_syle_feat_selection);
+            warpriest_progression.UIGroups[0].Features.Add(sacred_fist_syle_feat_selection);
+
+            warpriest_progression.UIGroups[2].Features.Add(fist1d6);
+            warpriest_progression.UIGroups[2].Features.Add(flurry2_unlock);
+            warpriest_progression.UIGroups[2].Features.Add(sacred_fist_ki_pool);
+            warpriest_progression.UIGroups[2].Features.Add(ki_strike_cold_iron_silver);
+            warpriest_progression.UIGroups[2].Features.Add(ki_strike_lawful);
+            warpriest_progression.UIGroups[2].Features.Add(ki_strike_adamantine);
+
+            warpriest_progression.UIGroups[3].Features.Add(unlock_ac_bonus);
+            warpriest_progression.UIGroups[3].Features.Add(blessed_fortitude);
+            warpriest_progression.UIGroups[3].Features.Add(miraculous_fortitude);
+
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(sacred_fist_proficiencies, sacred_fist_fake_monk_level);
+
+            sacred_fist_archetype.ReplaceClassSkills = true;
+            sacred_fist_archetype.ClassSkills = warpriest_class.ClassSkills.AddToArray(StatType.SkillMobility, StatType.SkillStealth);
+
+            var monk_class = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            monk_class.AddComponent(Common.prerequisiteNoArchetype(warpriest_class, sacred_fist_archetype));
+            sacred_fist_archetype.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(c => c.CharacterClass = monk_class));
+            sacred_fist_archetype.ReplaceStartingEquipment = true;
+            sacred_fist_archetype.StartingItems = monk_class.StartingItems;
+            sacred_fist_archetype.StartingGold = monk_class.StartingGold;
+            
+        }
+
+
+        static void createSacredFistProficiencies()
+        {
+            sacred_fist_proficiencies = library.CopyAndAdd<BlueprintFeature>("c7d6f5244c617734a8a76b6785a752b4", "SacredFistProficiencies", "");
+            sacred_fist_proficiencies.SetName("Sacred Fist Proficiencies");
+            sacred_fist_proficiencies.SetDescription("Sacred fists are proficient with the club, crossbow (light or heavy), dagger, handaxe, javelin, kama, nunchaku, quarterstaff, sai, shortspear, short sword, shuriken, siangham, sling, and spear. Sacred fists are not proficient with any armor or shields. When wearing armor, using a shield, or carrying a medium or heavy load, a sacred fist loses his AC bonus and flurry of blows.");
+        }
+
+        static void createSacredFistFakeMonkLevels()
+        {
+            var monk_class = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            var stone_fist = library.Get<BlueprintAbility>("85067a04a97416949b5d1dbf986d93f3");
+
+            sacred_fist_fake_monk_level = Helpers.CreateFeature("WarpriestMonkTraining",
+                                                                "Monk training",
+                                                                "Sacred fist uses his warpriest levels as monk levels for the purposes of meeting the feat’s prerequisites.",
+                                                                "",
+                                                                stone_fist.Icon,
+                                                                FeatureGroup.None,
+                                                                Common.createClassLevelsForPrerequisites(monk_class, warpriest_class)
+                                                                );
+        }
+
+
+        static void createSacredFistKiPowers()
+        {
+            var ki_resource = Helpers.CreateAbilityResource("WarpriestSacredFistKiResource", "", "", "", null);
+            ki_resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 0, 2, 1, 0, 0.0f, getWarpriestArray());
+            ki_resource.SetIncreasedByStat(1, StatType.Wisdom);
+
+            var extra_attack_ability = library.CopyAndAdd<BlueprintAbility>("7f6ea312f5dad364fa4a896d7db39fdd", "WarpriestSacredFistKiExtraAttackAbility", "");
+            extra_attack_ability.SetDescription("By spending 1 point from his ki pool as a swift action, a sacred fist can make one additional unarmed strike at his highest attack bonus when making a flurry of blows attack.This bonus attack stacks with all bonus attacks gained from flurry of blows, as well as those from haste and similar effects.");
+            extra_attack_ability.ReplaceComponent<AbilityResourceLogic>(c => c.RequiredResource = ki_resource);
+            library.Get<BlueprintBuff>("cadf8a5c42002494cabfc6c1196b514a").SetDescription("By spending 1 point from his ki pool as a swift action, a character can make one additional unarmed strike at his highest attack bonus when making a flurry of blows attack. This bonus attack stacks with all bonus attacks gained from flurry of blows, as well as those from haste and similar effects.");
+
+            var mage_armor = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568");
+            var ki_armor_buff = Helpers.CreateBuff("WarpriestSacredFistKiArmorBuff",
+                                                   "Ki Armor",
+                                                   "A sacred fist can as a swift action spend 1 point from his ki pool to grant himself a +1 insight bonus to his AC for 1 minute. This insight bonus increases by 1 for every 3 levels above 7th (to a maximum of +5 at 19th level).",
+                                                   "",
+                                                   mage_armor.Icon,
+                                                   null,
+                                                   Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Insight, ContextValueType.Rank, AbilityRankType.StatBonus),
+                                                   Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWarpriestArray(),
+                                                                                   type: AbilityRankType.StatBonus, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                   startLevel: 7, stepLevel: 3)
+                                                   );
+
+            var apply_buff = Common.createContextActionApplyBuff(ki_armor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+
+            var ki_armor = Helpers.CreateFeature("WarpriestSacredFistKiArmor",
+                                                 ki_armor_buff.Name,
+                                                 ki_armor_buff.Description,
+                                                 "",
+                                                 ki_armor_buff.Icon,
+                                                 FeatureGroup.None,
+                                                 Helpers.CreateRunActions(apply_buff),
+                                                 mage_armor.GetComponent<AbilitySpawnFx>()
+                                                 );
+
+            var ki_strike_magic = library.CopyAndAdd<BlueprintFeature>("1188005ee3160f84f8bed8b19a7d46cf", "WarpriestSacredFistKiStrikeMagic", "");
+            ki_strike_magic.SetDescription("At 7th level, ki strike allows the sacred fist's unarmed attacks to be treated as magic weapons for the purpose of overcoming damage reduction.");
+
+            sacred_fist_ki_pool = Helpers.CreateFeature("WarpriestSacredFistKiPowerFeature",
+                                                        "Ki Pool",
+                                                        "At 7th level, a sacred fist gains a pool of ki points, supernatural energy he can use to accomplish amazing feats. The number of points in a sacred's ki pool is equal to 1/2 his sacred fist level + his Wisdom modifier - 3. As long as he has at least 1 point in his ki pool, he can make a ki strike.\n"
+                                                        + "At 7th level, ki strike allows his unarmed attacks to be treated as magic weapons for the purpose of overcoming damage reduction.\n"
+                                                        + "At 10th level, his unarmed attacks are also treated as cold iron and silver for the purpose of overcoming damage reduction.\n"
+                                                        + "At 13th level, his unarmed attacks are also treated as lawful weapons for the purpose of overcoming damage reduction.\n"
+                                                        + "At 19th level, his unarmed attacks are treated as adamantine weapons for the purpose of overcoming damage reduction and bypassing hardness.\n"
+                                                        + "By spending 1 point from his ki pool as a swift action, a sacred fist can make one additional unarmed strike at his highest attack bonus when making a flurry of blows attack. This bonus attack stacks with all bonus attacks gained from flurry of blows, as well as those from haste and similar effects.\n"
+                                                        + "Additionally, the sacred fist can as a swift action spend 1 point from his ki pool to grant himself a +1 insight bonus to his AC for 1 minute. This insight bonus increases by 1 for every 3 levels above 7th (to a maximum of +5 at 19th level)\n"
+                                                        + "The ki pool is replenished each morning after 8 hours of rest or meditation; these hours do not need to be consecutive.",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddAbilityResource(ki_resource),
+                                                        Helpers.CreateAddFacts(ki_armor, extra_attack_ability, ki_strike_magic)
+                                                        );
+        }
+
+
+        static void createSacredFistStyleFeatsSelection()
+        {
+            BlueprintFeature[] style_feats = new BlueprintFeature[]{
+                                                                        library.Get<BlueprintFeature>("0c17102f650d9044290922b0fad9132f"),//crane style
+                                                                        library.Get<BlueprintFeature>("af0aae1b973114f47a19ea532237b5fc"),//crane wing
+                                                                        library.Get<BlueprintFeature>("59eb2a5507975244c893402d582bf77b"),//crane riposte
+
+                                                                        library.Get<BlueprintFeature>("c36562b8e7ae12d408487ba8b532d966"),//pummeling style
+                                                                        library.Get<BlueprintFeature>("bdf58317985383540920c723db07aa3b"),//pummeling bully
+                                                                        library.Get<BlueprintFeature>("c5a39c8f1a2d6824ca565e6c1e4075a5"),//pummeling charge
+
+                                                                        library.Get<BlueprintFeature>("87ec6541cddfa394ab540dd13399d319"),//dragon style
+                                                                        library.Get<BlueprintFeature>("2a681cb9fcaab664286cb36fff761245"),//dragon ferocity
+                                                                        library.Get<BlueprintFeature>("3fca938ad6a5b8348a8523794127c5bc"),//dragon roar
+                                                                    };
+
+            sacred_fist_syle_feat_selection = Helpers.CreateFeatureSelection("WarpriestSacredFist",
+                                                                            "Bonus Style Feat",
+                                                                            "At 6th level, the sacred fist gains a style feat as a bonus feat. The sacred fist must meet the style feat’s prerequisites. At 12th and 18th levels, a sacred fist gains either another style feat or a feat that requires a style feat as a prerequisite.",
+                                                                            "",
+                                                                            null,
+                                                                            FeatureGroup.None
+                                                                            );
+            sacred_fist_syle_feat_selection.AllFeatures = style_feats;
+            sacred_fist_syle_feat_selection.Features = style_feats;
+        }
+
+
+        static void createSacredFistudeFortitudeEvasion()
+        {
+            var defensive_stance = library.Get<BlueprintFeature>("2a6a2f8e492ab174eb3f01acf5b7c90a");
+            blessed_fortitude = Helpers.CreateFeature("WarpriestSacredFistBlessedFortitudeFeature",
+                                                      "Blessed Fortitude",
+                                                      "At 3rd level, a sacred fist can avoid even magical and unusual attacks with help from his deity. If he succeeds at a Fortitude saving throw against an attack that has a reduced effect on a successful save, he instead avoids the effect entirely. A helpless sacred fist does not gain the benefit of the blessed fortitude ability.",
+                                                      "",
+                                                      defensive_stance.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<Evasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
+                                                      );
+
+            miraculous_fortitude = Helpers.CreateFeature("WarpriestSacredFistMiraculousFortitudeFeature",
+                                          "Miraculous Fortitude",
+                                          "At 9th level, the sacred fist’s blessed fortitude ability improves. He still takes no damage or negative effect when he succeeds at a Fortitude save, but now when he fails a Fortitude saving throw against a spell or effect that deals damage (including ability damage and drain), he takes only half the amount of damage. A helpless sacred fist does not gain the benefit of miraculous fortitude.",
+                                          "",
+                                          defensive_stance.Icon,
+                                          FeatureGroup.None,
+                                          Helpers.Create<ImprovedEvasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
+                                          );
         }
     }
 }

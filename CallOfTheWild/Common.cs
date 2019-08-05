@@ -2113,5 +2113,26 @@ namespace CallOfTheWild
             return spell.Blueprint.CanTargetSelf  && !spell.Blueprint.HasAreaEffect();
         }
 
+
+
+        static internal BlueprintFeature createMonkFeatureUnlock(BlueprintFeature feature, bool no_weapon)
+        {
+            var feature_unlock = Helpers.CreateFeature(feature.name + "Unlock",
+                                                        feature.Name,
+                                                        feature.Description,
+                                                        "",
+                                                        feature.Icon,
+                                                        FeatureGroup.None);
+            if (no_weapon)
+            {
+                feature_unlock.AddComponent(Helpers.Create<MonkNoArmorAndMonkWeaponFeatureUnlock>(c => c.NewFact = feature));
+            }
+            else
+            {
+                feature_unlock.AddComponent(Helpers.Create<MonkNoArmorFeatureUnlock>(c => c.NewFact = feature));
+            }
+            return feature_unlock;
+        }
+
     }
 }
