@@ -368,18 +368,20 @@ namespace CallOfTheWild
 
             var dispel_magic = library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a");
 
+            var cast_only_on_self = Common.createContextActionApplyBuff(SharedSpells.can_only_target_self_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
             var fervor_swift_cast_buff = Helpers.CreateBuff("WarpriestFervorSwiftCastBuff",
                                                             "Fervor (Quicken Personal Spell)",
                                                             "As a swift action, a warpriest can expend one use of this ability to cast any one warpriest spell he has prepared with a casting time of 1 round or shorter. When cast in this way, the spell can target only the warpriest, even if it could normally affect other or multiple targets. Spells cast in this way ignore somatic components and do not provoke attacks of opportunity. The warpriest does not need to have a free hand to cast a spell in this way.",
                                                             "",
                                                             dispel_magic.Icon,
                                                             null,
-                                                            Helpers.Create<NewMechanics.MetamagicOnPersonalSpell>(m =>
+                                                            Helpers.Create<MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
                                                                                                                    {
                                                                                                                        m.amount = 1;
                                                                                                                        m.resource = warpriest_fervor_resource;
                                                                                                                        m.Metamagic = Metamagic.Quicken;         
-                                                                                                                   })
+                                                                                                                   }),
+                                                            Helpers.CreateAddFactContextActions(cast_only_on_self)
                                                             );
             var fervor_swift_cast_ability = Helpers.CreateActivatableAbility("WarpriestFervorSwiftCastActivatableAbility",
                                                                              fervor_swift_cast_buff.Name,
@@ -2362,7 +2364,7 @@ namespace CallOfTheWild
         {
             var healing_domain_feature = library.Get<BlueprintFeature>("b9ea4eb16ded8b146868540e711f81c8");
             var touch_of_good = library.Get<BlueprintAbility>("18f734e40dd7966438ab32086c3574e1");
-            var healing_metamagic = Helpers.Create<NewMechanics.MetamagicOnSpellDescriptor>(m =>
+            var healing_metamagic = Helpers.Create<MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
                                                                                             {
                                                                                                 m.amount = 1;
                                                                                                 m.Metamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Empower;

@@ -54,6 +54,14 @@ namespace CallOfTheWild
                 }
 
             }
+
+            if (__instance.Caster.Buffs.HasFact(SharedSpells.can_only_target_self_buff) && Common.isPersonalSpell(__instance) && target.Unit != __instance.Caster.Unit)
+            {
+                __result = false;
+                return false;
+            }
+
+
             if (!__instance.Blueprint.CanTargetSelf && target.Unit == __instance.Caster.Unit)
             {
                 __result = false;
@@ -94,6 +102,7 @@ namespace CallOfTheWild
         public static BlueprintFeature familiar_share_spell;
         public static BlueprintFeature bonded_mind_feat;
         public static BlueprintFeature share_spells_feat;
+        public static BlueprintBuff can_only_target_self_buff;
 
         public static BlueprintFeatureSelection[] ac_selections = new BlueprintFeatureSelection[]{Hunter.hunter_animal_companion,
                                                                                    library.Get<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533"), //domain
@@ -110,9 +119,22 @@ namespace CallOfTheWild
 
         public static void load()
         {
+            createCanOnlyTargetSelfBuff();
             createClassSharedSpell();
             createSharedSpellFeat();
             fixAcSpellTargetting();
+        }
+
+
+        private static void createCanOnlyTargetSelfBuff()
+        {
+            can_only_target_self_buff = Helpers.CreateBuff("CanOnlyTargetSelfBuff",
+                                                           "Target Self",
+                                                           "",
+                                                           "",
+                                                           null,
+                                                           null);
+            can_only_target_self_buff.SetBuffFlags(BuffFlags.HiddenInUi);
         }
 
 

@@ -2103,5 +2103,15 @@ namespace CallOfTheWild
         }
 
 
+        static public bool isPersonalSpell(AbilityData spell)
+        {
+            if (spell?.Spellbook == null)
+            {
+                return false;
+            }
+
+            return spell.Blueprint.CanTargetSelf  && !spell.Blueprint.HasAreaEffect();
+        }
+
     }
 }

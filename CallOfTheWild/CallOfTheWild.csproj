@@ -135,6 +135,7 @@
     <Compile Include="Helpers.cs" />
     <Compile Include="Hunter.cs" />
     <Compile Include="Common.cs" />
+    <Compile Include="MetamagicMechanics.cs" />
     <Compile Include="NewFeats.cs" />
     <Compile Include="NewMechanics.cs" />
     <Compile Include="NewRagePowers.cs" />

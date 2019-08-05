@@ -821,6 +821,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
+                new Common.SpellId( "dee3074b2fbfb064b80b973f9b56319e", 2), //pernicious poison"
                 new Common.SpellId( "bc153808ef4884a4594bc9bec2299b69", 2), //pox postules
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
@@ -837,6 +838,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c927a8b0cd3f5174f8c0b67cdbfde539", 3), //remove blindness
                 new Common.SpellId( "b48674cef2bff5e478a007cf57d8345b", 3), //remove curse
                 new Common.SpellId( "4093d5a0eb5cae94e909eb1e0e1a6b36", 3), //remove disease
+                new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 3), //spit venom
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
                 new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampyric touch
