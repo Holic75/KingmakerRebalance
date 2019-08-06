@@ -1491,7 +1491,53 @@ namespace CallOfTheWild
         }
 
 
-        [ComponentName("Remove Weapon Damage Stat")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class AddOutgoingPhysicalDamageAlignmentIfParametrizedFeature : RuleInitiatorLogicComponent<RulePrepareDamage>
+        {
+            public BlueprintParametrizedFeature required_parametrized_feature;
+            public DamageAlignment damage_alignment;
+
+            public override void OnEventAboutToTrigger(RulePrepareDamage evt)
+            {
+            }
+
+            private bool checkFeature(WeaponCategory category)
+            {
+                if (required_parametrized_feature == null)
+                {
+                    return true;
+                }
+                return this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == required_parametrized_feature).Any(p => p.Param == category);
+            }
+
+            public override void OnEventDidTrigger(RulePrepareDamage evt)
+            {
+                ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+                if (weapon == null)
+                {
+                    return;
+                }
+
+                if (!checkFeature(weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                var damage = evt.DamageBundle.WeaponDamage as PhysicalDamage;
+                if (damage == null)
+                {
+                    return;
+                }
+
+                damage.AddAlignment(damage_alignment);
+            }
+
+        }
+
+
+            [ComponentName("Remove Weapon Damage Stat")]
         public class Immaterial : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
         {
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
@@ -2425,6 +2471,7 @@ namespace CallOfTheWild
 
 
         }
+
     }
 
 }

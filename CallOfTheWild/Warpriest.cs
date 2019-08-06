@@ -114,7 +114,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature miraculous_fortitude;
 
         static internal BlueprintArchetype cult_leader_archetype;
-
+        static internal BlueprintArchetype champion_of_the_faith_archetype;
 
 
         internal static void createWarpriestClass()
@@ -142,7 +142,7 @@ namespace CallOfTheWild
             warpriest_class.ReflexSave = cleric_class.ReflexSave;
             warpriest_class.WillSave = cleric_class.WillSave;
             warpriest_class.Spellbook = createWarpriestSpellbook();
-            warpriest_class.ClassSkills = cleric_class.ClassSkills.AddToArray(StatType.SkillAthletics, StatType.SkillLoreNature);
+            warpriest_class.ClassSkills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillPersuasion, StatType.SkillLoreReligion, StatType.SkillAthletics, StatType.SkillLoreNature };
             warpriest_class.IsDivineCaster = true;
             warpriest_class.IsArcaneCaster = false;
             warpriest_class.StartingGold = paladin_class.StartingGold;
@@ -159,9 +159,9 @@ namespace CallOfTheWild
             createWarpriestProgression();
             warpriest_class.Progression = warpriest_progression;
             createSacredFist();
-            //createChampionOfTheFaith();
-            //createCultLeader();
-            warpriest_class.Archetypes = new BlueprintArchetype[] {sacred_fist_archetype }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
+            createChampionOfTheFaith();
+            createCultLeader();
+            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
             Helpers.RegisterClass(warpriest_class);
 
             //addToPrestigeClasses(); //mt ?
@@ -213,7 +213,9 @@ namespace CallOfTheWild
             createAspectOfWar();
             createWarpriestBlessings();
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
-            fighter_feat = library.Get<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f");
+            fighter_feat = library.CopyAndAdd<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "WarpriestBonusFeat", "");
+            fighter_feat.SetDescription("At 3rd level and every 3 levels thereafter, a warpriest gains a bonus feat in addition to those gained from normal advancement. These bonus feats must be selected from those listed as combat feats.");
+
             var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
             weapon_focus_selection = Helpers.CreateFeatureSelection("WarpriestWeaponFocusSelection",
                                                                         "Focus Weapon",
@@ -317,7 +319,7 @@ namespace CallOfTheWild
         static void createDeitySelection()
         {
             warpriest_deity_selection = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
-            
+
             foreach (var f in warpriest_deity_selection.AllFeatures)
             {
                 var f1 = f.GetComponent<ForbidSpellbookOnAlignmentDeviation>();
@@ -389,7 +391,7 @@ namespace CallOfTheWild
                                                                                                                    {
                                                                                                                        m.amount = 1;
                                                                                                                        m.resource = warpriest_fervor_resource;
-                                                                                                                       m.Metamagic = Metamagic.Quicken;         
+                                                                                                                       m.Metamagic = Metamagic.Quicken;
                                                                                                                    }),
                                                             Helpers.CreateAddFactContextActions(cast_only_on_self)
                                                             );
@@ -404,7 +406,7 @@ namespace CallOfTheWild
                                                                              null,
                                                                              Helpers.CreateActivatableResourceLogic(warpriest_fervor_resource, ResourceSpendType.Never)
                                                                              );
-                                                            
+
             var cure_light_wounds = library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f");
             var inflict_light_wounds = library.Get<BlueprintAbility>("244a214d3b0188e4eb43d3a72108b67b");
             var construct_type = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
@@ -416,7 +418,7 @@ namespace CallOfTheWild
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
 
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                      type: AbilityRankType.DamageBonus, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3); 
+                                                                      type: AbilityRankType.DamageBonus, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3);
 
             var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersAbility",
                                                                         "Fervor (Postive Energy) Others",
@@ -459,7 +461,7 @@ namespace CallOfTheWild
 
             fervor_positive = Helpers.CreateFeature("WarpriestFervorPositive",
                                                     "Fervor (Positive Energy)",
-                                                    fervor_positive_ability_others.Description +"\n" + fervor_swift_cast_ability.Description,
+                                                    fervor_positive_ability_others.Description + "\n" + fervor_swift_cast_ability.Description,
                                                     "",
                                                     fervor_positive_ability_others.Icon,
                                                     FeatureGroup.None,
@@ -519,7 +521,7 @@ namespace CallOfTheWild
                                                      "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.\n"
                                                      + "An evil warpriest(or one who worships an evil deity) can use this ability to instead deal damage to living creatures with a melee touch attack and heal undead creatures with a touch.This counts as negative energy.\n"
                                                      + "A neutral warpriest who worships a neutral deity(or one who is not devoted to a particular deity) uses this ability as a good warpriest if he chose to spontaneously cast cure spells or as an evil warpriest if he chose to spontaneously cast inflict spells.\n"
-                                                     +"As a swift action, a warpriest can expend one use of this ability to cast any one warpriest spell he has prepared with a casting time of 1 round or shorter. When cast in this way, the spell can target only the warpriest, even if it could normally affect other or multiple targets. Spells cast in this way ignore somatic components and do not provoke attacks of opportunity. The warpriest does not need to have a free hand to cast a spell in this way.",
+                                                     + "As a swift action, a warpriest can expend one use of this ability to cast any one warpriest spell he has prepared with a casting time of 1 round or shorter. When cast in this way, the spell can target only the warpriest, even if it could normally affect other or multiple targets. Spells cast in this way ignore somatic components and do not provoke attacks of opportunity. The warpriest does not need to have a free hand to cast a spell in this way.",
                                                      "",
                                                      null,
                                                      FeatureGroup.None,
@@ -601,7 +603,7 @@ namespace CallOfTheWild
                                                              Common.createAddFeatureIfHasFact(warpriest_spontaneous_heal, channel_positive_energy),
                                                              Common.createAddFeatureIfHasFact(warpriest_spontaneous_harm, channel_negative_energy)
                                                              );
-        } 
+        }
 
 
         static void createSacredWeaponDamage()
@@ -922,10 +924,9 @@ namespace CallOfTheWild
                                                                                                                 is_child: true, dispellable: false, is_permanent: true)
                                                                                                      )
                                                                  );
-            //sacred_armor_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             //energy resistance - normal (10 +2), improved (20 +4), greater (+5)  - fire, cold, shock, acid = 12 //pick existing
-            //fortification - light (25% +1), medium(50% +3), heavy (75% +5) //create
-            //spell resistance (+13 +2), (+17 +3), (+21 +4), (+25, +5) //create
+            //fortification - light (25% +1), medium(50% +3), heavy (75% +5)
+            //spell resistance (+13 +2), (+17 +3), (+21 +4), (+25, +5)
 
             var sr_icon = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889").Icon;
             var fortification_icon = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").Icon; //stoneskin
@@ -936,8 +937,8 @@ namespace CallOfTheWild
             energy_resistance_icons.Add(DamageEnergyType.Acid, library.Get<BlueprintAbility>("fedc77de9b7aad54ebcc43b4daf8decd").Icon);
 
             List<BlueprintActivatableAbility>[] enchant_abilities = new List<BlueprintActivatableAbility>[5];
-            
-            for (int i = 0; i< enchant_abilities.Length; i++)
+
+            for (int i = 0; i < enchant_abilities.Length; i++)
             {
                 enchant_abilities[i] = new List<BlueprintActivatableAbility>();
             }
@@ -945,7 +946,7 @@ namespace CallOfTheWild
             foreach (var e in ArmorEnchantments.spell_resistance_enchantments)
             {
                 int cost = e.EnchantmentCost;
-                var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description +$"\nThis consumes {cost} point(s) of armor enhancement bonus.", sr_icon, sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
+                var ability = createSacredEnhancementFeature("WarpriestSacredArmor" + e.name, "Sacred Armor - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of armor enhancement bonus.", sr_icon, sacred_armor_enhancement_buff, e, cost, sacred_armor_enchancement_group);
                 enchant_abilities[cost - 1].Add(ability);
             }
 
@@ -988,7 +989,7 @@ namespace CallOfTheWild
                                                                          Helpers.CreateRunActions(apply_buff),
                                                                          Helpers.CreateResourceLogic(sacred_armor_resource)
                                                                          );
-                                                                         
+
 
             warpriest_sacred_armor = Helpers.CreateFeature("WarpriestSacredArmorFeature",
                                                                         "Sacred Armor +1",
@@ -1214,7 +1215,7 @@ namespace CallOfTheWild
         static void addBlessingResourceLogic(BlueprintAbility blessing, int amount = 1)
         {
             blessing.AddComponent(Helpers.CreateResourceLogic(warpriest_blessing_resource, amount: amount, cost_is_custom: true));
-            blessing.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasincFacts>(r => r.cost_reducing_facts = Enumerable.Repeat<BlueprintFact>( warpriest_aspect_of_war_buff, amount).ToArray()));
+            blessing.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasincFacts>(r => r.cost_reducing_facts = Enumerable.Repeat<BlueprintFact>(warpriest_aspect_of_war_buff, amount).ToArray()));
         }
 
 
@@ -1286,7 +1287,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
-                                                      Helpers.CreateRunActions(apply_major_buff, Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(warpriest_spontaneous_heal), 
+                                                      Helpers.CreateRunActions(apply_major_buff, Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(warpriest_spontaneous_heal),
                                                                                                                            apply_wings_angel,
                                                                                                                            apply_wings_demon
                                                                                                                            )
@@ -1410,20 +1411,21 @@ namespace CallOfTheWild
             var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = major_feature);
             major_feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_action)));
             int max_variants = 6; //due to ui limitation
-            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell) {
-                                                                                        return spell.SpellLevel <= 3
-                                                                                                && spell.Spellbook?.Blueprint == warpriest_class.Spellbook
-                                                                                                && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
-                                                                                                && spell.Blueprint.Range != AbilityRange.Personal
-                                                                                                && spell.Blueprint.CanTargetEnemies
-                                                                                                && !spell.Blueprint.IsFullRoundAction
-                                                                                                && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
-                                                                                                && !spell.Blueprint.HasAreaEffect();
-                                                                                       };
-           
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return spell.SpellLevel <= 3
+                        && spell.Spellbook?.Blueprint == warpriest_class.Spellbook
+                        && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
+                        && spell.Blueprint.Range != AbilityRange.Personal
+                        && spell.Blueprint.CanTargetEnemies
+                        && !spell.Blueprint.IsFullRoundAction
+                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
+                        && !spell.Blueprint.HasAreaEffect();
+            };
+
             for (int i = 0; i < max_variants; i++)
             {
-                var major_ability = Helpers.CreateAbility($"WarpriestArtificeBlessingMajor{i+1}Ability",
+                var major_ability = Helpers.CreateAbility($"WarpriestArtificeBlessingMajor{i + 1}Ability",
                                                           major_feature.Name,
                                                           major_feature.Description,
                                                           "",
@@ -1433,7 +1435,7 @@ namespace CallOfTheWild
                                                           AbilityRange.Personal,
                                                           "",
                                                           "",
-                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = major_feature; s.check_slot_predicate = check_slot_predicate; s.variant = i;})
+                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = major_feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
                                                           );
                 major_ability.setMiscAbilityParametersSelfOnly();
                 addBlessingResourceLogic(major_ability);
@@ -1441,7 +1443,7 @@ namespace CallOfTheWild
             }
 
             spell_store = major_feature;
-            
+
             addBlessing("WarpriestBlessingArtifice", "Artifice", Common.AbilityToFeature(minor_ability, false), major_feature, "9656b1c7214180f4b9a6ab56f83b92fb");
         }
 
@@ -1450,6 +1452,7 @@ namespace CallOfTheWild
         {
             var sneak_attack = library.Get<BlueprintFeature>("df4f34f7cac73ab40986bc33f87b1a3c");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var anarchic_enchantment = library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9");
 
             var enchantment = Common.createWeaponEnchantment("WarpriestChaosMinorBlessingWeaponEcnchantment",
@@ -1483,7 +1486,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>(),
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>(),
                                                       Helpers.CreateRunActions(apply_minor_buff)
                                                       );
 
@@ -1527,7 +1530,7 @@ namespace CallOfTheWild
             {
                 c.save_type = SavingThrowType.Will;
                 c.offensive_action_effect = NewMechanics.Sanctuary.OffensiveActionEffect.REMOVE_FROM_TARGET;
-            }                                                   );
+            });
             warpriest_blessing_special_sancturay_buff = library.CopyAndAdd<BlueprintBuff>("525f980cb29bc2240b93e953974cb325", "WarpriestSpecialSanctuaryBuff", "");//invisibility
             warpriest_blessing_special_sancturay_buff.ComponentsArray = new BlueprintComponent[] { sancturay_logic, Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting) };
 
@@ -1553,12 +1556,13 @@ namespace CallOfTheWild
             swift_command.Type = AbilityType.SpellLike;
             swift_command.RemoveComponents<SpellComponent>();
             var dc_replace = Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom);
-            swift_command.ReplaceComponent<AbilityVariants>(a => a.Variants = Common.CreateAbilityVariantsReplace(swift_command, "WarpriestCharmDomain", 
+            swift_command.ReplaceComponent<AbilityVariants>(a => a.Variants = Common.CreateAbilityVariantsReplace(swift_command, "WarpriestCharmDomain",
                                                                                                                   v =>
-                                                                                                                  { v.Type = swift_command.Type;
-                                                                                                                    v.ActionType = swift_command.ActionType;
-                                                                                                                    v.RemoveComponents<SpellComponent>();
-                                                                                                                    v.AddComponent(dc_replace);
+                                                                                                                  {
+                                                                                                                      v.Type = swift_command.Type;
+                                                                                                                      v.ActionType = swift_command.ActionType;
+                                                                                                                      v.RemoveComponents<SpellComponent>();
+                                                                                                                      v.AddComponent(dc_replace);
                                                                                                                   },
                                                                                                                   a.Variants));
             var clock_of_dreams_buff = library.Get<BlueprintBuff>("2e4b85213927f0a4ea2198e0f2a6028b");
@@ -1862,7 +1866,7 @@ namespace CallOfTheWild
             var effect_action = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(undead, not: true), Helpers.CreateConditionHasFact(construct, not: true) },
                                                                     energy_drain);
             var projectile_action = vampiric_touch.GetComponent<AbilityEffectRunAction>().Actions.Actions.Last();
-           
+
             var ability = Helpers.CreateAbility("WarpriestDeathMajorBlessingBaseAbility",
                                                 "Death’s Touch",
                                                 "At 10th level, you can make a melee touch attack against an opponent to deliver grim suffering. If you succeed, you inflict 1 temporary negative level on the target for 1 minute. Alternatively, you can activate this ability as a swift action upon hitting an opponent with a melee attack. These temporary negative levels stack. You gain no benefit from imposing these negative levels (such as the temporary hit points undead gain from enervation).",
@@ -1895,7 +1899,7 @@ namespace CallOfTheWild
             major_ability_touch.setMiscAbilityParametersTouchHarmful(works_on_allies: true);
             addBlessingResourceLogic(major_ability_touch);
 
-            var on_hit_action = Helpers.CreateActionList(effect_action, 
+            var on_hit_action = Helpers.CreateActionList(effect_action,
                                                          projectile_action);
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
             var on_hit_buff = Helpers.CreateBuff("WarpriestDeathMajorOnHitBuff",
@@ -1905,7 +1909,7 @@ namespace CallOfTheWild
                                                  major_ability_touch.Icon,
                                                  null,
                                                  Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_action, check_weapon_range_type: true, only_first_hit: true),
-                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(spend_resource), on_initiator: true, 
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(spend_resource), on_initiator: true,
                                                                                                   check_weapon_range_type: true, only_first_hit: true)
                                                  );
             var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestDeathMajorBlessingOnHitActivatable",
@@ -2004,6 +2008,7 @@ namespace CallOfTheWild
 
         static void createEarthBlessing()
         {
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var acid_enchantment = library.Get<BlueprintWeaponEnchantment>("633b38ff1d11de64a91d490c683ab1c8");
             var acid_ray = library.Get<BlueprintAbility>("435222be97067a447b2b40d3c58a058e");
@@ -2039,7 +2044,7 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       "",
                                                       Helpers.CreateRunActions(apply_minor_buff),
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>()
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
@@ -2081,7 +2086,7 @@ namespace CallOfTheWild
         static void createEvilBlessing()
         {
             var unholy_weapon = library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce");
-            var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var unholy_enchantment = library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453");
 
             var enchantment = Common.createWeaponEnchantment("WarpriestEvilMinorBlessingWeaponEcnchantment",
@@ -2115,7 +2120,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>(),
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>(),
                                                       Helpers.CreateRunActions(apply_minor_buff)
                                                       );
 
@@ -2155,6 +2160,7 @@ namespace CallOfTheWild
 
         static void createFireBlessing()
         {
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var flaming_enchantment = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
 
@@ -2189,7 +2195,7 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       "",
                                                       Helpers.CreateRunActions(apply_minor_buff),
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>()
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
@@ -2271,7 +2277,7 @@ namespace CallOfTheWild
                                                                                                     r.reason = major_buff;
                                                                                                 })
                                    );
-                                                 
+
             var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestGloryMajorBlessingActivatable",
                                                                              major_buff.Name,
                                                                              major_buff.Description,
@@ -2297,6 +2303,7 @@ namespace CallOfTheWild
 
         static void createGoodBlessing()
         {
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var holy_weapon = library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var holy_enchantment = library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140");
@@ -2332,7 +2339,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>(),
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>(),
                                                       Helpers.CreateRunActions(apply_minor_buff)
                                                       );
 
@@ -2470,8 +2477,8 @@ namespace CallOfTheWild
                                                               aid.GetComponent<AbilitySpawnFx>()
                                                               );
             minor_ability_resolve.setMiscAbilityParametersTouchHarmful();
-            
-            var minor_ability      = Helpers.CreateAbility("WarpriestKnowledgeMinorBlessingAbility",
+
+            var minor_ability = Helpers.CreateAbility("WarpriestKnowledgeMinorBlessingAbility",
                                                             minor_ability_resolve.Name,
                                                             minor_ability_resolve.Description,
                                                             "",
@@ -2505,9 +2512,10 @@ namespace CallOfTheWild
                                     detect_magic.Icon,
                                     null,
                                     Helpers.Create<NewMechanics.SavingThrowBonusAgainstFactFromCaster>(c =>
-                                                                                                       { c.Value = Common.createSimpleContextValue(2);
-                                                                                                         c.CheckedFact = major_target_buff;
-                                                                                                         c.Descriptor = ModifierDescriptor.Insight;
+                                                                                                       {
+                                                                                                           c.Value = Common.createSimpleContextValue(2);
+                                                                                                           c.CheckedFact = major_target_buff;
+                                                                                                           c.Descriptor = ModifierDescriptor.Insight;
                                                                                                        })
                                     );
             major_caster_buff.Stacking = StackingType.Stack;
@@ -2536,6 +2544,7 @@ namespace CallOfTheWild
 
         static void createLawBlessing()
         {
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var axiomatic_weapon = library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var axiomatic_enchantment = library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4");
@@ -2571,7 +2580,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.savingThrowNone,
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>(),
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>(),
                                                       Helpers.CreateRunActions(apply_minor_buff)
                                                       );
 
@@ -2614,7 +2623,7 @@ namespace CallOfTheWild
             var freedom_of_movement_buff = library.Get<BlueprintBuff>("1533e782fca42b84ea370fc1dcbf4fc1");
             var buff = library.CopyAndAdd<BlueprintBuff>("60906dd9e4ddec14c8ac9a0f4e47f54c", "WarpriestLiberationBlessingBuff", ""); //freedom of movement no strings
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
-            var spend_resource_caster = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(), Common.createContextConditionCasterHasFact(warpriest_aspect_of_war_buff, false)},
+            var spend_resource_caster = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(), Common.createContextConditionCasterHasFact(warpriest_aspect_of_war_buff, false) },
                                                                   spend_resource);
             buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: spend_resource_caster));
             buff.FxOnStart = freedom_of_movement_buff.FxOnStart;
@@ -2732,8 +2741,8 @@ namespace CallOfTheWild
 
             for (int i = 0; i < confusion_states.Length; i++)
             {
-               
-                var buff = Helpers.CreateBuff($"WarpriestMadnessBlessingMajor{i+1}Buff",
+
+                var buff = Helpers.CreateBuff($"WarpriestMadnessBlessingMajor{i + 1}Buff",
                                               $"Control Madness ({names[i]})",
                                               "At 10th level, as a swift action you can choose one behavior for all confused creatures within 30 feet to exhibit (as if all creatures rolled the same result). This effect lasts for 1 round. You can use this ability even while you are confused.",
                                               "",
@@ -2741,9 +2750,9 @@ namespace CallOfTheWild
                                               null,
                                               Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { confusion_states[i] })
                                               );
-                
 
-                var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", $"WarpriestMadnessBlessingMajor{i+1}Area", "");//dirge of doom area
+
+                var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", $"WarpriestMadnessBlessingMajor{i + 1}Area", "");//dirge of doom area
                 area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a =>
                                                                     {
                                                                         a.Buff = buff;
@@ -2807,7 +2816,7 @@ namespace CallOfTheWild
             var bond_object = library.Get<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1");
             for (int i = 0; i < blessed_magic_features.Length; i++)
             {
-                var ability = library.CopyAndAdd<BlueprintAbility>(bond_object.AssetGuid, $"WarpriestMagicBlessingMajor{i+1}Ability", "");
+                var ability = library.CopyAndAdd<BlueprintAbility>(bond_object.AssetGuid, $"WarpriestMagicBlessingMajor{i + 1}Ability", "");
                 ability.SetName(name);
                 ability.SetDescription(description);
                 ability.RemoveComponents<AbilityResourceLogic>();
@@ -2887,7 +2896,7 @@ namespace CallOfTheWild
                                                          a.attack_types = new AttackType[] { AttackType.Melee, AttackType.Touch };
                                                          a.Descriptor = ModifierDescriptor.Morale;
                                                          a.only_from_caster = true;
-                                                         a.CheckedFacts = new BlueprintUnitFact[] { target_buff};
+                                                         a.CheckedFacts = new BlueprintUnitFact[] { target_buff };
                                                      })
                                                      );
             ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
@@ -2928,7 +2937,7 @@ namespace CallOfTheWild
         static void createPlantBlessing()
         {
             var entangle_buff = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
-          
+
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
             var apply_entangle_buff_saved = Common.createContextSavedApplyBuff(entangle_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), is_dispellable: false);
 
@@ -2983,7 +2992,7 @@ namespace CallOfTheWild
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
             addBlessingResourceLogic(major_ability);
-            addBlessing("WarpriestBlessingPalnt", "Plant", Common.ActivatableAbilityToFeature(minor_activatable_ability, false), 
+            addBlessing("WarpriestBlessingPalnt", "Plant", Common.ActivatableAbilityToFeature(minor_activatable_ability, false),
                                                             Common.AbilityToFeature(major_ability, false), "0e03c2a03222b0b42acf96096b286327");
         }
 
@@ -3285,6 +3294,7 @@ namespace CallOfTheWild
             minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             minor_ability.SpellResistance = false;
 
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var bane_undead = library.Get<BlueprintWeaponEnchantment>("eebb4d3f20b8caa43af1fed8f2773328");
             var flaming = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
@@ -3296,7 +3306,7 @@ namespace CallOfTheWild
             List<BlueprintAbility> major_abilities = new List<BlueprintAbility>();
             string name = "Cleansing Fire";
             string description = "At 10th level, you can touch a weapon and grant it either the flaming or undead–bane weapon special ability for 1 minute. If you spend two uses of your blessing when activating this ability, the weapon can have both weapon special abilities.";
-            for(int i = 0; i < enchant_lists.Length; i++)
+            for (int i = 0; i < enchant_lists.Length; i++)
             {
                 var el = enchant_lists[i];
                 string postfix = el.Length == 1 ? el[0].Name : el[0].Name + ", " + el[1].Name;
@@ -3323,7 +3333,7 @@ namespace CallOfTheWild
                                                    Helpers.oneMinuteDuration,
                                                    "",
                                                    Helpers.CreateRunActions(apply_buff),
-                                                   bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                   weapon_bond.GetComponent<AbilitySpawnFx>()
                                                    );
                 addBlessingResourceLogic(ability, el.Length);
                 ability.setMiscAbilityParametersTouchFriendly();
@@ -3340,7 +3350,7 @@ namespace CallOfTheWild
                                                FeatureGroup.None,
                                                Helpers.CreateAddFacts(major_abilities.ToArray())
                                                ),
-                        "e28412c548ff21a49ac5b8b792b0aa9b");            
+                        "e28412c548ff21a49ac5b8b792b0aa9b");
         }
 
 
@@ -3355,7 +3365,7 @@ namespace CallOfTheWild
 
             var name = "Dimensional Hop";
             var description = "At 10th level, you can teleport up to 25 feet as a move action. You can increase this distance by expending another use of your blessing—each use spent grants an additional 20 feet. You must have line of sight to your destination. This teleportation doesn’t provoke attacks of opportunity. You can bring other willing creatures with you, but each such creature requires expending one additional use of your blessing.";
-            
+
             var major_ability_self = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "WarpriestTravelBlessingMajor1Ability", "");
             major_ability_self.SetName(name);
             major_ability_self.SetDescription(description);
@@ -3431,7 +3441,7 @@ namespace CallOfTheWild
 
         static void createWarBlessing()
         {
-             AddStatBonus[][] boni = new AddStatBonus[][] {new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)},
+            AddStatBonus[][] boni = new AddStatBonus[][] {new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)},
                                                           new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.Dodge) },
                                                           new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.Insight) },
                                                            new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.SaveFortitude, 1, ModifierDescriptor.Luck),
@@ -3447,7 +3457,7 @@ namespace CallOfTheWild
             var minor_description = "At 1st level, you can touch an ally and grant it a tactical advantage for 1 minute. The ally gets one of the following bonuses: +10 feet to base land speed, +1 dodge bonus to AC, +1 insight bonus on attack rolls, or a +1 luck bonus on saving throws.";
 
             var mind_blank_buff = library.Get<BlueprintBuff>("35f3724d4e8877845af488d167cb8a89");
-            
+
             for (int i = 0; i < boni.Length; i++)
             {
                 var buff = Helpers.CreateBuff($"WarpriestWarBlessingMinor{i}Buff",
@@ -3491,7 +3501,8 @@ namespace CallOfTheWild
                         remove_buffs.Add(Common.createContextActionRemoveBuff(b2));
                     }
                     b.AddComponent(Helpers.CreateAddFactContextActions(remove_buffs.ToArray()));
-;                }
+                    ;
+                }
             }
 
             var minor_ability = Helpers.CreateAbility("WarpriestWarBlessinMinorAbility",
@@ -3557,6 +3568,7 @@ namespace CallOfTheWild
 
         static void createWaterBlessing()
         {
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var cold_ray = library.Get<BlueprintAbility>("7ef096fdc8394e149a9e8dced7576fee");
             var frost_enchantment = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
@@ -3592,7 +3604,7 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       "",
                                                       Helpers.CreateRunActions(apply_minor_buff),
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>()
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
@@ -3632,6 +3644,7 @@ namespace CallOfTheWild
 
         static void createWeatherBlessing()
         {
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
             var lightning = library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73");
             var shock_enchantment = library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
@@ -3667,7 +3680,7 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       "",
                                                       Helpers.CreateRunActions(apply_minor_buff),
-                                                      bless_weapon.GetComponent<AbilitySpawnFx>()
+                                                      weapon_bond.GetComponent<AbilitySpawnFx>()
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
@@ -3752,7 +3765,7 @@ namespace CallOfTheWild
             ki_strike_adamantine.SetDescription("At 19th level, the sacred fist's unarmed attacks are treated as adamantine weapons for the purpose of overcoming damage reduction and bypassing hardness.");
 
             createSacredFistStyleFeatsSelection();
-            createSacredFistudeFortitudeEvasion();
+            createSacredFistFortitudeEvasion();
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 
@@ -3767,7 +3780,7 @@ namespace CallOfTheWild
             sacred_fist_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies,
                                                                                         warpriest_fighter_feat_prerequisite_replacement,
                                                                                         weapon_focus_selection,
-                                                                                        warpriest_sacred_weapon_damage), 
+                                                                                        warpriest_sacred_weapon_damage),
                                                                     Helpers.LevelEntry(3, fighter_feat),
                                                                     Helpers.LevelEntry(4, warpriest_sacred_weapon_enhancement),
                                                                     Helpers.LevelEntry(6, fighter_feat),
@@ -3824,7 +3837,7 @@ namespace CallOfTheWild
             warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(sacred_fist_proficiencies, sacred_fist_fake_monk_level);
 
             sacred_fist_archetype.ReplaceClassSkills = true;
-            sacred_fist_archetype.ClassSkills = warpriest_class.ClassSkills.AddToArray(StatType.SkillMobility, StatType.SkillStealth);
+            sacred_fist_archetype.ClassSkills = warpriest_class.ClassSkills.AddToArray(StatType.SkillMobility, StatType.SkillStealth, StatType.SkillPerception, StatType.SkillKnowledgeWorld);
 
             var monk_class = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             monk_class.AddComponent(Common.prerequisiteNoArchetype(warpriest_class, sacred_fist_archetype));
@@ -3832,7 +3845,7 @@ namespace CallOfTheWild
             sacred_fist_archetype.ReplaceStartingEquipment = true;
             sacred_fist_archetype.StartingItems = monk_class.StartingItems;
             sacred_fist_archetype.StartingGold = monk_class.StartingGold;
-            
+
         }
 
 
@@ -3945,7 +3958,7 @@ namespace CallOfTheWild
         }
 
 
-        static void createSacredFistudeFortitudeEvasion()
+        static void createSacredFistFortitudeEvasion()
         {
             var defensive_stance = library.Get<BlueprintFeature>("2a6a2f8e492ab174eb3f01acf5b7c90a");
             blessed_fortitude = Helpers.CreateFeature("WarpriestSacredFistBlessedFortitudeFeature",
@@ -3965,6 +3978,277 @@ namespace CallOfTheWild
                                           FeatureGroup.None,
                                           Helpers.Create<ImprovedEvasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
                                           );
+        }
+
+
+        static void createCultLeader()
+        {
+            //proficiencies
+            var cult_leader_proficiencies = library.CopyAndAdd<BlueprintFeature>("33e2a7e4ad9daa54eaf808e1483bb43c", "CultLeaderProficiencies", "");
+            cult_leader_proficiencies.SetName("Cult Leader Proficiencies");
+            cult_leader_proficiencies.SetDescription("Cult leaders are proficient with all simple weapons, plus the hand crossbow, rapier, sap, shortbow, and short sword, as well as the favored weapon of their deity. They are proficient with light armor and light shields.");
+
+            var skill_focus_persuation = library.Get<BlueprintFeature>("1621be43793c5bb43be55493e9c45924");
+
+            var well_hidden = library.CopyAndAdd<BlueprintFeature>("610652378253d3845bb70f005c084daa", "CultLeaderWellHidden", "");
+            well_hidden.ReplaceComponent<AddStatBonus>(c => { c.Descriptor = ModifierDescriptor.UntypedStackable; c.Value = 4; });
+            well_hidden.SetName("Well Hidden");
+            well_hidden.SetDescription("A cult leader gains a +2 bonus on Stealth checks.");
+
+            var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
+
+            var hide_in_plain_sight_ability = library.CopyAndAdd<BlueprintAbility>("b26a123a009d4a141ac9c19355913285", "CultLeaderHideInPlainSight", "");
+            hide_in_plain_sight_ability.RemoveComponents<AbilityCasterIsOnFavoredTerrain>();
+            hide_in_plain_sight_ability.SetName("Hide in Plain Sight");
+            hide_in_plain_sight_ability.Type = AbilityType.Supernatural;
+            hide_in_plain_sight_ability.SetDescription("At 12th level, a cult leader can use the Stealth skill even while being observed. As long as he is within 10 feet of an area of dim light, a cult leader can hide himself from view in the open without anything to actually hide behind. He cannot, however, hide in his own shadow.");
+            var hide_in_plain_sight = Common.AbilityToFeature(hide_in_plain_sight_ability, false);
+
+
+            cult_leader_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "CultLeaderArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Cult Leader");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Referred to as fanatics, lunatics, or obsessives, cultists see themselves as genuine devotees of their deity. And the hierarchs of those devotees, the cult leaders, are the most fanatical of them all. Cult leaders are known for turning reasonable hearts toward corrupted teachings and striking at those that get in the way of their agenda.");
+            });
+            Helpers.SetField(cult_leader_archetype, "m_ParentClass", warpriest_class);
+            library.AddAsset(cult_leader_archetype, "");
+
+
+            cult_leader_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies,
+                                                                                        warpriest_fighter_feat_prerequisite_replacement,
+                                                                                        weapon_focus_selection),
+                                                                    Helpers.LevelEntry(3, fighter_feat),
+                                                                    Helpers.LevelEntry(4, warpriest_channel_energy),
+                                                                    Helpers.LevelEntry(6, fighter_feat),
+                                                                    Helpers.LevelEntry(9, fighter_feat),
+                                                                    Helpers.LevelEntry(12, fighter_feat),
+                                                                    Helpers.LevelEntry(15, fighter_feat),
+                                                                    Helpers.LevelEntry(18, fighter_feat),
+                                                                    };
+
+            cult_leader_archetype.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, cult_leader_proficiencies, well_hidden),
+                                                                  Helpers.LevelEntry(3, sneak_attack),
+                                                                  Helpers.LevelEntry(4, skill_focus_persuation),
+                                                                  Helpers.LevelEntry(6, sneak_attack),
+                                                                  Helpers.LevelEntry(9, sneak_attack),
+                                                                  Helpers.LevelEntry(12, hide_in_plain_sight, sneak_attack),
+                                                                  Helpers.LevelEntry(15, sneak_attack),
+                                                                  Helpers.LevelEntry(18, sneak_attack)
+                                                                 };
+
+            warpriest_progression.UIGroups[0].Features.Add(well_hidden);
+            warpriest_progression.UIGroups[0].Features.Add(skill_focus_persuation);
+            warpriest_progression.UIGroups[0].Features.Add(hide_in_plain_sight);
+
+            UIGroup sneak_attack_group = Helpers.CreateUIGroup(sneak_attack, sneak_attack, sneak_attack, sneak_attack, sneak_attack, sneak_attack);
+            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(sneak_attack_group);
+
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(cult_leader_proficiencies);
+
+            cult_leader_archetype.ReplaceClassSkills = true;
+            cult_leader_archetype.ClassSkills = warpriest_class.ClassSkills.AddToArray(StatType.SkillMobility, StatType.SkillStealth, StatType.SkillThievery, StatType.SkillPerception, StatType.SkillKnowledgeWorld);
+            cult_leader_archetype.AddSkillPoints = 1;
+        }
+
+
+        static void createChampionOfTheFaith()
+        {
+            string[] alignment_names = new string[] { "Evil", "Good", "Chaotic", "Lawful" };
+            string[] smite_names = new string[] { "Good", "Evil", "Law", "Chaos" };
+            AlignmentComponent[] smite_alignment = new AlignmentComponent[] { AlignmentComponent.Good, AlignmentComponent.Evil, AlignmentComponent.Lawful, AlignmentComponent.Chaotic };
+            AlignmentMaskType[] opposed_alignments = new AlignmentMaskType[] { AlignmentMaskType.Good, AlignmentMaskType.Evil, AlignmentMaskType.Lawful, AlignmentMaskType.Chaotic };
+
+            BlueprintFeature[] alignment_features = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("882521af8012fc749930b03dc18a69de"), //good
+                library.Get<BlueprintFeature>("351235ac5fc2b7e47801f63d117b656c"), //evil
+                library.Get<BlueprintFeature>("092714336606cfc45a37d2ab39fabfa8"), //law
+                library.Get<BlueprintFeature>("8c7d778bc39fec642befc1435b00f613") //chaos
+            };
+
+            DamageAlignment[] damage_alignments = new DamageAlignment[] { DamageAlignment.Evil, DamageAlignment.Good, DamageAlignment.Chaotic, DamageAlignment.Lawful };
+
+            BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"), //unholy
+                library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140"), //holy
+                library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"), //chaotic
+                library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4") //axiomatic
+            };
+
+            UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
+            {
+                library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon,//unholy
+                library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8").Icon,//holy
+                library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,//chaotic
+                library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1").Icon,//axiomatic
+            };
+
+            UnityEngine.Sprite[] smite_icons = new UnityEngine.Sprite[]
+            {
+                    library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716").Icon,//umbral strike
+                    library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec").Icon,//smite evil
+                    library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716").Icon,//umbral strike
+                    library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec").Icon,//smite evil
+            };
+
+            BlueprintFeatureSelection chosen_alignment = Helpers.CreateFeatureSelection("ChosenAlignmentChampionOfFaithSelection",
+                                                                                        "Chosen Alignment",
+                                                                                        "At 1st level, a champion of the faith must select one of the following as his chosen alignment: chaos, evil, good, or law. This choice must be one of the alignments shared by the champion of the faith and his deity. Champions of the faith who are neutral with no other alignment components (or whose deity is) can choose any of the above alignments for this purpose. Additionally, a champion of the faith must select the blessing corresponding to his chosen alignment, even if it’s not on his deity’s list of domains.\n"
+                                                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment.Good and evil oppose one another, just as law and chaos oppose one another.",
+                                                                                        "",
+                                                                                        null,
+                                                                                        FeatureGroup.None);
+
+            for (int i = 0; i < alignment_names.Length; i++)
+            {
+                var progression = createChosenAlignmentProgression(alignment_names[i], smite_names[i], opposed_alignments[i], alignment_features[i],
+                                                                    damage_alignments[i], enchants[i], smite_alignment[i], enchant_icons[i], smite_icons[i]);
+                chosen_alignment.AllFeatures = chosen_alignment.AllFeatures.AddToArray(progression);
+            }
+
+
+            champion_of_the_faith_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ChampionOfTheFaithArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Champion of the Faith");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Champions of the faith are crusaders who use the power of their divine patron to annihilate the faith’s enemies.");
+            });
+            Helpers.SetField(champion_of_the_faith_archetype, "m_ParentClass", warpriest_class);
+            library.AddAsset(champion_of_the_faith_archetype, "");
+
+
+            champion_of_the_faith_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(3, fighter_feat),
+                                                                    Helpers.LevelEntry(4, warpriest_sacred_weapon_enhancement),
+                                                                    Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
+                                                                    Helpers.LevelEntry(12, fighter_feat, warpriest_sacred_weapon_enhancement3),
+                                                                    Helpers.LevelEntry(16, warpriest_sacred_weapon_enhancement4),
+                                                                    Helpers.LevelEntry(20, warpriest_sacred_weapon_enhancement5)
+                                                                    };
+
+            champion_of_the_faith_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, chosen_alignment) };
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(chosen_alignment);
+        }
+
+        static BlueprintProgression createChosenAlignmentProgression(string alignment_name, string smite_name, AlignmentMaskType opposed_alignment, BlueprintFeature opposed_diety_feature,
+                                                                      DamageAlignment damage_alignment, BlueprintWeaponEnchantment weapon_enchantment, AlignmentComponent smite_alignment,
+                                                                      UnityEngine.Sprite enchant_icon, UnityEngine.Sprite smite_icon)
+        {
+            var true_seeing_buff = library.Get<BlueprintBuff>("09b4b69169304474296484c74aa12027");
+            var detect_alignment_buff = Helpers.CreateBuff("ChampionOfTheFaithDetect" + smite_name + "Buff",
+                                                           "Detect " + smite_name,
+                                                           "At 3rd level, a champion of the faith can detect his opposed alignment. As a move action, the champion of the faith can focus on a single item or creature within 60 feet and determine whether it possesses the opposed alignment.",
+                                                           "",
+                                                           true_seeing_buff.Icon,
+                                                           true_seeing_buff.FxOnStart);
+            detect_alignment_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var apply_detect_alignment_buff = Helpers.CreateConditional(Helpers.CreateContextConditionAlignment(smite_alignment),
+                                                                       Common.createContextActionApplyBuff(detect_alignment_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)
+                                                                       );
+
+            var detect_alignment_ability = Helpers.CreateAbility("ChampionOfTheFaithDetect" + smite_name + "Ability",
+                                                                 detect_alignment_buff.Name,
+                                                                 detect_alignment_buff.Description,
+                                                                 "",
+                                                                 detect_alignment_buff.Icon,
+                                                                 AbilityType.SpellLike,
+                                                                 CommandType.Move,
+                                                                 AbilityRange.Medium,
+                                                                 "",
+                                                                 Helpers.savingThrowNone,
+                                                                 Helpers.CreateRunActions(apply_detect_alignment_buff)
+                                                                 );
+            detect_alignment_ability.SpellResistance = false;
+            detect_alignment_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            var detect_alignment_feature = Common.AbilityToFeature(detect_alignment_ability, false);
+
+
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            var aligned_weapon = Helpers.CreateFeature(damage_alignment.ToString() + "SacredWeaponFeature",
+                                                       damage_alignment.ToString() + " Sacred Weapon",
+                                                       "At 4th level, any sacred weapon wielded by a champion of the faith counts as having his chosen alignment for the purposes of overcoming damage reduction.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.None,
+                                                       Helpers.Create<NewMechanics.AddOutgoingPhysicalDamageAlignmentIfParametrizedFeature>(c =>
+                                                                                                                                            {
+                                                                                                                                                c.required_parametrized_feature = weapon_focus;
+                                                                                                                                                c.damage_alignment = damage_alignment;
+                                                                                                                                            })
+                                                       );
+
+            var weapon_enchant_resource = Helpers.CreateAbilityResource(alignment_name + "ChampionOfTheFaithEnchantResource", "", "", "", null);
+            weapon_enchant_resource.SetIncreasedByLevelStartPlusDivStep(1, 16, 1, 4, 1, 0, 0.0f, getWarpriestArray());
+
+            var weapon_bond = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
+            var enchant_weapon_buff = Helpers.CreateBuff(alignment_name + "ChampionOfTheFaithWeaponEnchantBuff",
+                                                    weapon_enchantment.Name + " Weapon",
+                                                    "At 12th level, once per day as a swift action, a champion of the faith can enhance any one sacred weapon with a weapon special ability based on his chosen alignment (anarchic for chaos, unholy for evil, holy for good, and axiomatic for law). This effect lasts for 1 minute. He can use this ability one additional time per day at 16th and 20th levels.",
+                                                    "",
+                                                    enchant_icon,
+                                                    null,
+                                                    Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, weapon_enchantment)
+                                                   );
+
+            var apply_enchant = Common.createContextActionApplyBuff(enchant_weapon_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+            var enchant_weapon_ability = Helpers.CreateAbility(alignment_name + "ChampionOfTheFaithWeaponEnchantAbility",
+                                                               enchant_weapon_buff.Name,
+                                                               enchant_weapon_buff.Description,
+                                                               "",
+                                                               enchant_weapon_buff.Icon,
+                                                               AbilityType.Supernatural,
+                                                               CommandType.Swift,
+                                                               AbilityRange.Personal,
+                                                               Helpers.oneMinuteDuration,
+                                                               "",
+                                                               Helpers.CreateRunActions(apply_enchant),
+                                                               weapon_bond.GetComponent<AbilitySpawnFx>(),
+                                                               Helpers.CreateResourceLogic(weapon_enchant_resource),
+                                                               Helpers.Create<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>(c => c.feature = weapon_focus)
+                                                               );
+            enchant_weapon_ability.setMiscAbilityParametersSelfOnly();
+            var enchant_weapon_feature = Common.AbilityToFeature(enchant_weapon_ability, false);
+
+            var smite_feature = Common.createSmite("ChampionOfTheFaithSmite" + smite_name,
+                               "Smite " + smite_name,
+                               "At 4th level, a champion of the faith can focus his powers against his chosen foes. As a swift action, the champion of the faith chooses one target within sight to smite. If this target is of his opposed alignment, the champion of the faith adds his Charisma bonus (if any) to his attack rolls and adds his warpriest level to all damage rolls made against the target of his smite. Smite attacks automatically bypass any DR the target possesses.\n"
+                               + "In addition, while smite is in effect, the champion of the faith gains a deflection bonus equal to his Charisma modifier(if any) to his AC against attacks made by the target of the smite. If the smite targets a creature that’s not of the champion of the faith’s opposed alignment, the smite is wasted with no effect.\n"
+                               + "The smite effect remains until the target of the smite is dead or the next time the champion of the faith regains spells. The champion of the faith can use this ability once per day, plus one additional time per day for every 4 levels beyond 4th (to a maximum of five times per day at 20th level). Using this ability consumes two uses of his fervor ability.",
+                               "",
+                               "",
+                               smite_icon,
+                               getWarpriestArray(),
+                               smite_alignment);
+            var smite_resource = Helpers.CreateAbilityResource(alignment_name + "ChampionOfTheFaithSmiteResource", "", "", "", null);
+            smite_resource.SetIncreasedByLevelStartPlusDivStep(1, 8, 1, 4, 1, 0, 0.0f, getWarpriestArray());
+
+            var smite_ability = smite_feature.GetComponent<AddFacts>().Facts.First() as BlueprintAbility;
+            smite_feature.ReplaceComponent<AddAbilityResources>(c => c.Resource = smite_resource);
+            smite_ability.ReplaceComponent<AbilityResourceLogic>(c => c.RequiredResource = smite_resource);
+            smite_ability.AddComponent(Helpers.CreateResourceLogic(warpriest_fervor_resource, amount: 2));
+
+            var progression = Helpers.CreateProgression(alignment_name + "AlignmentChampionOfTheFaithProgression",
+                                                        "Chosen Alignment: " + alignment_name,
+                                                        "At 1st level, a champion of the faith must select one of the following as his chosen alignment: chaos, evil, good, or law. This choice must be one of the alignments shared by the champion of the faith and his deity. Champions of the faith who are neutral with no other alignment components (or whose deity is) can choose any of the above alignments for this purpose. Additionally, a champion of the faith must select the blessing corresponding to his chosen alignment, even if it’s not on his deity’s list of domains.\n"
+                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment.Good and evil oppose one another, just as law and chaos oppose one another.",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None,
+                                                        Helpers.PrerequisiteNoFeature(opposed_diety_feature),
+                                                        Common.createPrerequisiteAlignment((~opposed_alignment) & AlignmentMaskType.Any)
+                                                        );
+
+            progression.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(3, detect_alignment_feature),
+                                                          Helpers.LevelEntry(4, aligned_weapon, smite_feature),
+                                                          Helpers.LevelEntry(12, enchant_weapon_feature)
+                                                        };
+            progression.Classes = getWarpriestArray();
+            progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(detect_alignment_feature, smite_feature),
+                                                  Helpers.CreateUIGroup(aligned_weapon, enchant_weapon_feature)
+                                                 };
+
+            return progression;
         }
     }
 }

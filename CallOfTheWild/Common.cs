@@ -1891,8 +1891,6 @@ namespace CallOfTheWild
                                                                                                                    bool only_non_magical, bool lock_slot,
                                                                                                                    BlueprintWeaponType[] allowed_types,
                                                                                                                    params BlueprintWeaponEnchantment[] enchantments)
-
-
         {
             var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeapon>();
             b.only_non_magical = only_non_magical;
@@ -1903,12 +1901,9 @@ namespace CallOfTheWild
             return b;
         }
 
-
         static internal NewMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintWeaponEnchantment[] enchantments)
-
-
         {
             return createBuffContextEnchantPrimaryHandWeapon(value, only_non_magical, lock_slot, new BlueprintWeaponType[0], enchantments);
         }
