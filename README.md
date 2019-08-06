@@ -6,7 +6,8 @@ It introduces new classes:
 - Hunter  with following archetypes: Divine Hunter, Forester and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
-- Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer.
+- Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
+- Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith.
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
 with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1,
