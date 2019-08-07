@@ -45,6 +45,8 @@ namespace CallOfTheWild
         static internal BlueprintFeature animal_focus_ac;
         static internal BlueprintFeature animal_focus_additional_use;
         static internal BlueprintFeature animal_focus_additional_use_ac;
+        static internal BlueprintFeature animal_focus_additional_use2;
+        static internal BlueprintFeature animal_focus_additional_use_ac2;
         static internal BlueprintFeatureSelection hunter_animal_companion;
         static internal BlueprintFeatureSelection precise_companion;
         static internal BlueprintFeature hunter_teamwork_feat;
@@ -122,11 +124,26 @@ namespace CallOfTheWild
             createFeykillerArchetype();
             hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype };
             Helpers.RegisterClass(hunter_class);
+
+
+            //fix previous saves without 3rd animal companion
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(hunter_class) == 20 && !unit.Progression.IsArchetype(feykiller_archetype) && !unit.Progression.Features.HasFact(animal_focus_additional_use2))
+                {
+                    unit.Progression.Features.AddFeature(animal_focus_additional_use2);
+                    if (!unit.Progression.IsArchetype(forester_archetype))
+                    {
+                        unit.Progression.Features.AddFeature(animal_focus_additional_use_ac2);
+                    }
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
         static void createFeykillerArchetype()
         {
-            //Since most of feykiller abilities replace the ones taht can not be implemented in the game
+            //Since most of feykiller abilities replace the ones that can not be implemented in the game
             //in order to compensate I decided to remove additional animal focus uses at levels 8 and, 20 and give only one only at level 14
             createFeykillerAnimalFocusFeat();
             var resist_nature_lure = library.Get<BlueprintFeature>("ad6a5b0e1a65c3540986cf9a7b006388");
@@ -172,7 +189,7 @@ namespace CallOfTheWild
             library.AddAsset(feykiller_archetype, "4165bde18ad94688b1eab678ccda5f17");
             feykiller_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, animal_focus, animal_focus_ac),
                                                                   Helpers.LevelEntry(8, animal_focus_additional_use, animal_focus_additional_use_ac),
-                                                                  Helpers.LevelEntry(20, animal_focus_additional_use, animal_focus_additional_use_ac) };
+                                                                  Helpers.LevelEntry(20, animal_focus_additional_use2, animal_focus_additional_use_ac2) };
 
             feykiller_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, animal_focus_feykiller, animal_focus_feykiller_ac),
                                                                 Helpers.LevelEntry(4, resist_nature_lure),
@@ -314,7 +331,7 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(2, precise_companion),
                                                                   Helpers.LevelEntry(3, hunter_tactics),
                                                                   Helpers.LevelEntry(8, animal_focus_additional_use_ac),
-                                                                  Helpers.LevelEntry(20, animal_focus_additional_use_ac) };
+                                                                  Helpers.LevelEntry(20, animal_focus_additional_use_ac2) };
 
             var evasion = library.Get<BlueprintFeature>("576933720c440aa4d8d42b0c54b77e80");
             var improved_evasion = library.Get<BlueprintFeature>("ce96af454a6137d47b9c6a1e02e66803");
@@ -779,11 +796,11 @@ namespace CallOfTheWild
             entries.Add(Helpers.LevelEntry(17));
             entries.Add(Helpers.LevelEntry(18, hunter_teamwork_feat));
             entries.Add(Helpers.LevelEntry(19));
-            entries.Add(Helpers.LevelEntry(20, animal_focus_additional_use, animal_focus_additional_use_ac));
+            entries.Add(Helpers.LevelEntry(20, animal_focus_additional_use2, animal_focus_additional_use_ac2));
             hunter_progression.UIGroups = new UIGroup[4] { Helpers.CreateUIGroups(precise_companion, hunter_teamwork_feat, hunter_teamwork_feat, hunter_teamwork_feat, 
                                                                                     hunter_teamwork_feat, hunter_teamwork_feat, hunter_teamwork_feat)[0],
-                                                          Helpers.CreateUIGroups(animal_focus, animal_focus_additional_use, animal_focus_additional_use)[0],
-                                                          Helpers.CreateUIGroups(animal_focus_ac, animal_focus_additional_use_ac, animal_focus_additional_use_ac)[0],
+                                                          Helpers.CreateUIGroups(animal_focus, animal_focus_additional_use, animal_focus_additional_use2)[0],
+                                                          Helpers.CreateUIGroups(animal_focus_ac, animal_focus_additional_use_ac, animal_focus_additional_use_ac2)[0],
                                                           Helpers.CreateUIGroups(bonus_hunter_spells, hunter_tactics, hunter_woodland_stride)[0] };
             hunter_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { hunter_animal_companion, hunter_proficiencies, hunter_orisons, detect_magic};
             hunter_progression.LevelEntries = entries.ToArray();
@@ -880,7 +897,7 @@ namespace CallOfTheWild
             animal_focus_additional_use_component.Group = AnimalFocusGroup;
 
             animal_focus_additional_use = Helpers.CreateFeature("AdditionalAnimalFocusFeature",
-                                                             "Additional Animal Focus",
+                                                             "Second Animal Focus",
                                                              "The character can apply additional animal focus to herself.",
                                                              "896f036314b049bfa723b74b0e509a89",
                                                              wildshape_wolf.Icon,
@@ -888,6 +905,8 @@ namespace CallOfTheWild
                                                              animal_focus_additional_use_component
                                                             );
             animal_focus_additional_use.Ranks = 1;
+            animal_focus_additional_use2 = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use.AssetGuid, "AdditionalAnimalFocus2Feature", "74e98c7274754ab98c9dc698e7f37e0e");
+            animal_focus_additional_use2.SetName("Third Animal Focus");
 
             animal_focus = createAnimalFocus();
 
@@ -900,13 +919,24 @@ namespace CallOfTheWild
                                                         createAddFeatToAnimalCompanion(animal_focus)
                                                         );
             animal_focus_additional_use_ac = Helpers.CreateFeature("AdditonalAnimalFocusAc",
-                                                        "Additional Animal Focus (Animal Companion)",
+                                                        "Second Animal Focus (Animal Companion)",
                                                         "The character can apply one more animal focus to her animal companion.",
                                                         "06bd293935354563be67cb5d2679a9bf",
                                                         acid_maw.Icon,
                                                         FeatureGroup.None,
                                                         createAddFeatToAnimalCompanion(animal_focus_additional_use)
                                                         );
+
+            animal_focus_additional_use_ac2 = Helpers.CreateFeature("AdditonalAnimalFocusAc2",
+                                            "Third Animal Focus (Animal Companion)",
+                                            "The character can apply one more animal focus to her animal companion.",
+                                            "db9c791a010f4401be344fe627b0a9f5",
+                                            acid_maw.Icon,
+                                            FeatureGroup.None,
+                                            createAddFeatToAnimalCompanion(animal_focus_additional_use2)
+                                            );
+
+
         }
 
 

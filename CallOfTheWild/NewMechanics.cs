@@ -2334,7 +2334,7 @@ namespace CallOfTheWild
                 {
                     var target = this.Target.Unit;
                     var initiator = this.Context.MaybeCaster;
-                    var result = bonus + initiator.Descriptor.Progression.GetClassLevel(character_class) + initiator.Descriptor.Stats.GetStat(stat_type);
+                    var result = bonus + initiator.Descriptor.Progression.GetClassLevel(character_class) + initiator.Descriptor.Stats.GetStat<ModifiableValueAttributeStat>(stat_type).Bonus;
                     if (!InspectUnitsHelper.IsInspectAllow(target))
                         return;
 
@@ -2385,7 +2385,6 @@ namespace CallOfTheWild
                     InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
                     if (info == null)
                         return false;
-
                     return info.KnownPartsCount >= min_inspection_level;
                 }
             }
@@ -2468,8 +2467,34 @@ namespace CallOfTheWild
             {
 
             }
+        }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterHasResource : BlueprintComponent, IAbilityCasterChecker
+        {
+            public BlueprintAbilityResource resource;
+            public int amount = 1;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (resource == null)
+                {
+                    return true;
+                }
+                if (caster.Descriptor.Resources.GetResourceAmount(resource) < amount)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            public string GetReason()
+            {
+                return "Insufficient secondary resource";
+            }
         }
 
     }

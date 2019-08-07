@@ -150,6 +150,7 @@
     <Compile Include="SaveCompatibility.cs" />
     <Compile Include="SaveGameFix.cs" />
     <Compile Include="SharedSpells.cs" />
+    <Compile Include="ShowRerolls.cs" />
     <Compile Include="Skald.cs" />
     <Compile Include="SpellManipulationMechanics.cs" />
     <Compile Include="Warpriest.cs" />

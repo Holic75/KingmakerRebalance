@@ -121,9 +121,8 @@ namespace CallOfTheWild
         }
 
 
-        public class AbilityStoreSpellInFact : AbilityApplyEffect, IAbilityAvailabilityProvider, IAbilityParameterRequirement
+        public class AbilityConvertSpell : AbilityApplyEffect, IAbilityAvailabilityProvider, IAbilityParameterRequirement
         {
-            public BlueprintUnitFact fact;
             public Predicate<AbilityData> check_slot_predicate;
             public int variant = 0;
 
@@ -164,31 +163,15 @@ namespace CallOfTheWild
 
             public override void Apply(AbilityExecutionContext context, TargetWrapper target)
             {
-                if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)
-                    return;
-                else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
-                    return;
-
-                else
-                {
-                    SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
-                    if (availableSpellSlot == null)
-                        return;
-                    else
-                    {
-                        storeSpell(availableSpellSlot, context);
-                    }
-
-                }
             }
 
             public bool IsAvailableFor(AbilityData ability)
-            { 
+            {
                 AbilityData spell = ability.ParamSpellSlot?.Spell;
                 Spellbook spellbook = spell != null ? spell.Spellbook : null;
                 if (spell == null || spellbook == null)
                     return false;
-               
+
                 return GetAvailableSpellSlot(spell) != null;
             }
 
@@ -200,7 +183,7 @@ namespace CallOfTheWild
 
 
             [CanBeNull]
-            private SpellSlot GetAvailableSpellSlot(AbilityData ability)
+            protected SpellSlot GetAvailableSpellSlot(AbilityData ability)
             {
                 if (ability.Spellbook == null)
                     return (SpellSlot)null;
@@ -213,33 +196,7 @@ namespace CallOfTheWild
             }
 
 
-            private void storeSpell(SpellSlot spell_slot, AbilityExecutionContext context)
-            {
-                var store_buff = context.MaybeOwner.Buffs.GetFact(fact);
-                if (store_buff == null)
-                {
-                    store_buff = context.MaybeOwner.Descriptor.Progression.Features.GetFact(fact);
-                }
-                if (store_buff != null)
-                {
-                    var spell = getSpellOrVariant(spell_slot.Spell);
-
-                    var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
-                    if (sticky_touch != null)
-                    {
-                        var touch_spell = new AbilityData(spell, sticky_touch.TouchDeliveryAbility);
-                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(touch_spell));
-                    }
-                    else
-                    {
-                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(spell));
-                    }
-                    spell_slot.Available = false;
-                }
-            }
-
-
-            AbilityData getSpellOrVariant(AbilityData ability)
+            public AbilityData getSpellOrVariant(AbilityData ability)
             {
                 var variants = ability.Blueprint.GetComponent<AbilityVariants>();
 
@@ -270,6 +227,99 @@ namespace CallOfTheWild
         }
 
 
+        public class ApplySpellOnCaster : AbilityConvertSpell
+        {
+
+            public override void Apply(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)
+                    return;
+                else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
+                    return;
+                else
+                {
+                    SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
+                    if (availableSpellSlot == null)
+                        return;
+                    else
+                    {
+                        applySpell(availableSpellSlot, context);
+                    }
+
+                }
+            }
+
+            private void applySpell(SpellSlot spell_slot, AbilityExecutionContext context)
+            {
+
+                var spell = getSpellOrVariant(spell_slot.Spell);
+
+                var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
+                if (sticky_touch != null)
+                {
+                    var touch_spell = new AbilityData(spell, sticky_touch.TouchDeliveryAbility);
+                    Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(touch_spell, context.Caster));
+                }
+                else
+                {
+                    Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, context.Caster));
+                }
+                spell_slot.Available = false;               
+            }
+        }
+
+
+        public class AbilityStoreSpellInFact : AbilityConvertSpell
+        {
+            public BlueprintUnitFact fact;
+
+            public override void Apply(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)
+                    return;
+                else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
+                    return;
+
+                else
+                {
+                    SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
+                    if (availableSpellSlot == null)
+                        return;
+                    else
+                    {
+                        storeSpell(availableSpellSlot, context);
+                    }
+
+                }
+            }
+
+            private void storeSpell(SpellSlot spell_slot, AbilityExecutionContext context)
+            {             
+                var store_buff = context.MaybeOwner.Buffs.GetFact(fact);
+                if (store_buff == null)
+                {
+                    store_buff = context.MaybeOwner.Descriptor.Progression.Features.GetFact(fact);
+                }
+                if (store_buff != null)
+                {
+                    var spell = getSpellOrVariant(spell_slot.Spell);
+
+                    var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
+                    if (sticky_touch != null)
+                    {
+                        var touch_spell = new AbilityData(spell, sticky_touch.TouchDeliveryAbility);
+                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(touch_spell));
+                    }
+                    else
+                    {
+                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(spell));
+                    }
+                    spell_slot.Available = false;
+                }
+            }
+        }
+
+
         [Harmony12.HarmonyPatch(typeof(ActionBarGroupSlot))]
         [Harmony12.HarmonyPatch("SetToggleAdditionalSpells", Harmony12.MethodType.Normal)]
         class ActionBarGroupSlot__SetToggleAdditionalSpells__Patch
@@ -294,7 +344,7 @@ namespace CallOfTheWild
                                 ParamSpellSlot = spellSlot
                             });
 
-                        var store_spell = ability.Blueprint.GetComponent<AbilityStoreSpellInFact>();
+                        var store_spell = ability.Blueprint.GetComponent<AbilityConvertSpell>();
                         if (store_spell!= null && store_spell.canBeUsedOn(spell))
                         {
                             ___Conversion.Add(new AbilityData(ability)
@@ -337,7 +387,7 @@ namespace CallOfTheWild
                 }
 
                 string name = abilityData.Blueprint.Name;
-                var c = abilityData.Blueprint.GetComponent<AbilityStoreSpellInFact>().getSpellOrVariantBlueprint(abilityData.ParamSpellSlot.Spell.Blueprint);
+                var c = abilityData.Blueprint.GetComponent<AbilityConvertSpell>().getSpellOrVariantBlueprint(abilityData.ParamSpellSlot.Spell.Blueprint);
                 if (c != null)
                 {
                     name += $" ({c.Name})";

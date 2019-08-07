@@ -157,7 +157,21 @@ namespace CallOfTheWild
             skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
-            //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
+                                    //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
+
+
+            //fix saves with missing spell kenning resource
+            //fix previous saves without 3rd animal companion
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(skald_class) >= 17 
+                    && unit.Progression.Features.HasFact(spell_kenning_extra_use) 
+                    && unit.Progression.Features.GetRank(spell_kenning_extra_use) == 1)
+                {
+                    unit.Progression.Features.AddFeature(spell_kenning_extra_use);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 
@@ -867,13 +881,14 @@ namespace CallOfTheWild
                                       );
 
             spell_kenning_extra_use = Helpers.CreateFeature("SkaldSpellKenningExtraUseFeature",
-                          spell_kenning.Name,
+                          "Spell Kenning Extra Use",
                           spell_kenning.Description,
                           "",
                           icon,
                           FeatureGroup.None,
                           Helpers.CreateIncreaseResourceAmount(resource, 1)
                           );
+            spell_kenning_extra_use.Ranks = 5;
         }
 
 

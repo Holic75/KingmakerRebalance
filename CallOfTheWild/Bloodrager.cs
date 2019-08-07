@@ -2836,6 +2836,7 @@ namespace CallOfTheWild
                                                                );
                 ability.Group = metarage_group;
                 ability.WeightInGroup = 1;
+                ability.DeactivateImmediately = true;
                 var feat = Helpers.CreateFeature(m.name + "MetaRageFeat",
                                                  ability.Name,
                                                  ability.Description,
