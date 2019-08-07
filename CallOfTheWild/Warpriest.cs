@@ -1198,7 +1198,7 @@ namespace CallOfTheWild
             }
 
             var progression = Helpers.CreateProgression(name_prefix + "Progression",
-                                                        Name,
+                                                        Name + " Blessing",
                                                         minor_blessing.Name + " (minor): " + minor_blessing.Description + "\n"
                                                         + major_blessing.Name + " (major): " + major_blessing.Description,
                                                         "",
@@ -1405,7 +1405,7 @@ namespace CallOfTheWild
             var spell_combat = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9");
             var major_feature = Helpers.CreateFeature("WarpriestArtificeBlessingMajorFeature",
                                                 "Spell Storing",
-                                                "At 10th level, you can cast a single target non-personal spell of 3rd level or lower into a weapon that will be released on target upon sucessful attack.",
+                                                "At 10th level, you can cast a single target non-personal spell of 3rd level or lower into a weapon that will be released on target upon successful attack.",
                                                 "",
                                                 spell_combat.Icon,
                                                 FeatureGroup.None,
@@ -2500,7 +2500,7 @@ namespace CallOfTheWild
             addBlessingResourceLogic(minor_ability);
             var major_target_buff = Helpers.CreateBuff("WarpriestKnowledgBlessingeMajorTargetBuff",
                                                 "Monster Lore",
-                                                "At 10th level, you can as a swift action gain a +2 insight bonus on attacks, saving throws, as well as to your AC against the creature that was previously sucessfully inspected by you or your allies. This effect lasts for 1 minute.",
+                                                "At 10th level, you can as a swift action gain a +2 insight bonus on attacks, saving throws, as well as to your AC against the creature that was previously successfully inspected by you or your allies. This effect lasts for 1 minute.",
                                                 "",
                                                 detect_magic.Icon,
                                                 null,
@@ -2908,7 +2908,7 @@ namespace CallOfTheWild
             area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = ally_buff);
             var major_buff = Helpers.CreateBuff("WarpriestNobilityMajorBlessingCasterBuff",
                                                  "Lead by Example",
-                                                 "At 10th level, you can inspire your allies to follow your lead. For one minute if you sucessfully hit an opponent, all allies within 30 feet will receive +4 morale bonus on attack rolls against that opponent.",
+                                                 "At 10th level, you can inspire your allies to follow your lead. For one minute if you successfully hit an opponent, all allies within 30 feet will receive +4 morale bonus on attack rolls against that opponent.",
                                                  "",
                                                  true_strike.Icon,
                                                  null,
