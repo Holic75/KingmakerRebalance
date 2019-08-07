@@ -4016,8 +4016,7 @@ namespace CallOfTheWild
 
 
             cult_leader_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies,
-                                                                                        warpriest_fighter_feat_prerequisite_replacement,
-                                                                                        weapon_focus_selection),
+                                                                                        warpriest_fighter_feat_prerequisite_replacement),
                                                                     Helpers.LevelEntry(3, fighter_feat),
                                                                     Helpers.LevelEntry(4, warpriest_channel_energy),
                                                                     Helpers.LevelEntry(6, fighter_feat),
@@ -4037,12 +4036,15 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(18, sneak_attack)
                                                                  };
 
-            warpriest_progression.UIGroups[0].Features.Add(well_hidden);
-            warpriest_progression.UIGroups[0].Features.Add(skill_focus_persuation);
-            warpriest_progression.UIGroups[0].Features.Add(hide_in_plain_sight);
+            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
+            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
+            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
+            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
+            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
+            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
 
-            UIGroup sneak_attack_group = Helpers.CreateUIGroup(sneak_attack, sneak_attack, sneak_attack, sneak_attack, sneak_attack, sneak_attack);
-            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(sneak_attack_group);
+            UIGroup misc_group = Helpers.CreateUIGroup(well_hidden, skill_focus_persuation, hide_in_plain_sight);
+            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(misc_group);
 
             warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(cult_leader_proficiencies);
 
@@ -4096,7 +4098,7 @@ namespace CallOfTheWild
             BlueprintFeatureSelection chosen_alignment = Helpers.CreateFeatureSelection("ChosenAlignmentChampionOfFaithSelection",
                                                                                         "Chosen Alignment",
                                                                                         "At 1st level, a champion of the faith must select one of the following as his chosen alignment: chaos, evil, good, or law. This choice must be one of the alignments shared by the champion of the faith and his deity. Champions of the faith who are neutral with no other alignment components (or whose deity is) can choose any of the above alignments for this purpose. Additionally, a champion of the faith must select the blessing corresponding to his chosen alignment, even if it’s not on his deity’s list of domains.\n"
-                                                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment.Good and evil oppose one another, just as law and chaos oppose one another.",
+                                                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment. Good and evil oppose one another, just as law and chaos oppose one another.",
                                                                                         "",
                                                                                         null,
                                                                                         FeatureGroup.None);
@@ -4231,7 +4233,7 @@ namespace CallOfTheWild
             var progression = Helpers.CreateProgression(alignment_name + "AlignmentChampionOfTheFaithProgression",
                                                         "Chosen Alignment: " + alignment_name,
                                                         "At 1st level, a champion of the faith must select one of the following as his chosen alignment: chaos, evil, good, or law. This choice must be one of the alignments shared by the champion of the faith and his deity. Champions of the faith who are neutral with no other alignment components (or whose deity is) can choose any of the above alignments for this purpose. Additionally, a champion of the faith must select the blessing corresponding to his chosen alignment, even if it’s not on his deity’s list of domains.\n"
-                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment.Good and evil oppose one another, just as law and chaos oppose one another.",
+                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment. Good and evil oppose one another, just as law and chaos oppose one another.",
                                                         "",
                                                         null,
                                                         FeatureGroup.None,
