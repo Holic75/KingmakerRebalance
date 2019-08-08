@@ -2129,5 +2129,18 @@ namespace CallOfTheWild
             return feature_unlock;
         }
 
+
+        public static void replaceDomainSpell(BlueprintProgression domain_progression, BlueprintAbility new_spell, int level)
+        {
+            var base_feature = domain_progression.LevelEntries[0].Features[0]; //should be very first feature
+            var spell_list = domain_progression.GetComponent<LearnSpellList>().SpellList;
+            var spells = spell_list.SpellsByLevel.First(s => s.SpellLevel == level).Spells;
+            var old_spell = spells[0];
+            base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name, new_spell.Name));
+            domain_progression.SetDescription(domain_progression.Description.Replace(old_spell.Name, new_spell.Name));
+            spells.Clear();
+            spells.Add(new_spell);
+        }
+
     }
 }

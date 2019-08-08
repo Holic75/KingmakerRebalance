@@ -418,6 +418,9 @@ namespace CallOfTheWild
             shapechange.MaterialComponent = library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28").MaterialComponent; //from legendary proportions
 
             Helpers.AddSpellAndScroll(shapechange, "bb2f172e429b40840a7dc25bc83732cb"); //disintegrate
+
+            //replace 9th level spell in animal domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("23d2f87aa54c89f418e68e790dba11e0"), shapechange, 9);
         }
 
         static void createGiantFormII()

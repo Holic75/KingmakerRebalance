@@ -146,6 +146,10 @@ namespace CallOfTheWild
 
             fire_shield.AddSpellAndScroll("8e0c81ac23fe75b4288c21ee57f55e3f"); // shield of dawn
 
+            //replace 5th level spell in fire domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), fire_shield, 5);
+            //replace 4th level spell in sun domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc"), fire_shield, 4);
         }
 
 
@@ -263,6 +267,9 @@ namespace CallOfTheWild
             sanctuary.AddToSpellList(Helpers.inquisitorSpellList, 1);
 
             sanctuary.AddSpellAndScroll("c0af0b5277e91e347ade3aa8994b0d17"); //invisibility
+
+            //replace 1st spell in protection domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("b750650400d9d554b880dbf4c8347b24"), sanctuary, 1);
         }
 
 

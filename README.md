@@ -59,6 +59,7 @@ New spells:
 - Shillelagh,
 - Flame Blade,
 - Deadly Juggernaut,
+- Fire Shield,
 - Virtuoso Performance,
 - Plant Shape I, II and III,
 - Giant Form I and II,
