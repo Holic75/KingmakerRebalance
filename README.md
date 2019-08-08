@@ -47,7 +47,9 @@ New rage powers:
 
 New features:
 - Share Spell for animal companions,
-- Animal companions can now equip belts, bracers and amulets.
+- Animal companions can now equip belts, bracers and amulets,
+- Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log.
+
 
 New spells:
 - Hex Vulnerability,
