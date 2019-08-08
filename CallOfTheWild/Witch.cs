@@ -673,7 +673,7 @@ namespace CallOfTheWild
                                          "37302f72b06ced1408bf5bb965766d46" //energy drain
                                         ),
                 createWitchPatronFeature("Protection", "fbda94ae0c184d06a9f1bc8b56e68267", "da5be607b885402eae26f954c47b47e4",
-                                         "183d5bb91dea3a1489a6db6c9cb64445", //shield of faith
+                                         NewSpells.sanctuary.AssetGuid, //sanctuary
                                          "21ffef7791ce73f468b6fca4d9371e8b", //resist energy
                                          "d2f116cfe05fcdd4a94e80143b67046f", //protection from energy
                                          "c66e86905f7606c4eaa5c774f0357b2b", //stoneskin
@@ -848,11 +848,13 @@ namespace CallOfTheWild
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
                 new Common.SpellId( "3361c5df793b4c8448756146a88026ad", 4), //cure serious wounds
                 new Common.SpellId( "0413915f355a38146bc6ad40cdf27b3f", 4), //death ward
+                new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimension door 
                 new Common.SpellId( "f34fb78eaaec141469079af124bcfa0f", 4), //enervation
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict serious wounds
+                new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "d797007a142a6c0409a74b064065a15e", 4), //poison
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
@@ -879,6 +881,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "f0f761b808dc4b149b08eaf44b99f633", 6), //dispel magic greater
                 new Common.SpellId( "3167d30dd3c622c46b0c0cb242061642", 6), //eyebyte
                 new Common.SpellId( "52b8b14360a87104482b2735c7fc8606", 6), //fester mass
+                new Common.SpellId( "700cfcbd0cb2975419bcab7dbb8c6210", 6), //hellfire ray
                 new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 6), //inflict light wounds mass
                 new Common.SpellId( "1f2e6019ece86d64baa5effa15e81ecc", 6), //phantasmal putrefecation
@@ -919,6 +922,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "43740dab07286fe4aa00a6ee104ce7c1", 9), //heroic invocation
                 new Common.SpellId( "0340fe43f35e7a448981b646c638c83d", 9), //elemental swarm
                 new Common.SpellId( "5ee395a2423808c4baf342a4f8395b19", 9), //inflict critical wounds mass
+                new Common.SpellId( "1f01a098d737ec6419aedc4e7ad61fdd", 9), //foresight
                 new Common.SpellId( "87a29febd010993419f2a4a9bee11cfc", 9), //mind blank communal
                 new Common.SpellId( "ba48abb52b142164eba309fd09898856", 9), //polar midnight
                 new Common.SpellId( "2f8a67c483dfa0f439b293e094ca9e3c", 9), //power word kill
