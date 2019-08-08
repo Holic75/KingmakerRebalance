@@ -1538,7 +1538,7 @@ namespace CallOfTheWild
                 var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
                 var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
 
-                var action = Common.createContextActionApplyBuff(shaken_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), DurationRate.Rounds));
+                var action = Common.createContextActionApplyBuff(shaken_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), DurationRate.Rounds), is_child: true, dispellable: false);
                 var effect_buff = Helpers.CreateBuff(prefix + "FrightfulChargerBuff",
                                                              "Frightful Charger",
                                                              "At 1st level, when you hit a creature with a charge attack, that creature becomes shaken for a number of rounds equal to 1/2 your bloodrager level (minimum 1). This effect does not cause an existing shaken or frightened condition (from this ability or another source) to turn into frightened or panicked. This is a mind-affecting fear effect.",
@@ -1612,8 +1612,8 @@ namespace CallOfTheWild
                 var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220"); //shaken
 
                 var fear_action = Helpers.CreateConditional(Helpers.CreateConditionHasBuff(shaken),
-                                                       Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds)),
-                                                       Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds))
+                                                       Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false),
+                                                       Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false)
                                                        );
                 var save_action = Helpers.CreateConditionalSaved(new Kingmaker.ElementsSystem.GameAction[0], new Kingmaker.ElementsSystem.GameAction[] { fear_action });
                 var action = Helpers.CreateActionList(Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(save_action)));
@@ -1750,6 +1750,7 @@ namespace CallOfTheWild
                                                                                null,
                                                                                Helpers.CreateActivatableResourceLogic(resource, ResourceSpendType.Attack)
                                                                                );
+                addBloodrageRestriction(destined_strike_ability);
                 var destined_strike_additional_use = Helpers.CreateFeature(prefix + "DestinedStrikeAdditionalUsesFeature",
                                                                            "",
                                                                            "",
@@ -1807,7 +1808,7 @@ namespace CallOfTheWild
                 var reroll = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ModifyD20>();
                 reroll.DispellOnRerollFinished = true;
                 reroll.Rule = RuleType.AttackRoll;
-                reroll.RollsAmount = 2;
+                reroll.RollsAmount = 1;
                 reroll.TakeBest = false;
                 reroll.RerollOnlyIfFailed = true;
 
@@ -1828,11 +1829,14 @@ namespace CallOfTheWild
                 certain_strike_ability.ComponentsArray = new BlueprintComponent[] {Helpers.CreateRunActions(Common.createContextActionApplyBuff(certain_strike_buff,
                                                                                                                                                 Helpers.CreateContextDuration(),
                                                                                                                                                 is_child: true,
-                                                                                                                                                is_permanent: true
+                                                                                                                                                is_permanent: true,
+                                                                                                                                                dispellable: false
                                                                                                                                                 )
                                                                                                            ),
                                                                                    Helpers.CreateResourceLogic(resource)
                                                                                   };
+                certain_strike_ability.Type = AbilityType.Supernatural;
+                addBloodrageRestriction(certain_strike_ability);
                 certain_strike = Helpers.CreateFeature(prefix + "CertainStrikeFeature",
                                                        certain_strike_buff.Name,
                                                        certain_strike_buff.Description,
@@ -2273,6 +2277,7 @@ namespace CallOfTheWild
                     Helpers.SetField(rank_config, "m_Class", classes); // will propagate to prototype to bloodrager o be combined with sorc or dd
                     breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(getDraconicArray(), StatType.Constitution));
                     breath_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(resource));
+                    addBloodrageRestriction(breath_ability);
 
                     var breath_feature = Helpers.CreateFeature(b.prefix + "BreathWeaponFeature",
                                                                breath_ability.Name,
@@ -2302,7 +2307,7 @@ namespace CallOfTheWild
                                                           Common.createAddFeatureIfHasFact(breath_feature, breath_extra_use),
                                                           Common.createAddFeatureIfHasFact(breath_feature, breath_feature, true)
                                                           );
-                    feat.Ranks = 2;
+                    feat.Ranks = 5;
                     breath_weapon_extra_use.Add(breath_extra_use);
                     breath_weapon.Add(feat);
                 }
@@ -2518,7 +2523,7 @@ namespace CallOfTheWild
                                                                                                               range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
                                                              Helpers.CreateResourceLogic(resource)
                                                              );
-                    var action = Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus))));
+                    var action = Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus)), dispellable: false));
                     var ability = Helpers.CreateAbility(b.prefix + "ElementalStrikesAbility",
                                                                    buff.Name,
                                                                    buff.Description,
@@ -2540,7 +2545,8 @@ namespace CallOfTheWild
                                                                    );
                     ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Omni;
                     ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
-
+                    ability.Type = AbilityType.Supernatural;
+                    addBloodrageRestriction(ability);
                     var feat = Helpers.CreateFeature(b.prefix + "ElementalStrikesFeature",
                                                      ability.Name,
                                                      ability.Description,
@@ -3062,7 +3068,8 @@ namespace CallOfTheWild
 
                 var action = Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, 
                                                                                           Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), 
-                                                                                          is_from_spell: true
+                                                                                          is_from_spell: true,
+                                                                                          dispellable: false
                                                                                           )
                                                      );
 
@@ -3113,6 +3120,18 @@ namespace CallOfTheWild
             blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 13, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
             blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 16, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
             blood_deflection.AddComponent(Helpers.CreateAddFeatureOnClassLevel(blood_deflection_bonus, 19, getBloodragerArray(), new BlueprintArchetype[] { steelblood_archetype }));
+        }
+
+
+        static void addBloodrageRestriction(BlueprintAbility ability)
+        {
+            ability.AddComponent(Common.createAbilityCasterHasFacts(bloodrage_buff));
+        }
+
+
+        static void addBloodrageRestriction(BlueprintActivatableAbility ability)
+        {
+            ability.AddComponent(Common.createActivatableAbilityRestrictionHasFact(bloodrage_buff));
         }
     }
 

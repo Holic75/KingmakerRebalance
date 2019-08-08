@@ -323,23 +323,22 @@ namespace CallOfTheWild
 
             foreach (var f in warpriest_deity_selection.AllFeatures)
             {
-                var f1 = f.GetComponent<ForbidSpellbookOnAlignmentDeviation>();
-                if (f1 != null)
+                var forbid_spellbook = f.GetComponent<ForbidSpellbookOnAlignmentDeviation>();
+                if (forbid_spellbook != null)
                 {
-                    f1.Spellbooks = f1.Spellbooks.AddToArray(warpriest_class.Spellbook);
+                    forbid_spellbook.Spellbooks = forbid_spellbook.Spellbooks.AddToArray(warpriest_class.Spellbook);
                 }
 
-                var f2 = f.GetComponent<AddStartingEquipment>();
-                if (f2 != null)
+                var add_equipment = f.GetComponent<AddStartingEquipment>();
+                if (add_equipment != null)
                 {
-                    f2.RestrictedByClass = f2.RestrictedByClass.AddToArray(warpriest_class);
+                    add_equipment.RestrictedByClass = add_equipment.RestrictedByClass.AddToArray(warpriest_class);
                 }
 
-
-                var f3 = f.GetComponent<AddFeatureOnClassLevel>();
-                if (f3 != null)
+                var add_proficiencies = f.GetComponents<AddFeatureOnClassLevel>();
+                foreach (var a in add_proficiencies)
                 {
-                    f3.AdditionalClasses = f3.AdditionalClasses.AddToArray(warpriest_class);
+                     a.AdditionalClasses = a.AdditionalClasses.AddToArray(warpriest_class);
                 }
             }
         }

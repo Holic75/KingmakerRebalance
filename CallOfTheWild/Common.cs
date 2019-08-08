@@ -51,6 +51,7 @@ using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 
 namespace CallOfTheWild
 {
@@ -2140,6 +2141,15 @@ namespace CallOfTheWild
             domain_progression.SetDescription(domain_progression.Description.Replace(old_spell.Name, new_spell.Name));
             spells.Clear();
             spells.Add(new_spell);
+        }
+
+
+        public static RestrictionHasFact createActivatableAbilityRestrictionHasFact(BlueprintUnitFact fact, bool not = false)
+        {
+            var r = Helpers.Create<RestrictionHasFact>();
+            r.Feature = fact;
+            r.Not = not;
+            return r;
         }
 
     }
