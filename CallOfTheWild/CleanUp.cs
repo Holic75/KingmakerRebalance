@@ -146,7 +146,7 @@ namespace CallOfTheWild
                                                                        AbilityActivationType.Immediately,
                                                                        CommandType.Free,
                                                                        null);
-
+            reject_rage_ability.DeactivateImmediately = true;
             var reject_rage_feature = Helpers.CreateFeature("RejectRageFeature",
                                                         rejection_buff.Name,
                                                         rejection_buff.Description,

@@ -4144,9 +4144,9 @@ namespace CallOfTheWild
 
 
             champion_of_the_faith_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(3, fighter_feat),
-                                                                    Helpers.LevelEntry(4, warpriest_sacred_weapon_enhancement),
+                                                                    Helpers.LevelEntry(4, warpriest_sacred_weapon_enhancement, warpriest_channel_energy),
                                                                     Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
-                                                                    Helpers.LevelEntry(12, fighter_feat, warpriest_sacred_weapon_enhancement3),
+                                                                    Helpers.LevelEntry(12, warpriest_sacred_weapon_enhancement3),
                                                                     Helpers.LevelEntry(16, warpriest_sacred_weapon_enhancement4),
                                                                     Helpers.LevelEntry(20, warpriest_sacred_weapon_enhancement5)
                                                                     };

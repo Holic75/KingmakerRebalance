@@ -181,7 +181,7 @@ namespace CallOfTheWild
 
             daemon_totem = Helpers.CreateFeature("DaemonTotemFeature",
                                                            "Daemon Totem",
-                                                           "While raging, the barbarian gains a +2 bonus on saving throws against acid damage, death effects, disease, and poison. This bonus increases by 1 for each daemon totem rage power the barbarian has, excluding this one.",
+                                                           "While the barbarian is raging, her melee attacks impose a temporary negative level on her opponent on a successful critical hit. After 1 hour, these temporary negative levels disappear automatically (without a saving throw).",
                                                            "",
                                                            lesser_daemon_totem.Icon,
                                                            FeatureGroup.RagePower,

@@ -29,13 +29,11 @@ Global
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Debug Install 1.3|Any CPU.ActiveCfg = Debug Install 1.3|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Debug Install 1.3|Any CPU.Build.0 = Debug Install 1.3|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Debug Install|Any CPU.ActiveCfg = Debug Install|Any CPU
-		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Debug Install|Any CPU.Build.0 = Debug Install|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.ReleaseInstall|Any CPU.ActiveCfg = ReleaseInstall|Any CPU
-		{48829ABA-45B3-45A0-9AFF-D8A51C29FD88}.ReleaseInstall|Any CPU.Build.0 = ReleaseInstall|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
