@@ -16,6 +16,7 @@ using Kingmaker.Enums;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 
 namespace CallOfTheWild
 {
@@ -327,6 +328,40 @@ public class Rebalance
             condition_on.IfTrue.Actions = condition_on.IfTrue.Actions.AddToArray(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(inspire_ferocity_switch_buff),
                                                                                  apply_ferocity, null)
                                                                                  );                                                       
+        }
+
+
+        static internal void fixAnimalGrowth()
+        {
+            //fix animal growth to increase size on upgraded animal companions
+            var animal_growth = library.Get<BlueprintAbility>("56923211d2ac95e43b8ac5031bab74d8");
+            var animal_growth_buff = library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a");
+            var animal_growth_buff2 = library.CopyAndAdd(animal_growth_buff, "AnimalGrowth2Buff", "");
+            animal_growth_buff2.ReplaceComponent<ChangeUnitSize>(c => c.SizeDelta = 2);
+
+            BlueprintFeatureSelection  animal_companion_selection = library.Get<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533"); //select ac from domain
+
+            List<BlueprintFeature> upgrade_features = new List<BlueprintFeature>();
+
+            foreach(var ac in animal_companion_selection.AllFeatures)
+            {
+                var upgrade_feature = ac.GetComponent<AddPet>()?.UpgradeFeature;
+
+                if (upgrade_feature != null)
+                {
+                    upgrade_features.Add(upgrade_feature);
+                }
+            }
+
+            var animal_growth_run_action = animal_growth.GetComponent<AbilityEffectRunAction>();
+            var apply_buff_action = animal_growth_run_action.Actions.Actions[0] as ContextActionApplyBuff;
+            var apply_buff2_action = apply_buff_action.CreateCopy();
+            apply_buff2_action.Buff = animal_growth_buff2;
+
+            var new_run_action = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, upgrade_features.ToArray()),
+                                                           apply_buff2_action,
+                                                           apply_buff_action);
+            animal_growth_run_action.Actions = Helpers.CreateActionList(new_run_action);
         }
     }
 }

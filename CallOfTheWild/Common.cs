@@ -2153,5 +2153,14 @@ namespace CallOfTheWild
             return r;
         }
 
+
+        public static NewMechanics.ContextConditionHasFacts createContextConditionHasFacts(bool all, BlueprintUnitFact[] facts)
+        {
+            var c = Helpers.Create<NewMechanics.ContextConditionHasFacts>();
+            c.all = all;
+            c.Facts = facts;
+            return c;
+        }
+
     }
 }

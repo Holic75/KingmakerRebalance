@@ -56,6 +56,7 @@ using Kingmaker.EntitySystem.Persistence.Versioning;
 using JetBrains.Annotations;
 using Kingmaker.Enums.Damage;
 using Kingmaker.Inspect;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 
 namespace CallOfTheWild
 {
@@ -2494,6 +2495,34 @@ namespace CallOfTheWild
             public string GetReason()
             {
                 return "Insufficient secondary resource";
+            }
+        }
+
+
+        public class ContextConditionHasFacts : ContextCondition
+        {
+            public BlueprintUnitFact[] Facts;
+            public bool all = false;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                foreach (var f in Facts)
+                {
+                    if (this.Target.Unit.Descriptor.HasFact(f) && !all)
+                    {
+                        return true;
+                    }
+                    else if (!this.Target.Unit.Descriptor.HasFact(f) && all)
+                    {
+                        return false;
+                    }
+                }
+                return all;
             }
         }
 

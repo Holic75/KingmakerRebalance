@@ -132,6 +132,7 @@ namespace CallOfTheWild
 
             fixDruid();
             fixTransmuter();
+
         }
 
 
