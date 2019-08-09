@@ -147,7 +147,7 @@ namespace CallOfTheWild
             skald_class.MaleEquipmentEntities = bard_class.MaleEquipmentEntities;
             skald_class.FemaleEquipmentEntities = bard_class.FemaleEquipmentEntities;
             skald_class.ComponentsArray =  bard_class.ComponentsArray;
-            skald_class.StartingItems = bard_class.StartingItems;
+            skald_class.StartingItems = barbarian_class.StartingItems;
             createSkaldsVigor();
             createSkaldProgression();
             skald_class.Progression = skald_progression;
@@ -157,7 +157,7 @@ namespace CallOfTheWild
             skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
-                                    //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
+            //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
 
 
             //fix saves with missing spell kenning resource

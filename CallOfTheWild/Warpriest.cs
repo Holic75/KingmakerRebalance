@@ -4120,7 +4120,8 @@ namespace CallOfTheWild
             BlueprintFeatureSelection chosen_alignment = Helpers.CreateFeatureSelection("ChosenAlignmentChampionOfFaithSelection",
                                                                                         "Chosen Alignment",
                                                                                         "At 1st level, a champion of the faith must select one of the following as his chosen alignment: chaos, evil, good, or law. This choice must be one of the alignments shared by the champion of the faith and his deity. Champions of the faith who are neutral with no other alignment components (or whose deity is) can choose any of the above alignments for this purpose. Additionally, a champion of the faith must select the blessing corresponding to his chosen alignment, even if it’s not on his deity’s list of domains.\n"
-                                                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment. Good and evil oppose one another, just as law and chaos oppose one another.",
+                                                                                        + "His chosen alignment’s opposite is referred to as his opposed alignment. Good and evil oppose one another, just as law and chaos oppose one another.\n"
+                                                                                        + "As she gains levels, champion of the faith receives an array of abilities particularly suited to fight enemies of her opposed alignment.",
                                                                                         "",
                                                                                         null,
                                                                                         FeatureGroup.None);

@@ -49,7 +49,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature animal_focus_additional_use_ac2;
         static internal BlueprintFeatureSelection hunter_animal_companion;
         static internal BlueprintFeatureSelection precise_companion;
-        static internal BlueprintFeature hunter_teamwork_feat;
+        static internal BlueprintFeatureSelection hunter_teamwork_feat;
         static internal BlueprintFeature hunter_tactics;
         static internal BlueprintFeature hunter_woodland_stride;
         static internal BlueprintArchetype forester_archetype;

@@ -948,7 +948,7 @@ namespace CallOfTheWild
             string description = name + " patron grants witch the following spells: ";
             for (int i = 1; i <= 9; i++)
             {
-                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ((i == 9) ? " " :", ");
+                description += learn_spell_list.SpellList.SpellsByLevel[i].Spells[0].Name + ((i == 9) ? "" :", ");
             }
             description += ".";
 

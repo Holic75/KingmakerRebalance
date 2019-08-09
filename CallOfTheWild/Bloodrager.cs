@@ -1809,12 +1809,12 @@ namespace CallOfTheWild
                 reroll.DispellOnRerollFinished = true;
                 reroll.Rule = RuleType.AttackRoll;
                 reroll.RollsAmount = 1;
-                reroll.TakeBest = false;
+                reroll.TakeBest = true;
                 reroll.RerollOnlyIfFailed = true;
 
                 var certain_strike_buff = Helpers.CreateBuff(prefix + "CertainStrikeBuff",
                                                          "Certain Strike",
-                                                         "At 8th level, you may reroll a failed attack roll. You must take the second result, even if it’s worse. You can use this ability once per day per 4 levels of bloodrager.",
+                                                         "At 8th level, you may decide to reroll a failed attack roll once during next round. You can use this ability once per day per 4 levels of bloodrager.",
                                                          "",
                                                          knights_resolve.Icon,
                                                          null,
@@ -1827,9 +1827,8 @@ namespace CallOfTheWild
                 certain_strike_ability.SetDescription(certain_strike_buff.Description);
                 certain_strike_ability.ActionType = CommandType.Free;
                 certain_strike_ability.ComponentsArray = new BlueprintComponent[] {Helpers.CreateRunActions(Common.createContextActionApplyBuff(certain_strike_buff,
-                                                                                                                                                Helpers.CreateContextDuration(),
+                                                                                                                                                Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds),
                                                                                                                                                 is_child: true,
-                                                                                                                                                is_permanent: true,
                                                                                                                                                 dispellable: false
                                                                                                                                                 )
                                                                                                            ),

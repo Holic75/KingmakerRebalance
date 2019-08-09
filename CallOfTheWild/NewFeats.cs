@@ -186,7 +186,6 @@ namespace CallOfTheWild
                                                                                                  })
                                          );
             coordinated_shot.Groups = coordinated_shot.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat);
-            coordinated_shot.AddComponent(Helpers.PrerequisiteFeature(point_blank_shot));
             library.AddCombatFeats(coordinated_shot);
             Common.addTemworkFeats(coordinated_shot);
         }
