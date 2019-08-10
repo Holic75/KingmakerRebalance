@@ -392,6 +392,7 @@ namespace CallOfTheWild
                                                                                                                        m.amount = 1;
                                                                                                                        m.resource = warpriest_fervor_resource;
                                                                                                                        m.Metamagic = Metamagic.Quicken;
+                                                                                                                       m.spellbook = warpriest_class.Spellbook;
                                                                                                                    }),
                                                             Helpers.CreateAddFactContextActions(cast_only_on_self)
                                                             );
@@ -1420,6 +1421,7 @@ namespace CallOfTheWild
                         && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
                         && spell.Blueprint.Range != AbilityRange.Personal
                         && spell.Blueprint.CanTargetEnemies
+                        && !spell.Blueprint.CanTargetPoint
                         && !spell.Blueprint.IsFullRoundAction
                         && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
                         && !spell.Blueprint.HasAreaEffect();

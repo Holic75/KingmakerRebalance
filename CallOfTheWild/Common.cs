@@ -2107,7 +2107,7 @@ namespace CallOfTheWild
                 return false;
             }
 
-            return spell.Blueprint.CanTargetSelf  && !spell.Blueprint.HasAreaEffect();
+            return spell.Blueprint.CanTargetSelf && !spell.Blueprint.HasAreaEffect() && !spell.Blueprint.CanTargetPoint;
         }
 
 

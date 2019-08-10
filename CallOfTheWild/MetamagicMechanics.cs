@@ -58,14 +58,22 @@ using Kingmaker.Inspect;
 
 namespace CallOfTheWild
 {
+    public interface ISpellTargetRestrictor
+    {
+        bool canBeCastOnTarget(AbilityData spell, UnitDescriptor caster, UnitDescriptor target);
+    }
+
+
     class MetamagicMechanics
     {
         [AllowedOn(typeof(BlueprintBuff))]
-        public class MetamagicOnPersonalSpell : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        public class MetamagicOnPersonalSpell : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber,
+                                                ISpellTargetRestrictor
         {
             public BlueprintAbilityResource resource = null;
             public int amount;
             public BlueprintUnitFact[] cost_reducing_facts;
+            public BlueprintSpellbook spellbook = null;
             private int cost_to_pay;
 
 
@@ -76,6 +84,11 @@ namespace CallOfTheWild
                     return false;
                 }
                 if (data?.Spellbook == null)
+                {
+                    return false;
+                }
+
+                if (spellbook != null && spellbook != data.Spellbook.Blueprint)
                 {
                     return false;
                 }
@@ -96,6 +109,18 @@ namespace CallOfTheWild
                 }
                 return true;
             }
+
+
+            public bool canBeCastOnTarget(AbilityData spell, UnitDescriptor caster, UnitDescriptor target)
+            {
+                if (!CanBeUsedOn(spell?.Blueprint, spell))
+                {
+                    return true;
+                }
+
+                return caster == target;
+            }
+
 
             private int calculate_cost(UnitEntityData caster)
             {
