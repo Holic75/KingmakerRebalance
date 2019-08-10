@@ -87,8 +87,8 @@ namespace CallOfTheWild
         static internal BlueprintFeature fervor_positive;
         static internal BlueprintFeature fervor_negative;
         static internal BlueprintFeature warpriest_channel_energy;
-        static internal ActivatableAbilityGroup sacred_weapon_enchancement_group = ActivatableAbilityGroup.TrueMagus;
-        static internal ActivatableAbilityGroup sacred_armor_enchancement_group = ActivatableAbilityGroup.ArcaneWeaponProperty;
+        static internal ActivatableAbilityGroup sacred_weapon_enchancement_group = ActivatableAbilityGroupExtension.SacredWeaponEnchantment.ToActivatableAbilityGroup();//ActivatableAbilityGroup.TrueMagus;
+        static internal ActivatableAbilityGroup sacred_armor_enchancement_group = ActivatableAbilityGroupExtension.SacredArmorEnchantment.ToActivatableAbilityGroup();//ActivatableAbilityGroup.ArcaneWeaponProperty;
 
         static internal BlueprintBuff warpriest_aspect_of_war_buff;
         static internal BlueprintFeature warpriest_aspect_of_war;

@@ -123,6 +123,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="ArmorEnchantments.cs" />
     <Compile Include="Bloodrager.cs" />

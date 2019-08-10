@@ -37,7 +37,7 @@ namespace CallOfTheWild
 {
     public class Hunter
     {
-        static internal readonly Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup AnimalFocusGroup = Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup.Judgment;
+        static internal readonly Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup AnimalFocusGroup = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();//Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup.Judgment;
         internal static BlueprintCharacterClass hunter_class;
         internal static BlueprintProgression hunter_progression;
         static internal LibraryScriptableObject library => Main.library;

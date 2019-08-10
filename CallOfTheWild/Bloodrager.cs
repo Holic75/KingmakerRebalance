@@ -73,7 +73,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature blood_deflection_bonus;
         static internal BlueprintFeatureSelection bloodline_feat_selection;
 
-        static internal ActivatableAbilityGroup metarage_group = ActivatableAbilityGroup.TrueMagus;
+        static internal ActivatableAbilityGroup metarage_group = ActivatableAbilityGroupExtension.MetaRage.ToActivatableAbilityGroup();
 
         class BloodlineInfo
         {
