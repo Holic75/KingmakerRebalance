@@ -89,6 +89,12 @@ namespace CallOfTheWild
  
                 Common.AddBattleLogMessage($"{this.Fact.MaybeContext.MaybeOwner.CharacterName} stored {spell.Blueprint.Name} in {this.Fact.Name}.");
             }
+
+
+            public void getStoredSpell(out AbilityData stored_spell)
+            {
+                stored_spell = spell;
+            }
         }
 
 
@@ -318,6 +324,31 @@ namespace CallOfTheWild
                 }
             }
         }
+
+
+        public class ActivatableAbilitySpellStoredInFactRestriction : ActivatableAbilityRestriction
+        {
+            public BlueprintUnitFact fact;
+
+            public override bool IsAvailable()
+            {
+                var stored_buff = Owner.Buffs.GetFact(fact);
+                if (stored_buff == null)
+                {
+                    stored_buff = Owner.Progression.Features.GetFact(fact);
+                }
+
+                AbilityData stored_spell = null;
+                if (stored_buff != null)
+                {
+                    stored_buff.CallComponents<FactStoreSpell>(c => c.getStoredSpell(out stored_spell));
+                }
+
+                return stored_spell != null;
+            }
+        }
+
+
 
 
         [Harmony12.HarmonyPatch(typeof(ActionBarGroupSlot))]

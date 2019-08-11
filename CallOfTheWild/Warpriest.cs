@@ -777,8 +777,10 @@ namespace CallOfTheWild
                                                                          null,
                                                                          Helpers.CreateActivatableResourceLogic(sacred_weapon_resource, ResourceSpendType.NewRound),
                                                                          Helpers.Create<NewMechanics.ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction>(c => c.feature = weapon_focus));
+
             if (!test_mode)
             {
+                sacred_weapon_ability.DeactivateIfCombatEnded = true;
                 sacred_weapon_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }
 
@@ -1406,14 +1408,36 @@ namespace CallOfTheWild
             var spell_combat = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9");
             var major_feature = Helpers.CreateFeature("WarpriestArtificeBlessingMajorFeature",
                                                 "Spell Storing",
-                                                "At 10th level, you can cast a single target non-personal spell of 3rd level or lower into a weapon that will be released on target upon successful attack.",
+                                                "At 10th level, you can cast a single target non-personal spell of 3rd level or lower into a weapon that can be released on target upon successful attack.",
                                                 "",
                                                 spell_combat.Icon,
                                                 FeatureGroup.None,
                                                 Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
 
+            var release_buff = Helpers.CreateBuff("WarpriestArtificeBlessingMajorToggleBuff",
+                                                  major_feature.Name + ": Release",
+                                                  major_feature.Description,
+                                                  "",
+                                                  major_feature.Icon,
+                                                  null);
+
+            var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestArtificeBlessingMajorToggleAbility",
+                                                                             major_feature.Name + ": Release",
+                                                                             major_feature.Description,
+                                                                             "",
+                                                                             major_feature.Icon,
+                                                                             release_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = major_feature));
+            major_activatable_ability.DeactivateImmediately = true;
+
             var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = major_feature);
-            major_feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_action)));
+            var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
+            major_feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_on_condition)));
+            major_feature.AddComponent(Helpers.CreateAddFact(major_activatable_ability));
+
             int max_variants = 6; //due to ui limitation
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
@@ -1447,6 +1471,7 @@ namespace CallOfTheWild
                 major_feature.AddComponent(Helpers.CreateAddFact(major_ability));
             }
 
+            
             spell_store = major_feature;
 
             addBlessing("WarpriestBlessingArtifice", "Artifice", Common.AbilityToFeature(minor_ability, false), major_feature, "9656b1c7214180f4b9a6ab56f83b92fb");
@@ -2297,6 +2322,7 @@ namespace CallOfTheWild
                                                                              );
             if (!test_mode)
             {
+                major_activatable_ability.DeactivateIfCombatEnded = true;
                 major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }
             addBlessing("WarpriestBlessingGlory", "Glory",
