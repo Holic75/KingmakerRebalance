@@ -2275,6 +2275,19 @@ namespace CallOfTheWild
             {
                 Log.Write($"Error: spell {spell.name} is missing metamagic (should have heighten, quicken at least)");
             }
+            //add to all parametrized features
+            BlueprintFeature[] spell_specializations = Main.library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures;
+            spell_specializations = spell_specializations.AddToArray(Main.library.Get<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956"),
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("4869109802e135e45af20741f9056fd5"),
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("e3a9ed781f9093341ac1073f59018e3f"),
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("7668fd94a4f943e4f85ee025a0140434"),
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("d3d8b837733879848b549189f02f535c"),
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("0495474b37304054eaf016016d0002b4")
+                                                                    );//mt inquisitor spells
+            foreach (BlueprintParametrizedFeature ss in spell_specializations)
+            {
+                ss.BlueprintParameterVariants = ss.BlueprintParameterVariants.AddToArray(spell);
+            }
         }
 
         public static void AddSpellAndScroll(this BlueprintAbility spell, String scrollIconId, int variant = 0)

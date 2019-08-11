@@ -165,7 +165,8 @@ namespace CallOfTheWild
             warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
             Helpers.RegisterClass(warpriest_class);
 
-            //addToPrestigeClasses(); //mt ?
+            Common.addMTDivineSpellbookProgression(warpriest_class, warpriest_class.Spellbook, "MysticTheurgeWarpriest",
+                                                     Common.createPrerequisiteClassSpellLevel(warpriest_class, 2));
         }
 
         static BlueprintCharacterClass[] getWarpriestArray()

@@ -57,6 +57,8 @@ using JetBrains.Annotations;
 using Kingmaker.Enums.Damage;
 using Kingmaker.Inspect;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Class.LevelUp;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 
 namespace CallOfTheWild
 {
@@ -2523,6 +2525,128 @@ namespace CallOfTheWild
                     }
                 }
                 return all;
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfKnownSpellAquired : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public int spell_level = 1;
+            public int num_spells_will_learn = 2;
+            [NotNull]
+            public BlueprintSpellbook spellbook;
+            public BlueprintFeature Feature;
+
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null || (!this.Check(Owner)))
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+            }
+
+
+            public bool Check(UnitDescriptor unit)
+            {
+                foreach (ClassData classData in unit.Progression.Classes)
+                {
+                    BlueprintSpellbook class_spellbook = classData.Spellbook;
+                    if (class_spellbook != spellbook)
+                    {
+                        continue;
+                    }
+
+                    var caster_level = unit.DemandSpellbook(classData.CharacterClass).CasterLevel;
+                    int? knows_spells = spellbook.SpellsKnown.GetCount(classData.Level, spell_level);
+                    //nothing to learn
+                    if (!knows_spells.HasValue)
+                    {
+                        return false;
+                    }
+                    int? will_know_spells = spellbook.SpellsKnown.GetCount(classData.Level + 1, spell_level);
+                    if (!will_know_spells.HasValue)
+                    {
+                        return false;
+                    }
+
+                    if (will_know_spells.Value - knows_spells.Value < num_spells_will_learn)
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+
+        public class PrerequisiteKnownSpellAquired : Prerequisite
+        {
+            public int spell_level = 1;
+            public int num_spells_will_learn = 2;
+            [NotNull]
+            public BlueprintSpellbook spellbook;
+
+            public override bool Check(
+              FeatureSelectionState selectionState,
+              UnitDescriptor unit,
+              LevelUpState state)
+            {
+                foreach (ClassData classData in unit.Progression.Classes)
+                {
+                    BlueprintSpellbook class_spellbook = classData.Spellbook;
+                    if (class_spellbook != spellbook)
+                    {
+                        continue;
+                    }
+
+                    var caster_level = unit.DemandSpellbook(spellbook).CasterLevel;
+                    int? knows_spells = spellbook.SpellsKnown.GetCount(caster_level - 1, spell_level);
+                    //nothing to learn
+                    if (!knows_spells.HasValue)
+                    {
+                        knows_spells = 0;
+                    }
+                    int? will_know_spells = spellbook.SpellsKnown.GetCount(caster_level, spell_level);
+                    if (!will_know_spells.HasValue)
+                    {
+                        return false;
+                    }
+
+                    if (will_know_spells.Value - knows_spells.Value < num_spells_will_learn)
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+
+            public override string GetUIText()
+            {
+                return "";
             }
         }
 

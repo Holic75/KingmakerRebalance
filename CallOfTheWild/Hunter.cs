@@ -125,6 +125,9 @@ namespace CallOfTheWild
             hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype };
             Helpers.RegisterClass(hunter_class);
 
+            Common.addMTDivineSpellbookProgression(hunter_class, hunter_class.Spellbook, "MysticTheurgeHunter",
+                                         Common.createPrerequisiteClassSpellLevel(hunter_class, 2));
+
 
             //fix previous saves without 3rd animal companion
             Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)

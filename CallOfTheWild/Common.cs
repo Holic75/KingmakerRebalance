@@ -1367,6 +1367,94 @@ namespace CallOfTheWild
         }
 
 
+        static internal void addMTDivineSpellbookProgression(BlueprintCharacterClass @class, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
+        {
+            var mt_divine_spellbook_selection = library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
+            BlueprintProgression cleric_progression = mt_divine_spellbook_selection.AllFeatures[0] as BlueprintProgression;
+            BlueprintFeature cleric_lvlup = cleric_progression.LevelEntries[0].Features[0] as BlueprintFeature;
+
+            var progression = library.CopyAndAdd<BlueprintProgression>(cleric_progression.AssetGuid, name + "Progression", "");
+            var lvl_up = library.CopyAndAdd<BlueprintFeature>(cleric_lvlup.AssetGuid, name + "LevelUpFeature", "");
+            lvl_up.ReplaceComponent<AddSpellbookLevel>(a => a.Spellbook = spellbook);
+            var mt_spellbook = progression.GetComponent<MysticTheurgeSpellbook>().CreateCopy();
+            mt_spellbook.CharacterClass = @class;
+            progression.ComponentsArray = components.AddToArray(mt_spellbook);
+            progression.SetName(spellbook.Name);
+
+            List<BlueprintFeature> sp_features = new List<BlueprintFeature>();
+            if (spellbook.Spontaneous)
+            {
+                sp_features = CreateSpontaneousDivineCasterSpellSelectionForMt(name, @class, spellbook);
+            }
+
+            for (int i = 0; i < progression.LevelEntries.Length; i++)
+            {
+                progression.LevelEntries[i] = Helpers.LevelEntry(progression.LevelEntries[i].Level, lvl_up);
+                progression.LevelEntries[i].Features.AddRange(sp_features);
+            }
+            mt_divine_spellbook_selection.AllFeatures = mt_divine_spellbook_selection.AllFeatures.AddToArray(progression);
+        }
+
+
+        static internal List<BlueprintFeature> CreateSpontaneousDivineCasterSpellSelectionForMt(string name, BlueprintCharacterClass @class, BlueprintSpellbook spellbook)
+        {
+            List<BlueprintFeature> features1 = new List<BlueprintFeature>();
+            List<BlueprintFeature> features2 = new List<BlueprintFeature>();
+            int max_spell_level = spellbook.SpellsKnown.Levels.Last().Count.Length - 1;
+            for (int i = 0; i < max_spell_level; i++)
+            {
+                for (int j = 0; j < 2; j++) //we need to create 2 copies of each since at some levels sp casters can get 2 spells
+                {
+                    var parametrize_feature = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", name + $"SpellSelection{j + 1}_{i + 1}ParametrizedFeature", ""); //from inquisitor
+                    parametrize_feature.SpellLevel = i + 1;
+                    string level_ext = i == 0 ? "st" : (i == 1 ? "nd" : (i == 2 ? "rd" : "th"));
+                    parametrize_feature.SetName($"{@class.Name} Spell ({i + 1}{level_ext} Level)");
+                    parametrize_feature.SetDescription($"You can select new known {@class.Name.ToLower()} spell when you gain a new level in mystic theurge.");
+                    parametrize_feature.ReplaceComponent<LearnSpellParametrized>(l =>
+                    {
+                        l.SpellLevel = i + 1;
+                        l.SpellcasterClass = @class;
+                        l.SpecificSpellLevel = spellbook.SpellList;
+                    });
+                    parametrize_feature.SpellcasterClass = @class;
+                    parametrize_feature.SpellList = spellbook.SpellList;
+                    parametrize_feature.SetIcon(null);
+                    var can_learn = Helpers.Create<NewMechanics.PrerequisiteKnownSpellAquired>();
+                    can_learn.num_spells_will_learn = j + 1;
+                    can_learn.spell_level = i + 1;
+                    can_learn.spellbook = spellbook;
+                    parametrize_feature.AddComponent(can_learn);
+
+                    if (j == 0)
+                    {
+                        BlueprintFeatureSelection selection = library.CopyAndAdd<BlueprintFeatureSelection>("8ae18c62c0fbfeb4ea77f877883947fd", name + $"SpellSelection{i + 1}FeatureSelection", ""); //from inquisitor
+                        selection.AllFeatures = new BlueprintFeature[] { parametrize_feature };
+                        selection.Features = selection.AllFeatures;
+                        selection.SetName(parametrize_feature.Name);
+                        selection.SetDescription(parametrize_feature.Description);
+                        selection.SetIcon(null);
+                        features1.Add(selection);
+                    }
+                    else
+                    {
+                        features2.Add(parametrize_feature);
+                    }
+                }
+            }
+
+            BlueprintFeatureSelection selection2 = library.CopyAndAdd<BlueprintFeatureSelection>("8ae18c62c0fbfeb4ea77f877883947fd", name + $"2nsSpellSelectionFeatureSelection", ""); //from inquisitor
+            selection2.AllFeatures = features2.ToArray();
+            selection2.Features = selection2.AllFeatures;
+            selection2.SetName($"Extra {@class.Name.ToLower()} Spell Selection");
+            selection2.SetDescription($"You can select new known {@class.Name.ToLower()} spell when you gain a new level in mystic theurge.");
+            selection2.SetIcon(null);
+            features1.Add(selection2);
+
+            return features1;
+            
+        }
+
+
         static internal PrerequisiteClassSpellLevel createPrerequisiteClassSpellLevel(BlueprintCharacterClass character_class, int spell_level)
         {
             var p = Helpers.Create<PrerequisiteClassSpellLevel>();

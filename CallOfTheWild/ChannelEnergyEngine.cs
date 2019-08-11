@@ -60,8 +60,8 @@ namespace CallOfTheWild
                                                                          new ChannelEntry("cc17243b2185f814aa909ac6b6599eaa", "a9ab1bbc79ecb174d9a04699986ce8d5"), //hospitalier harm
                                                                          new ChannelEntry("279447a6bf2d3544d93a0a39c3b8e91d", "a79013ff4bcd4864cb669622a29ddafb") }; //cleric harm
         
-        static List<ChannelEntry> negative_heal = new List<ChannelEntry> { new ChannelEntry("9be3aa47a13d5654cbcb8dbd40c325f2", "a79013ff4bcd4864cb669622a29ddafb") };
-        static List<ChannelEntry> negative_harm = new List<ChannelEntry> { new ChannelEntry("89df18039ef22174b81052e2e419c728", "a79013ff4bcd4864cb669622a29ddafb") };
+        static List<ChannelEntry> negative_heal = new List<ChannelEntry> { new ChannelEntry("9be3aa47a13d5654cbcb8dbd40c325f2", "3adb2c906e031ee41a01bfc1d5fb7eea") };
+        static List<ChannelEntry> negative_harm = new List<ChannelEntry> { new ChannelEntry("89df18039ef22174b81052e2e419c728", "3adb2c906e031ee41a01bfc1d5fb7eea") };
 
         static BlueprintFeature selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
 
