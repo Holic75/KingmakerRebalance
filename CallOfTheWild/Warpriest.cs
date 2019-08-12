@@ -1419,7 +1419,8 @@ namespace CallOfTheWild
                                                   major_feature.Description,
                                                   "",
                                                   major_feature.Icon,
-                                                  null);
+                                                  null,
+                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = major_feature));
 
             var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestArtificeBlessingMajorToggleAbility",
                                                                              major_feature.Name + ": Release",

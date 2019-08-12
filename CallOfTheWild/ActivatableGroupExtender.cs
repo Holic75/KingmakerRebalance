@@ -28,24 +28,6 @@ namespace CallOfTheWild
             }
         }
 
-        /*[Harmony12.HarmonyPatch(typeof(UnitPartActivatableAbility))]
-        [Harmony12.HarmonyPatch("PersistentGroupsSizeIncreases", Harmony12.MethodType.Setter)]
-        class UnitPartActivatableAbility__PersistentGroupsSizeIncreases__Setter__Patch
-        {
-            static void Postfix(UnitPartActivatableAbility __instance, int[] value)
-            {
-                var tr = Harmony12.Traverse.Create(__instance);
-                int[] current_group_sizes = tr.Field("m_GroupsSizeIncreases").GetValue<int[]>();
-                if (value.Length > current_group_sizes.Length)
-                {
-                    tr.Field("m_GroupsSizeIncreases").SetValue(value);
-                    Main.logger.Log(tr.Field("m_GroupsSizeIncreases").GetValue<int[]>().Length.ToString());
-                }
-
-            }
-        }*/
-
-
         [Harmony12.HarmonyPatch(typeof(UnitPartActivatableAbility))]
         [Harmony12.HarmonyPatch("ctor", Harmony12.MethodType.Constructor)]
         class UnitPartActivatableAbility__Constructor__Patch
@@ -65,9 +47,7 @@ namespace CallOfTheWild
 
             static void Postfix(UnitPartActivatableAbility __instance)
             {
-                var tr = Harmony12.Traverse.Create(__instance);
                 increaseGroupSizeIfNeeded(__instance);
-                //Main.logger.Log("UnitPartActivatableAbility Constructor Patch, array size increased : " + tr.Field("m_GroupsSizeIncreases").GetValue<int[]>().Length.ToString());
             }
         }
 }

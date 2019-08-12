@@ -67,6 +67,33 @@ namespace CallOfTheWild
     namespace SpellManipulationMechanics
     {
         [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddStoredSpellToCaption : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public BlueprintUnitFact store_fact;
+
+            public void getStoredSpellName(out string spell_name)
+            {
+                spell_name = "";
+                var stored_buff = Owner.Buffs.GetFact(store_fact);
+                if (stored_buff == null)
+                {
+                    stored_buff = Owner.Progression.Features.GetFact(store_fact);
+                }
+
+                if (stored_buff != null)
+                {
+                    AbilityData data = null;
+                    stored_buff.CallComponents<FactStoreSpell>(c => c.getStoredSpell(out data));
+                    if (data != null)
+                    {
+                        spell_name = data.Name;
+                    }
+                }
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
         public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
         {
             [JsonProperty]
@@ -434,6 +461,41 @@ namespace CallOfTheWild
                 descriptionBrick.SetText(text3, 3);
 
                 return false;
+            }
+        }
+
+        //update name of spell on store buffs
+        [Harmony12.HarmonyPatch(typeof(DescriptionBuilder))]
+        [Harmony12.HarmonyPatch("Buff", Harmony12.MethodType.Normal)]
+        class DescriptionBuilder__Buff__Patch
+        {
+            static bool Prefix(TooltipData data, DescriptionBody body, bool isTooltip)
+            {
+                if (data.Buff != null)
+                {
+                    var stored_spell_caption = data.Buff.Blueprint.GetComponent<AddStoredSpellToCaption>();
+                    if (stored_spell_caption != null)
+                    {
+                        string spell_name = "";
+                        data.Buff.CallComponents<AddStoredSpellToCaption>(c => c.getStoredSpellName(out spell_name));
+                        if (!spell_name.Empty())
+                        {
+                            spell_name = $" ({spell_name})";
+                        }
+                        
+                        DescriptionBuilder.Templates.IconNameHeader(body.HeaderBox, data.Buff.Name + spell_name, data.Buff.Icon, isTooltip);
+                    }
+                    else
+                    {
+                        DescriptionBuilder.Templates.IconNameHeader(body.HeaderBox, data.Buff.Name, data.Buff.Icon, isTooltip);
+                    }
+                    if (isTooltip)
+                        DescriptionBuilder.Templates.Timer(body.ContentBox, data.Buff);
+                    DescriptionBuilder.Templates.ParagraphDescription(body.ContentBox, data.Buff.Description);
+                    return false;
+                }
+                else
+                    return true;
             }
         }
     }
