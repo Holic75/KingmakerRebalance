@@ -130,6 +130,7 @@
     <Compile Include="ChannelEnergyEngine.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="ConfusionControl.cs" />
+    <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="FeralCombatTraining.cs" />
     <Compile Include="HexEngine.cs" />
     <Compile Include="Main.cs" />

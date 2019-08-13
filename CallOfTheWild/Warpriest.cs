@@ -987,7 +987,7 @@ namespace CallOfTheWild
                                                                          "",
                                                                          sacred_armor_enhancement_buff.Icon,
                                                                          AbilityType.Supernatural,
-                                                                         CommandType.Free,
+                                                                         CommandType.Swift,
                                                                          AbilityRange.Personal,
                                                                          "1 minute",
                                                                          Helpers.savingThrowNone,

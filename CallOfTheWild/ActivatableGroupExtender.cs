@@ -19,7 +19,7 @@ namespace CallOfTheWild
             MetaRage,
         }
 
-        public static class Extensions
+        public static partial class Extensions
         {
             public static ActivatableAbilityGroup ToActivatableAbilityGroup(this ActivatableAbilityGroupExtension group)
             {

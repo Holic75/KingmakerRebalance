@@ -1019,7 +1019,7 @@ namespace CallOfTheWild
         {
             public override void OnEventAboutToTrigger(RuleCalculateAC evt)
             {
-                if (this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee)
+                if (this.Owner.Body.PrimaryHand.MaybeWeapon != null && this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee)
                 {
                     //this.Owner.Unit.CombatState.AttackOfOpportunity(evt.Initiator);
                     Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
@@ -1027,6 +1027,7 @@ namespace CallOfTheWild
                 evt.AddBonus(-4, this.Fact);
                 return;
             }
+
             public override void OnEventDidTrigger(RuleCalculateAC evt)
             {
             }

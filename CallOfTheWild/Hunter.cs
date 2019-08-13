@@ -1008,7 +1008,7 @@ namespace CallOfTheWild
             (int, int)[] progressionStat = new (int, int)[3]{(7,2), (14, 4), (20, 6)};
             (int, int)[] progressionSkill = new (int, int)[3]{(7,4), (14, 6), (20, 8)};
             (int, int)[] progressionSpeed = new (int, int)[3]{(7,5), (14, 10), (20, 20)};
-            BlueprintCharacterClass[] allowed_classes = new BlueprintCharacterClass[3]{inquistor_class, hunter_class, animal_class};
+            BlueprintCharacterClass[] allowed_classes = new BlueprintCharacterClass[2]{inquistor_class, hunter_class};
 
             mouse_focus = createMouseFocus(summon_monster1.Icon, allowed_classes, sacred_huntsmaster_archetype, 12);
             bull_focus = createScaledFocus("BullFocus",
@@ -1163,12 +1163,11 @@ namespace CallOfTheWild
                                            CallOfTheWild.Helpers.CreateAddFact(mouse_focus2));
             mouse_focus2f.HideInUI = true;
             mouse_focus2f.HideInCharacterSheetAndLevelUp = true;
-
-            Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel[] mouse_focus = new Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel[2] {
+         
+            Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel[] mouse_focus = new Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel[] {
                                                 Helpers.CreateAddFeatureOnClassLevel(mouse_focus1f, update_lvl, allowed_classes, new BlueprintArchetype[1] { archetype }, true),
                                                 Helpers.CreateAddFeatureOnClassLevel(mouse_focus2f, update_lvl, allowed_classes, new BlueprintArchetype[1] { archetype }, false)
                                                 };
-
             return mouse_focus;
         }
 
@@ -1182,7 +1181,7 @@ namespace CallOfTheWild
                                                                                                       BlueprintCharacterClass[] allowed_classes,
                                                                                                       BlueprintArchetype archetype)
         {
-            BlueprintComponent[] components = new BlueprintComponent[2]{ CallOfTheWild.Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype, 
+            BlueprintComponent[] components = new BlueprintComponent[2]{ CallOfTheWild.Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(), 
                                                                                                                       ContextRankProgression.Custom,
                                                                                                                       classes: allowed_classes,
                                                                                                                       archetype: archetype,
