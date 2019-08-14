@@ -455,7 +455,7 @@ namespace CallOfTheWild
         }
 
 
-        public BlueprintFeature createEvilEye(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid, string abil3_guid,
+        public BlueprintFeature createEvilEye(string name_prefix, string display_name, string description, string abil_guid, string abil1_guid, string abil2_guid, string abil3_guid,
                                               string feature_guid, string buff1_guid, string buff2_guid, string buff3_guid)
         {
             var eyebyte = library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642");
@@ -471,13 +471,35 @@ namespace CallOfTheWild
                 penalties[i] = Helpers.CreateAddContextStatBonus(stats[i], ModifierDescriptor.None, ContextValueType.Rank, AbilityRankType.StatBonus);
                 penalties[i].Multiplier = -2;
             }
-          
-            var evil_eye_ac = createEvilEyeComponent(name_prefix + "ACHex", $"{display_name}: AC Penalty", description, abil1_guid, buff1_guid,
+
+            BlueprintAbility[] evil_eye_variants = new BlueprintAbility[3];
+            evil_eye_variants[0] = createEvilEyeComponent(name_prefix + "ACHex", $"{display_name}: AC Penalty", description, abil1_guid, buff1_guid,
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[0], context_rank_config);
-            var evil_eye_attack = createEvilEyeComponent(name_prefix + "AttackHex", $"{display_name}: Attack Rolls Penalty", description, abil2_guid, buff2_guid,
+            evil_eye_variants[1] = createEvilEyeComponent(name_prefix + "AttackHex", $"{display_name}: Attack Rolls Penalty", description, abil2_guid, buff2_guid,
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[1], context_rank_config);
-            var evil_eye_saves = createEvilEyeComponent(name_prefix + "SavesHex", $"{display_name}: Saving Throws Penalty", description, abil3_guid, buff3_guid,
+            evil_eye_variants[2] = createEvilEyeComponent(name_prefix + "SavesHex", $"{display_name}: Saving Throws Penalty", description, abil3_guid, buff3_guid,
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[2], penalties[3], penalties[4], context_rank_config);
+            var evil_eye_ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                                         display_name,
+                                                         description,
+                                                         abil_guid,
+                                                         eyebyte.Icon,
+                                                         evil_eye_variants[0].Type,
+                                                         evil_eye_variants[0].ActionType,
+                                                         evil_eye_variants[0].Range,
+                                                         evil_eye_variants[0].LocalizedDuration,
+                                                         evil_eye_variants[0].LocalizedSavingThrow);
+            evil_eye_ability.AddComponent(evil_eye_ability.CreateAbilityVariants(evil_eye_variants));
+
+            //remove separate abilities
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                foreach (var ee in evil_eye_variants)
+                {
+                    unit.RemoveFact(ee);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
 
             var evil_eye = Helpers.CreateFeature(name_prefix + "HexFeature",
                                           display_name,
@@ -485,7 +507,7 @@ namespace CallOfTheWild
                                           feature_guid,
                                           eyebyte.Icon,
                                           FeatureGroup.None,
-                                          Helpers.CreateAddFacts(evil_eye_ac, evil_eye_attack, evil_eye_saves)
+                                          Helpers.CreateAddFact(evil_eye_ability)
                                           );
             evil_eye.Ranks = 1;
             return evil_eye;

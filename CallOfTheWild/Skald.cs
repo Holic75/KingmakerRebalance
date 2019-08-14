@@ -811,7 +811,7 @@ namespace CallOfTheWild
                                                                                 (wizard_class, library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6").Icon)}; //evocation 
             const int max_level = 6;
             const int min_level = 1;
-            const int max_variants_in_list = 12;
+            const int max_variants_in_list = 100;
             const int max_spell_holders = 10;
             List<BlueprintComponent> spell_kenning_base = new List<BlueprintComponent>();
 
@@ -847,18 +847,27 @@ namespace CallOfTheWild
                     {
                         int id = j / max_variants_in_list + 1;
                         var spell_kenning_class = Helpers.CreateAbility($"SkaldSpellKenning{i}Base{c.Item1.name}{id}Ability",
-                                                     spell_kenning_class_c.Name + $" ({c.Item1.Name}, {id})",
+                                                     spell_kenning_class_c.Name + $" ({c.Item1.Name}" + ((id == 1) ? ")" : $", {id})"),
                                                      spell_kenning_class_c.Description,
                                                      "",
                                                      c.Item2,
                                                      AbilityType.Spell,
                                                      CommandType.Standard,
-                                                     AbilityRange.Close,
+                                                     AbilityRange.Personal,
                                                      "",
                                                      "");
                         Helpers.SetField(spell_kenning_class, "m_IsFullRoundAction", true);
                         if (j >= variant_spells.Length - 1)
                         {//we intentionally generate more holders to accomodate for additional spells
+                         //and remove the ones that are not necessary
+                            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+                            {
+                                foreach (var sb in unit.Spellbooks)
+                                {
+                                    sb.RemoveSpell(spell_kenning_class);
+                                }
+                            };
+                            SaveGameFix.save_game_actions.Add(save_game_fix);
                             continue;
                         }
                         int num_spells = j + max_variants_in_list > variant_spells.Length - 1 ? variant_spells.Length - j : max_variants_in_list;

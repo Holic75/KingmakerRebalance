@@ -155,6 +155,7 @@
     <Compile Include="ShowRerolls.cs" />
     <Compile Include="Skald.cs" />
     <Compile Include="SpellManipulationMechanics.cs" />
+    <Compile Include="SpellVariantsLayoutFix.cs" />
     <Compile Include="Warpriest.cs" />
     <Compile Include="Wildshape.cs" />
     <Compile Include="Witch.cs" />

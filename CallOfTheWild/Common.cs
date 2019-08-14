@@ -52,6 +52,7 @@ using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
+using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 
 namespace CallOfTheWild
 {
@@ -2250,5 +2251,23 @@ namespace CallOfTheWild
             return c;
         }
 
+        public static void addFeatureToEnchantment(BlueprintItemEnchantment enchantment, BlueprintFeature feature)
+        {
+            var c = enchantment.GetComponent<AddUnitFeatureEquipment>();
+            if (c == null)
+            {
+                c = Helpers.Create<Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment>();
+                var enchant_feature = Helpers.CreateFeature(enchantment.name + "Feature",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None);
+                enchant_feature.HideInCharacterSheetAndLevelUp = true;
+                c.Feature = enchant_feature;
+                enchantment.AddComponent(c);
+            }
+            c.Feature.AddComponent(Helpers.CreateAddFact(feature));
+        }
     }
 }

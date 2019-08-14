@@ -255,25 +255,25 @@ namespace CallOfTheWild
 
             var linnorm_buff = library.Get<BlueprintBuff>("b5ebb94df76531c4ca4f13bfd91efd4e");
 
-            var c = Helpers.Create<Kingmaker.Designers.Mechanics.EquipmentEnchants.AddUnitFeatureEquipment>();
-            c.Feature = feature;
-
             if ((channel_type | ChannelType.PositiveHeal) >0 || (channel_type | ChannelType.PositiveHarm) >0)
             {
-                positive_bonus1.AddComponent(c);
-                positive_bonus2.AddComponent(c);
-                positive_bonus2.AddComponent(c);
+                Common.addFeatureToEnchantment(positive_bonus1, feature);
+                Common.addFeatureToEnchantment(positive_bonus2, feature);
+                Common.addFeatureToEnchantment(positive_bonus2, feature);
                 linnorm_buff.AddComponent(Helpers.CreateAddFact(feature));
                 linnorm_buff.AddComponent(Helpers.CreateAddFact(feature));
             }
             else if ((channel_type | ChannelType.NegativeHarm) > 0 || (channel_type | ChannelType.NegativeHeal) > 0)
             {
-                negative_bonus1.AddComponent(c);
-                negative_bonus2.AddComponent(c);
-                negative_bonus2.AddComponent(c);
+                Common.addFeatureToEnchantment(negative_bonus1, feature);
+                Common.addFeatureToEnchantment(negative_bonus2, feature);
+                Common.addFeatureToEnchantment(negative_bonus2, feature);
             }
 
         }
+
+
+        
 
 
         static internal void updateItemsForQuick(BlueprintAbility original_ability, BlueprintAbility quicken_ability)

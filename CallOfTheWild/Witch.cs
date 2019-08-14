@@ -1063,6 +1063,7 @@ namespace CallOfTheWild
                                                 "The witch can cause doubt to creep into the mind of a foe within 30 feet that she can see.\n"
                                                 + "Effect: The target takes a –2 penalty on one of the following(witch’s choice): AC, attack rolls or saving throws. This hex lasts for a number of rounds equal to 3 + the witch’s Intelligence modifier.A Will save reduces this to just 1 round.\n"
                                                 + "This is a mind - affecting effect. At 8th level the penalty increases to –4.",
+                                                "32cbc5579f784bfb87bb1ae9ef3bb59e",
                                                 "1c8855dc3c9846a8addb4db4375eafe8", "ad14718b3f65491183dd97c4b9f57246", "cb406009170b447489b32d5b43d88f3f",
                                                 "7a23bee9c3b04801bcd08ab8ef369341",
                                                 "4a8fcd47dc9244f7ac6deb8dd9b741e2", "a11119164c7d430f81f6f3ec15e56e44", "2598782fac2a44b6a607f5d0d2a059bb");
