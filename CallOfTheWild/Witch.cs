@@ -148,6 +148,8 @@ namespace CallOfTheWild
             createExtraHexFeat();
 
             addToPrestigeClasses();
+
+            HexEngine.split_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
         }
 
 

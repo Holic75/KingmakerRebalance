@@ -59,6 +59,7 @@ using Kingmaker.Inspect;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Designers.EventConditionActionSystem.ContextData;
 
 namespace CallOfTheWild
 {
@@ -966,6 +967,7 @@ namespace CallOfTheWild
         public class ContextActionRemoveBuffFromCaster : ContextAction
         {
             public BlueprintBuff Buff;
+            public int remove_delay_seconds = 0;
 
             public override string GetCaption()
             {
@@ -982,7 +984,11 @@ namespace CallOfTheWild
                 {
                     if (b.Blueprint == Buff && b.Context.MaybeCaster == maybeCaster)
                     {
-                        this.Target.Unit.Buffs.RemoveFact((BlueprintFact)this.Buff);
+                        if (remove_delay_seconds > 0)
+                            b.RemoveAfterDelay(new TimeSpan(0, 0, remove_delay_seconds));
+                        else
+                            b.Remove();
+                        //this.Target.Unit.Buffs.RemoveFact((BlueprintFact)this.Buff);
                     }
                 }
             }
@@ -2648,6 +2654,33 @@ namespace CallOfTheWild
             public override string GetUIText()
             {
                 return "";
+            }
+        }
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AbilityUsedTrigger : GameLogicComponent, IGlobalRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IGlobalRulebookSubscriber
+        {
+            [NotNull]
+            public Dictionary<BlueprintAbility, ActionList> spell_action_map = new Dictionary<BlueprintAbility, ActionList>();
+            public BlueprintAbility[] Spells = (BlueprintAbility[])Array.Empty<BlueprintAbility>();
+            [NotNull]
+            public ActionList Actions = new ActionList();
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spell.IsSpell)
+                {
+                    return;
+                }
+                if (!Spells.Contains<BlueprintAbility>(evt.Spell))
+                    return;
+
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, evt.Initiator);
             }
         }
 

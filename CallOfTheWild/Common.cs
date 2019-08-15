@@ -1494,7 +1494,7 @@ namespace CallOfTheWild
 
 
         static internal NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster createAbilityTargetHasNoFactUnlessBuffsFromCaster(BlueprintBuff[] target_buffs,
-                                                                                                          BlueprintBuff[] alternative_buffs)
+                                                                                                          params BlueprintBuff[] alternative_buffs)
         {
             var h = Helpers.Create<NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster>();
             h.CheckedBuffs = target_buffs;
@@ -1664,10 +1664,11 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ContextActionRemoveBuffFromCaster createContextActionRemoveBuffFromCaster(BlueprintBuff buff)
+        static internal NewMechanics.ContextActionRemoveBuffFromCaster createContextActionRemoveBuffFromCaster(BlueprintBuff buff, int delay = 0)
         {
             var c = Helpers.Create<NewMechanics.ContextActionRemoveBuffFromCaster>();
             c.Buff = buff;
+            c.remove_delay_seconds = delay;
             return c;
         }
 

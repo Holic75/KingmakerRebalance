@@ -50,6 +50,9 @@ namespace CallOfTheWild
         static BlueprintBuff hex_vulnerability_buff;
         static BlueprintBuff accursed_hex_buff;
 
+        static public BlueprintFeature split_hex_feat;
+        static BlueprintBuff immune_to_split_hex_buff;
+
         static public BlueprintFeature amplified_hex_feat;
         static BlueprintBuff amplified_hex_buff;
         static private BlueprintAbility[] amplified_hex_sacrifice_spells = new BlueprintAbility[10];
@@ -63,6 +66,7 @@ namespace CallOfTheWild
         {
             createHexVulnerabilitySpellAndAccursedHexFeat();
             createAmplifiedHex();
+            createSplitHex();
             Main.logger.Log("Hex Engine test mode: " + test_mode.ToString());
         }
 
@@ -225,6 +229,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             beast_of_ill_omen.Ranks = 1;
             addToAmplifyHex(hex_ability);
+            addToSplitHex(hex_ability, true);
             return beast_of_ill_omen;
         }
 
@@ -248,14 +253,9 @@ namespace CallOfTheWild
             hex_ability.CanTargetEnemies = true;
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.CanTargetSelf = test_mode;
-            hex_ability.AvailableMetamagic = sleep_spell.AvailableMetamagic;
-            hex_ability.MaterialComponent = sleep_spell.MaterialComponent;
-            hex_ability.ResourceAssetIds = sleep_spell.ResourceAssetIds;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
-            hex_ability.ActionType = CommandType.Standard;
             hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-            hex_ability.LocalizedDuration = Helpers.CreateString(name_prefix+"HexAbility1.Duration", "1 round/level");
             var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
             target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
                                                                     library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
@@ -263,11 +263,11 @@ namespace CallOfTheWild
             target_checker.Inverted = true;
             hex_ability.AddComponent(target_checker);
             hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
-
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Will;
-            action.addAction(Common.createContextSavedApplyBuff(sleep_buff, DurationRate.Rounds));
-            hex_ability.AddComponent(action);
+           
+            var action = (Common.createContextActionSavingThrow(SavingThrowType.Will, 
+                          Helpers.CreateActionList(Common.createContextSavedApplyBuff(sleep_buff, DurationRate.Rounds, is_from_spell: true, is_dispellable: false))));
+            hex_ability.AddComponent(Helpers.CreateRunActions(action));
+            hex_ability.AddComponent(Helpers.CreateRunActions());
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
@@ -280,6 +280,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             slumber_hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
+            addToSplitHex(hex_ability, true);
             return slumber_hex;
         }
 
@@ -297,15 +298,15 @@ namespace CallOfTheWild
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>());
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Will;
+ 
             var hex_buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "Witch" + name_prefix + "HexBuff", buff_guid);
             hex_buff.SetName(hex_ability.Name);
             hex_buff.SetDescription(hex_ability.Description);
             cackle_buffs.Add(hex_buff);
-            action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, AbilityRankType.DamageBonus));
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will, 
+                                                               Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, AbilityRankType.DamageBonus, is_dispellable: false)));
 
-            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
+            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(Helpers.CreateRunActions(action));
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
                                                                      type: AbilityRankType.DamageBonus,
                                                                      min: 1,
@@ -323,6 +324,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             misfortune_hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
+            addToSplitHex(hex_ability, true);
             return misfortune_hex;
         }
 
@@ -339,6 +341,7 @@ namespace CallOfTheWild
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var apply_buff = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
             apply_buff.Buff = library.CopyAndAdd<BlueprintBuff>(apply_buff.Buff, "Witch" + name_prefix + "HexBuff", buff_guid);
+            apply_buff.IsNotDispelable = true;
             cackle_buffs.Add(apply_buff.Buff);
 
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
@@ -363,7 +366,7 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
             fortune_hex.Ranks = 1;
-
+            addToSplitHex(hex_ability);
             return fortune_hex;
         }
 
@@ -422,7 +425,7 @@ namespace CallOfTheWild
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
             bonus_value.ValueType = ContextValueType.Rank;
             var duration_value = Helpers.CreateContextDuration(bonus: bonus_value, rate: DurationRate.Minutes);
-            action.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability1_buff, duration_value, true));
+            action.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability1_buff, duration_value, true, dispellable: false));
             hex_ability1.AddComponent(action);
 
             hex_ability2.SetName($"{display_name}: Saving Throws Bonus");
@@ -438,7 +441,7 @@ namespace CallOfTheWild
             bonus_value2.ValueType = ContextValueType.Simple;
             bonus_value2.Value = 1;
             var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
-            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true));
+            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true, dispellable: false));
             hex_ability2.AddComponent(action2);
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "b58d93d94e834ada903a91d8cf46d650", $"Cooldown {display_name}");
             addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
@@ -451,6 +454,8 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFacts(hex_ability1, hex_ability2));
             ameliorating.Ranks = 1;
+            addToSplitHex(hex_ability1);
+            addToSplitHex(hex_ability2);
             return ameliorating;
         }
 
@@ -473,11 +478,11 @@ namespace CallOfTheWild
             }
 
             BlueprintAbility[] evil_eye_variants = new BlueprintAbility[3];
-            evil_eye_variants[0] = createEvilEyeComponent(name_prefix + "ACHex", $"{display_name}: AC Penalty", description, abil1_guid, buff1_guid,
+            evil_eye_variants[0] = createEvilEyeComponent(name_prefix + "ACHex", $"{display_name} (AC Penalty)", description, abil1_guid, buff1_guid,
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[0], context_rank_config);
-            evil_eye_variants[1] = createEvilEyeComponent(name_prefix + "AttackHex", $"{display_name}: Attack Rolls Penalty", description, abil2_guid, buff2_guid,
+            evil_eye_variants[1] = createEvilEyeComponent(name_prefix + "AttackHex", $"{display_name} (Attack Rolls Penalty)", description, abil2_guid, buff2_guid,
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[1], context_rank_config);
-            evil_eye_variants[2] = createEvilEyeComponent(name_prefix + "SavesHex", $"{display_name}: Saving Throws Penalty", description, abil3_guid, buff3_guid,
+            evil_eye_variants[2] = createEvilEyeComponent(name_prefix + "SavesHex", $"{display_name} (Saving Throws Penalty)", description, abil3_guid, buff3_guid,
                                                      eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[2], penalties[3], penalties[4], context_rank_config);
             var evil_eye_ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                          display_name,
@@ -538,9 +543,9 @@ namespace CallOfTheWild
             ability.CanTargetSelf = test_mode;
             ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Will;
-            var action_save = Common.createContextSavedApplyBuff(buff, DurationRate.Rounds, AbilityRankType.DamageBonus);
+           
+            
+            var action_save = Common.createContextSavedApplyBuff(buff, DurationRate.Rounds, AbilityRankType.DamageBonus, is_dispellable: false);
             var buff_save = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             buff_save.IsFromSpell = true;
             buff_save.Buff = buff;
@@ -550,9 +555,10 @@ namespace CallOfTheWild
             buff_save.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,
                                                                            rate: DurationRate.Rounds);
             action_save.Succeed = Helpers.CreateActionList(buff_save);
-            action.addAction(Common.createContextActionRemoveBuff(buff)); //remove buff before applying next ones to make it compatible with cackle
-            action.addAction(action_save);
-            ability.AddComponent(action);
+            var action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff),
+                                                  Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(action_save))
+                                                  );
+            ability.AddComponent(Helpers.CreateRunActions(action.Actions));
 
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: hex_stat, progression: ContextRankProgression.StartPlusDivStep,
                                                     min: 3, startLevel: -2, stepLevel: 1, type: AbilityRankType.DamageBonus);
@@ -567,6 +573,7 @@ namespace CallOfTheWild
             var eyebyte = library.Get<BlueprintAbility>("582009cf6013790469d6e98e5210477a");
             ability.AddComponent(eyebyte.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             addToAmplifyHex(ability);
+            addToSplitHex(ability, true);
             return ability;
         }
 
@@ -600,9 +607,9 @@ namespace CallOfTheWild
             action.SavingThrowType = SavingThrowType.Fortitude;
 
             var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
-            context_saved.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_full, Helpers.CreateContextDuration(), is_permanent: true),
-                                                            Common.createContextActionApplyBuff(fatigued_buff, Helpers.CreateContextDuration(), is_permanent: true));
-            context_saved.Succeed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_half, Helpers.CreateContextDuration(), is_permanent: true));
+            context_saved.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_full, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                            Common.createContextActionApplyBuff(fatigued_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
+            context_saved.Succeed = Helpers.CreateActionList(Common.createContextActionApplyBuff(nonlethal_half, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
             action.addAction(context_saved);
             hex_ability.AddComponent(action);
 
@@ -617,6 +624,7 @@ namespace CallOfTheWild
                               );
             summer_heat.Ranks = 1;
             addToAmplifyHex(hex_ability);
+            addToSplitHex(hex_ability, true);
             return summer_heat;
         }
 
@@ -688,6 +696,11 @@ namespace CallOfTheWild
             healing.Ranks = 1;
             addToAmplifyHex(heal1_hex_ability);
             addToAmplifyHex(heal2_hex_ability);
+            if (update_level < 10)
+            {
+                addToSplitHex(heal1_hex_ability, true);
+                addToSplitHex(heal2_hex_ability, true);
+            };
             return healing;
         }
 
@@ -722,7 +735,7 @@ namespace CallOfTheWild
             bonus_value2.ValueType = ContextValueType.Simple;
             bonus_value2.Value = 1;
             var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
-            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true));
+            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true, dispellable: false));
             hex_ability2.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
             hex_ability2.AddComponent(action2);
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, cooldown_guid, $"Cooldown {display_name}");
@@ -784,10 +797,9 @@ namespace CallOfTheWild
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.AddCondition>());
             hex_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Nauseated, SavingThrowType.Fortitude));
             cackle_buffs.Add(hex_buff);
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Fortitude;
-            action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds));
-            hex_ability.AddComponent(action);
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_dispellable: false)));
+
+            hex_ability.AddComponent(Helpers.CreateRunActions(action));
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.CanTargetSelf = test_mode;
             hex_ability.CanTargetPoint = false;
@@ -830,7 +842,7 @@ namespace CallOfTheWild
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus = Helpers.CreateContextValue(AbilityRankType.Default);
             var duration = Helpers.CreateContextDuration(bonus, DurationRate.Minutes);
-            action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, duration));
+            action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, duration, dispellable: false));
             hex_ability.AddComponent(action);
             hex_ability.SetIcon(buff.Icon);
             hex_ability.SetName(buff.Name);
@@ -866,7 +878,7 @@ namespace CallOfTheWild
             Kingmaker.ElementsSystem.ActionList[] curse_actions = new Kingmaker.ElementsSystem.ActionList[curses.Length];
             for (int i = 0; i < curses.Length; i++)
             {
-                curse_actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(curses[i], Helpers.CreateContextDuration(), is_permanent: true));
+                curse_actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(curses[i], Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
             }
             var random_curse = Common.createContextActionRandomize(curse_actions);
 
@@ -910,7 +922,8 @@ namespace CallOfTheWild
             //buff.Stacking = StackingType.Replace;
 
             var apply_buff = Common.createContextSavedApplyBuff(buff,
-                                                            Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), rate: DurationRate.Rounds)
+                                                            Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus), rate: DurationRate.Rounds),
+                                                            is_dispellable: false
                                                             );
             var action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_buff));
             var ability = Helpers.CreateAbility(name_prefix + "HexAbility",
@@ -990,7 +1003,7 @@ namespace CallOfTheWild
             ice_tomb_buff.AddComponent(damage_trigger); //remove buff on damage, and add stagger
 
             var action_buff = Helpers.Create<ContextActionConditionalSaved>();
-            action_buff.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(ice_tomb_buff, Helpers.CreateContextDuration(), is_permanent: true));
+            action_buff.Failed = Helpers.CreateActionList(Common.createContextActionApplyBuff(ice_tomb_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
             var run_action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             run_action.SavingThrowType = SavingThrowType.Fortitude;
             run_action.Actions = Helpers.CreateActionList(damage_action, action_buff);
@@ -1024,7 +1037,7 @@ namespace CallOfTheWild
             var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
             var bonus = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
             var duration = Helpers.CreateContextDuration(bonus, DurationRate.Rounds);
-            action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(fast_healing_buff, duration));
+            action.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(fast_healing_buff, duration, dispellable: false));
             fast_healing_ability.AddComponent(action);
             fast_healing_buff.SetIcon(fast_healing_ability.Icon);
             fast_healing_ability.SetName(fast_healing_buff.Name);
@@ -1089,10 +1102,9 @@ namespace CallOfTheWild
             hex_buff.AddComponent(dominate_person_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ChangeFaction>());
             hex_buff.ReplaceComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Polymorph));
             hex_buff.SetBuffFlags(hex_buff.GetBuffFlags() | BuffFlags.RemoveOnRest);
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Will;
-            action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
-            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will, 
+                                                               Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true, is_dispellable: false)));
+            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(Helpers.CreateRunActions(action));
 
 
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
@@ -1137,10 +1149,11 @@ namespace CallOfTheWild
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>());
             hex_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
                                                                                                      classes: hex_classes, type: AbilityRankType.DamageBonus)); //for damage on save
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Will;
-            action.Actions = Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true));
-            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(action);
+
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will,
+                                                               Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, Helpers.CreateContextDuration(), is_permanent: true, is_dispellable: false))
+                                                               );
+            hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>(Helpers.CreateRunActions(action));
             hex_ability.ReplaceComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Death));
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
             var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
@@ -1261,12 +1274,8 @@ namespace CallOfTheWild
             hex_ability.CanTargetEnemies = true;
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.CanTargetSelf = test_mode;
-            hex_ability.AvailableMetamagic = sleep_spell.AvailableMetamagic;
-            hex_ability.MaterialComponent = sleep_spell.MaterialComponent;
-            hex_ability.ResourceAssetIds = sleep_spell.ResourceAssetIds;
             hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
             hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
-            hex_ability.ActionType = CommandType.Standard;
             hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
 
             var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
@@ -1276,11 +1285,12 @@ namespace CallOfTheWild
             target_checker.Inverted = true;
             hex_ability.AddComponent(target_checker);
             hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+       
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will,
+                                                               Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_permanent: true, is_dispellable: false))
+                                                               );
 
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            action.SavingThrowType = SavingThrowType.Will;
-            action.addAction(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_permanent: true, is_dispellable: false));
-            hex_ability.AddComponent(action);
+            hex_ability.AddComponent(Helpers.CreateRunActions(action));
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
             var touch = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityDeliverTouch>();
             touch.TouchWeapon = library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("bb337517547de1a4189518d404ec49d4");
@@ -1315,7 +1325,7 @@ namespace CallOfTheWild
             foreach (var b in cackle_buffs)
             {
                 b.Stacking = StackingType.Summ;
-                var c = Helpers.CreateConditional(Helpers.CreateConditionHasBuffFromCaster(b), ifTrue: Common.createContextActionApplyBuff(b, duration));
+                var c = Helpers.CreateConditional(Helpers.CreateConditionHasBuffFromCaster(b), ifTrue: Common.createContextActionApplyBuff(b, duration, dispellable: false));
                 actions.Add(c);
             }
 
@@ -1400,12 +1410,13 @@ namespace CallOfTheWild
             cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
 
 
-            var effect = Common.createContextSavedApplyBuff(hex_vulnerability_buff, duration_rate: DurationRate.Rounds);
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Will, 
+                                                               Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_vulnerability_buff, duration_rate: DurationRate.Rounds)));
             var cooldown = Common.createContextActionApplyBuff(cooldown_buff,
                                                                 Helpers.CreateContextDuration(bonus: Common.createSimpleContextValue(24), rate: DurationRate.Hours),
                                                                 is_from_spell: true);
             var run_action = Helpers.CreateRunActions(effect, cooldown);
-            run_action.SavingThrowType = SavingThrowType.Will;
+            
             hex_vulnerability_spell = Helpers.CreateAbility("HexVulnerabilityAbility",
                                                 hex_vulnerability_buff.Name,
                                                 hex_vulnerability_buff.Description,
@@ -1481,6 +1492,13 @@ namespace CallOfTheWild
             amplified_hex_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
 
 
+            amplified_hex_feat.AddComponent(Helpers.Create<NewMechanics.AbilityUsedTrigger>(a =>
+                {
+                    a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(amplified_hex_buff, 3));
+                })
+            );
+
+
             amplified_hex_sacrifice_spells[0] = null;
 
             var action_apply_buff = Common.createContextActionApplyBuff(amplified_hex_buff,
@@ -1521,10 +1539,87 @@ namespace CallOfTheWild
         {
             var c = amplified_hex_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
             c.spells = c.spells.AddToArray(hex);
-            var run_action = hex.GetComponent<AbilityEffectRunAction>().CreateCopy();
-            var action_on_caster = Helpers.Create<ContextActionOnContextCaster>(a => a.Actions = Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(amplified_hex_buff)).Actions);
-            run_action.addAction(action_on_caster);
-            hex.ReplaceComponent<AbilityEffectRunAction>(run_action);
+
+            var cast_trigger = amplified_hex_feat.GetComponent<NewMechanics.AbilityUsedTrigger>();
+            cast_trigger.Spells = cast_trigger.Spells.AddToArray(hex);
         }
+
+
+        static void createSplitHex()
+        {
+            split_hex_feat = Helpers.CreateFeature("SplitHexFeature",
+                                                       "Split Hex",
+                                                       "When you use one of your hexes (not a major hex or a grand hex) that targets a single creature, you can apply the same hex to another creature as a free action.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.Feat);
+
+            var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6"); //school evocation
+            immune_to_split_hex_buff = Helpers.CreateBuff("ImmuneToSplitHexBuff",
+                                                            split_hex_feat.Name,
+                                                            split_hex_feat.Description,
+                                                            "",
+                                                            evocation.Icon,
+                                                            null
+                                                            );
+            immune_to_split_hex_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            library.AddFeats(split_hex_feat);
+        }
+
+
+        BlueprintAbility addToSplitHex(BlueprintAbility hex, bool amplify = false)
+        {
+            var split_hex = library.CopyAndAdd<BlueprintAbility>(hex.AssetGuid, "SplitHex" + hex.name, "");
+            split_hex.SetName("Split Hex : " + hex.Name);
+            split_hex.SetIcon(immune_to_split_hex_buff.Icon);
+            split_hex.ActionType = CommandType.Free;
+
+            var split_hex_buff = Helpers.CreateBuff("SplitHex" + hex.name + "Buff",
+                                                split_hex.Name,
+                                                split_hex_feat.Description,
+                                                "",
+                                                split_hex.Icon,
+                                                null,
+                                                Helpers.CreateAddFact(split_hex)
+                                                );
+
+            split_hex.AddComponent(Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[]{immune_to_split_hex_buff}));
+
+            var apply_caster_buff = Common.createContextActionApplyBuff(split_hex_buff,
+                                                                        Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
+                                                                        dispellable: false,
+                                                                        duration_seconds: 3);
+
+            var apply_target_buff = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(split_hex_feat),
+                                                              Common.createContextActionApplyBuff(immune_to_split_hex_buff, 
+                                                                                                  Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false)
+                                                              );
+            var apply_caster_buff2 = Common.createContextActionRemoveBuffFromCaster(split_hex_buff);
+
+            var run_action_original = hex.GetComponent<AbilityEffectRunAction>().CreateCopy();
+            run_action_original.addAction(apply_target_buff);
+            hex.ReplaceComponent<AbilityEffectRunAction>(run_action_original);
+
+            var spell_trigger_original = Helpers.Create<NewMechanics.AbilityUsedTrigger>();
+            spell_trigger_original.Spells = new BlueprintAbility[] { hex };
+            spell_trigger_original.Actions = Helpers.CreateActionList(apply_caster_buff);
+
+            var spell_trigger_split = Helpers.Create<NewMechanics.AbilityUsedTrigger>();
+            spell_trigger_split.Spells = new BlueprintAbility[] { split_hex };
+            spell_trigger_split.Actions = Helpers.CreateActionList(apply_caster_buff2);
+
+            split_hex_feat.AddComponents(spell_trigger_original, spell_trigger_split);
+
+
+            if (amplify)
+            {
+                var c = amplified_hex_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+                c.spells = c.spells.AddToArray(split_hex);
+            }
+
+            return split_hex;
+        }
+
+
     }
 }
