@@ -10,13 +10,13 @@ It introduces new classes:
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith.
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
-with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1,
-for already existng characters you will need to respec them to level 1 to get this ability.
+with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.
 
 New feats:
 - Extra Hex,
 - Accursed Hex,
 - Amplified Hex,
+- Split Hex,
 - Rage Casting,
 - Raging Brutality,
 - Blooded Arcane Strike,
@@ -80,7 +80,7 @@ enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
 - replaces favored enemy for Sacred huntsmater with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
-- Legendary proportions increases size by only one category and changes Natural Armaor bonus to untyped (instead of enchancement).
+- Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement).
 
 
 Mod also changes stats of some npcs

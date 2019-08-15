@@ -653,7 +653,7 @@ namespace CallOfTheWild
                                          "",
                                          null,
                                          null,
-                                         Common.createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(sacred_armor_enchancement_group,
+                                         Common.createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(sacred_weapon_enchancement_group,
                                                                                                       false, true,
                                                                                                       enchants
                                                                                                       )
