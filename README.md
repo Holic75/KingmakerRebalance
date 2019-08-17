@@ -24,6 +24,7 @@ New feats:
 - Feral Combat Training,
 - Coordinated Shot,
 - Skald's Vigor and Greater Skald's Vigor,
+- Stalwart and Improved Stalwart,
 - Quick Channel,
 - Bonded Mind and Share Spell.
 
