@@ -117,6 +117,7 @@ public class Main
                 CallOfTheWild.Rebalance.fixMagicVestment();
                 CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();
                 CallOfTheWild.Rebalance.fixAnimalGrowth();
+                CallOfTheWild.Rebalance.fixIncreasedDamageReduction();
                 //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                 CallOfTheWild.Wildshape.load();

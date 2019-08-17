@@ -1104,7 +1104,6 @@ namespace CallOfTheWild
             feats = feats.AddToArray(damage_reduction);
             Helpers.SetField(c, "m_FeatureList", feats);
             
-            var increase_damage_reduction = library.Get<BlueprintFeature>("ddaee203ee4dcb24c880d633fbd77db6");
             //allow to dr share feats (only from skald)
             var dr_share_buff = Helpers.CreateBuff("SkaldSharedDr",
                                           "",
@@ -1114,7 +1113,7 @@ namespace CallOfTheWild
                                           null,
                                           damage_reduction.GetComponent<AddDamageResistancePhysical>(),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks,
-                                                                          featureList: new BlueprintFeature[]{ damage_reduction, increase_damage_reduction, increase_damage_reduction})
+                                                                          featureList: new BlueprintFeature[]{ damage_reduction})
                                           );
             dr_share_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             var share_dr_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true) },

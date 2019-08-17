@@ -828,12 +828,12 @@ namespace CallOfTheWild
 
             static void createAbnormalReach()
             {
-                var stone_fist = library.Get<BlueprintAbility>("85067a04a97416949b5d1dbf986d93f3");
+                var polymorph = library.Get<BlueprintAbility>("93d9d74dac46b9b458d4d2ea7f4b1911");
                 var abnormal_reach_buff = Helpers.CreateBuff(prefix + "AbnormalReachBuff",
                                                              "Abnormal Reach",
                                                              "At 4th level, your limbs elongate; your reach increases by 5 feet.",
                                                              "a2594e07ae5b489aaca41c6375a6d847",
-                                                             stone_fist.Icon,
+                                                             polymorph.Icon,
                                                              null,
                                                              Helpers.CreateAddStatBonus(StatType.Reach, 5, ModifierDescriptor.None)
                                                              );
@@ -1249,7 +1249,7 @@ namespace CallOfTheWild
                 Helpers.SetField(resource, "m_MaxAmount", amount);
 
                 var fleeting_glance_ability = library.CopyAndAdd<BlueprintActivatableAbility>("ba5ead16619d2c64697968224163280b", prefix + "FleetingGlanceActivatableAbility", "625503853eea46f78e049841c0d27d4c");
-                fleeting_glance_ability.SetDescription("At 12th level, you can turn invisible for a number of rounds per day equal to your bloodrager level. This ability functions as greater invisibility. These rounds need not be consecutive. You can use this ability even when not bloodraging.\nGreater Invisibility: This spell functions like invisibility, except that it doesn't end if the subject attacks.\nInvisibility: The creature becomes invisible. If a check is required, an invisible creature has a +20 bonus on its Stealth checks. The spell ends if the subject attacks any creature. For purposes of this spell, an attack includes any spell targeting a foe or whose area or effect includes a foe. Exactly who is a foe depends on the invisible character's perceptions. Actions directed at unattended objects do not break the spell. Causing harm indirectly is not an attack. Thus, an invisible being can open doors, talk, eat, climb stairs, summon monsters and have them attack, cut the ropes holding a rope bridge while enemies are on the bridge, remotely trigger traps, open a portcullis to release attack dogs, and so forth. If the subject attacks directly, however, it immediately becomes visible along with all its gear. Spells such as bless that specifically affect allies but not foes are not attacks for this purpose, even when they include foes in their area.");
+                fleeting_glance_ability.SetDescription("At 16th level, you can turn invisible for a number of rounds per day equal to your bloodrager level. This ability functions as greater invisibility. These rounds need not be consecutive. You can use this ability even when not bloodraging.\nGreater Invisibility: This spell functions like invisibility, except that it doesn't end if the subject attacks.\nInvisibility: The creature becomes invisible. If a check is required, an invisible creature has a +20 bonus on its Stealth checks. The spell ends if the subject attacks any creature. For purposes of this spell, an attack includes any spell targeting a foe or whose area or effect includes a foe. Exactly who is a foe depends on the invisible character's perceptions. Actions directed at unattended objects do not break the spell. Causing harm indirectly is not an attack. Thus, an invisible being can open doors, talk, eat, climb stairs, summon monsters and have them attack, cut the ropes holding a rope bridge while enemies are on the bridge, remotely trigger traps, open a portcullis to release attack dogs, and so forth. If the subject attacks directly, however, it immediately becomes visible along with all its gear. Spells such as bless that specifically affect allies but not foes are not attacks for this purpose, even when they include foes in their area.");
                 fleeting_glance_ability.ReplaceComponent<ActivatableAbilityResourceLogic>(Helpers.CreateActivatableResourceLogic(resource, ResourceSpendType.NewRound));
 
                 fleeting_glance = Helpers.CreateFeature(prefix + "FleetingGlanceFeature",

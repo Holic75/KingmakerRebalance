@@ -143,7 +143,11 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-
+                if (evt.Spell.SourceItem != null)
+                {
+                    caster_level_increase = -1;
+                    return;
+                }
             }
 
 

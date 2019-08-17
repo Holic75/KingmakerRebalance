@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -25,6 +26,8 @@ namespace CallOfTheWild
         static internal BlueprintFeature blooded_arcane_strike;
         static internal BlueprintFeature riving_strike;
         static internal BlueprintFeature coordinated_shot;
+        static internal BlueprintFeature stalwart;
+        static internal BlueprintFeature improved_stalwart;
         
         static internal void load()
         {
@@ -32,6 +35,7 @@ namespace CallOfTheWild
             createBloodedArcaneStrike();
             createRivingStrike();
             createCoordiantedShot();
+            createStalwart();
             FeralCombatTraining.load();
 
             ChannelEnergyEngine.createQuickChannel();
@@ -188,6 +192,111 @@ namespace CallOfTheWild
             coordinated_shot.Groups = coordinated_shot.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat);
             library.AddCombatFeats(coordinated_shot);
             Common.addTemworkFeats(coordinated_shot);
+        }
+
+
+        static void createStalwart()
+        {
+            var diehard = library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad");
+            var endurance = library.Get<BlueprintFeature>("54ee847996c25cd4ba8773d7b8555174");
+            var half_orc_ferocity = library.Get<BlueprintFeature>("c99f3405d1ef79049bd90678a666e1d7");
+
+            var resistance = library.Get<BlueprintBuff>("df680f6687f935e408eba6fb5124930e");
+            stalwart = Helpers.CreateFeature("StalwartFeat",
+                                                         "Stalwart",
+                                                         "While using the total defense action, fighting defensively action, or Combat Expertise, you can forgo the dodge bonus to AC you would normally gain to instead gain an equivalent amount of DR, until the start of your next turn.",
+                                                         "",
+                                                         null,
+                                                         FeatureGroup.Feat,
+                                                         Helpers.PrerequisiteFeature(endurance),
+                                                         Helpers.PrerequisiteFeature(diehard, true),
+                                                         Helpers.PrerequisiteFeature(half_orc_ferocity, true),
+                                                         Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 4)
+                                                         );
+
+            var stalwart_toggle_buff = Helpers.CreateBuff("StalwartToggleBuff",
+                                                          stalwart.Name,
+                                                          stalwart.Description
+                                                          + "\nNote: your DR bonus doubles if you have Improved Stalwart feat.",
+                                                          "",
+                                                          resistance.Icon,
+                                                          null);
+            var stalwart_toggle = Helpers.CreateActivatableAbility("StalwartActivatableAbility",
+                                                                   stalwart_toggle_buff.Name,
+                                                                   stalwart_toggle_buff.Description,
+                                                                   "",
+                                                                   stalwart_toggle_buff.Icon,
+                                                                   stalwart_toggle_buff,
+                                                                   AbilityActivationType.Immediately,
+                                                                   Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                                   null);
+            stalwart_toggle.DeactivateImmediately = true;
+            stalwart.AddComponent(Helpers.CreateAddFact(stalwart_toggle));
+
+            improved_stalwart = Helpers.CreateFeature("ImprovedStalwartFeat",
+                                             "Improved Stalwart",
+                                             "Double the DR you gain from Stalwart",
+                                             "",
+                                             null,
+                                             FeatureGroup.Feat,
+                                             Helpers.PrerequisiteFeature(stalwart),
+                                             Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11)
+                                             );
+            
+
+            var combat_expertise_toggle = library.Get<BlueprintActivatableAbility>("a75f33b4ff41fc846acbac75d1a88442");
+            var fight_defensively_toggle = library.Get<BlueprintActivatableAbility>("09d742e8b50b0214fb71acfc99cc00b3");
+
+            stalwarBuffReplacement(combat_expertise_toggle, stalwart_toggle_buff);
+            stalwarBuffReplacement(fight_defensively_toggle, stalwart_toggle_buff);
+
+            library.AddFeats(stalwart, improved_stalwart);
+        }
+
+        static void stalwarBuffReplacement(BlueprintActivatableAbility toggle_ability, BlueprintBuff stalwart_toggle_buff)
+        {
+            var toggle_buff = toggle_ability.Buff;
+            var stalwart_buff = Helpers.CreateBuff("Stalwart" + toggle_buff.name,
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   null,
+                                                   toggle_buff.ComponentsArray
+                                                   );
+            stalwart_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var ac_component = stalwart_buff.GetComponents<AddStatBonusAbilityValue>().Where(c => c.Stat == StatType.AC).FirstOrDefault();
+            if (ac_component != null)
+            {
+                stalwart_buff.ReplaceComponent(ac_component, Common.createContextPhysicalDR(ac_component.Value));
+            }
+            else
+            {//combat expertise
+                var scaled_dr = Common.createContextPhysicalDR(Helpers.CreateContextValue(AbilityRankType.StatBonus));
+                stalwart_buff.ReplaceComponent<AddStatBonus>(scaled_dr);
+                stalwart_buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.BaseAttack, progression: ContextRankProgression.OnePlusDivStep,
+                                                                           type: AbilityRankType.StatBonus, stepLevel: 4));
+            }
+            
+            var improved_stalwart_buff = library.CopyAndAdd<BlueprintBuff>(stalwart_buff.AssetGuid, "ImprovedStalwart" + toggle_buff.name, "");
+            improved_stalwart_buff.AddComponent(improved_stalwart_buff.GetComponent<AddDamageResistancePhysical>());
+
+            var new_toggle_buff = library.CopyAndAdd<BlueprintBuff>(toggle_buff.AssetGuid, "Base" + toggle_buff.Name, "");
+            toggle_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var context_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(stalwart_toggle_buff),
+                                                           Helpers.CreateConditional(Common.createContextConditionCasterHasFact(improved_stalwart),
+                                                                                     Common.createContextActionApplyBuff(improved_stalwart_buff, Helpers.CreateContextDuration(),
+                                                                                                                         is_child: true, dispellable: false, is_permanent: true),
+                                                                                     Common.createContextActionApplyBuff(stalwart_buff, Helpers.CreateContextDuration(),
+                                                                                                                         is_child: true, dispellable: false, is_permanent: true)
+                                                                                     ),
+                                                           Common.createContextActionApplyBuff(toggle_buff, Helpers.CreateContextDuration(),
+                                                                                               is_child: true, dispellable: false, is_permanent: true)
+                                                         );
+            new_toggle_buff.SetComponents(Helpers.CreateAddFactContextActions(context_action));
+            toggle_ability.Buff = new_toggle_buff;
         }
 
     }

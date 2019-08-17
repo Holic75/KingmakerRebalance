@@ -137,6 +137,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
+
                 cost_to_pay = 0;
 
                 if (!CanBeUsedOn(evt.Spell, evt.AbilityData))
@@ -157,8 +158,9 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCastSpell evt)
             {
 
-                if (cost_to_pay == 0)
+                if (cost_to_pay == 0 || evt.Spell.SourceItem != null)
                 {
+                    cost_to_pay = 0;
                     return;
                 }
 
@@ -231,7 +233,11 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-
+                if (cost_to_pay == 0 || evt.Spell.SourceItem != null)
+                {
+                    cost_to_pay = 0;
+                    return;
+                }
             }
 
             public void OnEventDidTrigger(RuleCastSpell evt)
@@ -318,7 +324,11 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-
+                if (cost_to_pay == 0 || evt.Spell.SourceItem != null)
+                {
+                    cost_to_pay = 0;
+                    return;
+                }
             }
 
             public void OnEventDidTrigger(RuleCastSpell evt)
