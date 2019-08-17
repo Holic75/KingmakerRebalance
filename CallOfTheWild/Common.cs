@@ -2270,5 +2270,13 @@ namespace CallOfTheWild
             }
             c.Feature.AddComponent(Helpers.CreateAddFact(feature));
         }
+
+        public static ContextConditionHasBuffFromCaster createContextConditionHasBuffFromCaster(BlueprintBuff buff, bool not = false)
+        {
+            var c = Helpers.Create<ContextConditionHasBuffFromCaster>();
+            c.Buff = buff;
+            c.Not = not;
+            return c;
+        }
     }
 }

@@ -1820,7 +1820,7 @@ namespace CallOfTheWild
 
         public static ContextActionConditionalSaved CreateConditionalSaved(GameAction success, GameAction failed)
         {
-            return CreateConditionalSaved(new GameAction[] { success }, new GameAction[] { failed });
+            return CreateConditionalSaved(success == null ? new GameAction[0] : new GameAction[] { success }, failed == null? new GameAction[0] : new GameAction[] { failed });
         }
 
         public static Conditional CreateConditional(Condition condition, GameAction ifTrue, GameAction ifFalse = null)

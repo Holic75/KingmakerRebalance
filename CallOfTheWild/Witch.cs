@@ -1075,7 +1075,7 @@ namespace CallOfTheWild
         static void createSummerHeat()
         {
             summer_heat = hex_engine.createSummerHeat("WitchSummerHeat", "Summer's Heat",
-                                                      "Effect: The witch surrounds her target with oppressive heat, dealing a number of points of nonlethal damage equal to her witch level and causing the target to become fatigued. The target can attempt a Fortitude save to reduce this nonlethal damage by half and negate the fatigued condition. Whether or not the target succeeds at this save, it can’t be the target of this hex again for 1 day.",
+                                                      "Effect: The witch surrounds her target with oppressive heat, dealing a number of points of fire damage equal to her witch level and causing the target to become fatigued. The target can attempt a Fortitude save to reduce this damage by half and negate the fatigued condition. Whether or not the target succeeds at this save, it can’t be the target of this hex again for 1 day.",
                                                        "008a70774dbf48058810c565dad93fce",
                                                        "0c2bce51244647329e7e753b07548d10",
                                                        "383672cfa7804b20b3c27d20cf62bc73",

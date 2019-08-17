@@ -2688,6 +2688,99 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class TouchACBonus : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleCalculateAC>, IRulebookHandler<RuleCalculateAC>, ITargetRulebookSubscriber
+        {
+            public ModifierDescriptor Descriptor;
+            public ContextValue value;
+
+            public void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                int bonus = value.Calculate(this.Fact.MaybeContext);
+                if (!ModifiableValue.DefaultStackingDescriptors.Contains(Descriptor))
+                {
+                    bonus -= this.Owner.Stats.AC.GetDescriptorBonus(this.Descriptor);
+                }
+
+                bonus = Math.Min(this.Owner.Stats.AC.ModifiedValue - this.Owner.Stats.AC.Touch, bonus);
+
+                if (bonus <= 0 || evt.IsTargetFlatFooted || !evt.AttackType.IsTouch())
+                {
+                    return;
+                }
+                evt.AddBonus(bonus, this.Fact);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAC evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class DamageBonusAgainstSpellUser : BuffLogic, ITargetRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, ITargetRulebookSubscriber
+        {
+            public ContextValue Value;
+            public bool arcane = true;
+            public bool divine = true;
+            public bool spell_like = true;
+
+
+            private bool isValidTarget(UnitDescriptor unit)
+            {
+                foreach (ClassData classData in unit.Progression.Classes)
+                {
+                    BlueprintSpellbook spellbook = classData.Spellbook;
+                    if (spellbook == null)
+                    {
+                        continue;
+                    }
+
+                    if (spellbook.IsArcane && arcane)
+                    {
+                        return true;
+                    }
+
+                    if (!spellbook.IsArcane && !spellbook.IsAlchemist && divine)
+                    {
+                        return true;
+                    }
+                }
+
+                if (!spell_like)
+                {
+                    return false;
+                }
+
+                foreach (var a in unit.Abilities)
+                {
+                    if (a.Blueprint.Type == AbilityType.SpellLike || a.Blueprint.Type == AbilityType.Spell)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                if (!isValidTarget(evt.Target.Descriptor))
+                {
+                    return;
+                }
+
+                int bonus = Value.Calculate(this.Context);
+                evt.DamageBundle.First?.AddBonus(bonus);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+
+        }
+
     }
 
 }

@@ -1066,7 +1066,12 @@ namespace CallOfTheWild
                                                                library.Get<BlueprintBuff>("c6271b3183c48d54b8defd272bea0665"), //lethal stance
                                                                library.Get<BlueprintBuff>("a8a733d2605c66548b652f312ea4dbf3"), //reckless stance
                                                                NewRagePowers.greater_celestial_totem_buff,
+                                                               NewRagePowers.superstition_buff,
+                                                               NewRagePowers.ghost_rager_buff,
+                                                               NewRagePowers.witch_hunter_buff
                                                               };
+            buffs_to_fix = buffs_to_fix.AddToArray(NewRagePowers.energy_resistance_buff);
+
             foreach (var b in buffs_to_fix)
             {
                 var c = b.GetComponent<ContextRankConfig>();

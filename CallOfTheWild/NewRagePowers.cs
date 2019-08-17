@@ -11,6 +11,7 @@ using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -21,6 +22,7 @@ using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
 using System;
@@ -74,6 +76,16 @@ namespace CallOfTheWild
         static internal BlueprintBuff lesser_daemon_totem_buff;
         static internal BlueprintFeature daemon_totem;
         static internal BlueprintFeature greater_daemon_totem;
+        static internal BlueprintFeature superstition_feature;
+        static internal BlueprintBuff superstition_buff;
+        static internal BlueprintFeature ghost_rager_feature;
+        static internal BlueprintBuff ghost_rager_buff;
+        static internal BlueprintFeature witch_hunter_feature;
+        static internal BlueprintBuff witch_hunter_buff;
+
+        static internal BlueprintFeature[] energy_resistance_feature;
+        static internal BlueprintBuff[] energy_resistance_buff;
+
 
         static internal List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
@@ -103,6 +115,12 @@ namespace CallOfTheWild
             createLesserDaemonTotem();
             createDaemonTotem();
             createGreaterDaemonTotem();
+
+            createSuperstition();
+            createGhostRager();
+            createWitchHunter();
+
+            createEnergyResistance();
         }
 
 
@@ -718,7 +736,153 @@ namespace CallOfTheWild
             taunting_stance.Groups = new FeatureGroup[] { FeatureGroup.RagePower };
             addToSelection(taunting_stance);
         }
+
+
+        static void createSuperstition()
+        {
+            var spell_resistance = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889");
+            superstition_buff = Helpers.CreateBuff("SuperstitionEffectBuff",
+                                                         "Superstition",
+                                                         "The Barbarian gains spell resistance 5. It increases by 5 points at level 4 and every 4 levels therafter to a maximum of 30 at level 20.\n"
+                                                         + "This spell resistance applies both against harmful and friendly spells.",
+                                                         "",
+                                                         null,
+                                                         null,
+                                                         Helpers.Create<AddSpellResistance>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Custom,
+                                                                                         type: AbilityRankType.StatBonus, classes: new BlueprintCharacterClass[] { barbarian_class },
+                                                                                         customProgression: new (int, int)[] {
+                                                                                                                                (3, 5),
+                                                                                                                                (7, 10),
+                                                                                                                                (11, 15),
+                                                                                                                                (15, 20),
+                                                                                                                                (19, 25),
+                                                                                                                                (20, 30)
+                                                                                                                             }
+                                                                                         )
+                                                         );
+            superstition_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            superstition_feature = Helpers.CreateFeature("SuperstitionFeature",
+                                                           superstition_buff.Name,
+                                                           superstition_buff.Description,
+                                                           "",
+                                                           spell_resistance.Icon,
+                                                           FeatureGroup.RagePower);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, superstition_buff, superstition_feature);
+            addToSelection(superstition_feature);
+        }
+
+
+        static void createGhostRager()
+        {
+            ghost_rager_buff = Helpers.CreateBuff("GhostRagerEffectBuff",
+                                                         "Ghost Rager",
+                                                         "While raging, the barbarian deals normal damage to incorporeal creatures even when using nonmagical weapons.\n"
+                                                         + "She also gains a + 3 morale bonus to touch AC, which increases by 1 at 8th level and every 4 levels thereafter (to a maximum of + 7 at 20th level). This can’t raise her touch AC above her full AC.",
+                                                         "",
+                                                         null,
+                                                         null,
+                                                         Helpers.Create<WeaponReality>(w => w.Reality = DamageRealityType.Ghost),
+                                                         Helpers.Create<NewMechanics.TouchACBonus>(t =>
+                                                                                                     {
+                                                                                                         t.Descriptor = ModifierDescriptor.Morale;
+                                                                                                         t.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+                                                                                                     }
+                                                         ),
+                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                         type: AbilityRankType.StatBonus, classes: new BlueprintCharacterClass[] { barbarian_class },
+                                                                                         startLevel: -4, stepLevel: 4
+                                                                                         )
+                                                        );
+            ghost_rager_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            ghost_rager_feature = Helpers.CreateFeature("GhostRagerFeature",
+                                                           ghost_rager_buff.Name,
+                                                           ghost_rager_buff.Description,
+                                                           "",
+                                                           library.Get<BlueprintFeature>("8896f327c59569c4eaf129bf35b96c1f").Icon, //ghost weapon
+                                                           FeatureGroup.RagePower,
+                                                           Helpers.PrerequisiteClassLevel(barbarian_class, 6),
+                                                           Helpers.PrerequisiteFeature(superstition_feature));
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, ghost_rager_buff, ghost_rager_feature);
+            addToSelection(ghost_rager_feature);
+        }
+
+
+        static void createWitchHunter()
+        {
+            witch_hunter_buff = Helpers.CreateBuff("WitchHunterEffectBuff",
+                                                         "Witch Hunter",
+                                                         "While raging, the barbarian gains a +1 bonus on damage rolls against creatures possessing spells or spell-like abilities. This damage bonus increases by +1 for every four levels the barbarian has obtained.",
+                                                         "",
+                                                         null,
+                                                         null,
+                                                         Helpers.Create<NewMechanics.DamageBonusAgainstSpellUser>(d => d.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                         type: AbilityRankType.StatBonus, classes: new BlueprintCharacterClass[] { barbarian_class },
+                                                                                         stepLevel: 4
+                                                                                         )
+                                                        );
+            witch_hunter_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            witch_hunter_feature = Helpers.CreateFeature("WitchHunterFeatureFeature",
+                                                           witch_hunter_buff.Name,
+                                                           witch_hunter_buff.Description,
+                                                           "",
+                                                           library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8").Icon, //holy weapon
+                                                           FeatureGroup.RagePower,
+                                                           Helpers.PrerequisiteFeature(superstition_feature));
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, witch_hunter_buff, witch_hunter_feature);
+            addToSelection(witch_hunter_feature);
+        }
+
+
+        static void createEnergyResistance()
+        {
+            DamageEnergyType[] energy = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Fire, DamageEnergyType.Electricity, DamageEnergyType.Sonic };
+            UnityEngine.Sprite[] icons = new UnityEngine.Sprite[]
+            {
+                library.Get<BlueprintAbility>("fedc77de9b7aad54ebcc43b4daf8decd").Icon,
+                library.Get<BlueprintAbility>("5368cecec375e1845ae07f48cdc09dd1").Icon,
+                library.Get<BlueprintAbility>("ddfb4ac970225f34dbff98a10a4a8844").Icon,
+                library.Get<BlueprintAbility>("90987584f54ab7a459c56c2d2f22cee2").Icon,
+                library.Get<BlueprintAbility>("8d3b10f92387c84429ced317b06ad001").Icon
+            };
+            energy_resistance_buff = new BlueprintBuff[energy.Length];
+            energy_resistance_feature = new BlueprintFeature[energy.Length];
+            for (int i = 0; i < energy.Length; i++)
+            {
+                energy_resistance_buff[i] = Helpers.CreateBuff(energy[i].ToString() + "ResistanceEffectRagePowerBuff",
+                                                              energy[i].ToString() + "  Resistance",
+                                                              "While raging, the barbarian gains resistance to specified energy type equal to 1/2 her barbarian level (minimum 1). The energy type is chosen when this rage power is selected and it cannot be changed. ",
+                                                              "",
+                                                              null,
+                                                              null,
+                                                              Common.createEnergyDRContextRank(energy[i]),
+                                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
+                                                                                              type: AbilityRankType.StatBonus, classes: new BlueprintCharacterClass[] { barbarian_class }
+                                                                                              )
+                                                              );
+                energy_resistance_buff[i].SetBuffFlags(BuffFlags.HiddenInUi);
+
+                energy_resistance_feature[i] = Helpers.CreateFeature(energy[i].ToString() + "ResistanceRagePowerFeature",
+                                                                     energy_resistance_buff[i].Name,
+                                                                     energy_resistance_buff[i].Description,
+                                                                     "",
+                                                                     icons[i],
+                                                                     FeatureGroup.None);
+
+
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(energy_resistance_buff[i], ghost_rager_buff, energy_resistance_feature[i]);
+                addToSelection(energy_resistance_feature[i]);
+            }
+        }
     }
+
 
     [Harmony12.HarmonyPatch(typeof(ContextActionHealTarget))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
@@ -737,6 +901,21 @@ namespace CallOfTheWild
             {
                 int bonus = context.Params.CasterLevel;
                 context.TriggerRule<RuleHealDamage>(new RuleHealDamage(target, target, DiceFormula.Zero, bonus));
+            }
+        }
+    }
+
+
+    //to allow heal with celestial totem
+    [Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
+    [Harmony12.HarmonyPatch("HasResistanceRoll", Harmony12.MethodType.Getter)]
+    class Patch_RuleSpellResistanceCheck_HasResistanceRoll_Postfix
+    {
+        static public void Postfix(RuleSpellResistanceCheck __instance, ref bool __result)
+        {
+            if (__result == false && __instance.Target.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff))
+            {
+                __result = (__instance.Ability != null) && __instance.Ability.IsSpell;
             }
         }
     }
