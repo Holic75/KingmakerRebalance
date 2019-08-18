@@ -189,14 +189,14 @@ namespace CallOfTheWild
                                          "Bonded Mind",
                                          "You and your partner are so close that you can almost read each other’s minds. You can be target of the spells with range of Personal of any of your companions who have Share Spells feat.",
                                          "",
-                                         null,
+                                         LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Bonded_Mind.png"),
                                          FeatureGroup.Feat);
             bonded_mind_feat.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.TeamworkFeat };
             share_spells_feat = Helpers.CreateFeature("SharedSpellFeat",
                              "Share Spells",
                              "You can cast a spell with a range of Personal on an ally as a touch spell, as per the share spells familiar ability, so long as the ally possesses the Bonded Mind feat.",
                              "",
-                             null,
+                             LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Share_Spells.png"),
                              FeatureGroup.Feat,
                              Helpers.PrerequisiteFeature(bonded_mind_feat),
                              Helpers.PrerequisiteFeaturesFromList(new BlueprintFeature[] { ac_share_spell, familiar_share_spell }, true)

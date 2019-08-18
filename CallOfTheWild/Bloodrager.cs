@@ -2731,14 +2731,14 @@ namespace CallOfTheWild
 
         static void createRageCastingFeat()
         {
-            var contagion = library.Get<BlueprintAbility>("48e2744846ed04b4580be1a3343a5d3d"); //contagion
+            //var contagion = library.Get<BlueprintAbility>("48e2744846ed04b4580be1a3343a5d3d"); //contagion
             var rage_casting = Helpers.Create<NewMechanics.RageCasting>();
             rage_casting.BonusDC = 4;
             var buff = Helpers.CreateBuff("RageCastingFeatBuff",
                                           "Rage Casting",
                                           "When you cast a bloodrager spell, as a swift action you can sacrifice some of your life force to augment the spell’s potency. You can opt to take 1d6 points of damage per spell level of the spell you are casting. You cannot overcome this damage in any way, and it cannot be taken from temporary hit points. For each of these damage dice you roll, the DC of the spell you are casting increases by 1.",
                                           "",
-                                          contagion.Icon,
+                                          LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Casting_Rage.png"),//contagion.Icon,
                                           null,
                                           rage_casting
                                           );
@@ -2758,7 +2758,7 @@ namespace CallOfTheWild
                                              ability.Name,
                                              ability.Description,
                                              "",
-                                             null,
+                                             buff.Icon,
                                              FeatureGroup.Feat,
                                              Helpers.CreateAddFact(ability),
                                              Helpers.PrerequisiteClassLevel(bloodrager_class, 4)

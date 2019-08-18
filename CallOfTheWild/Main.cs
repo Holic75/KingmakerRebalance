@@ -86,6 +86,7 @@ public class Main
             {
                 Main.DebugLog("Loading Call of the Wild");
 
+                CallOfTheWild.LoadIcons.Image2Sprite.icons_folder = @"Mods\CallOfTheWild\Icons\";
                 CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints);
                 CallOfTheWild.Helpers.Load();
                 CallOfTheWild.ArmorEnchantments.initialize();

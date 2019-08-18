@@ -97,6 +97,10 @@
       <HintPath>C:\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker\Kingmaker_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>..\..\..\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker\Kingmaker_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>C:\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker\Kingmaker_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
@@ -133,6 +137,7 @@
     <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="FeralCombatTraining.cs" />
     <Compile Include="HexEngine.cs" />
+    <Compile Include="LoadIcons.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Hunter.cs" />
@@ -181,4 +186,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(ProjectDir)/Icons" "$(TargetDir)/Icons" /e /y /i /r</PostBuildEvent>
+  </PropertyGroup>
 </Project>

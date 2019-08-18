@@ -1494,7 +1494,7 @@ namespace CallOfTheWild
                                                       accursed_hex_buff.Name,
                                                       accursed_hex_buff.Description,
                                                       "",
-                                                      null,
+                                                      LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Accursed.png"),
                                                       FeatureGroup.Feat);
             library.AddFeats(accursed_hex_feat);
         }
@@ -1506,7 +1506,7 @@ namespace CallOfTheWild
                                                        "Amplified Hex",
                                                        "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level. Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd - level spell the second time, a 3rdlevel spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
                                                        "",
-                                                       null,
+                                                       LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Amplified.png"),
                                                        FeatureGroup.Feat);
             var circle_of_death = library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"); //circle of death
             amplified_hex_buff = Helpers.CreateBuff("AmplifiedHexBuff",

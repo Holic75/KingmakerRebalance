@@ -72,7 +72,7 @@ namespace CallOfTheWild
                                                                    "Choose one of your natural weapons. While using the selected natural weapon, you can apply the effects of feats that have Improved Unarmed Strike as a prerequisite.\n"
                                                                    + "Special: If you are a monk, you can use the selected natural weapon with your flurry of blows class feature.",
                                                                    "",
-                                                                   null,
+                                                                   LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Feral_Combat.png"),
                                                                    FeatureGroup.CombatFeat,
                                                                    Helpers.PrerequisiteFeature(improved_unarmed_strike)
                                                                    );
@@ -85,7 +85,7 @@ namespace CallOfTheWild
                                                                feral_combat_training.Name + $" ({natural_weapon_entry.name})",
                                                                feral_combat_training.Description,
                                                                "",
-                                                               null,
+                                                               feral_combat_training.Icon,
                                                                FeatureGroup.CombatFeat,
                                                                Helpers.PrerequisiteFeature(improved_unarmed_strike),
                                                                Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, natural_weapon_entry.category, any: true)

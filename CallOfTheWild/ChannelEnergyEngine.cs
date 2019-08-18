@@ -77,7 +77,7 @@ namespace CallOfTheWild
                                                   "Quick Channel",
                                                   "You may channel energy as a move action by spending 2 daily uses of that ability.",
                                                   "",
-                                                  null,
+                                                  LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Channel_Quick.png"),
                                                   FeatureGroup.Feat,
                                                   Helpers.PrerequisiteStatValue(Kingmaker.EntitySystem.Stats.StatType.SkillLoreReligion, 5));
             foreach (var e in positive_heal.ToArray())

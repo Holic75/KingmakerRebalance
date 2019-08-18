@@ -1262,7 +1262,7 @@ namespace CallOfTheWild
                                                             "You gain one additional hex. You must meet the prerequisites for this hex. If you are a shaman, it must be a hex granted by your spirit rather than one from a wandering spirit.\n"
                                                             + "Special: You can take this feat multiple times. Each time you do, you gain another hex.",
                                                             "5d3b5b72afb940d4b9aab740d8925b53",
-                                                            null,
+                                                            LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Extra.png"),
                                                             FeatureGroup.Feat,
                                                             Helpers.PrerequisiteClassLevel(witch_class, 1));
             extra_hex_feat_selection.AllFeatures = hex_selection.Features;

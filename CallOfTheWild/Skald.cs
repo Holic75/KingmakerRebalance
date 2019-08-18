@@ -181,7 +181,7 @@ namespace CallOfTheWild
                                                      "Skald's Vigor",
                                                      "While maintaining a raging song, you gain fast healing equal to the Strength bonus your song provides, starting in the round after you begin the song.",
                                                      "",
-                                                     null,
+                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Skalds_Vigor.png"),
                                                      FeatureGroup.Feat,
                                                      Helpers.PrerequisiteClassLevel(skald_class, 1)
                                                      );
@@ -190,7 +190,7 @@ namespace CallOfTheWild
                                          "Greater Skald's Vigor",
                                          "Your allies share in the fast healing granted by your Skald’s Vigor, starting in the round when you begin your performance. They must be able to hear the performance.",
                                          "",
-                                         null,
+                                         LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Skalds_Vigor_Greater.png"),
                                          FeatureGroup.Feat,
                                          Helpers.PrerequisiteClassLevel(skald_class, 10),
                                          Helpers.PrerequisiteFeature(skald_vigor_feat)

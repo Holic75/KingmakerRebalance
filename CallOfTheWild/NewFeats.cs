@@ -39,12 +39,20 @@ namespace CallOfTheWild
             FeralCombatTraining.load();
 
             ChannelEnergyEngine.createQuickChannel();
+
+            replaceIconsForExistingFeats();
         }
 
 
+        static void replaceIconsForExistingFeats()
+        {
+            var arcane_strike_feature = library.Get<BlueprintFeature>("0ab2f21a922feee4dab116238e3150b4");
+            arcane_strike_feature.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_strike.png"));
+        }
+
         static internal void createRagingBrutality()
         {
-            var destructive_smite = library.Get<BlueprintActivatableAbility>("e69898f762453514780eb5e467694bdb");
+            //var destructive_smite = library.Get<BlueprintActivatableAbility>("e69898f762453514780eb5e467694bdb");
             var power_attack_buff = library.Get<BlueprintBuff>("5898bcf75a0942449a5dc16adc97b279");
             var rage_resource = library.Get<BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
             var power_attack_feature = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
@@ -53,7 +61,7 @@ namespace CallOfTheWild
                                           "Raging Brutality",
                                           "While raging and using Power Attack, you can spend 3 additional rounds of your rage as a swift action to add your Constitution bonus on damage rolls for melee attacks or thrown weapon attacks you make on your turn. If you are using the weapon two-handed, instead add 1-1/2 times your Constitution bonus.",
                                           "",
-                                          destructive_smite.Icon,
+                                          LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Raging_Brutality.png"), //destructive_smite.Icon,
                                           null,
                                           Common.createContextWeaponDamageBonus(Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Constitution, type: AbilityRankType.DamageBonus));
@@ -114,7 +122,7 @@ namespace CallOfTheWild
                                                           "Blooded Arcane Strike",
                                                           "While you are bloodraging, you don’t need to spend a swift action to use your Arcane Strike—it is always in effect. When you use this ability with Vital Strike, Improved Vital Strike, or Greater Vital Strike, the bonus on damage rolls for Arcane Strike is multiplied by the number of times (two, three, or four) you roll damage dice for one of those feats.",
                                                           "",
-                                                          arcane_strike_feature.Icon,
+                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_Blooded_Strike.png"), //arcane_strike_feature.Icon
                                                           FeatureGroup.CombatFeat,
                                                           Helpers.PrerequisiteFeature(arcane_strike_feature),
                                                           Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 1)
@@ -138,7 +146,7 @@ namespace CallOfTheWild
                                             "Riving Strike Penalty",
                                             "Target receives -2 penalty to saving throws against spells and spell-like abilities",
                                             "",
-                                            arcane_strike_feature.Icon,
+                                            LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_Riving_Strike.png"), //arcane_strike_feature.Icon,
                                             null,
                                             Common.createSavingThrowBonusAgainstAbilityType(-2, Common.createSimpleContextValue(0), AbilityType.Spell),
                                             Common.createSavingThrowBonusAgainstAbilityType(-2, Common.createSimpleContextValue(0), AbilityType.SpellLike)
@@ -153,7 +161,7 @@ namespace CallOfTheWild
                                           "Riving Strike",
                                           "If you have a weapon that is augmented by your Arcane Strike feat, when you damage a creature with an attack made with that weapon, that creature takes a –2 penalty on saving throws against spells and spell-like abilities. This effect lasts for 1 round.",
                                           "",
-                                          arcane_strike_feature.Icon,
+                                          debuff.Icon,
                                           null,
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(debuff_action))
                                           );
@@ -178,7 +186,7 @@ namespace CallOfTheWild
                                                      "Coordinated Shot",
                                                      "If your ally with this feat is threatening an opponent and is not providing cover to that opponent against your ranged attacks, you gain a +1 bonus on ranged attacks against that opponent. If your ally with this feat is flanking that opponent with another ally (even if that other ally doesn’t have this feat), this bonus increases to +2.",
                                                      "",
-                                                     point_blank_shot.Icon,
+                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Shot_Coordinated.png"), //point_blank_shot.Icon,
                                                      FeatureGroup.Feat,
                                                      Helpers.PrerequisiteFeature(point_blank_shot));
 

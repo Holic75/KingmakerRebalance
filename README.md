@@ -33,6 +33,10 @@ New rage powers:
 - Taunting Stance,
 - Unrestrained Rage,
 - Quick Reflexes,
+- Superstition,
+- Ghost Rager,
+- Witch Hunter,
+- Energy Ressitance,
 - Atavism Totem Lesser,
 - Atavism Totem,
 - Atavism Totem Greater,
@@ -102,3 +106,5 @@ Install
 - Download the mod
 - Build it using Visual Studio 2017 Community Edition or use prebuilt binaries from latest Releases (just drop archive into UMM GUI)
 - Run the game
+
+Big thanks to Nolanoth  for providing new icons for the mod.

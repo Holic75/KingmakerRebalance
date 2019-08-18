@@ -877,7 +877,7 @@ namespace CallOfTheWild
                                                                      FeatureGroup.None);
 
 
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(energy_resistance_buff[i], ghost_rager_buff, energy_resistance_feature[i]);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, energy_resistance_buff[i], energy_resistance_feature[i]);
                 addToSelection(energy_resistance_feature[i]);
             }
         }
