@@ -368,7 +368,7 @@ namespace CallOfTheWild
 
         static internal void fixIncreasedDamageReduction()
         {
-            var drs = new BlueprintFeature[] {library.Get<BlueprintFeature>("e71bd204a2579b1438ebdfbf75aeefae"), //barbarian
+            var drs = new BlueprintFeature[] {library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8"), //barbarian
                                               library.Get<BlueprintFeature>("e71bd204a2579b1438ebdfbf75aeefae"), //invulnerable rager
                                               library.Get<BlueprintFeature>("2edbf059fd033974bbff67960f15974d"), //mad dog
                                               library.Get<BlueprintFeature>("427b4a34432389042861b8db4cbe3d99"), //invulnerable rager extreme endurance
