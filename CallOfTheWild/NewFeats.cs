@@ -31,6 +31,7 @@ namespace CallOfTheWild
         
         static internal void load()
         {
+            replaceIconsForExistingFeats();
             createRagingBrutality();
             createBloodedArcaneStrike();
             createRivingStrike();
@@ -39,15 +40,31 @@ namespace CallOfTheWild
             FeralCombatTraining.load();
 
             ChannelEnergyEngine.createQuickChannel();
-
-            replaceIconsForExistingFeats();
         }
 
 
         static void replaceIconsForExistingFeats()
         {
             var arcane_strike_feature = library.Get<BlueprintFeature>("0ab2f21a922feee4dab116238e3150b4");
-            arcane_strike_feature.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_strike.png"));
+            arcane_strike_feature.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_Strike.png"));
+
+            var wings_feat = library.Get<BlueprintFeature>("d9bd0fde6deb2e44a93268f2dfb3e169");
+            wings_feat.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Wings.png"));
+
+            var combat_casting = library.Get<BlueprintFeature>("06964d468fde1dc4aa71a92ea04d930d");
+            combat_casting.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Casting_Combat.png"));
+
+            string[] extra_channel_ids = new string[] {"cd9f19775bd9d3343a31a065e93f0c47",
+                                                         "347e8d794c9598e4abed70adda868ccd",
+                                                         "8d4f82fdb4d09b247ae8cd1ae7ce02de"};
+
+            foreach (var id in extra_channel_ids)
+            {
+                var extra_channel = library.Get<BlueprintFeature>(id);
+                extra_channel.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Channel_Extra.png"));
+            }
+
+
         }
 
         static internal void createRagingBrutality()
@@ -209,12 +226,12 @@ namespace CallOfTheWild
             var endurance = library.Get<BlueprintFeature>("54ee847996c25cd4ba8773d7b8555174");
             var half_orc_ferocity = library.Get<BlueprintFeature>("c99f3405d1ef79049bd90678a666e1d7");
 
-            var resistance = library.Get<BlueprintBuff>("df680f6687f935e408eba6fb5124930e");
+            //var resistance = library.Get<BlueprintBuff>("df680f6687f935e408eba6fb5124930e");
             stalwart = Helpers.CreateFeature("StalwartFeat",
                                                          "Stalwart",
                                                          "While using the total defense action, fighting defensively action, or Combat Expertise, you can forgo the dodge bonus to AC you would normally gain to instead gain an equivalent amount of DR, until the start of your next turn.",
                                                          "",
-                                                         null,
+                                                         LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Stalwart.png"),
                                                          FeatureGroup.Feat,
                                                          Helpers.PrerequisiteFeature(endurance),
                                                          Helpers.PrerequisiteFeature(diehard, true),
@@ -227,7 +244,7 @@ namespace CallOfTheWild
                                                           stalwart.Description
                                                           + "\nNote: your DR bonus doubles if you have Improved Stalwart feat.",
                                                           "",
-                                                          resistance.Icon,
+                                                          stalwart.Icon,
                                                           null);
             var stalwart_toggle = Helpers.CreateActivatableAbility("StalwartActivatableAbility",
                                                                    stalwart_toggle_buff.Name,
@@ -245,7 +262,7 @@ namespace CallOfTheWild
                                              "Improved Stalwart",
                                              "Double the DR you gain from Stalwart",
                                              "",
-                                             null,
+                                             LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Stalwart_Improved.png"),
                                              FeatureGroup.Feat,
                                              Helpers.PrerequisiteFeature(stalwart),
                                              Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11)

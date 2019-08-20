@@ -1017,13 +1017,11 @@ namespace CallOfTheWild
             ice_tomb_buff.AddComponent(Common.createBuffStatusCondition(UnitCondition.Paralyzed, save_each_round: false));
 
             var staggered_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
-            var dice_count = new ContextValue();
-            dice_count.ValueType = ContextValueType.Simple;
-            dice_count.Value = 1;
 
             var damage_trigger = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>();
             damage_trigger.Actions = Helpers.CreateActionList(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf>(),
-                                                              Common.createContextActionApplyBuff(staggered_buff, Helpers.CreateContextDuration(diceType: DiceType.D4, diceCount: dice_count))
+                                                              Common.createContextActionApplyBuff(staggered_buff, 
+                                                                                                  Helpers.CreateContextDuration(diceType: DiceType.D4, diceCount: Common.createSimpleContextValue(1)))
                                                               );
             ice_tomb_buff.AddComponent(damage_trigger); //remove buff on damage, and add stagger
 
@@ -1488,13 +1486,14 @@ namespace CallOfTheWild
             accursed_hex_buff.SetDescription("You can make a second attempt at failed hexes.\n"
                                              + "Benefit: When you target a creature with a hex that cannot target the same creature more than once per day, and that creature succeeds at its saving throw against the hex’s effect, you can target the creature with the same hex a second time before the end of your next turn.If the second attempt fails, you can make no further attempts to target that creature with the same hex for 1 day.\n"
                                              + "Normal: You can only target a creature with these hexes once per day.");
+            accursed_hex_buff.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Accursed.png"));
             accursed_hex_buff.Stacking = StackingType.Ignore;
 
             accursed_hex_feat = Helpers.CreateFeature("AccursedHexFeature",
                                                       accursed_hex_buff.Name,
                                                       accursed_hex_buff.Description,
                                                       "",
-                                                      LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Accursed.png"),
+                                                      accursed_hex_buff.Icon,
                                                       FeatureGroup.Feat);
             library.AddFeats(accursed_hex_feat);
         }
@@ -1508,12 +1507,12 @@ namespace CallOfTheWild
                                                        "",
                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Amplified.png"),
                                                        FeatureGroup.Feat);
-            var circle_of_death = library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"); //circle of death
+           // var circle_of_death = library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"); //circle of death
             amplified_hex_buff = Helpers.CreateBuff("AmplifiedHexBuff",
                                                      amplified_hex_feat.Name,
                                                      amplified_hex_feat.Description,
                                                      "",
-                                                     circle_of_death.Icon,
+                                                     amplified_hex_feat.Icon,//circle_of_death.Icon,
                                                      null,
                                                      Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c =>
                                                      {
@@ -1583,15 +1582,15 @@ namespace CallOfTheWild
                                                        "Split Hex",
                                                        "When you use one of your hexes (not a major hex or a grand hex) that targets a single creature, you can apply the same hex to another creature as a free action.",
                                                        "",
-                                                       null,
+                                                       LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Split.png"),
                                                        FeatureGroup.Feat);
 
-            var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6"); //school evocation
+            //var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6"); //school evocation
             immune_to_split_hex_buff = Helpers.CreateBuff("ImmuneToSplitHexBuff",
                                                             split_hex_feat.Name,
                                                             split_hex_feat.Description,
                                                             "",
-                                                            evocation.Icon,
+                                                            split_hex_feat.Icon,//evocation.Icon,
                                                             null
                                                             );
             immune_to_split_hex_buff.SetBuffFlags(BuffFlags.HiddenInUi);
