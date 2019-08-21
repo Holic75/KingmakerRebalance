@@ -122,6 +122,57 @@ namespace CallOfTheWild
             {
                 stored_spell = spell;
             }
+
+
+            public static AbilityData getSpellStoredInFact(UnitDescriptor unit, BlueprintUnitFact fact)
+            {
+                if (unit == null || fact == null)
+                {
+                    return null;
+                }
+
+                var stored_buff = unit.Buffs.GetFact(fact);
+                if (stored_buff == null)
+                {
+                    stored_buff = unit.Progression.Features.GetFact(fact);
+                }
+
+                if (stored_buff == null)
+                {
+                    return null;
+                }
+                AbilityData data = null;
+                stored_buff.CallComponents<FactStoreSpell>(c => c.getStoredSpell(out data));
+                return data;
+            }
+
+            public static bool hasSpellStoredInFact(UnitDescriptor unit, BlueprintUnitFact fact)
+            {
+                return getSpellStoredInFact(unit, fact) != null;
+            }
+
+
+            public static void storeSpell(UnitDescriptor unit, BlueprintUnitFact fact, AbilityData spell)
+            {
+                var store_buff = unit.Buffs.GetFact(fact);
+                if (store_buff == null)
+                {
+                    store_buff = unit.Progression.Features.GetFact(fact);
+                }
+                if (store_buff != null)
+                {
+                    var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
+                    if (sticky_touch != null)
+                    {
+                        var touch_spell = new AbilityData(spell, sticky_touch.TouchDeliveryAbility);
+                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(touch_spell));
+                    }
+                    else
+                    {
+                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(spell));
+                    }
+                }
+            }
         }
 
 
@@ -327,28 +378,12 @@ namespace CallOfTheWild
             }
 
             private void storeSpell(SpellSlot spell_slot, AbilityExecutionContext context)
-            {             
-                var store_buff = context.MaybeOwner.Buffs.GetFact(fact);
-                if (store_buff == null)
-                {
-                    store_buff = context.MaybeOwner.Descriptor.Progression.Features.GetFact(fact);
-                }
-                if (store_buff != null)
-                {
-                    var spell = getSpellOrVariant(spell_slot.Spell);
+            {
+                var spell = getSpellOrVariant(spell_slot.Spell);
 
-                    var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
-                    if (sticky_touch != null)
-                    {
-                        var touch_spell = new AbilityData(spell, sticky_touch.TouchDeliveryAbility);
-                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(touch_spell));
-                    }
-                    else
-                    {
-                        store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(spell));
-                    }
-                    spell_slot.Available = false;
-                }
+                FactStoreSpell.storeSpell(context.MaybeOwner.Descriptor, fact, spell);
+                spell_slot.Available = false;
+                spell.SpendMaterialComponent();
             }
         }
 
@@ -359,19 +394,25 @@ namespace CallOfTheWild
 
             public override bool IsAvailable()
             {
-                var stored_buff = Owner.Buffs.GetFact(fact);
-                if (stored_buff == null)
-                {
-                    stored_buff = Owner.Progression.Features.GetFact(fact);
-                }
+                return FactStoreSpell.hasSpellStoredInFact(Owner, fact);
+            }
+        }
 
-                AbilityData stored_spell = null;
-                if (stored_buff != null)
-                {
-                    stored_buff.CallComponents<FactStoreSpell>(c => c.getStoredSpell(out stored_spell));
-                }
 
-                return stored_spell != null;
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterHasSpellStoredInFact : BlueprintComponent, IAbilityCasterChecker
+        {
+            public BlueprintUnitFact store_fact;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return FactStoreSpell.hasSpellStoredInFact(caster.Descriptor, store_fact);
+            }
+
+            public string GetReason()
+            {
+                return "No spell stored";
             }
         }
 

@@ -104,7 +104,6 @@ namespace CallOfTheWild
                             int num = ruleRollDice.Result;
                             part.State = num >= 26 ? (num >= 51 ? (num >= 76 ? ConfusionState.AttackNearest : ConfusionState.SelfHarm) : ConfusionState.DoNothing) : ConfusionState.ActNormally;
                         } while (!allowed_states.Contains(part.State));
-                        Main.logger.Log(part.State.ToString());
                         if (part.State == ConfusionState.ActNormally)
                             part.ReleaseControl();
                         else

@@ -45,6 +45,9 @@ namespace CallOfTheWild
         static internal Dictionary<DamageEnergyType, BlueprintBuff> fire_shield_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
         static internal Dictionary<DamageEnergyType, BlueprintAbility> fire_shield_variants = new Dictionary<DamageEnergyType, BlueprintAbility>();
 
+
+        static internal BlueprintAbility contingency;
+
         static public void load()
         {
             createShillelagh();
@@ -55,6 +58,103 @@ namespace CallOfTheWild
             createSanctuary();
             createCommand();
             createFireShield();
+            createContingency();
+        }
+
+
+        static void createContingency()
+        {
+            var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6");
+            var divination_buff = library.Get<BlueprintBuff>("6d338078b1a8cdc41bf3a39f65247161");
+
+            var contingency_store_buff = Helpers.CreateBuff("ContingencyBuff",
+                                                            "Contingency",
+                                                            "You can place another spell upon your person so that it comes into effect at some point in the future whenever you desire. You will need to spend another full round action to apply companion spell.\n"
+                                                            + "The spell to be brought into effect by the contingency must be one that affects your person and be of a spell level no higher than one-third your caster level (rounded down, maximum 6th level).\n"
+                                                            + "At any moment during spell duration you can release a companion spell as a free action. You can use only one contingency spell at a time; if a second is cast, the first one (if still active) is dispelled.",
+                                                            "",
+                                                            evocation.Icon,
+                                                            divination_buff.FxOnStart,
+                                                            Helpers.Create<SpellManipulationMechanics.FactStoreSpell>()
+                                                            );
+            contingency_store_buff.AddComponent(Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = contingency_store_buff));
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = contingency_store_buff);
+            var remove_buff = Common.createContextActionRemoveBuff(contingency_store_buff);
+
+            var contingency_release = Helpers.CreateAbility("ContingencyReleaseAbility",
+                                                            "Contingency: Release",
+                                                            contingency_store_buff.Description,
+                                                            "",
+                                                            contingency_store_buff.Icon,
+                                                            AbilityType.SpellLike,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                            AbilityRange.Personal,
+                                                            "",
+                                                            "",
+                                                            Helpers.CreateRunActions(release_action, remove_buff),
+                                                            Helpers.Create<SpellManipulationMechanics.AbilityCasterHasSpellStoredInFact>(a => a.store_fact = contingency_store_buff)
+                                                            );
+            contingency_release.setMiscAbilityParametersSelfOnly();
+            contingency_store_buff.AddComponent(Helpers.CreateAddFact(contingency_release));
+
+            int max_variants = 6;
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return  spell.Spellbook != null
+                        && spell.SpellLevel <= (spell.Spellbook.CasterLevel / 3)
+                        && spell.Blueprint.CanTargetSelf
+                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
+                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent)
+                        && !SpellManipulationMechanics.FactStoreSpell.hasSpellStoredInFact(spell.Caster, contingency_store_buff);
+            };
+
+
+
+            for (int i = 0; i < max_variants; i++)
+            {
+                var contingency_use = Helpers.CreateAbility($"ContingencyStoreAbility{i}",
+                                                            "Contingency: Store",
+                                                            contingency_store_buff.Description,
+                                                            "",
+                                                            contingency_store_buff.Icon,
+                                                            AbilityType.Spell,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                            AbilityRange.Personal,
+                                                            "1 day/level or until discharged",
+                                                            "",
+                                                            Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                            Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
+                                                                                                                              { s.fact = contingency_store_buff;
+                                                                                                                                  s.check_slot_predicate = check_slot_predicate;
+                                                                                                                                  s.variant = i;
+                                                                                                                              }
+                                                                                                                              )
+                                                            );
+                contingency_store_buff.AddComponent(Helpers.CreateAddFact(contingency_use));
+                contingency_use.setMiscAbilityParametersSelfOnly();
+                Common.setAsFullRoundAction(contingency_use);
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(contingency_store_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), rate: DurationRate.Days));
+            contingency = Helpers.CreateAbility("ContingencyAbility",
+                                                "Contingency",
+                                                contingency_store_buff.Description,
+                                                "",
+                                                contingency_store_buff.Icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "1 day/level or until discharged",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation)
+                                                );
+            contingency.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(contingency);
+            contingency.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
+            contingency.AddToSpellList(Helpers.wizardSpellList, 6);
+            contingency.AddSpellAndScroll("beab337b352b5ac479698e2bbc08f4ce"); //circle of death
         }
 
 

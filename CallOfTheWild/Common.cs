@@ -2278,5 +2278,11 @@ namespace CallOfTheWild
             c.Not = not;
             return c;
         }
+
+
+        public static void setAsFullRoundAction(BlueprintAbility spell)
+        {
+            Helpers.SetField(spell, "m_IsFullRoundAction", true);
+        }
     }
 }

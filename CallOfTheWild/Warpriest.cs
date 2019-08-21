@@ -1450,7 +1450,8 @@ namespace CallOfTheWild
                         && !spell.Blueprint.CanTargetPoint
                         && !spell.Blueprint.IsFullRoundAction
                         && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
-                        && !spell.Blueprint.HasAreaEffect();
+                        && !spell.Blueprint.HasAreaEffect()
+                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent);
             };
 
             for (int i = 0; i < max_variants; i++)
