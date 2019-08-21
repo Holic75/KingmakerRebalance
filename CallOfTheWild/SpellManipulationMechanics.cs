@@ -96,8 +96,10 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
         {
+            public ActionList actions_on_store = new ActionList();
             [JsonProperty]
             private AbilityData spell = null;
+
 
             public void releaseSpellOnTarget(TargetWrapper target)
             {
@@ -115,6 +117,7 @@ namespace CallOfTheWild
                 spell = new_spell;
  
                 Common.AddBattleLogMessage($"{this.Fact.MaybeContext.MaybeOwner.CharacterName} stored {spell.Blueprint.Name} in {this.Fact.Name}.");
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions_on_store, this.Owner.Unit);
             }
 
 
@@ -183,7 +186,7 @@ namespace CallOfTheWild
         {
             public string Comment;
             public BlueprintUnitFact fact;
-
+           
             public override void RunAction()
             {
                 var stored_buff = Context.MaybeOwner.Buffs.GetFact(fact);
@@ -249,6 +252,7 @@ namespace CallOfTheWild
             {
             }
 
+
             public bool IsAvailableFor(AbilityData ability)
             {
                 AbilityData spell = ability.ParamSpellSlot?.Spell;
@@ -256,7 +260,33 @@ namespace CallOfTheWild
                 if (spell == null || spellbook == null)
                     return false;
 
-                return GetAvailableSpellSlot(spell) != null;
+                return hasSpellSlot(ability.ParamSpellSlot);
+            }
+
+
+            public void spendSpellSlot(SpellSlot spell_slot)
+            {
+                if (!spell_slot.Spell.Spellbook.Blueprint.Spontaneous)
+                {
+                    spell_slot.Available = false;
+                }
+                else
+                {
+                    spell_slot.Spell.Spellbook.RestoreSpontaneousSlots(spell_slot.SpellLevel, -1);
+                }
+            }
+
+
+            public bool hasSpellSlot(SpellSlot spell_slot)
+            {
+                if (!spell_slot.Spell.Spellbook.Blueprint.Spontaneous)
+                {
+                    return GetAvailableSpellSlot(spell_slot.Spell) != null;
+                }
+                else
+                {
+                    return spell_slot.Spell.Spellbook.GetSpontaneousSlots(spell_slot.SpellLevel) >= 1;
+                }
             }
 
 
@@ -348,7 +378,8 @@ namespace CallOfTheWild
                 {
                     Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, context.Caster));
                 }
-                spell_slot.Available = false;               
+
+                spendSpellSlot(spell_slot);
             }
         }
 
@@ -363,17 +394,9 @@ namespace CallOfTheWild
                     return;
                 else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
                     return;
-
                 else
                 {
-                    SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
-                    if (availableSpellSlot == null)
-                        return;
-                    else
-                    {
-                        storeSpell(availableSpellSlot, context);
-                    }
-
+                  storeSpell(context.Ability.ParamSpellSlot, context);
                 }
             }
 
@@ -382,7 +405,7 @@ namespace CallOfTheWild
                 var spell = getSpellOrVariant(spell_slot.Spell);
 
                 FactStoreSpell.storeSpell(context.MaybeOwner.Descriptor, fact, spell);
-                spell_slot.Available = false;
+                spendSpellSlot(spell_slot);
                 spell.SpendMaterialComponent();
             }
         }
@@ -437,7 +460,7 @@ namespace CallOfTheWild
                 {
                     foreach (Ability ability in spell.Caster.Abilities)
                     {
-                        if ((bool)((UnityEngine.Object)ability.Blueprint.GetComponent<AbilityRestoreSpellSlot>()))
+                        if (ability.Blueprint.GetComponent<AbilityRestoreSpellSlot>() != null)
                             ___Conversion.Add(new AbilityData(ability)
                             {
                                 ParamSpellSlot = spellSlot
@@ -453,16 +476,28 @@ namespace CallOfTheWild
                         }
                     }
                 }
-                SpellSlot paramSpellSlot = (__instance.MechanicSlot as MechanicActionBarSlotSpontaneusSpell)?.Spell.ParamSpellSlot;
-                if (paramSpellSlot != null)
+                AbilityData paramSpell = (__instance.MechanicSlot as MechanicActionBarSlotSpontaneusSpell)?.Spell;
+                if (paramSpell != null)
                 {
+                    SpellSlot paramSpellSlot = new SpellSlot(paramSpell.SpellLevel, SpellSlotType.Common, 0); //create fake slot for AbilityConvertSpell
+                    paramSpellSlot.Spell = paramSpell;
                     foreach (Ability ability in spell.Caster.Abilities)
                     {
-                        if ((bool)(ability.Blueprint.GetComponent<AbilityRestoreSpellSlot>()))
+                        if (ability.Blueprint.GetComponent<AbilityRestoreSpontaneousSpell>() != null) //try with spontnaeous convert spell
+                            ___Conversion.Add(new AbilityData(ability)
+                            {
+                                ParamSpellbook = paramSpell.Spellbook,
+                                ParamSpellLevel = new int?(paramSpell.SpellLevel)
+                            });
+
+                    var store_spell = ability.Blueprint.GetComponent<AbilityConvertSpell>();
+                        if (store_spell != null && store_spell.canBeUsedOn(spell))
+                        {
                             ___Conversion.Add(new AbilityData(ability)
                             {
                                 ParamSpellSlot = paramSpellSlot
                             });
+                        }
                     }
                 }
                 BlueprintAbility spellBlueprint = spell.Blueprint;

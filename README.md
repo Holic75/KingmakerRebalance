@@ -66,6 +66,7 @@ New spells:
 - Deadly Juggernaut,
 - Fire Shield,
 - Virtuoso Performance,
+- Contingency,
 - Plant Shape I, II and III,
 - Giant Form I and II,
 - Shapechange.  
@@ -85,7 +86,10 @@ enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
 - replaces favored enemy for Sacred huntsmater with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
-- Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement).
+- Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),
+- Animal Growth properly increases size of animal companion,
+- Arcane Bond works with spontaneous spells,
+- Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender.
 
 
 Mod also changes stats of some npcs
@@ -97,6 +101,7 @@ Mod also changes stats of some npcs
 - Octavia to 10/16/10/18/10/14
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 8/22/14/12/10/8
+
 
 NOTE: Changes to animal companion bonuses, npc companions, and class skill points are optional and can be disabled (set corresponding values to false,
 in your_game_folder/Mods/CallOfTheWild/settings.json)

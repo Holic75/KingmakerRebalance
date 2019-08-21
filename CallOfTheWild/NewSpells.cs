@@ -67,6 +67,14 @@ namespace CallOfTheWild
             var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6");
             var divination_buff = library.Get<BlueprintBuff>("6d338078b1a8cdc41bf3a39f65247161");
 
+            var contingency_give_ability_buff = Helpers.CreateBuff("ContingencyGiveAbilityBuff",
+                                                                   "",
+                                                                   "",
+                                                                   "",
+                                                                   null,
+                                                                   null);
+            contingency_give_ability_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var action_remove_contingency_use = Helpers.CreateActionList(Common.createContextActionRemoveBuff(contingency_give_ability_buff));
             var contingency_store_buff = Helpers.CreateBuff("ContingencyBuff",
                                                             "Contingency",
                                                             "You can place another spell upon your person so that it comes into effect at some point in the future whenever you desire. You will need to spend another full round action to apply companion spell.\n"
@@ -75,7 +83,11 @@ namespace CallOfTheWild
                                                             "",
                                                             evocation.Icon,
                                                             divination_buff.FxOnStart,
-                                                            Helpers.Create<SpellManipulationMechanics.FactStoreSpell>()
+                                                            Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.actions_on_store = action_remove_contingency_use),
+                                                            Helpers.CreateAddFactContextActions(Common.createContextActionApplyBuff(contingency_give_ability_buff, 
+                                                                                                                                    Helpers.CreateContextDuration(),
+                                                                                                                                    is_child: true, is_permanent: true)
+                                                                                                                                    )
                                                             );
             contingency_store_buff.AddComponent(Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = contingency_store_buff));
             var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = contingency_store_buff);
@@ -130,7 +142,7 @@ namespace CallOfTheWild
                                                                                                                               }
                                                                                                                               )
                                                             );
-                contingency_store_buff.AddComponent(Helpers.CreateAddFact(contingency_use));
+                contingency_give_ability_buff.AddComponent(Helpers.CreateAddFact(contingency_use));
                 contingency_use.setMiscAbilityParametersSelfOnly();
                 Common.setAsFullRoundAction(contingency_use);
             }

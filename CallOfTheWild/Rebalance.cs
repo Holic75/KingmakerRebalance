@@ -332,6 +332,17 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixItemBondForSpontnaeousCasters()
+        {
+            var item_bond_spontaneous = library.CopyAndAdd<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1","ItemBondSpontaneousAbility" ,"");
+            item_bond_spontaneous.ReplaceComponent<AbilityRestoreSpellSlot>(Helpers.Create<AbilityRestoreSpontaneousSpell>(a => a.SpellLevel = 10));
+
+            var item_bond_feature = library.Get<BlueprintFeature>("2fb5e65bd57caa943b45ee32d825e9b9");
+            var add_facts = item_bond_feature.GetComponent<AddFacts>();
+            add_facts.Facts = add_facts.Facts.AddToArray(item_bond_spontaneous);
+        }
+
+
         static internal void fixAnimalGrowth()
         {
             //fix animal growth to increase size on upgraded animal companions
