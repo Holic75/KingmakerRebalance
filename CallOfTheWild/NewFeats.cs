@@ -4,6 +4,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
@@ -21,16 +22,18 @@ namespace CallOfTheWild
 {
     class NewFeats
     {
-        static  LibraryScriptableObject library => Main.library;
+        static LibraryScriptableObject library => Main.library;
         static internal BlueprintFeature raging_brutality;
         static internal BlueprintFeature blooded_arcane_strike;
         static internal BlueprintFeature riving_strike;
         static internal BlueprintFeature coordinated_shot;
         static internal BlueprintFeature stalwart;
         static internal BlueprintFeature improved_stalwart;
-        
+        static internal BlueprintFeature furious_focus;
+
         static internal void load()
         {
+            createFuriousFocus();
             replaceIconsForExistingFeats();
             createRagingBrutality();
             createBloodedArcaneStrike();
@@ -65,6 +68,39 @@ namespace CallOfTheWild
             }
 
 
+        }
+
+
+        static void createFuriousFocus()
+        {
+            var arcane_strike_feature = library.Get<BlueprintFeature>("0ab2f21a922feee4dab116238e3150b4");
+            var power_attack_buff = library.Get<BlueprintBuff>("5898bcf75a0942449a5dc16adc97b279");
+            var power_attack_feature = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+
+            furious_focus = Helpers.CreateFeature("FuriousFocusFeature",
+                                                  "Furious Focus",
+                                                  "When you are wielding a two-handed weapon or a one-handed weapon with two hands, and using the Power Attack feat, you do not suffer Power Attack’s penalty on melee attack rolls on the first attack you make each turn. You still suffer the penalty on any additional attacks, including attacks of opportunity.",
+                                                  "",
+                                                  arcane_strike_feature.Icon.CreateCopy(),
+                                                  FeatureGroup.CombatFeat,
+                                                  Helpers.Create<NewMechanics.AttackBonusOnAttackInitiationIfHasFact>(a =>
+                                                                                                                      {
+                                                                                                                          a.Bonus = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+                                                                                                                          a.CheckedFact = power_attack_buff;
+                                                                                                                          a.OnlyFirstAttack = true;
+                                                                                                                          a.OnlyTwoHanded = true;
+                                                                                                                          a.WeaponAttackTypes = new AttackType[] {AttackType.Melee };
+                                                                                                                      }),
+                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.BaseAttack, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                  type: AbilityRankType.StatBonus, stepLevel: 4),
+                                                  Helpers.PrerequisiteStatValue(StatType.Strength, 13),
+                                                  Helpers.PrerequisiteFeature(power_attack_feature),
+                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 1)
+                                                  );
+
+
+            furious_focus.Groups = furious_focus.Groups.AddToArray(FeatureGroup.Feat);
+            library.AddCombatFeats(furious_focus);
         }
 
         static internal void createRagingBrutality()

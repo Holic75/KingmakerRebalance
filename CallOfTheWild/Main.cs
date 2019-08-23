@@ -120,6 +120,7 @@ public class Main
                 CallOfTheWild.Rebalance.fixAnimalGrowth();
                 CallOfTheWild.Rebalance.fixIncreasedDamageReduction();
                 CallOfTheWild.Rebalance.fixItemBondForSpontnaeousCasters();
+                CallOfTheWild.Rebalance.giveDifficultTerrainImmunityToAirborneUnits();
                 //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                 CallOfTheWild.Wildshape.load();

@@ -388,7 +388,7 @@ namespace CallOfTheWild
                                                             "",
                                                             dispel_magic.Icon,
                                                             null,
-                                                            Helpers.Create<MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
+                                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
                                                                                                                    {
                                                                                                                        m.amount = 1;
                                                                                                                        m.resource = warpriest_fervor_resource;
@@ -781,7 +781,7 @@ namespace CallOfTheWild
             if (!test_mode)
             {
                 sacred_weapon_ability.DeactivateIfCombatEnded = true;
-                sacred_weapon_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+                //sacred_weapon_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }
 
             warpriest_sacred_weapon_enhancement = Helpers.CreateFeature("WarpriestSacredWeaponEnchancementFeature",
@@ -1376,7 +1376,7 @@ namespace CallOfTheWild
                                                          "",
                                                          0,
                                                          null,
-                                                         Helpers.Create<NewMechanics.WeaponIgnoreDRIfTargetHasFact>(c => c.fact = construct_type)
+                                                         Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponIgnoreDRIfTargetHasFact>(c => c.fact = construct_type)
                                                          );
 
             var minor_buff = Helpers.CreateBuff("WarpriestArtificeBlessingMinorBuff",
@@ -2415,7 +2415,7 @@ namespace CallOfTheWild
         {
             var healing_domain_feature = library.Get<BlueprintFeature>("b9ea4eb16ded8b146868540e711f81c8");
             var touch_of_good = library.Get<BlueprintAbility>("18f734e40dd7966438ab32086c3574e1");
-            var healing_metamagic = Helpers.Create<MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+            var healing_metamagic = Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
                                                                                             {
                                                                                                 m.amount = 1;
                                                                                                 m.Metamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Empower;

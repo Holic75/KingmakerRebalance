@@ -1913,9 +1913,9 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.WeaponDamageStatReplacement createWeaponDamageStatReplacementEnchantment(StatType stat)
+        static internal NewMechanics.EnchantmentMechanics.WeaponDamageStatReplacement createWeaponDamageStatReplacementEnchantment(StatType stat)
         {
-            var w = Helpers.Create<NewMechanics.WeaponDamageStatReplacement>();
+            var w = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageStatReplacement>();
             w.Stat = stat;
             return w;
         }
@@ -1957,9 +1957,9 @@ namespace CallOfTheWild
             return e;
         }
 
-        static internal NewMechanics.WeaponAttackStatReplacement createWeaponAttackStatReplacementEnchantment(StatType stat)
+        static internal NewMechanics.EnchantmentMechanics.WeaponAttackStatReplacement createWeaponAttackStatReplacementEnchantment(StatType stat)
         {
-            var w = Helpers.Create<NewMechanics.WeaponAttackStatReplacement>();
+            var w = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponAttackStatReplacement>();
             w.Stat = stat;
             return w;
         }
@@ -1979,12 +1979,12 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
+        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
                                                                                                                    bool only_non_magical, bool lock_slot,
                                                                                                                    BlueprintWeaponType[] allowed_types,
                                                                                                                    params BlueprintWeaponEnchantment[] enchantments)
         {
-            var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeapon>();
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon>();
             b.only_non_magical = only_non_magical;
             b.allowed_types = allowed_types;
             b.lock_slot = lock_slot;
@@ -1993,7 +1993,7 @@ namespace CallOfTheWild
             return b;
         }
 
-        static internal NewMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
+        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintWeaponEnchantment[] enchantments)
         {
@@ -2001,11 +2001,11 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
+        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintArmorEnchantment[] enchantments)
         {
-            var b = Helpers.Create<NewMechanics.BuffContextEnchantArmor>();
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor > ();
             b.only_non_magical = only_non_magical;
             b.lock_slot = lock_slot;
             b.enchantments = enchantments;
@@ -2022,10 +2022,10 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool lock_slot,
+        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool lock_slot,
                                                                                                                             BlueprintWeaponType[] allowed_types, BlueprintWeaponEnchantment enchantment)
         {
-            var b = Helpers.Create<NewMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic>();
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic>();
             b.allowed_types = allowed_types;
             b.enchantment = enchantment;
             b.only_non_magical = only_non_magical;
@@ -2078,10 +2078,10 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical,
+        static internal NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical,
                                                                                                                                        bool lock_slot, params BlueprintWeaponEnchantment[] enchants)
         {
-            var b = Helpers.Create<NewMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
             b.allowed_types = new BlueprintWeaponType[0];
             b.enchantments = enchants;
             b.lock_slot = lock_slot;
@@ -2091,10 +2091,10 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.BuffRemainingGroupSizetEnchantArmor createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup group, bool only_non_magical,
+        static internal NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantArmor createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup group, bool only_non_magical,
                                                                                                                                        bool lock_slot, params BlueprintArmorEnchantment[] enchants)
         {
-            var b = Helpers.Create<NewMechanics.BuffRemainingGroupSizetEnchantArmor>();
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantArmor>();
             b.enchantments = enchants;
             b.group = group;
             b.lock_slot = lock_slot;

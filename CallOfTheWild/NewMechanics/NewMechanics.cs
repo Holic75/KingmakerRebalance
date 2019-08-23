@@ -238,492 +238,7 @@ namespace CallOfTheWild
         }
 
 
-        public class BuffRemainingGroupsSizeEnchantPrimaryHandWeapon : BuffLogic
-        {
-            public ActivatableAbilityGroup group;
-            public BlueprintWeaponEnchantment[] enchantments;
-            public BlueprintWeaponType[] allowed_types;
-            public bool lock_slot = false;
-            public bool only_non_magical = false;
-            [JsonProperty]
-            private ItemEnchantment m_Enchantment;
-            [JsonProperty]
-            private ItemEntityWeapon m_Weapon;
-            [JsonProperty]
-            private bool m_unlock;
-
-
-            private int getRemainingGroupSize()
-            {
-                int remaining_group_size = Context.MaybeCaster.Ensure<UnitPartActivatableAbility>().GetGroupSize(this.group);
-
-                foreach (var a in Owner.ActivatableAbilities)
-                {
-                    if (a.Blueprint.Group == group && a.IsOn)
-                    {
-                        remaining_group_size -= a.Blueprint.WeightInGroup;
-                    }
-                }
-                return remaining_group_size;
-            }
-
-            public override void OnFactActivate()
-            {
-                m_unlock = false;
-                var unit = this.Owner;
-                if (unit == null) return;
-
-                var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
-                if (weapon == null)
-                {
-                    return;
-                }
-
-                if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
-                {
-                    return;
-                }
-                int bonus = getRemainingGroupSize() - 1;
-                if (bonus < 0)
-                {
-                    return;
-                }
-
-                if (bonus >= enchantments.Length)
-                {
-                    bonus = enchantments.Length - 1;
-                }
-
-
-                if (weapon.Enchantments.HasFact(enchantments[bonus]))
-                {
-                    return;
-                }
-
-                if (weapon.EnchantmentValue != 0 && only_non_magical)
-                {
-                    return;
-                }
-                m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-
-
-
-                if (lock_slot && !weapon.IsNonRemovable)
-                {
-                    weapon.IsNonRemovable = true;
-                    m_unlock = true;
-                }
-                //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
-                m_Weapon = weapon;
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (this.m_Weapon == null)
-                    return;
-                //m_Weapon.IsNonRemovable = false;
-                if (m_unlock)
-                {
-                    m_Weapon.IsNonRemovable = false;
-                }
-                if (this.m_Enchantment == null)
-                    return;
-                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-            }
-        }
-
-
-        public class BuffContextEnchantPrimaryHandWeapon : BuffLogic
-        {
-            public BlueprintWeaponEnchantment[] enchantments;
-            public ContextValue value;
-            public BlueprintWeaponType[] allowed_types;
-            public bool lock_slot = false;
-            public bool only_non_magical = false;
-            [JsonProperty]
-            private ItemEnchantment m_Enchantment;
-            [JsonProperty]
-            private ItemEntityWeapon m_Weapon;
-            [JsonProperty]
-            private bool m_unlock;
-
-
-            public override void OnFactActivate()
-            {
-                m_unlock = false;
-                var unit = this.Owner;
-                if (unit == null) return;
-
-                var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
-                if (weapon == null)
-                {
-                    return;
-                }
-
-                if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
-                {
-                    return;
-                }
-
-                int bonus = value.Calculate(Context) - 1;
-                if (bonus < 0)
-                {
-                    bonus = 0;
-                }
-                if (bonus >= enchantments.Length)
-                {
-                    bonus = enchantments.Length - 1;
-                }
-
-                if (weapon.Enchantments.HasFact(enchantments[bonus]))
-                {
-                    return;
-                }
-
-                if (weapon.EnchantmentValue != 0 && only_non_magical)
-                {
-                    return;
-                }
-                m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-
-                if (lock_slot && !weapon.IsNonRemovable)
-                {
-                    weapon.IsNonRemovable = true;
-                    m_unlock = true;
-                }
-                //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
-                m_Weapon = weapon;
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (this.m_Weapon == null)
-                    return;
-                //m_Weapon.IsNonRemovable = false;
-                if (m_unlock)
-                {
-                    m_Weapon.IsNonRemovable = false;
-                }
-                if (this.m_Enchantment == null)
-                    return;
-                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-            }
-        }
-
-
-
-        public class BuffContextEnchantPrimaryHandWeaponIfHasMetamagic : BuffLogic
-        {
-            public BlueprintWeaponEnchantment enchantment;
-            public Metamagic metamagic;
-            public BlueprintWeaponType[] allowed_types;
-            public bool lock_slot = false;
-            public bool only_non_magical = false;
-            [JsonProperty]
-            private ItemEnchantment m_Enchantment;
-            [JsonProperty]
-            private ItemEntityWeapon m_Weapon;
-            [JsonProperty]
-            private bool m_unlock;
-
-
-            public override void OnFactActivate()
-            {
-                m_unlock = false;
-                var unit = this.Owner;
-                if (unit == null) return;
-
-                var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
-                if (weapon == null)
-                {
-                    return;
-                }
-
-                if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
-                {
-                    return;
-                }
-
-                if (!Context.HasMetamagic(metamagic))
-                {
-                    return;
-                }
-
-                if (weapon.Enchantments.HasFact(enchantment))
-                {
-                    return;
-                }
-
-                /*var fact = weapon.Enchantments.Find(x => x.Blueprint == enchantment);
-                if (fact != null)
-                {
-                    weapon.RemoveEnchantment(fact);
-                }*/
-
-                if (weapon.EnchantmentValue != 0 && only_non_magical)
-                {
-                    return;
-                }
-
-                m_Enchantment = weapon.AddEnchantment(enchantment, Context, new Rounds?());
-
-                if (lock_slot && !weapon.IsNonRemovable)
-                {
-                    weapon.IsNonRemovable = true;
-                    m_unlock = true;
-                }
-                //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
-                m_Weapon = weapon;
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (this.m_Weapon == null)
-                    return;
-                //m_Weapon.IsNonRemovable = false;
-                if (m_unlock)
-                {
-                    m_Weapon.IsNonRemovable = false;
-                }
-                if (this.m_Enchantment == null)
-                    return;
-                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-            }
-        }
-
-
-        public class BuffContextEnchantShield : BuffLogic
-        {
-            public BlueprintArmorEnchantment[] enchantments;
-            public ContextValue value;
-            public bool lock_slot = false;
-            [JsonProperty]
-            private bool m_unlock;
-            [JsonProperty]
-            private ItemEnchantment m_Enchantment;
-            [JsonProperty]
-            private ItemEntityShield m_Shield;
-
-            public override void OnFactActivate()
-            {
-                m_unlock = false;
-                var unit = this.Owner;
-                if (unit == null) return;
-
-                var shield = unit.Body.SecondaryHand.MaybeShield;
-                if (shield == null)
-                {
-                    return;
-                }
-
-                int bonus = value.Calculate(Context) - 1;
-                if (bonus < 0)
-                {
-                    bonus = 0;
-                }
-                if (bonus >= enchantments.Length)
-                {
-                    bonus = enchantments.Length - 1;
-                }
-
-                if (shield.ArmorComponent.Enchantments.HasFact(enchantments[bonus]))
-                {
-                    return;
-                }
-
-                m_Enchantment = shield.ArmorComponent.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-                shield.ArmorComponent.RecalculateStats();
-                m_Shield = shield;
-                if (lock_slot && !shield.IsNonRemovable)
-                {
-                    shield.IsNonRemovable = true;
-                    m_unlock = true;
-                }
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (this.m_Enchantment == null)
-                    return;
-                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-                if (m_Shield != null)
-                {
-                    m_Shield.ArmorComponent.RecalculateStats();
-                }
-                else
-                {
-                    return;
-                }
-                if (m_unlock)
-                {
-                    m_Shield.IsNonRemovable = false;
-                }
-            }
-        }
-
-
-        public class BuffRemainingGroupSizetEnchantArmor : BuffLogic
-        {
-            public BlueprintArmorEnchantment[] enchantments;
-            public ActivatableAbilityGroup group;
-            public bool shift_with_current_enchantment = true;
-            public ContextValue value;
-            public bool lock_slot = false;
-            public bool only_non_magical = false;
-            [JsonProperty]
-            private bool m_unlock;
-            [JsonProperty]
-            private ItemEnchantment m_Enchantment;
-            [JsonProperty]
-            private ItemEntityArmor m_Armor;
-
-
-            private int getRemainingGroupSize()
-            {
-                int remaining_group_size = Context.MaybeCaster.Ensure<UnitPartActivatableAbility>().GetGroupSize(this.group);
-
-                foreach (var a in Owner.ActivatableAbilities)
-                {
-                    if (a.Blueprint.Group == group && a.IsOn)
-                    {
-                        remaining_group_size -= a.Blueprint.WeightInGroup;
-                    }
-                }
-                return remaining_group_size;
-            }
-
-            public override void OnFactActivate()
-            {
-                m_unlock = false;
-                var unit = this.Owner;
-                if (unit == null) return;
-
-                var armor = unit.Body.Armor.MaybeArmor;
-                if (armor == null) return;
-
-                int bonus = getRemainingGroupSize() - 1;
-                if (bonus < 0)
-                {
-                    return;
-                }
-
-                if (shift_with_current_enchantment)
-                {
-                    bonus += GameHelper.GetItemEnhancementBonus(armor);
-                }
-
-                if (bonus >= enchantments.Length)
-                {
-                    bonus = enchantments.Length - 1;
-                }
-
-                if (armor.Enchantments.HasFact(enchantments[bonus]))
-                {
-                    return;
-                }
-
-
-                m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-
-                armor.RecalculateStats();
-                m_Armor = armor;
-                if (lock_slot && !armor.IsNonRemovable)
-                {
-                    armor.IsNonRemovable = true;
-                    m_unlock = true;
-                }
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (this.m_Enchantment == null)
-                    return;
-                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-                if (m_Armor != null)
-                {
-                    m_Armor.RecalculateStats();
-                }
-                else
-                {
-                    return;
-                }
-                if (m_unlock)
-                {
-                    m_Armor.IsNonRemovable = false;
-                }
-            }
-        }
-
-
-        public class BuffContextEnchantArmor : BuffLogic
-        {
-            public BlueprintArmorEnchantment[] enchantments;
-            public ContextValue value;
-            public bool lock_slot = false;
-            public bool only_non_magical = false;
-            [JsonProperty]
-            private bool m_unlock;
-            [JsonProperty]
-            private ItemEnchantment m_Enchantment;
-            [JsonProperty]
-            private ItemEntityArmor m_Armor;
-
-            public override void OnFactActivate()
-            {
-                m_unlock = false;
-                var unit = this.Owner;
-                if (unit == null) return;
-
-                var armor = unit.Body.Armor.MaybeArmor;
-                if (armor == null) return;
-
-                int bonus = value.Calculate(Context) - 1;
-                if (bonus < 0)
-                {
-                    bonus = 0;
-                }
-                if (bonus >= enchantments.Length)
-                {
-                    bonus = enchantments.Length - 1;
-                }
-
-                if (armor.Enchantments.HasFact(enchantments[bonus]))
-                {
-                    return;
-                }
-
-                m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-
-                armor.RecalculateStats();
-                m_Armor = armor;
-                if (lock_slot && !armor.IsNonRemovable)
-                {
-                    armor.IsNonRemovable = true;
-                    m_unlock = true;
-                }
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (this.m_Enchantment == null)
-                    return;
-                this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-                if (m_Armor != null)
-                {
-                    m_Armor.RecalculateStats();
-                }
-                else
-                {
-                    return;
-                }
-                if (m_unlock)
-                {
-                    m_Armor.IsNonRemovable = false;
-                }
-            }
-        }
-
-
+      
         [AllowMultipleComponents]
         [ComponentName("Predicates/Target has fact unless alternative")]
         [AllowedOn(typeof(BlueprintAbility))]
@@ -1291,68 +806,6 @@ namespace CallOfTheWild
             }
         }
 
-
-        [ComponentName("Weapon Attack Stat Replacement")]
-        public class WeaponAttackStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
-        {
-            public StatType Stat;
-
-            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
-            {
-                if (evt.Weapon != this.Owner)
-                {
-                    return;
-                }
-                evt.AttackBonusStat = Stat;
-            }
-
-            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
-            {
-            }
-        }
-
-
-        [ComponentName("Weapon Damage Stat Replacement")]
-        public class WeaponDamageStatReplacement : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
-        {
-            public StatType Stat;
-
-            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
-            {
-                if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
-                    return;
-                evt.OverrideDamageBonusStat(this.Stat);
-            }
-
-            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
-            {
-            }
-        }
-
-        [ComponentName("Ignore Damage Reduction if target has fact")]
-        public class WeaponIgnoreDRIfTargetHasFact : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
-        {
-            public BlueprintUnitFact fact;
-
-            public void OnEventAboutToTrigger(RuleDealDamage evt)
-            {
-                if (evt.Reason.Item != this.Owner)
-                {
-                    return;
-                }
-
-                if (evt.Target.Descriptor.HasFact(fact))
-                {
-                    evt.IgnoreDamageReduction = true;
-                }
-            }
-
-            public void OnEventDidTrigger(RuleDealDamage evt)
-            {
-            }
-        }
-
-
         [ComponentName("Weapon Stat Replacement")]
         [AllowedOn(typeof(BlueprintBuff))]
         public class BuffWeaponStatReplacement : BuffLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber,
@@ -1413,39 +866,6 @@ namespace CallOfTheWild
             {
             }
         }
-
-
-
-        [ComponentName("change weapon damage")]
-        public class WeaponDamageChange : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
-        {
-            public DiceFormula dice_formula;
-            public int bonus_damage;
-            public DamageTypeDescription damage_type_description = null;
-
-            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
-            {
-                if (evt.Weapon != this.Owner)
-                {
-                    return;
-                }
-                evt.WeaponDamageDiceOverride = dice_formula;
-                evt.AddBonusDamage(bonus_damage);
-            }
-
-            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
-            {
-                if (evt.Weapon != this.Owner)
-                {
-                    return;
-                }
-                if (damage_type_description != null && evt.DamageDescription.Count() > 0)
-                {
-                    evt.DamageDescription[0].TypeDescription = damage_type_description;
-                }
-            }
-        }
-
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextWeaponDamageDiceReplacement : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
@@ -1549,68 +969,6 @@ namespace CallOfTheWild
             }
 
         }
-
-
-            [ComponentName("Remove Weapon Damage Stat")]
-        public class Immaterial : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
-        {
-            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
-            {
-                if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
-                    return;
-                Harmony12.Traverse.Create(evt).Property("DamageBonusStat").SetValue(new StatType?());
-                //Helpers.SetField(evt, "DamageBonusStat", new StatType?());
-            }
-
-            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
-            {
-            }
-
-
-            public void OnEventAboutToTrigger(RuleAttackRoll evt)
-            {
-
-                evt.AttackType = AttackType.Touch;
-            }
-
-            public void OnEventDidTrigger(RuleAttackRoll evt)
-            {
-            }
-        }
-
-
-
-        [ComponentName("Metamagic effect on weapon damage")]
-        public class WeaponMetamagicDamage : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RulePrepareDamage>, IRulebookHandler<RulePrepareDamage>, IInitiatorRulebookSubscriber
-        {
-            public bool maximize = false;
-            public bool empower = false;
-
-            public void OnEventAboutToTrigger(RulePrepareDamage evt)
-            {
-
-                if (evt.DamageBundle.Count() == 0 || evt.DamageBundle.Weapon != this.Owner)
-                {
-                    return;
-                }
-
-                if (empower)
-                {
-                    evt.DamageBundle.First().EmpowerBonus = 1.5f;
-                }
-
-                if (maximize)
-                {
-                    evt.DamageBundle.First().Maximized = true;
-                }
-
-            }
-
-            public void OnEventDidTrigger(RulePrepareDamage evt)
-            {
-            }
-        }
-
 
 
         public class ConsumeResourceIfAbilitiesFromGroupActivated : ContextAction
@@ -2331,79 +1689,6 @@ namespace CallOfTheWild
         }
 
 
-        namespace MonsterLore
-        {
-            public class ContextMonsterLoreCheckUsingClassAndStat : ContextAction
-            {
-                public int bonus;
-                public BlueprintCharacterClass character_class;
-                public StatType stat_type;
-
-                public override string GetCaption()
-                {
-                    return "Monster Lore Check";
-                }
-
-                public override void RunAction()
-                {
-                    var target = this.Target.Unit;
-                    var initiator = this.Context.MaybeCaster;
-                    var result = bonus + initiator.Descriptor.Progression.GetClassLevel(character_class) + initiator.Descriptor.Stats.GetStat<ModifiableValueAttributeStat>(stat_type).Bonus;
-                    if (!InspectUnitsHelper.IsInspectAllow(target))
-                        return;
-
-                    BlueprintUnit blueprintForInspection = target.Descriptor.BlueprintForInspection;
-                    InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
-
-                    if (info == null)
-                        return;
-
-                    if (info.KnownPartsCount == 4)
-                        return;
-
-                    int dc = info.DC;
-                    Common.AddBattleLogMessage($"{initiator.CharacterName} forced DC {dc} monster lore check: {result}");
-                    info.SetCheck(result, initiator);
-                }
-            }
-
-
-            [ComponentName("Checks if monster can be inspected")]
-            [AllowedOn(typeof(BlueprintAbility))]
-            [AllowMultipleComponents]
-            public class AbilityTargetCanBeInspected : BlueprintComponent, IAbilityTargetChecker
-            {
-                public bool CanTarget(UnitEntityData caster, TargetWrapper target)
-                {
-                    UnitEntityData unit = target.Unit;
-                    BlueprintUnit blueprintForInspection = unit.BlueprintForInspection;
-                    InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
-                    if (info == null)
-                        return false;
-                    return info.KnownPartsCount < 4;
-                }
-            }
-
-
-            [ComponentName("Checks if monster is inspected")]
-            [AllowedOn(typeof(BlueprintAbility))]
-            [AllowMultipleComponents]
-            public class AbilityTargetInspected : BlueprintComponent, IAbilityTargetChecker
-            {
-                public int min_inspection_level = 1;
-
-                public bool CanTarget(UnitEntityData caster, TargetWrapper target)
-                {
-                    UnitEntityData unit = target.Unit;
-                    BlueprintUnit blueprintForInspection = unit.BlueprintForInspection;
-                    InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
-                    if (info == null)
-                        return false;
-                    return info.KnownPartsCount >= min_inspection_level;
-                }
-            }
-        }
-
         [AllowMultipleComponents]
         [ComponentName("Saving throw bonus against fact from caster")]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -2778,8 +2063,49 @@ namespace CallOfTheWild
             public void OnEventDidTrigger(RuleCalculateDamage evt)
             {
             }
-
         }
+
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AttackBonusOnAttackInitiationIfHasFact : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        {
+            public BlueprintUnitFact CheckedFact;
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+            public bool OnlyTwoHanded;
+            public bool OnlyFirstAttack;
+            public AttackType[] WeaponAttackTypes;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+                if (evt.Weapon == null || !evt.Initiator.Descriptor.HasFact(this.CheckedFact) 
+                    || (!evt.Weapon.HoldInTwoHands && OnlyTwoHanded)
+                    || (!evt.IsFirstAttack && OnlyFirstAttack)
+                    || !WeaponAttackTypes.Contains(evt.Weapon.Blueprint.AttackType))
+                    return;
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+        }
+
+
 
     }
 

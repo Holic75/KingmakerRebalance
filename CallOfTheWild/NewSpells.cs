@@ -390,7 +390,7 @@ namespace CallOfTheWild
         {
             var boneshaker = library.Get<BlueprintAbility>("b7731c2b4fa1c9844a092329177be4c3");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
-            var enchant_dice = Helpers.Create<NewMechanics.WeaponDamageChange>();
+            var enchant_dice = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>();
             enchant_dice.dice_formula = new DiceFormula(2, DiceType.D6);
             enchant_dice.bonus_damage = 0;
             enchant_dice.damage_type_description = null;
@@ -457,13 +457,13 @@ namespace CallOfTheWild
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var flaming_enchatment = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
             var scimitar_type = library.Get<BlueprintWeaponType>("d9fbec4637d71bd4ebc977628de3daf3");
-            var immaterial = Helpers.Create<NewMechanics.Immaterial>();
+            var immaterial = Helpers.Create<NewMechanics.EnchantmentMechanics.Immaterial>();
             BlueprintWeaponEnchantment[] flame_blade_enchantments = new BlueprintWeaponEnchantment[11];
             var fire_damage = Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.Fire);
 
             for (int i = 0; i < flame_blade_enchantments.Length; i++)
             {
-                var flame_blade_enchant = Helpers.Create<NewMechanics.WeaponDamageChange>(w =>
+                var flame_blade_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
                                                                                     {
                                                                                         w.bonus_damage = i;
                                                                                         w.dice_formula = new DiceFormula(1, DiceType.D8);
@@ -491,7 +491,7 @@ namespace CallOfTheWild
                                                          "",
                                                          0,
                                                          null,
-                                                         Helpers.Create<NewMechanics.WeaponMetamagicDamage>(w => w.empower = true)
+                                                         Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponMetamagicDamage>(w => w.empower = true)
                                                          );
             var maximize = Common.createWeaponEnchantment("MaximizeWeaponEnchantment",
                                                          "Maximized",
@@ -501,7 +501,7 @@ namespace CallOfTheWild
                                                          "",
                                                          0,
                                                          null,
-                                                         Helpers.Create<NewMechanics.WeaponMetamagicDamage>(w => w.maximize = true)
+                                                         Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponMetamagicDamage>(w => w.maximize = true)
                                                          );
 
 

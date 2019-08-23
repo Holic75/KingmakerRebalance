@@ -2818,7 +2818,7 @@ namespace CallOfTheWild
             foreach (var m in metamagics)
             {
                 var metamagic = m.GetComponent<Kingmaker.UnitLogic.FactLogic.AddMetamagicFeat>().Metamagic;
-                var mr = Helpers.Create<MetamagicMechanics.MetaRage >();
+                var mr = Helpers.Create<NewMechanics.MetamagicMechanics.MetaRage >();
                 mr.Metamagic = metamagic;
                 mr.resource = bloodrage_resource;
                 var buff = Helpers.CreateBuff(m.name + "MetaRageBuff",

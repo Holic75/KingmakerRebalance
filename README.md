@@ -22,6 +22,7 @@ New feats:
 - Blooded Arcane Strike,
 - Riving Strike,
 - Feral Combat Training,
+- Furious Focus,
 - Coordinated Shot,
 - Skald's Vigor and Greater Skald's Vigor,
 - Stalwart and Improved Stalwart,
@@ -89,7 +90,8 @@ enchanced attacks).
 - Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),
 - Animal Growth properly increases size of animal companion,
 - Arcane Bond works with spontaneous spells,
-- Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender.
+- Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
+- All flying creatures are immune to difficult terrain and ground based buff effects.
 
 
 Mod also changes stats of some npcs

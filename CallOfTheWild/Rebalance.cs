@@ -18,6 +18,7 @@ using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using System.Linq;
+using Kingmaker.Blueprints.Facts;
 
 namespace CallOfTheWild
 {
@@ -228,9 +229,6 @@ namespace CallOfTheWild
 
             var protection_domain_save_bonus = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Buffs.Blueprints.BlueprintBuff>("2ddb4cfc3cfd04c46a66c6cd26df1c06"); //resitant touch bonus
             protection_domain_save_bonus.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(protection_bonus_context_rank);
-
-
-
         }
 
 
@@ -257,7 +255,7 @@ namespace CallOfTheWild
         static void fixMagicVestmentArmor()
         {
             var magic_vestement_armor_buff = Main.library.Get<BlueprintBuff>("9e265139cf6c07c4fb8298cb8b646de9");
-            var armor_enchant = Helpers.Create<NewMechanics.BuffContextEnchantArmor>();
+            var armor_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor>();
             armor_enchant.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
             armor_enchant.enchantments = ArmorEnchantments.temporary_armor_enchantments;
 
@@ -272,7 +270,7 @@ namespace CallOfTheWild
         static void fixMagicVestmentShield()
         {
             var magic_vestement_shield_buff = Main.library.Get<BlueprintBuff>("2e8446f820936a44f951b50d70a82b16");
-            var shield_enchant = Helpers.Create<NewMechanics.BuffContextEnchantShield>();
+            var shield_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantShield>();
             shield_enchant.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
             shield_enchant.enchantments = ArmorEnchantments.temporary_shield_enchantments;
 
@@ -430,6 +428,55 @@ namespace CallOfTheWild
 
             var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(defensive_stance_buff, dr_buff_stalwart, increased_dr_stalwart);
+        }
+
+
+        internal static void giveDifficultTerrainImmunityToAirborneUnits()
+        {
+            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
+            airborne.AddComponent(Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain));
+            airborne.AddComponent(Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
+            var air_mastery = library.Get<BlueprintFeature>("be52ced7ae1c7354a8ee12d9bad47805");
+
+            BlueprintUnitFact[] facts = new BlueprintUnitFact[]{
+                                                                  library.Get<BlueprintBuff>("3689b69a30d6d7c48b90e28228fb7b7c"), //transmuter air elemental 1
+                                                                  library.Get<BlueprintBuff>("2b2060036a20108448299f3ee2b14015"), //transmuter air elemental 2
+                                                                  library.Get<BlueprintBuff>("2641f73f8d7864f4bba0bd6134018094"), //polymorph air elemental greater
+                                                                  library.Get<BlueprintBuff>("933c5cd1113d2ef4a84f55660a744008"), //polymorph air elemental
+                                                                  library.Get<BlueprintBuff>("70828d40058f2d3428bb767eb6e3e561"), //air elemental body 1
+                                                                  library.Get<BlueprintBuff>("3af4d4bc55fa0ae4e851708d7395f1dd"), //air elemental body 2
+                                                                  library.Get<BlueprintBuff>("db00581a03e6947419648dfba6aa03b2"), //air elemental body 3
+                                                                  library.Get<BlueprintBuff>("ba06b8cff52da9e4d8432144ed6a6d19"), //air elemental body 4
+                                                                  library.Get<BlueprintBuff>("dc1ef6f6d52b9fd49bc0696ab1a4f18b"), //air wildshape 1
+                                                                  library.Get<BlueprintBuff>("65fdf187fea97c94b9cf4ff6746901a6"), //air wildshape 2
+                                                                  library.Get<BlueprintBuff>("814bc75e74f969641bf110addf076ff9"), //air wildshape 3
+                                                                  library.Get<BlueprintBuff>("eb52d24d6f60fc742b32fe943b919180"), //air wildshape 4
+                                                                  library.Get<BlueprintBuff>("1a482859d9513e4418f57abcd396d315"), //wyvern
+                                                                };
+            for (int i = 0; i< facts.Length; i++)
+            {
+                facts[i].AddComponent(Helpers.CreateAddFact(airborne));
+                if (i < 12)
+                {
+                    facts[i].AddComponent(Helpers.CreateAddFact(air_mastery));
+                }
+            }
+
+            var airborne_types = new BlueprintUnitType[] {library.Get<BlueprintUnitType>("b012216cc6867354fb088d0c36968ea3"), //black dragon
+                                                      library.Get<BlueprintUnitType>("f52b75839bb928242b6108df9d7f35a2"), //wyvern
+                                                      library.Get<BlueprintUnitType>("284b6fd0b67688a4bb3ec28b15152d69"), //ankou
+                                                      library.Get<BlueprintUnitType>("a574fa56e67623d41b538bdeae291fd5"), //gargoyle
+                                                      library.Get<BlueprintUnitType>("535823c600a2c8f4a906063b7b949eb5") //jabberwok
+                                                     };
+
+            var units = library.GetAllBlueprints().OfType<BlueprintUnit>();
+            foreach (var unit in units)
+            {
+                if (airborne_types.Contains(unit.Type))
+                {
+                    unit.AddFacts = unit.AddFacts.AddToArray(airborne);
+                }
+            }
         }
     }
 }

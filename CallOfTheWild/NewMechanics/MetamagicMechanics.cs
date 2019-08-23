@@ -58,14 +58,13 @@ using Kingmaker.Inspect;
 
 namespace CallOfTheWild
 {
-    public interface ISpellTargetRestrictor
+    namespace NewMechanics.MetamagicMechanics
     {
-        bool canBeCastOnTarget(AbilityData spell, UnitDescriptor caster, UnitDescriptor target);
-    }
+        public interface ISpellTargetRestrictor
+        {
+            bool canBeCastOnTarget(AbilityData spell, UnitDescriptor caster, UnitDescriptor target);
+        }
 
-
-    class MetamagicMechanics
-    {
         [AllowedOn(typeof(BlueprintBuff))]
         public class MetamagicOnPersonalSpell : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber,
                                                 ISpellTargetRestrictor
