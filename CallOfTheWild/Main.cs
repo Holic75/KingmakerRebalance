@@ -121,6 +121,8 @@ public class Main
                 CallOfTheWild.Rebalance.fixIncreasedDamageReduction();
                 CallOfTheWild.Rebalance.fixItemBondForSpontnaeousCasters();
                 CallOfTheWild.Rebalance.giveDifficultTerrainImmunityToAirborneUnits();
+                CallOfTheWild.Rebalance.fixVitalStrike();
+                CallOfTheWild.Rebalance.fixArcheologistLuck();
                 //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                 CallOfTheWild.Wildshape.load();

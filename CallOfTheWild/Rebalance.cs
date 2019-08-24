@@ -19,6 +19,9 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using System.Linq;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Commands;
+using Kingmaker.UnitLogic.Commands.Base;
 
 namespace CallOfTheWild
 {
@@ -428,6 +431,48 @@ namespace CallOfTheWild
 
             var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(defensive_stance_buff, dr_buff_stalwart, increased_dr_stalwart);
+        }
+
+        internal static void fixVitalStrike()
+        {
+            BlueprintAbility[] vital_strikes = new BlueprintAbility[] {library.Get<BlueprintAbility>("efc60c91b8e64f244b95c66b270dbd7c"),
+                                                                       library.Get<BlueprintAbility>("c714cd636700ac24a91ca3df43326b00"),
+                                                                       library.Get<BlueprintAbility>("11f971b6453f74d4594c538e3c88d499")
+                                                                      };
+            foreach (var a in vital_strikes)
+            {
+                Helpers.SetField(a, "m_IsFullRoundAction", false);
+            }
+        }
+
+
+        internal static void fixArcheologistLuck()
+        {
+            var archaeologist_luck = library.Get<BlueprintActivatableAbility>("12dc796147c42e04487fcad3aaa40cea");
+            archaeologist_luck.Group = ActivatableAbilityGroup.BardicPerformance;
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(UnitActivateAbility))]
+        [Harmony12.HarmonyPatch("GetCommandType", Harmony12.MethodType.Normal)]
+        class UnitActivateAbility__GetCommandType__Patch
+        {
+            static bool Prefix(ActivatableAbility ability, UnitCommand.CommandType __result)
+            {
+                if (ability.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
+                {
+                    __result = ability.Blueprint.ActivateWithUnitCommandType;
+                }
+                else if ((bool)ability.Owner.State.Features.QuickenPerformance2 || ability.Blueprint.ActivateWithUnitCommandType == UnitCommand.CommandType.Swift)
+                {
+                   __result =  !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Swift : UnitCommand.CommandType.Free;
+                }
+                else if ((bool)ability.Owner.State.Features.QuickenPerformance1)
+                {
+                    __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Move : UnitCommand.CommandType.Swift;
+                }
+                return false;
+            }
         }
 
 
