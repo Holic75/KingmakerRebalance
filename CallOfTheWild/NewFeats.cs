@@ -6,10 +6,13 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using System;
 using System.Collections.Generic;
@@ -30,6 +33,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature stalwart;
         static internal BlueprintFeature improved_stalwart;
         static internal BlueprintFeature furious_focus;
+        static internal BlueprintFeature planar_wild_shape;
 
         static internal void load()
         {
@@ -43,6 +47,119 @@ namespace CallOfTheWild
             FeralCombatTraining.load();
 
             ChannelEnergyEngine.createQuickChannel();
+            createPlanarWildShape();
+        }
+
+
+        static void createPlanarWildShape()
+        {
+
+            var celestial_wildshape_buff = Helpers.CreateBuff("PlanarWildshapeCelestialBuff",
+                                                                "Celestial Wild Shape",
+                                                                "When you use wild shape to take the form of an animal, you can expend an additional daily use of your wild shape class feature to add the celestial template to your animal form.\n"
+                                                                + Hunter.celestial_template.Description
+                                                                + "\nIn addition you receive +2 bonus to confirm critical hits against evil creatures.",
+                                                                "",
+                                                                Hunter.celestial_template.Icon,
+                                                                null);
+
+            var fiendish_wildshape_buff = Helpers.CreateBuff("PlanarWildshapeFiendishBuff",
+                                                    "Fiendish Wild Shape",
+                                                    "When you use wild shape to take the form of an animal, you can expend an additional daily use of your wild shape class feature to add the fiendish template to your animal form.\n"
+                                                    + Hunter.fiendish_template.Description
+                                                    + "\nIn addition you receive +2 bonus to confirm critical hits against good creatures.",
+                                                    "",
+                                                    Hunter.fiendish_template.Icon,
+                                                    null);
+
+            var celestial_wildshape_effect_buff = Helpers.CreateBuff("PlanarWildshapeCelestialEffectBuff",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        null,
+                                                        null,
+                                                        Helpers.CreateAddFact(Hunter.celestial_template),
+                                                        Helpers.Create<NewMechanics.CriticalConfirmationBonusAgainstALignment>(c =>
+                                                                                                                                {
+                                                                                                                                    c.Value = Common.createSimpleContextValue(2);
+                                                                                                                                    c.EnemyAlignment = AlignmentComponent.Evil;
+                                                                                                                                }
+                                                                                                                                )
+                                                        );
+            celestial_wildshape_effect_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            var fiendish_wildshape_effect_buff = Helpers.CreateBuff("PlanarWildshapeFiendishEffectBuff",
+                                                                    "",
+                                                                    "",
+                                                                    "",
+                                                                    null,
+                                                                    null,
+                                                                    Helpers.CreateAddFact(Hunter.fiendish_template),
+                                                                    Helpers.Create<NewMechanics.CriticalConfirmationBonusAgainstALignment>(c =>
+                                                                                                                                            {
+                                                                                                                                                c.Value = Common.createSimpleContextValue(2);
+                                                                                                                                                c.EnemyAlignment = AlignmentComponent.Good;
+                                                                                                                                            }
+                                                                                                                                            )
+                                                                    );
+            fiendish_wildshape_effect_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var celestial_wildshape_ability = Helpers.CreateActivatableAbility("PlanarWildshapeCelestialActivatableAbility",
+                                                                       celestial_wildshape_buff.Name,
+                                                                       celestial_wildshape_buff.Description,
+                                                                       "",
+                                                                       celestial_wildshape_buff.Icon,
+                                                                       celestial_wildshape_buff,
+                                                                       AbilityActivationType.Immediately,
+                                                                       Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                                       null,
+                                                                       Helpers.Create<NewMechanics.ActivatableAbilityNoAlignmentRestriction>(c => c.Alignment = AlignmentMaskType.Evil)
+                                                                       );
+            celestial_wildshape_ability.DeactivateImmediately = true;
+            celestial_wildshape_ability.Group = ActivatableAbilityGroupExtension.PlanarWildshape.ToActivatableAbilityGroup();
+
+            var fiendish_wildshape_ability = Helpers.CreateActivatableAbility("PlanarWildshapeFiendishActivatableAbility",
+                                                           fiendish_wildshape_buff.Name,
+                                                           fiendish_wildshape_buff.Description,
+                                                           "",
+                                                           fiendish_wildshape_buff.Icon,
+                                                           fiendish_wildshape_buff,
+                                                           AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null,
+                                                           Helpers.Create<NewMechanics.ActivatableAbilityNoAlignmentRestriction>(c => c.Alignment = AlignmentMaskType.Good));
+            fiendish_wildshape_ability.DeactivateImmediately = true;
+            fiendish_wildshape_ability.Group = ActivatableAbilityGroupExtension.PlanarWildshape.ToActivatableAbilityGroup();
+
+
+            foreach (var wildshape in Wildshape.animal_wildshapes)
+            {
+                var buff =  ((ContextActionApplyBuff)wildshape.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]).Buff;
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(buff, celestial_wildshape_effect_buff, celestial_wildshape_buff);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(buff, fiendish_wildshape_effect_buff, fiendish_wildshape_buff);
+
+                wildshape.ReplaceComponent<AbilityResourceLogic>(a =>
+                                                                 {
+                                                                     a.ResourceCostIncreasingFacts.Add(celestial_wildshape_buff);
+                                                                     a.ResourceCostIncreasingFacts.Add(fiendish_wildshape_buff);
+                                                                 }
+                                                                 );
+
+            }
+
+            planar_wild_shape = Helpers.CreateFeature("PlanarWildShapeFeature",
+                                                      "Planar Wild Shape",
+                                                      "When you use wild shape to take the form of an animal, you can expend an additional daily use of your wild shape class feature to add the celestial template or fiendish template to your animal form. (Good druids must use the celestial template, while evil druids must use the fiendish template.) If your form has the celestial template and you score a critical threat against an evil creature while using your form’s natural weapons, you gain a +2 bonus on the attack roll to confirm the critical hit. The same bonus applies if your form has the fiendish template and you score a critical threat against a good creature.",
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFacts(celestial_wildshape_ability, fiendish_wildshape_ability),
+                                                      Helpers.PrerequisiteStatValue(StatType.SkillLoreReligion, 5),
+                                                      Helpers.PrerequisiteFeature(Wildshape.first_wildshape_form)
+                                                      );
+
+            library.AddFeats(planar_wild_shape);
         }
 
 

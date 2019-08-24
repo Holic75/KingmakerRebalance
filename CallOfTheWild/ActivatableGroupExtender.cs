@@ -17,6 +17,7 @@ namespace CallOfTheWild
             SacredWeaponEnchantment,
             SacredArmorEnchantment,
             MetaRage,
+            PlanarWildshape,
         }
 
         public static partial class Extensions

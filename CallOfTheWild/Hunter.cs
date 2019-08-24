@@ -59,6 +59,8 @@ namespace CallOfTheWild
 
         static internal BlueprintFeature ac_smite_good_feature;
         static internal BlueprintFeature ac_smite_evil_feature;
+        static internal BlueprintFeature fiendish_template;
+        static internal BlueprintFeature celestial_template;
 
         static internal BlueprintFeature forester_tactician;
 
@@ -81,6 +83,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature animal_focus_feykiller;
         static internal BlueprintFeature animal_focus_feykiller_ac;
         static internal BlueprintFeature iron_talons_ac;
+
 
         internal static void createHunterClass()
         {
@@ -487,7 +490,6 @@ namespace CallOfTheWild
 
         static void createOtherWordlyCompanion()
         {
-            var animal_companion_array = new BlueprintCharacterClass[] { library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920") };
             createSmiteGoodEvilAC();
 
             var celestial_bloodline = library.Get<Kingmaker.Blueprints.Classes.BlueprintProgression>("aa79c65fa0e11464d9d100b038c50796");
@@ -504,9 +506,8 @@ namespace CallOfTheWild
                                                 aura_of_heaven.Icon,
                                                 FeatureGroup.None,
                                                 Common.createAlignmentDRContextRank(DamageAlignment.Evil),
-                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
                                                                                 ContextRankProgression.Custom, AbilityRankType.StatBonus,
-                                                                                classes: animal_companion_array,
                                                                                 customProgression: new (int, int)[] {
                                                                                     (4, 0),
                                                                                     (10, 5),
@@ -523,9 +524,8 @@ namespace CallOfTheWild
                                                aura_of_heaven.Icon,
                                                FeatureGroup.None,
                                                Common.createAlignmentDRContextRank(DamageAlignment.Good),
-                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
                                                                                 ContextRankProgression.Custom, AbilityRankType.StatBonus,
-                                                                                classes: animal_companion_array,
                                                                                 customProgression: new (int, int)[] {
                                                                                     (4, 0),
                                                                                     (10, 5),
@@ -542,9 +542,8 @@ namespace CallOfTheWild
                         Common.createEnergyDRContextRank(DamageEnergyType.Acid),
                         Common.createEnergyDRContextRank(DamageEnergyType.Cold),
                         Common.createEnergyDRContextRank(DamageEnergyType.Electricity),
-                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
                                 ContextRankProgression.Custom, AbilityRankType.StatBonus,
-                                classes: animal_companion_array,
                                 customProgression: new (int, int)[] {
                                     (4, 5),
                                     (10, 10),
@@ -561,39 +560,44 @@ namespace CallOfTheWild
                         FeatureGroup.None,
                         Common.createEnergyDRContextRank(DamageEnergyType.Fire),
                         Common.createEnergyDRContextRank(DamageEnergyType.Cold),
-                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
                         ContextRankProgression.Custom, AbilityRankType.StatBonus,
-                        classes: animal_companion_array,
                         customProgression: new (int, int)[] {
                             (4, 5),
                             (10, 10),
                             (20, 15)
                         })
                         );
-            
 
 
-            var ac_spell_resistance = Common.createSpellResistance("AnimalCompanionSpellResistanceFeature",
-                                                               "Spell Resistance",
-                                                               "Animal Companion gains spell resistance equal to its level + 6.",
-                                                               "0e7481a8ceb041129a692bf59f24d057",
-                                                               library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"),
-                                                               6);
+            var spell_resistance = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889");
+            var ac_spell_resistance = Helpers.CreateFeature("AnimalCompanionSpellResistanceFeature",
+                                                            "Spell Resistance",
+                                                            "Animal Companion gains spell resistance equal to its level + 6.",
+                                                            "0e7481a8ceb041129a692bf59f24d057",
+                                                            spell_resistance.Icon,
+                                                            FeatureGroup.None,
+                                                            Helpers.Create<AddSpellResistance>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CharacterLevel, progression: ContextRankProgression.BonusValue,
+                                                                                            type: AbilityRankType.StatBonus, stepLevel: 6)
+                                                               );
 
-            var celestial_progression = Helpers.CreateProgression("CelestialCompanionProgression",
-                                                  "Celestial Companion",
+            celestial_template = Helpers.CreateFeature("CelestialTemplateFeauture",
+                                                  "Celestial Template",
                                                   "Celestial creatures dwell in the higher planes, but can be summoned using spells such as summon monster and planar ally. Celestial creatures may use Smite Evil once per day, gain energy resistance 5 to acid, cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Evil which further increases to  10/Evil at level 11.",
                                                   "69f0d7d1077f492f8237952f8219a270",
                                                   celestial_bloodline.Icon,
-                                                  FeatureGroup.None);
-            celestial_progression.Classes = animal_companion_array;
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFacts(ac_smite_evil_feature, ac_spell_resistance, ac_resist_cae, ac_dr_evil));
 
-            var fiendish_progression = Helpers.CreateProgression("FiendishCompanionProgression",
-                                                  "Fiendish Companion",
-                                                  "Creatures with the fiendish template live in the Lower Planes, such as the Abyss and Hell, but can be summoned using spells such as summon monster and planar ally. Fiendish creatures may use Smite Good once per day, gain energy resistance 5 to cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Good which further increases to  10/Good at level 11.",
-                                                  "3e33af2ab5974859bdaa92c32987b3e0",
-                                                  abbysal_bloodline.Icon,
-                                                  FeatureGroup.None);
+            fiendish_template = Helpers.CreateFeature("FiendishTemplateFeature",
+                                                   "Fiendish Template",
+                                                   "Creatures with the fiendish template live in the Lower Planes, such as the Abyss and Hell, but can be summoned using spells such as summon monster and planar ally. Fiendish creatures may use Smite Good once per day, gain energy resistance 5 to cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Good which further increases to  10/Good at level 11.",
+                                                   "3e33af2ab5974859bdaa92c32987b3e0",
+                                                   abbysal_bloodline.Icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.CreateAddFacts(ac_smite_good_feature, ac_spell_resistance, ac_resist_cf, ac_dr_good)
+                                                  );
 
 
             hunter_otherwordly_companion = Helpers.CreateFeatureSelection("AnimalCompanionTemplateSelection",
@@ -606,38 +610,30 @@ namespace CallOfTheWild
             var channel_negative_allowed = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6");
 
             hunter_otherwordly_companion.AllFeatures = new BlueprintFeature[] {Helpers.CreateFeature("CelestialCompanionTemplateFeature",
-                                                                                          celestial_progression.Name,
-                                                                                          celestial_progression.Description,
-                                                                                          "4eff84c8f4a740b28f18587cdeb0c41d",
-                                                                                          celestial_bloodline.Icon,
-                                                                                          FeatureGroup.None,
-                                                                                          createAddFeatToAnimalCompanion(ac_smite_evil_feature),
-                                                                                          createAddFeatToAnimalCompanion(ac_spell_resistance),
-                                                                                          createAddFeatToAnimalCompanion(ac_resist_cae),
-                                                                                          createAddFeatToAnimalCompanion(ac_dr_evil),
-                                                                                          //createAddFeatToAnimalCompanion(celestial_progression),
-                                                                                          Helpers.PrerequisiteFeature(channel_positive_allowed)
-                                                                                          ),
-                                                                                          Helpers.CreateFeature("FiendishCompanionTemplateFeature",
-                                                                                          fiendish_progression.Name,
-                                                                                          fiendish_progression.Description,
-                                                                                          "76784350237247aab40ebdcc6107794d",
-                                                                                          abbysal_bloodline.Icon,
-                                                                                          FeatureGroup.None,
-                                                                                          createAddFeatToAnimalCompanion(ac_smite_good_feature),
-                                                                                          createAddFeatToAnimalCompanion(ac_spell_resistance),
-                                                                                          createAddFeatToAnimalCompanion(ac_resist_cf),
-                                                                                          createAddFeatToAnimalCompanion(ac_dr_good),
-                                                                                          //createAddFeatToAnimalCompanion(fiendish_progression),
-                                                                                          Helpers.PrerequisiteFeature(channel_negative_allowed)
-                                                                                          )
+                                                                                                      "Celestial Companion",
+                                                                                                      celestial_template.Description,
+                                                                                                      "4eff84c8f4a740b28f18587cdeb0c41d",
+                                                                                                      celestial_template.Icon,
+                                                                                                      FeatureGroup.None,
+                                                                                                      createAddFeatToAnimalCompanion(celestial_template),
+                                                                                                      Helpers.PrerequisiteFeature(channel_positive_allowed)
+                                                                                                      ),
+                                                                                Helpers.CreateFeature("FiendishCompanionTemplateFeature",
+                                                                                                        "Fiendish Companion",
+                                                                                                        fiendish_template.Description,
+                                                                                                        "76784350237247aab40ebdcc6107794d",
+                                                                                                        fiendish_template.Icon,
+                                                                                                        FeatureGroup.None,
+                                                                                                        createAddFeatToAnimalCompanion(fiendish_template),
+                                                                                                        Helpers.PrerequisiteFeature(channel_negative_allowed)
+                                                                                                        )
                                                                                 };
         }
 
 
         static void createSmiteGoodEvilAC()
         {
-            var animal_companion_array = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920") };
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CharacterLevel);
             var umbral_strike = library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716");
             var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
 
@@ -647,7 +643,7 @@ namespace CallOfTheWild
                                                        "bf0882a6d254407bb259356f1aa66392",
                                                        "f009c072167c4b53a37c1071a2251c3f",
                                                        smite_evil.Icon,
-                                                       animal_companion_array,
+                                                       context_rank_config,
                                                        AlignmentComponent.Evil);
 
             ac_smite_good_feature = Common.createSmite("SmiteGoodAC",
@@ -656,11 +652,8 @@ namespace CallOfTheWild
                                            "a432066702694b2590260b58426fee28",
                                            "320b92730bd54842b9707931a5dbab18",
                                            umbral_strike.Icon,
-                                           animal_companion_array,
+                                           context_rank_config,
                                            AlignmentComponent.Good);
-
-            //Main.logger.Log(ac_smite_evil_feature.GetComponent<AddFacts>().Facts[0].name);
-            //Main.logger.Log(ac_smite_good_feature.GetComponent<AddFacts>().Facts[0].name);
         }
 
 

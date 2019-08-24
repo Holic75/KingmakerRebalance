@@ -1265,6 +1265,18 @@ namespace CallOfTheWild
         }
 
 
+        public class ActivatableAbilityNoAlignmentRestriction : ActivatableAbilityRestriction
+        {
+            [AlignmentMask]
+            public AlignmentMaskType Alignment;
+
+            public override bool IsAvailable()
+            {
+                return (Owner.Alignment.Value.ToMask() & this.Alignment) == AlignmentMaskType.None;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
         public class AbilityCasterMainWeaponCheckHasParametrizedFeature : BlueprintComponent, IAbilityCasterChecker
@@ -2101,6 +2113,37 @@ namespace CallOfTheWild
             }
 
             public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class CriticalConfirmationBonusAgainstALignment : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public ContextValue Value;
+            public AlignmentComponent EnemyAlignment;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                int num = this.Value.Calculate(this.Context);
+                if (!evt.Target.Descriptor.Alignment.Value.HasComponent(EnemyAlignment))
+                    return;
+                evt.CriticalConfirmationBonus += num; 
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
             }
         }

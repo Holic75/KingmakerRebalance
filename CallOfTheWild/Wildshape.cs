@@ -109,6 +109,10 @@ namespace CallOfTheWild
         static internal BlueprintAbility shapechange;
 
 
+        static internal List<BlueprintAbility> animal_wildshapes = new List<BlueprintAbility>();
+        static internal BlueprintFeature first_wildshape_form;
+
+
         static internal void load()
         {
             fixBeastShape1();
@@ -128,11 +132,8 @@ namespace CallOfTheWild
             createGiantFormII();
             createShapechange();
 
-            
-
             fixDruid();
             fixTransmuter();
-
         }
 
 
@@ -213,6 +214,13 @@ namespace CallOfTheWild
             medium_elemental_add.SetDescription(description);
             large_elemental_add.SetDescription(description);
 
+
+            animal_wildshapes.Add(wildshape_leopard);
+            animal_wildshapes.Add(wildshape_bear);
+            animal_wildshapes.Add(wildshape_dire_wolf);
+            animal_wildshapes.Add(wildshape_smilodon);
+            animal_wildshapes.Add(wildshape_mastodon);
+
             var shape_features = new BlueprintFeature[] {
                                                         leopard_feature,
                                                         bear_feature,
@@ -272,6 +280,7 @@ namespace CallOfTheWild
             feyspeaker.RemoveFeatures[4].Features[0] = shambling_mound_feature;
             feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, treant_feature, huge_elemental_feature));
 
+            first_wildshape_form = leopard_feature;
             //fix natural spell requirement
             var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
             natural_spell.GetComponent<PrerequisiteFeature>().Feature = leopard_feature;

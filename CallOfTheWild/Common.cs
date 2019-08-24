@@ -700,6 +700,15 @@ namespace CallOfTheWild
         internal static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
                                                      BlueprintCharacterClass[] classes, AlignmentComponent smite_alignment)
         {
+            var new_context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes);
+
+            return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_alignment);
+        }
+
+
+        internal static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                             ContextRankConfig new_context_rank_config, AlignmentComponent smite_alignment)
+        {
             var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name + "Ability", ability_guid);
             var smite_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", name + "Feature", guid);
 
@@ -709,23 +718,29 @@ namespace CallOfTheWild
             smite_feature.SetIcon(icon);
 
             smite_feature.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.AddFacts>(Helpers.CreateAddFact(smite_ability));
+            
+
+
             smite_ability.SetName(smite_feature.Name);
             smite_ability.SetDescription(smite_feature.Description);
             smite_ability.SetIcon(icon);
             smite_ability.RemoveComponent(smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
-            var context_rank_config = smite_ability.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>().Where(a => a.Type == AbilityRankType.DamageBonus).ElementAt(0);
-            var new_context_rank_config = context_rank_config.CreateCopy();
-            Helpers.SetField(new_context_rank_config, "m_Class", classes);
-            smite_ability.ReplaceComponent(context_rank_config, new_context_rank_config);
+            var old_context_rank_config = smite_ability.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>().Where(a => a.Type == AbilityRankType.DamageBonus).ElementAt(0);
+            Helpers.SetField(new_context_rank_config, "m_Type", AbilityRankType.DamageBonus);
+            smite_ability.ReplaceComponent(old_context_rank_config, new_context_rank_config);
 
             var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            var new_smite_action = smite_action.CreateCopy();
-            var condition = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)new_smite_action.Actions.Actions[0];
-            new_smite_action.Actions = Helpers.CreateActionList(new_smite_action.Actions.Actions);
-            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)new_smite_action.Actions.Actions[0];
+                   
+            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
             var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false), old_conditional.ConditionsChecker.Conditions[1] };
-            new_smite_action.Actions.Actions[0] = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
 
+            var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
+            //make buff take icon and name from parent ability
+            smite_buff.SetIcon(null);
+            smite_buff.SetName("");
+            var new_smite_action =  Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
+            smite_ability.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
+            smite_feature.GetComponent<AddAbilityResources>().RestoreAmount = true;
             return smite_feature;
         }
 
