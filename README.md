@@ -92,6 +92,7 @@ enchanced attacks).
 - Animal Growth properly increases size of animal companion,
 - Arcane Bond works with spontaneous spells,
 - Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
+- Lingering Performance no longer allows to overlap different bardic performances.
 - All flying creatures are immune to difficult terrain and ground based buff effects.
 
 

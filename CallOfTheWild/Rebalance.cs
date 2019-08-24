@@ -22,6 +22,8 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.Parts;
+using Kingmaker.UnitLogic.Buffs;
 
 namespace CallOfTheWild
 {
@@ -472,6 +474,33 @@ namespace CallOfTheWild
                     __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Move : UnitCommand.CommandType.Swift;
                 }
                 return false;
+            }
+        }
+
+        //forbid bard song overlap on bardic performance
+        [Harmony12.HarmonyPatch(typeof(ActivatableAbility))]
+        [Harmony12.HarmonyPatch("OnTurnOn", Harmony12.MethodType.Normal)]
+        class ActivatableAbilityy__OnTurnOn__Patch
+        {
+            static void Postfix( ActivatableAbility __instance)
+            {
+                if (__instance.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
+                {
+                    return;
+                }
+
+                int max_size = __instance.Owner.Get<UnitPartActivatableAbility>().GetGroupSize(ActivatableAbilityGroup.BardicPerformance);
+                
+                var activated_performances =  __instance.Owner.ActivatableAbilities.Enumerable.Where(a => __instance.Owner.Buffs.HasFact(a.Blueprint.Buff) && !a.IsOn
+                                                                                                          && a.Blueprint.Group == ActivatableAbilityGroup.BardicPerformance);
+                
+                foreach (var a in activated_performances)
+                {
+                    if (a != __instance)
+                    {
+                        (__instance.Owner.Buffs.GetFact(a.Blueprint.Buff) as Buff).Remove();
+                    }
+                }
             }
         }
 
