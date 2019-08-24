@@ -23,6 +23,7 @@ New feats:
 - Riving Strike,
 - Feral Combat Training,
 - Furious Focus,
+- Planar Wild Shape,
 - Coordinated Shot,
 - Skald's Vigor and Greater Skald's Vigor,
 - Stalwart and Improved Stalwart,
@@ -92,6 +93,12 @@ enchanced attacks).
 - Arcane Bond works with spontaneous spells,
 - Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
 - All flying creatures are immune to difficult terrain and ground based buff effects.
+
+
+Original game bug fixes:
+- Vital Strike now takes standard action,
+- Singing Steel works properly,
+- Archaelogist luck works with Lingering Performance and Singing Steel
 
 
 Mod also changes stats of some npcs
