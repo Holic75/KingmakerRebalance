@@ -9,6 +9,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
@@ -4039,7 +4040,7 @@ namespace CallOfTheWild
             var cult_leader_proficiencies = library.CopyAndAdd<BlueprintFeature>("33e2a7e4ad9daa54eaf808e1483bb43c", "CultLeaderProficiencies", "");
             cult_leader_proficiencies.SetName("Cult Leader Proficiencies");
             cult_leader_proficiencies.SetDescription("Cult leaders are proficient with all simple weapons, plus the hand crossbow, rapier, sap, shortbow, and short sword, as well as the favored weapon of their deity. They are proficient with light armor and light shields.");
-
+            cult_leader_proficiencies.ReplaceComponent<AddProficiencies>(a => a.ArmorProficiencies = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Buckler, ArmorProficiencyGroup.LightShield });
             var skill_focus_persuation = library.Get<BlueprintFeature>("1621be43793c5bb43be55493e9c45924");
 
             var well_hidden = library.CopyAndAdd<BlueprintFeature>("610652378253d3845bb70f005c084daa", "CultLeaderWellHidden", "");
