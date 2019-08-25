@@ -469,9 +469,13 @@ namespace CallOfTheWild
                 {
                    __result =  !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Swift : UnitCommand.CommandType.Free;
                 }
-                else if ((bool)ability.Owner.State.Features.QuickenPerformance1)
+                else if ((bool)ability.Owner.State.Features.QuickenPerformance1 || ability.Blueprint.ActivateWithUnitCommandType == UnitCommand.CommandType.Move)
                 {
                     __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Move : UnitCommand.CommandType.Swift;
+                }
+                else
+                {
+                    __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Standard : UnitCommand.CommandType.Move;
                 }
                 return false;
             }

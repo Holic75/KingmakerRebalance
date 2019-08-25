@@ -2738,7 +2738,7 @@ namespace CallOfTheWild
                                           "Rage Casting",
                                           "When you cast a bloodrager spell, as a swift action you can sacrifice some of your life force to augment the spell’s potency. You can opt to take 1d6 points of damage per spell level of the spell you are casting. You cannot overcome this damage in any way, and it cannot be taken from temporary hit points. For each of these damage dice you roll, the DC of the spell you are casting increases by 1.",
                                           "",
-                                          LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Casting_Rage.png"),//contagion.Icon,
+                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Casting_Rage.png"),//contagion.Icon,
                                           null,
                                           rage_casting
                                           );

@@ -1,7 +1,9 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
@@ -14,6 +16,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -166,13 +169,13 @@ namespace CallOfTheWild
         static void replaceIconsForExistingFeats()
         {
             var arcane_strike_feature = library.Get<BlueprintFeature>("0ab2f21a922feee4dab116238e3150b4");
-            arcane_strike_feature.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_Strike.png"));
+            arcane_strike_feature.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Arcane_Strike.png"));
 
             var wings_feat = library.Get<BlueprintFeature>("d9bd0fde6deb2e44a93268f2dfb3e169");
-            wings_feat.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Wings.png"));
+            wings_feat.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Wings.png"));
 
             var combat_casting = library.Get<BlueprintFeature>("06964d468fde1dc4aa71a92ea04d930d");
-            combat_casting.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Casting_Combat.png"));
+            combat_casting.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Casting_Combat.png"));
 
             string[] extra_channel_ids = new string[] {"cd9f19775bd9d3343a31a065e93f0c47",
                                                          "347e8d794c9598e4abed70adda868ccd",
@@ -181,7 +184,7 @@ namespace CallOfTheWild
             foreach (var id in extra_channel_ids)
             {
                 var extra_channel = library.Get<BlueprintFeature>(id);
-                extra_channel.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Channel_Extra.png"));
+                extra_channel.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Channel_Extra.png"));
             }
 
 
@@ -231,7 +234,7 @@ namespace CallOfTheWild
                                           "Raging Brutality",
                                           "While raging and using Power Attack, you can spend 3 additional rounds of your rage as a swift action to add your Constitution bonus on damage rolls for melee attacks or thrown weapon attacks you make on your turn. If you are using the weapon two-handed, instead add 1-1/2 times your Constitution bonus.",
                                           "",
-                                          LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Raging_Brutality.png"), //destructive_smite.Icon,
+                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Raging_Brutality.png"), //destructive_smite.Icon,
                                           null,
                                           Common.createContextWeaponDamageBonus(Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Constitution, type: AbilityRankType.DamageBonus));
@@ -292,7 +295,7 @@ namespace CallOfTheWild
                                                           "Blooded Arcane Strike",
                                                           "While you are bloodraging, you don’t need to spend a swift action to use your Arcane Strike—it is always in effect. When you use this ability with Vital Strike, Improved Vital Strike, or Greater Vital Strike, the bonus on damage rolls for Arcane Strike is multiplied by the number of times (two, three, or four) you roll damage dice for one of those feats.",
                                                           "",
-                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_Blooded_Strike.png"), //arcane_strike_feature.Icon
+                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Arcane_Blooded_Strike.png"), //arcane_strike_feature.Icon
                                                           FeatureGroup.CombatFeat,
                                                           Helpers.PrerequisiteFeature(arcane_strike_feature),
                                                           Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 1)
@@ -316,7 +319,7 @@ namespace CallOfTheWild
                                             "Riving Strike Penalty",
                                             "Target receives -2 penalty to saving throws against spells and spell-like abilities",
                                             "",
-                                            LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Arcane_Riving_Strike.png"), //arcane_strike_feature.Icon,
+                                            LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Arcane_Riving_Strike.png"), //arcane_strike_feature.Icon,
                                             null,
                                             Common.createSavingThrowBonusAgainstAbilityType(-2, Common.createSimpleContextValue(0), AbilityType.Spell),
                                             Common.createSavingThrowBonusAgainstAbilityType(-2, Common.createSimpleContextValue(0), AbilityType.SpellLike)
@@ -356,7 +359,7 @@ namespace CallOfTheWild
                                                      "Coordinated Shot",
                                                      "If your ally with this feat is threatening an opponent and is not providing cover to that opponent against your ranged attacks, you gain a +1 bonus on ranged attacks against that opponent. If your ally with this feat is flanking that opponent with another ally (even if that other ally doesn’t have this feat), this bonus increases to +2.",
                                                      "",
-                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Shot_Coordinated.png"), //point_blank_shot.Icon,
+                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Shot_Coordinated.png"), //point_blank_shot.Icon,
                                                      FeatureGroup.Feat,
                                                      Helpers.PrerequisiteFeature(point_blank_shot));
 
@@ -384,7 +387,7 @@ namespace CallOfTheWild
                                                          "Stalwart",
                                                          "While using the total defense action, fighting defensively action, or Combat Expertise, you can forgo the dodge bonus to AC you would normally gain to instead gain an equivalent amount of DR, until the start of your next turn.",
                                                          "",
-                                                         LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Stalwart.png"),
+                                                         LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Stalwart.png"),
                                                          FeatureGroup.Feat,
                                                          Helpers.PrerequisiteFeature(endurance),
                                                          Helpers.PrerequisiteFeature(diehard, true),
@@ -415,7 +418,7 @@ namespace CallOfTheWild
                                              "Improved Stalwart",
                                              "Double the DR you gain from Stalwart",
                                              "",
-                                             LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Stalwart_Improved.png"),
+                                             LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Stalwart_Improved.png"),
                                              FeatureGroup.Feat,
                                              Helpers.PrerequisiteFeature(stalwart),
                                              Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11)
@@ -427,6 +430,7 @@ namespace CallOfTheWild
 
             stalwarBuffReplacement(combat_expertise_toggle, stalwart_toggle_buff);
             stalwarBuffReplacement(fight_defensively_toggle, stalwart_toggle_buff);
+
 
             library.AddFeats(stalwart, improved_stalwart);
         }
@@ -446,8 +450,18 @@ namespace CallOfTheWild
 
             var ac_component = stalwart_buff.GetComponents<AddStatBonusAbilityValue>().Where(c => c.Stat == StatType.AC).FirstOrDefault();
             if (ac_component != null)
-            {
+            {//fight defensively
                 stalwart_buff.ReplaceComponent(ac_component, Common.createContextPhysicalDR(ac_component.Value));
+                //fix for crane wing
+                var crane_style_buff = library.Get<BlueprintBuff>("e8ea7bd10136195478d8a5fc5a44c7da");
+                var crane_style_conditional = (crane_style_buff.GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional);
+
+                var has_fight_defensively = crane_style_conditional.ConditionsChecker.Conditions[2] as ContextConditionHasFact;
+
+                crane_style_conditional.ConditionsChecker.Conditions = crane_style_conditional.ConditionsChecker.Conditions.RemoveFromArray(has_fight_defensively);
+                var combined_condition = Helpers.CreateConditional(new Condition[] { has_fight_defensively, Helpers.CreateConditionHasFact(stalwart_buff) }, crane_style_conditional.IfTrue.Actions[0]);
+                combined_condition.ConditionsChecker.Operation = Operation.Or;
+                crane_style_conditional.IfTrue = Helpers.CreateActionList(combined_condition);
             }
             else
             {//combat expertise

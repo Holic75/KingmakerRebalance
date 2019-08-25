@@ -1486,7 +1486,7 @@ namespace CallOfTheWild
             accursed_hex_buff.SetDescription("You can make a second attempt at failed hexes.\n"
                                              + "Benefit: When you target a creature with a hex that cannot target the same creature more than once per day, and that creature succeeds at its saving throw against the hex’s effect, you can target the creature with the same hex a second time before the end of your next turn.If the second attempt fails, you can make no further attempts to target that creature with the same hex for 1 day.\n"
                                              + "Normal: You can only target a creature with these hexes once per day.");
-            accursed_hex_buff.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Accursed.png"));
+            accursed_hex_buff.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Accursed.png"));
             accursed_hex_buff.Stacking = StackingType.Ignore;
 
             accursed_hex_feat = Helpers.CreateFeature("AccursedHexFeature",
@@ -1505,7 +1505,7 @@ namespace CallOfTheWild
                                                        "Amplified Hex",
                                                        "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level. Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd - level spell the second time, a 3rdlevel spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
                                                        "",
-                                                       LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Amplified.png"),
+                                                       LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Amplified.png"),
                                                        FeatureGroup.Feat);
            // var circle_of_death = library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"); //circle of death
             amplified_hex_buff = Helpers.CreateBuff("AmplifiedHexBuff",
@@ -1582,7 +1582,7 @@ namespace CallOfTheWild
                                                        "Split Hex",
                                                        "When you use one of your hexes (not a major hex or a grand hex) that targets a single creature, you can apply the same hex to another creature as a free action.",
                                                        "",
-                                                       LoadIcons.Image2Sprite.Create(@"FeatIcons\Icon_Hex_Split.png"),
+                                                       LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Split.png"),
                                                        FeatureGroup.Feat);
 
             //var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6"); //school evocation
