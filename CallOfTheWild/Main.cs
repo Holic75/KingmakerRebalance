@@ -86,7 +86,7 @@ public class Main
             {
                 Main.DebugLog("Loading Call of the Wild");
 
-                CallOfTheWild.LoadIcons.Image2Sprite.icons_folder = @"Mods\CallOfTheWild\Icons\";
+                CallOfTheWild.LoadIcons.Image2Sprite.icons_folder = @"./Mods/CallOfTheWild/Icons/";
                 CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints);
                 CallOfTheWild.Helpers.Load();
                 CallOfTheWild.ArmorEnchantments.initialize();
@@ -159,7 +159,7 @@ public class Main
                     string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";
                     CallOfTheWild.Helpers.GuidStorage.dump(guid_file_name);
 #endif
-                    CallOfTheWild.Helpers.GuidStorage.dump(@"Mods/CallOfTheWild/loaded_blueprints.txt");
+                    CallOfTheWild.Helpers.GuidStorage.dump(@"./Mods/CallOfTheWild/loaded_blueprints.txt");
                 }
                 catch (Exception ex)
                 {
