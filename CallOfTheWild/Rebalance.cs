@@ -459,7 +459,7 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("GetCommandType", Harmony12.MethodType.Normal)]
         class UnitActivateAbility__GetCommandType__Patch
         {
-            static bool Prefix(ActivatableAbility ability, UnitCommand.CommandType __result)
+            static bool Prefix(ActivatableAbility ability, ref UnitCommand.CommandType __result)
             {
                 if (ability.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
                 {
