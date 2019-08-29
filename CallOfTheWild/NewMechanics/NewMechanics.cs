@@ -2149,6 +2149,67 @@ namespace CallOfTheWild
         }
 
 
+        public class AddWeaponEnergyDamageDice : BuffLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public ContextDiceValue dice_value;
+            public DamageEnergyType Element;
+            public AttackType[] range_types;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon == null && !this.range_types.Contains(evt.Weapon.Blueprint.AttackType))
+                    return;
+
+                DamageDescription damageDescription = new DamageDescription()
+                {
+                    TypeDescription = new DamageTypeDescription()
+                    {
+                        Type = DamageType.Energy,
+                        Energy = this.Element
+                    },
+                    Dice = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType),
+                    Bonus = this.dice_value.BonusValue.Calculate(this.Context)
+                };
+                evt.DamageDescription.Add(damageDescription);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        public class AddWeaponEnergyDamageDiceIfHasFact : BuffLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public ContextDiceValue dice_value;
+            public DamageEnergyType Element;
+            public AttackType[] range_types;
+            public BlueprintUnitFact checked_fact;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon == null && !this.range_types.Contains(evt.Weapon.Blueprint.AttackType) || !this.Owner.HasFact(checked_fact))
+                    return;
+
+                DamageDescription damageDescription = new DamageDescription()
+                {
+                    TypeDescription = new DamageTypeDescription()
+                    {
+                        Type = DamageType.Energy,
+                        Energy = this.Element
+                    },
+                    Dice = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType),
+                    Bonus = this.dice_value.BonusValue.Calculate(this.Context)
+                };
+                evt.DamageDescription.Add(damageDescription);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
 
     }
 

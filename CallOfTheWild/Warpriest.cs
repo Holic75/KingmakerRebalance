@@ -1268,15 +1268,18 @@ namespace CallOfTheWild
             var wings_angel = library.Get<BlueprintBuff>("d596694ff285f3f429528547f441b1c0");
 
 
-            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
-
+            //var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             var major_buff = Helpers.CreateBuff("WarpriestAirBlessingMajorBuff",
                                                 "Soaring Assault",
                                                 "At 10th level, you can touch an ally and give her the gift of flight for 1 minute. The ally gains immunity to ground based abilities and difficult terrain, as well as receives +3 dodge bonus against melee attacks. Whenever the ally succeeds at a charge attack, that attack deals an amount of additional electricity damage equal to your level.",
                                                 "",
                                                 wings_angel.Icon,
                                                 null,
-                                                Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => a.Action = Helpers.CreateActionList(damage_action)),
+                                                //Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => a.Action = Helpers.CreateActionList(damage_action)),
+                                                Common.createAddWeaponEnergyDamageDiceBuffIfHasFact(Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                                                                    DamageEnergyType.Electricity,
+                                                                                                    charge_buff,
+                                                                                                    AttackType.Melee, AttackType.Touch),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getWarpriestArray(),
                                                                                 type: AbilityRankType.DamageBonus, progression: ContextRankProgression.AsIs)
                                                 );

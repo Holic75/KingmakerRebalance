@@ -1451,8 +1451,8 @@ namespace CallOfTheWild
                                                              "b0439659723f4a8da680965c78a8fbf5",
                                                              charge_buff.Icon,
                                                              null,
-                                                             Common.createBuffEnchantWornItem(flaming),
-                                                             Common.createBuffEnchantWornItem(flaming_burst)
+                                                             Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, false, flaming),
+                                                             Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, false, flaming_burst)
                                                              );
                 hellfire_charge = Helpers.CreateFeature(prefix + "HellfireChargeFeature",
                                                                                 weapon_enchant_buff.Name,
@@ -2509,8 +2509,8 @@ namespace CallOfTheWild
 
                 foreach (var b in bloodlines)
                 {
-                    var bonus_damage = Helpers.CreateActionDealDamage(b.energy_type, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
-                    var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
+                    //var bonus_damage = Helpers.CreateActionDealDamage(b.energy_type, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+                    // var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
 
                     var buff = Helpers.CreateBuff(b.prefix + "ElementalStrikesBuff",
                                                              "Elemental Strikes",
@@ -2518,9 +2518,11 @@ namespace CallOfTheWild
                                                              "",
                                                              library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113").Icon, //divine favor
                                                              null,
-                                                             Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, check_weapon_range_type: true,
-                                                                                                              range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
-                                                             Helpers.CreateResourceLogic(resource)
+                                                             Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                                                                        DamageEnergyType.Fire,
+                                                                                                        AttackType.Melee, AttackType.Touch)                                                 
+                                                             //Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, check_weapon_range_type: true,
+                                                             //                                                 range_type: AttackTypeAttackBonus.WeaponRangeType.Melee)
                                                              );
                     var action = Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus)), dispellable: false));
                     var ability = Helpers.CreateAbility(b.prefix + "ElementalStrikesAbility",

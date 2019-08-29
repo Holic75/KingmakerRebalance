@@ -2295,9 +2295,34 @@ namespace CallOfTheWild
         }
 
 
+        public static NewMechanics.AddWeaponEnergyDamageDice createAddWeaponEnergyDamageDiceBuff(ContextDiceValue dice_value, DamageEnergyType energy, params AttackType[] attack_types)
+        {
+            var a = Helpers.Create<NewMechanics.AddWeaponEnergyDamageDice>();
+            a.dice_value = dice_value;
+            a.Element = energy;
+            a.range_types = attack_types;
+            return a;
+        }
+
+
+        public static NewMechanics.AddWeaponEnergyDamageDiceIfHasFact createAddWeaponEnergyDamageDiceBuffIfHasFact(ContextDiceValue dice_value, DamageEnergyType energy, BlueprintUnitFact checked_fact, 
+                                                                                                                    params AttackType[] attack_types)
+        {
+            var a = Helpers.Create<NewMechanics.AddWeaponEnergyDamageDiceIfHasFact>();
+            a.dice_value = dice_value;
+            a.Element = energy;
+            a.range_types = attack_types;
+            a.checked_fact = checked_fact;
+            return a;
+        }
+
+
         public static void setAsFullRoundAction(BlueprintAbility spell)
         {
             Helpers.SetField(spell, "m_IsFullRoundAction", true);
         }
+
+
+
     }
 }
