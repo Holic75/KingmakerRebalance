@@ -6,8 +6,11 @@ using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using System;
 using System.Collections.Generic;
@@ -68,7 +71,95 @@ namespace CallOfTheWild
         static Dictionary<string, string> normal_quick_channel_map = new Dictionary<string, string>();
 
 
-        static BlueprintFeature quick_channel = null;
+        static public BlueprintFeature quick_channel = null;
+        static public BlueprintFeature channel_smite = null;
+
+
+        public static void createChannelSmite()
+        {
+            channel_smite = Helpers.CreateFeature("ChannelSmiteFeature",
+                                      "Channel Smite",
+                                      "Before you make a melee attack roll, you can choose to spend one use of your channel energy ability as a swift action. If you channel positive energy and you hit an undead creature, that creature takes an amount of additional damage equal to the damage dealt by your channel positive energy ability. If you channel negative energy and you hit a living creature, that creature takes an amount of additional damage equal to the damage dealt by your channel negative energy ability. Your target can make a Will save, as normal, to halve this additional damage. If your attack misses, the channel energy ability is still expended with no effect.",
+                                      "",
+                                      null,
+                                      FeatureGroup.Feat);
+            channel_smite.Groups = channel_smite.Groups.AddToArray(FeatureGroup.CombatFeat);
+
+            foreach (var e in positive_harm.ToArray())
+            {
+                addToChannelSmite(e.ability, e.parent_feature, ChannelType.PositiveHarm);
+            }
+
+            foreach (var e in negative_harm.ToArray())
+            {
+                addToChannelSmite(e.ability, e.parent_feature, ChannelType.NegativeHarm);
+            }
+
+
+            library.AddCombatFeats(channel_smite);
+        }
+
+        static void addToChannelSmite(BlueprintAbility channel, BlueprintFeature parent_feature, ChannelType channel_type)
+        {
+            if (channel_smite == null)
+            {
+                return;
+            }
+
+            if (channel_type == ChannelType.NegativeHeal || channel_type == ChannelType.PositiveHeal)
+            {
+                return;
+            }
+
+            Common.addFeaturePrerequisiteOr(channel_smite, parent_feature);
+
+            var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
+            var buff = Helpers.CreateBuff("ChannelSmite" + channel.name + "Buff",
+                                          $"Channel Smite ({channel.Name})",
+                                          channel_smite.Description,
+                                          Helpers.MergeIds(channel.AssetGuid, "0d406cf592524c85b796216ed4ee3ab3"),
+                                          channel.Icon,
+                                          null,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(channel.GetComponent<AbilityEffectRunAction>().Actions,
+                                                                                           check_weapon_range_type: true),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
+                                                                                           check_weapon_range_type: true,
+                                                                                           only_hit: false,
+                                                                                           on_initiator: true),
+                                          channel.GetComponent<ContextRankConfig>()
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(1), Kingmaker.UnitLogic.Mechanics.DurationRate.Rounds),
+                                                                 dispellable: false
+                                                                 );
+            var ability = Helpers.CreateAbility("ChannelSmite" + channel.name,
+                                                buff.Name,
+                                                buff.Description,
+                                                Helpers.MergeIds(channel.AssetGuid, "81e5fc81f1a644d5898a9fdbda752e95"),
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                channel.LocalizedSavingThrow,
+                                                smite_evil.GetComponent<AbilitySpawnFx>(),
+                                                channel.GetComponent<AbilityResourceLogic>(),
+                                                Helpers.CreateRunActions(apply_buff)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            updateItemsForChannelDerivative(channel, ability);
+
+            var caster_alignment = channel.GetComponent<AbilityCasterAlignment>();
+            if (caster_alignment != null)
+            {
+                ability.AddComponent(caster_alignment);
+            }
+
+            channel_smite.AddComponent(Common.createAddFeatureIfHasFact(parent_feature, ability));
+            parent_feature.AddComponent(Common.createAddFeatureIfHasFact(channel_smite, ability));
+        }
+
 
 
         public static void createQuickChannel()
@@ -111,18 +202,7 @@ namespace CallOfTheWild
                 return;
             }
 
-            var features_from_list = quick_channel.GetComponent<PrerequisiteFeaturesFromList>();
-            if (features_from_list == null)
-            {
-                features_from_list = Helpers.PrerequisiteFeaturesFromList(parent_feature);
-                quick_channel.AddComponent(features_from_list);
-            }
-
-            if (!features_from_list.Features.Contains(parent_feature))
-            {
-                features_from_list.Features = features_from_list.Features.AddToArray(parent_feature);
-            }
-
+            Common.addFeaturePrerequisiteOr(quick_channel, parent_feature);
 
             var quicken_ability = library.CopyAndAdd<BlueprintAbility>(channel.AssetGuid, "Quick" + channel.name, channel.AssetGuid, "e936d73a1dfe42efb1765b980c80e113");
             quicken_ability.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move;
@@ -130,7 +210,7 @@ namespace CallOfTheWild
             var resource_logic = quicken_ability.GetComponent<AbilityResourceLogic>();
             var amount = resource_logic.Amount;
             quicken_ability.ReplaceComponent<AbilityResourceLogic>(c => { c.Amount = amount * 2;});
-            updateItemsForQuick(channel, quicken_ability);
+            updateItemsForChannelDerivative(channel, quicken_ability);
 
             var quicken_feature = Common.AbilityToFeature(quicken_ability, guid: Helpers.MergeIds(quicken_ability.AssetGuid, parent_feature.AssetGuid));
             quick_channel.AddComponent(Common.createAddFeatureIfHasFact(parent_feature, quicken_feature));
@@ -190,11 +270,12 @@ namespace CallOfTheWild
 
             if (update_items)
             {
-                updateItemsForQuick(ability, prototype);
+                updateItemsForChannelDerivative(ability, prototype);
             }
 
 
             storeChannel(ability, parent_feature, channel_type);
+            addToChannelSmite(ability, parent_feature, channel_type);
             addToQuickChannel(ability, parent_feature, channel_type);
             addToSelectiveChannel(parent_feature);
 
@@ -269,14 +350,13 @@ namespace CallOfTheWild
                 Common.addFeatureToEnchantment(negative_bonus2, feature);
                 Common.addFeatureToEnchantment(negative_bonus2, feature);
             }
-
         }
 
 
         
 
 
-        static internal void updateItemsForQuick(BlueprintAbility original_ability, BlueprintAbility quicken_ability)
+        static internal void updateItemsForChannelDerivative(BlueprintAbility original_ability, BlueprintAbility derived_ability)
         {
             //phylacteries bonuses
             BlueprintEquipmentEnchantment[] enchants = new BlueprintEquipmentEnchantment[]{library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316"),
@@ -293,7 +373,7 @@ namespace CallOfTheWild
                     if (b.Spell == original_ability)
                     {
                         var b2 = b.CreateCopy();
-                        b2.Spell = quicken_ability;
+                        b2.Spell = derived_ability;
                         e.AddComponent(b2);
                     }
                 }
@@ -310,7 +390,7 @@ namespace CallOfTheWild
                     if (b.Spell == original_ability)
                     {
                         var b2 = b.CreateCopy();
-                        b2.Spell = quicken_ability;
+                        b2.Spell = derived_ability;
                         buff.AddComponent(b2);
                     }
                 }

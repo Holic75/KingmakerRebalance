@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -37,6 +38,8 @@ namespace CallOfTheWild
         static internal BlueprintFeature improved_stalwart;
         static internal BlueprintFeature furious_focus;
         static internal BlueprintFeature planar_wild_shape;
+        static internal BlueprintParametrizedFeature deity_favored_weapon;
+        static internal BlueprintFeature guided_hand;
 
         static internal void load()
         {
@@ -50,7 +53,58 @@ namespace CallOfTheWild
             FeralCombatTraining.load();
 
             ChannelEnergyEngine.createQuickChannel();
+            ChannelEnergyEngine.createChannelSmite();
             createPlanarWildShape();
+            createGuidedHand();
+        }
+
+
+
+        static void createGuidedHand()
+        {
+            guided_hand = Helpers.CreateFeature("GuidedHandFeature",
+                                                "Guided Hand",
+                                                "With your deity’s favored weapon, you can use your Wisdom modifier instead of your Strength or Dexterity modifier on attack rolls.",
+                                                "",
+                                                null,
+                                                FeatureGroup.Feat,
+                                                Helpers.Create<NewMechanics.AttackStatReplacementIfHasParametrizedFeature>(c =>
+                                                                                                                            {
+                                                                                                                                c.feature = deity_favored_weapon;
+                                                                                                                                c.ReplacementStat = StatType.Wisdom;
+                                                                                                                            }
+                                                                                                                            ),
+                                                Helpers.PrerequisiteFeature(ChannelEnergyEngine.channel_smite)
+                                                );
+            library.AddFeats(guided_hand);
+        }
+
+        internal static void createDeityFavoredWeapon()
+        {
+            deity_favored_weapon = library.CopyAndAdd<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e", "DeityFavoredWeapon", "");
+            deity_favored_weapon.SetName("Deity's Favored Weapon");
+            deity_favored_weapon.SetDescription("");
+            deity_favored_weapon.Groups = new FeatureGroup[0];
+            deity_favored_weapon.ComponentsArray = new BlueprintComponent[0];
+
+            var deity_selection = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
+
+            foreach (var d in deity_selection.AllFeatures)
+            {
+                var add_features = d.GetComponents<AddFeatureOnClassLevel>();
+                var starting_items = d.GetComponent<AddStartingEquipment>();
+                if (add_features.Count() == 0 && starting_items!= null)
+                {
+                    var weapon_category = starting_items.CategoryItems[0];
+                    d.AddComponent(Common.createAddParametrizedFeatures(deity_favored_weapon, weapon_category));
+                }
+                foreach (var add_feature in add_features)
+                {
+                    var proficiency = add_feature.Feature.GetComponent<AddProficiencies>();
+                    var weapon_category = proficiency == null ? WeaponCategory.UnarmedStrike : proficiency.WeaponProficiencies[0];
+                    d.AddComponent(Common.createAddParametrizedFeatures(deity_favored_weapon, weapon_category));
+                }
+            }
         }
 
 
@@ -226,7 +280,7 @@ namespace CallOfTheWild
             library.AddCombatFeats(furious_focus);
         }
 
-        static internal void createRagingBrutality()
+        static void createRagingBrutality()
         {
             //var destructive_smite = library.Get<BlueprintActivatableAbility>("e69898f762453514780eb5e467694bdb");
             var power_attack_buff = library.Get<BlueprintBuff>("5898bcf75a0942449a5dc16adc97b279");

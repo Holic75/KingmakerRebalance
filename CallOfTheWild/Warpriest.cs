@@ -475,7 +475,7 @@ namespace CallOfTheWild
 
             var fervor_negative_ability_others = Helpers.CreateAbility("WarpriestFervorNegativeOthersAbility",
                                                             "Fervor (Negative Energy) Others",
-                                                            "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, An evil warpriest (or one who worships an evil deity) can touch a living creature and deal to it 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to heal an undead creature for same amount of damage he would otherwise deal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Living creatures do not receive a saving throw against this damage. This counts as negative energy.",
+                                                            "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, an evil warpriest (or one who worships an evil deity) can touch a living creature and deal to it 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to heal an undead creature for same amount of damage he would otherwise deal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Living creatures do not receive a saving throw against this damage. This counts as negative energy.",
                                                             "",
                                                             inflict_light_wounds.Icon,
                                                             AbilityType.Supernatural,
@@ -626,7 +626,7 @@ namespace CallOfTheWild
                                                                    "",
                                                                    bless_weapon.Icon,
                                                                    FeatureGroup.None,
-                                                                   Common.createContextWeaponDamageDiceReplacement(weapon_focus,
+                                                                   Common.createContextWeaponDamageDiceReplacement(new BlueprintParametrizedFeature[] { weapon_focus, NewFeats.deity_favored_weapon },
                                                                                                                    Helpers.CreateContextValue(AbilityRankType.Default),
                                                                                                                    diceFormulas),
                                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
@@ -767,6 +767,7 @@ namespace CallOfTheWild
             sacred_weapon_resource = Helpers.CreateAbilityResource("WarpriestSacredWeaponResource", "", "", "", null);
             sacred_weapon_resource.SetIncreasedByLevel(0, 1, getWarpriestArray());
 
+            var restriction = Helpers.Create<NewMechanics.ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction>(c => c.features = new BlueprintParametrizedFeature[] { weapon_focus, NewFeats.deity_favored_weapon });
             var sacred_weapon_ability = Helpers.CreateActivatableAbility("WarpriestSacredWeaponEnchantmentToggleAbility",
                                                                          sacred_weapon_enhancement_buff.Name,
                                                                          sacred_weapon_enhancement_buff.Description,
@@ -777,7 +778,8 @@ namespace CallOfTheWild
                                                                          CommandType.Swift,
                                                                          null,
                                                                          Helpers.CreateActivatableResourceLogic(sacred_weapon_resource, ResourceSpendType.NewRound),
-                                                                         Helpers.Create<NewMechanics.ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction>(c => c.feature = weapon_focus));
+                                                                         restriction
+                                                                         );
 
             if (!test_mode)
             {
@@ -3201,7 +3203,7 @@ namespace CallOfTheWild
 
             ChannelEnergyEngine.getQuickChannelVariant(heal_living).ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(caster_action)));
 
-            ChannelEnergyEngine.updateItemsForQuick(harm_undead, major_ability);
+            ChannelEnergyEngine.updateItemsForChannelDerivative(harm_undead, major_ability);
 
             addBlessing("WarpriestBlessingRepose", "Repose", Common.AbilityToFeature(minor_ability, false), major_feature, "076ba1e3a05fac146acfc956a9f41e95");
         }

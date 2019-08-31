@@ -128,6 +128,7 @@ public class Main
                 CallOfTheWild.Wildshape.load();
                 CallOfTheWild.NewRagePowers.load();
                 CallOfTheWild.NewSpells.load();
+                CallOfTheWild.NewFeats.createDeityFavoredWeapon();
 
 #if DEBUG
                 CallOfTheWild.HexEngine.test_mode = true;

@@ -870,7 +870,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextWeaponDamageDiceReplacement : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
-            public BlueprintParametrizedFeature required_parametrized_feature;
+            public BlueprintParametrizedFeature[] required_parametrized_features;
             public DiceFormula[] dice_formulas;
             public ContextValue value;
 
@@ -885,11 +885,18 @@ namespace CallOfTheWild
 
             private bool checkFeature(WeaponCategory category)
             {
-                if (required_parametrized_feature == null)
+                if (required_parametrized_features.Empty())
                 {
                     return true;
                 }
-                return this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == required_parametrized_feature).Any(p => p.Param == category);
+                foreach (var f in required_parametrized_features)
+                {
+                    if( this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
@@ -1313,15 +1320,22 @@ namespace CallOfTheWild
 
         public class ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction : ActivatableAbilityRestriction
         {
-            public BlueprintParametrizedFeature feature;
+            public BlueprintParametrizedFeature[] features;
 
             private bool checkFeature(WeaponCategory category)
             {
-                if (feature == null)
+                if (features.Empty())
                 {
                     return true;
                 }
-                return Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == category);
+                foreach (var f in features)
+                {
+                    if (Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             public override bool IsAvailable()
@@ -2205,6 +2219,32 @@ namespace CallOfTheWild
             }
 
             public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Replace attack stat if has parametrized feature")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AttackStatReplacementIfHasParametrizedFeature : RuleInitiatorLogicComponent<RuleCalculateAttackBonusWithoutTarget>
+        {
+            public StatType ReplacementStat;
+            public BlueprintParametrizedFeature feature;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                ModifiableValueAttributeStat stat1 = this.Owner.Stats.GetStat(evt.AttackBonusStat) as ModifiableValueAttributeStat;
+                ModifiableValueAttributeStat stat2 = this.Owner.Stats.GetStat(this.ReplacementStat) as ModifiableValueAttributeStat;
+                bool flag = stat2 != null && stat1 != null && stat2.Bonus >= stat1.Bonus;
+
+                if (flag 
+                    && this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == evt.Weapon.Blueprint.Category))
+                {
+                    evt.AttackBonusStat = this.ReplacementStat;
+                }   
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
             {
             }
         }

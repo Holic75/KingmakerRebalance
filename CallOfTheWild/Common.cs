@@ -2082,11 +2082,11 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ContextWeaponDamageDiceReplacement createContextWeaponDamageDiceReplacement(BlueprintParametrizedFeature required_parametrized_feature,
+        static internal NewMechanics.ContextWeaponDamageDiceReplacement createContextWeaponDamageDiceReplacement(BlueprintParametrizedFeature[] required_parametrized_features,
                                                                                                                  ContextValue value, params DiceFormula[] dice_formulas)
         {
             var c = Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacement>();
-            c.required_parametrized_feature = required_parametrized_feature;
+            c.required_parametrized_features = required_parametrized_features;
             c.value = value;
             c.dice_formulas = dice_formulas;
             return c;
@@ -2320,6 +2320,22 @@ namespace CallOfTheWild
         public static void setAsFullRoundAction(BlueprintAbility spell)
         {
             Helpers.SetField(spell, "m_IsFullRoundAction", true);
+        }
+
+
+        public static void addFeaturePrerequisiteOr(BlueprintFeature feature,  BlueprintFeature prerequisite)
+        {
+            var features_from_list = feature.GetComponent<PrerequisiteFeaturesFromList>();
+            if (features_from_list == null)
+            {
+                features_from_list = Helpers.PrerequisiteFeaturesFromList(prerequisite);
+                feature.AddComponent(features_from_list);
+            }
+
+            if (!features_from_list.Features.Contains(prerequisite))
+            {
+                features_from_list.Features = features_from_list.Features.AddToArray(prerequisite);
+            }
         }
 
 
