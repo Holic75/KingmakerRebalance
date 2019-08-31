@@ -2250,6 +2250,56 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextACBonusAgainstFactOwner : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, ITargetRulebookSubscriber
+        {
+            public BlueprintUnitFact CheckedFact;
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+            public AlignmentComponent Alignment;
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (!evt.Initiator.Descriptor.HasFact(this.CheckedFact) || !evt.Initiator.Descriptor.Alignment.Value.HasComponent(this.Alignment))
+                    return;
+                int bonus = Bonus.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [ComponentName("Saving throw bonus against fact")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextSavingThrowBonusAgainstFact : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public BlueprintFeature CheckedFact;
+            public ModifierDescriptor Descriptor;
+            public ContextValue Bonus;
+            public AlignmentComponent Alignment;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                UnitDescriptor descriptor = evt.Reason.Caster?.Descriptor;
+                if (descriptor == null || !descriptor.HasFact((BlueprintUnitFact)this.CheckedFact) || !descriptor.Alignment.Value.HasComponent(this.Alignment))
+                    return;
+                int bonus = Bonus.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
+
+
 
     }
 

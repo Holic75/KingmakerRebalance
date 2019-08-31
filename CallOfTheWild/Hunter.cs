@@ -19,6 +19,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
@@ -79,6 +80,18 @@ namespace CallOfTheWild
         static internal BlueprintActivatableAbility turtle_focus;
         static internal BlueprintActivatableAbility goat_focus;
 
+        static internal BlueprintFeature planar_focus;
+        static internal BlueprintActivatableAbility planar_focus_fire;
+        static internal BlueprintActivatableAbility planar_focus_cold;
+        static internal BlueprintActivatableAbility planar_focus_air;
+        static internal BlueprintActivatableAbility planar_focus_earth;
+        static internal BlueprintActivatableAbility planar_focus_water;
+        static internal BlueprintActivatableAbility planar_focus_shadow;
+        static internal BlueprintActivatableAbility planar_focus_chaos;
+        static internal BlueprintActivatableAbility planar_focus_law;
+        static internal BlueprintActivatableAbility planar_focus_good;
+        static internal BlueprintActivatableAbility planar_focus_evil;
+
 
         static internal BlueprintFeature animal_focus_feykiller;
         static internal BlueprintFeature animal_focus_feykiller_ac;
@@ -132,6 +145,7 @@ namespace CallOfTheWild
                                          Common.createPrerequisiteClassSpellLevel(hunter_class, 2));
 
 
+            createPlanarFocus();
             //fix previous saves without 3rd animal companion
             Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
             {
@@ -146,6 +160,186 @@ namespace CallOfTheWild
             };
             SaveGameFix.save_game_actions.Add(save_game_fix);
         }
+
+
+
+
+        static void createPlanarFocus()
+        {
+            var inquistor_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
+            var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
+            BlueprintCharacterClass[] allowed_classes = new BlueprintCharacterClass[2] { inquistor_class, hunter_class };
+
+            var outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
+
+            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
+            planar_focus_air = createToggleFocus("PlanarFocusAir",
+                                                 "Planar Focus: Air",
+                                                 "You gain limited levitation ability that gives you immunity to difficult terrain and ground based effects.",
+                                                 "",
+                                                 "",
+                                                 library.Get<BlueprintFeature>("f48c7d56a8a13af4d8e1cc9aae579b01").Icon, //wings
+                                                 airborne.ComponentsArray
+                                               );
+
+            planar_focus_chaos = createToggleFocus("PlanarFocusChaos",
+                                                     "Planar Focus: Chaos",
+                                                     "Your form shifts subtly, making it difficult for others to aim precise attacks against you. You gain a 25% chance to negate extra damage from critical hits and precision damage from attacks made against you (such as from sneak attacks). Only chaotic characters can use this planar focus.",
+                                                     "",
+                                                     "",
+                                                     library.Get<BlueprintAbility>("1eaf1020e82028d4db55e6e464269e00").Icon, //protection from chaos
+                                                     Common.createAddFortification(25)
+                                                   );
+            planar_focus_chaos.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Chaotic));
+
+            var deal_cold_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold,
+                                                                  Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice))
+                                                                  );
+            planar_focus_cold = createToggleFocus("PlanarFocusCold",
+                                                 "Planar Focus: Cold",
+                                                 "Creatures that attack you with natural attacks or melee weapons take 1d4 points of cold damage for every 4 class levels you possess.",
+                                                 "",
+                                                 "",
+                                                 library.Get<BlueprintAbility>("021d39c8e0eec384ba69140f4875e166").Icon, //protection from cold
+                                                 Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(),
+                                                                                               Helpers.CreateActionList(deal_cold_damage)
+                                                                                               ),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(),
+                                                                                 ContextRankProgression.DivStep,
+                                                                                 AbilityRankType.DamageDice,
+                                                                                 stepLevel: 4,
+                                                                                 classes: allowed_classes, archetype: sacred_huntsmaster_archetype)
+                                                 );
+
+
+            planar_focus_earth = createToggleFocus("PlanarFocusEarth",
+                                                     "Planar Focus: Earth",
+                                                     "You gain +2 bonus to CMB when performing bull rush maneuver, and a +2 bonus to CMD when defending against it. You also receive +2 enhancement bonus to your natural armor.",
+                                                     "",
+                                                     "",
+                                                     library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").Icon, //stone skin
+                                                     Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush, 2),
+                                                     Common.createManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush, 2),
+                                                     Common.createAddGenericStatBonus(2, ModifierDescriptor.NaturalArmorEnhancement, StatType.AC)
+                                                     );
+
+            planar_focus_evil = createToggleFocus("PlanarFocusEvil",
+                                                     "Planar Focus: Evil",
+                                                     "You gain a +1 profane bonus to AC and on saves against attacks made and effects created by good outsiders. This bonus increases to +2 at 10th level. Only evil characters can use this planar focus.",
+                                                     "",
+                                                     "",
+                                                     library.Get<BlueprintAbility>("b56521d58f996cd4299dab3f38d5fe31").Icon, //profane nimbus
+                                                     Common.createContextACBonusAgainstFactOwner(outsider, AlignmentComponent.Good, Helpers.CreateContextValue(AbilityRankType.StatBonus), ModifierDescriptor.Profane),
+                                                     Common.createContextSavingThrowBonusAgainstFact(outsider, AlignmentComponent.Good, Helpers.CreateContextValue(AbilityRankType.StatBonus), ModifierDescriptor.Profane),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(),
+                                                                                 ContextRankProgression.OnePlusDivStep,
+                                                                                 AbilityRankType.DamageDice,
+                                                                                 stepLevel: 10,
+                                                                                 max: 2,
+                                                                                 classes: allowed_classes, archetype: sacred_huntsmaster_archetype)
+                                                     );
+            planar_focus_evil.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil));
+
+
+            planar_focus_fire = createToggleFocus("PlanarFocusFire",
+                                                 "Planar Focus: Fire",
+                                                 "Your natural attacks and melee weapons deal 1d4 points of fire damage for every 5 class levels you possess.",
+                                                 "",
+                                                 "",
+                                                 library.Get<BlueprintActivatableAbility>("7902941ef70a0dc44bcfc174d6193386").Icon, //weapon bond flaming
+                                                 Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+                                                                                            DamageEnergyType.Fire,
+                                                                                            AttackType.Melee, AttackType.Touch),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(),
+                                                                                 ContextRankProgression.DivStep,
+                                                                                 AbilityRankType.DamageDice,
+                                                                                 stepLevel: 5,
+                                                                                 classes: allowed_classes, archetype: sacred_huntsmaster_archetype)
+                                               );
+
+            planar_focus_good = createToggleFocus("PlanarFocusGood",
+                                         "Planar Focus: Good",
+                                         "You gain a +1 sacred bonus to AC and on saves against attacks made or effects created by evil outsiders. This bonus increases to +2 at 10th level. Only good characters can use this planar focus.",
+                                         "",
+                                         "",
+                                         library.Get<BlueprintAbility>("bf74b3b54c21a9344afe9947546e036f").Icon, //sacred nimbus
+                                         Common.createContextACBonusAgainstFactOwner(outsider, AlignmentComponent.Evil, Helpers.CreateContextValue(AbilityRankType.StatBonus), ModifierDescriptor.Sacred),
+                                         Common.createContextSavingThrowBonusAgainstFact(outsider, AlignmentComponent.Evil, Helpers.CreateContextValue(AbilityRankType.StatBonus), ModifierDescriptor.Sacred),
+                                         Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(),
+                                                                     ContextRankProgression.OnePlusDivStep,
+                                                                     AbilityRankType.DamageDice,
+                                                                     stepLevel: 10,
+                                                                     max: 2,
+                                                                     classes: allowed_classes, archetype: sacred_huntsmaster_archetype)
+                                         );
+            planar_focus_good.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good));
+
+            planar_focus_law = createToggleFocus("PlanarFocusLaw",
+                                                 "Planar Focus: Law",
+                                                 "You gain immunity to polymorph spells.",
+                                                 "",
+                                                 "",
+                                                 library.Get<BlueprintAbility>("c3aafbbb6e8fc754fb8c82ede3280051").Icon, //protection from law
+                                                 Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Polymorph)
+                                                 );
+            planar_focus_law.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Lawful));
+
+            planar_focus_water = createToggleFocus("PlanarFocusWater",
+                                                     "Planar Focus: Water",
+                                                     "You gain immunity to combat maneuvers.",
+                                                     "",
+                                                     "",
+                                                     library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564").Icon, //mirror image
+                                                     Helpers.Create<AddCondition>(c => c.Condition = UnitCondition.ImmuneToCombatManeuvers)
+                                                     );
+
+
+            planar_focus_shadow = createToggleFocus("PlanarFocusShadow",
+                         "Planar Focus: Shadow",
+                         "You gain a +5 bonus on Stealth and Trickery checks.",
+                         "",
+                         "",
+                         library.Get<BlueprintAbility>("f001c73999fb5a543a199f890108d936").Icon, //vanish
+                         Helpers.CreateAddStatBonus(StatType.SkillStealth, 5, ModifierDescriptor.UntypedStackable),
+                         Helpers.CreateAddStatBonus(StatType.SkillThievery, 5, ModifierDescriptor.UntypedStackable)
+                         );
+
+
+            BlueprintActivatableAbility[] foci = new BlueprintActivatableAbility[] {planar_focus_air, planar_focus_chaos, planar_focus_cold, planar_focus_earth,
+                                                                                    planar_focus_evil, planar_focus_fire, planar_focus_good, planar_focus_law, planar_focus_shadow};
+
+            string description = "When you use your animal focus class feature, you can choose any of the following new aspects unless they conflict with your alignment.";
+
+            foreach (var f in foci)
+            {
+                description += "\n" + f.Name + " - " + f.Description;
+            }
+
+            var planar_focus_ac = Helpers.CreateFeature("PlanarFocusAcFeature",
+                                      "",
+                                      "",
+                                      "",
+                                      null,
+                                      FeatureGroup.None,
+                                      Helpers.CreateAddFacts(foci)
+                                      );
+
+            planar_focus = Helpers.CreateFeature("PlanarFocusFeature",
+                                                 "Planar Focus",
+                                                  description,
+                                                  "",
+                                                  null,
+                                                  FeatureGroup.Feat,
+                                                  Helpers.CreateAddFacts(foci),
+                                                  Helpers.PrerequisiteStatValue(StatType.SkillLoreReligion, 5),
+                                                  Helpers.PrerequisiteClassLevel(hunter_class, 1, true),
+                                                  Common.createPrerequisiteArchetypeLevel(inquistor_class, sacred_huntsmaster_archetype, 4, true)
+                                                  );
+            planar_focus.AddComponent(createAddFeatToAnimalCompanion(planar_focus));
+
+            library.AddFeats(planar_focus);
+        }
+
 
         static void createFeykillerArchetype()
         {

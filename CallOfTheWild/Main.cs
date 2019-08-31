@@ -123,6 +123,7 @@ public class Main
                 CallOfTheWild.Rebalance.giveDifficultTerrainImmunityToAirborneUnits();
                 CallOfTheWild.Rebalance.fixVitalStrike();
                 CallOfTheWild.Rebalance.fixArcheologistLuck();
+                CallOfTheWild.Rebalance.fixElementalMovementWater();
                 //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                 CallOfTheWild.Wildshape.load();

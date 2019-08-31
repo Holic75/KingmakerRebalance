@@ -24,6 +24,7 @@ using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 
 namespace CallOfTheWild
 {
@@ -509,11 +510,19 @@ namespace CallOfTheWild
         }
 
 
+        internal static void fixElementalMovementWater()
+        {
+            var feature = library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8");
+            feature.ReplaceComponent<AbilityTargetHasCondition>(Helpers.Create<AddCondition>(c => c.Condition = Kingmaker.UnitLogic.UnitCondition.ImmuneToCombatManeuvers));
+        }
+
+
         internal static void giveDifficultTerrainImmunityToAirborneUnits()
         {
             var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
             airborne.AddComponent(Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain));
             airborne.AddComponent(Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
+            airborne.AddComponent(Common.createSpellImmunityToSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
             var air_mastery = library.Get<BlueprintFeature>("be52ced7ae1c7354a8ee12d9bad47805");
 
             BlueprintUnitFact[] facts = new BlueprintUnitFact[]{
