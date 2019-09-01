@@ -2342,6 +2342,45 @@ namespace CallOfTheWild
 
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class DoubleWeaponSize : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public WeaponCategory[] categories;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                evt.DoNotScaleDamage = true;
+                DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? evt.Weapon.Blueprint.BaseDamage : evt.WeaponDamageDiceOverride.Value;
+                var wielder_size = evt.Initiator.Descriptor.State.Size;
+
+                if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
+                {
+                    //double damage dice
+                    DiceFormula double_damage = new DiceFormula(2* baseDice.Rolls, baseDice.Dice);
+                    evt.WeaponDamageDiceOverride = new DiceFormula? (double_damage);
+                }
+                else
+                {
+                    evt.WeaponDamageDiceOverride = new DiceFormula?(WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, Size.Medium, evt.Weapon.Blueprint));
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+
+
+
+
 
     }
 

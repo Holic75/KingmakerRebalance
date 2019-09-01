@@ -46,6 +46,9 @@ namespace CallOfTheWild
         static internal Dictionary<DamageEnergyType, BlueprintAbility> fire_shield_variants = new Dictionary<DamageEnergyType, BlueprintAbility>();
 
 
+        static internal BlueprintAbility strong_jaw;
+
+
         static internal BlueprintAbility contingency;
 
         static public void load()
@@ -59,6 +62,45 @@ namespace CallOfTheWild
             createCommand();
             createFireShield();
             createContingency();
+            createStrongJaw();
+        }
+
+
+        static void createStrongJaw()
+        {
+            var acid_maw = library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
+            var magic_fang = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33");
+
+            var buff = Helpers.CreateBuff("StrongJawBuff",
+                                          "Strong Jaw",
+                                          "Laying a hand upon an allied creature’s jaw, claws, tentacles, or other natural weapons, you enhance the power of that creature’s natural attacks. Each natural attack that creature makes deals damage as if the creature were two sizes larger than it actually is. If the creature is already Gargantuan or Colossal-sized, double the amount of damage dealt by each of its natural attacks instead. This spell does not actually change the creature’s size; all of its statistics except the amount of damage dealt by its natural attacks remain unchanged.",
+                                          "",
+                                          acid_maw.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.DoubleWeaponSize>(d => d.categories = new WeaponCategory[] { WeaponCategory.OtherNaturalWeapons, WeaponCategory.Bite, WeaponCategory.Claw, WeaponCategory.Gore, WeaponCategory.UnarmedStrike })
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), true);
+            strong_jaw = Helpers.CreateAbility("StrongJawAbility",
+                                               buff.Name,
+                                               buff.Description,
+                                               "",
+                                               buff.Icon,
+                                               AbilityType.Spell,
+                                               Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                               AbilityRange.Touch,
+                                               Helpers.minutesPerLevelDuration,
+                                               "",
+                                               Helpers.CreateRunActions(apply_buff),
+                                               magic_fang.GetComponent<AbilitySpawnFx>(),
+                                               Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                               );
+            strong_jaw.AvailableMetamagic = magic_fang.AvailableMetamagic;
+            strong_jaw.setMiscAbilityParametersTouchFriendly();
+            strong_jaw.AddToSpellList(Helpers.druidSpellList, 4);
+            strong_jaw.AddToSpellList(Helpers.rangerSpellList, 3);
+
+            strong_jaw.AddSpellAndScroll("1cd597e316ac49941a568312de2be6ae");
         }
 
 
