@@ -30,6 +30,7 @@ New feats:
 - Quick Channel,
 - Channel Smite,
 - Guided Hand,
+- Planar Focus,
 - Bonded Mind and Share Spell.
 
 New rage powers:

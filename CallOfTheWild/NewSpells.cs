@@ -561,7 +561,7 @@ namespace CallOfTheWild
                                                                                                                             c.resource = performance_resource;
                                                                                                                         }
                                                                                                                         );
-            var deactivate_performance = Helpers.Create<NewMechanics.DeactivatedAbilityFromGroup>(c =>
+            var deactivate_performance = Helpers.Create<NewMechanics.DeactivateAbilityFromGroup>(c =>
                                                                                                     {
                                                                                                         c.group = ActivatableAbilityGroup.BardicPerformance;
                                                                                                         c.num_abilities_activated = 1;

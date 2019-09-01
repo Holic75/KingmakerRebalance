@@ -1023,7 +1023,7 @@ namespace CallOfTheWild
         }
 
 
-        public class DeactivatedAbilityFromGroup : ContextAction
+        public class DeactivateAbilityFromGroup : ContextAction
         {
             public ActivatableAbilityGroup group;
             public int num_abilities_activated;
@@ -1031,7 +1031,7 @@ namespace CallOfTheWild
 
             public override string GetCaption()
             {
-                return $"Deactivated Ability From Group {group.ToString()} if more than {num_abilities_activated}.";
+                return $"Deactivate Ability From Group {group.ToString()} if more than {num_abilities_activated}.";
             }
 
             public override void RunAction()
@@ -1052,7 +1052,7 @@ namespace CallOfTheWild
                         }
                         else
                         {
-                            a.Deactivate();
+                            a.Stop();
                         }
                     }
 
@@ -2298,6 +2298,48 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AttackBonusOnAttacksOfOpportunity : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        {
+            public ContextValue Value;
+            public ModifierDescriptor Descriptor;
+
+            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+                if (!evt.IsAttackOfOpportunity)
+                    return;
+                evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(this.Value.Calculate(this.Fact.MaybeContext), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+
+        }
+
+
+        [ComponentName("Maneuver Defence Bonus")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextManeuverDefenceBonus : RuleTargetLogicComponent<RuleCalculateCMD>
+        {
+            public CombatManeuver Type;
+            public ContextValue Bonus;
+
+            public override void OnEventAboutToTrigger(RuleCalculateCMD evt)
+            {
+                if (evt.Type != this.Type && this.Type != CombatManeuver.None)
+                    return;
+                evt.AddBonus(this.Bonus.Calculate(this.Fact.MaybeContext), this.Fact);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateCMD evt)
+            {
+            }
+        }
+
 
 
 

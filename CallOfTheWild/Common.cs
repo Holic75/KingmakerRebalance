@@ -1137,7 +1137,8 @@ namespace CallOfTheWild
         static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor createSavingThrowBonusAgainstDescriptor(int bonus, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
         {
             Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor c = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor>();
-            c.Bonus = bonus;
+            c.Value = bonus;
+            c.Bonus = createSimpleContextValue(0);
             c.ModifierDescriptor = descriptor;
             c.SpellDescriptor = spell_descriptor;
             return c;
@@ -2386,6 +2387,15 @@ namespace CallOfTheWild
         }
 
 
+        public static NewMechanics.ContextManeuverDefenceBonus createContextManeuverDefenseBonus(CombatManeuver maneuver_type, ContextValue bonus)
+        {
+            var m = Helpers.Create<NewMechanics.ContextManeuverDefenceBonus>();
+            m.Bonus = bonus;
+            m.Type = maneuver_type;
+            return m;
+        }
+
+
         public static NewMechanics.ContextSavingThrowBonusAgainstFact createContextSavingThrowBonusAgainstFact(BlueprintFeature fact, AlignmentComponent alignment, ContextValue value, ModifierDescriptor descriptor)
         {
             var c = Helpers.Create<NewMechanics.ContextSavingThrowBonusAgainstFact>();
@@ -2408,6 +2418,22 @@ namespace CallOfTheWild
         }
 
 
+        public static NewMechanics.AttackBonusOnAttacksOfOpportunity createAttackBonusOnAttacksOfOpportunity(ContextValue value, ModifierDescriptor descriptor)
+        {
+            var a = Helpers.Create<NewMechanics.AttackBonusOnAttacksOfOpportunity>();
+            a.Value = value;
+            a.Descriptor = descriptor;
+            return a;
+        }
 
+
+        public static ACBonusAgainstAttacks createACBonussOnAttacksOfOpportunity(ContextValue value, ModifierDescriptor descriptor)
+        {
+            var a = Helpers.Create<ACBonusAgainstAttacks>();
+            a.Value = value;
+            a.Descriptor = descriptor;
+            a.OnlyAttacksOfOpportunity = true;
+            return a;
+        }
     }
 }
