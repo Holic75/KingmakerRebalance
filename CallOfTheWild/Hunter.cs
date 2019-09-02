@@ -1126,16 +1126,16 @@ namespace CallOfTheWild
 
         static BlueprintFeature createStrikeTrick(string name, string display_name,  string description, UnityEngine.Sprite icon, GameAction action)
         {
-            
             var buff = Helpers.CreateBuff(name + "Buff",
                                           display_name,
                                           description,
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action))
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action)),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true)
                                           );
-            var ability = Helpers.CreateActivatableAbility(name + "ActivatableAbility",
+            var act_ability = Helpers.CreateActivatableAbility(name + "ActivatableAbility",
                                                            display_name,
                                                            description,
                                                            "",
@@ -1146,13 +1146,29 @@ namespace CallOfTheWild
                                                            null,
                                                            Helpers.CreateActivatableResourceLogic(trick_resource, ResourceSpendType.Attack)
                                                            );
-            ability.DeactivateImmediately = true;
-            ability.Group = ActivatableAbilityGroupExtension.HunterTrick.ToActivatableAbilityGroup();
-            //var deactivate_on_hit = Helpers.Create<NewMechanics.DeactivateAbilityFromGroup>(d => { d.group = ability.Group; d.num_abilities_activated = 0; });
-            //buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(deactivate_on_hit), on_initiator: true));
+            act_ability.DeactivateImmediately = true;
+            act_ability.Group = ActivatableAbilityGroupExtension.HunterTrick.ToActivatableAbilityGroup();
 
-            var feature = Common.ActivatableAbilityToFeature(ability);
+            var feature = Common.ActivatableAbilityToFeature(act_ability);
             feature.AddComponent(Helpers.CreateAddAbilityResource(trick_resource));
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), true, false, true, false);
+            var ability = Helpers.CreateAbility(name + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                AbilityType.Extraordinary,
+                                                CommandType.Free,
+                                                AbilityRange.Personal,
+                                                "Next Attack",
+                                                Helpers.savingThrowNone,
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateResourceLogic(trick_resource)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            feature.ReplaceComponent<AddFacts>(a => a.Facts[0] = ability);
+
             var give_feature = Helpers.CreateFeature(name + "GiveToAcFeature",
                                                      display_name,
                                                      description,

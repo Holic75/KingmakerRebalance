@@ -29,6 +29,7 @@ New feats:
 - Stalwart and Improved Stalwart,
 - Quick Channel,
 - Channel Smite,
+- Deadeye's Blessing,
 - Guided Hand,
 - Planar Focus,
 - Bonded Mind and Share Spell.

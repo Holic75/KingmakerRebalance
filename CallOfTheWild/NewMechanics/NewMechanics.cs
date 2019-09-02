@@ -2250,6 +2250,31 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Replace attack stat for specific weapon")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AttackStatReplacementForWeaponCategory : RuleInitiatorLogicComponent<RuleCalculateAttackBonusWithoutTarget>
+        {
+            public StatType ReplacementStat;
+            public WeaponCategory[] categories;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                ModifiableValueAttributeStat stat1 = this.Owner.Stats.GetStat(evt.AttackBonusStat) as ModifiableValueAttributeStat;
+                ModifiableValueAttributeStat stat2 = this.Owner.Stats.GetStat(this.ReplacementStat) as ModifiableValueAttributeStat;
+                bool flag = stat2 != null && stat1 != null && stat2.Bonus >= stat1.Bonus;
+
+                if (flag && (categories.Contains(evt.Weapon.Blueprint.Category) || categories.Empty()))
+                {
+                    evt.AttackBonusStat = this.ReplacementStat;
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+            }
+        }
+
+
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextACBonusAgainstFactOwner : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, ITargetRulebookSubscriber

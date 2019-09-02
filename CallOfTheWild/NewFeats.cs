@@ -40,6 +40,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature planar_wild_shape;
         static internal BlueprintParametrizedFeature deity_favored_weapon;
         static internal BlueprintFeature guided_hand;
+        static internal BlueprintFeature deadeyes_blessing;
 
         static internal void load()
         {
@@ -56,6 +57,29 @@ namespace CallOfTheWild
             ChannelEnergyEngine.createChannelSmite();
             createPlanarWildShape();
             createGuidedHand();
+            createDeadeyesBlessing();
+        }
+
+        static void createDeadeyesBlessing()
+        {
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            deadeyes_blessing = Helpers.CreateFeature("DeadeyesBlessingFeature",
+                                                "Deadeye’s Blessing",
+                                                "You can use your Wisdom modifier instead of your Dexterity modifier on ranged attack rolls when using a bow.",
+                                                "",
+                                                null,
+                                                FeatureGroup.Feat,
+                                                Helpers.Create<NewMechanics.AttackStatReplacementForWeaponCategory>(c =>
+                                                                                                                    {
+                                                                                                                        c.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow};
+                                                                                                                        c.ReplacementStat = StatType.Wisdom;
+                                                                                                                    }
+                                                                                                                   ),
+                                                Common.createPrerequisiteParametrizedFeatureWeapon(deity_favored_weapon, WeaponCategory.Longbow),
+                                                Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Longbow)
+                                                );
+            deadeyes_blessing.Groups = deadeyes_blessing.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(deadeyes_blessing);
         }
 
 
