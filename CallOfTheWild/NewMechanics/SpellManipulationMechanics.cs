@@ -526,6 +526,16 @@ namespace CallOfTheWild
                 {
                     name += $" ({c.Name})";
                 }
+                else if (abilityData.Blueprint.GetComponent<AddStoredSpellToCaption>() != null)
+                {
+                    var store_fact = abilityData.Blueprint.GetComponent<AddStoredSpellToCaption>().store_fact;
+                    string spell_name = "";
+                    abilityData.Caster.GetFact(store_fact)?.CallComponents<AddStoredSpellToCaption>(a => a.getStoredSpellName(out spell_name));
+                    if (!spell_name.Empty())
+                    {
+                        name += $" ({spell_name})";
+                    }
+                }
                 DescriptionBrick descriptionBrick = DescriptionBuilder.Templates.IconNameHeader(box, name, abilityData.Blueprint.Icon, isTooltip);
                 string text1 = LocalizedTexts.Instance.AbilityTypes.GetText(abilityData.Blueprint.Type);
                 string text2 = abilityData.Blueprint.School == SpellSchool.None ? string.Empty : LocalizedTexts.Instance.SpellSchoolNames.GetText(abilityData.Blueprint.School);

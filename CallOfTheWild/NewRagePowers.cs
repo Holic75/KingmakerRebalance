@@ -784,7 +784,7 @@ namespace CallOfTheWild
                                                          "",
                                                          null,
                                                          null,
-                                                         Helpers.Create<WeaponReality>(w => w.Reality = DamageRealityType.Ghost),
+                                                         Common.createAddOutgoingGhost(),
                                                          Helpers.Create<NewMechanics.TouchACBonus>(t =>
                                                                                                      {
                                                                                                          t.Descriptor = ModifierDescriptor.Morale;

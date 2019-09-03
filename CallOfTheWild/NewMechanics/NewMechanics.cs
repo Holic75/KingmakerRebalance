@@ -60,6 +60,9 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Designers.EventConditionActionSystem.ContextData;
+using Kingmaker.UnitLogic.Commands;
+using Kingmaker.Visual.Animation.Kingmaker;
+using Kingmaker.Blueprints.Area;
 
 namespace CallOfTheWild
 {
@@ -2402,11 +2405,155 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextActionAttack : ContextAction
+        {
+            public override string GetCaption()
+            {
+                return string.Format("Caster attack");
+            }
+
+            public override void RunAction()
+            {
+                UnitEntityData maybeCaster = this.Context.MaybeCaster;
+                if (maybeCaster == null)
+                {
+                    UberDebug.LogError((object)"Caster is missing", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    var target = this.Target;
+                    if (target == null)
+                        return;
+                   // UnitAttack attack = new UnitAttack(this.Target.Unit);
+                   // attack.IgnoreCooldown(null);
+                   // maybeCaster.Commands.AddToQueueFirst(attack);
+
+                    RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(maybeCaster, target.Unit, maybeCaster.Body.PrimaryHand.MaybeWeapon, 0);
+                    attackWithWeapon.Reason = (RuleReason)this.Context;
+                    RuleAttackWithWeapon rule = attackWithWeapon;
+                    this.Context.TriggerRule<RuleAttackWithWeapon>(rule);
+                }
+            }
+        }
 
 
+        public class AttackAnimation : BlueprintComponent, IAbilityCustomAnimation
+        {
+            public UnitAnimationAction GetAbilityAction(UnitEntityData caster)
+            {
+                Main.logger.Log("here " + $"{ caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action != null}");
+                return caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action;
+            }
+        }
 
 
+        [ComponentName("Reduces DR against fact owner")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReduceDRForFactOwner : RuleTargetLogicComponent<RuleCalculateDamage>
+        {
+            public int Reduction;
+            public BlueprintFeature CheckedFact;
+            public AttackType[] attack_types;
 
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                if (evt.DamageBundle.Weapon == null || evt.DamageBundle.WeaponDamage == null || evt.Initiator != this.Owner.Unit 
+                    || !evt.Initiator.Descriptor.HasFact(CheckedFact) || !attack_types.Contains(evt.DamageBundle.Weapon.Blueprint.AttackType))
+                    return;
+
+                evt.DamageBundle.WeaponDamage.SetReductionPenalty(this.Reduction);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class FavoredTerrainBonus : BuffLogic, IAreaLoadingStagesHandler, IGlobalSubscriber
+        {
+            public LootSetting[] Settings;
+            private ModifiableValue.Modifier m_InitiativeModifier;
+            private ModifiableValue.Modifier m_PerceptionModifier;
+            private ModifiableValue.Modifier m_StealthModifier;
+            private ModifiableValue.Modifier m_LoreNatureModifier;
+            public ContextValue Value;
+
+            public override void OnTurnOn()
+            {
+                base.OnTurnOn();
+                this.CheckSettings();
+                this.Owner.Ensure<UnitPartFavoredTerrain>().AddEntry(this.Settings, this.Fact);
+            }
+
+            public override void OnTurnOff()
+            {
+                base.OnTurnOff();
+                this.DeactivateModifier();
+                this.Owner.Ensure<UnitPartFavoredTerrain>().RemoveEntry(this.Fact);
+            }
+
+            public void CheckSettings()
+            {
+                BlueprintArea currentlyLoadedArea = Game.Instance.CurrentlyLoadedArea;
+                if (currentlyLoadedArea != null && ((IEnumerable<LootSetting>)this.Settings).Contains<LootSetting>(currentlyLoadedArea.LootSetting))
+                    this.ActivateModifier();
+                else
+                    this.DeactivateModifier();
+            }
+
+            public void ActivateModifier()
+            {
+                int value = Value.Calculate(this.Fact.MaybeContext);
+                if (this.m_InitiativeModifier == null)
+                    this.m_InitiativeModifier = this.Owner.Stats.Initiative.AddModifier(value, (GameLogicComponent)this, ModifierDescriptor.None);
+                if (this.m_PerceptionModifier == null)
+                    this.m_PerceptionModifier = this.Owner.Stats.SkillPerception.AddModifier(value, (GameLogicComponent)this, ModifierDescriptor.None);
+                if (this.m_StealthModifier == null)
+                    this.m_StealthModifier = this.Owner.Stats.SkillStealth.AddModifier(value, (GameLogicComponent)this, ModifierDescriptor.None);
+                if (this.m_LoreNatureModifier != null)
+                    return;
+                this.m_LoreNatureModifier = this.Owner.Stats.SkillLoreNature.AddModifier(value, (GameLogicComponent)this, ModifierDescriptor.None);
+            }
+
+            public void DeactivateModifier()
+            {
+                if (this.m_InitiativeModifier != null)
+                {
+                    if (this.m_InitiativeModifier != null)
+                        this.m_InitiativeModifier.Remove();
+                    this.m_InitiativeModifier = (ModifiableValue.Modifier)null;
+                }
+                if (this.m_PerceptionModifier != null)
+                {
+                    if (this.m_PerceptionModifier != null)
+                        this.m_PerceptionModifier.Remove();
+                    this.m_PerceptionModifier = (ModifiableValue.Modifier)null;
+                }
+                if (this.m_StealthModifier != null)
+                {
+                    if (this.m_StealthModifier != null)
+                        this.m_StealthModifier.Remove();
+                    this.m_StealthModifier = (ModifiableValue.Modifier)null;
+                }
+                if (this.m_LoreNatureModifier == null)
+                    return;
+                if (this.m_LoreNatureModifier != null)
+                    this.m_LoreNatureModifier.Remove();
+                this.m_LoreNatureModifier = (ModifiableValue.Modifier)null;
+            }
+
+            public void OnAreaScenesLoaded()
+            {
+            }
+
+            public void OnAreaLoadingComplete()
+            {
+                this.CheckSettings();
+            }
+        }
     }
 
 }

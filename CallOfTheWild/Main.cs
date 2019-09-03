@@ -124,6 +124,7 @@ public class Main
                 CallOfTheWild.Rebalance.fixVitalStrike();
                 CallOfTheWild.Rebalance.fixArcheologistLuck();
                 CallOfTheWild.Rebalance.fixElementalMovementWater();
+                CallOfTheWild.Rebalance.addRangerImprovedFavoredTerrain();
                 //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                 CallOfTheWild.Wildshape.load();
@@ -153,6 +154,7 @@ public class Main
                 CallOfTheWild.NewFeats.load();
 
                 CallOfTheWild.Warpriest.createWarpriestClass();
+                CallOfTheWild.Hinterlander.createHinterlanderClass();
 
                 CallOfTheWild.CleanUp.processRage();
 

@@ -130,17 +130,19 @@
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="ArmorEnchantments.cs" />
-    <Compile Include="Bloodrager.cs" />
+    <Compile Include="Classes\Bloodrager.cs" />
     <Compile Include="ChannelEnergyEngine.cs" />
+    <Compile Include="Classes\Hinterlander.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="FeralCombatTraining.cs" />
     <Compile Include="HexEngine.cs" />
+    <Compile Include="Hinterlander.cs" />
     <Compile Include="LoadIcons.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Helpers.cs" />
-    <Compile Include="Hunter.cs" />
+    <Compile Include="Classes\Hunter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\MetamagicMechanics.cs" />
@@ -160,12 +162,12 @@
     <Compile Include="SaveGameFix.cs" />
     <Compile Include="SharedSpells.cs" />
     <Compile Include="ShowRerolls.cs" />
-    <Compile Include="Skald.cs" />
+    <Compile Include="Classes\Skald.cs" />
     <Compile Include="NewMechanics\SpellManipulationMechanics.cs" />
     <Compile Include="SpellVariantsLayoutFix.cs" />
-    <Compile Include="Warpriest.cs" />
+    <Compile Include="Classes\Warpriest.cs" />
     <Compile Include="Wildshape.cs" />
-    <Compile Include="Witch.cs" />
+    <Compile Include="Classes\Witch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="blueprints.txt">

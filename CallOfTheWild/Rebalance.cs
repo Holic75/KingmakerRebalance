@@ -456,6 +456,24 @@ namespace CallOfTheWild
         }
 
 
+        internal static void addRangerImprovedFavoredTerrain()
+        {
+            var improved_favored_terrain = library.CopyAndAdd<BlueprintFeatureSelection>("a6ea422d7308c0d428a541562faedefd", "ImprovedFavoredTerrain", "");
+            improved_favored_terrain.Mode = SelectionMode.OnlyNew;
+            improved_favored_terrain.SetName("Improved Favored Terrain");
+
+            foreach (var f in improved_favored_terrain.AllFeatures)
+            {
+                f.Ranks = 10;
+            }
+
+            var ranger_progression = library.Get<BlueprintProgression>("97261d609529d834eba4fd4da1bc44dc");
+            ranger_progression.LevelEntries[7].Features.Add(improved_favored_terrain);
+            ranger_progression.LevelEntries[12].Features.Add(improved_favored_terrain);
+            ranger_progression.LevelEntries[17].Features.Add(improved_favored_terrain);
+            ranger_progression.UIGroups = ranger_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(improved_favored_terrain, improved_favored_terrain, improved_favored_terrain));
+        }
+
         [Harmony12.HarmonyPatch(typeof(UnitActivateAbility))]
         [Harmony12.HarmonyPatch("GetCommandType", Harmony12.MethodType.Normal)]
         class UnitActivateAbility__GetCommandType__Patch

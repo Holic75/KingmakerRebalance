@@ -573,44 +573,20 @@ namespace CallOfTheWild
             camouflage.SetComponents(Helpers.CreateAddFact(camouflage_ability));
             camouflage.SetDescription(camouflage_ability.Description);
 
-            string[] favored_terrain_guids = new string[] {"93f9cf990bfd477795faa8cd97f29e2c",
-                                                             "13cfc8f8121841ebb29d2f78802c7c7f",
-                                                             "bcda940651334b5fa236e1888e7b7a83",
-                                                             "b8c14546f4714df5b519f268f9b2af78",
-                                                             "aba4c11a52994c6791e38987c4cb1ba2",
-                                                             "42ce5c5ff8084aed8230aac14176f483"};
-
             var forester_favored_terrain_selection = Common.copyRenameSelection("a6ea422d7308c0d428a541562faedefd",
                                                                                  "Forester",
-                                                                                 "A forester gains the ranger’s favored terrain ability. She gains her first favored terrain at 5th level and a new favored terrain every 4 levels thereafter. The forester gains a +2 bonus on initiative checks and Lore (Nature), Perception, and Stealth skill checks when he is in this terrain.",
-                                                                                 "e36b551be4684d4388242b405f7a8732",
-                                                                                 favored_terrain_guids);
+                                                                                 "A forester gains the ranger’s favored terrain ability. She gains her first favored terrain at 5th level and a new favored terrain every 4 levels thereafter. The forester gains a +2 bonus on initiative checks and Lore (Nature), Perception, and Stealth skill checks when he is in this terrain. In addition, at each such interval, the bonuses on initiative checks and skill checks in one favored terrain (including the one just selected, if so desired) increase by 2.",
+                                                                                 "e36b551be4684d4388242b405f7a8732");
 
-            string[] favored_enemy_guids = new string [] {"bbc2b888cecc4f2284acd3845454da29",
-                                                    "989b7921d44840398b84887332ca2ed7",
-                                                    "0e39b46b534a41f5acaf7412a7a98237",
-                                                    "5ed706f7917445a2af929eb286cee6f2",
-                                                    "2a4b4f52b2994732beb411ce6710bb12",
-                                                    "6deec72a74f843dba739e4508751d38a",
-                                                    "ce653d0e0eda4e1fa90f9d1fa8a835aa",
-                                                    "89028eb6b2fa4c5ab873c274fa8f0b3c",
-                                                    "827b313a7045419ab4cfd89cbc8bc2d6",
-                                                    "63fbe72a756f46f1896b85376083d19c",
-                                                    "dce6fc719e294721869bd9ef6bdaa2ed",
-                                                    "5f6324d30da44baaa5d7c9ac81f1de31",
-                                                    "3577b87a9ef94ba18cdee30bbdf755fd",
-                                                    "77b6be6ec8574857b9b2d58d20ea4598",
-                                                    "c4fdc727551345839ba5afa995139030",
-                                                    "8ae497a29de7470aad548b4af509fb42",
-                                                    "9fcffdbf9ef74337b7868e8eedde7cea",
-                                                    "550501c634e441b2b7eba42a6c866cb7",
-                                                    "4abb7ef0ba8a443990f0e75f6ad652d9"
-                                                    };
+            var forester_improved_favored_terrain_selection = library.CopyAndAdd<BlueprintFeatureSelection>(forester_favored_terrain_selection.AssetGuid, "ImprovedForesterFavoredTerrainSelection", "");
+            forester_improved_favored_terrain_selection.Mode = SelectionMode.OnlyRankUp;
+            forester_improved_favored_terrain_selection.SetName("Improved Favored Terrain");
+
+
             var forester_favored_enemy_selection = Common.copyRenameSelection("16cc2c937ea8d714193017780e7d4fc6",
                                                                      "Forester",
                                                                      "At 6th level, a forester selects a creature type from the ranger favored enemies list. He gets a + 2 bonus on weapon attack and damage rolls against them.\nAt 10th level and every four levels thereafter( 14th, and 18th level), the ranger may select an additional favored enemy.\nIf the forester chooses humanoids or outsiders as a favored enemy, he must also choose an associated subtype, as indicated on the table below. If a specific creature falls into more than one category of favored enemy, the forester's bonuses do not stack; he simply uses whichever bonus is higher.",
-                                                                     "c8fec1d3bf354c06bc9a3d356453767f",
-                                                                     favored_enemy_guids);
+                                                                     "c8fec1d3bf354c06bc9a3d356453767f");
 
             var bonus_feat_selection = library.CopyAndAdd<Kingmaker.Blueprints.Classes.Selection.BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "ForesterBonusFeatSelection", "eaa6fe284ea8461493ad95e406b74e41");
             bonus_feat_selection.SetDescription("At 2nd level, a forester gains one bonus combat feat. She must meet the prerequisites for this feat as normal. She gains an additional bonus combat feat at 7th, 13th, and 19th levels.");
@@ -623,12 +599,12 @@ namespace CallOfTheWild
                                                                 Helpers.LevelEntry(5, forester_favored_terrain_selection),
                                                                 Helpers.LevelEntry(6, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(7, camouflage, bonus_feat_selection),
-                                                                Helpers.LevelEntry(9, forester_favored_terrain_selection),
+                                                                Helpers.LevelEntry(9, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(10, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(11, improved_evasion),
-                                                                Helpers.LevelEntry(13, forester_favored_terrain_selection, bonus_feat_selection),
+                                                                Helpers.LevelEntry(13, forester_favored_terrain_selection, bonus_feat_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(14, forester_favored_enemy_selection),
-                                                                Helpers.LevelEntry(17, forester_favored_terrain_selection),
+                                                                Helpers.LevelEntry(17, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(18, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(19, bonus_feat_selection)
                                                              };
@@ -636,6 +612,7 @@ namespace CallOfTheWild
 
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(bonus_feat_selection, bonus_feat_selection, bonus_feat_selection, bonus_feat_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection));
+           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_tactician, evasion, camouflage, improved_evasion));
         }
 

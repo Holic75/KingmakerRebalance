@@ -670,6 +670,17 @@ namespace CallOfTheWild
         }
 
 
+        static internal Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingGhost(bool check_range = false, bool is_ranged = false)
+        {
+            var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
+            a.CheckRange = check_range;
+            a.IsRanged = is_ranged;
+            a.AddReality = true;
+            a.Reality = DamageRealityType.Ghost;
+            return a;
+        }
+
+
 
         static internal NewMechanics.ContextWeaponTypeDamageBonus createContextWeaponTypeDamageBonus(ContextValue bonus, params BlueprintWeaponType[] weapon_types)
         {
@@ -679,23 +690,20 @@ namespace CallOfTheWild
             return c;
         }
 
-        internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description, string selection_guid, string[] feature_guids)
+        internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description, string selection_guid)
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
             var new_selection = library.CopyAndAdd<BlueprintFeatureSelection>(original_selection_guid, name_prefix + old_selection, selection_guid);
 
             new_selection.SetDescription(description);
 
-            BlueprintFeature[] new_features = new BlueprintFeature[feature_guids.Length];
+            BlueprintFeature[] new_features = new BlueprintFeature[old_selection.AllFeatures.Length];
 
             var old_features = old_selection.AllFeatures;
-            if (new_features.Length != old_features.Length)
-            {
-                throw Main.Error($"Incorrect number of guids passed to Common.copyRenameSelection:: guids.Length =  {new_features.Length}, terrains.Length: {old_features.Length}");
-            }
+
             for (int i = 0; i < old_features.Length; i++)
             {
-                new_features[i] = library.CopyAndAdd<BlueprintFeature>(old_features[i].AssetGuid, name_prefix + old_features[i].name, feature_guids[i]);
+                new_features[i] = library.CopyAndAdd<BlueprintFeature>(old_features[i].AssetGuid, name_prefix + old_features[i].name, "");
                 new_features[i].SetDescription(description);
             }
             new_selection.AllFeatures = new_features;
@@ -2434,6 +2442,26 @@ namespace CallOfTheWild
             a.Descriptor = descriptor;
             a.OnlyAttacksOfOpportunity = true;
             return a;
+        }
+
+
+        public static PrerequisiteCasterTypeSpellLevel createPrerequisiteCasterTypeSpellLevel(bool is_arcane, int spell_level, bool any = false)
+        {
+            var p = Helpers.Create<PrerequisiteCasterTypeSpellLevel>();
+            p.IsArcane = is_arcane;
+            p.RequiredSpellLevel = spell_level;
+            p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
+            return p;
+        }
+
+
+        public static NewMechanics.ReduceDRForFactOwner createReduceDRForFactOwner(int reduce_value, BlueprintFeature fact, params AttackType[] attack_types)
+        {
+            var r = Helpers.Create<NewMechanics.ReduceDRForFactOwner>();
+            r.Reduction = reduce_value;
+            r.CheckedFact = fact;
+            r.attack_types = attack_types;
+            return r;
         }
     }
 }
