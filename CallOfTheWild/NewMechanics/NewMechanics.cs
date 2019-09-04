@@ -2383,6 +2383,10 @@ namespace CallOfTheWild
                     return;
                 }
 
+                if (evt.DoNotScaleDamage)
+                {
+                    return;
+                }
                 evt.DoNotScaleDamage = true;
                 DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? evt.Weapon.Blueprint.BaseDamage : evt.WeaponDamageDiceOverride.Value;
                 var wielder_size = evt.Initiator.Descriptor.State.Size;

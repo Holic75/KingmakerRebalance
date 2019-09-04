@@ -459,7 +459,7 @@ namespace CallOfTheWild
         internal static void addRangerImprovedFavoredTerrain()
         {
             var improved_favored_terrain = library.CopyAndAdd<BlueprintFeatureSelection>("a6ea422d7308c0d428a541562faedefd", "ImprovedFavoredTerrain", "");
-            improved_favored_terrain.Mode = SelectionMode.OnlyNew;
+            improved_favored_terrain.Mode = SelectionMode.OnlyRankUp;
             improved_favored_terrain.SetName("Improved Favored Terrain");
 
             foreach (var f in improved_favored_terrain.AllFeatures)
