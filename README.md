@@ -7,7 +7,8 @@ It introduces new classes:
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
-- Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith.
+- Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
+- Hinterlander prestige class.
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
 with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.
@@ -92,6 +93,7 @@ enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
 - replaces favored enemy for Sacred huntsmater with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
+- rangers now should get improvement of their favored terrain bonuses,
 - Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),
 - Animal Growth properly increases size of animal companion,
 - Arcane Bond works with spontaneous spells,

@@ -218,6 +218,7 @@ namespace CallOfTheWild
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
             fast_movement = library.Get<BlueprintFeature>("d294a5dddd0120046aae7d4eb6cbc4fc");
+            fast_movement.SetDescription("A character's land speed is faster than the norm for her race by +10 feet. This benefit applies only when she is wearing no armor, light armor, or medium armor, and not carrying a heavy load. Apply this bonus before modifying the character's speed because of any load carried or armor worn. This bonus stacks with any other bonuses to the character's land speed.");
             uncanny_dodge = library.Get<BlueprintFeature>("3c08d842e802c3e4eb19d15496145709");
             improved_uncanny_dodge = library.Get<BlueprintFeature>("485a18c05792521459c7d06c63128c79");
 
@@ -1961,7 +1962,7 @@ namespace CallOfTheWild
                 public BlueprintProgression sorc_progression;
 
                 public DraconicBloodlineData(UnityEngine.Sprite bloodline_icon, BlueprintBuff wings, BlueprintAbility breath_weapon, BlueprintBuff dragon_form, DamageEnergyType energy,
-                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, BlueprintProgression sorceror_progression, string bloodline_name)
+                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, BlueprintProgression sorceror_progression, string bloodline_name, string breath_string)
                 {
                     icon = bloodline_icon;
                     wings_prototype = wings;
@@ -1972,9 +1973,7 @@ namespace CallOfTheWild
                     name = bloodline_name;
                     prefix = "BloodragerBloodlineDraconic" + bloodline_name;
                     energy_string = energy.ToString().ToLower();
-                    int start = breath_weapon.Description.IndexOf("level in", 0) + 8;
-                    int end = breath_weapon.Description.IndexOf('.', start);
-                    breath_area_string = breath_weapon.Description.Substring(start, end - start);
+                    breath_area_string = breath_string;
                     power_of_the_wyrms = power_of_the_wyrms_feat;
                     sorc_progression = sorceror_progression;
 
@@ -2010,43 +2009,43 @@ namespace CallOfTheWild
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34").Icon, library.Get<BlueprintBuff>("ddfe6e85e1eed7a40aa911280373c228"),
                                               library.Get<BlueprintAbility>("1e65b0b2db777e24db96d8bc52cc9207"), library.Get<BlueprintBuff>("9eb5ba8c396d2c74c8bfabd3f5e91050"),
                                               DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("25397838424fac04197e226a268ddce6"), 
-                                              library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34"), "Black"),
+                                              library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34"), "Black", "60-foot line"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("8a7f100c02d0b254d8f5f3affc8ef386").Icon, library.Get<BlueprintBuff>("800cde038f9e6304d95365edc60ab0a4"),
                                               library.Get<BlueprintAbility>("60a3047f434f38544a2878c26955d3ad"), library.Get<BlueprintBuff>("cf8b4e861226e0545a6805036ab2a21b"),
                                               DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("582b25fef37373c4591a7994f3da9c69"),
-                                              library.Get<BlueprintProgression>("8a7f100c02d0b254d8f5f3affc8ef386"), "Blue"),
+                                              library.Get<BlueprintProgression>("8a7f100c02d0b254d8f5f3affc8ef386"), "Blue", "60-foot line"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("5f9ecbee67db8364985e9d0500eb25f1").Icon, library.Get<BlueprintBuff>("7f5acae38fc1e0f4c9325d8a4f4f81fc"),
                                               library.Get<BlueprintAbility>("531a57e0c19f80945b68bdb3e289279a"), library.Get<BlueprintBuff>("f7fdc15aa0219104a8b38c9891cac17b"),
                                               DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("8f10f507dde8d86488fda84cb136de47"),
-                                              library.Get<BlueprintProgression>("5f9ecbee67db8364985e9d0500eb25f1"), "Brass"),
+                                              library.Get<BlueprintProgression>("5f9ecbee67db8364985e9d0500eb25f1"), "Brass", "60-foot line"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("7e0f57d8d00464441974e303b84238ac").Icon, library.Get<BlueprintBuff>("482ee5d001527204bb86e34240e2ce65"),
                                               library.Get<BlueprintAbility>("732291d7ac20b0949aae002622e00b34"), library.Get<BlueprintBuff>("53e408cab2331bd48a3db846e531dfe8"),
                                               DamageEnergyType.Electricity, shocking_enchantment, library.Get<BlueprintFeature>("d81844b1f549df1418ccc40ccca3274a"),
-                                              library.Get<BlueprintProgression>("7e0f57d8d00464441974e303b84238ac"), "Bronze"),
+                                              library.Get<BlueprintProgression>("7e0f57d8d00464441974e303b84238ac"), "Bronze", "60-foot line"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("b522759a265897b4f8f7a1a180a692e4").Icon, library.Get<BlueprintBuff>("a25d6fc69cba80548832afc6c4787379"),
                                               library.Get<BlueprintAbility>("826ef8251d9243941b432f97d901e938"), library.Get<BlueprintBuff>("799c8b6ae43c7d741ac7887c984f2aa2"),
                                               DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("6a885e6b343e4b44ab56e0dd47ff83fb"),
-                                              library.Get<BlueprintProgression>("b522759a265897b4f8f7a1a180a692e4"), "Copper"),
+                                              library.Get<BlueprintProgression>("b522759a265897b4f8f7a1a180a692e4"), "Copper", "60-foot line"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("6c67ef823db8d7d45bb0ef82f959743d").Icon, library.Get<BlueprintBuff>("984064a3dd0f25444ad143b8a33d7d92"),
                                               library.Get<BlueprintAbility>("598e33639b662784fb07c0e4c8978aa4"), library.Get<BlueprintBuff>("4300f60c00ecabc439deab11ce6d738a"),
                                               DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("3247396087a747148b17e1a0e37a3e67"),
-                                              library.Get<BlueprintProgression>("6c67ef823db8d7d45bb0ef82f959743d"), "Gold"),
+                                              library.Get<BlueprintProgression>("6c67ef823db8d7d45bb0ef82f959743d"), "Gold", "30-foot cone"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("7181be57d1cc3bc40bc4b552e4e4ce24").Icon, library.Get<BlueprintBuff>("a4ccc396e60a00f44907e95bc8bf463f"),
                                               library.Get<BlueprintAbility>("633b622267c097d4abe3ec6445c05152"), library.Get<BlueprintBuff>("070543328d3e9af49bb514641c56911d"),
                                               DamageEnergyType.Acid, corrosive_enchantment, library.Get<BlueprintFeature>("c593e3279e68cc649b976e685e5b8900"),
-                                              library.Get<BlueprintProgression>("7181be57d1cc3bc40bc4b552e4e4ce24"), "Green"),
+                                              library.Get<BlueprintProgression>("7181be57d1cc3bc40bc4b552e4e4ce24"), "Green", "30-foot cone"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("8c6e5b3cf12f71e43949f52c41ae70a8").Icon, library.Get<BlueprintBuff>("08ae1c01155a2184db869e9ebedc758d"),
                                               library.Get<BlueprintAbility>("3f31704e595e78942b3640cdc9b95d8b"), library.Get<BlueprintBuff>("40a96969339f3c241b4d989910f255e1"),
                                               DamageEnergyType.Fire, flaming_enchantment, library.Get<BlueprintFeature>("a18ab74c10933e84daf76afdaabc28dd"),
-                                              library.Get<BlueprintProgression>("8c6e5b3cf12f71e43949f52c41ae70a8"), "Red"),
+                                              library.Get<BlueprintProgression>("8c6e5b3cf12f71e43949f52c41ae70a8"), "Red", "30-foot cone"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("c7d2f393e6574874bb3fc728a69cc73a").Icon, library.Get<BlueprintBuff>("5a791c1b0bacee3459d7f5137fa0bd5f"),
                                               library.Get<BlueprintAbility>("11d03ebc508d6834cad5992056ad01a4"), library.Get<BlueprintBuff>("16857109dafc2b94eafd1e888552ef76"),
                                               DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("a1d338a76b127b54eba7dc9a85532f3f"),
-                                              library.Get<BlueprintProgression>("c7d2f393e6574874bb3fc728a69cc73a"), "Silver"),
+                                              library.Get<BlueprintProgression>("c7d2f393e6574874bb3fc728a69cc73a"), "Silver", "30-foot cone"),
                     new DraconicBloodlineData(library.Get<BlueprintProgression>("b0f79497a0d1f4f4b8293e82c8f8fa0c").Icon, library.Get<BlueprintBuff>("381a168acd79cd54baf87a17ca861d9b"),
                                               library.Get<BlueprintAbility>("84be529914c90664aa948d8266bb3fa6"), library.Get<BlueprintBuff>("2652c61dff50a24479520c84005ede8b"),
                                               DamageEnergyType.Cold, frost_enchantment, library.Get<BlueprintFeature>("c06fe7c8722ad5a42b241f11246d2679"),
-                                              library.Get<BlueprintProgression>("b0f79497a0d1f4f4b8293e82c8f8fa0c"), "White")
+                                              library.Get<BlueprintProgression>("b0f79497a0d1f4f4b8293e82c8f8fa0c"), "White", "30-foot cone")
                 };
 
                 createClaws();
@@ -2269,7 +2268,7 @@ namespace CallOfTheWild
                 foreach (var b in bloodlines)
                 {
                     var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
-                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a{b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
+                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
                     var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class"); 
                     classes = classes.AddToArray(bloodrager_class);

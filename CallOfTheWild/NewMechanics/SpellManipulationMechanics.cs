@@ -94,22 +94,62 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
+        public class InferIsFullRoundFromParamSpellSlot : BlueprintComponent
+        {
+
+        }
+
+        [Harmony12.HarmonyPatch(typeof(AbilityData))]
+        [Harmony12.HarmonyPatch("RequireFullRoundAction", Harmony12.MethodType.Getter)]
+        class AbilityData__RequireFullRoundAction__Patch
+        {
+            static void Postfix(AbilityData __instance, ref bool __result)
+            {
+                if (__result == true)
+                {
+                    return;
+                }
+
+                if (__instance.Blueprint.GetComponent<InferIsFullRoundFromParamSpellSlot>() == null)
+                {
+                    return;
+                }
+
+                if (__instance.ParamSpellSlot?.Spell == null)
+                {
+                    return;
+                }
+
+                __result = __instance.ParamSpellSlot.Spell.RequireFullRoundAction;
+            }
+        }
+
+
+ 
+
         public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
         {
             public ActionList actions_on_store = new ActionList();
+            public bool ignore_target_checkers = false;
             [JsonProperty]
             private AbilityData spell = null;
 
 
+
             public void releaseSpellOnTarget(TargetWrapper target)
             {
-                if (spell != null && spell.CanTarget(target))
+                if (spell != null && (spell.CanTarget(target) || ignore_target_checkers))
                 {
                     Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, target));
                     Common.AddBattleLogMessage($"{this.Owner.CharacterName} released {spell.Blueprint.Name} from {this.Fact.Name}.");
                     spell = null;
                 }
-                
+            }
+
+
+            public void clearSpell()
+            {
+                spell = null;
             }
 
             public void storeSpell(AbilityData new_spell)
@@ -208,6 +248,35 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Remove spell stored in specified fact")]
+        [AllowMultipleComponents]
+        [PlayerUpgraderAllowed]
+        public class ClearSpellStoredInSpecifiedBuff : ContextAction
+        {
+            public string Comment;
+            public BlueprintUnitFact fact;
+
+            public override void RunAction()
+            {
+                var stored_buff = Context.MaybeOwner.Buffs.GetFact(fact);
+                if (stored_buff == null)
+                {
+                    stored_buff = Context.MaybeOwner.Descriptor.Progression.Features.GetFact(fact);
+                }
+
+                if (stored_buff != null)
+                {
+                    stored_buff.CallComponents<FactStoreSpell>(c => c.clearSpell());
+                }
+            }
+
+            public override string GetCaption()
+            {
+                return "Clear Spell Stored in Specified Buff (" + this.Comment + " )";
+            }
+        }
+
+
         public class AbilityConvertSpell : AbilityApplyEffect, IAbilityAvailabilityProvider, IAbilityParameterRequirement
         {
             public Predicate<AbilityData> check_slot_predicate;
@@ -266,14 +335,17 @@ namespace CallOfTheWild
 
             public void spendSpellSlot(SpellSlot spell_slot)
             {
-                if (!spell_slot.Spell.Spellbook.Blueprint.Spontaneous)
+                spell_slot.Spell.Spellbook.Spend(spell_slot.Spell);
+
+                /*if (!spell_slot.Spell.Spellbook.Blueprint.Spontaneous)
                 {
-                    spell_slot.Available = false;
+                   
+                    spell_slot.Spell.Spellbook.Spend(spell_slot.Spell);
                 }
                 else
                 {
                     spell_slot.Spell.Spellbook.RestoreSpontaneousSlots(spell_slot.SpellLevel, -1);
-                }
+                }*/
             }
 
 
@@ -387,6 +459,7 @@ namespace CallOfTheWild
         public class AbilityStoreSpellInFact : AbilityConvertSpell
         {
             public BlueprintUnitFact fact;
+            public ActionList actions = null;
 
             public override void Apply(AbilityExecutionContext context, TargetWrapper target)
             {
@@ -397,6 +470,12 @@ namespace CallOfTheWild
                 else
                 {
                   storeSpell(context.Ability.ParamSpellSlot, context);
+
+                    if (actions != null)
+                    {
+                      using (context.GetDataScope(target))
+                        actions.Run();
+                    }
                 }
             }
 
@@ -526,16 +605,7 @@ namespace CallOfTheWild
                 {
                     name += $" ({c.Name})";
                 }
-                else if (abilityData.Blueprint.GetComponent<AddStoredSpellToCaption>() != null)
-                {
-                    var store_fact = abilityData.Blueprint.GetComponent<AddStoredSpellToCaption>().store_fact;
-                    string spell_name = "";
-                    abilityData.Caster.GetFact(store_fact)?.CallComponents<AddStoredSpellToCaption>(a => a.getStoredSpellName(out spell_name));
-                    if (!spell_name.Empty())
-                    {
-                        name += $" ({spell_name})";
-                    }
-                }
+
                 DescriptionBrick descriptionBrick = DescriptionBuilder.Templates.IconNameHeader(box, name, abilityData.Blueprint.Icon, isTooltip);
                 string text1 = LocalizedTexts.Instance.AbilityTypes.GetText(abilityData.Blueprint.Type);
                 string text2 = abilityData.Blueprint.School == SpellSchool.None ? string.Empty : LocalizedTexts.Instance.SpellSchoolNames.GetText(abilityData.Blueprint.School);

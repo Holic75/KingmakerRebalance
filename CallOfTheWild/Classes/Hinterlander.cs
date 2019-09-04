@@ -254,7 +254,7 @@ namespace CallOfTheWild
             improved_enemy.SetDescription(base_description + "Bonus: " + bonus_description);
 
             var favored_enemy = Helpers.CreateFeature(name,
-                                                      improved_enemy.Name,
+                                                      "Hinterlander " + improved_enemy.Name,
                                                       improved_enemy.Description,
                                                       "",
                                                       improved_enemy.Icon,
@@ -263,7 +263,7 @@ namespace CallOfTheWild
                                                      );
 
             favored_enemy_selection.AllFeatures = favored_enemy_selection.AllFeatures.AddToArray(favored_enemy);
-            improved_favored_enemy_selection.AllFeatures = improved_favored_enemy_selection.AllFeatures.AddToArray(improved_favored_enemy_selection);
+            improved_favored_enemy_selection.AllFeatures = improved_favored_enemy_selection.AllFeatures.AddToArray(improved_enemy);
         }
 
 
@@ -374,46 +374,26 @@ namespace CallOfTheWild
                                                                  "Starting from 2nd level, a hinterlander gains new spells per day as if he had also gained a level in an arcane or divine spellcasting class he belonged to before adding the prestige class. He does not, however, gain any other benefit a character of that class would have gained, except for additional spells per day, spells known (if he is a spontaneous spellcaster), and an increased effective level of spellcasting. If a character had more than one spellcasting class before becoming a hinterlandert, he must decide to which class he adds the new level for purposes of determining spells per day.",
                                                                  "",
                                                                  null,
-                                                                 FeatureGroup.None);
-            foreach (var c in Helpers.classes)
-            {
-                var alternative_spellbook_archetypes = c.Archetypes.Where(a => a.ReplaceSpellbook != null).ToArray();
-                if (c.Spellbook != null && !c.Spellbook.IsAlchemist)
-                {
-                    List<BlueprintComponent> components = new List<BlueprintComponent>();
-                    components.Add(Common.createPrerequisiteClassSpellLevel(c, 1));
-
-                    foreach (var a in alternative_spellbook_archetypes)
-                    {
-                        components.Add(Common.prerequisiteNoArchetype(c, a));
-                    }
-                    Common.addReplaceSpellbook(spellbook_selection, c.Spellbook, "Hinterlander" + c.name + "SpellbookFeature",
-                                               components.ToArray());
-
-                    foreach (var a in alternative_spellbook_archetypes)
-                    {
-                        Common.addReplaceSpellbook(spellbook_selection, c.Spellbook, "Hinterlander" + a.name + "SpellbookFeature",
-                                                   Common.createPrerequisiteArchetypeLevel(c, a, 1),
-                                                   components[0]);
-                    }
-                }
-            }
+                                                                 FeatureGroup.EldritchKnightSpellbook);
+            Common.addSpellbooksToSpellSelection("Hinterlander", 1, spellbook_selection, alchemist: false);
         }
 
 
         static void createImbueArrow()
         {
             var hurricane_bow = library.Get<BlueprintAbility>("3e9d1119d43d07c4c8ba9ebfd1671952");
+            var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
             imbue_arrow = Helpers.CreateFeature("ImbueArrowFeature",
                                                 "Imbue Arrow",
-                                                "Character gains the ability to place an area spell upon an arrow. When the arrow is fired, the spell’s area is centered where the arrow lands, even if the spell could normally be centered only on the caster. This ability allows the archer to use the bow’s range rather than the spell’s range. A spell cast in this way uses its standard casting time and the arcane archer can fire the arrow as part of the casting.",
+                                                "Character gains the ability to place an area spell upon an arrow. When the arrow is fired, the spell’s area is centered where the arrow lands, even if the spell could normally be centered only on the caster. This ability allows the archer to use the bow’s range rather than the spell’s range. A spell cast in this way uses its standard casting time and the arcane archer can fire the arrow as part of the casting. If the arrow misses, the spell is wasted.",
                                                 "",
                                                 hurricane_bow.Icon,
                                                 FeatureGroup.None,
-                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
+                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.ignore_target_checkers = true));
 
 
-            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = imbue_arrow);
+            var hit_action = Helpers.CreateActionList(Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = imbue_arrow));
+            var miss_action = Helpers.CreateActionList(Helpers.Create<SpellManipulationMechanics.ClearSpellStoredInSpecifiedBuff>(r => r.fact = imbue_arrow));
 
             int max_variants = 6; //due to ui limitation
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
@@ -425,41 +405,53 @@ namespace CallOfTheWild
 
             for (int i = 0; i < max_variants; i++)
             {
-                var store_ability = Helpers.CreateAbility($"HinterlanderStoreImbueArrow{i + 1}Ability",
+                var imbue_ability = Helpers.CreateAbility($"HinterlanderImbueArrow{i + 1}Ability",
                                                           imbue_arrow.Name,
                                                           imbue_arrow.Description,
                                                           "",
                                                           imbue_arrow.Icon,
                                                           AbilityType.Supernatural,
-                                                          CommandType.Free,
-                                                          AbilityRange.Personal,
+                                                          CommandType.Standard,
+                                                          AbilityRange.Weapon,
                                                           "",
                                                           "",
-                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = imbue_arrow; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
+                                                          Helpers.Create<SpellManipulationMechanics.InferIsFullRoundFromParamSpellSlot>(),
+                                                          Helpers.Create<NewMechanics.AttackAnimation >(),
+                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
+                                                                                            { s.fact = imbue_arrow;
+                                                                                                s.check_slot_predicate = check_slot_predicate;
+                                                                                                s.variant = i;
+                                                                                                s.actions = Helpers.CreateActionList(Common.createContextActionAttack(hit_action, miss_action));
+                                                                                            })
                                                           );
-                store_ability.setMiscAbilityParametersSelfOnly();
-                imbue_arrow.AddComponent(Helpers.CreateAddFact(store_ability));
+                imbue_ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+                imbue_ability.NeedEquipWeapons = true;
+
+                var imbue_ground_ability = Helpers.CreateAbility($"HinterlanderImbueArrowGround{i + 1}Ability",
+                                          imbue_arrow.Name + ": Attack Ground",
+                                          imbue_arrow.Description,
+                                          "",
+                                          true_strike.Icon,
+                                          AbilityType.Supernatural,
+                                          CommandType.Standard,
+                                          AbilityRange.Weapon,
+                                          "",
+                                          "",
+                                          Helpers.Create<SpellManipulationMechanics.InferIsFullRoundFromParamSpellSlot>(),
+                                          Helpers.Create<NewMechanics.AttackAnimation>(),
+                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
+                                          {
+                                              s.fact = imbue_arrow;
+                                              s.check_slot_predicate = check_slot_predicate;
+                                              s.variant = i;
+                                              s.actions = hit_action;
+                                          })
+                                          );
+                imbue_ground_ability.setMiscAbilityParametersRangedDirectional();
+                imbue_ground_ability.NeedEquipWeapons = true;
+
+                imbue_arrow.AddComponent(Helpers.CreateAddFacts(imbue_ability, imbue_ground_ability));
             }
-
-            var effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsMainTarget>(), new GameAction[] { Helpers.Create<NewMechanics.ContextActionAttack>(), release_action });
-            var release_spell = Helpers.CreateAbility("ImbueArrowReleaseAbility",
-                                    "Imbue Arrow: Release",
-                                     "Release spell stored area spell",
-                                     "",
-                                     hurricane_bow.Icon,
-                                     AbilityType.Supernatural,
-                                     Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
-                                     AbilityRange.Weapon,
-                                     "",
-                                     "",
-                                     Helpers.CreateRunActions(effect),
-                                     Helpers.Create<SpellManipulationMechanics.AbilityCasterHasSpellStoredInFact>(a => a.store_fact = imbue_arrow)
-                                     );
-            release_spell.setMiscAbilityParametersSingleTargetRangedHarmful(true);
-            release_spell.NeedEquipWeapons = true;
-
-            imbue_arrow.AddComponent(Helpers.CreateAddFact(release_spell));
-            imbue_arrow.AddComponent(Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = imbue_arrow));
         }
 
 

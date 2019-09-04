@@ -57,6 +57,21 @@ using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 namespace CallOfTheWild
 {
 
+    public static partial class Extensions
+    {
+        public static bool checkSpellbook(this BlueprintSpellbook spellbook, bool is_divine, bool is_arcane, bool is_alchemist)
+        {
+            if (spellbook == null)
+            {
+                return false;
+            }
+
+            return (spellbook.IsAlchemist && is_alchemist) || (spellbook.IsArcane && is_arcane) || (!spellbook.IsArcane && !spellbook.IsAlchemist && is_divine);
+        }
+    }
+
+
+
     class Common
     {
 
@@ -1388,15 +1403,21 @@ namespace CallOfTheWild
 
         static internal void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
         {
+            addReplaceSpellbook(selection, spellbook, name, spellbook.Name, components);
+        }
+
+        static internal void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, string display_name, params BlueprintComponent[] components)
+        {
             var feature = Helpers.Create<BlueprintFeatureReplaceSpellbook>();
             feature.name = name;
             feature.Groups = new FeatureGroup[] { selection.Group };
             feature.IsClassFeature = true;
-            feature.SetName(spellbook.Name);
+            feature.SetName(display_name);
             feature.SetDescription(selection.Description);
             feature.ComponentsArray = components;
             feature.Spellbook = spellbook;
             library.AddAsset(feature, "");
+            feature.Groups = new FeatureGroup[] { selection.Group };
             selection.AllFeatures = selection.AllFeatures.AddToArray(feature);
         }
 
@@ -2463,5 +2484,73 @@ namespace CallOfTheWild
             r.attack_types = attack_types;
             return r;
         }
+
+
+        
+
+        public static void addSpellbooksToSpellSelection(string name, int spell_level,
+                                                        BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true)
+        {
+            var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            var thassilonian_shools = library.Get<BlueprintFeatureSelection>("f431178ec0e2b4946a34ab504bb46285").AllFeatures;
+            var thassilonian_specialist = library.Get<BlueprintArchetype>("55a8ce15e30d71547a44c69bb2e8a84f");
+
+            foreach (var c in Helpers.classes)
+            {
+                var alternative_spellbook_archetypes = c.Archetypes.Where(a => a.ReplaceSpellbook != null || a.RemoveSpellbook).ToArray();
+                if (c == wizard)
+                {
+                    alternative_spellbook_archetypes =  alternative_spellbook_archetypes.AddToArray(thassilonian_specialist);
+                }
+                List<BlueprintComponent> components = new List<BlueprintComponent>();
+                components.Add(Common.createPrerequisiteClassSpellLevel(c, spell_level));
+
+                if (c.Spellbook.checkSpellbook(divine, arcane, alchemist))
+                {
+                    foreach (var a in alternative_spellbook_archetypes)
+                    {
+                        components.Add(Common.prerequisiteNoArchetype(c, a));
+                    }
+                    Common.addReplaceSpellbook(spellbook_selection, c.Spellbook, name + c.name + "SpellbookFeature",
+                                               components.ToArray());
+                }
+
+                foreach (var a in alternative_spellbook_archetypes)
+                {
+                    if (a.ReplaceSpellbook.checkSpellbook(divine, arcane, alchemist))
+                    {
+                        Common.addReplaceSpellbook(spellbook_selection, a.ReplaceSpellbook, name + a.name + "SpellbookFeature", a.Name,
+                                                Common.createPrerequisiteArchetypeLevel(c, a, 1),
+                                                components[0]);
+                    }
+                }
+            }
+
+            if (!arcane)
+            {
+                return;
+            }
+
+
+            foreach (var s in thassilonian_shools)
+            {
+                var spellbook = (s as BlueprintFeatureReplaceSpellbook).Spellbook;
+                Common.addReplaceSpellbook(spellbook_selection, spellbook, name + spellbook.name + "Feature",
+                                           "Thassilonian Specialist: " + s.Name,
+                                            Common.createPrerequisiteClassSpellLevel(wizard, spell_level),
+                                            Common.createPrerequisiteArchetypeLevel(wizard, thassilonian_specialist, 1));
+            }
+        }
+
+
+        static public NewMechanics.ContextActionAttack createContextActionAttack(ActionList action_on_hit = null, ActionList action_on_miss = null)
+        {
+            var c = Helpers.Create<NewMechanics.ContextActionAttack>();
+            c.action_on_success = action_on_hit;
+            c.action_on_miss = action_on_miss;
+            return c;
+        }
+
+
     }
 }
