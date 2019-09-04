@@ -422,7 +422,8 @@ namespace CallOfTheWild
                                                                                                 s.check_slot_predicate = check_slot_predicate;
                                                                                                 s.variant = i;
                                                                                                 s.actions = Helpers.CreateActionList(Common.createContextActionAttack(hit_action, miss_action));
-                                                                                            })
+                                                                                            }),
+                                                          Common.createAbilityCasterMainWeaponCheck(WeaponCategory.Longbow, WeaponCategory.Shortbow)
                                                           );
                 imbue_ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
                 imbue_ability.NeedEquipWeapons = true;
@@ -445,7 +446,8 @@ namespace CallOfTheWild
                                               s.check_slot_predicate = check_slot_predicate;
                                               s.variant = i;
                                               s.actions = hit_action;
-                                          })
+                                          }),
+                                          Common.createAbilityCasterMainWeaponCheck(WeaponCategory.Longbow, WeaponCategory.Shortbow)
                                           );
                 imbue_ground_ability.setMiscAbilityParametersRangedDirectional();
                 imbue_ground_ability.NeedEquipWeapons = true;
