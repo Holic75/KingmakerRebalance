@@ -39,6 +39,7 @@ using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.ElementsSystem;
 
 namespace CallOfTheWild
 {
@@ -65,6 +66,8 @@ namespace CallOfTheWild
         static internal BlueprintBuff troll_form;
         static internal BlueprintBuff storm_giant_form;
         static internal BlueprintBuff athach_form;
+
+        static internal BlueprintFeature toss_feature;
 
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
@@ -115,6 +118,7 @@ namespace CallOfTheWild
 
         static internal void load()
         {
+            createToss();
             fixBeastShape1();
             fixBeastShape2();
             fixBeastShape3();
@@ -135,6 +139,39 @@ namespace CallOfTheWild
             fixDruid();
             fixTransmuter();
         }
+
+
+        static void createToss()
+        {
+            var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
+            var toss_damage = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)));
+            var toss_action = Helpers.Create<ContextActionCombatManeuver>(c =>
+                                                                        { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip;
+                                                                          c.OnSuccess = Helpers.CreateActionList(toss_damage);
+                                                                        }
+                                                                        );
+
+            var toss_buff = Helpers.CreateBuff("TossBuff",
+                                               "",
+                                               "",
+                                               "",
+                                               null,
+                                               null,
+                                               Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(toss_action), check_weapon_range_type: true)
+                                               );
+            toss_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            toss_feature = Helpers.CreateFeature("TossFeature",
+                                         "Toss",
+                                         "When creature suceeds on charge attack, it can toss opponent into the air by succeeding on trip combat maneuver check.\n" +
+                                         "The victim lands at the same square, falls prone and takes 1d6 points of damage.",
+                                         "",
+                                         null,
+                                         FeatureGroup.None
+                                         );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(charge_buff, toss_buff, toss_feature);
+        }
+
 
 
         static void fixAirElementalDC()
@@ -660,14 +697,13 @@ namespace CallOfTheWild
             BlueprintUnit giant_flytrap = library.Get<BlueprintUnit>("fb824352b7968fb4d8103ac439644633");
             giant_flytrap_form = createPolymorphForm("PlantshapeIIIGiantFlytrapBuff",
                                                  "Plant Shape (Giant Flytrap)",
-                                                 "You are in giant flytrap form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have four 1d8 bite attacks, acid Resistance 20, blindsight and poison ability.",
+                                                 "You are in giant flytrap form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have four 1d8 bite attacks, acid Resistance 20 and blindsight.",
                                                  entangle.Icon,
                                                  giant_flytrap,
                                                  8, -2, 6, 6, 0, Size.Huge,
                                                  giant_flytrap_bite, giant_flytrap_bite, new BlueprintItemWeapon[] { giant_flytrap_bite, giant_flytrap_bite },
                                                  library.Get<BlueprintFeature>("416386972c8de2e42953533c4946599a"), //acid resistance
-                                                 library.Get<BlueprintFeature>("236ec7f226d3d784884f066aa4be1570"), //blindsight
-                                                 library.Get<BlueprintFeature>("1180eb46f39f0cd41a0b2e293d1502cb") //poison
+                                                 library.Get<BlueprintFeature>("236ec7f226d3d784884f066aa4be1570") //blindsight
                                                  );
 
             treant_form_spell = replaceForm(smilodon_form_spell, treant_form, "PlantShapeIIITreantAbility", "Plant Shape III (Treant)",
@@ -675,7 +711,7 @@ namespace CallOfTheWild
             treant_form_spell.RemoveComponents<SpellListComponent>();
             treant_form_spell.SetIcon(entangle.Icon);
             giant_flytrap_form_spell = replaceForm(smilodon_form_spell, giant_flytrap_form, "PlantShapeIIIGiantFlytrapAbility", "Plant Shape III (Giant Flytrap)",
-                                                 "You become a Huge giant flytrap. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain four 1d8 bite attacks, acid Resistance 20, blindsight and poison ability.");
+                                                 "You become a Huge giant flytrap. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain four 1d8 bite attacks, acid Resistance 20 and blindsight and poison ability.");
 
             giant_flytrap_form_spell.RemoveComponents<SpellListComponent>();
             giant_flytrap_form_spell.SetIcon(entangle.Icon);
@@ -768,7 +804,7 @@ namespace CallOfTheWild
             BlueprintUnit hodag = library.Get<BlueprintUnit>("3822f050c76b00240a248e1ba8597636");
             hodag_form = createPolymorphForm("BeastShapeIVHodagBuff",
                                                  "Wild Shape (Hodag)",
-                                                 "You are in hodag form now. You have a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also have one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and poison ability.",
+                                                 "You are in hodag form now. You have a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also have one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and toss ability.",
                                                  beast_shape4.Icon,
                                                  hodag,
                                                  6, -2, 2, 6, 0, Size.Large,
@@ -777,10 +813,10 @@ namespace CallOfTheWild
                                                  new BlueprintItemWeapon[]{library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"),
                                                                            library.Get<BlueprintItemWeapon>("ae822725634c6f0418b8c48bd29df255")
                                                                            },
-                                                 trip_defense_4legs, library.Get<BlueprintFeature>("06b3d7ac8c130c947b1bebf82690194d"));
+                                                 trip_defense_4legs, toss_feature);
 
             hodag_form_spell = replaceForm(smilodon_form_spell, hodag_form, "BeastShapeIVHodagAbility", "Beast Shape IV (Hodag)",
-                                            "You become a Large hodag. You gain a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also gain one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and poison ability.");
+                                            "You become a Large hodag. You gain a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also gain one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and toss ability.");
 
 
 

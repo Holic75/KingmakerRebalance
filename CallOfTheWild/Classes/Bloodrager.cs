@@ -2904,7 +2904,7 @@ namespace CallOfTheWild
             var healing_judgement = library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980");
             var blood_of_life_buff = Helpers.CreateBuff("SpelleaterBloodOfLifeBuff",
                                                            "Blood of Life",
-                                                           "A spelleater’s blood empowers him to slowly recover from his wounds. At 2nd level, while bloodraging a spelleater gains fast healing 1.At 7th level and every 3 levels thereafter, this increases by 1(to a maximum of fast healing 6 at 19th level). If the spelleater gains an increase to damage reduction from a bloodline, he is considered to have an effective damage reduction of 0, and the increase is added to this effective damage reduction.",
+                                                           "A spelleater’s blood empowers him to slowly recover from his wounds. At 2nd level, while bloodraging a spelleater gains fast healing 1. At 7th level and every 3 levels thereafter, this increases by 1(to a maximum of fast healing 6 at 19th level). If the spelleater gains an increase to damage reduction from a bloodline, he is considered to have an effective damage reduction of 0, and the increase is added as a bonus to fast healing.",
                                                            "",
                                                            healing_judgement.Icon,
                                                            null

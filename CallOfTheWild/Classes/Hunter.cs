@@ -688,6 +688,8 @@ namespace CallOfTheWild
 
             var animal_domain = library.Get<BlueprintProgression>("23d2f87aa54c89f418e68e790dba11e0");
             animal_domain.AddComponent(Common.prerequisiteNoArchetype(hunter_class, divine_hunter_archetype));
+
+            divine_hunter_archetype.AddComponent(Helpers.PrerequisiteNoFeature(library.Get<BlueprintFeature>("92c0d2da0a836ce418a267093c09ca54")));//no atheism
         }
 
 

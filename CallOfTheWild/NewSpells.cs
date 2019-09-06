@@ -438,7 +438,7 @@ namespace CallOfTheWild
             enchant_dice.damage_type_description = null;
             var enchantment_size = Common.createWeaponEnchantment("ShillelaghEnchantment",
                                                                   "Shillelagh",
-                                                                  "Your own non - magical club or quarterstaff becomes a weapon with a + 1 enhancement bonus on attack and damage rolls. A quarterstaff gains this enhancement for both ends of the weapon.It deals damage as if it were two size categories larger(a Small club or quarterstaff so transmuted deals 1d8 points of damage, a Medium 2d6, and a Large 3d6), +1 for its enhancement bonus. If you stop wielding it, the weapon loses magical properties.",
+                                                                  "Your own non - magical club or quarterstaff becomes a weapon with a + 1 enhancement bonus on attack and damage rolls. A quarterstaff gains this enhancement for both ends of the weapon. It deals damage as if it were two size categories larger (a Small club or quarterstaff so transmuted deals 1d8 points of damage, a Medium 2d6, and a Large 3d6), +1 for its enhancement bonus. If you stop wielding it, the weapon loses magical properties.",
                                                                   "Shillelagh",
                                                                   "",
                                                                   "",

@@ -72,29 +72,29 @@ namespace CallOfTheWild
 
 
 
-    class Common
+    public class Common
     {
 
         static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
 
-        static internal string[] roman_id = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
+        static public string[] roman_id = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
 
 
-        static internal BlueprintFeatureSelection EldritchKnightSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("dc3ab8d0484467a4787979d93114ebc3");
-        static internal BlueprintFeatureSelection ArcaneTricksterSelection = Main.library.Get<BlueprintFeatureSelection>("ae04b7cdeb88b024b9fd3882cc7d3d76");
-        static internal BlueprintFeatureSelection DragonDiscipleSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("8c1ba14c0b6dcdb439c56341385ee474");
-        static internal BlueprintFeatureSelection MysticTheurgeArcaneSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("97f510c6483523c49bc779e93e4c4568");
-        static internal BlueprintFeatureSelection MysticTheurgeDivineSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
+        static public BlueprintFeatureSelection EldritchKnightSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("dc3ab8d0484467a4787979d93114ebc3");
+        static public BlueprintFeatureSelection ArcaneTricksterSelection = Main.library.Get<BlueprintFeatureSelection>("ae04b7cdeb88b024b9fd3882cc7d3d76");
+        static public BlueprintFeatureSelection DragonDiscipleSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("8c1ba14c0b6dcdb439c56341385ee474");
+        static public BlueprintFeatureSelection MysticTheurgeArcaneSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("97f510c6483523c49bc779e93e4c4568");
+        static public BlueprintFeatureSelection MysticTheurgeDivineSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
         static LibraryScriptableObject library => Main.library;
 
-        internal enum DomainSpellsType
+        public enum DomainSpellsType
         {
             NoSpells = 1,
             SpecialList = 2,
             NormalList = 3
         }
 
-        internal struct SpellId
+        public struct SpellId
         {
             public readonly string guid;
             public readonly int level;
@@ -105,7 +105,7 @@ namespace CallOfTheWild
             }
         }
 
-        internal class ExtraSpellList
+        public class ExtraSpellList
         {
             SpellId[] spells;
 
@@ -156,7 +156,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static BlueprintFeature createCantrips(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, BlueprintCharacterClass character_class,
+        public static BlueprintFeature createCantrips(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, BlueprintCharacterClass character_class,
                                        StatType stat, BlueprintAbility[] spells)
         {
             var learn_spells = Helpers.Create<LearnSpells>();
@@ -178,7 +178,7 @@ namespace CallOfTheWild
                                   );
         }
 
-        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
+        public static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
                                                                                                                         AbilityRankType rank_type = AbilityRankType.Default,
                                                                                                                         bool is_from_spell = true, bool is_permanent = false, bool is_child = false,
                                                                                                                         bool on_failed_save = true, bool is_dispellable = true)
@@ -209,7 +209,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
+        public static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool is_dispellable = true)
         {
             var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
@@ -227,7 +227,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.Mechanics.Components.DeathActions createDeathActions(Kingmaker.ElementsSystem.ActionList action_list,
+        static public Kingmaker.UnitLogic.Mechanics.Components.DeathActions createDeathActions(Kingmaker.ElementsSystem.ActionList action_list,
                                                                                                  BlueprintAbilityResource resource = null)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.DeathActions>();
@@ -238,7 +238,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.CriticalConfirmationACBonus createCriticalConfirmationACBonus(int bonus)
+        static public Kingmaker.Designers.Mechanics.Facts.CriticalConfirmationACBonus createCriticalConfirmationACBonus(int bonus)
         {
             var c = Helpers.Create<CriticalConfirmationACBonus>();
             c.Bonus = bonus;
@@ -246,7 +246,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal CriticalConfirmationBonus createCriticalConfirmationBonus(int bonus)
+        static public CriticalConfirmationBonus createCriticalConfirmationBonus(int bonus)
         {
             var c = Helpers.Create<CriticalConfirmationBonus>();
             c.Bonus = bonus;
@@ -254,7 +254,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static ContextActionSpawnFx createContextActionSpawnFx(Kingmaker.ResourceLinks.PrefabLink prefab)
+        public static ContextActionSpawnFx createContextActionSpawnFx(Kingmaker.ResourceLinks.PrefabLink prefab)
         {
             var c = Helpers.Create<ContextActionSpawnFx>();
             c.PrefabLink = prefab;
@@ -262,7 +262,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static ContextActionSavingThrow createContextActionSavingThrow(SavingThrowType saving_throw, Kingmaker.ElementsSystem.ActionList action)
+        public static ContextActionSavingThrow createContextActionSavingThrow(SavingThrowType saving_throw, Kingmaker.ElementsSystem.ActionList action)
         {
             var c = Helpers.Create<ContextActionSavingThrow>();
             c.Type = saving_throw;
@@ -271,7 +271,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass createContextCalculateAbilityParamsBasedOnClass(BlueprintCharacterClass character_class,
+        public static Kingmaker.UnitLogic.Mechanics.Components.ContextCalculateAbilityParamsBasedOnClass createContextCalculateAbilityParamsBasedOnClass(BlueprintCharacterClass character_class,
                                                                                                                                                     StatType stat, bool use_kineticist_main_stat = false)
         {
             var c = Helpers.Create<ContextCalculateAbilityParamsBasedOnClass>();
@@ -282,7 +282,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClasses(BlueprintCharacterClass[] character_classes,
+        public static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClasses(BlueprintCharacterClass[] character_classes,
                                                                                                                                             StatType stat)
         {
             var c = Helpers.Create<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
@@ -292,7 +292,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
+        public static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
         {
             var c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks>();
             c.Weapon = weapons;
@@ -300,7 +300,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger createIncomingDamageTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
+        public static Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger createIncomingDamageTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
         {
             var c = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>();
             c.Actions = Helpers.CreateActionList(actions);
@@ -308,7 +308,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool dispellable = true,
                                                                                                                   int duration_seconds = 0)
         {
@@ -324,7 +324,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize createContextActionRandomize(params Kingmaker.ElementsSystem.ActionList[] actions)
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize createContextActionRandomize(params Kingmaker.ElementsSystem.ActionList[] actions)
         {
             var c = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize>();
             Type m_Action_type = Helpers.GetField(c, "m_Actions").GetType().GetElementType();
@@ -341,7 +341,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
+        static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
         {
             var b = Helpers.Create<BuffDescriptorImmunity>();
             b.Descriptor = descriptor;
@@ -349,7 +349,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal SpellImmunityToSpellDescriptor createSpellImmunityToSpellDescriptor(SpellDescriptor descriptor)
+        static public SpellImmunityToSpellDescriptor createSpellImmunityToSpellDescriptor(SpellDescriptor descriptor)
         {
             var b = Helpers.Create<SpellImmunityToSpellDescriptor>();
             b.Descriptor = descriptor;
@@ -357,7 +357,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal SpecificBuffImmunity createSpecificBuffImmunity(BlueprintBuff buff)
+        static public SpecificBuffImmunity createSpecificBuffImmunity(BlueprintBuff buff)
         {
             var b = Helpers.Create<SpecificBuffImmunity>();
             b.Buff = buff;
@@ -365,7 +365,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.SpecificBuffImmunityExceptCaster createSpecificBuffImmunityExceptCaster(BlueprintBuff buff, bool except_caster = true)
+        static public NewMechanics.SpecificBuffImmunityExceptCaster createSpecificBuffImmunityExceptCaster(BlueprintBuff buff, bool except_caster = true)
         {
             var b = Helpers.Create<NewMechanics.SpecificBuffImmunityExceptCaster>();
             b.Buff = buff;
@@ -373,7 +373,7 @@ namespace CallOfTheWild
             return b;
         }
 
-        static internal Blindsense createBlindsense(int range)
+        static public Blindsense createBlindsense(int range)
         {
             var b = Helpers.Create<Blindsense>();
             b.Range = range.Feet();
@@ -381,7 +381,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Blindsense createBlindsight(int range)
+        static public Blindsense createBlindsight(int range)
         {
             var b = Helpers.Create<Blindsense>();
             b.Range = range.Feet();
@@ -390,7 +390,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.AddFortification createAddFortification(int bonus = 0, ContextValue value = null)
+        static public Kingmaker.Designers.Mechanics.Facts.AddFortification createAddFortification(int bonus = 0, ContextValue value = null)
         {
             var a = Helpers.Create<AddFortification>();
             a.Bonus = bonus;
@@ -400,7 +400,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition createBuffStatusCondition(UnitCondition condition, SavingThrowType save_type = SavingThrowType.Unknown,
+        static public Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition createBuffStatusCondition(UnitCondition condition, SavingThrowType save_type = SavingThrowType.Unknown,
                                                                                                            bool save_each_round = true)
         {
             var c = Helpers.Create<Kingmaker.Designers.Mechanics.Buffs.BuffStatusCondition>();
@@ -410,7 +410,7 @@ namespace CallOfTheWild
             return c;
         }
 
-        static internal Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber createBuffConditionCheckRoundNumber(int round_number, bool not = false)
+        static public Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber createBuffConditionCheckRoundNumber(int round_number, bool not = false)
         {
             var c = Helpers.Create<Kingmaker.UnitLogic.Buffs.Conditions.BuffConditionCheckRoundNumber>();
             c.RoundNumber = round_number;
@@ -419,7 +419,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextValue createSimpleContextValue(int value)
+        static public ContextValue createSimpleContextValue(int value)
         {
             var v = new ContextValue();
             v.Value = value;
@@ -428,7 +428,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion createSpontaneousSpellConversion(BlueprintCharacterClass character_class, params BlueprintAbility[] spells)
+        static public Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion createSpontaneousSpellConversion(BlueprintCharacterClass character_class, params BlueprintAbility[] spells)
         {
             var sc = Helpers.Create<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>();
             sc.CharacterClass = character_class;
@@ -437,7 +437,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType alignment)
+        static public Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType alignment)
         {
             var p = Helpers.Create<Kingmaker.Blueprints.Classes.Prerequisites.PrerequisiteAlignment>();
             p.Alignment = alignment;
@@ -445,7 +445,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility createAddCasterLevelToAbility(BlueprintAbility spell, int bonus)
+        static public Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility createAddCasterLevelToAbility(BlueprintAbility spell, int bonus)
         {
             var a = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddCasterLevelForAbility>();
             a.Bonus = bonus;
@@ -453,7 +453,7 @@ namespace CallOfTheWild
             return a;
         }
 
-        static internal PrerequisiteArchetypeLevel createPrerequisiteArchetypeLevel(BlueprintCharacterClass character_class, BlueprintArchetype archetype, int level, bool any = false)
+        static public PrerequisiteArchetypeLevel createPrerequisiteArchetypeLevel(BlueprintCharacterClass character_class, BlueprintArchetype archetype, int level, bool any = false)
         {
             var p = Helpers.Create<PrerequisiteArchetypeLevel>();
             p.CharacterClass = character_class;
@@ -464,7 +464,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency createArcaneArmorProficiency(params Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[] armor)
+        static public Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency createArcaneArmorProficiency(params Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[] armor)
         {
             var p = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency>();
             p.Armor = armor;
@@ -472,14 +472,14 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry createSpellsLevelEntry(params int[] count)
+        static public Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry createSpellsLevelEntry(params int[] count)
         {
             var s = new Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry();
             s.Count = count;
             return s;
         }
 
-        static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpellsTable(string name, string guid, params Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry[] levels)
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpellsTable(string name, string guid, params Kingmaker.Blueprints.Classes.Spells.SpellsLevelEntry[] levels)
         {
             var t = Helpers.Create<Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable>();
             t.name = name;
@@ -489,7 +489,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsPerDay(string name, string guid)
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsPerDay(string name, string guid)
         {
             return createSpellsTable(name, guid,
                                        Common.createSpellsLevelEntry(),  //0
@@ -517,7 +517,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsKnown(string name, string guid)
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsKnown(string name, string guid)
         {
             return createSpellsTable(name, guid,
                                        Common.createSpellsLevelEntry(),  //0
@@ -545,7 +545,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride createEmptyHandWeaponOverride(BlueprintItemWeapon weapon)
+        static public Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride createEmptyHandWeaponOverride(BlueprintItemWeapon weapon)
         {
             var c = Helpers.Create<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>();
             c.Weapon = weapon;
@@ -553,7 +553,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal RemoveFeatureOnApply createRemoveFeatureOnApply(BlueprintFeature feature)
+        static public RemoveFeatureOnApply createRemoveFeatureOnApply(BlueprintFeature feature)
         {
             var c = Helpers.Create<RemoveFeatureOnApply>();
             c.Feature = feature;
@@ -561,7 +561,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+        static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                                       params BlueprintUnitFact[] facts)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
@@ -578,7 +578,7 @@ namespace CallOfTheWild
             addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, buff_to_add, action);
         }
 
-        static internal void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Conditional conditional_action)
+        static public void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Conditional conditional_action)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
             {
@@ -595,7 +595,7 @@ namespace CallOfTheWild
 
 
 
-        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+        static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                               params BlueprintUnitFact[] facts)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
@@ -613,7 +613,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, Conditional conditional_action)
+        static public void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, Conditional conditional_action)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
             {
@@ -625,7 +625,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.WeaponTypeSizeChange createWeaponTypeSizeChange(int size_change, params BlueprintWeaponType[] types)
+        static public NewMechanics.WeaponTypeSizeChange createWeaponTypeSizeChange(int size_change, params BlueprintWeaponType[] types)
         {
             var w = Helpers.Create<NewMechanics.WeaponTypeSizeChange>();
             w.SizeCategoryChange = size_change;
@@ -634,19 +634,19 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
+        static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
         {
             addContextActionApplyBuffOnFactsToActivatedAbilityBuff(target_buff, buff_to_add, new Kingmaker.ElementsSystem.GameAction[0], facts);
         }
 
 
-        static internal void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
+        static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, params BlueprintUnitFact[] facts)
         {
             addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(target_buff, buff_to_add, new Kingmaker.ElementsSystem.GameAction[0], facts);
         }
 
 
-        static internal Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect createAddAreaEffect(BlueprintAbilityAreaEffect area_effect)
+        static public Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect createAddAreaEffect(BlueprintAbilityAreaEffect area_effect)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect>();
             a.AreaEffect = area_effect;
@@ -654,7 +654,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
+        static public AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTrigger(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
                                                                                                       bool check_weapon_range_type = false, bool reduce_hp_to_zero = false,
                                                                                                       bool on_initiator = false,
                                                                                                       AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee,
@@ -674,7 +674,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignment(DamageAlignment alignment, bool check_range = false, bool is_ranged = false)
+        static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignment(DamageAlignment alignment, bool check_range = false, bool is_ranged = false)
         {
             var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
             a.AddAlignment = true;
@@ -685,7 +685,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingGhost(bool check_range = false, bool is_ranged = false)
+        static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingGhost(bool check_range = false, bool is_ranged = false)
         {
             var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
             a.CheckRange = check_range;
@@ -697,7 +697,7 @@ namespace CallOfTheWild
 
 
 
-        static internal NewMechanics.ContextWeaponTypeDamageBonus createContextWeaponTypeDamageBonus(ContextValue bonus, params BlueprintWeaponType[] weapon_types)
+        static public NewMechanics.ContextWeaponTypeDamageBonus createContextWeaponTypeDamageBonus(ContextValue bonus, params BlueprintWeaponType[] weapon_types)
         {
             var c = Helpers.Create<NewMechanics.ContextWeaponTypeDamageBonus>();
             c.Value = bonus;
@@ -705,7 +705,7 @@ namespace CallOfTheWild
             return c;
         }
 
-        internal static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description, string selection_guid)
+        public static BlueprintFeatureSelection copyRenameSelection(string original_selection_guid, string name_prefix, string description, string selection_guid)
         {
             var old_selection = library.Get<BlueprintFeatureSelection>(original_selection_guid);
             var new_selection = library.CopyAndAdd<BlueprintFeatureSelection>(original_selection_guid, name_prefix + old_selection, selection_guid);
@@ -729,7 +729,7 @@ namespace CallOfTheWild
 
 
 
-        internal static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+        public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
                                                      BlueprintCharacterClass[] classes, AlignmentComponent smite_alignment)
         {
             var new_context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes);
@@ -738,7 +738,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+        public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
                                              ContextRankConfig new_context_rank_config, AlignmentComponent smite_alignment)
         {
             var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name + "Ability", ability_guid);
@@ -777,7 +777,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintCharacterClass character_class, BlueprintArchetype archetype)
+        public static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintCharacterClass character_class, BlueprintArchetype archetype)
         {
             var p = Helpers.Create<PrerequisiteNoArchetype>();
             p.Archetype = archetype;
@@ -785,7 +785,7 @@ namespace CallOfTheWild
             return p;
         }
 
-        internal static BlueprintFeature createSpellResistance(string name, string display_name, string description, string guid, BlueprintCharacterClass character_class, int start_value)
+        public static BlueprintFeature createSpellResistance(string name, string display_name, string description, string guid, BlueprintCharacterClass character_class, int start_value)
         {
             var spell_resistance = library.CopyAndAdd<BlueprintFeature>("01182bcee8cb41640b7fa1b1ad772421", //monk diamond soul
                                                                         name,
@@ -802,7 +802,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static SpellResistanceAgainstSpellDescriptor createSpellResistanceAgainstSpellDescriptor(ContextValue value, SpellDescriptor descriptor)
+        public static SpellResistanceAgainstSpellDescriptor createSpellResistanceAgainstSpellDescriptor(ContextValue value, SpellDescriptor descriptor)
         {
             var sr = Helpers.Create<SpellResistanceAgainstSpellDescriptor>();
             sr.SpellDescriptor = descriptor;
@@ -811,7 +811,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDR(int dr_value, DamageAlignment alignment)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDR(int dr_value, DamageAlignment alignment)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Alignment = alignment;
@@ -823,7 +823,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMatrialDR(int dr_value, PhysicalDamageMaterial material)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMatrialDR(int dr_value, PhysicalDamageMaterial material)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Material = material;
@@ -836,7 +836,7 @@ namespace CallOfTheWild
 
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createPhysicalDR(int dr_value)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createPhysicalDR(int dr_value)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.BypassedByMaterial = false;
@@ -846,7 +846,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextPhysicalDR(ContextValue value)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextPhysicalDR(ContextValue value)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.BypassedByMaterial = false;
@@ -855,7 +855,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(int dr_value)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(int dr_value)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.BypassedByMagic = true;
@@ -866,7 +866,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static AddCondition createAddCondition(UnitCondition condition)
+        public static AddCondition createAddCondition(UnitCondition condition)
         {
             var a = Helpers.Create<AddCondition>();
             a.Condition = condition;
@@ -874,7 +874,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDRContextRank(DamageAlignment alignment, AbilityRankType rank = AbilityRankType.StatBonus)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createAlignmentDRContextRank(DamageAlignment alignment, AbilityRankType rank = AbilityRankType.StatBonus)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Alignment = alignment;
@@ -884,7 +884,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDR(int dr_value, DamageEnergyType energy)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDR(int dr_value, DamageEnergyType energy)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>();
             feat.Type = energy;
@@ -895,7 +895,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy, AbilityRankType rank = AbilityRankType.StatBonus, int multiplier = 1)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy createEnergyDRContextRank(DamageEnergyType energy, AbilityRankType rank = AbilityRankType.StatBonus, int multiplier = 1)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>();
             feat.Type = energy;
@@ -906,7 +906,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static void addClassToDomains(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureSelection domain_selection)
+        public static void addClassToDomains(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureSelection domain_selection)
         {
             var domains = domain_selection.AllFeatures;
             foreach (var domain_feature in domains)
@@ -1149,7 +1149,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.AddConditionImmunity createAddConditionImmunity(UnitCondition condition)
+        static public Kingmaker.UnitLogic.FactLogic.AddConditionImmunity createAddConditionImmunity(UnitCondition condition)
         {
             Kingmaker.UnitLogic.FactLogic.AddConditionImmunity c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddConditionImmunity>();
             c.Condition = condition;
@@ -1157,7 +1157,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor createSavingThrowBonusAgainstDescriptor(int bonus, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
+        static public Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor createSavingThrowBonusAgainstDescriptor(int bonus, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
         {
             Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor c = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.SavingThrowBonusAgainstDescriptor>();
             c.Value = bonus;
@@ -1168,7 +1168,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal SavingThrowBonusAgainstAlignment createSavingThrowBonusAgainstAlignment(int bonus, ModifierDescriptor descriptor, AlignmentComponent alignment)
+        static public SavingThrowBonusAgainstAlignment createSavingThrowBonusAgainstAlignment(int bonus, ModifierDescriptor descriptor, AlignmentComponent alignment)
         {
             var c = Helpers.Create<SavingThrowBonusAgainstAlignment>();
             c.Value = bonus;
@@ -1178,7 +1178,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor createContextSavingThrowBonusAgainstDescriptor(ContextValue value, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
+        static public Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor createContextSavingThrowBonusAgainstDescriptor(ContextValue value, ModifierDescriptor descriptor, SpellDescriptor spell_descriptor)
         {
             var c = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.SavingThrowContextBonusAgainstDescriptor>();
             c.ModifierDescriptor = descriptor;
@@ -1188,7 +1188,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal SavingThrowBonusAgainstSchool createSavingThrowBonusAgainstSchool(int bonus, ModifierDescriptor descriptor, SpellSchool school)
+        static public SavingThrowBonusAgainstSchool createSavingThrowBonusAgainstSchool(int bonus, ModifierDescriptor descriptor, SpellSchool school)
         {
             var c = Helpers.Create<SavingThrowBonusAgainstSchool>();
             c.School = school;
@@ -1198,7 +1198,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.BuffEnchantWornItem createBuffEnchantWornItem(Kingmaker.Blueprints.Items.Ecnchantments.BlueprintItemEnchantment enchantment)
+        static public Kingmaker.UnitLogic.FactLogic.BuffEnchantWornItem createBuffEnchantWornItem(Kingmaker.Blueprints.Items.Ecnchantments.BlueprintItemEnchantment enchantment)
         {
             var b = Helpers.Create<BuffEnchantWornItem>();
             b.Enchantment = enchantment;
@@ -1206,7 +1206,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity createAddEnergyDamageImmunity(DamageEnergyType energy_type)
+        static public Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity createAddEnergyDamageImmunity(DamageEnergyType energy_type)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddEnergyDamageImmunity>();
             a.EnergyType = energy_type;
@@ -1214,7 +1214,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityUnitCommand createActivatableAbilityUnitCommand(CommandType command_type)
+        static public Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityUnitCommand createActivatableAbilityUnitCommand(CommandType command_type)
         {
             var a = Helpers.Create<ActivatableAbilityUnitCommand>();
             a.Type = command_type;
@@ -1222,7 +1222,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.AttackTypeAttackBonus createAttackTypeAttackBonus(ContextValue value, AttackTypeAttackBonus.WeaponRangeType attack_type,
+        static public Kingmaker.Designers.Mechanics.Facts.AttackTypeAttackBonus createAttackTypeAttackBonus(ContextValue value, AttackTypeAttackBonus.WeaponRangeType attack_type,
                                                                                                               ModifierDescriptor descriptor)
         {
             var a = Helpers.Create<AttackTypeAttackBonus>();
@@ -1235,7 +1235,7 @@ namespace CallOfTheWild
 
 
 
-        static internal BlueprintActivatableAbility createSwitchActivatableAbilityOnlyBuff(string name, string switch_guid, string ability_guid,
+        static public BlueprintActivatableAbility createSwitchActivatableAbilityOnlyBuff(string name, string switch_guid, string ability_guid,
                                                             BlueprintBuff effect, BlueprintBuff target_buff, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                             UnityEngine.AnimationClip animation,
                                                             ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
@@ -1275,7 +1275,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
+        static public BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
                                                                     BlueprintBuff effect, BlueprintBuff target_buff, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                     UnityEngine.AnimationClip animation,
                                                                     ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
@@ -1299,7 +1299,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
+        static public BlueprintFeature createSwitchActivatableAbilityBuff(string name, string switch_guid, string ability_guid, string feature_guid,
                                                                             BlueprintBuff effect, BlueprintBuff target_buff, UnityEngine.AnimationClip animation,
                                                                             ActivatableAbilityGroup group = ActivatableAbilityGroup.None, int weight = 1,
                                                                             CommandType command_type = CommandType.Free, CommandType unit_command = CommandType.Free)
@@ -1310,7 +1310,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextActionRemoveBuffsByDescriptor createContextActionRemoveBuffsByDescriptor(SpellDescriptor descriptor, bool not_self = true)
+        static public ContextActionRemoveBuffsByDescriptor createContextActionRemoveBuffsByDescriptor(SpellDescriptor descriptor, bool not_self = true)
         {
             var r = Helpers.Create<ContextActionRemoveBuffsByDescriptor>();
             r.SpellDescriptor = descriptor;
@@ -1319,7 +1319,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value, int multiplier = 1)
+        static public NewMechanics.AddContextEffectFastHealing createAddContextEffectFastHealing(ContextValue value, int multiplier = 1)
         {
             var a = Helpers.Create<NewMechanics.AddContextEffectFastHealing>();
             a.Value = value;
@@ -1328,7 +1328,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent createAuraFeatureComponent(BlueprintBuff buff)
+        static public Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent createAuraFeatureComponent(BlueprintBuff buff)
         {
             var a = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AuraFeatureComponent>();
             a.Buff = buff;
@@ -1336,7 +1336,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.Mechanics.Actions.ContextActionHealTarget createContextActionHealTarget(ContextDiceValue value)
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionHealTarget createContextActionHealTarget(ContextDiceValue value)
         {
             var c = Helpers.Create<ContextActionHealTarget>();
             c.Value = value;
@@ -1344,14 +1344,14 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
+        static public Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.ArmorProficiencies = armor;
             return a;
         }
 
-        static internal Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddWeaponProficiencies(params WeaponCategory[] weapons)
+        static public Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddWeaponProficiencies(params WeaponCategory[] weapons)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.WeaponProficiencies = weapons;
@@ -1359,7 +1359,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddEnergyVulnerability createAddEnergyVulnerability(DamageEnergyType energy)
+        static public AddEnergyVulnerability createAddEnergyVulnerability(DamageEnergyType energy)
         {
             var a = Helpers.Create<AddEnergyVulnerability>();
             a.Type = energy;
@@ -1367,14 +1367,14 @@ namespace CallOfTheWild
         }
 
 
-        static internal AbilityCasterHasNoFacts createAbilityCasterHasNoFacts(params BlueprintUnitFact[] facts)
+        static public AbilityCasterHasNoFacts createAbilityCasterHasNoFacts(params BlueprintUnitFact[] facts)
         {
             var a = Helpers.Create<AbilityCasterHasNoFacts>();
             a.Facts = facts;
             return a;
         }
 
-        static internal AbilityCasterHasFacts createAbilityCasterHasFacts(params BlueprintUnitFact[] facts)
+        static public AbilityCasterHasFacts createAbilityCasterHasFacts(params BlueprintUnitFact[] facts)
         {
             var a = Helpers.Create<AbilityCasterHasFacts>();
             a.Facts = facts;
@@ -1382,7 +1382,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddGenericStatBonus createAddGenericStatBonus(int bonus, ModifierDescriptor descriptor, StatType stat)
+        static public AddGenericStatBonus createAddGenericStatBonus(int bonus, ModifierDescriptor descriptor, StatType stat)
         {
             var a = Helpers.Create<AddGenericStatBonus>();
             a.Stat = stat;
@@ -1392,7 +1392,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ChangeUnitSize createChangeUnitSize(Size size)
+        static public ChangeUnitSize createChangeUnitSize(Size size)
         {
             var c = Helpers.Create<ChangeUnitSize>();
             c.Size = size;
@@ -1401,12 +1401,12 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
+        static public void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
         {
             addReplaceSpellbook(selection, spellbook, name, spellbook.Name, components);
         }
 
-        static internal void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, string display_name, params BlueprintComponent[] components)
+        static public void addReplaceSpellbook(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, string display_name, params BlueprintComponent[] components)
         {
             var feature = Helpers.Create<BlueprintFeatureReplaceSpellbook>();
             feature.name = name;
@@ -1422,7 +1422,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addMTDivineSpellbookProgression(BlueprintCharacterClass @class, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
+        static public void addMTDivineSpellbookProgression(BlueprintCharacterClass @class, BlueprintSpellbook spellbook, string name, params BlueprintComponent[] components)
         {
             var mt_divine_spellbook_selection = library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
             BlueprintProgression cleric_progression = mt_divine_spellbook_selection.AllFeatures[0] as BlueprintProgression;
@@ -1451,7 +1451,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal List<BlueprintFeature> CreateSpontaneousDivineCasterSpellSelectionForMt(string name, BlueprintCharacterClass @class, BlueprintSpellbook spellbook)
+        static public List<BlueprintFeature> CreateSpontaneousDivineCasterSpellSelectionForMt(string name, BlueprintCharacterClass @class, BlueprintSpellbook spellbook)
         {
             List<BlueprintFeature> features1 = new List<BlueprintFeature>();
             List<BlueprintFeature> features2 = new List<BlueprintFeature>();
@@ -1510,7 +1510,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal PrerequisiteClassSpellLevel createPrerequisiteClassSpellLevel(BlueprintCharacterClass character_class, int spell_level)
+        static public PrerequisiteClassSpellLevel createPrerequisiteClassSpellLevel(BlueprintCharacterClass character_class, int spell_level)
         {
             var p = Helpers.Create<PrerequisiteClassSpellLevel>();
             p.CharacterClass = character_class;
@@ -1519,7 +1519,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextActionRemoveBuff createContextActionRemoveBuff(BlueprintBuff buff)
+        static public ContextActionRemoveBuff createContextActionRemoveBuff(BlueprintBuff buff)
         {
             var r = Helpers.Create<ContextActionRemoveBuff>();
             r.Buff = buff;
@@ -1527,7 +1527,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.SavingThrowBonusAgainstSpecificSpells createSavingThrowBonusAgainstSpecificSpells(int bonus, ModifierDescriptor descriptor, params BlueprintAbility[] spells)
+        static public NewMechanics.SavingThrowBonusAgainstSpecificSpells createSavingThrowBonusAgainstSpecificSpells(int bonus, ModifierDescriptor descriptor, params BlueprintAbility[] spells)
         {
             var s = Helpers.Create<NewMechanics.SavingThrowBonusAgainstSpecificSpells>();
             s.Spells = spells;
@@ -1537,7 +1537,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AbilityTargetHasFact createAbilityTargetHasFact(bool inverted, params BlueprintUnitFact[] facts)
+        static public AbilityTargetHasFact createAbilityTargetHasFact(bool inverted, params BlueprintUnitFact[] facts)
         {
 
             var a = Helpers.Create<AbilityTargetHasFact>();
@@ -1547,7 +1547,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster createAbilityTargetHasNoFactUnlessBuffsFromCaster(BlueprintBuff[] target_buffs,
+        static public NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster createAbilityTargetHasNoFactUnlessBuffsFromCaster(BlueprintBuff[] target_buffs,
                                                                                                           params BlueprintBuff[] alternative_buffs)
         {
             var h = Helpers.Create<NewMechanics.AbilityTargetHasNoFactUnlessBuffsFromCaster>();
@@ -1557,7 +1557,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetIsPartyMember createAbilityTargetIsPartyMember(bool val = false)
+        static public Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetIsPartyMember createAbilityTargetIsPartyMember(bool val = false)
         {
             var a = Helpers.Create<AbilityTargetIsPartyMember>();
             a.Not = !val;
@@ -1565,7 +1565,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AbilityShowIfCasterHasFact createAbilityShowIfCasterHasFact(BlueprintUnitFact fact)
+        static public AbilityShowIfCasterHasFact createAbilityShowIfCasterHasFact(BlueprintUnitFact fact)
         {
             var a = Helpers.Create<AbilityShowIfCasterHasFact>();
             a.UnitFact = fact;
@@ -1573,7 +1573,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextConditionHasFact createContextConditionHasFact(BlueprintUnitFact fact, bool has = true)
+        static public ContextConditionHasFact createContextConditionHasFact(BlueprintUnitFact fact, bool has = true)
         {
             var c = Helpers.Create<ContextConditionHasFact>();
             c.Fact = fact;
@@ -1582,7 +1582,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextConditionCasterHasFact createContextConditionCasterHasFact(BlueprintUnitFact fact, bool has = true)
+        static public ContextConditionCasterHasFact createContextConditionCasterHasFact(BlueprintUnitFact fact, bool has = true)
         {
             var c = Helpers.Create<ContextConditionCasterHasFact>();
             c.Fact = fact;
@@ -1601,7 +1601,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ClassLevelsForPrerequisites createClassLevelsForPrerequisites(BlueprintCharacterClass fake_class, BlueprintCharacterClass actual_class, double modifier = 1.0, int summand = 0)
+        static public ClassLevelsForPrerequisites createClassLevelsForPrerequisites(BlueprintCharacterClass fake_class, BlueprintCharacterClass actual_class, double modifier = 1.0, int summand = 0)
         {
             var c = Helpers.Create<ClassLevelsForPrerequisites>();
             c.ActualClass = actual_class;
@@ -1612,7 +1612,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ACBonusAgainstFactOwner createACBonusAgainstFactOwner(int bonus, ModifierDescriptor descriptor, BlueprintUnitFact fact)
+        static public ACBonusAgainstFactOwner createACBonusAgainstFactOwner(int bonus, ModifierDescriptor descriptor, BlueprintUnitFact fact)
         {
             var a = Helpers.Create<ACBonusAgainstFactOwner>();
             a.Bonus = bonus;
@@ -1622,7 +1622,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addTemworkFeats(params BlueprintFeature[] feats)
+        static public void addTemworkFeats(params BlueprintFeature[] feats)
         {
 
             var tactical_leader_feat_share_buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
@@ -1664,7 +1664,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddFeatureIfHasFact createAddFeatureIfHasFact(BlueprintUnitFact fact, BlueprintUnitFact feature, bool not = false)
+        static public AddFeatureIfHasFact createAddFeatureIfHasFact(BlueprintUnitFact fact, BlueprintUnitFact feature, bool not = false)
         {
             var a = Helpers.Create<AddFeatureIfHasFact>();
             a.CheckedFact = fact;
@@ -1674,7 +1674,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BuffExtraAttack createBuffExtraAttack(int num, bool haste)
+        static public BuffExtraAttack createBuffExtraAttack(int num, bool haste)
         {
             var b = Helpers.Create<BuffExtraAttack>();
             b.Number = num;
@@ -1683,7 +1683,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextConditionIsCaster createContextConditionIsCaster(bool not = false)
+        static public ContextConditionIsCaster createContextConditionIsCaster(bool not = false)
         {
             var c = Helpers.Create<ContextConditionIsCaster>();
             c.Not = not;
@@ -1691,7 +1691,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddWearinessHours createAddWearinessHours(int hours)
+        static public AddWearinessHours createAddWearinessHours(int hours)
         {
             var a = Helpers.Create<AddWearinessHours>();
             a.Hours = hours;
@@ -1699,7 +1699,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AbilityScoreCheckBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor, StatType stat)
+        static public AbilityScoreCheckBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor, StatType stat)
         {
             var a = Helpers.Create<AbilityScoreCheckBonus>();
             a.Bonus = bonus;
@@ -1709,7 +1709,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextActionResurrect createContextActionResurrect(float result_health, bool full_restore = false)
+        static public ContextActionResurrect createContextActionResurrect(float result_health, bool full_restore = false)
         {
             var c = Helpers.Create<ContextActionResurrect>();
             c.ResultHealth = result_health;
@@ -1718,7 +1718,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ContextActionRemoveBuffFromCaster createContextActionRemoveBuffFromCaster(BlueprintBuff buff, int delay = 0)
+        static public NewMechanics.ContextActionRemoveBuffFromCaster createContextActionRemoveBuffFromCaster(BlueprintBuff buff, int delay = 0)
         {
             var c = Helpers.Create<NewMechanics.ContextActionRemoveBuffFromCaster>();
             c.Buff = buff;
@@ -1727,7 +1727,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintBuff effect_buff, string prefix)
+        static public BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintBuff effect_buff, string prefix)
         {
             var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
             var ability_buff = library.CopyAndAdd<BlueprintBuff>(base_ability.Buff.AssetGuid, prefix + "Buff", "");
@@ -1751,7 +1751,7 @@ namespace CallOfTheWild
 
 
 
-        static internal BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintAbilityAreaEffect area, string prefix,
+        static public BlueprintActivatableAbility convertPerformance(BlueprintActivatableAbility base_ability, BlueprintAbilityAreaEffect area, string prefix,
                                                                                                                                      UnityEngine.Sprite icon, string display_name, string description)
         {
             var ability = library.CopyAndAdd<BlueprintActivatableAbility>(base_ability.AssetGuid, prefix + "Ability", "");
@@ -1772,7 +1772,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ContextActionDispelMagic createContextActionDispelMagic(SpellDescriptor spell_descriptor, SpellSchool[] schools, RuleDispelMagic.CheckType check_type,
+        static public ContextActionDispelMagic createContextActionDispelMagic(SpellDescriptor spell_descriptor, SpellSchool[] schools, RuleDispelMagic.CheckType check_type,
                                                                                  ContextValue max_spell_level = null, ContextValue max_caster_level = null)
         {
             var c = Helpers.Create<ContextActionDispelMagic>();
@@ -1794,7 +1794,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.CrowdAlliesACBonus createCrowdAlliesACBonus(int min_num_allies_around, ContextValue value, int radius = 2)
+        static public NewMechanics.CrowdAlliesACBonus createCrowdAlliesACBonus(int min_num_allies_around, ContextValue value, int radius = 2)
         {
             var c = Helpers.Create<NewMechanics.CrowdAlliesACBonus>();
             c.num_allies_around = min_num_allies_around;
@@ -1804,7 +1804,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true, string guid = "")
+        static public BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",
                                                      ability.Name,
@@ -1823,7 +1823,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintFeature ActivatableAbilityToFeature(BlueprintActivatableAbility ability, bool hide = true, string guid = "")
+        static public BlueprintFeature ActivatableAbilityToFeature(BlueprintActivatableAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",
                                                      ability.Name,
@@ -1842,14 +1842,14 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ComeAndGetMe createComeAndGetMe()
+        static public NewMechanics.ComeAndGetMe createComeAndGetMe()
         {
             var c = Helpers.Create<NewMechanics.ComeAndGetMe>();
             return c;
         }
 
 
-        internal static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
+        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
         {
             var clear_variants = variants.Distinct().ToArray();
             List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
@@ -1879,7 +1879,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addToFactInContextConditionHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
+        static public void addToFactInContextConditionHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
                                                        Condition condition_to_add = null)
         {
             var component = buff.GetComponent<AddFactContextActions>();
@@ -1916,7 +1916,7 @@ namespace CallOfTheWild
 
 
 
-        static internal NewMechanics.ContextWeaponDamageBonus createContextWeaponDamageBonus(ContextValue bonus, bool apply_to_melee = true, bool apply_to_ranged = false, bool apply_to_thrown = true,
+        static public NewMechanics.ContextWeaponDamageBonus createContextWeaponDamageBonus(ContextValue bonus, bool apply_to_melee = true, bool apply_to_ranged = false, bool apply_to_thrown = true,
                                                                                              bool scale_2h = true)
         {
             var c = Helpers.Create<NewMechanics.ContextWeaponDamageBonus>();
@@ -1929,7 +1929,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.VitalStrikeScalingDamage createVitalStrikeScalingDamage(ContextValue value, int multiplier = 1)
+        static public NewMechanics.VitalStrikeScalingDamage createVitalStrikeScalingDamage(ContextValue value, int multiplier = 1)
         {
             var v = Helpers.Create<NewMechanics.VitalStrikeScalingDamage>();
             v.Value = value;
@@ -1938,7 +1938,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal SavingThrowBonusAgainstAbilityType createSavingThrowBonusAgainstAbilityType(int base_value, ContextValue bonus, AbilityType ability_type)
+        static public SavingThrowBonusAgainstAbilityType createSavingThrowBonusAgainstAbilityType(int base_value, ContextValue bonus, AbilityType ability_type)
         {
             var b = Helpers.Create<SavingThrowBonusAgainstAbilityType>();
             b.Value = base_value;
@@ -1947,7 +1947,7 @@ namespace CallOfTheWild
             return b;
         }
 
-        static internal PrerequisiteParametrizedFeature createPrerequisiteParametrizedFeatureWeapon(BlueprintParametrizedFeature feature, WeaponCategory category, bool any = false)
+        static public PrerequisiteParametrizedFeature createPrerequisiteParametrizedFeatureWeapon(BlueprintParametrizedFeature feature, WeaponCategory category, bool any = false)
         {
             var p = Helpers.Create<PrerequisiteParametrizedFeature>();
             p.Feature = feature;
@@ -1958,7 +1958,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ForbidSpellCastingUnlessHasClass createForbidSpellCastingUnlessHasClass(bool forbid_magic_items, params BlueprintCharacterClass[] classes)
+        static public NewMechanics.ForbidSpellCastingUnlessHasClass createForbidSpellCastingUnlessHasClass(bool forbid_magic_items, params BlueprintCharacterClass[] classes)
         {
             var f = Helpers.Create<NewMechanics.ForbidSpellCastingUnlessHasClass>();
             f.allowed_classes = classes;
@@ -1967,7 +1967,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.EnchantmentMechanics.WeaponDamageStatReplacement createWeaponDamageStatReplacementEnchantment(StatType stat)
+        static public NewMechanics.EnchantmentMechanics.WeaponDamageStatReplacement createWeaponDamageStatReplacementEnchantment(StatType stat)
         {
             var w = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageStatReplacement>();
             w.Stat = stat;
@@ -1976,7 +1976,7 @@ namespace CallOfTheWild
 
 
 
-        static internal BlueprintWeaponEnchantment createWeaponEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, GameObject fx_prefab, params BlueprintComponent[] components)
+        static public BlueprintWeaponEnchantment createWeaponEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, GameObject fx_prefab, params BlueprintComponent[] components)
         {
             var e = Helpers.Create<BlueprintWeaponEnchantment>();
             Helpers.SetField(e, "m_IdentifyDC", identify_dc);
@@ -1994,7 +1994,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintArmorEnchantment createArmorEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, int cost, params BlueprintComponent[] components)
+        static public BlueprintArmorEnchantment createArmorEnchantment(string name, string display_name, string description, string prefix, string suffix, string guid, int identify_dc, int cost, params BlueprintComponent[] components)
         {
             var e = Helpers.Create<BlueprintArmorEnchantment>();
             Helpers.SetField(e, "m_IdentifyDC", identify_dc);
@@ -2011,20 +2011,20 @@ namespace CallOfTheWild
             return e;
         }
 
-        static internal NewMechanics.EnchantmentMechanics.WeaponAttackStatReplacement createWeaponAttackStatReplacementEnchantment(StatType stat)
+        static public NewMechanics.EnchantmentMechanics.WeaponAttackStatReplacement createWeaponAttackStatReplacementEnchantment(StatType stat)
         {
             var w = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponAttackStatReplacement>();
             w.Stat = stat;
             return w;
         }
 
-        static internal void addEnchantment(BlueprintItemWeapon weapon, params BlueprintWeaponEnchantment[] enchantments)
+        static public void addEnchantment(BlueprintItemWeapon weapon, params BlueprintWeaponEnchantment[] enchantments)
         {
             BlueprintWeaponEnchantment[] original_enchantments = Helpers.GetField<BlueprintWeaponEnchantment[]>(weapon, "m_Enchantments");
             Helpers.SetField(weapon, "m_Enchantments", original_enchantments.AddToArray(enchantments));
         }
 
-        static internal DamageTypeDescription createEnergyDamageDescription(DamageEnergyType energy)
+        static public DamageTypeDescription createEnergyDamageDescription(DamageEnergyType energy)
         {
             var d = new DamageTypeDescription();
             d.Energy = energy;
@@ -2033,7 +2033,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
+        static public NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
                                                                                                                    bool only_non_magical, bool lock_slot,
                                                                                                                    BlueprintWeaponType[] allowed_types,
                                                                                                                    params BlueprintWeaponEnchantment[] enchantments)
@@ -2047,7 +2047,7 @@ namespace CallOfTheWild
             return b;
         }
 
-        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
+        static public NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintWeaponEnchantment[] enchantments)
         {
@@ -2055,7 +2055,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
+        static public NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintArmorEnchantment[] enchantments)
         {
@@ -2068,7 +2068,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AbilityCasterMainWeaponCheck createAbilityCasterMainWeaponCheck(params WeaponCategory[] category)
+        static public AbilityCasterMainWeaponCheck createAbilityCasterMainWeaponCheck(params WeaponCategory[] category)
         {
             var a = Helpers.Create<AbilityCasterMainWeaponCheck>();
             a.Category = category;
@@ -2076,7 +2076,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool lock_slot,
+        static public NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool lock_slot,
                                                                                                                             BlueprintWeaponType[] allowed_types, BlueprintWeaponEnchantment enchantment)
         {
             var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic>();
@@ -2089,7 +2089,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AddParametrizedFeatures createAddParametrizedFeatures(BlueprintParametrizedFeature feature, WeaponCategory category)
+        static public AddParametrizedFeatures createAddParametrizedFeatures(BlueprintParametrizedFeature feature, WeaponCategory category)
         {
             var data = Activator.CreateInstance(ParametrizedFeatureData);
             Helpers.SetField(data, "Feature", feature);
@@ -2103,7 +2103,7 @@ namespace CallOfTheWild
             return a;
         }
 
-        static internal IncreaseActivatableAbilityGroupSize createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup group)
+        static public IncreaseActivatableAbilityGroupSize createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup group)
         {
             var i = Helpers.Create<IncreaseActivatableAbilityGroupSize>();
             i.Group = group;
@@ -2111,7 +2111,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal ReplaceStatForPrerequisites createReplace34BabWithClassLevel(BlueprintCharacterClass character_class)
+        static public ReplaceStatForPrerequisites createReplace34BabWithClassLevel(BlueprintCharacterClass character_class)
         {
             var r = Helpers.Create<ReplaceStatForPrerequisites>();
             r.Policy = ReplaceStatForPrerequisites.StatReplacementPolicy.MagusBaseAttack;
@@ -2121,7 +2121,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ContextWeaponDamageDiceReplacement createContextWeaponDamageDiceReplacement(BlueprintParametrizedFeature[] required_parametrized_features,
+        static public NewMechanics.ContextWeaponDamageDiceReplacement createContextWeaponDamageDiceReplacement(BlueprintParametrizedFeature[] required_parametrized_features,
                                                                                                                  ContextValue value, params DiceFormula[] dice_formulas)
         {
             var c = Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacement>();
@@ -2132,7 +2132,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical,
+        static public NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup group, bool only_non_magical,
                                                                                                                                        bool lock_slot, params BlueprintWeaponEnchantment[] enchants)
         {
             var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
@@ -2145,7 +2145,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantArmor createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup group, bool only_non_magical,
+        static public NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantArmor createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup group, bool only_non_magical,
                                                                                                                                        bool lock_slot, params BlueprintArmorEnchantment[] enchants)
         {
             var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantArmor>();
@@ -2158,7 +2158,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal WeaponGroupAttackBonus createWeaponGroupAttackBonus(int bonus, ModifierDescriptor descriptor, WeaponFighterGroup group)
+        static public WeaponGroupAttackBonus createWeaponGroupAttackBonus(int bonus, ModifierDescriptor descriptor, WeaponFighterGroup group)
         {
             WeaponGroupAttackBonus w = Helpers.Create<WeaponGroupAttackBonus>();
             w.AttackBonus = bonus;
@@ -2168,7 +2168,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValue(ContextValue value, params ActionList[] actions)
+        static public NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValue(ContextValue value, params ActionList[] actions)
         {
             var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
             r.value = value;
@@ -2177,7 +2177,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal WeaponDamageAgainstAlignment createWeaponDamageAgainstAlignment(DamageEnergyType energy, DamageAlignment damage_alignment, AlignmentComponent enemy_alignment,
+        static public WeaponDamageAgainstAlignment createWeaponDamageAgainstAlignment(DamageEnergyType energy, DamageAlignment damage_alignment, AlignmentComponent enemy_alignment,
                                                                                         ContextDiceValue value)
         {
             var w = Helpers.Create<WeaponDamageAgainstAlignment>();
@@ -2189,7 +2189,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.ContextActionSpendResource createContextActionSpendResource(BlueprintAbilityResource resource, int amount, params BlueprintUnitFact[] cost_reducing_facts)
+        static public NewMechanics.ContextActionSpendResource createContextActionSpendResource(BlueprintAbilityResource resource, int amount, params BlueprintUnitFact[] cost_reducing_facts)
         {
             var c = Helpers.Create<NewMechanics.ContextActionSpendResource>();
             c.amount = amount;
@@ -2199,7 +2199,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal WeaponEnergyDamageDice weaponEnergyDamageDice(DamageEnergyType energy, DiceFormula dice_formula)
+        static public WeaponEnergyDamageDice weaponEnergyDamageDice(DamageEnergyType energy, DiceFormula dice_formula)
         {
             var w = Helpers.Create<WeaponEnergyDamageDice>();
             w.Element = energy;
@@ -2208,7 +2208,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal EvasionAgainstDescriptor createEvasionAgainstDescriptor(SpellDescriptor descriptor, SavingThrowType save_type)
+        static public EvasionAgainstDescriptor createEvasionAgainstDescriptor(SpellDescriptor descriptor, SavingThrowType save_type)
         {
             var e = Helpers.Create<EvasionAgainstDescriptor>();
             e.SpellDescriptor = descriptor;
@@ -2217,7 +2217,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.AddEnergyDamageDurability createAddEnergyDamageDurability(DamageEnergyType energy, float scaling_factor)
+        static public NewMechanics.AddEnergyDamageDurability createAddEnergyDamageDurability(DamageEnergyType energy, float scaling_factor)
         {
             var a = Helpers.Create<NewMechanics.AddEnergyDamageDurability>();
             a.scaling = scaling_factor;
@@ -2226,7 +2226,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal NewMechanics.AbilityTargetCompositeOr createAbilityTargetCompositeOr(bool not, params IAbilityTargetChecker[] checkers)
+        static public NewMechanics.AbilityTargetCompositeOr createAbilityTargetCompositeOr(bool not, params IAbilityTargetChecker[] checkers)
         {
             var c = Helpers.Create<NewMechanics.AbilityTargetCompositeOr>();
             c.ability_checkers = checkers;
@@ -2235,7 +2235,7 @@ namespace CallOfTheWild
         }
 
 
-        static internal AbilityTargetHasCondition createAbilityTargetHasCondition(UnitCondition condition, bool not = false)
+        static public AbilityTargetHasCondition createAbilityTargetHasCondition(UnitCondition condition, bool not = false)
         {
             var c = Helpers.Create<AbilityTargetHasCondition>();
             c.Condition = condition;
@@ -2256,7 +2256,7 @@ namespace CallOfTheWild
 
 
 
-        static internal BlueprintFeature createMonkFeatureUnlock(BlueprintFeature feature, bool no_weapon)
+        static public BlueprintFeature createMonkFeatureUnlock(BlueprintFeature feature, bool no_weapon)
         {
             var feature_unlock = Helpers.CreateFeature(feature.name + "Unlock",
                                                         feature.Name,
