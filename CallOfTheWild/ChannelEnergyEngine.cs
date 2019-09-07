@@ -283,6 +283,7 @@ namespace CallOfTheWild
         }
 
 
+
         static void storeChannel(BlueprintAbility ability, BlueprintFeature parent_feature, ChannelType channel_type)
         {
             switch (channel_type)
@@ -320,6 +321,10 @@ namespace CallOfTheWild
             var amount = resource_logic.Amount;
             extra_channel.ReplaceComponent<IncreaseResourceAmount>(c => { c.Value = amount * 2; c.Resource = resource; });
             extra_channel.ReplaceComponent<PrerequisiteFeature>(c => { c.Feature = parent_feature; });
+
+            //update items
+            var ring_of_energy_source_feature = library.Get<BlueprintFeature>("c372cd498006fcf4ab4c9ed6b92515a9");
+            ring_of_energy_source_feature.AddComponent(extra_channel.GetComponent<IncreaseResourceAmount>());
 
             library.AddFeats(extra_channel);
             return extra_channel;

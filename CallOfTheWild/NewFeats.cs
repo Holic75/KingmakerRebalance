@@ -41,6 +41,7 @@ namespace CallOfTheWild
         static internal BlueprintParametrizedFeature deity_favored_weapon;
         static internal BlueprintFeature guided_hand;
         static internal BlueprintFeature deadeyes_blessing;
+        static internal BlueprintFeature paladin_channel_extra;
 
         static internal void load()
         {
@@ -58,7 +59,45 @@ namespace CallOfTheWild
             createPlanarWildShape();
             createGuidedHand();
             createDeadeyesBlessing();
+            createExtraChannelPaladin();
         }
+
+
+        static void createExtraChannelPaladin()
+        {
+            var paladin_extra_channel_resource = Helpers.CreateAbilityResource("PaladinExtraChannelResource", "", "", "", null);
+            paladin_extra_channel_resource.SetFixedResource(0);
+
+            var paladin_channel_energy = library.Get<BlueprintFeature>("cb6d55dda5ab906459d18a435994a760");
+            var paladin_heal = library.Get<BlueprintAbility>("6670f0f21a1d7f04db2b8b115e8e6abf");
+            var paladin_harm = library.Get<BlueprintAbility>("4937473d1cfd7774a979b625fb833b47");
+
+            var heal_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
+                                                          "PaladinChannelEnergyHealLivingExtra",
+                                                          "",
+                                                          paladin_channel_energy,
+                                                          paladin_heal.GetComponent<ContextRankConfig>(),
+                                                          Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1),
+                                                          true);
+            heal_living_extra.SetDescription(paladin_heal.Description);
+            heal_living_extra.SetName(paladin_heal.Name + " (Extra)");
+
+
+            var harm_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                              "PaladinChannelEnergyHarmUndeadExtra",
+                                              "",
+                                              paladin_channel_energy,
+                                              paladin_harm.GetComponent<ContextRankConfig>(),
+                                              Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1),
+                                              true);
+
+            harm_undead_extra.SetDescription(paladin_harm.Description);
+            harm_undead_extra.SetName(paladin_harm.Name + " (Extra)");
+            paladin_channel_energy.AddComponent(Helpers.CreateAddFacts(heal_living_extra, harm_undead_extra));
+            paladin_channel_energy.AddComponent(Helpers.CreateAddAbilityResource(paladin_extra_channel_resource));
+            paladin_channel_extra = ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, paladin_channel_energy, "ExtraChannelPaladin", "Extra Channel (Paladin)", "");
+        }
+
 
         static void createDeadeyesBlessing()
         {

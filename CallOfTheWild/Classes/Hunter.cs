@@ -519,7 +519,7 @@ namespace CallOfTheWild
             var inflict_light_wounds = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
             var feat = CallOfTheWild.Helpers.CreateFeature("FeykillerAnimalFocusFeature",
                                                             "Feykiller Animal Focus",
-                                                            "A feykiller emulates animals that grant her the ability to unmask fey trickery. She adds crow, goat, shark and turtle to her animal focus ability instead of the bear, frog, monkey and mouse choices.",
+                                                            "A feykiller emulates animals that grant her the ability to unmask fey trickery. She adds crow, goat, shark, moongoose and turtle to her animal focus ability instead of the bear, frog, monkey, mouse and snake choices.",
                                                             "0c7d1530b6e6464793add007315337c9",
                                                             inflict_light_wounds.Icon,
                                                             FeatureGroup.None,

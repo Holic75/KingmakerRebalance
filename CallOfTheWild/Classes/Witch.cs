@@ -400,6 +400,7 @@ namespace CallOfTheWild
                                                                         witch_channel_negative, context_rank_config_negative);
             var negative_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm, "WitchNegativeHarm", "ba94b10d81bb4497886e50ce9d4d96ce",
                                                                         witch_channel_negative, context_rank_config_negative);
+
             witch_channel_positive.AddComponent(Helpers.CreateAddFacts(channel_energy_fact, positive_heal, positive_harm));
             witch_channel_negative.AddComponent(Helpers.CreateAddFacts(channel_energy_fact, negative_heal, negative_harm));
 
