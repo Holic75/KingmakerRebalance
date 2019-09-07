@@ -68,6 +68,7 @@ namespace CallOfTheWild
         static internal BlueprintBuff athach_form;
 
         static internal BlueprintFeature toss_feature;
+        static internal BlueprintFeature engulf;
 
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
@@ -119,6 +120,7 @@ namespace CallOfTheWild
         static internal void load()
         {
             createToss();
+            createEngulf();
             fixBeastShape1();
             fixBeastShape2();
             fixBeastShape3();
@@ -138,6 +140,82 @@ namespace CallOfTheWild
 
             fixDruid();
             fixTransmuter();
+        }
+
+        static void createEngulf()
+        {
+            var dmg_action = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(2)));
+            var acid_maw = library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
+
+            engulf = Helpers.CreateFeature("EngulfFeature",
+                                           "Engulf",
+                                           "Giant Flytrap can close its jaws completely around the foe which is at least two size categories smaller than it, by making a grapple combat maneuver check. If it succeeds, it engulfs the prey and inflicts its bite damage plus 2d6 acid damage every turn as the cavity floods with digestive enzymes. The seal formed is airtight, so an engulfed creature risks suffocation. Engulf is a special form of pinning, and an engulfed creature can escape in the same way as he can from being pinned, but since an engulfed creature is contained wholly inside the plant‘s jaws, the flytrap’s victim cannot be targeted by effects or attacks that require line of sight or line of effect. A giant flytrap that is grappling or pinning a foe cannot attack other targets with that bite, but is not otherwise hindered. It can not simultaneously engulf more than 3 foes.",
+                                            "",
+                                            acid_maw.Icon,
+                                            FeatureGroup.None
+                                            );
+
+            var engulf_self = Helpers.CreateBuff("EngulfSelfBuff",
+                                                 engulf.Name,
+                                                 engulf.Description,
+                                                 "",
+                                                 engulf.Icon,
+                                                 null,
+                                                 Helpers.Create<BuffExtraAttack>(b => b.Number = -1),
+                                                 Helpers.CreateAddFactContextActions(newRound: Helpers.CreateConditional(Common.createContextConditionCasterHasFact(engulf, false), 
+                                                                                                                         Helpers.Create<ContextActionRemoveSelf>())
+                                                                                    )
+                                                 );
+
+            var remove_engulf_self = Helpers.Create<ContextActionOnContextCaster>(c => c.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = engulf_self)));
+            var engulf_buff = Helpers.CreateBuff("EngulfTargetBuff",
+                                                 engulf_self.Name,
+                                                 engulf_self.Description,
+                                                 "",
+                                                 engulf_self.Icon,
+                                                 null,
+                                                 Helpers.CreateAddFactContextActions(newRound: new GameAction[] { dmg_action, Helpers.Create<ContextActionDealWeaponDamage>(),
+                                                                                                                  Helpers.CreateConditional(Common.createContextConditionCasterHasFact(engulf, false),
+                                                                                                                                             Helpers.Create<ContextActionRemoveSelf>())},
+                                                                                     deactivated: new GameAction[] { remove_engulf_self })
+                                                 );
+
+            engulf_self.Stacking = StackingType.Stack;
+
+            var swallow = Helpers.Create<ContextActionSwallowWhole>(c => c.TargetBuff = engulf_buff);
+            var apply_engulf_self = Common.createContextActionApplyBuff(engulf_self, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false);
+            var swallow_self = Helpers.Create<ContextActionOnContextCaster>(c => c.Actions = Helpers.CreateActionList(apply_engulf_self));
+            var engulf_action = Helpers.Create<ContextActionCombatManeuver>(c =>
+                                                                            {
+                                                                                c.IgnoreConcealment = true;
+                                                                                c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Grapple;
+                                                                                c.OnSuccess = Helpers.CreateActionList(swallow, swallow_self);
+                                                                            }
+                                                                            );
+            var engulf_enabled = Helpers.CreateBuff("EngulfEnabledBuff",
+                                                    "Enable Engulf",
+                                                    engulf_buff.Description,
+                                                    "",
+                                                    engulf_buff.Icon,
+                                                    null);
+
+            var engulf_ability = Helpers.CreateActivatableAbility("EnableEngulfActivatableAbility",
+                                                                  engulf_enabled.Name,
+                                                                  engulf_enabled.Description,
+                                                                  "",
+                                                                  engulf_enabled.Icon,
+                                                                  engulf_enabled,
+                                                                  AbilityActivationType.Immediately,
+                                                                  CommandType.Free,
+                                                                  null);
+            engulf_ability.DeactivateImmediately = true;
+
+            var effect_action = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(engulf_enabled), 
+                                                                          Helpers.Create<NewMechanics.ContextConditionCasterSizeGreater>(c => c.size_delta = 2),
+                                                                          Helpers.Create<NewMechanics.ContextConditionCasterBuffRankLess>(c => {c.buff = engulf_self; c.rank = 3;})}, 
+                                                                          engulf_action);
+            engulf.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect_action)));
+            engulf.AddComponent(Helpers.CreateAddFact(engulf_ability));
         }
 
 
@@ -697,14 +775,18 @@ namespace CallOfTheWild
             BlueprintUnit giant_flytrap = library.Get<BlueprintUnit>("fb824352b7968fb4d8103ac439644633");
             giant_flytrap_form = createPolymorphForm("PlantshapeIIIGiantFlytrapBuff",
                                                  "Plant Shape (Giant Flytrap)",
-                                                 "You are in giant flytrap form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have four 1d8 bite attacks, acid Resistance 20 and blindsight.",
+                                                 "You are in giant flytrap form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have four 1d8 bite attacks, acid Resistance 20, immunity to trip and blindsight. It also has engulf ability.",
                                                  entangle.Icon,
                                                  giant_flytrap,
                                                  8, -2, 6, 6, 0, Size.Huge,
-                                                 giant_flytrap_bite, giant_flytrap_bite, new BlueprintItemWeapon[] { giant_flytrap_bite, giant_flytrap_bite },
+                                                 giant_flytrap_bite, null, new BlueprintItemWeapon[0],
+                                                 //giant_flytrap_bite, giant_flytrap_bite, new BlueprintItemWeapon[] { giant_flytrap_bite, giant_flytrap_bite },
                                                  library.Get<BlueprintFeature>("416386972c8de2e42953533c4946599a"), //acid resistance
-                                                 library.Get<BlueprintFeature>("236ec7f226d3d784884f066aa4be1570") //blindsight
+                                                 library.Get<BlueprintFeature>("236ec7f226d3d784884f066aa4be1570"), //blindsight
+                                                 library.Get<BlueprintFeature>("e0ac733ba38f74d46a1712c95b9874f2"), //trip immunity
+                                                 engulf
                                                  );
+            giant_flytrap_form.AddComponent(Helpers.Create<BuffExtraAttack>(b => b.Number = 3)); //+ bite x 3
 
             treant_form_spell = replaceForm(smilodon_form_spell, treant_form, "PlantShapeIIITreantAbility", "Plant Shape III (Treant)",
                                      "You become a Huge treant. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.");

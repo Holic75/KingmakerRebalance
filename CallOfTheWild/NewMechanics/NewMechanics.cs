@@ -2568,6 +2568,51 @@ namespace CallOfTheWild
                 this.CheckSettings();
             }
         }
+
+
+        public class ContextConditionCasterSizeGreater : ContextCondition
+        {
+            public int size_delta;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                if (Target == null)
+                {
+                    return false;
+                }
+
+                return (int)this.Context.MaybeCaster.Descriptor.State.Size - (int)this.Target.Unit.Descriptor.State.Size >= size_delta;
+            }
+        }
+
+
+        public class ContextConditionCasterBuffRankLess : ContextCondition
+        {
+            public BlueprintBuff buff;
+            public int rank;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                var caster = this.Context.MaybeCaster;
+                if (caster == null)
+                {
+                    return false;
+                }
+                return (caster.Buffs.Enumerable.Where(b => b.Blueprint == buff).Count() < rank);
+
+                
+            }
+        }
     }
 
 }
