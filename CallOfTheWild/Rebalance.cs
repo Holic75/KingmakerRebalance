@@ -430,6 +430,15 @@ namespace CallOfTheWild
 
             var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(defensive_stance_buff, dr_buff_stalwart, increased_dr_stalwart);
+
+
+            //fix resist energy for invulnerable rager
+            var resists = drs[3].GetComponents<ResistEnergyContext>();
+            foreach (var r in resists)
+            {
+                r.UseValueMultiplier = false;
+                r.ValueMultiplier = Common.createSimpleContextValue(1);
+            }
         }
 
         internal static void fixVitalStrike()

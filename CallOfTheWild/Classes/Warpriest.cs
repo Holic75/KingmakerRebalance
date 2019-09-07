@@ -1634,7 +1634,8 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.willNegates,
-                                                      Helpers.CreateRunActions(apply_minor_buff));
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom));
             minor_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic(minor_ability);
 
@@ -2335,7 +2336,8 @@ namespace CallOfTheWild
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.willNegates,
-                                                      Helpers.CreateRunActions(apply_minor_buff));
+                                                      Helpers.CreateRunActions(apply_minor_buff),
+                                                      Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom));
             minor_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic(minor_ability);
 
@@ -3389,7 +3391,8 @@ namespace CallOfTheWild
                                                       "Reflex partial",
                                                       Helpers.CreateRunActions(effect),
                                                       flare.GetComponent<AbilitySpawnFx>(),
-                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased)
+                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
+                                                      Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
                                                       );
 
             addBlessingResourceLogic(minor_ability);
