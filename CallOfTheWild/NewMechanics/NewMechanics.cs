@@ -2609,10 +2609,31 @@ namespace CallOfTheWild
                     return false;
                 }
                 return (caster.Buffs.Enumerable.Where(b => b.Blueprint == buff).Count() < rank);
-
-                
             }
         }
+
+
+        public class ContextActionSpitOut : ContextAction
+        {
+          
+            public override string GetCaption()
+            {
+                return "Spit out";
+            }
+
+            public override void RunAction()
+            {
+                var caster = this.Context.MaybeCaster;
+
+                if (caster == null)
+                {
+                    return;
+                };
+                caster.Ensure<UnitPartSwallowWhole>().SpitOut(true);
+            }
+        }
+
+
     }
 
 }

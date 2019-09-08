@@ -156,28 +156,30 @@ namespace CallOfTheWild
                                             );
 
             var engulf_self = Helpers.CreateBuff("EngulfSelfBuff",
-                                                 engulf.Name,
+                                                 "Foe Engulfed",
                                                  engulf.Description,
                                                  "",
                                                  engulf.Icon,
                                                  null,
-                                                 Helpers.Create<BuffExtraAttack>(b => b.Number = -1),
-                                                 Helpers.CreateAddFactContextActions(newRound: Helpers.CreateConditional(Common.createContextConditionCasterHasFact(engulf, false), 
+                                                 Helpers.Create<BuffExtraAttack>(b => b.Number = -1)
+                                                 /*Helpers.CreateAddFactContextActions(newRound: Helpers.CreateConditional(Common.createContextConditionCasterHasFact(engulf, false), 
                                                                                                                          Helpers.Create<ContextActionRemoveSelf>())
-                                                                                    )
+                                                                                    )*/
                                                  );
 
             var remove_engulf_self = Helpers.Create<ContextActionOnContextCaster>(c => c.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = engulf_self)));
             var engulf_buff = Helpers.CreateBuff("EngulfTargetBuff",
-                                                 engulf_self.Name,
+                                                 "Engulfed",
                                                  engulf_self.Description,
                                                  "",
                                                  engulf_self.Icon,
                                                  null,
-                                                 Helpers.CreateAddFactContextActions(newRound: new GameAction[] { dmg_action, Helpers.Create<ContextActionDealWeaponDamage>(),
+                                                 Helpers.CreateAddFactContextActions(newRound: new GameAction[] { dmg_action, Helpers.Create<ContextActionDealWeaponDamage>() },
+                                                                                     deactivated: new GameAction[] { remove_engulf_self })
+                                                 /*Helpers.CreateAddFactContextActions(newRound: new GameAction[] { dmg_action, Helpers.Create<ContextActionDealWeaponDamage>(),
                                                                                                                   Helpers.CreateConditional(Common.createContextConditionCasterHasFact(engulf, false),
                                                                                                                                              Helpers.Create<ContextActionRemoveSelf>())},
-                                                                                     deactivated: new GameAction[] { remove_engulf_self })
+                                                                                     deactivated: new GameAction[] { remove_engulf_self })*/
                                                  );
 
             engulf_self.Stacking = StackingType.Stack;
@@ -193,11 +195,14 @@ namespace CallOfTheWild
                                                                             }
                                                                             );
             var engulf_enabled = Helpers.CreateBuff("EngulfEnabledBuff",
-                                                    "Enable Engulf",
+                                                    "Engulf",
                                                     engulf_buff.Description,
                                                     "",
                                                     engulf_buff.Icon,
-                                                    null);
+                                                    null,
+                                                    Helpers.CreateAddFactContextActions(deactivated: new GameAction[] {Helpers.Create<NewMechanics.ContextActionSpitOut>(),
+                                                                                                                       Common.createContextActionRemoveBuff(engulf_self)})
+                                                    );
 
             var engulf_ability = Helpers.CreateActivatableAbility("EnableEngulfActivatableAbility",
                                                                   engulf_enabled.Name,
