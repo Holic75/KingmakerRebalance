@@ -42,6 +42,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature guided_hand;
         static internal BlueprintFeature deadeyes_blessing;
         static internal BlueprintFeature paladin_channel_extra;
+        static internal BlueprintFeature channeling_scourge;
 
         static internal void load()
         {
@@ -60,6 +61,51 @@ namespace CallOfTheWild
             createGuidedHand();
             createDeadeyesBlessing();
             createExtraChannelPaladin();
+            createChannelingScourge();
+        }
+
+
+        static void createChannelingScourge()
+        {
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var inquisitor = library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
+            var cleric_channel = library.Get<BlueprintFeatureSelection>("d332c1748445e8f4f9e92763123e31bd");
+
+            var harm_undead = library.Get<BlueprintAbility>("279447a6bf2d3544d93a0a39c3b8e91d");
+            var harm_living = library.Get<BlueprintAbility>("89df18039ef22174b81052e2e419c728");
+
+
+            var channels = new BlueprintAbility[]{
+                                                    harm_undead,
+                                                    harm_living,
+                                                    ChannelEnergyEngine.getQuickChannelVariant(harm_undead),
+                                                    ChannelEnergyEngine.getQuickChannelVariant(harm_living),
+                                                    ChannelEnergyEngine.getChannelSmiteVariant(harm_undead),
+                                                    ChannelEnergyEngine.getChannelSmiteVariant(harm_living)
+                                                 };
+
+
+            channeling_scourge = Helpers.CreateFeature("ChannelingScourgeFeature",
+                                                       "Channeling Scourge",
+                                                       "When you use channel energy to deal damage, your inquisitor levels count as cleric levels for determining the number of damage dice and the saving throw DC",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.Feat,
+                                                       Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
+                                                                                                                               {
+                                                                                                                                   c.spells = channels;
+                                                                                                                                   c.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+                                                                                                                               }
+                                                                                                                               ),
+                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                       classes: new BlueprintCharacterClass[] { inquisitor },
+                                                                                       type: AbilityRankType.StatBonus
+                                                                                       ),
+                                                       Helpers.PrerequisiteClassLevel(cleric, 1),
+                                                       Helpers.PrerequisiteClassLevel(inquisitor, 1),
+                                                       Helpers.PrerequisiteFeature(cleric_channel)
+                                                       );
+            library.AddFeats(channeling_scourge);
         }
 
 

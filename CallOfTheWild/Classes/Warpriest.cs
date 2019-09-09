@@ -1614,10 +1614,10 @@ namespace CallOfTheWild
 
         static void createCharmBlessing()
         {
-            var sancturay_logic = Helpers.Create<NewMechanics.Sanctuary>(c =>
+            var sancturay_logic = Helpers.Create<SanctuaryMechanics.Sanctuary>(c =>
             {
                 c.save_type = SavingThrowType.Will;
-                c.offensive_action_effect = NewMechanics.Sanctuary.OffensiveActionEffect.REMOVE_FROM_TARGET;
+                c.offensive_action_effect = SanctuaryMechanics.OffensiveActionEffect.REMOVE_FROM_TARGET;
             });
             warpriest_blessing_special_sancturay_buff = library.CopyAndAdd<BlueprintBuff>("525f980cb29bc2240b93e953974cb325", "WarpriestSpecialSanctuaryBuff", "");//invisibility
             warpriest_blessing_special_sancturay_buff.ComponentsArray = new BlueprintComponent[] { sancturay_logic, Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting) };

@@ -69,6 +69,7 @@ namespace CallOfTheWild
         static BlueprintFeature selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
 
         static Dictionary<string, string> normal_quick_channel_map = new Dictionary<string, string>();
+        static Dictionary<string, string> normal_smite_map = new Dictionary<string, string>();
 
 
         static public BlueprintFeature quick_channel = null;
@@ -158,6 +159,8 @@ namespace CallOfTheWild
 
             channel_smite.AddComponent(Common.createAddFeatureIfHasFact(parent_feature, ability));
             parent_feature.AddComponent(Common.createAddFeatureIfHasFact(channel_smite, ability));
+
+            normal_smite_map.Add(channel.AssetGuid, ability.AssetGuid);
         }
 
 
@@ -229,6 +232,16 @@ namespace CallOfTheWild
                 return null;
             }
             return library.Get<BlueprintAbility>(normal_quick_channel_map[normal_channel_ability.AssetGuid]);
+        }
+
+
+        public static BlueprintAbility getChannelSmiteVariant(BlueprintAbility normal_channel_ability)
+        {
+            if (channel_smite == null)
+            {
+                return null;
+            }
+            return library.Get<BlueprintAbility>(normal_smite_map[normal_channel_ability.AssetGuid]);
         }
 
         public static BlueprintAbility createChannelEnergy(ChannelType channel_type, string name, string guid, BlueprintFeature parent_feature, 

@@ -452,7 +452,7 @@ namespace CallOfTheWild
                                                                      + "When a bloodrager enters a bloodrage, he often takes on a physical transformation influenced by his bloodline and powered by the magic that roils within him. Unless otherwise specified, he gains the effects of his bloodline powers only while in a bloodrage; once the bloodrage ends, all powers from his bloodline immediately cease, and any physical changes the bloodrager underwent revert, restoring him to normal.",
                                                                      "6eed80b1bfa9425e90c5981fb87dedf2",
                                                                      null,
-                                                                     FeatureGroup.None);
+                                                                     FeatureGroup.BloodLine);
             bloodline_selection.AllFeatures = new BlueprintFeature[] { AberrantBloodline.progression, AbyssalBloodline.progression, CelestialBloodline.progression, DestinedBloodline.progression,
                                                                        FeyBloodline.progression, InfernalBloodline.progression, UndeadBloodline.progression };
             bloodline_selection.AllFeatures = bloodline_selection.AllFeatures.AddToArray(DraconicBloodlines.progressions);

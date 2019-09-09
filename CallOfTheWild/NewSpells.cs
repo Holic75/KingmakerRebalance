@@ -379,10 +379,10 @@ namespace CallOfTheWild
         static void createSanctuary()
         {
             var lesser_restoration = library.Get<BlueprintAbility>("e84fc922ccf952943b5240293669b171");
-            var sancturay_logic = Helpers.Create<NewMechanics.Sanctuary>(c =>
+            var sancturay_logic = Helpers.Create<SanctuaryMechanics.Sanctuary>(c =>
                                                                          {
                                                                              c.save_type = SavingThrowType.Will;
-                                                                             c.offensive_action_effect = NewMechanics.Sanctuary.OffensiveActionEffect.REMOVE_FROM_OWNER;
+                                                                             c.offensive_action_effect = SanctuaryMechanics.OffensiveActionEffect.REMOVE_FROM_OWNER;
                                                                          }
                                                                          );
             sanctuary_buff = library.CopyAndAdd<BlueprintBuff>("525f980cb29bc2240b93e953974cb325", "SanctuaryBuff", "");//invisibility

@@ -1160,109 +1160,6 @@ namespace CallOfTheWild
             }
         }
 
-
-        [ComponentName("Sanctuary")]
-        [AllowedOn(typeof(BlueprintBuff))]
-        public class Sanctuary : BuffLogic, IUnitMakeOffensiveActionHandler, IUnitSubscriber
-        {
-
-            private List<UnitEntityData> can_not_attack = new List<UnitEntityData>();
-
-            private List<UnitEntityData> can_attack = new List<UnitEntityData>();
-            public SavingThrowType save_type;
-
-            public OffensiveActionEffect offensive_action_effect;
-
-            public bool canAttack(UnitEntityData unit)
-            {
-                if (can_attack.Contains(unit))
-                {
-                    return true;
-                }
-                if (can_not_attack.Contains(unit))
-                {
-                    return false;
-                }
-                var spell_descriptor = this.Buff.Blueprint.GetComponent<SpellDescriptorComponent>();
-                if (spell_descriptor != null
-                    && (UnitDescriptionHelper.GetDescription(unit.Blueprint).Immunities.SpellDescriptorImmunity.Value & spell_descriptor.Descriptor.Value) != 0)
-                {
-                    Common.AddBattleLogMessage($"{unit.CharacterName} is immune to {this.Fact.Name} of {Owner.CharacterName}");
-                    can_not_attack.Add(unit);
-                    return false;
-                }
-                RuleSavingThrow ruleSavingThrow = this.Context.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(unit, save_type, this.Context.Params.DC));
-                if (ruleSavingThrow.IsPassed)
-                {
-                    can_attack.Add(unit);
-                    Common.AddBattleLogMessage($"{unit.CharacterName} successfuly overcomes {this.Fact.Name} of {Owner.CharacterName}");
-                    return true;
-                }
-                else
-                {
-                    Common.AddBattleLogMessage($"{unit.CharacterName} fails to overcome {this.Fact.Name} of {Owner.CharacterName}");
-                    can_not_attack.Add(unit);
-                    return false;
-                }
-            }
-
-            public void HandleUnitMakeOffensiveAction(UnitEntityData target)
-            {
-                if (offensive_action_effect == OffensiveActionEffect.REMOVE_FROM_OWNER)
-                {
-                    this.Buff.Remove();
-                }
-                else if (offensive_action_effect == OffensiveActionEffect.REMOVE_FROM_TARGET && !can_attack.Contains(target))
-                {
-                    can_attack.Add(target);
-                    can_not_attack.Remove(target);
-                    Common.AddBattleLogMessage($"{Owner.CharacterName} invalidates {this.Fact.Name} against {target.CharacterName}");
-                }
-            }
-
-
-            public enum OffensiveActionEffect
-            {
-                REMOVE_FROM_OWNER,
-                REMOVE_FROM_TARGET
-            }
-        }
-
-
-        [Harmony12.HarmonyPatch(typeof(UnitCommand))]
-        [Harmony12.HarmonyPatch("CommandTargetUntargetable", Harmony12.MethodType.Normal)]
-        class UnitCommand__CommandTargetUntargetable__Patch
-        {
-            static BlueprintBuff[] sanctuary_buffs = new BlueprintBuff[] { NewSpells.sanctuary_buff, Warpriest.warpriest_blessing_special_sancturay_buff };
-            static void Postfix(EntityDataBase sourceEntity, UnitEntityData targetUnit, RulebookEvent evt, ref bool __result)
-            {
-                if (__result)
-                {
-                    return;
-                }
-
-                UnitEntityData unit = sourceEntity as UnitEntityData;
-                if (unit == null || unit.IsAlly(targetUnit) || evt != null)
-                {
-                    return;
-                }
-
-                foreach (var b in sanctuary_buffs)
-                {
-                    var target_sanctuary = targetUnit.Descriptor.Buffs.GetBuff(b);
-                    if (target_sanctuary != null)
-                    {
-                        if (!target_sanctuary.Get<Sanctuary>().canAttack(unit))
-                        {
-                            __result = true;
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-
         public class ActivatableAbilityAlignmentRestriction : ActivatableAbilityRestriction
         {
             [AlignmentMask]
@@ -2630,6 +2527,41 @@ namespace CallOfTheWild
                     return;
                 };
                 caster.Ensure<UnitPartSwallowWhole>().SpitOut(true);
+            }
+        }
+
+
+        [ComponentName("Increase specific spells CL")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseCasterLevelForSelectedSpells : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue value;
+            public BlueprintAbility[] spells;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (!spells.Contains(evt.Spell))
+                {
+                    return;
+                }
+                int bonus = this.value.Calculate(this.Context);
+                evt.AddBonusCasterLevel(bonus);
+                evt.AddBonusDC(- (bonus + 1) / 2);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
             }
         }
 

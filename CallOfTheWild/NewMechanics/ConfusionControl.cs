@@ -62,11 +62,52 @@ namespace CallOfTheWild
 {
     namespace ConfusionControl
     {
+
+        public class UnitPartConfusionControl : UnitPart
+        {
+            [JsonProperty]
+            private List<Buff> buffs = new List<Buff>();
+
+            public void addBuff(Buff buff)
+            {
+                buffs.Add(buff);
+            }
+
+
+            public void removeBuff(Buff buff)
+            {
+                buffs.Remove(buff);
+            }
+
+
+            public ConfusionState[] allowedConfusionStates()
+            {
+                if (buffs.Empty())
+                {
+                    return new ConfusionState[] { ConfusionState.ActNormally, ConfusionState.DoNothing, ConfusionState.AttackNearest, ConfusionState.SelfHarm };
+                }
+
+                return buffs.Last().Get<ControlConfusionBuff>().allowed_states;
+            }
+
+        }
+
         [ComponentName("BuffMechanics/Confusion Control")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
         public class ControlConfusionBuff : BuffLogic
         {
+            public override void OnTurnOn()
+            {
+                this.Owner.Ensure<UnitPartConfusionControl>().addBuff(this.Buff);
+            }
+
+
+            public override void OnTurnOff()
+            {
+                this.Owner.Ensure<UnitPartConfusionControl>().removeBuff(this.Buff);
+            }
+
             public ConfusionState[] allowed_states; 
         }
 
@@ -77,19 +118,14 @@ namespace CallOfTheWild
         {
             static bool Prefix(UnitConfusionController __instance, UnitEntityData unit)
             {
-                var allowed_states = new ConfusionState[] { ConfusionState.ActNormally, ConfusionState.DoNothing, ConfusionState.AttackNearest, ConfusionState.SelfHarm };
+                var allowed_states = new ConfusionState[0];
                 if (unit.Descriptor.State.HasCondition(UnitCondition.AttackNearest))
                 {
                     allowed_states = new ConfusionState[] { ConfusionState.AttackNearest };
                 }
                 else
                 {
-                    var control_confusion = unit.Buffs.SelectFactComponents<ControlConfusionBuff>().FirstOrDefault();
-
-                    if (control_confusion != null && !control_confusion.allowed_states.Empty())
-                    {
-                        allowed_states = control_confusion.allowed_states;
-                    }
+                    allowed_states = unit.Ensure<UnitPartConfusionControl>().allowedConfusionStates();
                 }
                 if (unit.Descriptor.State.HasCondition(UnitCondition.Confusion) || unit.Descriptor.State.HasCondition(UnitCondition.AttackNearest))
                 {
