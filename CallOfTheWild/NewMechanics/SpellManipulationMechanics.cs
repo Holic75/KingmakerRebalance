@@ -413,7 +413,7 @@ namespace CallOfTheWild
         }
 
 
-        public class ApplySpellOnCaster : AbilityConvertSpell
+        public class ApplySpellOnTarget : AbilityConvertSpell
         {
 
             public override void Apply(AbilityExecutionContext context, TargetWrapper target)
@@ -424,34 +424,17 @@ namespace CallOfTheWild
                     return;
                 else
                 {
-                    SpellSlot availableSpellSlot = GetAvailableSpellSlot(context.Ability.ParamSpellSlot.Spell);
-                    if (availableSpellSlot == null)
-                        return;
-                    else
-                    {
-                        applySpell(availableSpellSlot, context);
-                    }
-
+                    applySpell(context.Ability.ParamSpellSlot, context, target);
                 }
             }
 
-            private void applySpell(SpellSlot spell_slot, AbilityExecutionContext context)
+
+            private void applySpell(SpellSlot spell_slot, AbilityExecutionContext context, TargetWrapper target)
             {
-
                 var spell = getSpellOrVariant(spell_slot.Spell);
-
-                var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
-                if (sticky_touch != null)
-                {
-                    var touch_spell = new AbilityData(spell, sticky_touch.TouchDeliveryAbility);
-                    Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(touch_spell, context.Caster));
-                }
-                else
-                {
-                    Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, context.Caster));
-                }
-
                 spendSpellSlot(spell_slot);
+                spell.SpendMaterialComponent();
+                Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, target));
             }
         }
 

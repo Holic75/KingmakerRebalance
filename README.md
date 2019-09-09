@@ -30,6 +30,7 @@ New feats:
 - Stalwart and Improved Stalwart,
 - Quick Channel,
 - Channel Smite,
+- Channeling Scourge,
 - Deadeye's Blessing,
 - Guided Hand,
 - Planar Focus,

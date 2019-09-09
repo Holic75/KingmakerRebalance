@@ -556,6 +556,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
                 return;
             Harmony12.Traverse.Create(evt).Property("DamageBonusStat").SetValue(new StatType?());
+            evt.DoNotScaleDamage = true;
             //Helpers.SetField(evt, "DamageBonusStat", new StatType?());
         }
 
