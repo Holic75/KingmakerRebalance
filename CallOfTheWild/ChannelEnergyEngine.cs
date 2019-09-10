@@ -28,7 +28,9 @@ namespace CallOfTheWild
             PositiveHeal = 1,
             PositiveHarm = 2,
             NegativeHarm = 4,
-            NegativeHeal = 8
+            NegativeHeal = 8,
+            PositiveSmite = 16,
+            NegativeSmite = 32,
         }
 
         public class ChannelEntry
@@ -66,6 +68,9 @@ namespace CallOfTheWild
         static List<ChannelEntry> negative_heal = new List<ChannelEntry> { new ChannelEntry("9be3aa47a13d5654cbcb8dbd40c325f2", "3adb2c906e031ee41a01bfc1d5fb7eea") };
         static List<ChannelEntry> negative_harm = new List<ChannelEntry> { new ChannelEntry("89df18039ef22174b81052e2e419c728", "3adb2c906e031ee41a01bfc1d5fb7eea") };
 
+        static List<ChannelEntry> negative_smite = new List<ChannelEntry>();
+        static List<ChannelEntry> positive_smite = new List<ChannelEntry>();
+
         static BlueprintFeature selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
 
         static Dictionary<string, string> normal_quick_channel_map = new Dictionary<string, string>();
@@ -74,15 +79,82 @@ namespace CallOfTheWild
 
         static public BlueprintFeature quick_channel = null;
         static public BlueprintFeature channel_smite = null;
+        static public BlueprintFeature improved_channel = null;
 
+        static void addToImprovedChannel(BlueprintAbility ability, BlueprintFeature parent_feature)
+        {
+            if (improved_channel == null)
+            {
+                return;
+            }
+            var prereq = improved_channel.GetComponent<PrerequisiteFeaturesFromList>();
+            if (!prereq.Features.Contains(parent_feature))
+            {
+                prereq.Features = prereq.Features.AddToArray(parent_feature);
+            }
+
+            var abilities = improved_channel.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+
+            if (!abilities.spells.Contains(ability))
+            {
+                abilities.spells = abilities.spells.AddToArray(ability);
+            }
+        }
+
+
+        public static void createImprovedChannel()
+        {
+            improved_channel = Helpers.CreateFeature("ImprovedChannelFeature",
+                                                     "Improved Channel",
+                                                     "Add 2 to the DC of saving throws made to resist the effects of your channel energy ability.",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.Feat,
+                                                     Helpers.PrerequisiteFeaturesFromList(),
+                                                     Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 2; c.spells = new BlueprintAbility[0]; })
+                                                     );
+
+            foreach (var c in positive_heal)
+            {
+                addToImprovedChannel(c.ability, c.parent_feature);
+            }
+
+            foreach (var c in positive_harm)
+            {
+                addToImprovedChannel(c.ability, c.parent_feature);
+            }
+
+            foreach (var c in negative_heal)
+            {
+                addToImprovedChannel(c.ability, c.parent_feature);
+            }
+
+            foreach (var c in negative_harm)
+            {
+                addToImprovedChannel(c.ability, c.parent_feature);
+            }
+
+            foreach (var c in negative_smite)
+            {
+                addToImprovedChannel(c.ability, c.parent_feature);
+            }
+
+            foreach (var c in positive_smite)
+            {
+                addToImprovedChannel(c.ability, c.parent_feature);
+            }
+
+            library.AddCombatFeats(improved_channel);
+        }
 
         public static void createChannelSmite()
         {
+            var resounding_blow = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea");
             channel_smite = Helpers.CreateFeature("ChannelSmiteFeature",
                                       "Channel Smite",
                                       "Before you make a melee attack roll, you can choose to spend one use of your channel energy ability as a swift action. If you channel positive energy and you hit an undead creature, that creature takes an amount of additional damage equal to the damage dealt by your channel positive energy ability. If you channel negative energy and you hit a living creature, that creature takes an amount of additional damage equal to the damage dealt by your channel negative energy ability. Your target can make a Will save, as normal, to halve this additional damage. If your attack misses, the channel energy ability is still expended with no effect.",
                                       "",
-                                      null,
+                                      resounding_blow.Icon,
                                       FeatureGroup.Feat);
             channel_smite.Groups = channel_smite.Groups.AddToArray(FeatureGroup.CombatFeat);
 
@@ -114,12 +186,13 @@ namespace CallOfTheWild
 
             Common.addFeaturePrerequisiteOr(channel_smite, parent_feature);
 
+            var resounding_blow = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea");
             var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
             var buff = Helpers.CreateBuff("ChannelSmite" + channel.name + "Buff",
                                           $"Channel Smite ({channel.Name})",
                                           channel_smite.Description,
                                           Helpers.MergeIds(channel.AssetGuid, "0d406cf592524c85b796216ed4ee3ab3"),
-                                          channel.Icon,
+                                          resounding_blow.Icon,
                                           null,
                                           Common.createAddInitiatorAttackWithWeaponTrigger(channel.GetComponent<AbilityEffectRunAction>().Actions,
                                                                                            check_weapon_range_type: true),
@@ -161,6 +234,9 @@ namespace CallOfTheWild
             parent_feature.AddComponent(Common.createAddFeatureIfHasFact(channel_smite, ability));
 
             normal_smite_map.Add(channel.AssetGuid, ability.AssetGuid);
+
+            storeChannel(ability, parent_feature, channel_type == ChannelType.NegativeHarm ? ChannelType.NegativeSmite : ChannelType.PositiveSmite);
+
         }
 
 
@@ -283,7 +359,7 @@ namespace CallOfTheWild
 
             if (update_items)
             {
-                updateItemsForChannelDerivative(ability, prototype);
+                updateItemsForChannelDerivative(prototype, ability);
             }
 
 
@@ -313,7 +389,15 @@ namespace CallOfTheWild
                 case ChannelType.NegativeHeal:
                     negative_heal.Add(new ChannelEntry(ability, parent_feature));
                     break;
+                case ChannelType.PositiveSmite:
+                    negative_smite.Add(new ChannelEntry(ability, parent_feature));
+                    break;
+                case ChannelType.NegativeSmite:
+                    positive_smite.Add(new ChannelEntry(ability, parent_feature));
+                    break;
             }
+
+            addToImprovedChannel(ability, parent_feature);
         }
 
 
@@ -376,13 +460,18 @@ namespace CallOfTheWild
 
         static internal void updateItemsForChannelDerivative(BlueprintAbility original_ability, BlueprintAbility derived_ability)
         {
+            var config = original_ability.GetComponent<ContextRankConfig>();
+            ContextRankProgression progression = Helpers.GetField<ContextRankProgression>(config, "m_Progression");
+            int step = Helpers.GetField<int>(config, "m_StepLevel");
+            int level_scale = (progression == ContextRankProgression.OnePlusDivStep || progression == ContextRankProgression.DivStep || progression == ContextRankProgression.StartPlusDivStep)
+                                    ? step : 2;
             //phylacteries bonuses
             BlueprintEquipmentEnchantment[] enchants = new BlueprintEquipmentEnchantment[]{library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316"),
                                                                                   library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("f5d0bf8c1b4574848acb8d1fbb544807"),
                                                                                   library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("cb4a39044b59f5e47ad5bc08ff9d6669"),
                                                                                   library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("e988cf802d403d941b2ed8b6016de68f"),
                                                                                  };
-
+            
             foreach (var e in enchants)
             {
                 var boni = e.GetComponents<AddCasterLevelEquipment>().ToArray();
@@ -392,13 +481,14 @@ namespace CallOfTheWild
                     {
                         var b2 = b.CreateCopy();
                         b2.Spell = derived_ability;
+                        b2.Bonus = boni[0].Bonus / 2 * level_scale;
                         e.AddComponent(b2);
                     }
                 }
             }
 
 
-            BlueprintBuff[] buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("b5ebb94df76531c4ca4f13bfd91efd4e") };
+            BlueprintBuff[] buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("b5ebb94df76531c4ca4f13bfd91efd4e") };// camp dish buff
 
             foreach (var buff in buffs)
             {
@@ -409,6 +499,7 @@ namespace CallOfTheWild
                     {
                         var b2 = b.CreateCopy();
                         b2.Spell = derived_ability;
+                        b2.Bonus = boni[0].Bonus / 2 * level_scale;
                         buff.AddComponent(b2);
                     }
                 }

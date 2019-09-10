@@ -1374,7 +1374,7 @@ namespace CallOfTheWild
                                             allowed_classes,
                                             sacred_huntsmaster_archetype);
             bear_focus = createScaledFocus("BearFocus",
-                                            "Animal Fcous: Bear",
+                                            "Animal Focus: Bear",
                                             "The character gains a +2 enhancement bonus to Constitution. This bonus increases to +4 at 8th level and +6 at 15th level.",
                                             "dd96c3c629e94c17830a4d8f0fcdc08f",
                                             "de5113284399417e94a0e5c15cca5872",

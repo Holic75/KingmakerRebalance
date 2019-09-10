@@ -2566,6 +2566,40 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Increase specific spells CL without DC")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseCasterLevelWithoutDcForSelectedSpells : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue value;
+            public BlueprintAbility[] spells;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (!spells.Contains(evt.Spell))
+                {
+                    return;
+                }
+                int bonus = this.value.Calculate(this.Context);
+                evt.AddBonusCasterLevel(bonus);
+                evt.AddBonusDC(-bonus);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
     }
 
 }
