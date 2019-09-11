@@ -47,28 +47,28 @@ namespace CallOfTheWild
     {
         static internal BlueprintAbility beast_shape1 = library.Get<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9");
 
-        static internal LibraryScriptableObject library => Main.library;
-        static internal BlueprintBuff leopard_form = Main.library.Get<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc");
-        static internal BlueprintBuff bear_form = Main.library.Get<BlueprintBuff>("0c0afabcfddeecc40a1545a282f2bec8");
-        static internal BlueprintBuff smilodon_form = Main.library.Get<BlueprintBuff>("c38def68f6ce13b4b8f5e5e0c6e68d08");
+        static LibraryScriptableObject library => Main.library;
+        static public BlueprintBuff leopard_form = Main.library.Get<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc");
+        static public BlueprintBuff bear_form = Main.library.Get<BlueprintBuff>("0c0afabcfddeecc40a1545a282f2bec8");
+        static public BlueprintBuff smilodon_form = Main.library.Get<BlueprintBuff>("c38def68f6ce13b4b8f5e5e0c6e68d08");
 
-        static internal BlueprintAbility turn_back = library.Get<BlueprintAbility>("bd09b025ee2a82f46afab922c4decca9");
-        static internal BlueprintBuff dire_wolf_form;
-        static internal BlueprintBuff mastodon_form;
-        static internal BlueprintBuff hodag_form;
-        static internal BlueprintBuff winter_wolf_form;
-        static internal BlueprintBuff mandragora_form;
-        static internal BlueprintBuff shambling_mound_form;
-        static internal BlueprintBuff treant_form;
-        static internal BlueprintBuff giant_flytrap_form;
-        static internal BlueprintBuff fire_giant_form;
-        static internal BlueprintBuff frost_giant_form;
-        static internal BlueprintBuff troll_form;
-        static internal BlueprintBuff storm_giant_form;
-        static internal BlueprintBuff athach_form;
+        static public BlueprintAbility turn_back = library.Get<BlueprintAbility>("bd09b025ee2a82f46afab922c4decca9");
+        static public BlueprintBuff dire_wolf_form;
+        static public BlueprintBuff mastodon_form;
+        static public BlueprintBuff hodag_form;
+        static public BlueprintBuff winter_wolf_form;
+        static public BlueprintBuff mandragora_form;
+        static public BlueprintBuff shambling_mound_form;
+        static public BlueprintBuff treant_form;
+        static public BlueprintBuff giant_flytrap_form;
+        static public BlueprintBuff fire_giant_form;
+        static public BlueprintBuff frost_giant_form;
+        static public BlueprintBuff troll_form;
+        static public BlueprintBuff storm_giant_form;
+        static public BlueprintBuff athach_form;
 
-        static internal BlueprintFeature toss_feature;
-        static internal BlueprintFeature engulf;
+        static public BlueprintFeature toss_feature;
+        static public BlueprintFeature engulf;
 
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
@@ -88,33 +88,33 @@ namespace CallOfTheWild
         static BlueprintItemWeapon athach_claw = library.Get<BlueprintItemWeapon>("f8c9fc15f5966f74298cfb2b9bde0986");
         static BlueprintItemWeapon athach_bite = library.Get<BlueprintItemWeapon>("d2f99947db522e24293a7ec4eded453f");
 
-        static internal BlueprintAbility bear_form_spell;
-        static internal BlueprintAbility dire_wolf_form_spell;
-        static internal BlueprintAbility smilodon_form_spell = library.Get<BlueprintAbility>("502cd7fd8953ac74bb3a3df7e84818ae");
-        static internal BlueprintAbility mastodon_form_spell;
-        static internal BlueprintAbility leopard_form_spell;
-        static internal BlueprintAbility hodag_form_spell;
-        static internal BlueprintAbility winter_wolf_form_spell;
+        static public BlueprintAbility bear_form_spell;
+        static public BlueprintAbility dire_wolf_form_spell;
+        static public BlueprintAbility smilodon_form_spell = library.Get<BlueprintAbility>("502cd7fd8953ac74bb3a3df7e84818ae");
+        static public BlueprintAbility mastodon_form_spell;
+        static public BlueprintAbility leopard_form_spell;
+        static public BlueprintAbility hodag_form_spell;
+        static public BlueprintAbility winter_wolf_form_spell;
 
-        static internal BlueprintAbility treant_form_spell;
-        static internal BlueprintAbility giant_flytrap_form_spell;
-        static internal BlueprintAbility plant_shapeI;
-        static internal BlueprintAbility plant_shapeII;
-        static internal BlueprintAbility plant_shapeIII;
+        static public BlueprintAbility treant_form_spell;
+        static public BlueprintAbility giant_flytrap_form_spell;
+        static public BlueprintAbility plant_shapeI;
+        static public BlueprintAbility plant_shapeII;
+        static public BlueprintAbility plant_shapeIII;
 
-        static internal BlueprintAbility troll_form_spell;
-        static internal BlueprintAbility fire_giant_form_spell;
-        static internal BlueprintAbility frost_giant_form_spell;
-        static internal BlueprintAbility storm_giant_form_spell;
-        static internal BlueprintAbility athach_form_form_spell;
-        static internal BlueprintAbility giant_formI;
-        static internal BlueprintAbility giant_formII;
+        static public BlueprintAbility troll_form_spell;
+        static public BlueprintAbility fire_giant_form_spell;
+        static public BlueprintAbility frost_giant_form_spell;
+        static public BlueprintAbility storm_giant_form_spell;
+        static public BlueprintAbility athach_form_form_spell;
+        static public BlueprintAbility giant_formI;
+        static public BlueprintAbility giant_formII;
 
-        static internal BlueprintAbility shapechange;
+        static public BlueprintAbility shapechange;
 
 
-        static internal List<BlueprintAbility> animal_wildshapes = new List<BlueprintAbility>();
-        static internal BlueprintFeature first_wildshape_form;
+        static public List<BlueprintAbility> animal_wildshapes = new List<BlueprintAbility>();
+        static public BlueprintFeature first_wildshape_form;
 
 
         static internal void load()

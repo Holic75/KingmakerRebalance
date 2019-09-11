@@ -794,7 +794,7 @@ namespace CallOfTheWild
         Harmful = 0x40
     }
 
-    internal enum CasterSpellProgression
+    public enum CasterSpellProgression
     {
         FullCaster,
         ThreeQuartersCaster,
@@ -806,16 +806,15 @@ namespace CallOfTheWild
     // Benefits:
     // - less `static` noise.
     // - less `Helpers.` etc.
-    internal static class Helpers
+    public static class Helpers
     {
-        internal static class GuidStorage
+        public static class GuidStorage
         {
             static Dictionary<string, string> guids_in_use = new Dictionary<string, string>();
 
-            static internal void load(string file_content)
+            static public void load(string file_content)
             {
-               
-
+                guids_in_use = new Dictionary<string, string>();
                 using (System.IO.StringReader reader = new System.IO.StringReader(file_content))
                 {
                     string line;
@@ -827,7 +826,7 @@ namespace CallOfTheWild
                 }
             }
 
-            static internal void dump(string guid_file_name)
+            static public void dump(string guid_file_name)
             {
                 using (System.IO.StreamWriter sw = System.IO.File.CreateText(guid_file_name))
                 {
@@ -843,7 +842,7 @@ namespace CallOfTheWild
                 }
             }
 
-            static internal void addEntry(string name, string guid)
+            static public void addEntry(string name, string guid)
             {
                 string original_guid;
                 if (guids_in_use.TryGetValue(name, out original_guid))
@@ -860,7 +859,7 @@ namespace CallOfTheWild
             }
 
 
-            static internal string getGuid(string name)
+            static public string getGuid(string name)
             {
                 string original_guid;
                 if (guids_in_use.TryGetValue(name, out original_guid))
@@ -1144,7 +1143,7 @@ namespace CallOfTheWild
             return new FastInvoke(Harmony12.MethodInvoker.GetHandler(Harmony12.AccessTools.Method(type, name, args, typeArgs)));
         }
 
-        internal static LocalizedString CreateString(string key, string value)
+        public static LocalizedString CreateString(string key, string value)
         {
             // See if we used the text previously.
             // (It's common for many features to use the same localized text.
@@ -1171,7 +1170,7 @@ namespace CallOfTheWild
         static Dictionary<String, LocalizedString> textToLocalizedString = new Dictionary<string, LocalizedString>();
         static FastSetter localizedString_m_Key = Helpers.CreateFieldSetter<LocalizedString>("m_Key");
 
-        internal static Sprite GetIcon(string assetId)
+        public static Sprite GetIcon(string assetId)
         {
             var asset = (IUIDataProvider)Main.library.BlueprintsByAssetId[assetId];
             return asset.Icon;
@@ -1189,7 +1188,7 @@ namespace CallOfTheWild
         //
         // Essentially, this prevents us from inadvertantly break existing saves that
         // use features from the mod.
-        internal static String MergeIds(String guid1, String guid2, String guid3 = null)
+        public static String MergeIds(String guid1, String guid2, String guid3 = null)
         {
             // Parse into low/high 64-bit numbers, and then xor the two halves.
             ulong low = ParseGuidLow(guid1);
@@ -2399,11 +2398,11 @@ namespace CallOfTheWild
         public static BattleLogView GameLog => Game.Instance.UI.BattleLogManager.LogView;
     }
 
-    internal static class Log
+    public static class Log
     {
         static readonly StringBuilder str = new StringBuilder();
 
-        internal static void Flush()
+        public static void Flush()
         {
             if (str.Length == 0) return;
             Main.logger.Log(str.ToString());
@@ -2411,31 +2410,31 @@ namespace CallOfTheWild
         }
 
         [System.Diagnostics.Conditional("DEBUG")]
-        internal static void Write(String message)
+        public static void Write(String message)
         {
             Append(message);
             Flush();
         }
 
         [System.Diagnostics.Conditional("DEBUG")]
-        internal static void Append(String message)
+        public static void Append(String message)
         {
             str.AppendLine(message);
         }
 
-        internal static void Error(Exception e)
+        public static void Error(Exception e)
         {
             str.AppendLine(e.ToString());
             Flush();
         }
 
-        internal static void Error(String message)
+        public static void Error(String message)
         {
             str.AppendLine(message);
             Flush();
         }
 
-        internal static void Append(LevelEntry level, String indent = "", bool showSelection = false)
+        public static void Append(LevelEntry level, String indent = "", bool showSelection = false)
         {
             Append($"{indent}level {level.Level}");
             foreach (var f in level.Features)
@@ -2444,13 +2443,13 @@ namespace CallOfTheWild
             }
         }
 
-        internal static void Write(BlueprintScriptableObject fact, String indent = "", bool showSelection = false)
+        public static void Write(BlueprintScriptableObject fact, String indent = "", bool showSelection = false)
         {
             Append(fact, indent, showSelection);
             Flush();
         }
 
-        internal static void Append(BlueprintScriptableObject fact, String indent = "", bool showSelection = false)
+        public static void Append(BlueprintScriptableObject fact, String indent = "", bool showSelection = false)
         {
             if (fact == null)
             {
@@ -2572,7 +2571,7 @@ namespace CallOfTheWild
             }
         }
 
-        internal static void Append(BlueprintComponent c, String indent = "")
+        public static void Append(BlueprintComponent c, String indent = "")
         {
             var spellComp = c as SpellComponent;
             if (spellComp != null)
@@ -2719,7 +2718,7 @@ namespace CallOfTheWild
             }
         }
 
-        internal static void Append(GameAction action, String indent = "")
+        public static void Append(GameAction action, String indent = "")
         {
             try
             {
@@ -2810,7 +2809,7 @@ namespace CallOfTheWild
         }
 
         [System.Diagnostics.Conditional("DEBUG")]
-        internal static void Validate(BlueprintComponent c, BlueprintScriptableObject parent)
+        public static void Validate(BlueprintComponent c, BlueprintScriptableObject parent)
         {
             c.Validate(validation);
             if (validation.HasErrors)
@@ -2822,7 +2821,7 @@ namespace CallOfTheWild
             }
         }
 
-        internal static void MaybeFlush()
+        public static void MaybeFlush()
         {
             if (str.Length > 4096) Flush();
         }

@@ -39,55 +39,55 @@ namespace CallOfTheWild
         static LibraryScriptableObject library => Main.library;
         static BlueprintFeatureSelection rage_powers_selection => Main.library.Get<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e");
         static BlueprintFeatureSelection extra_rage_power_selection => Main.library.Get<BlueprintFeatureSelection>("0c7f01fbbe687bb4baff8195cb02fe6a");
-        static internal BlueprintBuff rage_buff => library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
+        static public BlueprintBuff rage_buff => library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
         static BlueprintActivatableAbility reckless_stance => library.Get<BlueprintActivatableAbility>("4ee08802b8a2b9b448d21f61e208a306");
         static BlueprintCharacterClass barbarian_class => ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
 
-        static internal BlueprintBuff rage_marker_caster;
+        static public BlueprintBuff rage_marker_caster;
 
-        static internal BlueprintFeature taunting_stance;
-        static internal BlueprintFeature terrifying_howl_feature;
-        static internal BlueprintAbility terrifying_howl_ability;
-        static internal BlueprintFeature quick_reflexes_feature;
+        static public BlueprintFeature taunting_stance;
+        static public BlueprintFeature terrifying_howl_feature;
+        static public BlueprintAbility terrifying_howl_ability;
+        static public BlueprintFeature quick_reflexes_feature;
 
-        static internal BlueprintFeature lesser_atavism_totem;
-        static internal BlueprintFeature atavism_totem;
-        static internal BlueprintFeature greater_atavism_totem;
+        static public BlueprintFeature lesser_atavism_totem;
+        static public BlueprintFeature atavism_totem;
+        static public BlueprintFeature greater_atavism_totem;
 
 
-        static internal BlueprintFeature lesser_spirit_totem;
+        static public BlueprintFeature lesser_spirit_totem;
         static BlueprintBuff lesser_spirit_totem_buff;
-        static internal BlueprintFeature spirit_totem;
-        static internal BlueprintFeature greater_spirit_totem;
-        static internal BlueprintItemWeapon lesser_spirit_totem_slam_attack;
-        static internal BlueprintItemWeapon greater_spirit_totem_slam_attack;
+        static public BlueprintFeature spirit_totem;
+        static public BlueprintFeature greater_spirit_totem;
+        static public BlueprintItemWeapon lesser_spirit_totem_slam_attack;
+        static public BlueprintItemWeapon greater_spirit_totem_slam_attack;
 
-        static internal BlueprintFeature unrestrained_rage_feature;
-
-
-        static internal BlueprintFeature lesser_celestial_totem;
-        static internal BlueprintBuff lesser_celestial_totem_buff;
-        static internal BlueprintFeature celestial_totem;
-        static internal BlueprintFeature greater_celestial_totem;
-        static internal BlueprintBuff greater_celestial_totem_buff;
+        static public BlueprintFeature unrestrained_rage_feature;
 
 
-        static internal BlueprintFeature lesser_daemon_totem;
-        static internal BlueprintBuff lesser_daemon_totem_buff;
-        static internal BlueprintFeature daemon_totem;
-        static internal BlueprintFeature greater_daemon_totem;
-        static internal BlueprintFeature superstition_feature;
-        static internal BlueprintBuff superstition_buff;
-        static internal BlueprintFeature ghost_rager_feature;
-        static internal BlueprintBuff ghost_rager_buff;
-        static internal BlueprintFeature witch_hunter_feature;
-        static internal BlueprintBuff witch_hunter_buff;
-
-        static internal BlueprintFeature[] energy_resistance_feature;
-        static internal BlueprintBuff[] energy_resistance_buff;
+        static public BlueprintFeature lesser_celestial_totem;
+        static public BlueprintBuff lesser_celestial_totem_buff;
+        static public BlueprintFeature celestial_totem;
+        static public BlueprintFeature greater_celestial_totem;
+        static public BlueprintBuff greater_celestial_totem_buff;
 
 
-        static internal List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
+        static public BlueprintFeature lesser_daemon_totem;
+        static public BlueprintBuff lesser_daemon_totem_buff;
+        static public BlueprintFeature daemon_totem;
+        static public BlueprintFeature greater_daemon_totem;
+        static public BlueprintFeature superstition_feature;
+        static public BlueprintBuff superstition_buff;
+        static public BlueprintFeature ghost_rager_feature;
+        static public BlueprintBuff ghost_rager_buff;
+        static public BlueprintFeature witch_hunter_feature;
+        static public BlueprintBuff witch_hunter_buff;
+
+        static public BlueprintFeature[] energy_resistance_feature;
+        static public BlueprintBuff[] energy_resistance_buff;
+
+
+        static public List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
 
 

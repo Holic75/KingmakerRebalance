@@ -32,24 +32,24 @@ namespace CallOfTheWild
     class NewSpells
     {
         static LibraryScriptableObject library => Main.library;
-        static internal BlueprintAbility shillelagh;
-        static internal BlueprintAbility flame_blade;
-        static internal BlueprintAbility virtuoso_performance;
-        static internal BlueprintAbility deadly_juggernaut;
-        static internal BlueprintAbility invisibility_purge;
-        static internal BlueprintAbility sanctuary;
-        static internal BlueprintBuff sanctuary_buff;
+        static public BlueprintAbility shillelagh;
+        static public BlueprintAbility flame_blade;
+        static public BlueprintAbility virtuoso_performance;
+        static public BlueprintAbility deadly_juggernaut;
+        static public BlueprintAbility invisibility_purge;
+        static public BlueprintAbility sanctuary;
+        static public BlueprintBuff sanctuary_buff;
 
-        static internal BlueprintAbility command;
-        static internal BlueprintAbility fire_shield;
-        static internal Dictionary<DamageEnergyType, BlueprintBuff> fire_shield_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
-        static internal Dictionary<DamageEnergyType, BlueprintAbility> fire_shield_variants = new Dictionary<DamageEnergyType, BlueprintAbility>();
-
-
-        static internal BlueprintAbility strong_jaw;
+        static public BlueprintAbility command;
+        static public BlueprintAbility fire_shield;
+        static public Dictionary<DamageEnergyType, BlueprintBuff> fire_shield_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
+        static public Dictionary<DamageEnergyType, BlueprintAbility> fire_shield_variants = new Dictionary<DamageEnergyType, BlueprintAbility>();
 
 
-        static internal BlueprintAbility contingency;
+        static public BlueprintAbility strong_jaw;
+
+
+        static public BlueprintAbility contingency;
 
         static public void load()
         {

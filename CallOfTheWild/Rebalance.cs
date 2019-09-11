@@ -31,7 +31,7 @@ namespace CallOfTheWild
     public class Rebalance
     {
         static LibraryScriptableObject library => Main.library;
-        public static void fixAnimalCompanion()
+        internal static void fixAnimalCompanion()
         {
             //animal companion rebalance
             //set natural ac as per pnp
@@ -63,7 +63,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void fixLegendaryProportionsAC()
+        internal static void fixLegendaryProportionsAC()
         {
             //fix natural armor bonus for animal growth and legendary proportions
             var buff_ids = new string[] {"3fca5d38053677044a7ffd9a872d3a0a", //animal growth
@@ -84,7 +84,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void removeJudgement19FormSHandMS()
+        internal static void removeJudgement19FormSHandMS()
         {
             BlueprintArchetype[] inquisitor_archetypes = new BlueprintArchetype[2] {ResourcesLibrary.TryGetBlueprint<BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012"),//sacred huntsmaster
                                                                                ResourcesLibrary.TryGetBlueprint<BlueprintArchetype>("cdaabf4b146c9ba42ab7d05abe3b48c4")//monster tactician
@@ -99,7 +99,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void fixSkillPoints()
+        internal static void fixSkillPoints()
         {
             //update skillpoints
             var class_skill_map = new List<KeyValuePair<string, int>>();
@@ -135,7 +135,7 @@ namespace CallOfTheWild
             }
         }
 
-        public static void fixCompanions()
+        internal static void fixCompanions()
         {
             //change stats of certain companions
             //Valerie 
@@ -214,7 +214,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void fixDomains()
+        internal static void fixDomains()
         {
             var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
@@ -234,7 +234,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void fixBarbarianRageAC()
+        internal static void fixBarbarianRageAC()
         {
             var rage = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
             var components = rage.GetComponents<Kingmaker.UnitLogic.FactLogic.AddContextStatBonus>();
@@ -248,7 +248,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void fixMagicVestment()
+        internal static void fixMagicVestment()
         {
             fixMagicVestmentArmor();
             fixMagicVestmentShield();
@@ -283,8 +283,8 @@ namespace CallOfTheWild
             magic_vestement_shield_buff.Stacking = StackingType.Replace;
         }
 
-        public static BlueprintFeatureSelection dd_feat_subselection;
-        public static void fixDragonDiscipleBonusFeat()
+        internal static BlueprintFeatureSelection dd_feat_subselection;
+        internal static void fixDragonDiscipleBonusFeat()
         {
             //to allow select feats from other bloodline classes (bloodrager for example)
             var dd_feat_selection = Main.library.Get<BlueprintFeatureSelection>("f4b011d090e8ae543b1441bd594c7bf7");
@@ -533,6 +533,49 @@ namespace CallOfTheWild
         {
             var feature = library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8");
             feature.ReplaceComponent<AbilityTargetHasCondition>(Helpers.Create<AddCondition>(c => c.Condition = Kingmaker.UnitLogic.UnitCondition.ImmuneToCombatManeuvers));
+        }
+
+
+        internal static void fixChannelEnergySaclaing()
+        {
+            var empyreal_resource = library.Get<BlueprintAbilityResource>("f9af9354fb8a79649a6e512569387dc5");
+            empyreal_resource.SetIncreasedByStat(1, StatType.Wisdom);
+
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            var sorceror = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+
+            string[] cleric_channel_ids = new string[] {"f5fc9a1a2a3c1a946a31b320d1dd31b2",
+                                                      "279447a6bf2d3544d93a0a39c3b8e91d",
+                                                      "9be3aa47a13d5654cbcb8dbd40c325f2",
+                                                      "89df18039ef22174b81052e2e419c728"};
+
+            
+
+            string[] paladin_channel_ids = new string[] { "6670f0f21a1d7f04db2b8b115e8e6abf",
+                                                          "0c0cf7fcb356d2448b7d57f2c4db3c0c",
+                                                          "4937473d1cfd7774a979b625fb833b47",
+                                                          "cc17243b2185f814aa909ac6b6599eaa" };
+
+            string[] empyreal_channel_ids = new string[] { "574cf074e8b65e84d9b69a8c6f1af27b", "e1536ee240c5d4141bf9f9485a665128" };
+
+            foreach (var id in cleric_channel_ids)
+            {
+                var channel = library.Get<BlueprintAbility>(id);
+                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { cleric }, StatType.Charisma));
+            }
+
+            foreach (var id in paladin_channel_ids)
+            {
+                var channel = library.Get<BlueprintAbility>(id);
+                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { paladin }, StatType.Charisma));
+            }
+
+            foreach (var id in empyreal_channel_ids)
+            {
+                var channel = library.Get<BlueprintAbility>(id);
+                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { sorceror }, StatType.Charisma));
+            }
         }
 
 

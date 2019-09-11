@@ -1811,9 +1811,9 @@ namespace CallOfTheWild
                                                      ability.Description,
                                                      guid,
                                                      ability.Icon,
-                                                     FeatureGroup.None,
-                                                     Helpers.CreateAddFact(ability)
+                                                     FeatureGroup.None
                                                      );
+            feature.AddComponent(Common.createAddFeatureIfHasFact(ability, ability, not: true));
             if (hide)
             {
                 feature.HideInCharacterSheetAndLevelUp = true;

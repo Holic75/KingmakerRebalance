@@ -50,65 +50,65 @@ namespace CallOfTheWild
     class Skald
     {
         static internal bool test_mode = false;
-        static internal LibraryScriptableObject library => Main.library;
+        static LibraryScriptableObject library => Main.library;
 
-        static internal BlueprintCharacterClass skald_class;
-        static internal BlueprintProgression skald_progression;
+        static public BlueprintCharacterClass skald_class;
+        static public BlueprintProgression skald_progression;
 
-        static internal BlueprintFeature skald_proficiencies;
-        static internal BlueprintFeature damage_reduction;
-        static internal BlueprintFeature uncanny_dodge;
-        static internal BlueprintFeature improved_uncanny_dodge;
-        static internal BlueprintFeature fast_movement;
-        static internal BlueprintFeatureSelection versatile_performance;
-        static internal BlueprintFeature well_versed;
-        static internal BlueprintAbilityResource performance_resource;
-        static internal BlueprintFeature give_performance_resource;
-        static internal BlueprintFeature fake_barbarian;
+        static public BlueprintFeature skald_proficiencies;
+        static public BlueprintFeature damage_reduction;
+        static public BlueprintFeature uncanny_dodge;
+        static public BlueprintFeature improved_uncanny_dodge;
+        static public BlueprintFeature fast_movement;
+        static public BlueprintFeatureSelection versatile_performance;
+        static public BlueprintFeature well_versed;
+        static public BlueprintAbilityResource performance_resource;
+        static public BlueprintFeature give_performance_resource;
+        static public BlueprintFeature fake_barbarian;
 
-        static internal BlueprintBuff no_spell_casting_buff;
-        static internal BlueprintFeature skald_vigor_feat;
-        static internal BlueprintFeature greater_skald_vigor_feat;
-        static internal BlueprintBuff skald_vigor_buff;
+        static public BlueprintBuff no_spell_casting_buff;
+        static public BlueprintFeature skald_vigor_feat;
+        static public BlueprintFeature greater_skald_vigor_feat;
+        static public BlueprintBuff skald_vigor_buff;
 
-        static internal BlueprintFeature inspired_rage_feature;
-        static internal BlueprintActivatableAbility inspired_rage;
-        static internal BlueprintBuff inspired_rage_effect_buff;
-        static internal BlueprintFeature master_skald;
-        static internal BlueprintBuff master_skald_buff;
-        static internal BlueprintFeatureSelection skald_rage_powers;
-        static internal BlueprintFeature song_of_marching;
-        static internal BlueprintFeature song_of_strength;
-        static internal BlueprintFeature dirge_of_doom;
-        static internal BlueprintFeature song_of_the_fallen;
-        static internal BlueprintFeature lore_master;
-        static internal BlueprintFeature spell_kenning;
-        static internal BlueprintFeature spell_kenning_extra_use;
-        static internal BlueprintFeature bardic_knowledge;
-        static internal BlueprintFeature bardic_performance_move;
-        static internal BlueprintFeature bardic_performance_swift;
+        static public BlueprintFeature inspired_rage_feature;
+        static public BlueprintActivatableAbility inspired_rage;
+        static public BlueprintBuff inspired_rage_effect_buff;
+        static public BlueprintFeature master_skald;
+        static public BlueprintBuff master_skald_buff;
+        static public BlueprintFeatureSelection skald_rage_powers;
+        static public BlueprintFeature song_of_marching;
+        static public BlueprintFeature song_of_strength;
+        static public BlueprintFeature dirge_of_doom;
+        static public BlueprintFeature song_of_the_fallen;
+        static public BlueprintFeature lore_master;
+        static public BlueprintFeature spell_kenning;
+        static public BlueprintFeature spell_kenning_extra_use;
+        static public BlueprintFeature bardic_knowledge;
+        static public BlueprintFeature bardic_performance_move;
+        static public BlueprintFeature bardic_performance_swift;
 
 
-        static internal BlueprintArchetype urban_skald_archetype;
-        static internal BlueprintFeature urban_skald_proficiencies;
-        static internal BlueprintFeature controlled_rage_feature;
-        static internal BlueprintBuff controlled_rage_str_buff;
-        static internal BlueprintBuff controlled_rage_con_buff;
-        static internal BlueprintBuff controlled_rage_dex_buff;
-        static internal BlueprintFeature infuriating_mockery;
-        static internal BlueprintFeature back_of_the_crowd;
+        static public BlueprintArchetype urban_skald_archetype;
+        static public BlueprintFeature urban_skald_proficiencies;
+        static public BlueprintFeature controlled_rage_feature;
+        static public BlueprintBuff controlled_rage_str_buff;
+        static public BlueprintBuff controlled_rage_con_buff;
+        static public BlueprintBuff controlled_rage_dex_buff;
+        static public BlueprintFeature infuriating_mockery;
+        static public BlueprintFeature back_of_the_crowd;
 
-        static internal BlueprintArchetype herald_of_the_horn_archetype;
-        static internal BlueprintFeature bonded_object_feature;
-        static internal BlueprintFeature rousing_retort_feature;
-        static internal BlueprintFeature horn_call_feature;
-        static internal BlueprintFeature crumbling_blast_feature;
+        static public BlueprintArchetype herald_of_the_horn_archetype;
+        static public BlueprintFeature bonded_object_feature;
+        static public BlueprintFeature rousing_retort_feature;
+        static public BlueprintFeature horn_call_feature;
+        static public BlueprintFeature crumbling_blast_feature;
 
-        static internal BlueprintArchetype war_drummer_archetype;
-        static internal BlueprintFeature war_drummer_proficiencies;
-        static internal BlueprintFeature fearsome_mien_feature;
-        static internal BlueprintFeature deadly_rythm_feature;
-        static internal BlueprintFeatureSelection club_improved_critical_selection;
+        static public BlueprintArchetype war_drummer_archetype;
+        static public BlueprintFeature war_drummer_proficiencies;
+        static public BlueprintFeature fearsome_mien_feature;
+        static public BlueprintFeature deadly_rythm_feature;
+        static public BlueprintFeatureSelection club_improved_critical_selection;
 
         internal static void createSkaldClass()
         {

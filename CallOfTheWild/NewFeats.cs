@@ -31,20 +31,19 @@ namespace CallOfTheWild
     class NewFeats
     {
         static LibraryScriptableObject library => Main.library;
-        static internal BlueprintFeature raging_brutality;
-        static internal BlueprintFeature blooded_arcane_strike;
-        static internal BlueprintFeature riving_strike;
-        static internal BlueprintFeature coordinated_shot;
-        static internal BlueprintFeature stalwart;
-        static internal BlueprintFeature improved_stalwart;
-        static internal BlueprintFeature furious_focus;
-        static internal BlueprintFeature planar_wild_shape;
-        static internal BlueprintParametrizedFeature deity_favored_weapon;
-        static internal BlueprintFeature guided_hand;
-        static internal BlueprintFeature deadeyes_blessing;
-        static internal BlueprintFeature paladin_channel_extra;
-        static internal BlueprintFeature channeling_scourge;
-        static internal BlueprintFeature versatile_channeler;
+        static public BlueprintFeature raging_brutality;
+        static public BlueprintFeature blooded_arcane_strike;
+        static public BlueprintFeature riving_strike;
+        static public BlueprintFeature coordinated_shot;
+        static public BlueprintFeature stalwart;
+        static public BlueprintFeature improved_stalwart;
+        static public BlueprintFeature furious_focus;
+        static public BlueprintFeature planar_wild_shape;
+        static public BlueprintParametrizedFeature deity_favored_weapon;
+        static public BlueprintFeature guided_hand;
+        static public BlueprintFeature deadeyes_blessing;
+        static public BlueprintFeature paladin_channel_extra;
+        static public BlueprintFeature versatile_channeler;
 
         static internal void load()
         {
@@ -63,7 +62,7 @@ namespace CallOfTheWild
             createGuidedHand();
             createDeadeyesBlessing();
             createExtraChannelPaladin();
-            createChannelingScourge();
+            ChannelEnergyEngine.createChannelingScourge();
             ChannelEnergyEngine.createImprovedChannel();
 
             createVersatileChanneler();
@@ -123,49 +122,6 @@ namespace CallOfTheWild
             library.AddFeats(versatile_channeler);
         }
 
-        static void createChannelingScourge()
-        {
-            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-            var inquisitor = library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
-            var cleric_channel = library.Get<BlueprintFeatureSelection>("d332c1748445e8f4f9e92763123e31bd");
-
-            var harm_undead = library.Get<BlueprintAbility>("279447a6bf2d3544d93a0a39c3b8e91d");
-            var harm_living = library.Get<BlueprintAbility>("89df18039ef22174b81052e2e419c728");
-
-
-            var channels = new BlueprintAbility[]{
-                                                    harm_undead,
-                                                    harm_living,
-                                                    ChannelEnergyEngine.getQuickChannelVariant(harm_undead),
-                                                    ChannelEnergyEngine.getQuickChannelVariant(harm_living),
-                                                    ChannelEnergyEngine.getChannelSmiteVariant(harm_undead),
-                                                    ChannelEnergyEngine.getChannelSmiteVariant(harm_living)
-                                                 };
-
-
-            channeling_scourge = Helpers.CreateFeature("ChannelingScourgeFeature",
-                                                       "Channeling Scourge",
-                                                       "When you use channel energy to deal damage, your inquisitor levels count as cleric levels for determining the number of damage dice and the saving throw DC",
-                                                       "",
-                                                       null,
-                                                       FeatureGroup.Feat,
-                                                       Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
-                                                                                                                               {
-                                                                                                                                   c.spells = channels;
-                                                                                                                                   c.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
-                                                                                                                               }
-                                                                                                                               ),
-                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                       classes: new BlueprintCharacterClass[] { inquisitor },
-                                                                                       type: AbilityRankType.StatBonus
-                                                                                       ),
-                                                       Helpers.PrerequisiteClassLevel(cleric, 1),
-                                                       Helpers.PrerequisiteClassLevel(inquisitor, 1),
-                                                       Helpers.PrerequisiteFeature(cleric_channel)
-                                                       );
-            library.AddFeats(channeling_scourge);
-        }
-
 
         static void createExtraChannelPaladin()
         {
@@ -178,25 +134,27 @@ namespace CallOfTheWild
 
             var heal_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
                                                           "PaladinChannelEnergyHealLivingExtra",
+                                                          paladin_heal.Name + " (Extra)",
+                                                          paladin_heal.Description,
                                                           "",
                                                           paladin_channel_energy,
                                                           paladin_heal.GetComponent<ContextRankConfig>(),
+                                                          paladin_heal.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
                                                           Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1),
                                                           true);
-            heal_living_extra.SetDescription(paladin_heal.Description);
-            heal_living_extra.SetName(paladin_heal.Name + " (Extra)");
 
 
             var harm_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                               "PaladinChannelEnergyHarmUndeadExtra",
+                                              paladin_harm.Name + " (Extra)",
+                                              paladin_harm.Description,
                                               "",
                                               paladin_channel_energy,
                                               paladin_harm.GetComponent<ContextRankConfig>(),
+                                              paladin_harm.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
                                               Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1),
                                               true);
 
-            harm_undead_extra.SetDescription(paladin_harm.Description);
-            harm_undead_extra.SetName(paladin_harm.Name + " (Extra)");
             paladin_channel_energy.AddComponent(Helpers.CreateAddFacts(heal_living_extra, harm_undead_extra));
             paladin_channel_energy.AddComponent(Helpers.CreateAddAbilityResource(paladin_extra_channel_resource));
             paladin_channel_extra = ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, paladin_channel_energy, "ExtraChannelPaladin", "Extra Channel (Paladin)", "");

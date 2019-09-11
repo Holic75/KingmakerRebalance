@@ -40,56 +40,56 @@ namespace CallOfTheWild
 {
     class Witch
     {
-        static internal LibraryScriptableObject library => Main.library;
+        static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;
-        static internal BlueprintCharacterClass witch_class;
-        static internal BlueprintProgression witch_progression;
-        static internal BlueprintFeatureSelection witch_patrons;
-        static internal BlueprintFeatureSelection hex_selection;
-        static internal BlueprintFeatureSelection witch_familiar;
-        static internal BlueprintFeature witch_cantrips;
+        static public BlueprintCharacterClass witch_class;
+        static public BlueprintProgression witch_progression;
+        static public BlueprintFeatureSelection witch_patrons;
+        static public BlueprintFeatureSelection hex_selection;
+        static public BlueprintFeatureSelection witch_familiar;
+        static public BlueprintFeature witch_cantrips;
         //hexes
-        static internal BlueprintFeature healing;
-        static internal BlueprintFeature beast_of_ill_omen;
-        static internal BlueprintFeature slumber_hex;
-        static internal BlueprintFeature misfortune_hex;
-        static internal BlueprintFeature fortune_hex;
-        static internal BlueprintFeature iceplant_hex;
-        static internal BlueprintFeature murksight_hex;
-        static internal BlueprintFeature ameliorating;
-        static internal BlueprintFeature evil_eye;
-        static internal BlueprintFeature summer_heat;
-        static internal BlueprintFeature cackle;
+        static public BlueprintFeature healing;
+        static public BlueprintFeature beast_of_ill_omen;
+        static public BlueprintFeature slumber_hex;
+        static public BlueprintFeature misfortune_hex;
+        static public BlueprintFeature fortune_hex;
+        static public BlueprintFeature iceplant_hex;
+        static public BlueprintFeature murksight_hex;
+        static public BlueprintFeature ameliorating;
+        static public BlueprintFeature evil_eye;
+        static public BlueprintFeature summer_heat;
+        static public BlueprintFeature cackle;
         //major hexes
-        static internal BlueprintFeature major_ameliorating;
-        static internal BlueprintFeature major_healing;
-        static internal BlueprintFeature animal_skin;
-        static internal BlueprintFeature agony;
-        static internal BlueprintFeature beast_gift;
-        static internal BlueprintFeature harrowing_curse;
-        static internal BlueprintFeature ice_tomb;
-        static internal BlueprintFeature regenerative_sinew;
-        static internal BlueprintFeature retribution;
+        static public BlueprintFeature major_ameliorating;
+        static public BlueprintFeature major_healing;
+        static public BlueprintFeature animal_skin;
+        static public BlueprintFeature agony;
+        static public BlueprintFeature beast_gift;
+        static public BlueprintFeature harrowing_curse;
+        static public BlueprintFeature ice_tomb;
+        static public BlueprintFeature regenerative_sinew;
+        static public BlueprintFeature retribution;
         // restless slumber? withering ?
         // grand hexes
-        static internal BlueprintFeature animal_servant;
-        static internal BlueprintFeature death_curse;
-        static internal BlueprintFeature lay_to_rest;
-        static internal BlueprintFeature life_giver;
-        static internal BlueprintFeature eternal_slumber;
+        static public BlueprintFeature animal_servant;
+        static public BlueprintFeature death_curse;
+        static public BlueprintFeature lay_to_rest;
+        static public BlueprintFeature life_giver;
+        static public BlueprintFeature eternal_slumber;
         //death interupted ? - breath of life 1/creature/24 hours?
-        static internal BlueprintFeature extra_hex_feat;
+        static public BlueprintFeature extra_hex_feat;
 
-        static internal BlueprintArchetype ley_line_guardian_archetype;
-        static internal BlueprintArchetype hedge_witch_archetype;
-        static internal BlueprintArchetype hex_channeler_archetype;
+        static public BlueprintArchetype ley_line_guardian_archetype;
+        static public BlueprintArchetype hedge_witch_archetype;
+        static public BlueprintArchetype hex_channeler_archetype;
 
-        static internal BlueprintFeatureSelection hex_channeler_channel_energy_selection;
-        static internal BlueprintFeature improved_channel_hex_positive;
-        static internal BlueprintFeature improved_channel_hex_negative;
-        static internal BlueprintFeature witch_channel_negative;
-        static internal BlueprintFeature witch_channel_positive;
-        static internal BlueprintFeature conduit_surge;
+        static public BlueprintFeatureSelection hex_channeler_channel_energy_selection;
+        static public BlueprintFeature improved_channel_hex_positive;
+        static public BlueprintFeature improved_channel_hex_negative;
+        static public BlueprintFeature witch_channel_negative;
+        static public BlueprintFeature witch_channel_positive;
+        static public BlueprintFeature conduit_surge;
 
         static HexEngine hex_engine;
 
@@ -397,14 +397,15 @@ namespace CallOfTheWild
                                               featureList: new BlueprintFeature[] { witch_channel_negative,
                                                                                    improved_channel_hex_negative });*/
 
-            var positive_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal, "WitchPostiveHeal", "b305df2f8ec34684867db7402677388b",
-                                                                        witch_channel_positive, context_rank_config, resource_logic, update_items: true);
-            var positive_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm, "WitchPostiveHarm", "4ca35352f0eb49a49faf4a1057ed5d6e",
-                                                                        witch_channel_positive, context_rank_config, resource_logic, update_items: true);
-            var negative_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal, "WitchNegativeHeal", "a39b06c274c843f19fa10cc6b7be5f39",
-                                                                        witch_channel_negative, context_rank_config, resource_logic, update_items: true);
-            var negative_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm, "WitchNegativeHarm", "ba94b10d81bb4497886e50ce9d4d96ce",
-                                                                        witch_channel_negative, context_rank_config, resource_logic, update_items: true);
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getWitchArray(), StatType.Charisma);
+            var positive_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal, "WitchPostiveHeal", "", "", "b305df2f8ec34684867db7402677388b",
+                                                                        witch_channel_positive, context_rank_config, dc_scaling, resource_logic, update_items: true);
+            var positive_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm, "WitchPostiveHarm", "", "", "4ca35352f0eb49a49faf4a1057ed5d6e",
+                                                                        witch_channel_positive, context_rank_config, dc_scaling, resource_logic, update_items: true);
+            var negative_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal, "WitchNegativeHeal", "", "", "a39b06c274c843f19fa10cc6b7be5f39",
+                                                                        witch_channel_negative, context_rank_config, dc_scaling, resource_logic, update_items: true);
+            var negative_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm, "WitchNegativeHarm", "", "", "ba94b10d81bb4497886e50ce9d4d96ce",
+                                                                        witch_channel_negative, context_rank_config, dc_scaling, resource_logic, update_items: true);
 
             witch_channel_positive.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
             witch_channel_positive.AddComponent(Helpers.CreateAddFacts( positive_heal, positive_harm));
@@ -436,7 +437,7 @@ namespace CallOfTheWild
             hex_channeler_channel_energy_selection = Helpers.CreateFeatureSelection("WitchChannelEnergySelection",
                                                                                     "Channel Energy",
                                                                                     "At 2nd level, a hex channeler can call upon her patron to release a wave of energy from herself or her familiar.A good witch channels positive energy(like a good cleric), and an evil witch channels negative energy(like an evil cleric).A witch who is neither good nor evil must choose whether she channels positive or negative energy; once this choice is made, it cannot be reversed.\n"
-                                                                                    + "Channeling energy causes a burst that affects all creatures of one type(either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability.The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
+                                                                                    + "Channeling energy causes a burst that affects all creatures of one type (either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability.The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
                                                                                     + "This burst heals or deals 1d6 points of damage.Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
                                                                                     "d33b4095dbfa47588ed1f07b5af30e2c",
                                                                                     bless_spell.Icon,

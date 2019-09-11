@@ -125,6 +125,7 @@ public class Main
                 CallOfTheWild.Rebalance.fixArcheologistLuck();
                 CallOfTheWild.Rebalance.fixElementalMovementWater();
                 CallOfTheWild.Rebalance.addRangerImprovedFavoredTerrain();
+                CallOfTheWild.Rebalance.fixChannelEnergySaclaing();
                 //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                 CallOfTheWild.Wildshape.load();

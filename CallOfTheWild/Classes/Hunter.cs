@@ -41,69 +41,69 @@ namespace CallOfTheWild
     public class Hunter
     {
         static internal readonly Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup AnimalFocusGroup = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();//Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityGroup.Judgment;
-        internal static BlueprintCharacterClass hunter_class;
-        internal static BlueprintProgression hunter_progression;
-        static internal LibraryScriptableObject library => Main.library;
-        static internal BlueprintFeature animal_focus;
-        static internal BlueprintFeature animal_focus_ac;
-        static internal BlueprintFeature animal_focus_additional_use;
-        static internal BlueprintFeature animal_focus_additional_use_ac;
-        static internal BlueprintFeature animal_focus_additional_use2;
-        static internal BlueprintFeature animal_focus_additional_use_ac2;
-        static internal BlueprintFeatureSelection hunter_animal_companion;
-        static internal BlueprintFeatureSelection precise_companion;
-        static internal BlueprintFeatureSelection hunter_teamwork_feat;
-        static internal BlueprintFeature hunter_tactics;
-        static internal BlueprintFeature hunter_woodland_stride;
-        static internal BlueprintArchetype forester_archetype;
-        static internal BlueprintArchetype feykiller_archetype;
-        static internal BlueprintArchetype divine_hunter_archetype;
-        static internal BlueprintFeatureSelection hunter_otherwordly_companion;
+        public static BlueprintCharacterClass hunter_class;
+        public static BlueprintProgression hunter_progression;
+        static  LibraryScriptableObject library => Main.library;
+        static public BlueprintFeature animal_focus;
+        static public BlueprintFeature animal_focus_ac;
+        static public BlueprintFeature animal_focus_additional_use;
+        static public BlueprintFeature animal_focus_additional_use_ac;
+        static public BlueprintFeature animal_focus_additional_use2;
+        static public BlueprintFeature animal_focus_additional_use_ac2;
+        static public BlueprintFeatureSelection hunter_animal_companion;
+        static public BlueprintFeatureSelection precise_companion;
+        static public BlueprintFeatureSelection hunter_teamwork_feat;
+        static public BlueprintFeature hunter_tactics;
+        static public BlueprintFeature hunter_woodland_stride;
+        static public BlueprintArchetype forester_archetype;
+        static public BlueprintArchetype feykiller_archetype;
+        static public BlueprintArchetype divine_hunter_archetype;
+        static public BlueprintFeatureSelection hunter_otherwordly_companion;
 
-        static internal BlueprintFeature ac_smite_good_feature;
-        static internal BlueprintFeature ac_smite_evil_feature;
-        static internal BlueprintFeature fiendish_template;
-        static internal BlueprintFeature celestial_template;
+        static public BlueprintFeature ac_smite_good_feature;
+        static public BlueprintFeature ac_smite_evil_feature;
+        static public BlueprintFeature fiendish_template;
+        static public BlueprintFeature celestial_template;
 
-        static internal BlueprintFeature forester_tactician;
+        static public BlueprintFeature forester_tactician;
 
-        static internal AddFeatureOnClassLevel[] mouse_focus;
-        static internal BlueprintActivatableAbility bull_focus;
-        static internal BlueprintActivatableAbility bear_focus;
-        static internal BlueprintActivatableAbility tiger_focus;
-        static internal BlueprintActivatableAbility monkey_focus;
-        static internal BlueprintActivatableAbility stag_focus;
-        static internal BlueprintActivatableAbility frog_focus;
-        static internal BlueprintActivatableAbility owl_focus;
-        static internal BlueprintActivatableAbility falcon_focus;
-        static internal BlueprintActivatableAbility snake_focus;
+        static public AddFeatureOnClassLevel[] mouse_focus;
+        static public BlueprintActivatableAbility bull_focus;
+        static public BlueprintActivatableAbility bear_focus;
+        static public BlueprintActivatableAbility tiger_focus;
+        static public BlueprintActivatableAbility monkey_focus;
+        static public BlueprintActivatableAbility stag_focus;
+        static public BlueprintActivatableAbility frog_focus;
+        static public BlueprintActivatableAbility owl_focus;
+        static public BlueprintActivatableAbility falcon_focus;
+        static public BlueprintActivatableAbility snake_focus;
 
-        static internal BlueprintActivatableAbility crow_focus;
-        static internal BlueprintActivatableAbility shark_focus;
-        static internal BlueprintActivatableAbility turtle_focus;
-        static internal BlueprintActivatableAbility goat_focus;
-        static internal BlueprintActivatableAbility moongoose_focus;
+        static public BlueprintActivatableAbility crow_focus;
+        static public BlueprintActivatableAbility shark_focus;
+        static public BlueprintActivatableAbility turtle_focus;
+        static public BlueprintActivatableAbility goat_focus;
+        static public BlueprintActivatableAbility moongoose_focus;
 
-        static internal BlueprintFeature planar_focus;
-        static internal BlueprintActivatableAbility planar_focus_fire;
-        static internal BlueprintActivatableAbility planar_focus_cold;
-        static internal BlueprintActivatableAbility planar_focus_air;
-        static internal BlueprintActivatableAbility planar_focus_earth;
-        static internal BlueprintActivatableAbility planar_focus_water;
-        static internal BlueprintActivatableAbility planar_focus_shadow;
-        static internal BlueprintActivatableAbility planar_focus_chaos;
-        static internal BlueprintActivatableAbility planar_focus_law;
-        static internal BlueprintActivatableAbility planar_focus_good;
-        static internal BlueprintActivatableAbility planar_focus_evil;
-
-
-        static internal BlueprintFeatureSelection trick_selection;
-        static internal BlueprintAbilityResource trick_resource;
+        static public BlueprintFeature planar_focus;
+        static public BlueprintActivatableAbility planar_focus_fire;
+        static public BlueprintActivatableAbility planar_focus_cold;
+        static public BlueprintActivatableAbility planar_focus_air;
+        static public BlueprintActivatableAbility planar_focus_earth;
+        static public BlueprintActivatableAbility planar_focus_water;
+        static public BlueprintActivatableAbility planar_focus_shadow;
+        static public BlueprintActivatableAbility planar_focus_chaos;
+        static public BlueprintActivatableAbility planar_focus_law;
+        static public BlueprintActivatableAbility planar_focus_good;
+        static public BlueprintActivatableAbility planar_focus_evil;
 
 
-        static internal BlueprintFeature animal_focus_feykiller;
-        static internal BlueprintFeature animal_focus_feykiller_ac;
-        static internal BlueprintFeature iron_talons_ac;
+        static public BlueprintFeatureSelection trick_selection;
+        static public BlueprintAbilityResource trick_resource;
+
+
+        static public BlueprintFeature animal_focus_feykiller;
+        static public BlueprintFeature animal_focus_feykiller_ac;
+        static public BlueprintFeature iron_talons_ac;
 
 
         internal static void createHunterClass()
@@ -523,7 +523,7 @@ namespace CallOfTheWild
                                                             "0c7d1530b6e6464793add007315337c9",
                                                             inflict_light_wounds.Icon,
                                                             FeatureGroup.None,
-                                                            animal_foci, mouse_focus[0], mouse_focus[1]);
+                                                            animal_foci);
             return feat;
         }
 

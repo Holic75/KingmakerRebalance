@@ -31,6 +31,7 @@ New feats:
 - Quick Channel,
 - Channel Smite,
 - Channeling Scourge,
+- Versatile Channeler,
 - Deadeye's Blessing,
 - Guided Hand,
 - Planar Focus,
@@ -83,7 +84,7 @@ Beast shape I - IV spells were also changed to be a bit more fun and more in lin
 - Beast shape I allows to turn into leopard,  
 - Beast shape II allows to turn into bear (without rend) and dire wolf (with trip),  
 - Beast shape III allows to turn into large smilodon and Huge Mastodon (with trample),  
-- Beast shape IV allows to turn into large hodag (with poison) and large winter wolf (with trip and breath weapon)  
+- Beast shape IV allows to turn into large hodag (with toss) and large winter wolf (with trip and breath weapon)  
 
 The changes corresponding to these spells as well as Plant Shape I, II and III were also applied to druid wildshape ability.
 
@@ -92,14 +93,14 @@ In addition mod also makes some changes to existing features to make them closer
 - nerfs animal compnions to make them closer to pnp (reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
 enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
-- replaces favored enemy for Sacred huntsmater with animal focus as per pnp,
+- replaces favored enemy for Sacred Huntsmater with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
 - rangers now should get improvement of their favored terrain bonuses,
 - Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),
 - Animal Growth properly increases size of animal companion,
 - Arcane Bond works with spontaneous spells,
-- Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
-- All flying creatures are immune to difficult terrain and ground based buff effects.
+- barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
+- all flying creatures are immune to difficult terrain and ground based buff effects.
 
 
 Original game bug fixes:
