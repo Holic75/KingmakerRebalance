@@ -112,7 +112,8 @@ namespace CallOfTheWild
         static BlueprintBuff back_to_the_grave_buff = null;
         static BlueprintFeature back_to_the_grave_feature = null;
 
-
+        static BlueprintFeature witch_channel_negative;
+        static BlueprintFeature witch_channel_positive;
 
 
 
@@ -175,6 +176,41 @@ namespace CallOfTheWild
             return abilities;
         }
 
+
+        internal static void setWitchImprovedChannelHex(BlueprintFeature positive_channel, BlueprintFeature negative_channel)
+        {
+            witch_channel_negative = negative_channel;
+            witch_channel_positive = positive_channel;
+
+            var channels = getAllChannels();
+
+            foreach (var c in channels)
+            {
+                addToWitchImprovedChannelHexScaling(c);
+            }
+        }
+
+        static void addToWitchImprovedChannelHexScaling(ChannelEntry entry)
+        {
+            if (witch_channel_negative == null)
+            {
+                return;
+            }
+            if (!entry.scalesWithClass(Witch.witch_class))
+            {
+                return;
+            }
+            if ((entry.channel_type & ChannelType.Negative) != ChannelType.None)
+            {
+                var comp = witch_channel_negative.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+                comp.spells = comp.spells.AddToArray(entry.ability);
+            }
+            if ((entry.channel_type & ChannelType.Positive) != ChannelType.None)
+            {
+                var comp = witch_channel_positive.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+                comp.spells = comp.spells.AddToArray(entry.ability);
+            }
+        }
 
         internal static void addBackToTheGrave(BlueprintFeature feature, BlueprintBuff buff, BlueprintAbility prototype_ability)
         {
@@ -603,6 +639,7 @@ namespace CallOfTheWild
 
             addToImprovedChannel(ability, parent_feature);
             addToChannelingScourge(entry);
+            addToWitchImprovedChannelHexScaling(entry);
 
             if (entry.scalesWithClass(Warpriest.warpriest_class) && entry.channel_type == ChannelType.PositiveHeal)
             {

@@ -411,27 +411,32 @@ namespace CallOfTheWild
             witch_channel_positive.AddComponent(Helpers.CreateAddFacts( positive_heal, positive_harm));
             witch_channel_positive.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
                                                                                 type: AbilityRankType.StatBonus, 
-                                                                                featureList: new BlueprintFeature[] { improved_channel_hex_positive, improved_channel_hex_positive }
+                                                                                featureList: new BlueprintFeature[] { improved_channel_hex_positive, witch_channel_positive }
                                                                                 )
                                                );
             witch_channel_positive.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
                                                                                                                         {
                                                                                                                             c.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
-                                                                                                                            c.spells = new BlueprintAbility[] { positive_heal, positive_harm };
+                                                                                                                            c.spells = new BlueprintAbility[0];
+                                                                                                                            c.correct_dc = true;
+                                                                                                                            c.multiplier = 2;
                                                                                                                         })
                                               );
             witch_channel_negative.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
             witch_channel_negative.AddComponent(Helpers.CreateAddFacts(negative_heal, negative_harm));
             witch_channel_negative.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
                                                                     type: AbilityRankType.StatBonus,
-                                                                    featureList: new BlueprintFeature[] { improved_channel_hex_negative, improved_channel_hex_negative }
+                                                                    featureList: new BlueprintFeature[] { improved_channel_hex_negative, witch_channel_negative }
                                                                     )
                                    );
             witch_channel_negative.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
                                                                                                                                  { c.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
-                                                                                                                                   c.spells = new BlueprintAbility[] { negative_heal, negative_harm };
+                                                                                                                                   c.spells = new BlueprintAbility[0];
+                                                                                                                                   c.correct_dc = true;
+                                                                                                                                   c.multiplier = 2;
                                                                                                                                  })
                                                );
+            ChannelEnergyEngine.setWitchImprovedChannelHex(witch_channel_positive, witch_channel_negative);
 
 
             hex_channeler_channel_energy_selection = Helpers.CreateFeatureSelection("WitchChannelEnergySelection",
