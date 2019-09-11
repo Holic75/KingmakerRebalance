@@ -95,11 +95,13 @@ enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
 - replaces favored enemy for Sacred Huntsmater with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
-- rangers now should get improvement of their favored terrain bonuses,
+- Rangers now should get improvement of their favored terrain bonuses,
 - Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),
 - Animal Growth properly increases size of animal companion,
 - Arcane Bond works with spontaneous spells,
-- barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
+- Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
+- Empyreal Sorcerer Ehannel Energy ability depends now on Wisdom rather than charisma,
+- Channel Energy dc no longer scales with character level, but with class level that gave access to it.
 - all flying creatures are immune to difficult terrain and ground based buff effects.
 
 
