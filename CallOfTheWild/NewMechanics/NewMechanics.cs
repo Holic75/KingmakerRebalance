@@ -88,12 +88,13 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
+                actual_dc = 0;
                 bool no_save = evt.Spell.EffectOnEnemy != AbilityEffectOnUnit.Harmful; //TODO: properly check for saving throw
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell || no_save)
                 {
                     return;
                 }
-                actual_dc = Mathf.Min(evt.Spellbook.GetSpellLevel(evt.Spell), BonusDC);
+                actual_dc = Mathf.Min(evt.SpellLevel, BonusDC);
                 evt.AddBonusDC(actual_dc);
             }
 
