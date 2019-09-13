@@ -39,7 +39,7 @@ using UnityEngine;
 
 namespace CallOfTheWild
 {
-    class FeralCombatTraining
+    public class FeralCombatTraining
     {
         static LibraryScriptableObject library => Main.library;
         static internal BlueprintFeatureSelection feral_combat_training;

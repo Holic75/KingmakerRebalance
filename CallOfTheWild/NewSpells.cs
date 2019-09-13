@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class NewSpells
+    public class NewSpells
     {
         static LibraryScriptableObject library => Main.library;
         static public BlueprintAbility shillelagh;

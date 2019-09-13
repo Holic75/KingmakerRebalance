@@ -95,7 +95,7 @@ namespace CallOfTheWild
 
 
 
-    class SharedSpells
+    public class SharedSpells
     {
         internal static LibraryScriptableObject library => Main.library;
         public static BlueprintFeature ac_share_spell;

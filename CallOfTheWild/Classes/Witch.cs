@@ -38,7 +38,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class Witch
+    public class Witch
     {
         static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;

@@ -11,7 +11,7 @@ namespace CallOfTheWild
     namespace LoadIcons
     {
         // Loosely based on https://forum.unity.com/threads/generating-sprites-dynamically-from-png-or-jpeg-files-in-c.343735/
-        static class Image2Sprite
+        public static class Image2Sprite
         {
             public static string icons_folder = "";
             public static Sprite Create(string filePath)

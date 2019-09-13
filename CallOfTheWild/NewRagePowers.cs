@@ -34,7 +34,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class NewRagePowers
+    public class NewRagePowers
     {
         static LibraryScriptableObject library => Main.library;
         static BlueprintFeatureSelection rage_powers_selection => Main.library.Get<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e");

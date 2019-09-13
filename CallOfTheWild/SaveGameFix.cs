@@ -48,9 +48,9 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class SaveGameFix
+    public class SaveGameFix
     {
-        static internal List<Action<UnitDescriptor>> save_game_actions = new List<Action<UnitDescriptor>>(); 
+        static public List<Action<UnitDescriptor>> save_game_actions = new List<Action<UnitDescriptor>>(); 
     }
 
 

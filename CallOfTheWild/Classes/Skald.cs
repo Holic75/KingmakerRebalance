@@ -47,7 +47,7 @@ using Kingmaker.ResourceLinks;
 namespace CallOfTheWild
 {
    
-    class Skald
+    public class Skald
     {
         static internal bool test_mode = false;
         static LibraryScriptableObject library => Main.library;

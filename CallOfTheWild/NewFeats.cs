@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class NewFeats
+    public static class NewFeats
     {
         static LibraryScriptableObject library => Main.library;
         static public BlueprintFeature raging_brutality;

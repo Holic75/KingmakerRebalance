@@ -39,7 +39,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class HexEngine
+    public class HexEngine
     {
         static LibraryScriptableObject library => Main.library;
         static internal bool test_mode = false;

@@ -43,7 +43,7 @@ using Kingmaker.ElementsSystem;
 
 namespace CallOfTheWild
 {
-    class Wildshape
+    public class Wildshape
     {
         static internal BlueprintAbility beast_shape1 = library.Get<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9");
 

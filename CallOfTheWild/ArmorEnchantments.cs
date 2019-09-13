@@ -21,7 +21,7 @@ using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 
 namespace CallOfTheWild
 {
-    class ArmorEnchantments
+    public static class ArmorEnchantments
     {
         static LibraryScriptableObject library => Main.library;
         public static BlueprintArmorEnchantment[] temporary_shield_enchantments;

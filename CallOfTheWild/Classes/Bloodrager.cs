@@ -38,7 +38,7 @@ using Kingmaker.Blueprints.Items.Armors;
 
 namespace CallOfTheWild
 {
-    class Bloodrager
+    public class Bloodrager
     {
         static internal LibraryScriptableObject library => Main.library;
         static internal bool test_mode = false;

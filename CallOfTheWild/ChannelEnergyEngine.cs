@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class ChannelEnergyEngine
+    public static class ChannelEnergyEngine
     {
         [Flags]
         public enum ChannelType
