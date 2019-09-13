@@ -81,7 +81,7 @@ namespace CallOfTheWild
     // - in most cases, exceptions will be reported to UnityModManager.log or GameLogFull.txt
     //   and those can be debugged.
     //
-    static class ExtensionMethods
+    public static class ExtensionMethods
     {
         public static V PutIfAbsent<K, V>(this IDictionary<K, V> self, K key, V value) where V : class
         {
@@ -908,7 +908,7 @@ namespace CallOfTheWild
 
         public static BlueprintWeaponEnchantment ghostTouch;
 
-        public static void Load()
+        internal static void Load()
         {
             var library = Main.library;
 

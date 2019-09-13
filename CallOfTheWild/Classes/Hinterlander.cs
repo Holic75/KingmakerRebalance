@@ -53,19 +53,19 @@ namespace CallOfTheWild
     {
         static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;
-        static internal BlueprintCharacterClass hinterlander_class;
-        static internal BlueprintProgression hinterlander_progression;
+        static public BlueprintCharacterClass hinterlander_class;
+        static public BlueprintProgression hinterlander_progression;
 
-        static internal BlueprintFeature hinterlander_proficiencies;
-        static internal BlueprintFeatureSelection favored_enemy_selection;
-        static internal BlueprintFeatureSelection improved_favored_enemy_selection;
-        static internal BlueprintFeatureSelection spellbook_selection;
-        static internal BlueprintFeature favored_terrain;
-        static internal BlueprintFeatureSelection master_archer1;
-        static internal BlueprintFeatureSelection master_archer2;
-        static internal BlueprintFeatureSelection master_archer3;
-        static internal BlueprintFeature imbue_arrow;
-        static internal BlueprintFeature choosen_kin;
+        static public BlueprintFeature hinterlander_proficiencies;
+        static public BlueprintFeatureSelection favored_enemy_selection;
+        static public BlueprintFeatureSelection improved_favored_enemy_selection;
+        static public BlueprintFeatureSelection spellbook_selection;
+        static public BlueprintFeature favored_terrain;
+        static public BlueprintFeatureSelection master_archer1;
+        static public BlueprintFeatureSelection master_archer2;
+        static public BlueprintFeatureSelection master_archer3;
+        static public BlueprintFeature imbue_arrow;
+        static public BlueprintFeature choosen_kin;
 
 
         public static void createHinterlanderClass()
