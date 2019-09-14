@@ -43,7 +43,6 @@ namespace CallOfTheWild
         static public BlueprintFeature guided_hand;
         static public BlueprintFeature deadeyes_blessing;
         static public BlueprintFeature paladin_channel_extra;
-        static public BlueprintFeature versatile_channeler;
 
         static internal void load()
         {
@@ -64,62 +63,7 @@ namespace CallOfTheWild
             createExtraChannelPaladin();
             ChannelEnergyEngine.createChannelingScourge();
             ChannelEnergyEngine.createImprovedChannel();
-
-            createVersatileChanneler();
-        }
-
-
-        static void createVersatileChanneler()
-        {
-            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-            var channel_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
-            var channel_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
-
-            BlueprintAbility[] positive_channels = new BlueprintAbility[] { channel_positive.GetComponent<AddFacts>().Facts[1] as BlueprintAbility,
-                                                                            channel_positive.GetComponent<AddFacts>().Facts[2] as BlueprintAbility};
-
-            BlueprintAbility[] negative_channels = new BlueprintAbility[] { channel_negative.GetComponent<AddFacts>().Facts[1] as BlueprintAbility,
-                                                                            channel_negative.GetComponent<AddFacts>().Facts[2] as BlueprintAbility};
-
-            var versatile_channeler_negative = Helpers.CreateFeature("VersatileChannelerNegativeFeature",
-                                                                     "",
-                                                                     "",
-                                                                     "",
-                                                                     null,
-                                                                     FeatureGroup.None,
-                                                                     Helpers.CreateAddFacts(channel_negative),
-                                                                     Common.createRemoveFeatureOnApply(channel_negative.GetComponent<AddFacts>().Facts[3] as BlueprintFeature),
-                                                                     Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = negative_channels; c.value = Common.createSimpleContextValue(-2); })
-                                                                     );
-            versatile_channeler_negative.HideInCharacterSheetAndLevelUp = true;
-
-
-            var versatile_channeler_positive = Helpers.CreateFeature("VersatileChannelerPositiveFeature",
-                                                         "",
-                                                         "",
-                                                         "",
-                                                         null,
-                                                         FeatureGroup.None,
-                                                         Helpers.CreateAddFacts(channel_positive),
-                                                         Common.createRemoveFeatureOnApply(channel_positive.GetComponent<AddFacts>().Facts[3] as BlueprintFeature),
-                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = positive_channels; c.value = Common.createSimpleContextValue(-2); })
-                                                         );
-            versatile_channeler_positive.HideInCharacterSheetAndLevelUp = true;
-
-            versatile_channeler = Helpers.CreateFeature("VersatileChannelerFeature",
-                                                        "Versatile Channeler",
-                                                        "If you normally channel positive energy, you may choose to channel negative energy as if your effective cleric level were 2 levels lower than normal. If you normally channel negative energy, you may choose to channel positive energy as if your effective cleric level were 2 levels lower than normal.\n"
-                                                        + "Note: This feat only applies to neutral clerics who worship neutral deities, or neutral clerics who do not worship a deity — characters who have the channel energy class ability and have to make a choice to channel positive or negative energy at 1st level. Clerics whose alignment or deity makes this choice for them cannot select this feat.",
-                                                        "",
-                                                        null,
-                                                        FeatureGroup.Feat,
-                                                        Common.createAddFeatureIfHasFact(channel_positive, versatile_channeler_positive, not: true),
-                                                        Common.createAddFeatureIfHasFact(channel_negative, versatile_channeler_negative, not: true),
-                                                        channel_positive.GetComponent<PrerequisiteFeature>(),
-                                                        channel_negative.GetComponent<PrerequisiteFeature>(),
-                                                        Common.createPrerequisiteAlignment(AlignmentMaskType.ChaoticNeutral | AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral)
-                                                        );
-            library.AddFeats(versatile_channeler);
+            ChannelEnergyEngine.createVersatileChanneler();
         }
 
 
@@ -132,28 +76,31 @@ namespace CallOfTheWild
             var paladin_heal = library.Get<BlueprintAbility>("6670f0f21a1d7f04db2b8b115e8e6abf");
             var paladin_harm = library.Get<BlueprintAbility>("4937473d1cfd7774a979b625fb833b47");
 
+            BlueprintAbility paladin_harm_base = paladin_channel_energy.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            BlueprintAbility paladin_heal_base = paladin_channel_energy.GetComponent<AddFacts>().Facts[1] as BlueprintAbility;
+
             var heal_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
                                                           "PaladinChannelEnergyHealLivingExtra",
                                                           paladin_heal.Name + " (Extra)",
                                                           paladin_heal.Description,
                                                           "",
-                                                          paladin_channel_energy,
                                                           paladin_heal.GetComponent<ContextRankConfig>(),
                                                           paladin_heal.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
-                                                          Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1),
-                                                          true);
-
+                                                          Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1));
 
             var harm_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                               "PaladinChannelEnergyHarmUndeadExtra",
                                               paladin_harm.Name + " (Extra)",
                                               paladin_harm.Description,
                                               "",
-                                              paladin_channel_energy,
                                               paladin_harm.GetComponent<ContextRankConfig>(),
                                               paladin_harm.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
-                                              Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1),
-                                              true);
+                                              Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1));
+
+            paladin_heal_base.addToAbilityVariants(heal_living_extra);
+            paladin_harm_base.addToAbilityVariants(harm_undead_extra);
+            ChannelEnergyEngine.storeChannel(heal_living_extra, paladin_channel_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(harm_undead_extra, paladin_channel_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
 
             paladin_channel_energy.AddComponent(Helpers.CreateAddFacts(heal_living_extra, harm_undead_extra));
             paladin_channel_energy.AddComponent(Helpers.CreateAddAbilityResource(paladin_extra_channel_resource));

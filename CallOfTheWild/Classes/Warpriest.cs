@@ -88,6 +88,8 @@ namespace CallOfTheWild
         static public BlueprintFeature warpriest_fervor;
         static public BlueprintFeature fervor_positive;
         static public BlueprintFeature fervor_negative;
+        static public BlueprintFeature channel_positive_energy;
+        static public BlueprintFeature channel_negative_energy;
         static public BlueprintFeature warpriest_channel_energy;
         static public ActivatableAbilityGroup sacred_weapon_enchancement_group = ActivatableAbilityGroupExtension.SacredWeaponEnchantment.ToActivatableAbilityGroup();//ActivatableAbilityGroup.TrueMagus;
         static public ActivatableAbilityGroup sacred_armor_enchancement_group = ActivatableAbilityGroupExtension.SacredArmorEnchantment.ToActivatableAbilityGroup();//ActivatableAbilityGroup.ArcaneWeaponProperty;
@@ -551,7 +553,7 @@ namespace CallOfTheWild
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                                                   type: AbilityRankType.Default, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3);
             var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getWarpriestArray(), StatType.Wisdom);
-            var channel_positive_energy = Helpers.CreateFeature("WarpriestChannelPositiveEnergyFeature",
+            channel_positive_energy = Helpers.CreateFeature("WarpriestChannelPositiveEnergyFeature",
                                                                 "Channel Positive Energy",
                                                                 "A good warpriest (or a neutral warpriest who worships a good deity) channels positive energy and can choose to deal damage to undead creatures or to heal living creatures.\n"
                                                                 + "Channeling energy causes a burst that either heals all living creatures or damages all undead creatures in a 30-foot radius centered on the warpriest. The amount of damage dealt or healed is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the warpriest's level + the warpriest's Wisdom modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. Channeling positive energy consumes two uses of fervor ability. This is a standard action that does not provoke an attack of opportunity.",
@@ -564,46 +566,46 @@ namespace CallOfTheWild
                                                                       "",
                                                                       "Channeling positive energy causes a burst that heals all living creatures in a 30 - foot radius centered on the warpriest.The amount of damage healed is equal to that of fervor ability.",
                                                                       "",
-                                                                      channel_positive_energy,
                                                                       context_rank_config,
                                                                       dc_scaling,
-                                                                      Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
-                                                                      true);
+                                                                      Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2));
             harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                                           "WarpriestChannelEnergyHarmUndead",
                                                           "",
                                                           "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the warpriest.The amount of damage dealt is equal to that of fervor ability.Creatures that take damage from channeled energy receive a Will save to halve the damage.The DC of this save is equal to 10 + 1 / 2 the warpriest's level + the warpriest's Wisdom modifier.",
                                                           "",
-                                                          channel_positive_energy,
                                                           context_rank_config,
                                                           dc_scaling,
-                                                          Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
-                                                          true);
+                                                          Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2));
             heal_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
                                                                       "WarpriestChannelEnergyHealLivingExtra",
                                                                       heal_living.Name + " (Extra)",
                                                                       heal_living.Description,
                                                                       "",
-                                                                      channel_positive_energy,
                                                                       context_rank_config,
                                                                       dc_scaling,
-                                                                      Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1),
-                                                                      true);
+                                                                      Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1));
 
             harm_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                                           "WarpriestChannelEnergyHarmUndeadExtra",
                                                           harm_undead.Name + " (Extra)",
                                                           harm_undead.Description,
                                                           "",
-                                                          channel_positive_energy,
                                                           context_rank_config,
                                                           dc_scaling,
-                                                          Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1),
-                                                          true);
+                                                          Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1));
 
-            channel_positive_energy.AddComponent(Helpers.CreateAddFacts(heal_living, harm_undead, heal_living_extra, harm_undead_extra));
+            var heal_living_base = Common.createVariantWrapper("WarpriestPositiveHealBase", "", heal_living, heal_living_extra);
+            var harm_undead_base = Common.createVariantWrapper("WarpriestPositiveHarmBase", "", harm_undead, harm_undead_extra);
 
-            var channel_negative_energy = Helpers.CreateFeature("WarpriestChannelNegativeEnergyFeature",
+            ChannelEnergyEngine.storeChannel(heal_living, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(heal_living_extra, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(harm_undead, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+            ChannelEnergyEngine.storeChannel(harm_undead_extra, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+
+            channel_positive_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
+
+            channel_negative_energy = Helpers.CreateFeature("WarpriestChannelNegativeEnergyFeature",
                                                     "Channel Negative Energy",
                                                     "An evil warpriest (or a neutral cleric who worships an evil deity) channels negative energy and can choose to deal damage to living creatures or to heal undead creatures.\n"
                                                     + "Channeling energy causes a burst that either heals all undead creatures or damages all living creatures in a 30-foot radius centered on the warpriest. The amount of damage dealt or healed is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the warpriest's level + the warpriest's Wisdom modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. Channeling positive energy consumes two uses of fervor ability. This is a standard action that does not provoke an attack of opportunity.",
@@ -616,22 +618,18 @@ namespace CallOfTheWild
                                                           "",
                                                           "Channeling energy causes a burst that damages all living creatures in a 30 - foot radius centered on the warpriest. The amount of damage dealt is equal to that of fervor ability. Creatures that take damage from channeled energy receive a Will save to halve the damage.The DC of this save is equal to 10 + 1 / 2 the warpriest's level + the warpriest's Wisdom modifier. Channeling positive energy consumes two uses of fervor ability. This is a standard action that does not provoke an attack of opportunity.",
                                                           "",
-                                                          channel_negative_energy,
                                                           context_rank_config,
                                                           dc_scaling,
-                                                          Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
-                                                          true);
+                                                          Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2));
 
             var heal_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal,
                                               "WarpriestChannelEnergyHealUndead",
                                               "",
                                               "Channeling positive energy causes a burst that heals all undead creatures in a 30 - foot radius centered on the warpriest. The amount of damage healed is equal to that of fervor ability.",
                                               "",
-                                              channel_negative_energy,
                                               context_rank_config,
                                               dc_scaling,
-                                              Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2),
-                                              true);
+                                              Helpers.CreateResourceLogic(warpriest_fervor_resource, true, 2));
 
 
             var harm_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm,
@@ -639,24 +637,28 @@ namespace CallOfTheWild
                                                           harm_living.Name + " (Extra)",
                                                           harm_living.Description,
                                                           "",
-                                                          channel_negative_energy,
                                                           context_rank_config,
                                                           dc_scaling,
-                                                          Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1),
-                                                          true);
+                                                          Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1));
 
             var heal_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal,
                                                           "WarpriestChannelEnergyHealUndeadExtra",
                                                           heal_undead.Name + " (Extra)",
                                                           heal_undead.Description,
                                                           "",
-                                                          channel_negative_energy,
                                                           context_rank_config,
                                                           dc_scaling,
-                                                          Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1),
-                                                          true);
+                                                          Helpers.CreateResourceLogic(warpriest_extra_channel_resource, true, 1));
 
-            channel_negative_energy.AddComponent(Helpers.CreateAddFacts(harm_living, heal_undead, harm_living_extra, heal_undead_extra));
+            var harm_living_base = Common.createVariantWrapper("WarpriestNegativeHarmBase", "", harm_living, harm_living_extra);
+            var heal_undead_base = Common.createVariantWrapper("WarpriestNegativeHealBase", "", heal_undead, heal_undead_extra);
+
+            ChannelEnergyEngine.storeChannel(harm_living, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHarm);
+            ChannelEnergyEngine.storeChannel(harm_living_extra, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHarm);
+            ChannelEnergyEngine.storeChannel(heal_undead, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHeal);
+            ChannelEnergyEngine.storeChannel(heal_undead_extra, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHeal);
+
+            channel_negative_energy.AddComponent(Helpers.CreateAddFacts(harm_living_base, heal_undead_base));
             warpriest_channel_energy = Helpers.CreateFeature("WarpriestChannelEnergyFeature",
                                                              "Channel energy",
                                                              "Starting at 4th level, a warpriest can release a wave of energy by channeling the power of his faith through his holy (or unholy) symbol. This energy can be used to deal or heal damage, depending on the type of energy channeled and the creatures targeted. Using this ability is a standard action that expends two uses of his fervor ability and doesn’t provoke an attack of opportunity. The warpriest must present a holy (or unholy) symbol to use this ability. A good warpriest (or one who worships a good deity) channels positive energy and can choose to heal living creatures or to deal damage to undead creatures. An evil warpriest (or one who worships an evil deity) channels negative energy and can choose to deal damage to living creatures or heal undead creatures. A neutral warpriest who worships a neutral deity (or one who is not devoted to a particular deity) channels positive energy if he chose to spontaneously cast cure spells or negative energy if he chose to spontaneously cast inflict spells.\n"
@@ -3228,6 +3230,7 @@ namespace CallOfTheWild
             major_ability.SetDescription("At 10th level, when using channel energy to heal living creatures, you can take a swift action on that same turn to also deal damage to undead creatures (as your channel energy ability). Undead take an amount of damage equal to half the amount healed, and can attempt the normal saving throw to halve this damage.");
             addBlessingResourceLogic(major_ability);
 
+            var major_ability_base = Common.createVariantWrapper("WarpriestReposeBlessingMajorBaseAbility", "", major_ability);
 
             var major_feature = Helpers.CreateFeature("WarpriestReposeBlessingMajorFeature",
                                                        major_ability.Name,
@@ -3243,7 +3246,7 @@ namespace CallOfTheWild
                                                 "",
                                                 major_ability.Icon,
                                                 null,
-                                                Helpers.CreateAddFact(major_ability)
+                                                Helpers.CreateAddFact(major_ability_base)
                                                 );
 
             var remove_buff = Helpers.Create<ContextActionOnContextCaster>(c =>
@@ -3253,7 +3256,19 @@ namespace CallOfTheWild
             );
             major_ability.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(remove_buff)));
 
-            ChannelEnergyEngine.addBackToTheGrave(major_feature, major_buff, major_ability);
+
+            var caster_action = Helpers.Create<ContextActionOnContextCaster>(c =>
+            {
+                var apply_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false);
+
+                c.Actions = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(major_feature), apply_buff));
+            }
+            );
+            heal_living.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(caster_action)));
+            heal_living_extra.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(caster_action)));
+
+            ChannelEnergyEngine.storeChannel(major_ability, major_feature, ChannelEnergyEngine.ChannelType.PositiveHarm | ChannelEnergyEngine.ChannelType.BackToTheGrave);
+            ChannelEnergyEngine.updateItemsForChannelDerivative(harm_undead, major_ability);
 
             addBlessing("WarpriestBlessingRepose", "Repose", Common.AbilityToFeature(minor_ability, false), major_feature, "076ba1e3a05fac146acfc956a9f41e95");
         }

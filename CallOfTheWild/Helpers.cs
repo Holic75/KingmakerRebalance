@@ -1661,6 +1661,20 @@ namespace CallOfTheWild
             return a;
         }
 
+
+        public static bool addToAbilityVariants(this BlueprintAbility parent, params BlueprintAbility[] variants)
+        {
+            var comp = parent.GetComponent<AbilityVariants>();
+
+            comp.Variants = comp.Variants.AddToArray(variants);
+
+            foreach (var v in variants)
+            {
+                v.Parent = parent;
+            }
+            return true;
+        }
+
         public static AddFacts CreateAddFact(this BlueprintUnitFact fact)
         {
             var result = Create<AddFacts>();

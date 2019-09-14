@@ -2553,5 +2553,26 @@ namespace CallOfTheWild
         }
 
 
+        public static BlueprintAbility createVariantWrapper(string name, string guid, params BlueprintAbility[] variants)
+        {
+            var wrapper = library.CopyAndAdd<BlueprintAbility>(variants[0].AssetGuid, name, guid);
+
+            //wrapper.SetDescription("");
+            List<BlueprintComponent> components = new List<BlueprintComponent>();
+            /*if (variants[0].GetComponent<AbilityResourceLogic>() != null)
+            {
+                components.Add(Helpers.CreateResourceLogic(variants[0].GetComponent<AbilityResourceLogic>().RequiredResource));
+            }*/
+
+            components.Add(Helpers.CreateAbilityVariants(wrapper, variants));
+            wrapper.ComponentsArray = components.ToArray();
+
+            return wrapper;
+        }
+
+
+
+
+
     }
 }

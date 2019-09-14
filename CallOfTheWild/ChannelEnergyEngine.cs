@@ -2,6 +2,7 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -10,6 +11,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
@@ -22,30 +24,59 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
+
+    public static partial class Extensions
+    {
+        public static bool isOf(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
+        {
+
+            return (this_type & channel_type) != 0;
+        }
+
+
+        public static bool isNotOf(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
+        {
+
+            return (this_type & channel_type) == 0;
+        }
+
+
+        public static bool isBase(this ChannelEnergyEngine.ChannelType this_type)
+        {
+
+            return this_type == ChannelEnergyEngine.ChannelType.PositiveHeal || this_type == ChannelEnergyEngine.ChannelType.NegativeHeal
+                   || this_type == ChannelEnergyEngine.ChannelType.PositiveHarm || this_type == ChannelEnergyEngine.ChannelType.NegativeHarm;
+        }
+    }
+
     public static class ChannelEnergyEngine
     {
         [Flags]
         public enum ChannelType
         {
             None = 0,
-            PositiveHeal = 1,
-            PositiveHarm = 2,
-            NegativeHarm = 4,
-            NegativeHeal = 8,
-            PositiveSmite = 16,
-            NegativeSmite = 32,
+            Positive = 1,
+            Negative = 2,
+            Heal = 4,
+            Harm = 8,
+            Smite = 16,
+            Quick = 32,
             BackToTheGrave = 64,
-            All = ~None,
-            NonSmite = PositiveHeal | PositiveHarm | NegativeHarm | NegativeHeal,
-            Negative = NegativeHarm | NegativeHeal | NegativeSmite,
-            Positive = PositiveHeal | PositiveHarm | PositiveSmite,
-            Heal = PositiveHeal | NegativeHeal,
-            Harm = PositiveHarm | NegativeHarm
+            Cone = 128,
+            Line = 256,
+            HolyVindicatorShield = 512,
+            Form = Cone | Line,
+            PositiveHeal = Positive | Heal,
+            PositiveHarm = Positive | Harm,
+            NegativeHeal = Negative | Heal,
+            NegativeHarm = Negative | Harm,
+            All = ~None
         }
 
         public class ChannelEntry
         {
             public readonly BlueprintAbility ability;
+            public readonly BlueprintAbility base_ability;
             public readonly BlueprintFeature parent_feature;
             public readonly ChannelType channel_type;
 
@@ -53,6 +84,7 @@ namespace CallOfTheWild
             {
                 ability = library.Get<BlueprintAbility>(ability_guid);
                 parent_feature = library.Get<BlueprintFeature>(parent_feature_guid);
+                base_ability = ability.Parent;
                 channel_type = type;
             }
 
@@ -61,6 +93,7 @@ namespace CallOfTheWild
             {
                 ability = channel_ability;
                 parent_feature = channel_parent_feature;
+                base_ability = ability.Parent;
                 channel_type = type;
             }
 
@@ -78,25 +111,8 @@ namespace CallOfTheWild
             }
         }
 
-
-
         static internal LibraryScriptableObject library => Main.library;
-        static List<ChannelEntry> positive_heal = new List<ChannelEntry>{new ChannelEntry("574cf074e8b65e84d9b69a8c6f1af27b","7d49d7f590dc9a948b3bd1c8b7979854", ChannelType.PositiveHeal), //empyreal heal
-                                                                         new ChannelEntry("6670f0f21a1d7f04db2b8b115e8e6abf", "cb6d55dda5ab906459d18a435994a760", ChannelType.PositiveHeal), //paladin heal
-                                                                         new ChannelEntry("0c0cf7fcb356d2448b7d57f2c4db3c0c", "a9ab1bbc79ecb174d9a04699986ce8d5", ChannelType.PositiveHeal), //hospitalier heal
-                                                                         new ChannelEntry("f5fc9a1a2a3c1a946a31b320d1dd31b2", "a79013ff4bcd4864cb669622a29ddafb", ChannelType.PositiveHeal) }; //cleric heal
-
-        static List<ChannelEntry> positive_harm = new List<ChannelEntry>{new ChannelEntry("e1536ee240c5d4141bf9f9485a665128","7d49d7f590dc9a948b3bd1c8b7979854", ChannelType.PositiveHarm), //empyreal_harm
-                                                                         new ChannelEntry("4937473d1cfd7774a979b625fb833b47", "cb6d55dda5ab906459d18a435994a760", ChannelType.PositiveHarm), //paladin harm
-                                                                         new ChannelEntry("cc17243b2185f814aa909ac6b6599eaa", "a9ab1bbc79ecb174d9a04699986ce8d5", ChannelType.PositiveHarm), //hospitalier harm
-                                                                         new ChannelEntry("279447a6bf2d3544d93a0a39c3b8e91d", "a79013ff4bcd4864cb669622a29ddafb", ChannelType.PositiveHarm) }; //cleric harm
-        
-        static List<ChannelEntry> negative_heal = new List<ChannelEntry> { new ChannelEntry("9be3aa47a13d5654cbcb8dbd40c325f2", "3adb2c906e031ee41a01bfc1d5fb7eea", ChannelType.NegativeHeal) };
-        static List<ChannelEntry> negative_harm = new List<ChannelEntry> { new ChannelEntry("89df18039ef22174b81052e2e419c728", "3adb2c906e031ee41a01bfc1d5fb7eea", ChannelType.NegativeHarm) };
-
-        static List<ChannelEntry> negative_smite = new List<ChannelEntry>();
-        static List<ChannelEntry> positive_smite = new List<ChannelEntry>();
-        static List<ChannelEntry> back_to_the_grave = new List<ChannelEntry>();
+        static List<ChannelEntry> channel_entires = new List<ChannelEntry>();
 
         static BlueprintFeature selective_channel = library.Get<BlueprintFeature>("fd30c69417b434d47b6b03b9c1f568ff");
 
@@ -109,70 +125,327 @@ namespace CallOfTheWild
         static public BlueprintFeature improved_channel = null;
         static public BlueprintFeature channeling_scourge = null;
 
-        static BlueprintBuff back_to_the_grave_buff = null;
-        static BlueprintFeature back_to_the_grave_feature = null;
-
         static BlueprintFeature witch_channel_negative;
         static BlueprintFeature witch_channel_positive;
 
+        static BlueprintAbility back_to_the_grave_base = null;
+        static public BlueprintFeature versatile_channeler = null;
+        static internal BlueprintFeature versatile_channeler_positive = null;
+        static internal BlueprintFeature versatile_channeler_negative = null;
+        static internal BlueprintFeature versatile_channeler_positive_warpriest = null;
+        static internal BlueprintFeature versatile_channeler_negative_warpriest = null;
 
 
 
-        public static List<ChannelEntry> getAllChannels(ChannelType type_mask = ChannelType.All)
+        internal static void init()
         {
-           
-            List<ChannelEntry> entries = new List<ChannelEntry>();
+            var empyreal_sorc_channel_feature = library.Get<BlueprintFeature>("7d49d7f590dc9a948b3bd1c8b7979854");
+            var cleric_negative_channel_feature = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
+            var cleric_positve_channel_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var paladin_channel_feature = library.Get<BlueprintFeature>("cb6d55dda5ab906459d18a435994a760");
+            var hospitalier_channel_feature = library.Get<BlueprintFeature>("a9ab1bbc79ecb174d9a04699986ce8d5");
 
-            if ((type_mask & ChannelType.PositiveHeal) != ChannelType.None)
-            {
-                entries.AddRange(positive_heal);
-            }
+            var empyreal_sorc_positive_heal = library.Get<BlueprintAbility>("574cf074e8b65e84d9b69a8c6f1af27b");
+            var empyreal_sorc_positive_harm = library.Get<BlueprintAbility>("e1536ee240c5d4141bf9f9485a665128");
+            var cleric_positive_heal = library.Get<BlueprintAbility>("f5fc9a1a2a3c1a946a31b320d1dd31b2");
+            var cleric_positive_harm = library.Get<BlueprintAbility>("279447a6bf2d3544d93a0a39c3b8e91d");
+            var cleric_negative_heal = library.Get<BlueprintAbility>("9be3aa47a13d5654cbcb8dbd40c325f2");
+            var cleric_negative_harm = library.Get<BlueprintAbility>("89df18039ef22174b81052e2e419c728");
 
-            if ((type_mask & ChannelType.PositiveHarm) != ChannelType.None)
-            {
-                entries.AddRange(positive_harm);
-            }
+            var paladin_positive_heal = library.Get<BlueprintAbility>("6670f0f21a1d7f04db2b8b115e8e6abf");
+            var paladin_positive_harm = library.Get<BlueprintAbility>("4937473d1cfd7774a979b625fb833b47");
+            var hospitalier_positive_heal = library.Get<BlueprintAbility>("0c0cf7fcb356d2448b7d57f2c4db3c0c");
+            var hospitalier_positive_harm = library.Get<BlueprintAbility>("cc17243b2185f814aa909ac6b6599eaa");
 
-            if ((type_mask & ChannelType.NegativeHeal) != ChannelType.None)
-            {
-                entries.AddRange(negative_heal);
-            }
+            var empyreal_sorc_positive_heal_base = Common.createVariantWrapper("EmpyrealSorcerorPositiveChannelHealBase", "", empyreal_sorc_positive_heal);
+            var empyreal_sorc_positive_harm_base = Common.createVariantWrapper("EmpyrealSorcerorPositiveChannelHarmBase", "", empyreal_sorc_positive_harm);
 
-            if ((type_mask & ChannelType.NegativeHarm) != ChannelType.None)
-            {
-                entries.AddRange(negative_harm);
-            }
+            var cleric_positive_heal_base = Common.createVariantWrapper("ClericPositiveChannelHealBase", "", cleric_positive_heal);
+            var cleric_positive_harm_base = Common.createVariantWrapper("ClericPositiveChannelHarmBase", "", cleric_positive_harm);
+            var cleric_negative_heal_base = Common.createVariantWrapper("ClericNegativeChannelHealBase", "", cleric_negative_heal);
+            var cleric_negative_harm_base = Common.createVariantWrapper("ClericNegativeChannelHarmBase", "", cleric_negative_harm);
 
+            var paladin_positive_heal_base = Common.createVariantWrapper("PaladinPositiveChannelHealBase", "", paladin_positive_heal);
+            var paladin_positive_harm_base = Common.createVariantWrapper("PaladinPositiveChannelHarmBase", "", paladin_positive_harm);
 
-            if ((type_mask & ChannelType.NegativeSmite) != ChannelType.None)
-            {
-                entries.AddRange(negative_smite);
-            }
+            var hospitalier_positive_heal_base = Common.createVariantWrapper("HospitalierPositiveChannelHealBase", "", hospitalier_positive_heal);
+            var hospitalier_positive_harm_base = Common.createVariantWrapper("HospitalierPositiveChannelHarmBase", "", hospitalier_positive_harm);
 
 
-            if ((type_mask & ChannelType.PositiveSmite) != ChannelType.None)
-            {
-                entries.AddRange(positive_smite);
-            }
+            empyreal_sorc_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { empyreal_sorc_positive_heal_base, empyreal_sorc_positive_harm_base };
+            paladin_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { paladin_positive_heal_base, paladin_positive_harm_base };
+            hospitalier_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { hospitalier_positive_heal_base, hospitalier_positive_harm_base };
 
-            return entries;
+            cleric_positve_channel_feature.GetComponent<AddFacts>().Facts[1] = cleric_positive_heal_base;
+            cleric_positve_channel_feature.GetComponent<AddFacts>().Facts[2] = cleric_positive_harm_base;
+            cleric_negative_channel_feature.GetComponent<AddFacts>().Facts[1] = cleric_negative_heal_base;
+            cleric_negative_channel_feature.GetComponent<AddFacts>().Facts[2] = cleric_negative_harm_base;
+
+            storeChannel(empyreal_sorc_positive_heal, empyreal_sorc_channel_feature, ChannelType.PositiveHeal);
+            storeChannel(empyreal_sorc_positive_harm, empyreal_sorc_channel_feature, ChannelType.PositiveHarm);
+
+            storeChannel(paladin_positive_heal, paladin_channel_feature, ChannelType.PositiveHeal);
+            storeChannel(paladin_positive_harm, paladin_channel_feature, ChannelType.PositiveHarm);
+
+            storeChannel(hospitalier_positive_heal, hospitalier_channel_feature, ChannelType.PositiveHeal);
+            storeChannel(hospitalier_positive_harm, hospitalier_channel_feature, ChannelType.PositiveHarm);
+
+            storeChannel(cleric_positive_heal, cleric_positve_channel_feature, ChannelType.PositiveHeal);
+            storeChannel(cleric_positive_harm, cleric_positve_channel_feature, ChannelType.PositiveHarm);
+            storeChannel(cleric_negative_heal, cleric_negative_channel_feature, ChannelType.NegativeHeal);
+            storeChannel(cleric_negative_harm, cleric_negative_channel_feature, ChannelType.NegativeHarm);
+
         }
 
 
-        public static List<BlueprintAbility> getChannelsByClass(ChannelType type_mask, BlueprintCharacterClass character_class)
+        static public void createVersatileChanneler()
         {
-            var channels = getAllChannels(type_mask);
+            var channel_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var channel_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
 
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var allow_positive = channel_positive.GetComponent<PrerequisiteFeature>().Feature;
+            var allow_negative = channel_negative.GetComponent<PrerequisiteFeature>().Feature;
+            allow_positive.SetName("Diety Allows Channeling Positive Energy");
+            allow_negative.SetName("Diety Allows Channeling Negative Energy");
+            versatile_channeler_negative = Helpers.CreateFeature("VersatileChannelerNegativeFeature",
+                                                                     "",
+                                                                     "",
+                                                                     "",
+                                                                     null,
+                                                                     FeatureGroup.None,
+                                                                     Helpers.CreateAddFacts(channel_negative),
+                                                                     Common.createRemoveFeatureOnApply(channel_negative.GetComponent<AddFacts>().Facts[3] as BlueprintFeature),
+                                                                     Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => 
+                                                                                                                                             { c.spells = new BlueprintAbility[0];
+                                                                                                                                               c.value = Common.createSimpleContextValue(-2);
+                                                                                                                                             })
+                                                                     );
+           versatile_channeler_negative.HideInCharacterSheetAndLevelUp = true;
+
+           versatile_channeler_positive = Helpers.CreateFeature("VersatileChannelerPositiveFeature",
+                                                         "",
+                                                         "",
+                                                         "",
+                                                         null,
+                                                         FeatureGroup.None,
+                                                         Helpers.CreateAddFacts(channel_positive),
+                                                         Common.createRemoveFeatureOnApply(channel_positive.GetComponent<AddFacts>().Facts[3] as BlueprintFeature),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => 
+                                                                                                                                 { c.spells = new BlueprintAbility[0];
+                                                                                                                                   c.value = Common.createSimpleContextValue(-2);
+                                                                                                                                 }
+                                                                                                                                 )
+                                                         );
+            versatile_channeler_positive.HideInCharacterSheetAndLevelUp = true;
+
+            versatile_channeler_positive_warpriest = Helpers.CreateFeature("VersatileChannelerPositiveWarpriestFeature",
+                                                                              "",
+                                                                              "",
+                                                                              "",
+                                                                              null,
+                                                                              FeatureGroup.None,
+                                                                              Helpers.CreateAddFacts(Warpriest.channel_positive_energy),
+                                                                              Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
+                                                                              {
+                                                                                  c.spells = new BlueprintAbility[0];
+                                                                                  c.value = Common.createSimpleContextValue(-2);
+                                                                              }                                                                     )
+                                                                              );
+            versatile_channeler_positive_warpriest.HideInCharacterSheetAndLevelUp = true;
+
+
+            versatile_channeler_negative_warpriest = Helpers.CreateFeature("VersatileChannelerNegativeWarpriestFeature",
+                                                                  "",
+                                                                  "",
+                                                                  "",
+                                                                  null,
+                                                                  FeatureGroup.None,
+                                                                  Helpers.CreateAddFacts(Warpriest.channel_negative_energy),
+                                                                  Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
+                                                                  {
+                                                                      c.spells = new BlueprintAbility[0];
+                                                                      c.value = Common.createSimpleContextValue(-2);
+                                                                  })
+                                                                  );
+            versatile_channeler_negative_warpriest.HideInCharacterSheetAndLevelUp = true;
+
+
+            versatile_channeler = Helpers.CreateFeature("VersatileChannelerFeature",
+                                                        "Versatile Channeler",
+                                                        "If you normally channel positive energy, you may choose to channel negative energy as if your effective cleric level were 2 levels lower than normal. If you normally channel negative energy, you may choose to channel positive energy as if your effective cleric level were 2 levels lower than normal.\n"
+                                                        + "Note: This feat only applies to neutral clerics or warpriests who worship neutral deities — characters who have the channel energy class ability and have to make a choice to channel positive or negative energy at 1st level. Characters whose alignment or deity makes this choice for them cannot select this feat.",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.Feat,
+                                                        Common.createAddFeatureIfHasFact(channel_negative, versatile_channeler_positive),
+                                                        Common.createAddFeatureIfHasFact(channel_positive, versatile_channeler_negative),
+                                                        Common.createAddFeatureIfHasFact(Warpriest.channel_positive_energy, versatile_channeler_negative_warpriest),
+                                                        Common.createAddFeatureIfHasFact(Warpriest.channel_negative_energy, versatile_channeler_positive_warpriest),
+                                                        channel_positive.GetComponent<PrerequisiteFeature>(),
+                                                        channel_negative.GetComponent<PrerequisiteFeature>(),
+                                                        Helpers.PrerequisiteFeaturesFromList(channel_negative, channel_positive, Warpriest.channel_positive_energy, Warpriest.channel_negative_energy),
+                                                        Helpers.PrerequisiteClassLevel(cleric, 1, true),
+                                                        Helpers.PrerequisiteClassLevel(Warpriest.warpriest_class, 4, true),
+                                                        Common.createPrerequisiteAlignment(AlignmentMaskType.ChaoticNeutral | AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral)
+                                                        );
+            library.AddFeats(versatile_channeler);
+
+            foreach (var c in channel_entires)
+            {
+                addToVersatileChanneler(c);
+            }
+        }
+
+
+        static void addToVersatileChanneler(ChannelEntry entry)
+        {
+            if (versatile_channeler == null)
+            {
+                return;
+            }
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+
+            if (entry.scalesWithClass(cleric))
+            {
+                if (entry.channel_type.isOf(ChannelType.Positive))
+                {
+                    var comp = versatile_channeler_positive.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+                    comp.spells = comp.spells.AddToArray(entry.ability);
+                }
+                else if (entry.channel_type.isOf(ChannelType.Negative))
+                {
+                    var comp = versatile_channeler_negative.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+                    comp.spells = comp.spells.AddToArray(entry.ability);
+                }
+            }
+
+            if (entry.scalesWithClass(Warpriest.warpriest_class))
+            {
+                if (entry.channel_type.isOf(ChannelType.Positive))
+                {
+                    var comp = versatile_channeler_positive_warpriest.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+                    comp.spells = comp.spells.AddToArray(entry.ability);
+                }
+                else if (entry.channel_type.isOf(ChannelType.Negative))
+                {
+                    var comp = versatile_channeler_negative_warpriest.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+                    comp.spells = comp.spells.AddToArray(entry.ability);
+                }
+            }
+        }
+
+        //this function will only create ability without storing it
+        //user will need to put it inside wrapper and then call storeChannel
+        public static BlueprintAbility createChannelEnergy(ChannelType channel_type, string name, string dispaly_name, string description, string guid,
+                                                           ContextRankConfig rank_config, NewMechanics.ContextCalculateAbilityParamsBasedOnClasses dc_scaling,
+                                                           AbilityResourceLogic resource_logic)
+        {
+            string original_guid = "";
+            switch (channel_type)
+            {
+                case ChannelType.PositiveHeal:
+                    original_guid = "f5fc9a1a2a3c1a946a31b320d1dd31b2";
+                    break;
+                case ChannelType.PositiveHarm:
+                    original_guid = "279447a6bf2d3544d93a0a39c3b8e91d";
+                    break;
+                case ChannelType.NegativeHarm:
+                    original_guid = "89df18039ef22174b81052e2e419c728";
+                    break;
+                case ChannelType.NegativeHeal:
+                    original_guid = "9be3aa47a13d5654cbcb8dbd40c325f2";
+                    break;
+                default:
+                    throw Main.Error("Only base channel abilities can be created");
+            }
+
+            var ability = library.CopyAndAdd<BlueprintAbility>(original_guid, name, guid);
+
+            if (dispaly_name != "")
+            {
+                ability.SetName(dispaly_name);
+            }
+
+            if (description != "")
+            {
+                ability.SetDescription(description);
+            }
+
+            ability.ReplaceComponent<ContextRankConfig>(rank_config);
+            ability.ReplaceComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(dc_scaling);
+
+            if (resource_logic != null)
+            {
+                ability.ReplaceComponent<AbilityResourceLogic>(resource_logic);
+            }
+            else
+            {
+                ability.RemoveComponents<AbilityResourceLogic>();
+            }
+
+
+            updateItemsForChannelDerivative(library.Get<BlueprintAbility>(original_guid), ability);
+
+            return ability;
+        }
+
+
+        public static void storeChannel(BlueprintAbility ability, BlueprintFeature parent_feature, ChannelType channel_type)
+        {
+            var entry = new ChannelEntry(ability, parent_feature, channel_type);
+            channel_entires.Add(entry);
+
+            addToImprovedChannel(entry);
+            addToChannelingScourge(entry);
+
+            addToWitchImprovedChannelHexScaling(entry);
+            addToQuickChannel(entry);
+
+            addToChannelSmite(entry);
+
+            addToImprovedChannel(entry);
+
+            Common.addFeaturePrerequisiteOr(selective_channel, parent_feature);
+
+            addToBackToTheGrave(entry);
+            addToVersatileChanneler(entry);
+        }
+
+
+        public static void addToBackToTheGrave(ChannelEntry entry)
+        {
+            if (entry.channel_type.isOf(ChannelType.BackToTheGrave))
+            {
+                if (back_to_the_grave_base == null)
+                {
+                    back_to_the_grave_base = entry.base_ability;
+                }
+                else
+                {
+                    back_to_the_grave_base.addToAbilityVariants(entry.ability);
+                }
+            }
+        }
+
+
+        public static List<ChannelEntry> getChannels(Predicate<ChannelEntry> p)
+        {
+            return channel_entires.Where(c => p(c)).ToList();
+        }
+
+
+        public static List<BlueprintAbility> getChannelAbilities(Predicate<ChannelEntry> p)
+        {
             List<BlueprintAbility> abilities = new List<BlueprintAbility>();
 
-            foreach (var c in channels)
+            foreach(var c in channel_entires)
             {
-                if (c.scalesWithClass(character_class))
+                if (p(c))
                 {
                     abilities.Add(c.ability);
                 }
             }
-
             return abilities;
         }
 
@@ -182,9 +455,7 @@ namespace CallOfTheWild
             witch_channel_negative = negative_channel;
             witch_channel_positive = positive_channel;
 
-            var channels = getAllChannels();
-
-            foreach (var c in channels)
+            foreach (var c in channel_entires)
             {
                 addToWitchImprovedChannelHexScaling(c);
             }
@@ -212,54 +483,6 @@ namespace CallOfTheWild
             }
         }
 
-        internal static void addBackToTheGrave(BlueprintFeature feature, BlueprintBuff buff, BlueprintAbility prototype_ability)
-        {
-            back_to_the_grave_feature = feature;
-            back_to_the_grave_buff = buff;
-
-            back_to_the_grave_buff.AddComponent(Helpers.CreateAddFacts());
-
-            var channels = getChannelsByClass(ChannelType.PositiveHeal, Warpriest.warpriest_class);
-            var harm_undead_warpriest = getChannelsByClass(ChannelType.PositiveHarm, Warpriest.warpriest_class);
-            ChannelEnergyEngine.updateItemsForChannelDerivative(harm_undead_warpriest[0], prototype_ability);
-
-            foreach (var c in channels)
-            {
-                addBackToTheGraveEffect(c);
-            }
-
-            storeChannel(prototype_ability, feature, ChannelType.BackToTheGrave);
-        }
-
-        static void addToBackToTheGrave(BlueprintAbility ability)
-        {
-            if (back_to_the_grave_feature == null)
-            {
-                return;
-            }
-
-            var component = back_to_the_grave_buff.GetComponent<AddFacts>();
-            component.Facts = component.Facts.AddToArray(ability);
-        }
-
-
-        static void addBackToTheGraveEffect(BlueprintAbility ability)
-        {
-            if (back_to_the_grave_feature == null)
-            {
-                return;
-            }
-
-            var caster_action = Helpers.Create<ContextActionOnContextCaster>(c =>
-                                {
-                                    var apply_buff = Common.createContextActionApplyBuff(back_to_the_grave_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false);
-
-                                    c.Actions = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(back_to_the_grave_feature), apply_buff));
-                                }
-                                                                            );
-            ability.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(caster_action)));
-        }
-
 
         internal static void createChannelingScourge()
         {
@@ -271,7 +494,7 @@ namespace CallOfTheWild
             var harm_living = library.Get<BlueprintAbility>("89df18039ef22174b81052e2e419c728");
 
 
-            var channels = getChannelsByClass(ChannelType.Harm, cleric);
+            var channels = getChannelAbilities(c => c.channel_type.isOf(ChannelType.Harm | ChannelType.Smite) && c.channel_type.isNotOf(ChannelType.BackToTheGrave) && c.scalesWithClass(cleric));
 
             channeling_scourge = Helpers.CreateFeature("ChannelingScourgeFeature",
                                                        "Channeling Scourge",
@@ -315,7 +538,7 @@ namespace CallOfTheWild
                 return;
             }
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-            if ((c.channel_type & ChannelType.Harm) != ChannelType.None && c.scalesWithClass(cleric))
+            if (c.channel_type.isOf(ChannelType.Harm) && c.channel_type.isNotOf(ChannelType.BackToTheGrave)  && c.scalesWithClass(cleric))
             {
                 var components = channeling_scourge.GetComponents<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
                 foreach (var component in components)
@@ -326,23 +549,23 @@ namespace CallOfTheWild
         }
 
 
-        static void addToImprovedChannel(BlueprintAbility ability, BlueprintFeature parent_feature)
+        static void addToImprovedChannel(ChannelEntry c)
         {
             if (improved_channel == null)
             {
                 return;
             }
             var prereq = improved_channel.GetComponent<PrerequisiteFeaturesFromList>();
-            if (!prereq.Features.Contains(parent_feature))
+            if (!prereq.Features.Contains(c.parent_feature))
             {
-                prereq.Features = prereq.Features.AddToArray(parent_feature);
+                prereq.Features = prereq.Features.AddToArray(c.parent_feature);
             }
 
             var abilities = improved_channel.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
 
-            if (!abilities.spells.Contains(ability))
+            if (!abilities.spells.Contains(c.ability))
             {
-                abilities.spells = abilities.spells.AddToArray(ability);
+                abilities.spells = abilities.spells.AddToArray(c.ability);
             }
         }
 
@@ -359,15 +582,14 @@ namespace CallOfTheWild
                                                      Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 2; c.spells = new BlueprintAbility[0]; })
                                                      );
 
-            var channels = getAllChannels();
-
-            foreach (var c in channels)
+            foreach (var c in channel_entires)
             {
-                addToImprovedChannel(c.ability, c.parent_feature);
+                addToImprovedChannel(c);
             }
 
             library.AddFeats(improved_channel);
         }
+
 
         public static void createChannelSmite()
         {
@@ -380,51 +602,43 @@ namespace CallOfTheWild
                                       FeatureGroup.Feat);
             channel_smite.Groups = channel_smite.Groups.AddToArray(FeatureGroup.CombatFeat);
 
-            var channels = getAllChannels(ChannelType.PositiveHarm | ChannelType.NegativeHarm);
-
-            foreach (var c in channels)
+            foreach (var c in channel_entires.ToArray())
             {
-                addToChannelSmite(c.ability, c.parent_feature, c.channel_type);
+                addToChannelSmite(c);
             }
-
 
             library.AddCombatFeats(channel_smite);
         }
 
-        static void addToChannelSmite(BlueprintAbility channel, BlueprintFeature parent_feature, ChannelType channel_type)
+        static void addToChannelSmite(ChannelEntry c)
         {
             if (channel_smite == null)
             {
                 return;
             }
 
-            if (!(channel_type == ChannelType.NegativeHarm || channel_type == ChannelType.PositiveHarm))
+            if (!(c.channel_type.isOf(ChannelType.Harm) && c.channel_type.isBase()))
             {
                 return;
             }
 
-            if (channel.ActionType != Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard)
-            {
-                return;// do not add smite on quick channel
-            }
-
-            Common.addFeaturePrerequisiteOr(channel_smite, parent_feature);
+            Common.addFeaturePrerequisiteOr(channel_smite, c.parent_feature);
 
             var resounding_blow = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea");
             var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
-            var buff = Helpers.CreateBuff("ChannelSmite" + channel.name + "Buff",
-                                          $"Channel Smite ({channel.Name})",
+            var buff = Helpers.CreateBuff("ChannelSmite" + c.ability.name + "Buff",
+                                          $"Channel Smite ({c.ability.Name})",
                                           channel_smite.Description,
-                                          Helpers.MergeIds(channel.AssetGuid, "0d406cf592524c85b796216ed4ee3ab3"),
+                                          Helpers.MergeIds(c.ability.AssetGuid, "0d406cf592524c85b796216ed4ee3ab3"),
                                           resounding_blow.Icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(channel.GetComponent<AbilityEffectRunAction>().Actions,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(c.ability.GetComponent<AbilityEffectRunAction>().Actions,
                                                                                            check_weapon_range_type: true),
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
                                                                                            check_weapon_range_type: true,
                                                                                            only_hit: false,
                                                                                            on_initiator: true),
-                                           channel.GetComponent<ContextRankConfig>()
+                                           c.ability.GetComponent<ContextRankConfig>()
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff,
@@ -432,39 +646,40 @@ namespace CallOfTheWild
                                                                  dispellable: false
                                                                  );
 
-            var ability = Helpers.CreateAbility("ChannelSmite" + channel.name,
+            var ability = Helpers.CreateAbility("ChannelSmite" + c.ability.name,
                                                 buff.Name,
                                                 buff.Description,
-                                                Helpers.MergeIds(channel.AssetGuid, "81e5fc81f1a644d5898a9fdbda752e95"),
+                                                Helpers.MergeIds(c.ability.AssetGuid, "81e5fc81f1a644d5898a9fdbda752e95"),
                                                 buff.Icon,
                                                 AbilityType.Supernatural,
                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
                                                 AbilityRange.Personal,
                                                 Helpers.oneRoundDuration,
-                                                channel.LocalizedSavingThrow,
+                                                c.ability.LocalizedSavingThrow,
                                                 smite_evil.GetComponent<AbilitySpawnFx>(),
-                                                channel.GetComponent<AbilityResourceLogic>(),
+                                                c.ability.GetComponent<AbilityResourceLogic>(),
                                                 Helpers.CreateRunActions(apply_buff),
-                                                channel.GetComponent<ContextRankConfig>(),
-                                                channel.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>()
+                                                c.ability.GetComponent<ContextRankConfig>(),
+                                                c.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                                Common.createAbilityShowIfCasterHasFact(channel_smite)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
-            updateItemsForChannelDerivative(channel, ability);
 
-            var caster_alignment = channel.GetComponent<AbilityCasterAlignment>();
+            c.base_ability.addToAbilityVariants(ability);
+            updateItemsForChannelDerivative(c.ability, ability);
+
+            var caster_alignment = c.ability.GetComponent<AbilityCasterAlignment>();
             if (caster_alignment != null)
             {
                 ability.AddComponent(caster_alignment);
             }
 
-            var smite_feature = Common.AbilityToFeature(ability, guid: Helpers.MergeIds(ability.AssetGuid, parent_feature.AssetGuid));
+            var smite_feature = Common.AbilityToFeature(ability, guid: Helpers.MergeIds(ability.AssetGuid, c.parent_feature.AssetGuid));
+            smite_feature.ComponentsArray = new BlueprintComponent[0];
 
-            channel_smite.AddComponent(Common.createAddFeatureIfHasFact(parent_feature, smite_feature));
-            parent_feature.AddComponent(Common.createAddFeatureIfHasFact(channel_smite, smite_feature));
+            normal_smite_map.Add(c.ability.AssetGuid, ability.AssetGuid);
 
-            normal_smite_map.Add(channel.AssetGuid, ability.AssetGuid);
-
-            storeChannel(ability, smite_feature, channel_type == ChannelType.NegativeHarm ? ChannelType.NegativeSmite : ChannelType.PositiveSmite);
+            storeChannel(ability, c.parent_feature, c.channel_type | ChannelType.Smite);
         }
 
 
@@ -479,46 +694,48 @@ namespace CallOfTheWild
                                                   FeatureGroup.Feat,
                                                   Helpers.PrerequisiteStatValue(Kingmaker.EntitySystem.Stats.StatType.SkillLoreReligion, 5));
 
-            var channels = getAllChannels(ChannelType.NonSmite);
-
-            foreach (var c in channels)
+        
+            foreach (var c in channel_entires.ToArray())
             {
-                addToQuickChannel(c.ability, c.parent_feature, c.channel_type);
+                addToQuickChannel(c);
             }
 
             library.AddFeats(quick_channel);
         }
 
 
-        static void addToQuickChannel(BlueprintAbility channel, BlueprintFeature parent_feature, ChannelType channel_type)
+        static void addToQuickChannel(ChannelEntry entry)
         {
             if (quick_channel == null)
             {
                 return;
             }
 
-            if (channel.ActionType != Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard)
+            if (entry.ability.ActionType != Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard)
             {
                 return;
             }
 
-            Common.addFeaturePrerequisiteOr(quick_channel, parent_feature);
+            Common.addFeaturePrerequisiteOr(quick_channel, entry.parent_feature);
 
-            var quicken_ability = library.CopyAndAdd<BlueprintAbility>(channel.AssetGuid, "Quick" + channel.name, channel.AssetGuid, "e936d73a1dfe42efb1765b980c80e113");
+            var quicken_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Quick" + entry.ability.name, entry.ability.AssetGuid, "e936d73a1dfe42efb1765b980c80e113");
             quicken_ability.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move;
             quicken_ability.SetName(quicken_ability.Name + $" ({quick_channel.Name})");
             var resource_logic = quicken_ability.GetComponent<AbilityResourceLogic>();
             var amount = resource_logic.Amount;
             quicken_ability.ReplaceComponent<AbilityResourceLogic>(c => { c.Amount = amount * 2;});
-            updateItemsForChannelDerivative(channel, quicken_ability);
 
-            var quicken_feature = Common.AbilityToFeature(quicken_ability, guid: Helpers.MergeIds(quicken_ability.AssetGuid, parent_feature.AssetGuid));
-            quick_channel.AddComponent(Common.createAddFeatureIfHasFact(parent_feature, quicken_feature));
-            parent_feature.AddComponent(Common.createAddFeatureIfHasFact(quick_channel, quicken_feature));
+            quicken_ability.AddComponent(Common.createAbilityShowIfCasterHasFact(quick_channel));
+            entry.base_ability.addToAbilityVariants(quicken_ability);
 
-            storeChannel(quicken_ability, quicken_feature, channel_type);
+            updateItemsForChannelDerivative(entry.ability, quicken_ability);
 
-            normal_quick_channel_map.Add(channel.AssetGuid, quicken_ability.AssetGuid);
+            var quicken_feature = Common.AbilityToFeature(quicken_ability, guid: Helpers.MergeIds(quicken_ability.AssetGuid, entry.parent_feature.AssetGuid));
+            quicken_feature.ComponentsArray = new BlueprintComponent[0];
+
+            storeChannel(quicken_ability, quicken_feature, entry.channel_type | ChannelType.Quick);
+
+            normal_quick_channel_map.Add(entry.ability.AssetGuid, quicken_ability.AssetGuid);
         }
 
 
@@ -541,113 +758,7 @@ namespace CallOfTheWild
             return library.Get<BlueprintAbility>(normal_smite_map[normal_channel_ability.AssetGuid]);
         }
 
-        public static BlueprintAbility createChannelEnergy(ChannelType channel_type, string name, string dispaly_name, string description, string guid, BlueprintFeature parent_feature, 
-                                                           ContextRankConfig rank_config, NewMechanics.ContextCalculateAbilityParamsBasedOnClasses dc_scaling,
-                                                           AbilityResourceLogic resource_logic, bool update_items = false)
-        {
-            string original_guid = "";
-            BlueprintAbility prototype = null;
-            switch (channel_type)
-            {
-                case ChannelType.PositiveHeal:
-                    original_guid = "f5fc9a1a2a3c1a946a31b320d1dd31b2";
-                    prototype = positive_heal[0].ability;
-                    break;
-                case ChannelType.PositiveHarm:
-                    original_guid = "279447a6bf2d3544d93a0a39c3b8e91d";
-                    prototype = positive_harm[0].ability;
-                    break;
-                case ChannelType.NegativeHarm:
-                    original_guid = "89df18039ef22174b81052e2e419c728";
-                    prototype = negative_harm[0].ability;
-                    break;
-                case ChannelType.NegativeHeal:
-                    original_guid = "9be3aa47a13d5654cbcb8dbd40c325f2";
-                    prototype = negative_heal[0].ability;
-                    break;
-            }
-
-            var ability = library.CopyAndAdd<BlueprintAbility>(original_guid, name, guid);
-            if (dispaly_name != "")
-            {
-                ability.SetName(dispaly_name);
-            }
-
-            if (description != "")
-            {
-                ability.SetDescription(description);
-            }
-
-            ability.ReplaceComponent<ContextRankConfig>(rank_config);
-            ability.ReplaceComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(dc_scaling);
-
-            if (resource_logic != null)
-            {
-                ability.ReplaceComponent<AbilityResourceLogic>(resource_logic);
-            }
-            else
-            {
-                ability.RemoveComponents<AbilityResourceLogic>();
-            }
-
-
-
-            if (update_items)
-            {
-                updateItemsForChannelDerivative(prototype, ability);
-            }
-
-
-            storeChannel(ability, parent_feature, channel_type);
-            addToChannelSmite(ability, parent_feature, channel_type);
-            addToQuickChannel(ability, parent_feature, channel_type);
-            addToSelectiveChannel(parent_feature);
-
-            return ability;
-        }
-
-
-
-        static void storeChannel(BlueprintAbility ability, BlueprintFeature parent_feature, ChannelType channel_type)
-        {
-            var entry = new ChannelEntry(ability, parent_feature, channel_type);
-            switch (channel_type)
-            {
-                case ChannelType.PositiveHeal:
-                    positive_heal.Add(entry);
-                    break;
-                case ChannelType.PositiveHarm:
-                    positive_harm.Add(entry);
-                    break;
-                case ChannelType.NegativeHarm:
-                    negative_harm.Add(entry);
-                    break;
-                case ChannelType.NegativeHeal:
-                    negative_heal.Add(entry);
-                    break;
-                case ChannelType.NegativeSmite:
-                    negative_smite.Add(entry);
-                    break;
-                case ChannelType.PositiveSmite:
-                    positive_smite.Add(entry);
-                    break;
-                case ChannelType.BackToTheGrave:
-                    back_to_the_grave.Add(entry);
-                    addToBackToTheGrave(entry.ability);
-                    break;
-            }
-
-            addToImprovedChannel(ability, parent_feature);
-            addToChannelingScourge(entry);
-            addToWitchImprovedChannelHexScaling(entry);
-
-            if (entry.scalesWithClass(Warpriest.warpriest_class) && entry.channel_type == ChannelType.PositiveHeal)
-            {
-                addBackToTheGraveEffect(entry.ability);
-            }
-        }
-
-
+ 
         static void addToSelectiveChannel(BlueprintFeature parent_feature)
         {
             selective_channel.AddComponent(Helpers.PrerequisiteFeature(parent_feature, true));
@@ -672,33 +783,6 @@ namespace CallOfTheWild
 
             library.AddFeats(extra_channel);
             return extra_channel;
-        }
-
-
-        static public void updateItemsFeature(ChannelType channel_type, BlueprintFeature feature)
-        {
-            //phylacteries bonuses
-            var negative_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("60f06749fa4729c49bc3eb2eb7e3b316");
-            var positive_bonus1 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("f5d0bf8c1b4574848acb8d1fbb544807");
-            var negative_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("cb4a39044b59f5e47ad5bc08ff9d6669");
-            var positive_bonus2 = library.Get<Kingmaker.Blueprints.Items.Ecnchantments.BlueprintEquipmentEnchantment>("e988cf802d403d941b2ed8b6016de68f");
-
-            var linnorm_buff = library.Get<BlueprintBuff>("b5ebb94df76531c4ca4f13bfd91efd4e");
-
-            if ((channel_type | ChannelType.PositiveHeal) >0 || (channel_type | ChannelType.PositiveHarm) >0)
-            {
-                Common.addFeatureToEnchantment(positive_bonus1, feature);
-                Common.addFeatureToEnchantment(positive_bonus2, feature);
-                Common.addFeatureToEnchantment(positive_bonus2, feature);
-                linnorm_buff.AddComponent(Helpers.CreateAddFact(feature));
-                linnorm_buff.AddComponent(Helpers.CreateAddFact(feature));
-            }
-            else if ((channel_type | ChannelType.NegativeHarm) > 0 || (channel_type | ChannelType.NegativeHeal) > 0)
-            {
-                Common.addFeatureToEnchantment(negative_bonus1, feature);
-                Common.addFeatureToEnchantment(negative_bonus2, feature);
-                Common.addFeatureToEnchantment(negative_bonus2, feature);
-            }
         }
 
 

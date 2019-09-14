@@ -129,6 +129,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixChannelEnergySaclaing();
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
+                    CallOfTheWild.ChannelEnergyEngine.init();
                     CallOfTheWild.Wildshape.load();
                     CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
@@ -153,9 +154,9 @@ namespace CallOfTheWild
 
 
                     CallOfTheWild.SharedSpells.load();
-                    CallOfTheWild.NewFeats.load();
 
                     CallOfTheWild.Warpriest.createWarpriestClass();
+                    CallOfTheWild.NewFeats.load();
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
 
                     CallOfTheWild.CleanUp.processRage();

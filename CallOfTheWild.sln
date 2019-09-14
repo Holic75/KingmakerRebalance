@@ -7,15 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallOfTheWild", "CallOfTheW
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug Install 1.3|Any CPU = Debug Install 1.3|Any CPU
 		Debug Install|Any CPU = Debug Install|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 		ReleaseInstall|Any CPU = ReleaseInstall|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug Install 1.3|Any CPU.ActiveCfg = Debug Install 1.3|Any CPU
-		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug Install 1.3|Any CPU.Build.0 = Debug Install 1.3|Any CPU
 		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug Install|Any CPU.ActiveCfg = Debug Install|Any CPU
 		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug Install|Any CPU.Build.0 = Debug Install|Any CPU
 		{C7BFDB31-11DF-430D-B599-3A2085A3DC09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

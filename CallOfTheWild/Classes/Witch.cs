@@ -399,16 +399,26 @@ namespace CallOfTheWild
 
             var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getWitchArray(), StatType.Charisma);
             var positive_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal, "WitchPostiveHeal", "", "", "b305df2f8ec34684867db7402677388b",
-                                                                        witch_channel_positive, context_rank_config, dc_scaling, resource_logic, update_items: true);
+                                                                        context_rank_config, dc_scaling, resource_logic);
             var positive_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm, "WitchPostiveHarm", "", "", "4ca35352f0eb49a49faf4a1057ed5d6e",
-                                                                        witch_channel_positive, context_rank_config, dc_scaling, resource_logic, update_items: true);
+                                                                        context_rank_config, dc_scaling, resource_logic);
             var negative_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal, "WitchNegativeHeal", "", "", "a39b06c274c843f19fa10cc6b7be5f39",
-                                                                        witch_channel_negative, context_rank_config, dc_scaling, resource_logic, update_items: true);
+                                                                        context_rank_config, dc_scaling, resource_logic);
             var negative_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm, "WitchNegativeHarm", "", "", "ba94b10d81bb4497886e50ce9d4d96ce",
-                                                                        witch_channel_negative, context_rank_config, dc_scaling, resource_logic, update_items: true);
+                                                                        context_rank_config, dc_scaling, resource_logic);
+
+            var positive_heal_base = Common.createVariantWrapper("WitchPositiveHealBase", "", positive_heal);
+            var positive_harm_base = Common.createVariantWrapper("WitchPositiveHarmBase", "", positive_harm);
+            var negative_heal_base = Common.createVariantWrapper("WitchNegativeHealBase", "", negative_heal);
+            var negative_harm_base = Common.createVariantWrapper("WitchNegativeHarmBase", "", negative_harm);
+
+            ChannelEnergyEngine.storeChannel(positive_heal, witch_channel_positive, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(positive_harm, witch_channel_positive, ChannelEnergyEngine.ChannelType.PositiveHarm);
+            ChannelEnergyEngine.storeChannel(negative_heal, witch_channel_negative, ChannelEnergyEngine.ChannelType.NegativeHeal);
+            ChannelEnergyEngine.storeChannel(negative_harm, witch_channel_negative, ChannelEnergyEngine.ChannelType.NegativeHarm);
 
             witch_channel_positive.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
-            witch_channel_positive.AddComponent(Helpers.CreateAddFacts( positive_heal, positive_harm));
+            witch_channel_positive.AddComponent(Helpers.CreateAddFacts( positive_heal_base, positive_harm_base));
             witch_channel_positive.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
                                                                                 type: AbilityRankType.StatBonus, 
                                                                                 featureList: new BlueprintFeature[] { improved_channel_hex_positive, witch_channel_positive }
@@ -423,7 +433,7 @@ namespace CallOfTheWild
                                                                                                                         })
                                               );
             witch_channel_negative.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
-            witch_channel_negative.AddComponent(Helpers.CreateAddFacts(negative_heal, negative_harm));
+            witch_channel_negative.AddComponent(Helpers.CreateAddFacts(negative_heal_base, negative_harm_base));
             witch_channel_negative.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
                                                                     type: AbilityRankType.StatBonus,
                                                                     featureList: new BlueprintFeature[] { improved_channel_hex_negative, witch_channel_negative }
@@ -454,8 +464,6 @@ namespace CallOfTheWild
             hex_selection.Features = hex_selection.Features.AddToArray(improved_channel_hex_positive, improved_channel_hex_negative);
             hex_selection.AllFeatures = hex_selection.AllFeatures.AddToArray(improved_channel_hex_positive, improved_channel_hex_negative);
 
-            //ChannelEnergyEngine.updateItemsFeature(ChannelEnergyEngine.ChannelType.PositiveHeal | ChannelEnergyEngine.ChannelType.PositiveHarm, improved_channel_hex_positive);
-            //ChannelEnergyEngine.updateItemsFeature(ChannelEnergyEngine.ChannelType.NegativeHeal | ChannelEnergyEngine.ChannelType.NegativeHarm, improved_channel_hex_negative);
 
             ChannelEnergyEngine.createExtraChannelFeat(positive_heal, hex_channeler_channel_energy_selection, "ExtraChannelWitch", "Extra Channel (Hex Channeler)",
                                                        "9c90fbbe75dc4bd0951e6d5be6da5627");
