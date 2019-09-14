@@ -206,8 +206,8 @@ namespace CallOfTheWild
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var allow_positive = channel_positive.GetComponent<PrerequisiteFeature>().Feature;
             var allow_negative = channel_negative.GetComponent<PrerequisiteFeature>().Feature;
-            allow_positive.SetName("Diety Allows Channeling Positive Energy");
-            allow_negative.SetName("Diety Allows Channeling Negative Energy");
+            allow_positive.SetName("Deity Allows Channeling Positive Energy");
+            allow_negative.SetName("Deity Allows Channeling Negative Energy");
             versatile_channeler_negative = Helpers.CreateFeature("VersatileChannelerNegativeFeature",
                                                                      "",
                                                                      "",
