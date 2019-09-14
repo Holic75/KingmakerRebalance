@@ -2573,6 +2573,29 @@ namespace CallOfTheWild
         }
 
 
+        public class ActivatableAbilityMainWeaponTypeAllowed : ActivatableAbilityRestriction
+        {
+            public BlueprintWeaponType[] weapon_types;
+
+            public override bool IsAvailable()
+            {
+
+                if (weapon_types == null || weapon_types.Empty())
+                {
+                    return true;
+                }
+
+                var weapon = Owner.Body.PrimaryHand.HasWeapon ? Owner.Body.PrimaryHand.MaybeWeapon : Owner.Body.EmptyHandWeapon;
+                if (weapon == null)
+                {
+                    return false;
+                }
+
+                return weapon_types.Contains(weapon.Blueprint.Type);
+            }
+        }
+
+
     }
 
 }
