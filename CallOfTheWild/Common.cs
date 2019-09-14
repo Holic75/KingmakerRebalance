@@ -1416,7 +1416,8 @@ namespace CallOfTheWild
             feature.SetDescription(selection.Description);
             feature.ComponentsArray = components;
             feature.Spellbook = spellbook;
-            library.AddAsset(feature, "");
+            
+            library.AddAsset(feature, Helpers.GuidStorage.hasStoredGuid(feature.name) ? "" : Helpers.MergeIds(selection.AssetGuid, spellbook.AssetGuid)); //fix to ensure that classes of other mods will also work
             feature.Groups = new FeatureGroup[] { selection.Group };
             selection.AllFeatures = selection.AllFeatures.AddToArray(feature);
         }

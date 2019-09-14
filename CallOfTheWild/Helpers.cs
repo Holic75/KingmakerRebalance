@@ -164,7 +164,11 @@ namespace CallOfTheWild
         {
             if (guid == "")
             {
+#if DEBUG
                 guid = Helpers.GuidStorage.getGuid(blueprint.name);
+#else
+                throw Main.Error($"Asset guid is not defined for {blueprint.name}, type: {blueprint.GetType()}");
+#endif
             }
             blueprintScriptableObject_set_AssetId(blueprint, guid);
             // Sanity check that we don't stop on our own GUIDs or someone else's.
@@ -856,6 +860,13 @@ namespace CallOfTheWild
                 {
                     guids_in_use.Add(name, guid);
                 }
+            }
+
+
+            static public bool hasStoredGuid(string blueprint_name)
+            {
+                string stored_guid = "";
+                return guids_in_use.TryGetValue(blueprint_name, out stored_guid);
             }
 
 
