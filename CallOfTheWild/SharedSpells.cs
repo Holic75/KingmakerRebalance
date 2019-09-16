@@ -7,8 +7,10 @@ using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -123,8 +125,16 @@ namespace CallOfTheWild
             createClassSharedSpell();
             createSharedSpellFeat();
             fixAcSpellTargetting();
+            fixSpells();
         }
 
+
+        static void fixSpells()
+        {
+            var mirror_image = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564");
+
+            (mirror_image.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).ToCaster = false;
+        }
 
         private static void createCanOnlyTargetSelfBuff()
         {

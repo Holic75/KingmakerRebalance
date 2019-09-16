@@ -19,6 +19,7 @@ namespace CallOfTheWild
             MetaRage,
             PlanarWildshape,
             HunterTrick,
+            Stigmata,
         }
 
         public static partial class Extensions

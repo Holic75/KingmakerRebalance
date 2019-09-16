@@ -435,50 +435,57 @@ namespace CallOfTheWild
             hex_ability1.LocalizedDuration = Helpers.minutesPerLevelDuration;
             hex_ability1.SetName($"{display_name}: Suppress Condition");
             hex_ability1.SetDescription(description);
-            hex_ability1.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            hex_ability1.Range = AbilityRange.Touch;
-            hex_ability1.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
-            hex_ability1.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
-            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("414d6c8fd5fc46c5a83b596a9bcf3322", name_prefix + "HexSaveAbility", abil2_guid);
-            var hex_ability1_buff = Helpers.CreateBuff(name_prefix + "HexImmBuff", hex_ability1.Name, hex_ability1.Description, buff1_guid,
-                                                       hex_ability1.Icon, null,
+            hex_ability1.setMiscAbilityParametersTouchFriendly();
+            var hex_ability1_buff = Helpers.CreateBuff(name_prefix + "HexImmBuff", 
+                                                       hex_ability1.Name,
+                                                       hex_ability1.Description, 
+                                                       buff1_guid,
+                                                       hex_ability1.Icon, 
+                                                       null,
                                                        Common.createAddConditionImmunity(UnitCondition.Sickened),
                                                        Common.createAddConditionImmunity(UnitCondition.Dazzled),
                                                        Common.createAddConditionImmunity(UnitCondition.Fatigued),
                                                        Common.createAddConditionImmunity(UnitCondition.Shaken)
                                                        );
-            var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
-            bonus_value.ValueType = ContextValueType.Rank;
-            var duration_value = Helpers.CreateContextDuration(bonus: bonus_value, rate: DurationRate.Minutes);
-            action.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability1_buff, duration_value, true, dispellable: false));
-            hex_ability1.AddComponent(action);
+            var apply_buff1 = Common.createContextActionApplyBuff(hex_ability1_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                                     dispellable: false);
+            hex_ability1.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff1));
 
+
+
+
+            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140", name_prefix + "HexSaveAbility", abil2_guid);
             hex_ability2.SetName($"{display_name}: Saving Throws Bonus");
+            hex_ability2.SetDescription(description);
             hex_ability2.LocalizedDuration = Helpers.CreateString(name_prefix + "HexSaveAbility.Duration", "24 hours");
-            var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "HexSaveBuff", hex_ability2.Name, hex_ability2.Description, buff2_guid,
-                                                       hex_ability2.Icon, null,
+            hex_ability2.setMiscAbilityParametersTouchFriendly();
+
+            var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "HexSaveBuff", 
+                                                       hex_ability2.Name, 
+                                                       hex_ability2.Description, 
+                                                       buff2_guid,
+                                                       hex_ability2.Icon, 
+                                                       null,
                                                        Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Circumstance,
-                                                                SpellDescriptor.Fatigue | SpellDescriptor.Shaken | SpellDescriptor.Sickened | SpellDescriptor.Blindness)
+                                                                                SpellDescriptor.Fatigue | SpellDescriptor.Shaken | SpellDescriptor.Sickened | SpellDescriptor.Blindness)
                                                       );
             hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
-            var action2 = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            var bonus_value2 = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
-            bonus_value2.ValueType = ContextValueType.Simple;
-            bonus_value2.Value = 1;
-            var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
-            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true, dispellable: false));
-            hex_ability2.AddComponent(action2);
-            var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, "b58d93d94e834ada903a91d8cf46d650", $"Cooldown {display_name}");
+            var apply_buff2 = Common.createContextActionApplyBuff(hex_ability2_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Days),
+                                                                         dispellable: false);
+            hex_ability2.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff2));
+
+            var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, cooldown_guid, $"Cooldown {display_name}");
             addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
 
+            var hex_ability = Common.createVariantWrapper(name_prefix + "HexAbility", "", hex_ability1, hex_ability2);
+            hex_ability.SetName(display_name);
             var ameliorating = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       display_name,
                                                       hex_ability1.Description,
                                                       feature_guid,
                                                       hex_ability1.Icon,
                                                       FeatureGroup.None,
-                                                      Helpers.CreateAddFacts(hex_ability1, hex_ability2));
+                                                      Helpers.CreateAddFacts(hex_ability));
             ameliorating.Ranks = 1;
             addToSplitHex(hex_ability1);
             addToSplitHex(hex_ability2);
@@ -562,15 +569,9 @@ namespace CallOfTheWild
                                                 AbilityRange.Close,
                                                 "Variable",
                                                 "Will special");
-            ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
-            ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
-            ability.CanTargetEnemies = true;
-            ability.CanTargetFriends = test_mode;
-            ability.CanTargetSelf = test_mode;
-            ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-            ability.EffectOnAlly = AbilityEffectOnUnit.Harmful;
-           
-            
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+
+                      
             var action_save = Common.createContextSavedApplyBuff(buff, DurationRate.Rounds, AbilityRankType.DamageBonus, is_dispellable: false);
             var buff_save = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             buff_save.IsFromSpell = true;
@@ -731,48 +732,52 @@ namespace CallOfTheWild
 
 
         public BlueprintFeature createMajorAmeliorating(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,
-                                                        string feature_guid, string buff2_guid, string cooldown_guid)
+                                                        string feature_guid, string buff1_guid, string buff2_guid, string cooldown_guid)
         {
-            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "HexRemoveAbility", abil1_guid);
-            hex_ability1.SetName($"{display_name}: Remove Condition");
+            var hex_ability1 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "HexRemoveAbility", abil1_guid);//restoration
+            hex_ability1.SetName($"{display_name}: Suppress Condition");
             hex_ability1.SetDescription(description);
 
-            var action1 = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionDispelMagic)hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>().Actions.Actions[0].CreateCopy();
-            action1.Descriptor = SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Poison | SpellDescriptor.Disease;
-            hex_ability1.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            var run_action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            run_action.Actions = Helpers.CreateActionList(action1);
-            hex_ability1.AddComponent(run_action);
+            var hex_ability1_buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                         hex_ability1.Name,
+                                         description,
+                                         buff1_guid,
+                                         hex_ability1.Icon,
+                                         null,
+                                         Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
+                                         );
 
-            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "HexSaveAbility", abil2_guid);
+            var apply_buff1 = Common.createContextActionApplyBuff(hex_ability1_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                                    dispellable: false);
+            hex_ability1.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff1));
 
-
+            var hex_ability2 = library.CopyAndAdd<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36", name_prefix + "HexSaveAbility", abil2_guid); //restoration
             hex_ability2.SetName($"{display_name}: Saving Throws Bonus");
             hex_ability2.LocalizedDuration = Helpers.CreateString(name_prefix + "HexAbility.Duration", "24 hours");
+            hex_ability2.SetDescription(description);
+
             var hex_ability2_buff = Helpers.CreateBuff(name_prefix + "HexSaveBuff", hex_ability2.Name, hex_ability2.Description, buff2_guid,
                                                        hex_ability2.Icon, null,
                                                        Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Circumstance,
-                                                                SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
+                                                                                SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
                                                       );
             hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
-            var action2 = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-            var bonus_value2 = Helpers.CreateContextValue(AbilityRankType.DamageBonus);
-            bonus_value2.ValueType = ContextValueType.Simple;
-            bonus_value2.Value = 1;
-            var duration_value2 = Helpers.CreateContextDuration(bonus: bonus_value2, rate: DurationRate.Days);
-            action2.Actions = Helpers.CreateActionList(Helpers.CreateApplyBuff(hex_ability2_buff, duration_value2, true, dispellable: false));
-            hex_ability2.RemoveComponent(hex_ability1.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            hex_ability2.AddComponent(action2);
+            var apply_buff2 = Common.createContextActionApplyBuff(hex_ability2_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                                   dispellable: false);
+            hex_ability2.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff2));
+
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability1, cooldown_guid, $"Cooldown {display_name}");
             addWitchHexCooldownScaling(hex_ability2, hex_cooldown);
 
+            var hex_ability = Common.createVariantWrapper(name_prefix + "HexAbility", "", hex_ability1, hex_ability2);
+            hex_ability.SetName(display_name);
             var major_ameliorating = Helpers.CreateFeature("Witch" + name_prefix + "HexFeature",
                                                       display_name,
                                                       hex_ability1.Description,
                                                       feature_guid,
                                                       hex_ability1.Icon,
                                                       FeatureGroup.None,
-                                                      Helpers.CreateAddFacts(hex_ability1, hex_ability2));
+                                                      Helpers.CreateAddFacts(hex_ability));
             major_ameliorating.Ranks = 1;
             addMajorHexPrerequisite(major_ameliorating);
             return major_ameliorating;

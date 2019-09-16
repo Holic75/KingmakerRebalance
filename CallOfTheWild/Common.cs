@@ -2559,15 +2559,22 @@ namespace CallOfTheWild
 
             //wrapper.SetDescription("");
             List<BlueprintComponent> components = new List<BlueprintComponent>();
-            /*if (variants[0].GetComponent<AbilityResourceLogic>() != null)
-            {
-                components.Add(Helpers.CreateResourceLogic(variants[0].GetComponent<AbilityResourceLogic>().RequiredResource));
-            }*/
-
             components.Add(Helpers.CreateAbilityVariants(wrapper, variants));
             wrapper.ComponentsArray = components.ToArray();
 
             return wrapper;
+        }
+
+
+        public static AbilityExecuteActionOnCast createAbilityExecuteActionOnCast(ActionList actions, ConditionsChecker  condition = null)
+        {
+            var a = Helpers.Create<AbilityExecuteActionOnCast>();
+            if (condition != null)
+            {
+                a.Conditions = condition;
+            }
+            a.Actions = actions;
+            return a;
         }
 
 

@@ -68,7 +68,7 @@ namespace CallOfTheWild
         static public BlueprintFeature choosen_kin;
 
 
-        public static void createHinterlanderClass()
+        internal static void createHinterlanderClass()
         {
             var ranger_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6");
             var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");

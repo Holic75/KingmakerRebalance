@@ -45,7 +45,7 @@ New rage powers:
 - Superstition,
 - Ghost Rager,
 - Witch Hunter,
-- Energy Ressitance,
+- Energy Resistance,
 - Atavism Totem Lesser,
 - Atavism Totem,
 - Atavism Totem Greater,
@@ -93,7 +93,7 @@ In addition mod also makes some changes to existing features to make them closer
 - nerfs animal compnions to make them closer to pnp (reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
 enchanced attacks).
 - sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
-- replaces favored enemy for Sacred Huntsmater with animal focus as per pnp,
+- replaces favored enemy for Sacred Huntsmaster with animal focus as per pnp,
 - fixes Magic Vestment spell to work as per pnp rules,  
 - Rangers now should get improvement of their favored terrain bonuses,
 - Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),

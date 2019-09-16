@@ -2,6 +2,7 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
@@ -29,15 +30,19 @@ namespace CallOfTheWild
     {
         public static bool isOf(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
         {
-
             return (this_type & channel_type) != 0;
         }
 
 
         public static bool isNotOf(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
         {
-
             return (this_type & channel_type) == 0;
+        }
+
+
+        public static bool isOnly(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
+        {
+            return (this_type & ~channel_type) == 0;
         }
 
 
@@ -135,6 +140,8 @@ namespace CallOfTheWild
         static internal BlueprintFeature versatile_channeler_positive_warpriest = null;
         static internal BlueprintFeature versatile_channeler_negative_warpriest = null;
 
+        static internal BlueprintFeature holy_vindicator_shield = null;
+        static readonly public SpellDescriptor holy_vindicator_shield_descriptor = (SpellDescriptor)0x0004000000000000;
 
 
         internal static void init()
@@ -198,7 +205,146 @@ namespace CallOfTheWild
         }
 
 
-        static public void createVersatileChanneler()
+        static internal void addHolyVindicatorChannelEnergyProgression()
+        {
+            foreach (var c in channel_entires)
+            {
+                addHolyVindicatorChannelEnergyProgressionToChannel(c);
+            }
+        }
+
+
+        static void addHolyVindicatorChannelEnergyProgressionToChannel(ChannelEntry entry)
+        {
+            if (HolyVindicator.holy_vindicator_class == null)
+            {
+                return;
+            }
+
+            if (entry.scalesWithClass(HolyVindicator.holy_vindicator_class))
+            {
+                return;
+            }
+
+            var context_rank_config = entry.ability.GetComponent<ContextRankConfig>();
+            if (context_rank_config != null)
+            {
+                context_rank_config = context_rank_config.CreateCopy();
+            }
+
+            var classes = Helpers.GetField<BlueprintCharacterClass[]>(context_rank_config, "m_Class");
+            if (classes.Length != 0 && classes[0] != null)
+            {
+                classes = classes.AddToArray(HolyVindicator.holy_vindicator_class);
+                Helpers.SetField(context_rank_config, "m_Class", classes);
+            }
+
+            var scaling = entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>().CreateCopy();
+            {
+                scaling.CharacterClasses = scaling.CharacterClasses.AddToArray(HolyVindicator.holy_vindicator_class);
+            }
+
+            if (entry.channel_type.isOf(ChannelType.HolyVindicatorShield | ChannelType.Smite))
+            {
+                //look for buff
+                var buff = (entry.ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).Buff;
+
+                if (context_rank_config != null)
+                {
+                    buff.ReplaceComponent<ContextRankConfig>(context_rank_config);
+                }
+
+                buff.ReplaceComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(scaling);
+            }
+        }
+
+        static internal void createHolyVindicatorShield()
+        {
+            var sacred_numbus = library.Get<BlueprintAbility>("bf74b3b54c21a9344afe9947546e036f");
+            holy_vindicator_shield = Helpers.CreateFeature("HolyVindicatorShieldFeature",
+                                                            "Vindicator's Shield",
+                                                            "A vindicator can channel energy into a protective shield around him as a standard action; this shield gives the vindicator a sacred bonus (if positive energy) or profane bonus (if negative energy) to his Armor Class equal to the number of dice of the vindicator’s channel energy. This bonus lasts for 24 hours or until the vindicator is struck in combat, whichever comes first.",
+                                                            "",
+                                                            sacred_numbus.Icon,
+                                                            FeatureGroup.None);
+            foreach (var c in channel_entires)
+            {
+                addToHolyVindicatorShield(c);
+            }
+        }
+
+
+        static void addToHolyVindicatorShield(ChannelEntry entry)
+        {
+            if (holy_vindicator_shield == null)
+            {
+                return;
+            }
+
+            if (!entry.channel_type.isBase())
+            {
+                return;
+            }
+
+            ModifierDescriptor bonus_descriptor = ModifierDescriptor.Sacred;
+            var icon = holy_vindicator_shield.Icon;
+            var fx_buff = library.Get<BlueprintBuff>("57b1c6a69c53f4d4ea9baec7d0a3a93a").FxOnStart; //sacred nimbus
+
+            if (entry.channel_type.isOf(ChannelType.Negative))
+            {
+                bonus_descriptor = ModifierDescriptor.Profane;
+                icon = library.Get<BlueprintAbility>("b56521d58f996cd4299dab3f38d5fe31").Icon; //profane nimbus
+                fx_buff = library.Get<BlueprintBuff>("bb08ad05d0b4505488775090954c2317").FxOnStart;//profane imbus
+            }
+
+            var buff = Helpers.CreateBuff(entry.ability.name + "HolyVindicatorShieldBuff",
+                                         $"{bonus_descriptor.ToString()} Vindicator's Shield ({entry.ability.Name})",
+                                         holy_vindicator_shield.Description,
+                                         Helpers.MergeIds(entry.ability.AssetGuid, "ea0d0d4343124c58905d444c3c6278e9"),
+                                         icon,
+                                         fx_buff,
+                                         Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, bonus_descriptor),
+                                         entry.ability.GetComponent<ContextRankConfig>(),
+                                         entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                         Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
+                                                                                       Helpers.CreateActionList(), not_reach: false, only_melee: false
+                                                                                      ),
+                                         Helpers.CreateSpellDescriptor(holy_vindicator_shield_descriptor)
+                                        );
+
+            var apply_buff_action = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), Kingmaker.UnitLogic.Mechanics.DurationRate.Days),
+                                                                        dispellable: false);
+
+            var ability = Helpers.CreateAbility(entry.ability.name + "HolyVindicatorShieldAbility",
+                                               buff.Name,
+                                               buff.Description,
+                                               Helpers.MergeIds(entry.ability.AssetGuid, "fda02a5dfc834f38be65c9f368e8ef62"),
+                                               buff.Icon,
+                                               AbilityType.Supernatural,
+                                               Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                               AbilityRange.Personal,
+                                               "24 hours",
+                                               "",
+                                               Helpers.CreateRunActions(apply_buff_action),
+                                               Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(holy_vindicator_shield_descriptor)))
+                                               );
+
+            ability.setMiscAbilityParametersSelfOnly();
+
+            entry.base_ability.addToAbilityVariants(ability);
+            //updateItemsForChannelDerivative(entry.ability, ability);  ? shield is not updated
+
+            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
+            if (caster_alignment != null)
+            {
+                ability.AddComponent(caster_alignment);
+            }
+
+            storeChannel(ability, entry.parent_feature, entry.channel_type | ChannelType.HolyVindicatorShield);
+        }
+
+
+        static internal void createVersatileChanneler()
         {
             var channel_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
             var channel_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
@@ -410,6 +556,8 @@ namespace CallOfTheWild
 
             addToBackToTheGrave(entry);
             addToVersatileChanneler(entry);
+            addToHolyVindicatorShield(entry);
+            addHolyVindicatorChannelEnergyProgressionToChannel(entry);
         }
 
 
@@ -471,12 +619,12 @@ namespace CallOfTheWild
             {
                 return;
             }
-            if ((entry.channel_type & ChannelType.Negative) != ChannelType.None)
+            if (entry.channel_type.isOf(ChannelType.Negative))
             {
                 var comp = witch_channel_negative.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
                 comp.spells = comp.spells.AddToArray(entry.ability);
             }
-            if ((entry.channel_type & ChannelType.Positive) != ChannelType.None)
+            if (entry.channel_type.isOf(ChannelType.Positive))
             {
                 var comp = witch_channel_positive.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
                 comp.spells = comp.spells.AddToArray(entry.ability);
@@ -570,7 +718,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void createImprovedChannel()
+        internal static void createImprovedChannel()
         {
             improved_channel = Helpers.CreateFeature("ImprovedChannelFeature",
                                                      "Improved Channel",
@@ -591,7 +739,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void createChannelSmite()
+        internal static void createChannelSmite()
         {
             var resounding_blow = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea");
             channel_smite = Helpers.CreateFeature("ChannelSmiteFeature",
@@ -716,6 +864,11 @@ namespace CallOfTheWild
                 return;
             }
 
+            if (entry.channel_type.isOf(ChannelType.HolyVindicatorShield))
+            {// no quick for vindicator shield
+                return;
+            }
+
             Common.addFeaturePrerequisiteOr(quick_channel, entry.parent_feature);
 
             var quicken_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Quick" + entry.ability.name, entry.ability.AssetGuid, "e936d73a1dfe42efb1765b980c80e113");
@@ -728,12 +881,18 @@ namespace CallOfTheWild
             quicken_ability.AddComponent(Common.createAbilityShowIfCasterHasFact(quick_channel));
             entry.base_ability.addToAbilityVariants(quicken_ability);
 
+            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
+            if (caster_alignment != null)
+            {
+                quicken_ability.AddComponent(caster_alignment);
+            }
+
             updateItemsForChannelDerivative(entry.ability, quicken_ability);
 
             var quicken_feature = Common.AbilityToFeature(quicken_ability, guid: Helpers.MergeIds(quicken_ability.AssetGuid, entry.parent_feature.AssetGuid));
             quicken_feature.ComponentsArray = new BlueprintComponent[0];
 
-            storeChannel(quicken_ability, quicken_feature, entry.channel_type | ChannelType.Quick);
+            storeChannel(quicken_ability, entry.parent_feature, entry.channel_type | ChannelType.Quick);
 
             normal_quick_channel_map.Add(entry.ability.AssetGuid, quicken_ability.AssetGuid);
         }

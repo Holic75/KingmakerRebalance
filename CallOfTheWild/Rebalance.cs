@@ -339,7 +339,10 @@ namespace CallOfTheWild
 
             var item_bond_feature = library.Get<BlueprintFeature>("2fb5e65bd57caa943b45ee32d825e9b9");
             var add_facts = item_bond_feature.GetComponent<AddFacts>();
-            add_facts.Facts = add_facts.Facts.AddToArray(item_bond_spontaneous);
+            if (add_facts.Facts.Length == 1)
+            {
+                add_facts.Facts = add_facts.Facts.AddToArray(item_bond_spontaneous);
+            }
         }
 
 

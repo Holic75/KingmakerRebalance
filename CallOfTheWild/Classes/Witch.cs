@@ -1145,10 +1145,11 @@ namespace CallOfTheWild
         static void createMajorAmeliorating()
         {
             major_ameliorating = hex_engine.createMajorAmeliorating("MajorAmeliorating", "Major Ameliorating",
-                                                                    "The witch can touch a creature to suppress or protect it from more debilitating negative conditions. The witch can remove blinded, curse, disease, or poison condition. The witch must succeed on caster level check (1d20 + caster level) against the DC of each condition to remove it. Alternatively, for 24 hours the witch can grant her target a +4 circumstance bonus on saving throws against effects that cause any of the above conditions or effects. Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.",
+                                                                    "The witch can touch a creature to suppress or protect it from more debilitating negative conditions. The witch can suppress blinded, curse, disease, or poison conditions for a number of minutes equal to the witch’s level. Alternatively, for 24 hours the witch can grant her target a +4 circumstance bonus on saving throws against effects that cause any of the above conditions or effects. Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.",
                                                                     "6c9027c8518b4e5abb5e6910b1bfd929",
                                                                     "b9e4db8a1dad4f3a86576a31c665fc93",
                                                                     "2c4d412a48844be184f2bd2ecc587ea6",
+                                                                    "aca5d3e6f2c84e48b05f4aeded732ea4",
                                                                     "0d1b469f355b44129ef4236d0feabfce",
                                                                     "c580d3007f4948b38150aa347b9d9a9f");
         }

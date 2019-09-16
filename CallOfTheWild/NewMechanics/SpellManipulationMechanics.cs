@@ -140,7 +140,9 @@ namespace CallOfTheWild
             {
                 if (spell != null && (spell.CanTarget(target) || ignore_target_checkers))
                 {
-                    Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, target));
+                    var rule_cast_spell = new RuleCastSpell(spell, target);
+                    rule_cast_spell.Context.AttackRoll = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackWithWeapon>()?.AttackRoll;
+                    Rulebook.Trigger<RuleCastSpell>(rule_cast_spell);
                     Common.AddBattleLogMessage($"{this.Owner.CharacterName} released {spell.Blueprint.Name} from {this.Fact.Name}.");
                     spell = null;
                 }
@@ -434,7 +436,9 @@ namespace CallOfTheWild
                 var spell = getSpellOrVariant(spell_slot.Spell);
                 spendSpellSlot(spell_slot);
                 spell.SpendMaterialComponent();
-                Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(spell, target));
+                var rule_cast_spell = new RuleCastSpell(spell, target);
+                rule_cast_spell.Context.AttackRoll = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackWithWeapon>()?.AttackRoll;
+                Rulebook.Trigger<RuleCastSpell>(rule_cast_spell);
             }
         }
 
