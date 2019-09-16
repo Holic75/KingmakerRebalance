@@ -811,9 +811,11 @@ namespace CallOfTheWild
         public static class GuidStorage
         {
             static Dictionary<string, string> guids_in_use = new Dictionary<string, string>();
+            static bool allow_guid_generation;
 
-            static public void load(string file_content)
+            static public void load(string file_content, bool debug_mode)
             {
+                allow_guid_generation = debug_mode;
                 guids_in_use = new Dictionary<string, string>();
                 using (System.IO.StringReader reader = new System.IO.StringReader(file_content))
                 {
@@ -873,13 +875,13 @@ namespace CallOfTheWild
                 {
                     return original_guid;
                 }
-                else
+                else if (allow_guid_generation)
                 {
-#if DEBUG
                     return Guid.NewGuid().ToString("N");
-#else
+                }
+                else
+                { 
                     throw Main.Error($"Missing AssetId for: {name}"); //ensure that no guids generated in release mode
-#endif
                 }
             }
 

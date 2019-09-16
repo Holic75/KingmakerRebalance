@@ -88,7 +88,12 @@ namespace CallOfTheWild
                     Main.DebugLog("Loading Call of the Wild");
 
                     CallOfTheWild.LoadIcons.Image2Sprite.icons_folder = @"./Mods/CallOfTheWild/Icons/";
-                    CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints);
+#if DEBUG                
+                    bool allow_guid_generation = true;
+#else
+                    bool allow_guid_generation = false; //no guids should be ever generated in release
+#endif
+                    CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints, allow_guid_generation);
                     CallOfTheWild.Helpers.Load();
                     CallOfTheWild.ArmorEnchantments.initialize();
 
