@@ -132,8 +132,8 @@ namespace CallOfTheWild
             createSpellbookSelection();
 
             createStigmata();
-            /*createFaithHealing();
-            createBloodfire();
+            createFaithHealing();
+            /*createBloodfire();
             createVersatileChannel();
             createBloodrain();
             */
@@ -281,6 +281,50 @@ namespace CallOfTheWild
 
                 stigmata.AddComponent(Helpers.Create<NewMechanics.AddFeatureIfHasFactsFromList>(a => { a.Feature = add_stigmata; a.CheckedFacts = new BlueprintUnitFact[0]; }));
             }
+        }
+
+
+        static void createFaithHealing()
+        {
+            var healers_blessing = library.Get<BlueprintFeature>("b9ea4eb16ded8b146868540e711f81c8");
+            var healing_spells = healers_blessing.GetComponent<AutoMetamagic>().Abilities; ;
+            var faith_healing_empower = Helpers.CreateFeature("HolyVindicatorFaithHealingEmpowerFeature",
+                                                              "Faith Healing: Empower",
+                                                              "At 3rd level, any cure wounds spells a vindicator casts on himself are automatically empowered as if by the Empower Spell feat, except they do not use higher spell level slots or an increased casting time. ",
+                                                              "",
+                                                              healers_blessing.Icon,
+                                                              FeatureGroup.None,
+                                                              Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
+                                                                                                                                      {
+                                                                                                                                          m.Abilities = healing_spells;
+                                                                                                                                          m.Metamagic = Metamagic.Empower;
+                                                                                                                                      }
+                                                                                                                                      )
+                                                             );
+
+            var faith_healing_maximize = Helpers.CreateFeature("HolyVindicatorFaithHealingMaximizeFeature",
+                                                  "Faith Healing: Maximize",
+                                                  faith_healing_empower.Description,
+                                                  "",
+                                                  faith_healing_empower.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
+                                                                                                                          {
+                                                                                                                              m.Abilities = healing_spells;
+                                                                                                                              m.Metamagic = Metamagic.Maximize;
+                                                                                                                          }
+                                                                                                                          )
+                                                 );
+
+            faith_healing = Helpers.CreateFeature("HolyVindicatorFaithHealingFeature",
+                                                  "Faith Healing",
+                                                  faith_healing_empower.Description,
+                                                  "",
+                                                  faith_healing_empower.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFeatureOnClassLevel(faith_healing_empower, 8, getHolyVindicatorArray(), true),
+                                                  Helpers.CreateAddFeatureOnClassLevel(faith_healing_maximize, 8, getHolyVindicatorArray())
+                                                  );
         }
 
     }

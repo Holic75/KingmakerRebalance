@@ -65,7 +65,7 @@ namespace CallOfTheWild
             bool canBeCastOnTarget(AbilityData spell, UnitDescriptor caster, UnitDescriptor target);
         }
 
-        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowedOn(typeof(BlueprintUnitFact))]
         public class MetamagicOnPersonalSpell : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber,
                                                 ISpellTargetRestrictor
         {
@@ -74,6 +74,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts;
             public BlueprintSpellbook spellbook = null;
             private int cost_to_pay;
+            public BlueprintAbility[] allowed_spells = new BlueprintAbility[0];
 
 
             public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
@@ -93,6 +94,11 @@ namespace CallOfTheWild
                 }
 
                 if ((ability.AvailableMetamagic & Metamagic) == 0)
+                {
+                    return false;
+                }
+
+                if (!allowed_spells.Empty() && !allowed_spells.Contains(ability))
                 {
                     return false;
                 }
@@ -123,6 +129,10 @@ namespace CallOfTheWild
 
             private int calculate_cost(UnitEntityData caster)
             {
+                if (resource == null)
+                {
+                    return 0;
+                }
                 var cost = amount;
                 foreach (var f in cost_reducing_facts)
                 {

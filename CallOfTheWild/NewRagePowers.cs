@@ -281,7 +281,8 @@ namespace CallOfTheWild
                                           "",
                                           "",
                                           null,
-                                          null
+                                          null,
+                                          Helpers.Create<HealingMechanics.ReceiveBonusCasterLevelHealing>()
                                           );
             lesser_celestial_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
@@ -884,29 +885,6 @@ namespace CallOfTheWild
     }
 
 
-    [Harmony12.HarmonyPatch(typeof(ContextActionHealTarget))]
-    [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
-    class Patch_ContextActionHealTarget_RunAction_Postfix
-    {
-
-        static public void Postfix(ContextActionHealTarget __instance)
-        {
-            var tr = Harmony12.Traverse.Create(__instance);
-            var context = tr.Property("Context").GetValue<MechanicsContext>();
-            var target = tr.Property("Target").GetValue<TargetWrapper>().Unit;
-            if (target == null || context.MaybeCaster == null)
-                return;
-
-            if (target.Descriptor.Buffs.HasFact(NewRagePowers.lesser_celestial_totem_buff) && context.SourceAbility != null)
-            {
-                int bonus = context.Params.CasterLevel;
-                context.TriggerRule<RuleHealDamage>(new RuleHealDamage(target, target, DiceFormula.Zero, bonus));
-            }
-        }
-    }
-
-
-    //to allow heal with celestial totem
     [Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
     [Harmony12.HarmonyPatch("HasResistanceRoll", Harmony12.MethodType.Getter)]
     class Patch_RuleSpellResistanceCheck_HasResistanceRoll_Postfix

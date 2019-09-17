@@ -813,6 +813,11 @@ namespace CallOfTheWild
             static Dictionary<string, string> guids_in_use = new Dictionary<string, string>();
             static bool allow_guid_generation;
 
+            static public void load(string file_content)
+            {
+                load(file_content, false);
+            }
+
             static public void load(string file_content, bool debug_mode)
             {
                 allow_guid_generation = debug_mode;
@@ -1697,6 +1702,20 @@ namespace CallOfTheWild
             a.Class = classes[0];
             a.AdditionalClasses = classes.Skip(1).ToArray();
             a.Archetypes = archetypes;
+            return a;
+        }
+
+
+        public static AddFeatureOnClassLevel CreateAddFeatureOnClassLevel(this BlueprintFeature feat, int level, BlueprintCharacterClass[] classes, bool before = false)
+        {
+            var a = Create<AddFeatureOnClassLevel>();
+            a.name = $"AddFeatureOnClassLevel${feat.name}";
+            a.Level = level;
+            a.BeforeThisLevel = before;
+            a.Feature = feat;
+            a.Class = classes[0];
+            a.AdditionalClasses = classes.Skip(1).ToArray();
+            a.Archetypes = new BlueprintArchetype[0];
             return a;
         }
 

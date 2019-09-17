@@ -50,7 +50,35 @@ namespace CallOfTheWild
 {
     public class SaveGameFix
     {
+
         static public List<Action<UnitDescriptor>> save_game_actions = new List<Action<UnitDescriptor>>(); 
+
+        static BlueprintAbility createDummyAbility(string name, string guid)
+        {
+            return Helpers.CreateAbility(name, "", "", guid, null, AbilityType.Special, CommandType.Free, AbilityRange.Close, "", "");
+        }
+
+        static internal void FixMissingAssets()
+        {
+            List<BlueprintAbility> missing_abilities = new List<BlueprintAbility>();
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyEmpyrealHarm",   "89804559ac9dd22e23053d0b8c939eae"));
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyPaladinHarm",    "21e46c86f0a5714e918572662d76f4c1"));
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyHospitalerHarm", "a4c40f80cdddfe2e926c5e8560ac512c"));
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelPositiveHarm", "4f476c1d5375337ee1c6ce7a154d269b"));
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickWitchPostiveHarm", "247078e91cb34f9ea7538e53811892e8"));
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelNegativeEnergy", "e10c33b872aa274e80ec96a132ec08ae"));
+            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickWitchNegativeHarm", "d2479ab66de342adb092948d4bb85948"));
+
+
+            Action<UnitDescriptor> fix_action = delegate (UnitDescriptor u)
+            {
+                foreach (var missing_ability in missing_abilities)
+                if (u.HasFact(missing_ability))
+                {
+                  u.RemoveFact(missing_ability);
+                }
+            };
+        }
     }
 
 

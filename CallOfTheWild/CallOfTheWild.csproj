@@ -136,6 +136,7 @@
     <Compile Include="Classes\Hunter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
+    <Compile Include="NewMechanics\HealingMechanics.cs" />
     <Compile Include="NewMechanics\MetamagicMechanics.cs" />
     <Compile Include="NewFeats.cs" />
     <Compile Include="NewMechanics\MonsterLore.cs" />

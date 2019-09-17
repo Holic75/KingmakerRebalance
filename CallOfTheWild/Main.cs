@@ -165,6 +165,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
 
                     CallOfTheWild.CleanUp.processRage();
+                    CallOfTheWild.SaveGameFix.FixMissingAssets();
 
 
 #if DEBUG
