@@ -63,6 +63,7 @@ using Kingmaker.Designers.EventConditionActionSystem.ContextData;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.Visual.Animation.Kingmaker;
 using Kingmaker.Blueprints.Area;
+using Kingmaker.Items.Slots;
 
 namespace CallOfTheWild
 {
@@ -2592,6 +2593,115 @@ namespace CallOfTheWild
                 }
 
                 return weapon_types.Contains(weapon.Blueprint.Type);
+            }
+        }
+
+
+        [ComponentName("Add stat bonus if owner has shield")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AddStatBonusIfHasShield : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+        {
+            private ModifiableValue.Modifier m_Modifier;
+            public ContextValue value;
+            public ModifierDescriptor descriptor;
+            public StatType stat;
+
+            public override void OnTurnOn()
+            {
+                this.CheckShield();
+            }
+
+            public override void OnTurnOff()
+            {
+                this.DeactivateModifier();
+            }
+
+            public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+            {
+                this.CheckShield();
+            }
+
+            public void CheckShield()
+            {
+                if (this.Owner.Body.SecondaryHand.HasShield)
+                    this.ActivateModifier();
+                else
+                    this.DeactivateModifier();
+            }
+
+            public void ActivateModifier()
+            {
+                if (this.m_Modifier != null)
+                    return;
+                this.m_Modifier = this.Owner.Stats.GetStat(stat).AddModifier(value.Calculate(this.Fact.MaybeContext), this, descriptor);
+            }
+
+            public void DeactivateModifier()
+            {
+                if (this.m_Modifier != null)
+                    this.m_Modifier.Remove();
+                this.m_Modifier = (ModifiableValue.Modifier)null;
+            }
+
+            public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+            {
+                if (slot.Owner != this.Owner)
+                    return;
+                this.CheckShield();
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfHasFactsFromList : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public BlueprintUnitFact[] CheckedFacts;
+            public BlueprintUnitFact Feature;
+            public int amount = 1;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null)
+                    return;
+
+                int facts_found = 0;
+
+                foreach (var f in CheckedFacts)
+                {
+                    if (facts_found == amount)
+                    {
+                        break;
+                    }
+                    if (this.Owner.HasFact(f))
+                    {
+                        facts_found++;
+                    }
+                }
+
+                if (facts_found == amount)
+                {
+                    this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+                }
             }
         }
 

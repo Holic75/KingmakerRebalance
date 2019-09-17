@@ -73,7 +73,7 @@ namespace CallOfTheWild
 
 
 
-        internal static void createholy_vindicatorClass()
+        internal static void createHolyVindicatorClass()
         {
             var paladin_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
 
@@ -133,11 +133,15 @@ namespace CallOfTheWild
 
             createStigmata();
             /*createFaithHealing();
-            createDivineWrath();
             createBloodfire();
             createVersatileChannel();
             createBloodrain();
-            createDivineRetribution();*/
+            */
+
+            /* not sure if it is worth implementing these features (they are not very useful and interface would be clunky)
+            createDivineWrath();
+            createDivineRetribution();
+            */
         }
 
 
@@ -194,19 +198,39 @@ namespace CallOfTheWild
 
             var icon = library.Get<BlueprintAbility>("a6e59e74cba46a44093babf6aec250fc").Icon;//slay living
 
+            stigmata = Helpers.CreateFeature("HolyVindicatorStigmata",
+                                             "Stigmata",
+                                             "A vindicator willingly gives his blood in service to his faith, and is marked by scarified wounds appropriate to his deity. At 2nd level, he may stop or start the flow of blood by force of will as a standard action; at 6th level it becomes a move action, and at 10th level it becomes a swift action. Activating stigmata causes holy or unholy damage equal to half the vindicator’s class level every round. While the stigmata are bleeding, the vindicator gains a sacred bonus (if he channels positive energy) or profane bonus (if he channels negative energy) equal to half his class level. Each time he activates his stigmata, the vindicator decides if the bonus applies to attack rolls, weapon damage rolls, Armor Class, or saving throws; to change what the bonus applies to, the vindicator must deactivate and reactivate his stigmata. While his stigmata are burning, the vindicator ignores blood drain and bleed damage from any other source.",
+                                             "",
+                                             icon,
+                                             FeatureGroup.None);
+
+
+            var bleed_immunity = Common.createBuffDescriptorImmunity(SpellDescriptor.Bleed);
+
             foreach (var bonus_descriptor in bonus_descriptors)
             {
                 var buffs = new List<BlueprintBuff>();
+                var dmg_type = bonus_descriptor == ModifierDescriptor.Sacred ? DamageEnergyType.Holy : DamageEnergyType.Unholy;
+                var add_context_actions = Helpers.CreateAddFactContextActions(Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Bleed),
+                                                                        null,
+                                                                        Helpers.CreateActionDealDamage(dmg_type,
+                                                                                                       Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Helpers.CreateContextValue(AbilityRankType.StatBonus))
+                                                                                                       )
+                                                                        );  
                 var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getHolyVindicatorArray(),
-                                                             type: AbilityRankType.StatBonus, progression: ContextRankProgression.Div2);
+                                                                 type: AbilityRankType.StatBonus, progression: ContextRankProgression.Div2);
+
                 foreach (var s in stats)
                 {
                     var buff = Helpers.CreateBuff(bonus_descriptor.ToString() + "Stigmata" + s.ToString() + "Buff",
                                                   $"{bonus_descriptor.ToString()} Stigmata: {s.ToString()}",
-                                                  "A vindicator willingly gives his blood in service to his faith, and is marked by scarified wounds appropriate to his deity. At 2nd level, he may stop or start the flow of blood by force of will as a standard action; at 6th level it becomes a move action, and at 10th level it becomes a swift action. Activating stigmata causes holy or unholy damage equal to half the vindicator’s class level every round. While the stigmata are bleeding, the vindicator gains a sacred bonus (if he channels positive energy) or profane bonus (if he channels negative energy) equal to half his class level. Each time he activates his stigmata, the vindicator decides if the bonus applies to attack rolls, weapon damage rolls, Armor Class, or saving throws; to change what the bonus applies to, the vindicator must deactivate and reactivate his stigmata. While his stigmata are bleeding, the vindicator ignores blood drain and bleed damage from any other source.",
+                                                  "A vindicator willingly gives his blood in service to his faith, and is marked by scarified wounds appropriate to his deity. At 2nd level, he may stop or start the flow of blood by force of will as a standard action; at 6th level it becomes a move action, and at 10th level it becomes a swift action. Activating stigmata causes holy or unholy damage equal to half the vindicator’s class level every round. While the stigmata are bleeding, the vindicator gains a sacred bonus (if he channels positive energy) or profane bonus (if he channels negative energy) equal to half his class level. Each time he activates his stigmata, the vindicator decides if the bonus applies to attack rolls, weapon damage rolls, Armor Class, or saving throws; to change what the bonus applies to, the vindicator must deactivate and reactivate his stigmata. While his stigmata are burning, the vindicator ignores blood drain and bleed damage from any other source.",
                                                   "",
                                                   icon,
                                                   null,
+                                                  add_context_actions,
+                                                  bleed_immunity,
                                                   Helpers.CreateAddContextStatBonus(s, bonus_descriptor, rankType: AbilityRankType.StatBonus),
                                                   context_rank_config
                                                   );
@@ -244,6 +268,18 @@ namespace CallOfTheWild
                     ability.Group = ActivatableAbilityGroupExtension.Stigmata.ToActivatableAbilityGroup();
                     stigmata_abilities[bonus_descriptor].Add(ability);
                 }
+
+                var add_stigmata = Helpers.CreateFeature($"HolyVindicator{bonus_descriptor.ToString()}StigmataFeature",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddFacts(stigmata_abilities[bonus_descriptor].ToArray())
+                                                        );
+                add_stigmata.HideInUI = true;
+
+                stigmata.AddComponent(Helpers.Create<NewMechanics.AddFeatureIfHasFactsFromList>(a => { a.Feature = add_stigmata; a.CheckedFacts = new BlueprintUnitFact[0]; }));
             }
         }
 

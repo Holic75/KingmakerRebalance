@@ -144,6 +144,9 @@ namespace CallOfTheWild
         static readonly public SpellDescriptor holy_vindicator_shield_descriptor = (SpellDescriptor)0x0004000000000000;
 
 
+        static BlueprintFeature stigmata_feature = null;
+
+
         internal static void init()
         {
             var empyreal_sorc_channel_feature = library.Get<BlueprintFeature>("7d49d7f590dc9a948b3bd1c8b7979854");
@@ -263,7 +266,7 @@ namespace CallOfTheWild
             var sacred_numbus = library.Get<BlueprintAbility>("bf74b3b54c21a9344afe9947546e036f");
             holy_vindicator_shield = Helpers.CreateFeature("HolyVindicatorShieldFeature",
                                                             "Vindicator's Shield",
-                                                            "A vindicator can channel energy into a protective shield around him as a standard action; this shield gives the vindicator a sacred bonus (if positive energy) or profane bonus (if negative energy) to his Armor Class equal to the number of dice of the vindicator’s channel energy. This bonus lasts for 24 hours or until the vindicator is struck in combat, whichever comes first.",
+                                                            "A vindicator can channel energy into his shield as a standard action; when worn, the shield gives the vindicator a sacred bonus (if positive energy) or profane bonus (if negative energy) to his Armor Class equal to the number of dice of the vindicator’s channel energy. This bonus lasts for 24 hours or until the vindicator is struck in combat, whichever comes first. The shield does not provide this bonus to any other wielder, but the vindicator does not need to be holding the shield for it to retain this power.",
                                                             "",
                                                             sacred_numbus.Icon,
                                                             FeatureGroup.None);
@@ -303,6 +306,13 @@ namespace CallOfTheWild
                                          Helpers.MergeIds(entry.ability.AssetGuid, "ea0d0d4343124c58905d444c3c6278e9"),
                                          icon,
                                          fx_buff,
+                                         Helpers.Create<NewMechanics.AddStatBonusIfHasShield>(a =>
+                                                                                             {
+                                                                                                 a.descriptor = bonus_descriptor;
+                                                                                                 a.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                 a.stat = Kingmaker.EntitySystem.Stats.StatType.AC;
+                                                                                             }
+                                                                                             ),
                                          Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, bonus_descriptor),
                                          entry.ability.GetComponent<ContextRankConfig>(),
                                          entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
@@ -558,8 +568,41 @@ namespace CallOfTheWild
             addToVersatileChanneler(entry);
             addToHolyVindicatorShield(entry);
             addHolyVindicatorChannelEnergyProgressionToChannel(entry);
+            addToStigmataPrerequisites(entry);
         }
 
+
+        internal static void registerStigmata(BlueprintFeature stigmata)
+        {
+            stigmata_feature = stigmata;
+        }
+
+
+        static void addToStigmataPrerequisites(ChannelEntry entry)
+        {
+            if (!entry.channel_type.isBase())
+            {
+                return;
+            }
+
+            if (stigmata_feature == null)
+            {
+                return;
+            }
+
+            var sacred_stigmata_prerequisites = stigmata_feature.GetComponents<NewMechanics.AddFeatureIfHasFactsFromList>().ElementAt(0);
+            if (entry.channel_type.isOf(ChannelType.Positive) && !sacred_stigmata_prerequisites.CheckedFacts.Contains(entry.parent_feature))
+            {
+                sacred_stigmata_prerequisites.CheckedFacts = sacred_stigmata_prerequisites.CheckedFacts.AddToArray(entry.parent_feature);
+            }
+
+
+            var profane_stigmata_prerequisites = stigmata_feature.GetComponents<NewMechanics.AddFeatureIfHasFactsFromList>().ElementAt(1);
+            if (entry.channel_type.isOf(ChannelType.Negative) && !profane_stigmata_prerequisites.CheckedFacts.Contains(entry.parent_feature))
+            {
+                profane_stigmata_prerequisites.CheckedFacts = profane_stigmata_prerequisites.CheckedFacts.AddToArray(entry.parent_feature);
+            }
+        }
 
         public static void addToBackToTheGrave(ChannelEntry entry)
         {
