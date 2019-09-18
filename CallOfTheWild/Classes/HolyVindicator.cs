@@ -294,12 +294,12 @@ namespace CallOfTheWild
                                                               "",
                                                               healers_blessing.Icon,
                                                               FeatureGroup.None,
-                                                              Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
-                                                                                                                                      {
-                                                                                                                                          m.Abilities = healing_spells;
-                                                                                                                                          m.Metamagic = Metamagic.Empower;
-                                                                                                                                      }
-                                                                                                                                      )
+                                                              Helpers.Create<HealingMechanics.SelfHealingMetamagic>(m =>
+                                                                                                                    {
+                                                                                                                        m.spells = healing_spells.ToArray();
+                                                                                                                        m.empower = true;
+                                                                                                                    }
+                                                                                                                    )
                                                              );
 
             var faith_healing_maximize = Helpers.CreateFeature("HolyVindicatorFaithHealingMaximizeFeature",
@@ -308,12 +308,12 @@ namespace CallOfTheWild
                                                   "",
                                                   faith_healing_empower.Icon,
                                                   FeatureGroup.None,
-                                                  Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnPersonalSpell>(m =>
-                                                                                                                          {
-                                                                                                                              m.Abilities = healing_spells;
-                                                                                                                              m.Metamagic = Metamagic.Maximize;
-                                                                                                                          }
-                                                                                                                          )
+                                                  Helpers.Create<HealingMechanics.SelfHealingMetamagic>(m =>
+                                                                                                        {
+                                                                                                            m.spells = healing_spells.ToArray();
+                                                                                                            m.maximize = true;
+                                                                                                        }
+                                                                                                        )
                                                  );
 
             faith_healing = Helpers.CreateFeature("HolyVindicatorFaithHealingFeature",
