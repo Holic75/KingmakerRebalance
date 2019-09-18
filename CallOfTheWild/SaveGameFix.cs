@@ -61,6 +61,7 @@ namespace CallOfTheWild
         static internal void FixMissingAssets()
         {
             List<BlueprintAbility> missing_abilities = new List<BlueprintAbility>();
+            //broken channels that were removed in 1.29
             missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyEmpyrealHarm",   "89804559ac9dd22e23053d0b8c939eae"));
             missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyPaladinHarm",    "21e46c86f0a5714e918572662d76f4c1"));
             missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyHospitalerHarm", "a4c40f80cdddfe2e926c5e8560ac512c"));
@@ -73,11 +74,15 @@ namespace CallOfTheWild
             Action<UnitDescriptor> fix_action = delegate (UnitDescriptor u)
             {
                 foreach (var missing_ability in missing_abilities)
-                if (u.HasFact(missing_ability))
                 {
-                  u.RemoveFact(missing_ability);
+                    if (u.HasFact(missing_ability))
+                    {
+                        u.RemoveFact(missing_ability);
+                    }
                 }
             };
+
+            save_game_actions.Add(fix_action);
         }
     }
 
