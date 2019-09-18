@@ -81,9 +81,9 @@ New spells:
 - Shapechange.  
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
-- Beast shape I allows to turn into leopard,  
-- Beast shape II allows to turn into bear (without rend) and dire wolf (with trip),  
-- Beast shape III allows to turn into large smilodon and Huge Mastodon (with trample),  
+- Beast shape I allows to turn into wolf and leopard,  
+- Beast shape II allows to turn into large bear (without rend) and large dire wolf (with trip),  
+- Beast shape III allows to turn into large smilodon and Huge mastodon (with trample),  
 - Beast shape IV allows to turn into large hodag (with toss) and large winter wolf (with trip and breath weapon)  
 
 The changes corresponding to these spells as well as Plant Shape I, II and III were also applied to druid wildshape ability.
@@ -100,7 +100,7 @@ enchanced attacks).
 - Animal Growth properly increases size of animal companion,
 - Arcane Bond works with spontaneous spells,
 - Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
-- Empyreal Sorcerer Ehannel Energy ability depends now on Wisdom rather than charisma,
+- Empyreal Sorcerer Channel Energy ability depends now on Wisdom rather than Charisma,
 - Channel Energy dc no longer scales with character level, but with class level that gave access to it.
 - all flying creatures are immune to difficult terrain and ground based buff effects.
 

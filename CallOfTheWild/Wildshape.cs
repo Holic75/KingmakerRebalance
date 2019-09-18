@@ -45,9 +45,10 @@ namespace CallOfTheWild
 {
     public class Wildshape
     {
-        static internal BlueprintAbility beast_shape1 = library.Get<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9");
+        static internal BlueprintAbility beast_shape_prototype = library.CopyAndAdd<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9", "BeastShapePrototype", "");
 
         static LibraryScriptableObject library => Main.library;
+        static public BlueprintBuff wolf_form = Main.library.Get<BlueprintBuff>("00d8fbe9cf61dc24298be8d95500c84b");
         static public BlueprintBuff leopard_form = Main.library.Get<BlueprintBuff>("200bd9b179ee660489fe88663115bcbc");
         static public BlueprintBuff bear_form = Main.library.Get<BlueprintBuff>("0c0afabcfddeecc40a1545a282f2bec8");
         static public BlueprintBuff smilodon_form = Main.library.Get<BlueprintBuff>("c38def68f6ce13b4b8f5e5e0c6e68d08");
@@ -93,6 +94,7 @@ namespace CallOfTheWild
         static public BlueprintAbility smilodon_form_spell = library.Get<BlueprintAbility>("502cd7fd8953ac74bb3a3df7e84818ae");
         static public BlueprintAbility mastodon_form_spell;
         static public BlueprintAbility leopard_form_spell;
+        static public BlueprintAbility wolf_form_spell;
         static public BlueprintAbility hodag_form_spell;
         static public BlueprintAbility winter_wolf_form_spell;
 
@@ -276,9 +278,9 @@ namespace CallOfTheWild
 
         static void fixDruid()
         {
-            string description = "At 4th level, a druid gains the ability to turn herself into a leopard and back again once per day. The effect lasts for 1 hour per druid level, or until she changes back.\nChanging form is a standard action and doesn't provoke an attack of opportunity. A druid can use this ability an additional time per day at 6th level and every two levels thereafter, for a total of eight times at 18th level.\nAt 6th level, a druid can use wild shape to change into a bear, dire wold or a small elemental. At 8th level, a druid can use wild shape to change into a smilodon, mastodon, mandragora or a medium elemental. At 10th level, a druid can use wild shape to change into a shambling mound or a large elemental. At 12th level, a druid can use wild shape to change into a giant flytrap, treant or a huge elemental.\nFor the feyspeaker archetype, all level prerequisites are increased by 2.";
+            string description = "At 4th level, a druid gains the ability to turn herself into a wolf or a leopard and back again once per day. The effect lasts for 1 hour per druid level, or until she changes back.\nChanging form is a standard action and doesn't provoke an attack of opportunity. A druid can use this ability an additional time per day at 6th level and every two levels thereafter, for a total of eight times at 18th level.\nAt 6th level, a druid can use wild shape to change into a bear, dire wold or a small elemental. At 8th level, a druid can use wild shape to change into a smilodon, mastodon, mandragora or a medium elemental. At 10th level, a druid can use wild shape to change into a shambling mound or a large elemental. At 12th level, a druid can use wild shape to change into a giant flytrap, treant or a huge elemental.\nFor the feyspeaker archetype, all level prerequisites are increased by 2.";
             var wildshape_wolf = library.Get<BlueprintAbility>("ac8811714a45a5948b27208538ce4f03");
-
+            var wolf_feature = library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
 
             var wildshape_leopard = library.Get<BlueprintAbility>("92c47b04f6c9aa44abf1693b32554804");
 
@@ -334,7 +336,7 @@ namespace CallOfTheWild
             medium_elemental_add.SetDescription(description);
             large_elemental_add.SetDescription(description);
 
-
+            animal_wildshapes.Add(wildshape_wolf);
             animal_wildshapes.Add(wildshape_leopard);
             animal_wildshapes.Add(wildshape_bear);
             animal_wildshapes.Add(wildshape_dire_wolf);
@@ -342,6 +344,7 @@ namespace CallOfTheWild
             animal_wildshapes.Add(wildshape_mastodon);
 
             var shape_features = new BlueprintFeature[] {
+                                                        wolf_feature,
                                                         leopard_feature,
                                                         bear_feature,
                                                         shambling_mound_feature,    
@@ -353,16 +356,11 @@ namespace CallOfTheWild
                                                         };
             foreach (var s in shape_features)
             {
-                /*var facts = s.GetComponent<AddFacts>().Facts;
-                foreach (var f in facts)
-                {
-                    ((BlueprintAbility)f).SetDescription(description);
-                }*/
                 s.SetDescription(description);
             }
 
             var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
-            druid_progression.LevelEntries[3].Features[1] = leopard_feature;
+            druid_progression.LevelEntries[3].Features.Add(leopard_feature);
             druid_progression.LevelEntries[5].Features[0] = dire_wolf_feature;
             druid_progression.LevelEntries[5].Features.Insert(0, bear_feature);
             druid_progression.LevelEntries[7].Features[0] = mastodon_feature;
@@ -372,15 +370,15 @@ namespace CallOfTheWild
             druid_progression.LevelEntries[11].Features.Add(flytrap_feature);
             druid_progression.LevelEntries[11].Features.Add(treant_feature);
             druid_progression.UIGroups[0].Features.Remove(library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb"));//remove wolf feature
-            var wildshape_ui_groups = new UIGroup[] {Helpers.CreateUIGroup(leopard_feature, dire_wolf_feature, smilodon_feature),
-                                                     Helpers.CreateUIGroup(bear_feature, mastodon_feature, treant_feature),
+            var wildshape_ui_groups = new UIGroup[] {Helpers.CreateUIGroup(wolf_feature, dire_wolf_feature, smilodon_feature),
+                                                     Helpers.CreateUIGroup(leopard_feature, bear_feature, mastodon_feature, treant_feature),
                                                      Helpers.CreateUIGroup(mandragora_feature, shambling_mound_feature, flytrap_feature),
                                                      Helpers.CreateUIGroup(small_elemental_feature, medium_elemental_add , large_elemental_add, huge_elemental_feature)};
             druid_progression.UIGroups = druid_progression.UIGroups.AddToArray(wildshape_ui_groups);
 
 
             var feyspeaker = library.Get<BlueprintArchetype>("da69747aa3dd0044ebff5f3d701cdde3");
-            feyspeaker.AddFeatures[2].Features[1] = leopard_feature;
+            feyspeaker.AddFeatures[2].Features.Add(leopard_feature);
             feyspeaker.AddFeatures[3].Features[1] = dire_wolf_feature;
             feyspeaker.AddFeatures[3].Features.Add(bear_feature);
             feyspeaker.AddFeatures[4].Features[1] = mastodon_feature;
@@ -391,7 +389,7 @@ namespace CallOfTheWild
             feyspeaker.AddFeatures[6].Features.Add(treant_feature);
 
 
-            feyspeaker.RemoveFeatures[1].Features[0] = leopard_feature;
+            feyspeaker.RemoveFeatures[1].Features.Add(leopard_feature);
             feyspeaker.RemoveFeatures[2].Features[0] = bear_feature;
             feyspeaker.RemoveFeatures[2].Features.Add(dire_wolf_feature);
             feyspeaker.RemoveFeatures[3].Features[0] = smilodon_feature;
@@ -402,8 +400,8 @@ namespace CallOfTheWild
 
             first_wildshape_form = leopard_feature;
             //fix natural spell requirement
-            var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
-            natural_spell.GetComponent<PrerequisiteFeature>().Feature = leopard_feature;
+            /*var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
+            natural_spell.GetComponent<PrerequisiteFeature>().Feature = wolf_feature;*/
 
         }
 
@@ -430,12 +428,14 @@ namespace CallOfTheWild
             bear_shape.Buff.SetDescription(bear_form.Description);
             bear_shape.SetDescription(bear_form_spell.Description);
 
+            var wolf_shape = createChangeShapeAbility(wolf_form, "TransmutationSchoolChangeShapeWolf", "Change Shape (Wolf)", wolf_form_spell.Description);
             var dire_wolf_shape = createChangeShapeAbility(dire_wolf_form, "TransmutationSchoolChangeShapeDireWolf", "Change Shape (Dire Wolf)", dire_wolf_form_spell.Description);
             var mastodon_shape = createChangeShapeAbility(mastodon_form, "TransmutationSchoolChangeShapeMastodon", "Change Shape (Mastodon)", mastodon_form_spell.Description);
             var smilodon_shape = createChangeShapeAbility(smilodon_form, "TransmutationSchoolChangeShapeSmilodon", "Change Shape (Smilodon)", smilodon_form_spell.Description);
 
             var change_shapeI = library.Get<BlueprintFeature>("aeb56418768235640a3ee858d5ee05e8");
             var factsI = change_shapeI.GetComponent<AddFacts>().Facts.ToList();
+            factsI.Insert(1, wolf_shape);
             factsI.Insert(1, bear_shape);
             factsI.Insert(2, dire_wolf_shape);
             change_shapeI.GetComponent<AddFacts>().Facts = factsI.ToArray();
@@ -533,16 +533,16 @@ namespace CallOfTheWild
                                               AbilityRange.Personal,
                                               Helpers.tenMinPerLevelDuration,
                                               Helpers.savingThrowNone,
-                                              beast_shape1.GetComponent<AbilitySpawnFx>(),
-                                              beast_shape1.GetComponent<ContextRankConfig>(),
-                                              beast_shape1.GetComponent<SpellComponent>(),
+                                              beast_shape_prototype.GetComponent<AbilitySpawnFx>(),
+                                              beast_shape_prototype.GetComponent<ContextRankConfig>(),
+                                              beast_shape_prototype.GetComponent<SpellComponent>(),
                                               Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(rate: DurationRate.TenMinutes), is_from_spell: true))
                                            );
 
-            shapechange.ResourceAssetIds = beast_shape1.ResourceAssetIds;
-            shapechange.AvailableMetamagic = beast_shape1.AvailableMetamagic;
-            shapechange.Animation = beast_shape1.Animation;
-            shapechange.AnimationStyle = beast_shape1.AnimationStyle;
+            shapechange.ResourceAssetIds = beast_shape_prototype.ResourceAssetIds;
+            shapechange.AvailableMetamagic = beast_shape_prototype.AvailableMetamagic;
+            shapechange.Animation = beast_shape_prototype.Animation;
+            shapechange.AnimationStyle = beast_shape_prototype.AnimationStyle;
             shapechange.AddToSpellList(Helpers.wizardSpellList, 9);
             shapechange.AddToSpellList(Helpers.druidSpellList, 9);
             shapechange.MaterialComponent = library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28").MaterialComponent; //from legendary proportions
@@ -574,7 +574,7 @@ namespace CallOfTheWild
                                 Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),//slam
                                 Helpers.CreateAddFact(turn_back)
                               );
-            storm_giant_form_spell = replaceForm(beast_shape1, storm_giant_form, "GiantFormIIStormGiantAbility", "Giant Form II (Storm Giant)",
+            storm_giant_form_spell = replaceForm(beast_shape_prototype, storm_giant_form, "GiantFormIIStormGiantAbility", "Giant Form II (Storm Giant)",
                          "You acquire storm giant features. Your size changes to huge. You gain a + 8 size bonus to your Strength, + 6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also gain two 2d6 slam attacks and electricity resistance 20.");
             storm_giant_form_spell.RemoveComponents<SpellListComponent>();
             storm_giant_form_spell.SetIcon(defensive_stance.Icon);
@@ -598,7 +598,7 @@ namespace CallOfTheWild
                     Helpers.CreateAddFacts(library.Get<BlueprintFeature>("366f54decfc4c08438fa66427cd92939"), //poison
                                            turn_back)
                   );
-            athach_form_form_spell = replaceForm(beast_shape1, athach_form, "GiantFormIIAthachAbility", "Giant Form II (Athach)",
+            athach_form_form_spell = replaceForm(beast_shape_prototype, athach_form, "GiantFormIIAthachAbility", "Giant Form II (Athach)",
                          "You acquire athach features. Your size changes to huge. You gain a + 8 size bonus to your Strength, + 6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also have two 1d8 slam attacks, one 2d6 bite attack, one 1d10 secondary claw attack and poison ability.");
             athach_form_form_spell.RemoveComponents<SpellListComponent>();
             athach_form_form_spell.SetIcon(defensive_stance.Icon);
@@ -731,7 +731,7 @@ namespace CallOfTheWild
                                                  mandragora_poison
                                                  );  
 
-            plant_shapeI = replaceForm(beast_shape1, mandragora_form, "PlantShapeISpell", "Plant Shape I",
+            plant_shapeI = replaceForm(beast_shape_prototype, mandragora_form, "PlantShapeISpell", "Plant Shape I",
                                                 "You become a Small mandragora. You gain a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d6 bite attack, two 1d4 slams and poison ability.");
             plant_shapeI.RemoveComponents<SpellListComponent>();
             plant_shapeI.AddToSpellList(Helpers.alchemistSpellList, 5);
@@ -751,7 +751,7 @@ namespace CallOfTheWild
             shambling_mound_form.SetName("Plant Shape (Shambling Mound)");
             shambling_mound_form.SetIcon(entangle.Icon);
 
-            plant_shapeII = replaceForm(beast_shape1, shambling_mound_form, "PlantShapeIISpell", "Plant Shape II",
+            plant_shapeII = replaceForm(beast_shape_prototype, shambling_mound_form, "PlantShapeIISpell", "Plant Shape II",
                                                 "You become a Large shambling mound. You gain a +4 size bonus to your Strength, a +2 size bonus to your Constitution, +4 natural armor bonus, resist fire 20, and resist electricity 20. Your movement speed is reduced by 10 feet. You also have two 2d6 slam attacks, the constricting vines ability, and the poison ability.\nConstricting Vines: A shambling mound's vines coil around any creature it hits with a slam attack. The shambling mound attempts a grapple maneuver check against its target, and on a successful check its vines deal 2d6+5 damage and the foe is grappled.\nGrappled characters cannot move, and take a -2 penalty on all attack rolls and a -4 penalty to Dexterity. Grappled characters attempt to escape every round by making a successful combat maneuver, Strength, Athletics, or Mobility check. The DC of this check is the shambling mound's CMD.\nEach round, creatures grappled by a shambling mound suffer 4d6+Strength modifier × 2 damage.\nA shambling mound receives a +4 bonus on grapple maneuver checks.\nPoison:\nSlam; Save: Fortitude\nFrequency: 1/round for 2 rounds\nEffect: 1d2 Strength and 1d2 Dexterity damage\nCure: 1 save\nThe save DC is Constitution-based.");
 
             plant_shapeII.AddToSpellList(Helpers.alchemistSpellList, 6);
@@ -816,17 +816,33 @@ namespace CallOfTheWild
 
         static void fixBeastShape1()
         {
-            beast_shape1.SetDescription("You become a Medium leopard. You gain a +2 size bonus to your Strength and a +2 natural armor bonus. You also gain two 1d3 claw attacks and one 1d6 bite attack.");
-            beast_shape1.GetComponent<AbilityTargetHasFact>().CheckedFacts[0] = leopard_form;
+            var beast_shape1 = library.Get<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9");
+            beast_shape1.SetDescription("You become a Medium wolf or a Medium leopard.");
+            beast_shape1.RemoveComponent(beast_shape1.GetComponent<AbilityTargetHasFact>());
+            beast_shape1.RemoveComponent(beast_shape1.GetComponent<AbilitySpawnFx>());
+            beast_shape1.RemoveComponent(beast_shape1.GetComponent<AbilityExecuteActionOnCast>());
+            beast_shape1.RemoveComponent(beast_shape1.GetComponent<ContextRankConfig>());
+
             leopard_form.GetComponent<Polymorph>().Facts = leopard_form.GetComponent<Polymorph>().Facts.AddToArray(trip_defense_4legs);
-            ((ContextActionApplyBuff)beast_shape1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]).Buff = leopard_form;
-            leopard_form_spell = beast_shape1;
+            leopard_form_spell = replaceForm(smilodon_form_spell, leopard_form, "BeastShapeILeopardAbility", "Beast Shape I (Leopard)",
+                                                "You become a Medium leopard. You gain a +2 size bonus to your Strength and a +2 natural armor bonus. You also gain two 1d3 claw attacks and one 1d6 bite attack.");
+
+
+            wolf_form.GetComponent<Polymorph>().Facts = wolf_form.GetComponent<Polymorph>().Facts.AddToArray(trip_defense_4legs);
+            wolf_form_spell = replaceForm(smilodon_form_spell, wolf_form, "BeastShapeIWolfAbility", "Beast Shape I (Wolf)",
+                                                "You become a Medium wolf. You gain a +2 size bonus to your Strength and a +2 natural armor bonus. Your movement speed is increased by 20 feet. You also gain a 1d6 bite attack and the tripping bite ability.\nTripping Bite: A wolf can attempt to trip its opponent as a free action if it hits with bite attack.");
+
+            beast_shape1.AddComponent(Helpers.CreateAbilityVariants(beast_shape1, wolf_form_spell, leopard_form_spell));
         }
 
 
         static void fixBeastShape2()
         {
             var beast_shape2 = library.Get<BlueprintAbility>("5d4028eb28a106d4691ed1b92bbb1915");
+            beast_shape2.RemoveComponent(beast_shape2.GetComponent<AbilityTargetHasFact>());
+            beast_shape2.RemoveComponent(beast_shape2.GetComponent<AbilitySpawnFx>());
+            beast_shape2.RemoveComponent(beast_shape2.GetComponent<AbilityExecuteActionOnCast>());
+            beast_shape2.RemoveComponent(beast_shape2.GetComponent<ContextRankConfig>());
             beast_shape2.SetDescription("You become a Large bear or a Large dire wolf.");
 
 
@@ -978,8 +994,11 @@ namespace CallOfTheWild
             var polymorph_dire_wolf = replaceForm(polymorph_animal, dire_wolf_form, "PolymorphSpellDireWolfAbility", "Polymorph (Dire Wolf)",
                                                 "Target becomes a Large dire wolf. It gains a +4 size bonus to Strength, -2 penalty to Dexterity, and a +4 natural armor bonus. Its movement speed is increased by 10 feet. It also gains a 1d8 bite attack and the tripping bite ability.");
 
-            variants.Variants = variants.Variants.AddToArray(polymorph_bear, polymorph_dire_wolf);
-            polymorph_spell.SetDescription("This spell transforms an allied creature into a leopard, a Large bear, a Large dire wolf or a small elemental. The subject may choose to resume its normal form as a full-round action; doing so ends the spell for that subject.");
+            var polymorph_wolf = replaceForm(polymorph_animal, wolf_form, "PolymorphSpellWolfAbility", "Polymorph (Wolf)",
+                                               "Target becomes a Medium wolf. It gains a +2 size bonus to Strength and a +2 natural armor bonus. Its movement speed is increased by 20 feet. It also gains a 1d6 bite attack and the tripping bite ability.\nTripping Bite: A wolf can attempt to trip its opponent as a free action if it hits with bite attack.");
+
+            variants.Variants = variants.Variants.AddToArray(polymorph_wolf, polymorph_bear, polymorph_dire_wolf);
+            polymorph_spell.SetDescription("This spell transforms an allied creature into a wolf, a leopard, a Large bear, a Large dire wolf or a small elemental. The subject may choose to resume its normal form as a full-round action; doing so ends the spell for that subject.");
         }
 
 

@@ -82,7 +82,20 @@ namespace CallOfTheWild
                 }
             };
 
+            //remove channels explicit abilities that should now all be under drop-down menu
+            Action<UnitDescriptor> fix_channel = delegate (UnitDescriptor u)
+            {
+                var channels = ChannelEnergyEngine.getChannelAbilities(p => true);
+                foreach (var channel in channels)
+                {
+                    if (u.HasFact(channel))
+                    {
+                        u.RemoveFact(channel);
+                    }
+                }
+            };
             save_game_actions.Add(fix_action);
+            save_game_actions.Add(fix_channel);
         }
     }
 

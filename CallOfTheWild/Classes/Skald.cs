@@ -518,7 +518,7 @@ namespace CallOfTheWild
             createHornCall();
             createCrumblingBlast();
 
-            herald_of_the_horn_archetype.AddFeatures = new LevelEntry[] { //Helpers.LevelEntry(1, bonded_object_feature),
+            herald_of_the_horn_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bonded_object_feature),
                                                                   Helpers.LevelEntry(5, rousing_retort_feature),
                                                                   Helpers.LevelEntry(7, horn_call_feature),
                                                                   Helpers.LevelEntry(11, crumbling_blast_feature)
@@ -540,6 +540,7 @@ namespace CallOfTheWild
             var arcane_bond_ability = library.CopyAndAdd<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1", "SkaldHeraldOfTheHornBondedObjectAbility", "");
             arcane_bond_ability.SetDescription("A bonded object can be used once per day to restore any one spell that the Herald of the Horn had prepared for this day.");
             var resource = arcane_bond_ability.GetComponent<AbilityResourceLogic>().RequiredResource;
+            arcane_bond_ability.ReplaceComponent<AbilityRestoreSpellSlot>(Helpers.Create<AbilityRestoreSpontaneousSpell>(a => a.SpellLevel = 10));
 
             bonded_object_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornBondedObjectFeature",
                                                      arcane_bond_ability.Name,

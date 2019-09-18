@@ -182,14 +182,14 @@ namespace CallOfTheWild
             var hospitalier_positive_harm_base = Common.createVariantWrapper("HospitalierPositiveChannelHarmBase", "", hospitalier_positive_harm);
 
 
-            empyreal_sorc_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { empyreal_sorc_positive_heal_base, empyreal_sorc_positive_harm_base };
-            paladin_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { paladin_positive_heal_base, paladin_positive_harm_base };
-            hospitalier_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { hospitalier_positive_heal_base, hospitalier_positive_harm_base };
+            empyreal_sorc_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { empyreal_sorc_positive_harm_base, empyreal_sorc_positive_heal_base };
+            paladin_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { paladin_positive_harm_base, paladin_positive_heal_base };
+            hospitalier_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { hospitalier_positive_harm_base, hospitalier_positive_heal_base };
 
             cleric_positve_channel_feature.GetComponent<AddFacts>().Facts[1] = cleric_positive_heal_base;
             cleric_positve_channel_feature.GetComponent<AddFacts>().Facts[2] = cleric_positive_harm_base;
-            cleric_negative_channel_feature.GetComponent<AddFacts>().Facts[1] = cleric_negative_heal_base;
-            cleric_negative_channel_feature.GetComponent<AddFacts>().Facts[2] = cleric_negative_harm_base;
+            cleric_negative_channel_feature.GetComponent<AddFacts>().Facts[1] = cleric_negative_harm_base;
+            cleric_negative_channel_feature.GetComponent<AddFacts>().Facts[2] = cleric_negative_heal_base;
 
             storeChannel(empyreal_sorc_positive_heal, empyreal_sorc_channel_feature, ChannelType.PositiveHeal);
             storeChannel(empyreal_sorc_positive_harm, empyreal_sorc_channel_feature, ChannelType.PositiveHarm);
