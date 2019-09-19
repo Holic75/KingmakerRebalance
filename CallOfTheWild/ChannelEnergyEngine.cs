@@ -7,6 +7,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -145,6 +146,12 @@ namespace CallOfTheWild
 
 
         static BlueprintFeature stigmata_feature = null;
+        static GameAction blood_positive_action = null;
+        static GameAction blood_negative_action = null;
+        static GameAction blood_smite_positive_action = null;
+        static GameAction blood_smite_negative_action = null;
+
+
 
 
         internal static void init()
@@ -205,6 +212,58 @@ namespace CallOfTheWild
             storeChannel(cleric_negative_heal, cleric_negative_channel_feature, ChannelType.NegativeHeal);
             storeChannel(cleric_negative_harm, cleric_negative_channel_feature, ChannelType.NegativeHarm);
 
+        }
+
+
+        static internal void addBloodfireAndBloodrainActions(GameAction positive_action, GameAction negative_action, GameAction smite_positive_action, GameAction smite_negative_action)
+        {
+            blood_positive_action = positive_action;
+            blood_negative_action = negative_action;
+            blood_smite_positive_action = smite_positive_action;
+            blood_smite_negative_action = smite_negative_action;
+
+            foreach (var entry in channel_entires)
+            {
+                addToBloodfireAndBloodrain(entry);
+            }
+        }
+
+
+        static void addToBloodfireAndBloodrain(ChannelEntry entry)
+        {
+            if (blood_negative_action == null)
+            {
+                return;
+            }
+
+            if (entry.channel_type.isOf(ChannelType.Smite))
+            {
+                var buff = (entry.ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).Buff;
+
+                if (entry.channel_type.isOf(ChannelType.Positive))
+                {
+                    buff.ReplaceComponent<AddInitiatorAttackWithWeaponTrigger>(a => a.Action =
+                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_positive_action)));
+                }
+                else
+                {
+                    buff.ReplaceComponent<AddInitiatorAttackWithWeaponTrigger>(a => a.Action =
+                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_negative_action)));
+                }
+            }
+            else if (entry.channel_type.isNotOf(ChannelType.HolyVindicatorShield) && entry.channel_type.isOf(ChannelType.Harm))
+            {
+                if (entry.channel_type.isOf(ChannelType.Positive))
+                {
+                    entry.ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions =
+                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Actions.Actions, blood_positive_action)));
+                }
+                else
+                {
+                    entry.ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions =
+                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Actions.Actions, blood_negative_action)));
+                }
+            }
         }
 
 
@@ -569,6 +628,10 @@ namespace CallOfTheWild
             addToHolyVindicatorShield(entry);
             addHolyVindicatorChannelEnergyProgressionToChannel(entry);
             addToStigmataPrerequisites(entry);
+
+
+            //should be last
+            addToBloodfireAndBloodrain(entry);
         }
 
 

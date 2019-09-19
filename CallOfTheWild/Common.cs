@@ -2578,6 +2578,44 @@ namespace CallOfTheWild
         }
 
 
+        public static GameAction[] addMatchingAction<T>(GameAction[] action_list, params GameAction[] actions_to_add) where T : GameAction
+        {
+            //we assume that only possible actions are actual actions, conditionals, ContextActionSavingThrow or ContextActionConditionalSaved
+            var actions = action_list.ToList();
+            int num_actions = actions.Count();
+            for (int i = 0; i < num_actions; i++)
+            {
+                if (actions[i] == null)
+                {
+                    continue;
+                }
+                else if (actions[i] is T)
+                {
+                    actions.AddRange(actions_to_add);
+                }
+                else if (actions[i] is Conditional)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as Conditional).IfTrue = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as Conditional).IfTrue.Actions, actions_to_add));
+                    (actions[i] as Conditional).IfFalse = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as Conditional).IfFalse.Actions, actions_to_add));
+                }
+                else if (actions[i] is Conditional)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as ContextActionConditionalSaved).Succeed = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as ContextActionConditionalSaved).Succeed.Actions, actions_to_add));
+                    (actions[i] as ContextActionConditionalSaved).Failed = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as ContextActionConditionalSaved).Failed.Actions, actions_to_add));
+                }
+                else if (actions[i] is ContextActionSavingThrow)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as ContextActionSavingThrow).Actions = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as ContextActionSavingThrow).Actions.Actions, actions_to_add));
+                }
+            }
+
+            return actions.ToArray();
+        }
+
+
 
 
 

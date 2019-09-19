@@ -133,10 +133,8 @@ namespace CallOfTheWild
 
             createStigmata();
             createFaithHealing();
-            /*createBloodfire();
-            createVersatileChannel();
-            createBloodrain();
-            */
+            createBloodfireAndBloodrain();
+            //createVersatileChannel();
 
             /* not sure if it is worth implementing these features (they are not very useful and interface would be clunky)
             createDivineWrath();
@@ -225,7 +223,7 @@ namespace CallOfTheWild
                 {
                     var buff = Helpers.CreateBuff(bonus_descriptor.ToString() + "Stigmata" + s.ToString() + "Buff",
                                                   $"{bonus_descriptor.ToString()} Stigmata: {s.ToString()}",
-                                                  "A vindicator willingly gives his blood in service to his faith, and is marked by scarified wounds appropriate to his deity. At 2nd level, he may stop or start the flow of blood by force of will as a standard action; at 6th level it becomes a move action, and at 10th level it becomes a swift action. Activating stigmata causes holy or unholy damage equal to half the vindicator’s class level every round. While the stigmata are bleeding, the vindicator gains a sacred bonus (if he channels positive energy) or profane bonus (if he channels negative energy) equal to half his class level. Each time he activates his stigmata, the vindicator decides if the bonus applies to attack rolls, weapon damage rolls, Armor Class, or saving throws; to change what the bonus applies to, the vindicator must deactivate and reactivate his stigmata. While his stigmata are burning, the vindicator ignores blood drain and bleed damage from any other source.",
+                                                  "A vindicator willingly gives his blood in service to his faith, and is marked by scarified wounds appropriate to his deity. At 2nd level, he may make these wounds start burning by force of will as a standard action; at 6th level it becomes a move action, and at 10th level it becomes a swift action. Activating stigmata causes holy or unholy damage equal to half the vindicator’s class level every round. While the stigmata are bleeding, the vindicator gains a sacred bonus (if he channels positive energy) or profane bonus (if he channels negative energy) equal to half his class level. Each time he activates his stigmata, the vindicator decides if the bonus applies to attack rolls, weapon damage rolls, Armor Class, spell penetration checks or saving throws; to change what the bonus applies to, the vindicator must deactivate and reactivate his stigmata. While his stigmata are burning, the vindicator ignores blood drain and bleed damage from any other source.",
                                                   "",
                                                   icon,
                                                   null,
@@ -249,6 +247,17 @@ namespace CallOfTheWild
                                                     context_rank_config
                                                     );
                 buffs.Add(saves_buff);
+                var spell_penetration_buff = Helpers.CreateBuff(bonus_descriptor.ToString() + "Stigmata" + "SpellPenetrationBuff",
+                                    $"{bonus_descriptor.ToString()} Stigmata: Spell Penetration Bonus",
+                                    buffs[0].Description,
+                                    "",
+                                    icon,
+                                    null,
+                                    Helpers.Create<SpellPenetrationBonus>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                    context_rank_config
+                                    );
+                buffs.Add(spell_penetration_buff);
+
                 stigmata_buffs.Add(bonus_descriptor, buffs);
 
                 stigmata_abilities.Add(bonus_descriptor, new List<BlueprintActivatableAbility>());
@@ -325,6 +334,66 @@ namespace CallOfTheWild
                                                   Helpers.CreateAddFeatureOnClassLevel(faith_healing_empower, 8, getHolyVindicatorArray(), true),
                                                   Helpers.CreateAddFeatureOnClassLevel(faith_healing_maximize, 8, getHolyVindicatorArray())
                                                   );
+        }
+
+
+        static void createBloodfireAndBloodrain()
+        {
+            bloodfire = Helpers.CreateFeature("BloodFireHolyVindicatorFeature",
+                                              "Bloodfire",
+                                              "At 5th level, while a vindicator’s stigmata are bleeding, his blood runs down his weapons like sacred or profane liquid energy; when he uses Channel Smite, the damage increases by 1d6, and if the target fails its save, it is sickened and takes 1d6 points of bleed damage each round on its turn. The target can attempt a new save every round to end the sickened and bleed effects.",
+                                              "",
+                                              null,
+                                              FeatureGroup.None);
+
+            var bloodfire_buff = Helpers.CreateBuff("BloodFireHolyVindicatorBuff",
+                                                      bloodfire.Name,
+                                                      bloodfire.Description,
+                                                      "",
+                                                      null,
+                                                      null);
+            bloodfire_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            bloodrain = Helpers.CreateFeature("BloodRainHolyVindicatorFeature",
+                                  "Bloodrain",
+                                  "At 9th level, while his stigmata are bleeding, the vindicator’s harmful channeled energy is accompanied by a burst of sacred or profane liquid energy, increasing the damage by 1d6. Creatures failing their saves against the channeled energy become sickened and take 1d6 points of bleed damage each round. Affected creatures can attempt a new save every round to end the sickened and bleed effects.",
+                                  "",
+                                  null,
+                                  FeatureGroup.None);
+
+            var bloodrain_buff = Helpers.CreateBuff("BloodRainHolyVindicatorBuff",
+                                                      bloodrain.Name,
+                                                      bloodrain.Description,
+                                                      "",
+                                                      null,
+                                                      null);
+            bloodrain_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            foreach (var buff_list in stigmata_buffs.Values)
+            {
+                foreach (var buff in buff_list)
+                {
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, bloodfire_buff, bloodfire);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, bloodrain_buff, bloodrain);
+                }
+            }
+
+            var bleed_buff = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
+            var sickened_buff = library.CopyAndAdd<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323", "BloodSickenedBuff", "");
+            sickened_buff.AddComponent(Helpers.CreateAddFactContextActions(Common.createContextActionApplyBuff(bleed_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)));
+            sickened_buff.ReplaceComponent<AddCondition>(Common.createBuffStatusCondition(UnitCondition.Sickened, SavingThrowType.Will));
+            var apply_buff = Common.createContextActionApplyBuff(sickened_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            var save_failed_action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_buff));
+
+            var positive_damage = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1));
+            var negative_damage = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1));
+
+            var smite_positive_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodfire_buff), new GameAction[] { positive_damage, save_failed_action });
+            var smite_negative_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodfire_buff), new GameAction[] { negative_damage, save_failed_action });
+            var positive_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodrain_buff), new GameAction[] { positive_damage, save_failed_action });
+            var negative_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodrain_buff), new GameAction[] { negative_damage, save_failed_action });
+
+            ChannelEnergyEngine.addBloodfireAndBloodrainActions(positive_action, negative_action, smite_positive_action, smite_negative_action );
         }
 
     }
