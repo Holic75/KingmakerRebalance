@@ -482,31 +482,6 @@ namespace CallOfTheWild
             ranger_progression.UIGroups = ranger_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(improved_favored_terrain, improved_favored_terrain, improved_favored_terrain));
         }
 
-        [Harmony12.HarmonyPatch(typeof(UnitActivateAbility))]
-        [Harmony12.HarmonyPatch("GetCommandType", Harmony12.MethodType.Normal)]
-        class UnitActivateAbility__GetCommandType__Patch
-        {
-            static bool Prefix(ActivatableAbility ability, ref UnitCommand.CommandType __result)
-            {
-                if (ability.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
-                {
-                    __result = ability.Blueprint.ActivateWithUnitCommandType;
-                }
-                else if ((bool)ability.Owner.State.Features.QuickenPerformance2 || ability.Blueprint.ActivateWithUnitCommandType == UnitCommand.CommandType.Swift)
-                {
-                   __result =  !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Swift : UnitCommand.CommandType.Free;
-                }
-                else if ((bool)ability.Owner.State.Features.QuickenPerformance1 || ability.Blueprint.ActivateWithUnitCommandType == UnitCommand.CommandType.Move)
-                {
-                    __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Move : UnitCommand.CommandType.Swift;
-                }
-                else
-                {
-                    __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Standard : UnitCommand.CommandType.Move;
-                }
-                return false;
-            }
-        }
 
         //forbid bard song overlap on bardic performance
         [Harmony12.HarmonyPatch(typeof(ActivatableAbility))]

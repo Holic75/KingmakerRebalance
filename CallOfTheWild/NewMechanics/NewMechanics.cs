@@ -1220,6 +1220,22 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterHasSHield : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return caster.Body.SecondaryHand.HasShield;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
         public class ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction : ActivatableAbilityRestriction
         {
             public BlueprintParametrizedFeature[] features;
@@ -2698,10 +2714,65 @@ namespace CallOfTheWild
                     }
                 }
 
-                if (facts_found == amount)
+                if (facts_found >= amount)
                 {
                     this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
                 }
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfHasFactAndNotHasFact : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public BlueprintUnitFact HasFact;
+            public BlueprintUnitFact NotHasFact;
+            public BlueprintUnitFact Feature;
+
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null || !this.Owner.HasFact(this.HasFact) || this.Owner.HasFact(this.NotHasFact))
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterHasFacts : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintUnitFact[] UnitFacts;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                foreach (var fact in UnitFacts)
+                {
+                    if (!ability.Caster.Progression.Features.HasFact(fact))
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
 

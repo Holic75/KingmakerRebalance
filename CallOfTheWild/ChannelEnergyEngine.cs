@@ -85,22 +85,27 @@ namespace CallOfTheWild
             public readonly BlueprintAbility base_ability;
             public readonly BlueprintFeature parent_feature;
             public readonly ChannelType channel_type;
+            public readonly BlueprintUnitFact[] required_facts = new BlueprintUnitFact[0];
 
-            public ChannelEntry(string ability_guid, string parent_feature_guid, ChannelType type)
+            public ChannelEntry(string ability_guid, string parent_feature_guid, ChannelType type, params BlueprintUnitFact[] req_facts)
             {
                 ability = library.Get<BlueprintAbility>(ability_guid);
                 parent_feature = library.Get<BlueprintFeature>(parent_feature_guid);
                 base_ability = ability.Parent;
                 channel_type = type;
+
+                required_facts = req_facts;
             }
 
 
-            public ChannelEntry(BlueprintAbility channel_ability, BlueprintFeature channel_parent_feature, ChannelType type)
+            public ChannelEntry(BlueprintAbility channel_ability, BlueprintFeature channel_parent_feature, ChannelType type, params BlueprintUnitFact[] req_facts)
             {
                 ability = channel_ability;
                 parent_feature = channel_parent_feature;
                 base_ability = ability.Parent;
                 channel_type = type;
+
+                required_facts = req_facts;
             }
 
             public bool scalesWithClass(BlueprintCharacterClass character_class)
@@ -142,7 +147,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature versatile_channeler_negative_warpriest = null;
 
         static internal BlueprintFeature holy_vindicator_shield = null;
-        static readonly public SpellDescriptor holy_vindicator_shield_descriptor = (SpellDescriptor)0x0004000000000000;
+        static readonly public SpellDescriptor holy_vindicator_shield_descriptor = (SpellDescriptor)0x0004000000000000; //SpellDescriptor.Force;
 
 
         static BlueprintFeature stigmata_feature = null;
@@ -150,6 +155,13 @@ namespace CallOfTheWild
         static GameAction blood_negative_action = null;
         static GameAction blood_smite_positive_action = null;
         static GameAction blood_smite_negative_action = null;
+
+        static BlueprintFeature versatile_channel;
+        static AbilityDeliverProjectile negative_line_projectile;
+        static AbilityDeliverProjectile positive_line_projectile;
+
+        static AbilityDeliverProjectile negative_cone_projectile;
+        static AbilityDeliverProjectile positive_cone_projectile;
 
 
 
@@ -215,6 +227,90 @@ namespace CallOfTheWild
         }
 
 
+        static internal void addVersatileChannel(BlueprintFeature versatile_channel_feat)
+        {
+            versatile_channel = versatile_channel_feat;
+            var negative_line_proj = library.Get<BlueprintProjectile>("00deaa23c2468d04c8491e6468dd5000"); //steam
+            var positive_line_proj = library.Get<BlueprintProjectile>("1288a9729b18d3e4682d0f784e5fbd55"); //plasma
+            var negative_cone_proj = library.Get<BlueprintProjectile>("4d601ab51e167c04a8c6883260e872ee"); //necromancy cone
+            var positive_cone_proj = library.Get<BlueprintProjectile>("8c3c664b2bd74654e82fc70d3457e10d"); //enchantment_cone
+
+            var lightning_bolt = library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73");
+            var waves_of_fatigue = library.Get<BlueprintAbility>("8878d0c46dfbd564e9d5756349d5e439");
+
+            negative_line_projectile = lightning_bolt.GetComponent<AbilityDeliverProjectile>().CreateCopy();
+            negative_line_projectile.Projectiles = new BlueprintProjectile[] { negative_line_proj };
+
+            positive_line_projectile = lightning_bolt.GetComponent<AbilityDeliverProjectile>().CreateCopy();
+            positive_line_projectile.Projectiles = new BlueprintProjectile[] { positive_line_proj };
+
+            negative_cone_projectile = waves_of_fatigue.GetComponent<AbilityDeliverProjectile>().CreateCopy();
+            negative_cone_projectile.Projectiles = new BlueprintProjectile[] { negative_cone_proj };
+
+            positive_cone_projectile = waves_of_fatigue.GetComponent<AbilityDeliverProjectile>().CreateCopy();
+            positive_cone_projectile.Projectiles = new BlueprintProjectile[] { positive_cone_proj };
+
+            foreach (var entry in channel_entires.ToArray())
+            {
+                addToVersatileChannel(entry);
+            }
+        }
+
+
+        static void addToVersatileChannel(ChannelEntry entry)
+        {
+            if (versatile_channel == null)
+            {
+                return;
+            }
+
+            if (entry.channel_type.isOf(ChannelType.Form) || entry.channel_type.isOf(ChannelType.Smite) || entry.channel_type.isOf(ChannelType.HolyVindicatorShield))
+            {
+                return;
+            }
+
+            var cone_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Cone" + entry.ability.name, entry.ability.AssetGuid, "0217ce91d3384dafa3a3b85d00fc9f95");
+            var line_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Line" + entry.ability.name, entry.ability.AssetGuid, "4fc2127aa79542188f739bb1516aff5d");
+
+            cone_ability.SetName($"{cone_ability.Name}, 30-Foot Cone");
+            line_ability.SetName($"{line_ability.Name}, 120-Foot Line");
+            cone_ability.Range = AbilityRange.Projectile;
+            line_ability.Range = AbilityRange.Projectile;
+            cone_ability.setMiscAbilityParametersRangedDirectional();
+            line_ability.setMiscAbilityParametersRangedDirectional();
+            if (entry.channel_type.isOf(ChannelType.Positive))
+            {
+                cone_ability.ReplaceComponent<AbilityTargetsAround>(positive_cone_projectile);
+                line_ability.ReplaceComponent<AbilityTargetsAround>(positive_line_projectile);
+            }
+            else
+            {
+                cone_ability.ReplaceComponent<AbilityTargetsAround>(negative_cone_projectile);
+                line_ability.ReplaceComponent<AbilityTargetsAround>(negative_line_projectile);
+            }
+
+            line_ability.RemoveComponents<AbilitySpawnFx>();
+            cone_ability.RemoveComponents<AbilitySpawnFx>();
+
+            line_ability.AddComponent(Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(versatile_channel)));
+            cone_ability.AddComponent(Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(versatile_channel)));
+            entry.base_ability.addToAbilityVariants(line_ability, cone_ability);
+
+            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
+            if (caster_alignment != null)
+            {
+                line_ability.AddComponent(caster_alignment);
+                cone_ability.AddComponent(caster_alignment);
+            }
+
+            updateItemsForChannelDerivative(entry.ability, line_ability);
+            updateItemsForChannelDerivative(entry.ability, cone_ability);
+
+            storeChannel(line_ability, entry.parent_feature, entry.channel_type | ChannelType.Line);
+            storeChannel(cone_ability, entry.parent_feature, entry.channel_type | ChannelType.Cone);
+        }
+
+
         static internal void addBloodfireAndBloodrainActions(GameAction positive_action, GameAction negative_action, GameAction smite_positive_action, GameAction smite_negative_action)
         {
             blood_positive_action = positive_action;
@@ -243,12 +339,12 @@ namespace CallOfTheWild
                 if (entry.channel_type.isOf(ChannelType.Positive))
                 {
                     buff.ReplaceComponent<AddInitiatorAttackWithWeaponTrigger>(a => a.Action =
-                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_positive_action)));
+                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_smite_positive_action)));
                 }
                 else
                 {
                     buff.ReplaceComponent<AddInitiatorAttackWithWeaponTrigger>(a => a.Action =
-                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_negative_action)));
+                                                 Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_smite_negative_action)));
                 }
             }
             else if (entry.channel_type.isNotOf(ChannelType.HolyVindicatorShield) && entry.channel_type.isOf(ChannelType.Harm))
@@ -300,11 +396,13 @@ namespace CallOfTheWild
                 classes = classes.AddToArray(HolyVindicator.holy_vindicator_class);
                 Helpers.SetField(context_rank_config, "m_Class", classes);
             }
+            entry.ability.ReplaceComponent<ContextRankConfig>(context_rank_config);
 
             var scaling = entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>().CreateCopy();
             {
                 scaling.CharacterClasses = scaling.CharacterClasses.AddToArray(HolyVindicator.holy_vindicator_class);
             }
+            entry.ability.ReplaceComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(scaling);
 
             if (entry.channel_type.isOf(ChannelType.HolyVindicatorShield | ChannelType.Smite))
             {
@@ -329,7 +427,7 @@ namespace CallOfTheWild
                                                             "",
                                                             sacred_numbus.Icon,
                                                             FeatureGroup.None);
-            foreach (var c in channel_entires)
+            foreach (var c in channel_entires.ToArray())
             {
                 addToHolyVindicatorShield(c);
             }
@@ -372,7 +470,6 @@ namespace CallOfTheWild
                                                                                                  a.stat = Kingmaker.EntitySystem.Stats.StatType.AC;
                                                                                              }
                                                                                              ),
-                                         Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, bonus_descriptor),
                                          entry.ability.GetComponent<ContextRankConfig>(),
                                          entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
                                          Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
@@ -395,7 +492,11 @@ namespace CallOfTheWild
                                                "24 hours",
                                                "",
                                                Helpers.CreateRunActions(apply_buff_action),
-                                               Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(holy_vindicator_shield_descriptor)))
+                                               entry.ability.GetComponent<ContextRankConfig>(),
+                                               entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                               Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(holy_vindicator_shield)),
+                                               Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(holy_vindicator_shield_descriptor))),
+                                               Helpers.Create<NewMechanics.AbilityCasterHasSHield>()
                                                );
 
             ability.setMiscAbilityParametersSelfOnly();
@@ -493,15 +594,15 @@ namespace CallOfTheWild
                                                         "",
                                                         null,
                                                         FeatureGroup.Feat,
-                                                        Common.createAddFeatureIfHasFact(channel_negative, versatile_channeler_positive),
-                                                        Common.createAddFeatureIfHasFact(channel_positive, versatile_channeler_negative),
-                                                        Common.createAddFeatureIfHasFact(Warpriest.channel_positive_energy, versatile_channeler_negative_warpriest),
-                                                        Common.createAddFeatureIfHasFact(Warpriest.channel_negative_energy, versatile_channeler_positive_warpriest),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(channel_negative, channel_positive, versatile_channeler_positive),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(channel_positive, channel_negative, versatile_channeler_negative),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_positive_energy, Warpriest.channel_negative_energy, versatile_channeler_negative_warpriest),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_negative_energy, Warpriest.channel_negative_energy,versatile_channeler_positive_warpriest),
                                                         channel_positive.GetComponent<PrerequisiteFeature>(),
                                                         channel_negative.GetComponent<PrerequisiteFeature>(),
                                                         Helpers.PrerequisiteFeaturesFromList(channel_negative, channel_positive, Warpriest.channel_positive_energy, Warpriest.channel_negative_energy),
-                                                        Helpers.PrerequisiteClassLevel(cleric, 1, true),
-                                                        Helpers.PrerequisiteClassLevel(Warpriest.warpriest_class, 4, true),
+                                                        Helpers.PrerequisiteClassLevel(cleric, 3, true),
+                                                        Helpers.PrerequisiteClassLevel(Warpriest.warpriest_class, 5, true),
                                                         Common.createPrerequisiteAlignment(AlignmentMaskType.ChaoticNeutral | AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral)
                                                         );
             library.AddFeats(versatile_channeler);
@@ -615,7 +716,11 @@ namespace CallOfTheWild
             addToChannelingScourge(entry);
 
             addToWitchImprovedChannelHexScaling(entry);
-            addToQuickChannel(entry);
+            if (!channel_type.isOf(ChannelType.Form))
+            { //form channel will be created from quick and not vice versa
+                addToQuickChannel(entry);
+            }
+            addToVersatileChannel(entry);
 
             addToChannelSmite(entry);
 
@@ -638,6 +743,11 @@ namespace CallOfTheWild
         internal static void registerStigmata(BlueprintFeature stigmata)
         {
             stigmata_feature = stigmata;
+
+            foreach (var c in channel_entires)
+            {
+                addToStigmataPrerequisites(c);
+            }
         }
 
 
@@ -915,9 +1025,11 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(apply_buff),
                                                 c.ability.GetComponent<ContextRankConfig>(),
                                                 c.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
-                                                Common.createAbilityShowIfCasterHasFact(channel_smite)
+                                                Common.createAbilityShowIfCasterHasFacts(c.required_facts.AddToArray(channel_smite))
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
+            ability.NeedEquipWeapons = true;
+            ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon;
 
             c.base_ability.addToAbilityVariants(ability);
             updateItemsForChannelDerivative(c.ability, ability);
@@ -984,7 +1096,7 @@ namespace CallOfTheWild
             var amount = resource_logic.Amount;
             quicken_ability.ReplaceComponent<AbilityResourceLogic>(c => { c.Amount = amount * 2;});
 
-            quicken_ability.AddComponent(Common.createAbilityShowIfCasterHasFact(quick_channel));
+            quicken_ability.AddComponent(Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(quick_channel)));
             entry.base_ability.addToAbilityVariants(quicken_ability);
 
             var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
@@ -1101,7 +1213,6 @@ namespace CallOfTheWild
                     }
                 }
             }
-
         }
 
     }

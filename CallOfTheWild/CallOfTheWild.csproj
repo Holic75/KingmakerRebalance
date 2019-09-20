@@ -126,6 +126,7 @@
     <Compile Include="Classes\Hinterlander.cs" />
     <Compile Include="Classes\HolyVindicator.cs" />
     <Compile Include="CleanUp.cs" />
+    <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="FeralCombatTraining.cs" />

@@ -141,10 +141,11 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
 
 #if DEBUG
-                CallOfTheWild.HexEngine.test_mode = true;
-                CallOfTheWild.Bloodrager.test_mode = true;
-                CallOfTheWild.Skald.test_mode = true;
-                CallOfTheWild.Warpriest.test_mode = true;
+                    CallOfTheWild.HexEngine.test_mode = true;
+                    CallOfTheWild.Bloodrager.test_mode = true;
+                    CallOfTheWild.Skald.test_mode = true;
+                    CallOfTheWild.Warpriest.test_mode = true;
+                    CallOfTheWild.HolyVindicator.test_mode = true;
 #endif
                     CallOfTheWild.Hunter.createHunterClass();
                     if (settings.sacred_huntsmaster_animal_focus)
@@ -163,6 +164,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Warpriest.createWarpriestClass();
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
+                    CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
 
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();

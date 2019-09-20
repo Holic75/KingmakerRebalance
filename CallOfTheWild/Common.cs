@@ -1314,7 +1314,7 @@ namespace CallOfTheWild
         {
             var r = Helpers.Create<ContextActionRemoveBuffsByDescriptor>();
             r.SpellDescriptor = descriptor;
-            r.NotSelf = true;
+            r.NotSelf = not_self;
             return r;
         }
 
@@ -1574,6 +1574,14 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.AbilityShowIfCasterHasFacts createAbilityShowIfCasterHasFacts(params BlueprintUnitFact[] facts)
+        {
+            var a = Helpers.Create<NewMechanics.AbilityShowIfCasterHasFacts>();
+            a.UnitFacts = facts;
+            return a;
+        }
+
+
         static public ContextConditionHasFact createContextConditionHasFact(BlueprintUnitFact fact, bool has = true)
         {
             var c = Helpers.Create<ContextConditionHasFact>();
@@ -1671,6 +1679,16 @@ namespace CallOfTheWild
             a.CheckedFact = fact;
             a.Feature = feature;
             a.Not = not;
+            return a;
+        }
+
+
+        static public NewMechanics.AddFeatureIfHasFactAndNotHasFact createAddFeatureIfHasFactAndNotHasFact(BlueprintUnitFact has_fact, BlueprintUnitFact not_has_fact, BlueprintUnitFact feature)
+        {
+            var a = Helpers.Create<NewMechanics.AddFeatureIfHasFactAndNotHasFact>();
+            a.HasFact = has_fact;
+            a.NotHasFact = not_has_fact;
+            a.Feature = feature;
             return a;
         }
 
@@ -2572,6 +2590,10 @@ namespace CallOfTheWild
             if (condition != null)
             {
                 a.Conditions = condition;
+            }
+            else
+            {
+                a.Conditions = new ConditionsChecker();
             }
             a.Actions = actions;
             return a;
