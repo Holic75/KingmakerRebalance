@@ -68,6 +68,17 @@ namespace CallOfTheWild
 
             return (spellbook.IsAlchemist && is_alchemist) || (spellbook.IsArcane && is_arcane) || (!spellbook.IsArcane && !spellbook.IsAlchemist && is_divine);
         }
+
+        public static T CloneObject<T>(this T obj) where T : class
+        {
+            if (obj == null) return null;
+            System.Reflection.MethodInfo inst = obj.GetType().GetMethod("MemberwiseClone",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (inst != null)
+                return (T)inst.Invoke(obj, null);
+            else
+                return null;
+        }
     }
 
 
@@ -2635,6 +2646,24 @@ namespace CallOfTheWild
             }
 
             return actions.ToArray();
+        }
+
+
+        static public ContextActionOnContextCaster createContextActionOnContextCaster(params GameAction[] actions)
+        {
+            var c = Helpers.Create<ContextActionOnContextCaster>();
+            c.Actions = Helpers.CreateActionList(actions);
+            return c;
+        }
+
+
+        public static WeaponVisualParameters replaceProjectileInWeaponVisualParameters(WeaponVisualParameters wp, BlueprintProjectile projectile)
+        {
+            WeaponVisualParameters new_wp = wp.CloneObject();
+
+            Helpers.SetField(new_wp, "m_Projectiles", new BlueprintProjectile[] { projectile });
+            return new_wp;
+
         }
 
 

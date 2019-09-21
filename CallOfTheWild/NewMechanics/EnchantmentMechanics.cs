@@ -567,7 +567,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public void OnEventAboutToTrigger(RuleAttackRoll evt)
         {
-
+            if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                return;
             evt.AttackType = AttackType.Touch;
         }
 
@@ -575,6 +576,102 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         {
         }
     }
+
+
+    [ComponentName("no damage scaling")]
+    public class NoDamageScalingEnchant : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+    {
+        public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                return;
+            evt.DoNotScaleDamage = true;
+        }
+
+        public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+    }
+
+
+    [ComponentName("do not provoke aoo")]
+    public class DoNotProvokeAooEnchant : WeaponEnchantmentLogic, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
+    {
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                return;
+            evt.DoNotProvokeAttacksOfOpportunity = true;
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+        }
+    }
+
+
+    public class ActionOnAttackWithEnchantedWeapon : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleAttackWithWeapon>, IInitiatorRulebookHandler<RuleAttackWithWeaponResolve>, IRulebookHandler<RuleAttackWithWeapon>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleAttackWithWeaponResolve>
+    {
+        public ActionList ActionsOnSelf = null;
+        public ActionList ActionsOnTarget = null;
+
+        public void OnEventAboutToTrigger(RuleAttackWithWeaponResolve evt)
+        {
+
+        }
+
+        public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleAttackWithWeaponResolve evt)
+        {
+            Main.logger.Log("Here");
+            if (this.Owner.Wielder == null || evt.AttackWithWeapon.Weapon != this.Owner)
+                return;
+
+            Main.logger.Log("Here2");
+            TryRunActions(evt.AttackWithWeapon);
+        }
+
+        public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+        {
+        }
+
+        private void TryRunActions(RuleAttackWithWeapon evt)
+        {
+            using (new ContextAttackData(evt.AttackRoll, (Projectile)null))
+            {
+                if (ActionsOnSelf != null)
+                {
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.ActionsOnSelf, (TargetWrapper)evt.Initiator);
+                }
+                if (ActionsOnTarget != null)
+                {
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.ActionsOnTarget, (TargetWrapper)evt.Target);
+                }
+            }
+        }
+    }
+
+
+    [ComponentName("ranged touch attack")]
+    public class RangedTouchEnchant : WeaponEnchantmentLogic, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
+    {
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                return;
+            evt.AttackType = AttackType.RangedTouch;
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+        }
+    }
+
+
 
 
 
@@ -586,6 +683,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public void OnEventAboutToTrigger(RulePrepareDamage evt)
         {
+            if (this.Owner.Wielder == null || evt.Reason.Item != this.Owner)
+                return;
 
             if (evt.DamageBundle.Count() == 0 || evt.DamageBundle.Weapon != this.Owner)
             {
@@ -700,4 +799,53 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             }
         }
     }
+
+
+    [AllowedOn(typeof(BlueprintBuff))]
+    public class CreateWeapon : BuffLogic
+    {
+        public BlueprintItemWeapon weapon;
+        public bool disable_aoo = false;
+        [JsonProperty]
+        private ItemEntityWeapon m_Applied;
+
+        public override void OnFactActivate()
+        {
+            base.OnFactActivate();
+            this.m_Applied = this.weapon.CreateEntity<ItemEntityWeapon>();
+            this.m_Applied.MakeNotLootable();
+            if (!this.Owner.Body.PrimaryHand.CanInsertItem((ItemEntity)this.m_Applied))
+            {
+                this.m_Applied = null;
+            }
+            else
+            {
+                if (disable_aoo)
+                {
+                    this.Owner.State.AddCondition(UnitCondition.DisableAttacksOfOpportunity, (Buff)null);
+                }
+                ItemsCollection.DoWithoutEvents((Action)(() => this.Owner.Body.PrimaryHand.InsertItem((ItemEntity)this.m_Applied)));
+                this.Owner.Body.PrimaryHand.Lock.Retain();
+            }
+        }
+
+        public override void OnFactDeactivate()
+        {
+            base.OnFactDeactivate();
+            if (this.m_Applied == null)
+                return;
+
+            if (disable_aoo)
+            {
+                this.Owner.State.RemoveCondition(UnitCondition.DisableAttacksOfOpportunity);
+            }
+            this.m_Applied.HoldingSlot?.Lock.Release();
+            this.m_Applied.HoldingSlot?.RemoveItem();
+            ItemsCollection.DoWithoutEvents((Action)(() => this.m_Applied.Collection?.Remove((ItemEntity)this.m_Applied)));
+            this.m_Applied = (ItemEntityWeapon)null;
+        }
+    }
+
+
+
 }

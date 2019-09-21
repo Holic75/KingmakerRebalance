@@ -2827,6 +2827,44 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterPrimaryHandFree : BlueprintComponent, IAbilityCasterChecker
+        {
+          
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return !caster.Body.PrimaryHand.HasItem;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityTargetPrimaryHandFree : BlueprintComponent, IAbilityTargetChecker
+        {
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                if (target?.Unit == null)
+                {
+                    return false;
+                }
+                return !target.Unit.Body.PrimaryHand.HasItem;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
     }
 
 }

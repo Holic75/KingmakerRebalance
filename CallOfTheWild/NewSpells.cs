@@ -9,6 +9,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -19,6 +20,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
 using System;
@@ -47,9 +49,11 @@ namespace CallOfTheWild
 
 
         static public BlueprintAbility strong_jaw;
-
-
         static public BlueprintAbility contingency;
+        static public BlueprintAbility produce_flame;
+
+        static public BlueprintWeaponEnchantment empower_enchant;
+        static public BlueprintWeaponEnchantment maximize_enchant;
 
         static public void load()
         {
@@ -63,6 +67,7 @@ namespace CallOfTheWild
             createFireShield();
             createContingency();
             createStrongJaw();
+            createProduceFlame();
         }
 
 
@@ -482,11 +487,12 @@ namespace CallOfTheWild
                                                Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Transmutation),
                                                Common.createAbilityCasterMainWeaponCheck(shillelagh_types[0].Category, shillelagh_types[1].Category)
                                                );
+            shillelagh.NeedEquipWeapons = true;
             shillelagh.CanTargetSelf = true;
             shillelagh.CanTargetPoint = false;
             shillelagh.CanTargetFriends = false;
             shillelagh.CanTargetEnemies = false;
-            shillelagh.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Omni;
+            shillelagh.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon;
             shillelagh.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
             shillelagh.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten;
             shillelagh.AddToSpellList(Helpers.druidSpellList, 1);
@@ -525,7 +531,7 @@ namespace CallOfTheWild
             }
 
 
-            var empower = Common.createWeaponEnchantment("EmpowerWeaponEnchantment",
+           empower_enchant = Common.createWeaponEnchantment("EmpowerWeaponEnchantment",
                                                          "Empowered",
                                                          "All variable, numeric effects of an empowered spell are increased by half including bonuses to those dice rolls.",
                                                          "",
@@ -535,7 +541,7 @@ namespace CallOfTheWild
                                                          null,
                                                          Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponMetamagicDamage>(w => w.empower = true)
                                                          );
-            var maximize = Common.createWeaponEnchantment("MaximizeWeaponEnchantment",
+            maximize_enchant = Common.createWeaponEnchantment("MaximizeWeaponEnchantment",
                                                          "Maximized",
                                                          "All variable, numeric effects of a spell are maximized.",
                                                          "",
@@ -549,11 +555,11 @@ namespace CallOfTheWild
 
             var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
                                                                                                   true, true,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, empower);
+                                                                                                  new BlueprintWeaponType[] { scimitar_type }, empower_enchant);
 
             var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
                                                                                                   true, true,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, maximize);
+                                                                                                  new BlueprintWeaponType[] { scimitar_type }, maximize_enchant);
 
 
             var buff = Helpers.CreateBuff("FlameBladeBuff",
@@ -588,6 +594,122 @@ namespace CallOfTheWild
 
             flame_blade.AddToSpellList(Helpers.druidSpellList, 2);
             flame_blade.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502"); //bless weapon
+ 
+        }
+
+
+        static void createProduceFlame()
+        {
+            var fireball = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3");
+            var flaming_enchatment = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
+           
+            BlueprintWeaponEnchantment[] produce_flame_enchantments = new BlueprintWeaponEnchantment[6];
+            var fire_damage = Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.Fire);
+
+
+            var weapon_type = library.CopyAndAdd<BlueprintWeaponType>("f807334ef058b7148a5d1582767c70ab", "ProduceFlameType", "");//sling
+            weapon_type.Category = WeaponCategory.Ray;
+            Helpers.SetField(weapon_type, "m_IsTwoHanded", false);
+
+            var damage_type = new DamageTypeDescription()
+            {
+                Type = DamageType.Energy,
+                Energy = DamageEnergyType.Fire,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+
+            Helpers.SetField(weapon_type, "m_DamageType", damage_type);
+            Helpers.SetField(weapon_type, "m_TypeNameText", Helpers.CreateString("ProduceFlameTypeName", "Ray"));
+            Helpers.SetField(weapon_type, "m_DefaultNameText", Helpers.CreateString("ProduceFlameTypeName", "Ray"));
+
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("d30a1e8901890a04eaddaceb4abd7002", "ProduceFlameWeapon", "");//sling
+            Helpers.SetField(weapon, "m_Type", weapon_type);
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("ProduceFlameWeaponName", "Produce Flame"));
+            Helpers.SetField(weapon, "m_Icon", fireball.Icon);
+            var fire_ray = library.Get<BlueprintProjectile>("30a5f408ea9d163418c86a7107fc4326");
+            Helpers.SetField(weapon, "m_VisualParameters", Common.replaceProjectileInWeaponVisualParameters(weapon.VisualParameters, fire_ray));
+
+            for (int i = 0; i < produce_flame_enchantments.Length; i++)
+            {
+                var produce_flame_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
+                {
+                    w.bonus_damage = 1+i;
+                    w.dice_formula = new DiceFormula(1, DiceType.D6);
+                    w.damage_type_description = fire_damage;
+                });
+               
+                produce_flame_enchantments[i] = Common.createWeaponEnchantment($"ProduceFlame{i}Enchantment",
+                                                                             "Produce Flame",
+                                                                             "Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment.\n"
+                                                                             + "In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.",
+                                                                             "",
+                                                                             "",
+                                                                             "",
+                                                                             0,
+                                                                             flaming_enchatment.WeaponFxPrefab,
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.RangedTouchEnchant>(),
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.NoDamageScalingEnchant>(),
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.DoNotProvokeAooEnchant>(),
+                                                                             produce_flame_enchant
+                                                                             );
+            }
+
+
+            var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0],  empower_enchant);
+
+            var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], maximize_enchant);
+
+
+            var buff = Helpers.CreateBuff("ProduceFlameBuff",
+                                            produce_flame_enchantments[0].Name,
+                                            produce_flame_enchantments[0].Description,
+                                            "",
+                                            fireball.Icon,
+                                            null,
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = weapon; c.disable_aoo = true; }),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
+                                                                                            new BlueprintWeaponType[0], produce_flame_enchantments),
+                                            empower_buff,
+                                            maximize_buff,
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                            type: AbilityRankType.DamageBonus, stepLevel: 1, max: 5)
+                                            );
+            buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
+            foreach (var e in produce_flame_enchantments)
+            {
+                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); }));
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            produce_flame = Helpers.CreateAbility("ProduceFlameAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Medium,
+                                                  Helpers.minutesPerLevelDuration,
+                                                  "",
+                                                  Helpers.CreateRunActions(Common.createContextActionOnContextCaster(apply_buff), Common.createContextActionAttack()),
+                                                  Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation),
+                                                  Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),  
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                                  );
+            produce_flame.setMiscAbilityParametersSingleTargetRangedHarmful();
+
+            produce_flame.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+
+            produce_flame.AddToSpellList(Helpers.druidSpellList, 1);
+            produce_flame.AddSpellAndScroll("5b172c2c3e356eb43ba5a8f8008a8a5a"); //fireball
         }
 
 
