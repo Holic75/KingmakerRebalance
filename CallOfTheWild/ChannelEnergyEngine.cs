@@ -58,6 +58,15 @@ namespace CallOfTheWild
     public static class ChannelEnergyEngine
     {
         [Flags]
+        public enum ChannelProperty
+        {
+            None = 0,
+            Bloodfire = 1,
+            Bloodrain = 2,
+            All = ~None
+        }
+
+        [Flags]
         public enum ChannelType
         {
             None = 0,
@@ -85,26 +94,27 @@ namespace CallOfTheWild
             public readonly BlueprintAbility base_ability;
             public readonly BlueprintFeature parent_feature;
             public readonly ChannelType channel_type;
+            internal ChannelProperty properties;
             public readonly BlueprintUnitFact[] required_facts = new BlueprintUnitFact[0];
 
-            public ChannelEntry(string ability_guid, string parent_feature_guid, ChannelType type, params BlueprintUnitFact[] req_facts)
+            public ChannelEntry(string ability_guid, string parent_feature_guid, ChannelType type, ChannelProperty property, params BlueprintUnitFact[] req_facts)
             {
                 ability = library.Get<BlueprintAbility>(ability_guid);
                 parent_feature = library.Get<BlueprintFeature>(parent_feature_guid);
                 base_ability = ability.Parent;
                 channel_type = type;
-
+                properties = property;
                 required_facts = req_facts;
             }
 
 
-            public ChannelEntry(BlueprintAbility channel_ability, BlueprintFeature channel_parent_feature, ChannelType type, params BlueprintUnitFact[] req_facts)
+            public ChannelEntry(BlueprintAbility channel_ability, BlueprintFeature channel_parent_feature, ChannelType type, ChannelProperty property, params BlueprintUnitFact[] req_facts)
             {
                 ability = channel_ability;
                 parent_feature = channel_parent_feature;
                 base_ability = ability.Parent;
                 channel_type = type;
-
+                properties = property;
                 required_facts = req_facts;
             }
 
@@ -230,7 +240,7 @@ namespace CallOfTheWild
         static internal void addVersatileChannel(BlueprintFeature versatile_channel_feat)
         {
             versatile_channel = versatile_channel_feat;
-            var negative_line_proj = library.Get<BlueprintProjectile>("00deaa23c2468d04c8491e6468dd5000"); //steam
+            var negative_line_proj = library.Get<BlueprintProjectile>("3d13c52359bcd6645988dd88a120d7c0"); //umbral strike
             var positive_line_proj = library.Get<BlueprintProjectile>("1288a9729b18d3e4682d0f784e5fbd55"); //plasma
             var negative_cone_proj = library.Get<BlueprintProjectile>("4d601ab51e167c04a8c6883260e872ee"); //necromancy cone
             var positive_cone_proj = library.Get<BlueprintProjectile>("8c3c664b2bd74654e82fc70d3457e10d"); //enchantment_cone
@@ -269,11 +279,15 @@ namespace CallOfTheWild
                 return;
             }
 
+            var spray_form = library.Get<BlueprintAbility>("a240a6d61e1aee040bf7d132bfe1dc07");//fan of flames
+            var torrent_form = library.Get<BlueprintFeature>("2aad85320d0751340a0786de073ee3d5");
             var cone_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Cone" + entry.ability.name, entry.ability.AssetGuid, "0217ce91d3384dafa3a3b85d00fc9f95");
             var line_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Line" + entry.ability.name, entry.ability.AssetGuid, "4fc2127aa79542188f739bb1516aff5d");
 
             cone_ability.SetName($"{cone_ability.Name}, 30-Foot Cone");
+            cone_ability.SetIcon(spray_form.Icon);
             line_ability.SetName($"{line_ability.Name}, 120-Foot Line");
+            line_ability.SetIcon(torrent_form.Icon);
             cone_ability.Range = AbilityRange.Projectile;
             line_ability.Range = AbilityRange.Projectile;
             cone_ability.setMiscAbilityParametersRangedDirectional();
@@ -306,8 +320,8 @@ namespace CallOfTheWild
             updateItemsForChannelDerivative(entry.ability, line_ability);
             updateItemsForChannelDerivative(entry.ability, cone_ability);
 
-            storeChannel(line_ability, entry.parent_feature, entry.channel_type | ChannelType.Line);
-            storeChannel(cone_ability, entry.parent_feature, entry.channel_type | ChannelType.Cone);
+            storeChannel(line_ability, entry.parent_feature, entry.channel_type | ChannelType.Line, entry.properties);
+            storeChannel(cone_ability, entry.parent_feature, entry.channel_type | ChannelType.Cone, entry.properties);
         }
 
 
@@ -332,7 +346,7 @@ namespace CallOfTheWild
                 return;
             }
 
-            if (entry.channel_type.isOf(ChannelType.Smite))
+            if (entry.channel_type.isOf(ChannelType.Smite) && !entry.properties.HasFlag(ChannelProperty.Bloodfire))
             {
                 var buff = (entry.ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).Buff;
 
@@ -346,8 +360,9 @@ namespace CallOfTheWild
                     buff.ReplaceComponent<AddInitiatorAttackWithWeaponTrigger>(a => a.Action =
                                                  Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Action.Actions, blood_smite_negative_action)));
                 }
+                entry.properties = entry.properties | ChannelProperty.Bloodfire;
             }
-            else if (entry.channel_type.isNotOf(ChannelType.HolyVindicatorShield) && entry.channel_type.isOf(ChannelType.Harm))
+            else if (entry.channel_type.isNotOf(ChannelType.HolyVindicatorShield) && entry.channel_type.isOf(ChannelType.Harm) && !entry.properties.HasFlag(ChannelProperty.Bloodrain))
             {
                 if (entry.channel_type.isOf(ChannelType.Positive))
                 {
@@ -359,6 +374,7 @@ namespace CallOfTheWild
                     entry.ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions =
                                                  Helpers.CreateActionList(Common.addMatchingAction<ContextActionDealDamage>(a.Actions.Actions, blood_negative_action)));
                 }
+                entry.properties = entry.properties | ChannelProperty.Bloodrain;
             }
         }
 
@@ -510,7 +526,7 @@ namespace CallOfTheWild
                 ability.AddComponent(caster_alignment);
             }
 
-            storeChannel(ability, entry.parent_feature, entry.channel_type | ChannelType.HolyVindicatorShield);
+            storeChannel(ability, entry.parent_feature, entry.channel_type | ChannelType.HolyVindicatorShield, entry.properties);
         }
 
 
@@ -518,6 +534,16 @@ namespace CallOfTheWild
         {
             var channel_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
             var channel_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
+
+            //separate spontaneous cure/harm from channel
+            var spontaneous_heal = channel_positive.GetComponent<AddFacts>().Facts[3];
+            var spontaneous_harm = channel_negative.GetComponent<AddFacts>().Facts[3];
+
+            channel_positive.GetComponent<AddFacts>().Facts = channel_positive.GetComponent<AddFacts>().Facts.Take(3).ToArray();
+            channel_positive.AddComponent(Common.createAddFeatureIfHasFact(spontaneous_harm, spontaneous_heal, not: true));
+            channel_negative.GetComponent<AddFacts>().Facts = channel_negative.GetComponent<AddFacts>().Facts.Take(3).ToArray();
+            channel_negative.AddComponent(Common.createAddFeatureIfHasFact(spontaneous_heal, spontaneous_harm, not: true));
+
 
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var allow_positive = channel_positive.GetComponent<PrerequisiteFeature>().Feature;
@@ -531,7 +557,6 @@ namespace CallOfTheWild
                                                                      null,
                                                                      FeatureGroup.None,
                                                                      Helpers.CreateAddFacts(channel_negative),
-                                                                     Common.createRemoveFeatureOnApply(channel_negative.GetComponent<AddFacts>().Facts[3] as BlueprintFeature),
                                                                      Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => 
                                                                                                                                              { c.spells = new BlueprintAbility[0];
                                                                                                                                                c.value = Common.createSimpleContextValue(-2);
@@ -546,7 +571,6 @@ namespace CallOfTheWild
                                                          null,
                                                          FeatureGroup.None,
                                                          Helpers.CreateAddFacts(channel_positive),
-                                                         Common.createRemoveFeatureOnApply(channel_positive.GetComponent<AddFacts>().Facts[3] as BlueprintFeature),
                                                          Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => 
                                                                                                                                  { c.spells = new BlueprintAbility[0];
                                                                                                                                    c.value = Common.createSimpleContextValue(-2);
@@ -707,9 +731,9 @@ namespace CallOfTheWild
         }
 
 
-        public static void storeChannel(BlueprintAbility ability, BlueprintFeature parent_feature, ChannelType channel_type)
+        public static void storeChannel(BlueprintAbility ability, BlueprintFeature parent_feature, ChannelType channel_type, ChannelProperty property = ChannelProperty.None)
         {
-            var entry = new ChannelEntry(ability, parent_feature, channel_type);
+            var entry = new ChannelEntry(ability, parent_feature, channel_type, property);
             channel_entires.Add(entry);
 
             addToImprovedChannel(entry);
@@ -1045,7 +1069,7 @@ namespace CallOfTheWild
 
             normal_smite_map.Add(c.ability.AssetGuid, ability.AssetGuid);
 
-            storeChannel(ability, c.parent_feature, c.channel_type | ChannelType.Smite);
+            storeChannel(ability, c.parent_feature, c.channel_type | ChannelType.Smite, c.properties);
         }
 
 
@@ -1110,7 +1134,7 @@ namespace CallOfTheWild
             var quicken_feature = Common.AbilityToFeature(quicken_ability, guid: Helpers.MergeIds(quicken_ability.AssetGuid, entry.parent_feature.AssetGuid));
             quicken_feature.ComponentsArray = new BlueprintComponent[0];
 
-            storeChannel(quicken_ability, entry.parent_feature, entry.channel_type | ChannelType.Quick);
+            storeChannel(quicken_ability, entry.parent_feature, entry.channel_type | ChannelType.Quick, entry.properties);
 
             normal_quick_channel_map.Add(entry.ability.AssetGuid, quicken_ability.AssetGuid);
         }

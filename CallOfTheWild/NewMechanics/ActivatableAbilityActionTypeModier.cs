@@ -77,7 +77,7 @@ namespace CallOfTheWild.ActivatableAbilityActionTypeModierMechanics
         }
 
 
-        public override void OnTurnOff()
+        public override void OnFactDeactivate()
         {
             this.Owner.Ensure<UnitPartActivatableAbilityActionTypeModifier>().removeBuff(this.Fact);
         }

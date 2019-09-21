@@ -2777,6 +2777,33 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Buff remove on save")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class BuffRemoveOnSave : BuffLogic, ITickEachRound
+        {
+            public SavingThrowType SaveType;
+            public void OnNewRound()
+            {
+
+                Rulebook rulebook = Game.Instance.Rulebook;
+                RuleSavingThrow ruleSavingThrow = new RuleSavingThrow(this.Owner.Unit, this.SaveType, this.Buff.Context.Params.DC);
+                ruleSavingThrow.Reason = (RuleReason)this.Fact;
+                RuleSavingThrow evt = ruleSavingThrow;
+                if (!rulebook.TriggerEvent<RuleSavingThrow>(evt).IsPassed)
+                    return;
+                this.Buff.Remove();
+            }
+
+            public override void OnTurnOn()
+            {
+            }
+
+            public override void OnTurnOff()
+            {
+            }
+        }
+
     }
 
 }

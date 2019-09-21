@@ -364,10 +364,29 @@ namespace CallOfTheWild
         static void createFaithHealing()
         {
             var healers_blessing = library.Get<BlueprintFeature>("b9ea4eb16ded8b146868540e711f81c8");
-            var healing_spells = healers_blessing.GetComponent<AutoMetamagic>().Abilities; ;
+            var healing_spells = new BlueprintAbility[]
+            {   //cure
+                library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f"),
+                library.Get<BlueprintAbility>("1c1ebf5370939a9418da93176cc44cd9"),
+                library.Get<BlueprintAbility>("6e81a6679a0889a429dec9cedcf3729c"),
+                library.Get<BlueprintAbility>("0d657aa811b310e4bbd8586e60156a2d"),
+                library.Get<BlueprintAbility>("5d3d689392e4ff740a761ef346815074"),
+                library.Get<BlueprintAbility>("571221cc141bc21449ae96b3944652aa"),
+                library.Get<BlueprintAbility>("0cea35de4d553cc439ae80b3a8724397"),
+                library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449"),
+                //inflict
+                library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063"),
+                library.Get<BlueprintAbility>("14d749ecacca90a42b6bf1c3f580bb0c"),
+                library.Get<BlueprintAbility>("3cf05ef7606f06446ad357845cb4d430"),
+                library.Get<BlueprintAbility>("b0b8a04a3d74e03489862b03f4e467a6"),
+                library.Get<BlueprintAbility>("9da37873d79ef0a468f969e4e5116ad2"),
+                library.Get<BlueprintAbility>("03944622fbe04824684ec29ff2cec6a7"),
+                library.Get<BlueprintAbility>("820170444d4d2a14abc480fcbdb49535"),
+                library.Get<BlueprintAbility>("5ee395a2423808c4baf342a4f8395b19"),
+            };
             var faith_healing_empower = Helpers.CreateFeature("HolyVindicatorFaithHealingEmpowerFeature",
                                                               "Faith Healing: Empower",
-                                                              "At 3rd level, any cure wounds spells a vindicator casts on himself are automatically empowered as if by the Empower Spell feat, except they do not use higher spell level slots or an increased casting time. ",
+                                                              "At 3rd level, any cure wounds spells a vindicator casts on himself are automatically empowered as if by the Empower Spell feat, except they do not use higher spell level slots or an increased casting time. At 8th level, these healing spells are maximized rather than empowered.",
                                                               "",
                                                               healers_blessing.Icon,
                                                               FeatureGroup.None,
@@ -447,11 +466,26 @@ namespace CallOfTheWild
             }
 
             var bleed_buff = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
-            var sickened_buff = library.CopyAndAdd<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323", "BloodSickenedBuff", "");
-            sickened_buff.AddComponent(Helpers.CreateAddFactContextActions(Common.createContextActionApplyBuff(bleed_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)));
-            sickened_buff.ReplaceComponent<AddCondition>(Common.createBuffStatusCondition(UnitCondition.Sickened, SavingThrowType.Will));
-            var apply_buff = Common.createContextActionApplyBuff(sickened_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
-            var save_failed_action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(apply_buff));
+            var sickened_buff = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+
+            var blood_buff = Helpers.CreateBuff("HolyVindicatorBloodBuff",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                null,
+                                                Helpers.CreateAddFactContextActions(new GameAction[]{Common.createContextActionApplyBuff(bleed_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                                                                     Common.createContextActionApplyBuff(sickened_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                                                                    }),
+                                                 Helpers.Create<NewMechanics.BuffRemoveOnSave>(b => b.SaveType = SavingThrowType.Will)
+                                                );
+            blood_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var save_failed_action = Common.createContextSavedApplyBuff(blood_buff, DurationRate.Rounds, is_permanent: true, is_dispellable: false);
+            /*var save_failed_action = Common.createContextActionSavingThrow(SavingThrowType.Will, 
+                                                                           Helpers.CreateActionList(Common.createContextSavedApplyBuff(sickened_buff, DurationRate.Rounds, is_permanent: true, is_dispellable: false))
+            ;
+                                                                           );*/
 
             var positive_damage = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1));
             var negative_damage = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1));

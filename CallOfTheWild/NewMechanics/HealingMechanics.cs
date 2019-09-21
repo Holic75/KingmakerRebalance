@@ -88,6 +88,7 @@ namespace CallOfTheWild.HealingMechanics
                 {
                     continue;
                 }
+                
                 if (comp.maximize && comp.worksOn(spell))
                 {
                     return true;
@@ -108,13 +109,13 @@ namespace CallOfTheWild.HealingMechanics
 
         public override void OnFactActivate()
         {
-            this.Owner.Ensure<UnitPartReceiveBonusCasterLevelHealing>().addBuff(this.Fact);
+            this.Owner.Ensure<UnitPartSelfHealingMetamagic>().addBuff(this.Fact);
         }
 
 
-        public override void OnTurnOff()
+        public override void OnFactDeactivate()
         {
-            this.Owner.Ensure<UnitPartReceiveBonusCasterLevelHealing>().removeBuff(this.Fact);
+            this.Owner.Ensure<UnitPartSelfHealingMetamagic>().removeBuff(this.Fact);
         }
 
         public bool worksOn(BlueprintAbility spell)
@@ -137,7 +138,7 @@ namespace CallOfTheWild.HealingMechanics
         }
 
 
-        public override void OnTurnOff()
+        public override void OnFactDeactivate()
         {
             this.Owner.Ensure<UnitPartReceiveBonusCasterLevelHealing>().removeBuff(this.Fact);
         }
@@ -166,6 +167,7 @@ namespace CallOfTheWild.HealingMechanics
                 int bonus = __instance.Value.Calculate(context);
                 if (!context.HasMetamagic(Metamagic.Maximize) && target.Ensure<UnitPartSelfHealingMetamagic>().hasMaximize(context.SourceAbility) && target == context.MaybeCaster)
                 {
+                    Main.logger.Log("Maximize Found");
                     bonus = (int)__instance.Value.DiceType * __instance.Value.DiceCountValue.Calculate(context) + __instance.Value.BonusValue.Calculate(context);
 
                     if (context.HasMetamagic(Metamagic.Empower))
