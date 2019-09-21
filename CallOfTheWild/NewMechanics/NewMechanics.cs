@@ -2804,6 +2804,29 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowMultipleComponents]
+        [ComponentName("Predicates/Target point has no specified area effect")]
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetPointDoesNotContainAreaEffect : BlueprintComponent, IAbilityTargetChecker
+        {
+            public BlueprintAbilityAreaEffect area_effect;
+            public float corpulence = 0.5f;
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                foreach (AreaEffectEntityData areaEffect in Game.Instance.State.AreaEffects)
+                {
+                    if (areaEffect.View.Shape != null && areaEffect.View.Shape.Contains(target.Point, corpulence) && areaEffect.Blueprint == area_effect)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
     }
 
 }

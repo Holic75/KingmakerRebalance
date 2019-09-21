@@ -58,26 +58,35 @@ namespace CallOfTheWild
             return Helpers.CreateAbility(name, "", "", guid, null, AbilityType.Special, CommandType.Free, AbilityRange.Close, "", "");
         }
 
+
+        static BlueprintFeature createDummyFeature(string name, string guid)
+        {
+            return Helpers.CreateFeature(name, "", "", guid, null, FeatureGroup.None);
+        }
+
         static internal void FixMissingAssets()
         {
-            List<BlueprintAbility> missing_abilities = new List<BlueprintAbility>();
+            List<BlueprintUnitFact> missing_facts = new List<BlueprintUnitFact>();
             //broken channels that were removed in 1.29
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyEmpyrealHarm",   "89804559ac9dd22e23053d0b8c939eae"));
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyPaladinHarm",    "21e46c86f0a5714e918572662d76f4c1"));
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyHospitalerHarm", "a4c40f80cdddfe2e926c5e8560ac512c"));
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelPositiveHarm", "4f476c1d5375337ee1c6ce7a154d269b"));
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickWitchPostiveHarm", "247078e91cb34f9ea7538e53811892e8"));
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickChannelNegativeEnergy", "e10c33b872aa274e80ec96a132ec08ae"));
-            missing_abilities.Add(createDummyAbility("ChannelSmiteQuickWitchNegativeHarm", "d2479ab66de342adb092948d4bb85948"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyEmpyrealHarm",   "89804559ac9dd22e23053d0b8c939eae"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyPaladinHarm",    "21e46c86f0a5714e918572662d76f4c1"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickChannelEnergyHospitalerHarm", "a4c40f80cdddfe2e926c5e8560ac512c"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickChannelPositiveHarm", "4f476c1d5375337ee1c6ce7a154d269b"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickWitchPostiveHarm", "247078e91cb34f9ea7538e53811892e8"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickChannelNegativeEnergy", "e10c33b872aa274e80ec96a132ec08ae"));
+            missing_facts.Add(createDummyAbility("ChannelSmiteQuickWitchNegativeHarm", "d2479ab66de342adb092948d4bb85948"));
+
+            missing_facts.Add(createDummyFeature("PositiveChanneling1Feature", "fc168f08cbeb4a5e90f1d5a4cfe82f42"));
+            missing_facts.Add(createDummyFeature("PositiveChanneling2Feature", "56f12dafd5bf495fabf9b2f938a03d63"));
 
 
             Action<UnitDescriptor> fix_action = delegate (UnitDescriptor u)
             {
-                foreach (var missing_ability in missing_abilities)
+                foreach (var missing_fact in missing_facts)
                 {
-                    if (u.HasFact(missing_ability))
+                    if (u.HasFact(missing_fact))
                     {
-                        u.RemoveFact(missing_ability);
+                        u.RemoveFact(missing_fact);
                     }
                 }
             };

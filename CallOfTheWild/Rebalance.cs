@@ -25,6 +25,8 @@ using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.ElementsSystem;
 
 namespace CallOfTheWild
 {
@@ -604,6 +606,38 @@ namespace CallOfTheWild
                     unit.AddFacts = unit.AddFacts.AddToArray(airborne);
                 }
             }
+        }
+
+
+        internal static void fixCaveFangs()
+        {
+            var cave_fangs_stalagmites_ability = library.Get<BlueprintAbility>("8ec73d388f0875640af8df799f7f16b5");
+            var cave_fangs_stalactites_ability = library.Get<BlueprintAbility>("039681ca00c74f24eb302f340f8c6be7");
+
+            var cave_fangs_stalagmites_area = library.Get<BlueprintAbilityAreaEffect>("104bb16f7c3717f44859d0aea97251ce");
+            var cave_fangs_stalactites_area = library.Get<BlueprintAbilityAreaEffect>("b8a7c68b040695a40b3a87b9676f7b50");
+
+            var cave_fangs_stalagmites_area2 = library.Get<BlueprintAbilityAreaEffect>("8b4ea698ae053c541beed4e050f32dc3");
+            var cave_fangs_stalactites_area2 = library.Get<BlueprintAbilityAreaEffect>("34fc4df95571a2a4f81460cce0c2ea93");
+
+            var dummy_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(cave_fangs_stalagmites_area.AssetGuid, "CaveFangsNoCastArea", "");
+            dummy_area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            dummy_area.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAreaEffectRunAction(new GameAction[0]) };
+
+            var dummy_spawn_action = Helpers.Create<ContextActionSpawnAreaEffect>(c =>
+                                                                                   {
+                                                                                       c.AreaEffect = dummy_area;
+                                                                                       c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Rounds);
+                                                                                   }
+                                                                                );
+            cave_fangs_stalagmites_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(dummy_spawn_action)));
+            cave_fangs_stalactites_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(dummy_spawn_action)));
+
+            cave_fangs_stalagmites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = cave_fangs_stalagmites_area));
+            cave_fangs_stalagmites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = dummy_area));
+
+            cave_fangs_stalactites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = cave_fangs_stalactites_area));
+            cave_fangs_stalactites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = dummy_area));
         }
     }
 }
