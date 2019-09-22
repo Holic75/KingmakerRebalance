@@ -291,6 +291,30 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilitTargetMainWeaponCheck : BlueprintComponent, IAbilityTargetChecker
+        {
+            public WeaponCategory[] Category;
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                if (unit.Body.PrimaryHand.HasWeapon)
+                    return ((IEnumerable<WeaponCategory>)this.Category).Contains<WeaponCategory>(unit.Body.PrimaryHand.Weapon.Blueprint.Type.Category);
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class SavingThrowBonusAgainstSpecificSpells : RuleInitiatorLogicComponent<RuleSavingThrow>
         {

@@ -687,6 +687,29 @@ namespace CallOfTheWild
         }
 
 
+        static public AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTriggerWithCategory(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
+                                                                                              bool check_weapon_range_type = false, bool reduce_hp_to_zero = false,
+                                                                                              bool on_initiator = false,
+                                                                                              AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee,
+                                                                                              bool wait_for_attack_to_resolve = false, bool only_first_hit = false,
+                                                                                              WeaponCategory weapon_category = WeaponCategory.UnarmedStrike)
+        {
+            var t = Helpers.Create<AddInitiatorAttackWithWeaponTrigger>();
+            t.Action = action;
+            t.OnlyHit = only_hit;
+            t.CriticalHit = critical_hit;
+            t.CheckWeaponRangeType = check_weapon_range_type;
+            t.RangeType = range_type;
+            t.ReduceHPToZero = reduce_hp_to_zero;
+            t.ActionsOnInitiator = on_initiator;
+            t.WaitForAttackResolve = wait_for_attack_to_resolve;
+            t.OnlyOnFirstAttack = only_first_hit;
+            t.CheckWeaponCategory = true;
+            t.Category = weapon_category;
+            return t;
+        }
+
+
         static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignment(DamageAlignment alignment, bool check_range = false, bool is_ranged = false)
         {
             var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
@@ -2109,6 +2132,14 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.AbilitTargetMainWeaponCheck createAbilitTargetMainWeaponCheck(params WeaponCategory[] category)
+        {
+            var a = Helpers.Create<NewMechanics.AbilitTargetMainWeaponCheck>();
+            a.Category = category;
+            return a;
+        }
+
+
         static public NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeaponIfHasMetamagic createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Metamagic metamagic, bool only_non_magical, bool lock_slot,
                                                                                                                             BlueprintWeaponType[] allowed_types, BlueprintWeaponEnchantment enchantment)
         {
@@ -2710,12 +2741,14 @@ namespace CallOfTheWild
 
 
         public static AbilitySpawnFx createAbilitySpawnFx(string asset_id, AbilitySpawnFxAnchor position_anchor = AbilitySpawnFxAnchor.None, 
-                                                                           AbilitySpawnFxAnchor orientation_anchor = AbilitySpawnFxAnchor.None)
+                                                                           AbilitySpawnFxAnchor orientation_anchor = AbilitySpawnFxAnchor.None,
+                                                                           AbilitySpawnFxAnchor anchor = AbilitySpawnFxAnchor.None)
         {
             var a = Helpers.Create<AbilitySpawnFx>();
             a.PrefabLink = createPrefabLink(asset_id);
             a.PositionAnchor = position_anchor;
             a.OrientationAnchor = orientation_anchor;
+            a.Anchor = anchor;
             return a;
         }
 

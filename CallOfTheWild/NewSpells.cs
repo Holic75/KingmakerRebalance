@@ -77,6 +77,76 @@ namespace CallOfTheWild
             createFlurryOfSnowballs();
             createIceSlick();
             createSheetLightning();
+            createVineStrike();
+        }
+
+
+        static void createVineStrike()
+        {
+            var entangle_buff = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
+            var cooldown_buff = Helpers.CreateBuff("VineStrikeCooldownBuff",
+                                                   "Vine Strike: Cooldown",
+                                                   "Bristles burst from your body, lodging in your opponent and blossoming into entangling vines as you pummel your target. While this spell is in effect, one of your natural attacks or unarmed strikes deals an additional 1d6 points of damage, and each creature hit with that natural weapon or unarmed strike must succeed at a Reflex save or be entangled for the duration of the spell; on a successful Reflex save, the creature is immune to the entangled effect for 1 round. A creature entangled by this spell can spend a standard action to remove the vines, but can be entangled again by further unarmed strikes.",
+                                                   "",
+                                                   entangle_buff.Icon,
+                                                   null);
+
+            var apply_entangle = Common.createContextActionApplyBuff(entangle_buff, Helpers.CreateContextDuration(1));
+            var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1));
+
+            var save_action = Helpers.CreateConditionalSaved(apply_cooldown, apply_entangle);
+            var effect_action = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(cooldown_buff, not: true),
+                                                          Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(save_action))
+                                                          );
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing, Helpers.CreateContextDiceValue(DiceType.D6, 1));
+            var action_list = Helpers.CreateActionList(dmg, effect_action);
+
+            WeaponCategory[] categories = new WeaponCategory[] { WeaponCategory.UnarmedStrike, WeaponCategory.Claw, WeaponCategory.Bite, WeaponCategory.Gore, WeaponCategory.OtherNaturalWeapons };
+            string[] category_name = new string[] { "Unarmed Strike", "Claw", "Bite", "Gore", "Other Natural Weapons" };
+
+            List<BlueprintAbility> variants = new List<BlueprintAbility>();
+
+            for (int i = 0; i < categories.Length; i++)
+            {
+                var buff = Helpers.CreateBuff("VineStrike" + categories[i].ToString() + "Buff",
+                                              "Vine Strike: " + category_name[i],
+                                              cooldown_buff.Description,
+                                              "",
+                                              cooldown_buff.Icon,
+                                              null,
+                                              Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(action_list, only_first_hit: true, weapon_category: categories[i])
+                                              );
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+                var ability = Helpers.CreateAbility("VineStrike" + categories[i].ToString() + "Ability",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    Helpers.minutesPerLevelDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(apply_buff),
+                                                    Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                    );
+                ability.setMiscAbilityParametersSelfOnly();
+                ability.AvailableMetamagic = Metamagic.Heighten | Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Quicken;
+                variants.Add(ability);
+                
+            }
+
+            vine_strike = Common.createVariantWrapper("VineStrikeAbility", "", variants.ToArray());
+            vine_strike.SetName("Vine Strike");
+            
+
+            vine_strike.AddToSpellList(Helpers.druidSpellList, 2);
+            vine_strike.AddToSpellList(Helpers.alchemistSpellList, 2);
+            vine_strike.AddToSpellList(Helpers.rangerSpellList, 2);
+            vine_strike.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            vine_strike.AddSpellAndScroll("5022612735a9e2345bfc5110106823d8");
         }
 
         static void createSheetLightning()
@@ -620,7 +690,7 @@ namespace CallOfTheWild
                                                bless_weapon.GetComponent<ContextRankConfig>(),
                                                Helpers.CreateRunActions(apply_buff),
                                                Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Transmutation),
-                                               Common.createAbilityCasterMainWeaponCheck(shillelagh_types[0].Category, shillelagh_types[1].Category)
+                                               Common.createAbilitTargetMainWeaponCheck(shillelagh_types[0].Category, shillelagh_types[1].Category)
                                                );
             shillelagh.NeedEquipWeapons = true;
             shillelagh.CanTargetSelf = true;
@@ -638,11 +708,24 @@ namespace CallOfTheWild
         static void createFlameBlade()
         {
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
-            var flaming_enchatment = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
+            var flaming_enchatment = library.Get<BlueprintWeaponEnchantment>("ed7b5eb80e2a974499c3dd7aeca71f88");
             var scimitar_type = library.Get<BlueprintWeaponType>("d9fbec4637d71bd4ebc977628de3daf3");
             var immaterial = Helpers.Create<NewMechanics.EnchantmentMechanics.Immaterial>();
             BlueprintWeaponEnchantment[] flame_blade_enchantments = new BlueprintWeaponEnchantment[11];
             var fire_damage = Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.Fire);
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("5363519e36752d84698e03a86fb33afb", "FlameBladeWeapon", "");//scimitar
+            var damage_type = new DamageTypeDescription()
+            {
+                Type = DamageType.Energy,
+                Energy = DamageEnergyType.Fire,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+
+            Helpers.SetField(weapon, "m_DamageType", damage_type);
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("FlameBladeName", "Flame Blade"));
+            Helpers.SetField(weapon, "m_Icon", bless_weapon.Icon);
 
             for (int i = 0; i < flame_blade_enchantments.Length; i++)
             {
@@ -654,7 +737,8 @@ namespace CallOfTheWild
                                                                                     });
                 flame_blade_enchantments[i] = Common.createWeaponEnchantment($"FlameBlade{i}Enchantment",
                                                                              "Flame Blade",
-                                                                             "You transform a non-magical scimitar into a 3-foot-long, blazing beam of red-hot fire springs. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage + 1 point per two caster levels (maximum +10). Since the blade is immaterial, your Strength modifier does not apply to the damage. If you stop wielding it, the weapon loses magical properties.",
+                                                                             "A 3-foot-long, blazing beam of red-hot fire springs forth from your hand. You wield this blade-like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage + 1 point per two caster levels (maximum +10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
+                                                                             + "You primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -689,11 +773,11 @@ namespace CallOfTheWild
 
 
             var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
-                                                                                                  true, true,
+                                                                                                  false, false,
                                                                                                   new BlueprintWeaponType[] { scimitar_type }, empower_enchant);
 
             var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
-                                                                                                  true, true,
+                                                                                                  false, false,
                                                                                                   new BlueprintWeaponType[] { scimitar_type }, maximize_enchant);
 
 
@@ -703,7 +787,8 @@ namespace CallOfTheWild
                                             "",
                                             bless_weapon.Icon,
                                             null,
-                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), true, true,
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => c.weapon = weapon),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
                                                                                             new BlueprintWeaponType[] { scimitar_type }, flame_blade_enchantments),
                                             empower_buff,
                                             maximize_buff,
@@ -713,11 +798,13 @@ namespace CallOfTheWild
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
 
             flame_blade = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, "FlameBladeAbility", "");
+            flame_blade.setMiscAbilityParametersSelfOnly();
+            flame_blade.NeedEquipWeapons = false;
             flame_blade.SetIcon(bless_weapon.Icon);
             flame_blade.SetName(buff.Name);
             flame_blade.SetDescription(buff.Description);
 
-            flame_blade.ReplaceComponent<AbilityCasterMainWeaponCheck>(Common.createAbilityCasterMainWeaponCheck(scimitar_type.Category));
+            flame_blade.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
             flame_blade.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
 
             var apply_buff = Common.createContextActionApplyBuff(buff,
@@ -778,7 +865,8 @@ namespace CallOfTheWild
                 produce_flame_enchantments[i] = Common.createWeaponEnchantment($"ProduceFlame{i}Enchantment",
                                                                              "Produce Flame",
                                                                              "Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment.\n"
-                                                                             + "In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.",
+                                                                             + "In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.\n"
+                                                                             + "You primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",
                                                                              "",
