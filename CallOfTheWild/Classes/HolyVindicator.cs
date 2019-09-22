@@ -203,6 +203,7 @@ namespace CallOfTheWild
                                                                  "",
                                                                  null,
                                                                  FeatureGroup.EldritchKnightSpellbook);
+            spellbook_selection.Obligatory = true;
             Common.addSpellbooksToSpellSelection("HolyVindicator", 1, spellbook_selection, arcane: false, alchemist: false);
         }
 

@@ -64,6 +64,7 @@ using Kingmaker.UnitLogic.Commands;
 using Kingmaker.Visual.Animation.Kingmaker;
 using Kingmaker.Blueprints.Area;
 using Kingmaker.Items.Slots;
+using Kingmaker.Blueprints.Items.Components;
 
 namespace CallOfTheWild
 {
@@ -2862,6 +2863,33 @@ namespace CallOfTheWild
             public string GetReason()
             {
                 return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
+        public class ContextConditionTargetHasMetalArmor : ContextCondition
+        {
+            static BlueprintCharacterClass druid = Main.library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return false;
+                }
+
+                var armor = unit.Body?.Armor?.MaybeArmor;
+                if (armor == null)
+                {
+                    return false;
+                }
+                
+                return armor.Blueprint.GetComponents<EquipmentRestrictionClass>().Where(c => c.Not && c.Class == druid).Count() != 0;
             }
         }
 

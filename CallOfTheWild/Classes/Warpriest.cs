@@ -119,9 +119,12 @@ namespace CallOfTheWild
         static public BlueprintFeature blessed_fortitude;
         static public BlueprintFeature miraculous_fortitude;
         static public BlueprintFeature flurry2_unlock;
+        static public BlueprintFeatureSelection sacred_fist_no_monk_check;
 
         static public BlueprintArchetype cult_leader_archetype;
         static public BlueprintArchetype champion_of_the_faith_archetype;
+
+
 
 
         internal static void createWarpriestClass()
@@ -3882,6 +3885,7 @@ namespace CallOfTheWild
 
             createSacredFistStyleFeatsSelection();
             createSacredFistFortitudeEvasion();
+            createSacredFistNoMonkCheck();
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 
@@ -3916,7 +3920,7 @@ namespace CallOfTheWild
                                                                     };
 
             sacred_fist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, sacred_fist_proficiencies, improved_unarmed_strike, unlock_ac_bonus, sacred_fist_fake_monk_level,
-                                                                                      fist1d6),
+                                                                                      fist1d6, sacred_fist_no_monk_check),
                                                                   Helpers.LevelEntry(2, flurry2_unlock),
                                                                   Helpers.LevelEntry(3, blessed_fortitude),
                                                                   Helpers.LevelEntry(4, fist1d8),
@@ -3961,9 +3965,30 @@ namespace CallOfTheWild
             sacred_fist_archetype.ReplaceStartingEquipment = true;
             sacred_fist_archetype.StartingItems = monk_class.StartingItems;
             sacred_fist_archetype.StartingGold = monk_class.StartingGold;
-
         }
 
+        static void createSacredFistNoMonkCheck()
+        {
+            var monk_class = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            sacred_fist_no_monk_check = Helpers.CreateFeatureSelection("SacredFistNoMonkCheckSelection",
+                                                                       "No Monk Levels Check",
+                                                                       "Sacred fist can not have monk levels.",
+                                                                       "",
+                                                                       null,
+                                                                       FeatureGroup.None);
+            sacred_fist_no_monk_check.HideInCharacterSheetAndLevelUp = true;
+            var no_monk_feature = Helpers.CreateFeature("SacredFistNoMonkLevelsFeature",
+                                  "No Monk Levels",
+                                  sacred_fist_no_monk_check.Description,
+                                  "",
+                                  null,
+                                  FeatureGroup.None,
+                                  Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = monk_class)
+                                  );
+            no_monk_feature.HideInUI = true;
+            sacred_fist_no_monk_check.AllFeatures = new BlueprintFeature[] { no_monk_feature };
+            sacred_fist_no_monk_check.Obligatory = true;
+        }
 
         static void createSacredFistProficiencies()
         {

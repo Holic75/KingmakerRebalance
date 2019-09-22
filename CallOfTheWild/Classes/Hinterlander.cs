@@ -375,6 +375,7 @@ namespace CallOfTheWild
                                                                  "",
                                                                  null,
                                                                  FeatureGroup.EldritchKnightSpellbook);
+            spellbook_selection.Obligatory = true;
             Common.addSpellbooksToSpellSelection("Hinterlander", 1, spellbook_selection, alchemist: false);
         }
 

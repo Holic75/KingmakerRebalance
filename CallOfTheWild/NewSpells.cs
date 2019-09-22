@@ -13,6 +13,7 @@ using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
@@ -51,6 +52,11 @@ namespace CallOfTheWild
         static public BlueprintAbility strong_jaw;
         static public BlueprintAbility contingency;
         static public BlueprintAbility produce_flame;
+        static public BlueprintAbility flurry_of_snowballs;
+        static public BlueprintAbility ice_slick;
+        static public BlueprintAbility vine_strike;
+        static public BlueprintAbility sheet_lightning;
+
 
         static public BlueprintWeaponEnchantment empower_enchant;
         static public BlueprintWeaponEnchantment maximize_enchant;
@@ -68,8 +74,137 @@ namespace CallOfTheWild
             createContingency();
             createStrongJaw();
             createProduceFlame();
+            createFlurryOfSnowballs();
+            createIceSlick();
+            createSheetLightning();
         }
 
+        static void createSheetLightning()
+        {
+            var constructs = library.Get<BlueprintFeature>("6ea5a4a19ccb81a498e18a229cc5038a");
+            var undead = library.Get<BlueprintFeature>("5941963eae3e9864d91044ba771f2cc2");
+
+            var chain_lightning = library.Get<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58");
+            var dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
+            var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
+
+            var apply_dazed = Common.createContextActionApplyBuff(dazed, Helpers.CreateContextDuration(1));
+            var apply_dazzled = Common.createContextActionApplyBuff(dazzled, Helpers.CreateContextDuration(1));
+            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1));
+
+            
+            var save_result = Helpers.CreateConditionalSaved(apply_dazzled, apply_dazed);
+            var context_saved = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(save_result));
+            Common.addConditionalDCIncrease(context_saved, Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.ContextConditionTargetHasMetalArmor>()), 2);
+
+            sheet_lightning = Helpers.CreateAbility("SheetLightningAbility",
+                                                    "Sheet Lightning",
+                                                    "You create a dazzling flash of electricity that fills the target area. Sheet lightning inflicts 1 point of electricity damage to all creatures within the area of effect (no save). The true power of the spell, though, lies not in the damage it inflicts but in the overwhelming pain the lightning creates. The sudden flash and jolt dazes living creatures for 1 round if they fail a saving throw. Creatures that save are instead dazzled for 1 round. Any creature wearing metal armor takes a –2 penalty to its saving throw against this spell.",
+                                                    "",
+                                                    chain_lightning.Icon,
+                                                    AbilityType.Spell,
+                                                    Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Medium,
+                                                    Helpers.oneRoundDuration,
+                                                    "Fortitude Special",
+                                                    Helpers.CreateRunActions(deal_damage, Helpers.CreateConditional(Common.createContextConditionHasFacts(false, undead, constructs), 
+                                                                                                                    null,
+                                                                                                                    context_saved)
+                                                                            ),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
+                                                    Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                    Common.createAbilitySpawnFx("86e72b9ddeef0324d9d23c48594d6b7d", AbilitySpawnFxAnchor.ClickedTarget) //thunderstorm kineticist blast aoe
+                                                    );
+
+            sheet_lightning.setMiscAbilityParametersRangedDirectional();
+            sheet_lightning.SpellResistance = true;
+            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+
+            sheet_lightning.AddToSpellList(Helpers.druidSpellList, 3);
+            sheet_lightning.AddToSpellList(Helpers.wizardSpellList, 3);
+            sheet_lightning.AddSpellAndScroll("141ffc89f1630ff45812f50ed3922088");//chain lightning
+
+        }
+
+
+        static void createFlurryOfSnowballs()
+        {
+            flurry_of_snowballs = library.CopyAndAdd<BlueprintAbility>("e7c530f8137630f4d9d7ee1aa7b1edc0", "FlurryOfSnowballsAbility", "");
+            flurry_of_snowballs.RemoveComponents<SpellListComponent>();
+            flurry_of_snowballs.RemoveComponents<ContextRankConfig>();
+            flurry_of_snowballs.SpellResistance = false;
+            flurry_of_snowballs.SetName("Flurry of Snowballs");
+            flurry_of_snowballs.SetDescription("You send a flurry of snowballs hurtling at your foes.\n"
+                                                +"Any creature in the area takes 4d6 points of cold damage from being pelted with the icy spheres.");
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 4), true, true);
+            flurry_of_snowballs.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(damage));
+            var cold_cone30 = library.Get<BlueprintProjectile>("72b45860bdfb81f4284aa005c04594dd");
+            flurry_of_snowballs.ReplaceComponent<AbilityDeliverProjectile>(a => { a.Projectiles = new BlueprintProjectile[] { cold_cone30 }; a.Length = 30.Feet(); });
+
+
+            flurry_of_snowballs.AddToSpellList(Helpers.magusSpellList, 2);
+            flurry_of_snowballs.AddToSpellList(Helpers.druidSpellList, 2);
+            flurry_of_snowballs.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            flurry_of_snowballs.AddSpellAndScroll("5344f2240620b27478d12f00643fc292");
+        }
+
+
+        static void createIceSlick()
+        {
+            var grease = library.Get<BlueprintAbility>("95851f6e85fe87d4190675db0419d112");
+
+            var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "IceSlickDifficultTerrainBuff", "");
+            var slick_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd", "IceSlickArea", ""); //spike stones
+            slick_area.Size = 5.Feet();
+            
+            slick_area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            slick_area.Fx.AssetId = "d0b113580baee53449fe4c5cb8f941e0"; //obsidian
+            slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
+            var prone_buff = library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97");
+            var apply_prone = Common.createContextActionApplyBuff(prone_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var failure_action = Common.createContextActionSkillCheck(StatType.SkillMobility, Helpers.CreateActionList(apply_prone));
+            var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                                unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),
+                                                                unitMove: Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(failure_action), custom_dc: 10));
+            slick_area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
+            slick_area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
+
+            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.DamageBonus)), true, true);
+            var spawn_area = Common.createContextActionSpawnAreaEffect(slick_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            ice_slick = Helpers.CreateAbility("IceSlickAbility",
+                                              "Ice Slick",
+                                              "You create a blast of intense cold, coating all solid surfaces in the area with a thin coating of ice.\n"
+                                              + "Any creature in the area when the spell is cast takes 1d6 points of cold damage + 1 point per caster level (maximum +10) and falls prone; creatures that succeed at a Reflex save take half damage and don’t fall prone. Spell resistance applies to this initial effect.\n"
+                                              + "A creature can walk within or through the area of ice at half its normal speed with a successful DC 10 Mobility check. Failure means the creature can’t move and  it falls. Creatures that do not move on their turn do not need to attempt this check.",
+                                              "",
+                                              grease.Icon,
+                                              AbilityType.Spell,
+                                              Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                              AbilityRange.Close,
+                                              Helpers.minutesPerLevelDuration,
+                                              Helpers.reflexHalfDamage,
+                                              Helpers.CreateRunActions(SavingThrowType.Reflex, deal_damage,
+                                                                                               Helpers.CreateConditionalSaved(null, apply_prone)
+                                                                                               
+                                                                      ),
+                                              Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, max: 10),
+                                              Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_area)),
+                                              Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                              Helpers.CreateAbilityTargetsAround(5.Feet(), TargetType.Any)
+                                              );
+            ice_slick.setMiscAbilityParametersRangedDirectional();
+            ice_slick.SpellResistance = true;
+            ice_slick.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
+            ice_slick.AddToSpellList(Helpers.druidSpellList, 2);
+            ice_slick.AddToSpellList(Helpers.magusSpellList, 2);
+            ice_slick.AddToSpellList(Helpers.rangerSpellList, 2);
+            ice_slick.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            ice_slick.AddSpellAndScroll("a4fbba95ffa58144ca7189bc350ed622");
+        }
 
         static void createStrongJaw()
         {
@@ -706,10 +841,12 @@ namespace CallOfTheWild
                                                   );
             produce_flame.setMiscAbilityParametersSingleTargetRangedHarmful();
 
-            produce_flame.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+            produce_flame.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize | Metamagic.Quicken;
 
             produce_flame.AddToSpellList(Helpers.druidSpellList, 1);
             produce_flame.AddSpellAndScroll("5b172c2c3e356eb43ba5a8f8008a8a5a"); //fireball
+            //replace 2nd level spell in fire domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), produce_flame, 2);
         }
 
 

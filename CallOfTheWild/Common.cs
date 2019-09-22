@@ -53,6 +53,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
+using Kingmaker.ResourceLinks;
 
 namespace CallOfTheWild
 {
@@ -87,6 +88,7 @@ namespace CallOfTheWild
     {
 
         static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
+        static readonly Type ContextActionSavingThrow_ConditionalDCIncrease = Harmony12.AccessTools.Inner(typeof(ContextActionSavingThrow), "ConditionalDCIncrease");
 
         static public string[] roman_id = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
 
@@ -788,11 +790,12 @@ namespace CallOfTheWild
         }
 
 
-        public static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintCharacterClass character_class, BlueprintArchetype archetype)
+        public static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintCharacterClass character_class, BlueprintArchetype archetype, bool any = false)
         {
             var p = Helpers.Create<PrerequisiteNoArchetype>();
             p.Archetype = archetype;
             p.CharacterClass = character_class;
+            p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
             return p;
         }
 
@@ -2328,7 +2331,7 @@ namespace CallOfTheWild
         }
 
 
-        public static NewMechanics.ContextConditionHasFacts createContextConditionHasFacts(bool all, BlueprintUnitFact[] facts)
+        public static NewMechanics.ContextConditionHasFacts createContextConditionHasFacts(bool all, params BlueprintUnitFact[] facts)
         {
             var c = Helpers.Create<NewMechanics.ContextConditionHasFacts>();
             c.all = all;
@@ -2666,6 +2669,55 @@ namespace CallOfTheWild
 
         }
 
+
+        public static ContextActionSkillCheck createContextActionSkillCheck(StatType skill, ActionList success = null, ActionList failure = null, ContextValue custom_dc = null)
+        {
+            var c = Helpers.Create<ContextActionSkillCheck>();
+            c.UseCustomDC = custom_dc != null;
+            c.CustomDC = custom_dc;
+            c.Success = success == null ? Helpers.CreateActionList() : success;
+            c.Failure = failure == null ? Helpers.CreateActionList() : failure;
+            c.Stat = skill;
+            return c;
+
+        }
+
+   
+        public static ContextActionSpawnAreaEffect createContextActionSpawnAreaEffect(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration)
+        {
+            return Helpers.Create<ContextActionSpawnAreaEffect>(c => { c.AreaEffect = area_effect; c.DurationValue = duration; });
+        }
+
+        
+        public static void addConditionalDCIncrease(ContextActionSavingThrow context_action_savingthrow, ConditionsChecker condition, ContextValue value)
+        {
+            var data = Activator.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease);
+            Helpers.SetField(data, "Condition", condition);
+            Helpers.SetField(data, "Value", value);
+
+            var data_array = Array.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease, 1);
+            data_array.SetValue(data, 0);
+            Helpers.SetField(context_action_savingthrow, "m_ConditionalDCIncrease", data_array);
+        }
+
+
+        public static PrefabLink createPrefabLink(string asset_id)
+        {
+            var link = new PrefabLink();
+            link.AssetId = asset_id;
+            return link;
+        }
+
+
+        public static AbilitySpawnFx createAbilitySpawnFx(string asset_id, AbilitySpawnFxAnchor position_anchor = AbilitySpawnFxAnchor.None, 
+                                                                           AbilitySpawnFxAnchor orientation_anchor = AbilitySpawnFxAnchor.None)
+        {
+            var a = Helpers.Create<AbilitySpawnFx>();
+            a.PrefabLink = createPrefabLink(asset_id);
+            a.PositionAnchor = position_anchor;
+            a.OrientationAnchor = orientation_anchor;
+            return a;
+        }
 
 
 

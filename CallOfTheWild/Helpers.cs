@@ -366,6 +366,12 @@ namespace CallOfTheWild
         {
             blueprintUnitFact_set_Description(feature, Helpers.CreateString(feature.name + ".Description", description));
         }
+
+        public static void SetDescription(this BlueprintUnitFact feature, LocalizedString description)
+        {
+            blueprintUnitFact_set_Description(feature, description);
+        }
+
         public static bool HasFeatureWithId(this LevelEntry level, String id)
         {
             return level.Features.Any(f => HasFeatureWithId(f, id));
