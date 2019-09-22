@@ -129,7 +129,8 @@ namespace CallOfTheWild
                                                     Helpers.minutesPerLevelDuration,
                                                     "",
                                                     Helpers.CreateRunActions(apply_buff),
-                                                    Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                    Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Conjuration)
                                                     );
                 ability.setMiscAbilityParametersSelfOnly();
                 ability.AvailableMetamagic = Metamagic.Heighten | Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Quicken;
@@ -139,6 +140,7 @@ namespace CallOfTheWild
 
             vine_strike = Common.createVariantWrapper("VineStrikeAbility", "", variants.ToArray());
             vine_strike.SetName("Vine Strike");
+            vine_strike.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Conjuration));
             
 
             vine_strike.AddToSpellList(Helpers.druidSpellList, 2);
@@ -230,7 +232,7 @@ namespace CallOfTheWild
             slick_area.Size = 5.Feet();
             
             slick_area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
-            slick_area.Fx.AssetId = "d0b113580baee53449fe4c5cb8f941e0"; //obsidian
+            slick_area.Fx.AssetId = "b6a8750499b0ec647ba68430e83bfc2f";// "d0b113580baee53449fe4c5cb8f941e0"; //obsidian
             slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
             var prone_buff = library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97");
             var apply_prone = Common.createContextActionApplyBuff(prone_buff, Helpers.CreateContextDuration(1), dispellable: false);
