@@ -25,6 +25,7 @@ New feats:
 - Feral Combat Training,
 - Furious Focus,
 - Planar Wild Shape,
+- Powerful Shape,
 - Coordinated Shot,
 - Skald's Vigor and Greater Skald's Vigor,
 - Stalwart and Improved Stalwart,
@@ -61,6 +62,7 @@ New rage powers:
 
 New features:
 - Share Spell for animal companions,
+- Druids can use armor while in wild shape (optional),
 - Animal companions can now equip belts, bracers and amulets,
 - Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log.
 
