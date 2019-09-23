@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Kingmaker.Items;
 
-namespace CallOfTheWild.WildArmor
+namespace CallOfTheWild.WildArmorMechanics
 {
     public class UnitPartWildArmor : UnitPart
     {

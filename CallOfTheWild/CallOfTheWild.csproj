@@ -146,6 +146,7 @@
     <Compile Include="NewFeats.cs" />
     <Compile Include="NewMechanics\MonsterLore.cs" />
     <Compile Include="NewMechanics\NewMechanics.cs" />
+    <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />
     <Compile Include="NewMechanics\WildArmor.cs" />
     <Compile Include="NewRagePowers.cs" />

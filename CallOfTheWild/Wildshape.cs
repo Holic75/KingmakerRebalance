@@ -122,6 +122,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature wild_armor_feature;
         static BlueprintBuff allow_wild_armor_buff;
+        static public BlueprintBuff[] druid_wild_shapes;
 
 
         static internal void load()
@@ -145,8 +146,9 @@ namespace CallOfTheWild
             createGiantFormII();
             createShapechange();
 
-            createWildArmor();
+
             fixDruid();
+            createWildArmor();
             fixTransmuter();
         }
 
@@ -164,7 +166,7 @@ namespace CallOfTheWild
                                                              "",
                                                              null,
                                                              null,
-                                                             Helpers.Create<WildArmor.WildArmorLogic>());
+                                                             Helpers.Create<WildArmorMechanics.WildArmorLogic>());
             allow_wild_armor_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             wild_armor_feature = Helpers.CreateFeature("WildArmorFeature",
                                                         "Wild Armor",
@@ -173,6 +175,11 @@ namespace CallOfTheWild
                                                         null,
                                                         FeatureGroup.None);
             wild_armor_feature.HideInUI = true;
+
+            foreach (var wb in druid_wild_shapes)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff, wild_armor_feature);
+            }
         }
 
         static void createEngulf()
@@ -233,7 +240,7 @@ namespace CallOfTheWild
                                                     "",
                                                     engulf_buff.Icon,
                                                     null,
-                                                    Helpers.CreateAddFactContextActions(deactivated: new GameAction[] {Helpers.Create<NewMechanics.ContextActionSpitOut>(),
+                                                    Helpers.CreateAddFactContextActions(deactivated: new GameAction[] {Helpers.Create<CombatManeuverMechanics.ContextActionSpitOut>(),
                                                                                                                        Common.createContextActionRemoveBuff(engulf_self)})
                                                     );
 
@@ -249,8 +256,8 @@ namespace CallOfTheWild
             engulf_ability.DeactivateImmediately = true;
 
             var effect_action = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(engulf_enabled), 
-                                                                          Helpers.Create<NewMechanics.ContextConditionCasterSizeGreater>(c => c.size_delta = 2),
-                                                                          Helpers.Create<NewMechanics.ContextConditionCasterBuffRankLess>(c => {c.buff = engulf_self; c.rank = 3;})}, 
+                                                                          Helpers.Create<CombatManeuverMechanics.ContextConditionCasterSizeGreater>(c => c.size_delta = 2),
+                                                                          Helpers.Create<CombatManeuverMechanics.ContextConditionCasterBuffRankLess>(c => {c.buff = engulf_self; c.rank = 3;})}, 
                                                                           engulf_action);
             engulf.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect_action)));
             engulf.AddComponent(Helpers.CreateAddFact(engulf_ability));
@@ -394,7 +401,7 @@ namespace CallOfTheWild
             }
 
 
-            BlueprintBuff[] wildshape_buffs = new BlueprintBuff[] {library.Get<BlueprintBuff>("470fb1a22e7eb5849999f1101eacc5dc"), //wolf
+            druid_wild_shapes = new BlueprintBuff[] {library.Get<BlueprintBuff>("470fb1a22e7eb5849999f1101eacc5dc"), //wolf
                                                                  library.Get<BlueprintBuff>("8abf1c437ebee8048a4a3335efc27eb3"), //leopard
                                                                  wildshape_bear_buff ,
                                                                  wildshape_dire_wolf_buff,
@@ -424,11 +431,6 @@ namespace CallOfTheWild
                                                                  library.Get<BlueprintBuff>("c5925e7b9e7fc2e478526b4cfc8c6427"),
                                                                  library.Get<BlueprintBuff>("9c58cfcad11f7fd4cb85e22187fddac7"),
                                                                 };
-
-            foreach (var wb in wildshape_buffs)
-            {
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff, wild_armor_feature);
-            }
 
             var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
             druid_progression.LevelEntries[3].Features.Add(leopard_feature);

@@ -43,6 +43,7 @@ namespace CallOfTheWild
         static public BlueprintFeature guided_hand;
         static public BlueprintFeature deadeyes_blessing;
         static public BlueprintFeature paladin_channel_extra;
+        static public BlueprintFeature powerful_shape;
 
         static internal void load()
         {
@@ -64,6 +65,41 @@ namespace CallOfTheWild
             ChannelEnergyEngine.createChannelingScourge();
             ChannelEnergyEngine.createImprovedChannel();
             ChannelEnergyEngine.createVersatileChanneler();
+
+            createPowerfulShape();
+        }
+
+
+        static void createPowerfulShape()
+        {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            powerful_shape = Helpers.CreateFeature("PowerfulShapeFeature",
+                                                    "Powerful Shape",
+                                                    "When in wild shape, treat your size as one category larger for the purpose of calculating CMB, CMD, and any size-based special attacks you use or that are used against you.",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.Feat,
+                                                    Helpers.PrerequisiteFeature(Wildshape.first_wildshape_form),
+                                                    Helpers.PrerequisiteClassLevel(druid, 8)
+                                                    );
+            library.AddFeats(powerful_shape);
+
+            var powerful_shape_buff = Helpers.CreateBuff("PowerfulShapeBuff",
+                                        powerful_shape.Name,
+                                        powerful_shape.Description,
+                                        "",
+                                        null,
+                                        null,
+                                        Helpers.Create<CombatManeuverMechanics.FakeSizeBonus>(f => f.bonus = 1)
+                                        );
+
+            powerful_shape_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            foreach (var wb in Wildshape.druid_wild_shapes)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, powerful_shape_buff, powerful_shape);
+            }
         }
 
 
