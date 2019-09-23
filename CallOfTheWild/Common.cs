@@ -577,10 +577,10 @@ namespace CallOfTheWild
         static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuff(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                                       params BlueprintUnitFact[] facts)
         {
-            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            /*if (target_buff.GetComponent<AddFactContextActions>() == null)
             {
                 target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
-            }
+            }*/
             var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact[facts.Length];
             for (int i = 0; i < facts.Length; i++)
             {
@@ -611,10 +611,10 @@ namespace CallOfTheWild
         static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                               params BlueprintUnitFact[] facts)
         {
-            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            /*if (target_buff.GetComponent<AddFactContextActions>() == null)
             {
                 target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
-            }
+            }*/
             var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact[facts.Length];
             for (int i = 0; i < facts.Length; i++)
             {
@@ -630,7 +630,8 @@ namespace CallOfTheWild
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
             {
-                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+                var context_actions = new BlueprintComponent[] { Helpers.CreateEmptyAddFactContextActions() };
+                target_buff.ComponentsArray = context_actions.AddToArray(target_buff.ComponentsArray);
             }
 
             var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
@@ -1672,11 +1673,13 @@ namespace CallOfTheWild
         {
 
             var tactical_leader_feat_share_buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
+            var monster_tactics_buff = library.Get<BlueprintBuff>("81ddc40b935042844a0b5fb052eeca73");
             var sh_teamwork_share = library.Get<BlueprintFeature>("e1f437048db80164792155102375b62c");
             var teamwork_feat = library.Get<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb");
             var teamwork_feat_vanguard = library.Get<BlueprintFeatureSelection>("90b882830b3988446ae681c6596460cc");
 
             sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats);
+            monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts = monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feats);
             //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
             tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts = tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feats);
             teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feats);

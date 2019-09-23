@@ -25,6 +25,7 @@ namespace CallOfTheWild
             internal bool nerf_animal_companion { get; }
             internal bool reduce_skill_points { get; }
             internal bool sacred_huntsmaster_animal_focus { get; }
+            internal bool use_armor_in_wildshape { get; }
 
             internal Settings()
             {
@@ -37,6 +38,7 @@ namespace CallOfTheWild
                     nerf_animal_companion = (bool)jo["nerf_animal_companion"];
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
+                    use_armor_in_wildshape = (bool)jo["use_armor_in_wildshape"];
                 }
             }
         }
@@ -114,6 +116,11 @@ namespace CallOfTheWild
                         Main.logger.Log("Updating companion stats.");
                         CallOfTheWild.Rebalance.fixCompanions();
                     }
+                    if (settings.use_armor_in_wildshape)
+                    {
+                        Main.logger.Log("Allow using armor in wildshape.");
+                        CallOfTheWild.Rebalance.fixCompanions();
+                    }
 
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
@@ -137,6 +144,10 @@ namespace CallOfTheWild
 
                     CallOfTheWild.ChannelEnergyEngine.init();
                     CallOfTheWild.Wildshape.load();
+                    if (settings.use_armor_in_wildshape)
+                    {
+                        CallOfTheWild.Wildshape.allowToUseArmorInWildshape();
+                    }
                     CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();

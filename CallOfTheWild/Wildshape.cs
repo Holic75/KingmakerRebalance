@@ -40,6 +40,8 @@ using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.ElementsSystem;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 
 namespace CallOfTheWild
 {
@@ -118,6 +120,9 @@ namespace CallOfTheWild
         static public List<BlueprintAbility> animal_wildshapes = new List<BlueprintAbility>();
         static public BlueprintFeature first_wildshape_form;
 
+        static public BlueprintFeature wild_armor_feature;
+        static BlueprintBuff allow_wild_armor_buff;
+
 
         static internal void load()
         {
@@ -140,8 +145,34 @@ namespace CallOfTheWild
             createGiantFormII();
             createShapechange();
 
+            createWildArmor();
             fixDruid();
             fixTransmuter();
+        }
+
+
+        internal static void allowToUseArmorInWildshape()
+        {
+            first_wildshape_form.AddComponent(Helpers.CreateAddFact(wild_armor_feature));
+        }
+
+        static void createWildArmor()
+        {
+            allow_wild_armor_buff = Helpers.CreateBuff("AllowWildArmorBuff",
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             null,
+                                                             null,
+                                                             Helpers.Create<WildArmor.WildArmorLogic>());
+            allow_wild_armor_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            wild_armor_feature = Helpers.CreateFeature("WildArmorFeature",
+                                                        "Wild Armor",
+                                                        "Armor with this special ability usually appears to be made from magically hardened animal pelt. The wearer of a suit of armor or a shield with this ability preserves his armor bonus (and any enhancement bonus) while in a wild shape. Armor and shields with this ability usually appear to be covered in leaf patterns. While the wearer is in a wild shape, the armor cannot be seen.",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None);
+            wild_armor_feature.HideInUI = true;
         }
 
         static void createEngulf()
@@ -287,6 +318,9 @@ namespace CallOfTheWild
             var wildshape_bear_buff = library.CopyAndAdd<BlueprintBuff>(bear_form.AssetGuid, "DruidWildshapeIIBearBuff", "");
             wildshape_bear_buff.SetName("Wild Shape (Bear)");
             var wildshape_bear = replaceForm(wildshape_wolf, wildshape_bear_buff, "DruidWildshapeIIBearAbility", wildshape_bear_buff.Name, bear_form_spell.Description);
+            //fix thundering claw
+            var thudnering_conditional = (library.Get<BlueprintFeature>("f418b53b2a597b54b810699e9f68e061").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional);
+            (thudnering_conditional.ConditionsChecker.Conditions[0] as ContextConditionCasterHasFact).Fact = wildshape_bear_buff;
 
             var wildshape_dire_wolf_buff = library.CopyAndAdd<BlueprintBuff>(dire_wolf_form.AssetGuid, "DruidWildshapeIIDireWolfBuff", "");
             wildshape_dire_wolf_buff.SetName("Wild Shape (Dire Wolf)");
@@ -359,6 +393,43 @@ namespace CallOfTheWild
                 s.SetDescription(description);
             }
 
+
+            BlueprintBuff[] wildshape_buffs = new BlueprintBuff[] {library.Get<BlueprintBuff>("470fb1a22e7eb5849999f1101eacc5dc"), //wolf
+                                                                 library.Get<BlueprintBuff>("8abf1c437ebee8048a4a3335efc27eb3"), //leopard
+                                                                 wildshape_bear_buff ,
+                                                                 wildshape_dire_wolf_buff,
+                                                                 library.Get<BlueprintBuff>("49a77c5c5266c42429f7afbb038ada60"), //smilodon
+                                                                 wildshape_mastodon_buff,
+                                                                 wildshape_mandragora_buff,
+                                                                 library.Get<BlueprintBuff>("0d29c50c956e82d4eae56710987de9f7"),//shambling mound
+                                                                 wildshape_flytrap_buff,
+                                                                 //air
+                                                                 library.Get<BlueprintBuff>("eb52d24d6f60fc742b32fe943b919180"),
+                                                                 library.Get<BlueprintBuff>("814bc75e74f969641bf110addf076ff9"),
+                                                                 library.Get<BlueprintBuff>("65fdf187fea97c94b9cf4ff6746901a6"),
+                                                                 library.Get<BlueprintBuff>("dc1ef6f6d52b9fd49bc0696ab1a4f18b"),
+                                                                 //earth
+                                                                 library.Get<BlueprintBuff>("f0826c3794c158c4cbbe9ceb4210d6d6"),
+                                                                 library.Get<BlueprintBuff>("bf145574939845d43b68e3f4335986b4"),
+                                                                 library.Get<BlueprintBuff>("e76500bc1f1f269499bf027a5aeb1471"),
+                                                                 library.Get<BlueprintBuff>("add5378a75feeaf4384766da10ddc40d"),
+                                                                 //fire
+                                                                 library.Get<BlueprintBuff>("e85abd773dbce30498efa8da745d7ca7"),
+                                                                 library.Get<BlueprintBuff>("7f30b0f7f3c4b6748a2819611fb236f8"),
+                                                                 library.Get<BlueprintBuff>("3e3f33fb3e581ab4e8923a5eabd15923"),
+                                                                 library.Get<BlueprintBuff>("9e6b7b058bc74fc45903679adcab8553"),
+                                                                 //water
+                                                                 library.Get<BlueprintBuff>("ea2cd08bdf2ca1c4f8a8870804790cd7"),
+                                                                 library.Get<BlueprintBuff>("5993b78c793667e45bf0380e9275fab7"),
+                                                                 library.Get<BlueprintBuff>("c5925e7b9e7fc2e478526b4cfc8c6427"),
+                                                                 library.Get<BlueprintBuff>("9c58cfcad11f7fd4cb85e22187fddac7"),
+                                                                };
+
+            foreach (var wb in wildshape_buffs)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff, wild_armor_feature);
+            }
+
             var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
             druid_progression.LevelEntries[3].Features.Add(leopard_feature);
             druid_progression.LevelEntries[5].Features[0] = dire_wolf_feature;
@@ -400,9 +471,8 @@ namespace CallOfTheWild
 
             first_wildshape_form = leopard_feature;
             //fix natural spell requirement
-            /*var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
-            natural_spell.GetComponent<PrerequisiteFeature>().Feature = wolf_feature;*/
-
+            var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
+            natural_spell.GetComponent<PrerequisiteFeature>().Feature = first_wildshape_form;
         }
 
 
