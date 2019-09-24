@@ -2445,14 +2445,14 @@ namespace CallOfTheWild
         }
 
 
-        public static AddTargetAttackWithWeaponTrigger createAddTargetAttackWithWeaponTrigger(ActionList action_self, ActionList action_attacker, WeaponCategory[] categories = null,
+        public static AddTargetAttackWithWeaponTrigger createAddTargetAttackWithWeaponTrigger(ActionList action_self = null, ActionList action_attacker = null, WeaponCategory[] categories = null,
                                                                                              bool only_hit = true, bool not_reach = true, bool only_melee = true, bool not = false,
                                                                                              bool wait_for_attack_to_resolve = false, bool only_critical_hit = false)
         {
             var a = Helpers.Create<AddTargetAttackWithWeaponTrigger>();
 
-            a.ActionOnSelf = action_self;
-            a.ActionsOnAttacker = action_attacker;
+            a.ActionOnSelf = action_self != null ? action_self : Helpers.CreateActionList();
+            a.ActionsOnAttacker = action_attacker != null ? action_attacker : Helpers.CreateActionList();
             a.OnlyHit = only_hit;
             a.NotReach = not_reach;
             a.OnlyMelee = only_melee;
@@ -2756,6 +2756,16 @@ namespace CallOfTheWild
         }
 
 
+        static public AbilityDeliverProjectile createAbilityDeliverProjectile(AbilityProjectileType type, BlueprintProjectile projectile, Feet length, Feet width)
+        {
+            var a = Helpers.Create<AbilityDeliverProjectile>();
+            a.Type = type;
+            a.Projectiles = new BlueprintProjectile[] { projectile };
+            a.Length = length;
+            a.LineWidth = width;
+
+            return a;
+        }
 
 
     }

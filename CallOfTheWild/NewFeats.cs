@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
@@ -11,9 +12,11 @@ using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
@@ -30,6 +33,7 @@ namespace CallOfTheWild
 {
     public static class NewFeats
     {
+        static public bool test_mode = false;
         static LibraryScriptableObject library => Main.library;
         static public BlueprintFeature raging_brutality;
         static public BlueprintFeature blooded_arcane_strike;
@@ -44,9 +48,11 @@ namespace CallOfTheWild
         static public BlueprintFeature deadeyes_blessing;
         static public BlueprintFeature paladin_channel_extra;
         static public BlueprintFeature powerful_shape;
+        static public BlueprintFeature discordant_voice;
 
         static internal void load()
         {
+            Main.logger.Log("New Feats test mode " + test_mode.ToString());
             createFuriousFocus();
             replaceIconsForExistingFeats();
             createRagingBrutality();
@@ -67,6 +73,56 @@ namespace CallOfTheWild
             ChannelEnergyEngine.createVersatileChanneler();
 
             createPowerfulShape();
+            createDiscordantVoice();
+        }
+
+
+        static void createDiscordantVoice()
+        {
+            var bard = library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
+            var sound_burst = library.Get<BlueprintAbility>("c3893092a333b93499fd0a21845aa265");
+            var deal_dmg = Helpers.CreateActionList(Helpers.CreateActionDealDamage(Kingmaker.Enums.Damage.DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(DiceType.D6, 1)));
+            var discordant_voice_effect_buff = Helpers.CreateBuff("DiscordantVoiceEffectBuff",
+                                                                   "Discordant Voice",
+                                                                   "Whenever you are using bardic performance to create a spell-like or supernatural effect, allies within 30 feet of you deal an extra 1d6 points of sonic damage with successful weapon attacks. This damage stacks with other energy damage a weapon might deal. Projectile weapons bestow this extra damage on their ammunition, but the extra damage is dealt only if the projectile hits a target within 30 feet of you.",
+                                                                   "",
+                                                                   sound_burst.Icon,
+                                                                   null,
+                                                                   Common.createAddTargetAttackWithWeaponTrigger(deal_dmg, null, not_reach: false, only_melee: false)
+                                                                   );
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", "DiscordantVoiceArea", ""); //dirge of doom
+            area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = discordant_voice_effect_buff);
+            if (test_mode)
+            {
+                area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Condition = Helpers.CreateConditionsCheckerOr());
+            }
+
+            var discordant_voice_buff = library.CopyAndAdd<BlueprintBuff>("83eab9b139717ad478d84bbf48ab457f", "DiscordantVoiceBuff", "");
+            discordant_voice_buff.SetNameDescriptionIcon(discordant_voice_effect_buff.Name, discordant_voice_effect_buff.Description, discordant_voice_effect_buff.Icon);
+            discordant_voice_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
+            discordant_voice_buff.FxOnStart = new Kingmaker.ResourceLinks.PrefabLink();
+
+
+            discordant_voice = Helpers.CreateFeature("DiscordantVocieFeature",
+                                                     discordant_voice_effect_buff.Name,
+                                                     discordant_voice_effect_buff.Description,
+                                                     "",
+                                                     discordant_voice_effect_buff.Icon,
+                                                     FeatureGroup.Feat,
+                                                     Helpers.PrerequisiteClassLevel(bard, 8, any: true),
+                                                     Helpers.PrerequisiteClassLevel(Skald.skald_class, 8, any: true)
+                                                     );
+            library.AddFeats(discordant_voice);
+            var performances = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
+
+
+            foreach (var p in performances)
+            {
+                var b = p.Buff;
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(b, discordant_voice_buff, discordant_voice);
+            }
         }
 
 

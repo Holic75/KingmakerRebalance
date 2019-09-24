@@ -947,6 +947,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 7), //inflict moderate wounds mass
                 new Common.SpellId( "2b044152b3620c841badb090e01ed9de", 7), //insanity
                 new Common.SpellId( "da1b292d91ba37948893cdbe9ea89e28", 7), //legendary proportions
+                new Common.SpellId( NewSpells.poison_breath.AssetGuid, 7), //legendary proportions
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 7), //summon monster 7
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 7), //umbral strike

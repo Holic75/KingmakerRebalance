@@ -56,6 +56,7 @@ namespace CallOfTheWild
         static public BlueprintAbility ice_slick;
         static public BlueprintAbility vine_strike;
         static public BlueprintAbility sheet_lightning;
+        static public BlueprintAbility poison_breath;
 
 
         static public BlueprintWeaponEnchantment empower_enchant;
@@ -78,6 +79,30 @@ namespace CallOfTheWild
             createIceSlick();
             createSheetLightning();
             createVineStrike();
+            createPoisonBreath();
+        }
+
+
+        static void createPoisonBreath()
+        {
+            poison_breath = library.CopyAndAdd<BlueprintAbility>("d797007a142a6c0409a74b064065a15e", "PoisonBreathAbility", "");
+            poison_breath.SetName("Poison Breath");
+            poison_breath.SetDescription("You expel a cone-shaped burst of toxic mist from your mouth, subjecting everyone caught in the area to a deadly poison, as per the poison spell.");
+            poison_breath.Range = AbilityRange.Projectile;
+            poison_breath.setMiscAbilityParametersRangedDirectional();
+            poison_breath.Type = AbilityType.Spell;
+            poison_breath.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard;
+            poison_breath.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
+            poison_breath.RemoveComponents<AbilitySpawnFx>();
+            poison_breath.RemoveComponents<AbilityDeliverTouch>();
+
+            var poison_cone = library.Get<BlueprintProjectile>("2758f6a35e0e3544f8d7367e57f70d61");
+            poison_breath.AddComponent(Common.createAbilityDeliverProjectile(AbilityProjectileType.Cone, poison_cone, 15.Feet(), 5.Feet()));
+
+            poison_breath.AddToSpellList(Helpers.clericSpellList, 7);
+            poison_breath.AddToSpellList(Helpers.druidSpellList, 6);
+
+            poison_breath.AddSpellAndScroll("423304685924a3445bd135221496400b");//poison
         }
 
 
