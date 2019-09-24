@@ -28,6 +28,7 @@ New feats:
 - Powerful Shape,
 - Coordinated Shot,
 - Skald's Vigor and Greater Skald's Vigor,
+- Discordant Voice,
 - Stalwart and Improved Stalwart,
 - Quick Channel,
 - Channel Smite,
@@ -83,6 +84,7 @@ New spells:
 - Fire Shield,
 - Virtuoso Performance,
 - Contingency,
+- Poison Breath,
 - Plant Shape I, II and III,
 - Giant Form I and II,
 - Shapechange.  
