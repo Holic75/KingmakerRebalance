@@ -2093,7 +2093,7 @@ namespace CallOfTheWild
             return c;
         }
 
-        public static ContextActionDealDamage CreateActionDealDamage(DamageEnergyType energy, ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false)
+        public static ContextActionDealDamage CreateActionDealDamage(DamageEnergyType energy, ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
         {
             // energy damage
             var c = Create<ContextActionDealDamage>();
@@ -2108,11 +2108,12 @@ namespace CallOfTheWild
             c.Value = damage;
             c.IsAoE = isAoE;
             c.HalfIfSaved = halfIfSaved;
+            c.IgnoreCritical = IgnoreCritical;
             return c;
         }
 
 
-        public static ContextActionDealDamage CreateActionDealDamage(PhysicalDamageForm physical, ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false)
+        public static ContextActionDealDamage CreateActionDealDamage(PhysicalDamageForm physical, ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
         {
             // physical damage
             var c = Create<ContextActionDealDamage>();
@@ -2126,11 +2127,12 @@ namespace CallOfTheWild
             c.Value = damage;
             c.IsAoE = isAoE;
             c.HalfIfSaved = halfIfSaved;
+            c.IgnoreCritical = IgnoreCritical;
             return c;
         }
 
         public static ContextActionDealDamage CreateActionEnergyDrain(ContextDiceValue damage, ContextDurationValue duration_value, EnergyDrainType drain_type,
-                                                                               bool isAoE = false, bool halfIfSaved = false)
+                                                                               bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
         {
             var c = Create<ContextActionDealDamage>();
             SetField(c, "m_Type", 2 /*EnergyDrain*/);
@@ -2139,12 +2141,13 @@ namespace CallOfTheWild
             c.Value = damage;
             c.IsAoE = isAoE;
             c.HalfIfSaved = halfIfSaved;
+            c.IgnoreCritical = IgnoreCritical;
 
             return c;
         }
 
 
-        public static ContextActionDealDamage CreateActionDealDamage(StatType abilityType, ContextDiceValue damage, bool drain = false, bool isAoE = false, bool halfIfSaved = false)
+        public static ContextActionDealDamage CreateActionDealDamage(StatType abilityType, ContextDiceValue damage, bool drain = false, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
         {
             var c = Create<ContextActionDealDamage>();
             SetField(c, "m_Type", 1 /*AbilityDamage*/);
@@ -2154,6 +2157,7 @@ namespace CallOfTheWild
             c.IsAoE = isAoE;
             c.HalfIfSaved = halfIfSaved;
             c.Drain = drain;
+            c.IgnoreCritical = IgnoreCritical;
             return c;
         }
 

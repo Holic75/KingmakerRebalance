@@ -267,7 +267,7 @@ namespace CallOfTheWild
         static void createToss()
         {
             var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
-            var toss_damage = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)));
+            var toss_damage = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)), IgnoreCritical: true);
             var toss_action = Helpers.Create<ContextActionCombatManeuver>(c =>
                                                                         { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip;
                                                                           c.OnSuccess = Helpers.CreateActionList(toss_damage);

@@ -997,7 +997,7 @@ namespace CallOfTheWild
                 var evil_feature = library.Get<BlueprintFeature>("5279fc8380dd9ba419b4471018ffadd1");
 
                 var bonus_damage = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.CreateConditionHasFact(outsider_feature), Helpers.CreateConditionHasFact(evil_feature)),
-                                                             Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)))
+                                                             Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1)), IgnoreCritical: true)
                                                             );
                 var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
                 var good_weapon = Common.createAddOutgoingAlignment(DamageAlignment.Good, check_range: true, is_ranged: false);
@@ -1337,7 +1337,7 @@ namespace CallOfTheWild
             {
                 var burning_arc = library.Get<BlueprintAbility>("eaac3d36e0336cb479209a6f65e25e7c");
 
-                var bonus_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+                var bonus_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)), IgnoreCritical: true);
                 var bonus_damage_action = Helpers.CreateActionList(bonus_damage);
 
                 var hellfire_strike_buff = Helpers.CreateBuff(prefix + "HellfireStrikeBuff",

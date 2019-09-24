@@ -2686,6 +2686,45 @@ namespace CallOfTheWild
         }
 
 
+        public static GameAction[] changeAction<T>(GameAction[] action_list, Action<T> change) where T : GameAction
+        {
+            //we assume that only possible actions are actual actions, conditionals, ContextActionSavingThrow or ContextActionConditionalSaved
+            var actions = action_list.ToList();
+            int num_actions = actions.Count();
+            for (int i = 0; i < num_actions; i++)
+            {
+                if (actions[i] == null)
+                {
+                    continue;
+                }
+                else if (actions[i] is T)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    change(actions[i] as T);
+                }
+                else if (actions[i] is Conditional)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as Conditional).IfTrue = Helpers.CreateActionList(changeAction<T>((actions[i] as Conditional).IfTrue.Actions, change));
+                    (actions[i] as Conditional).IfFalse = Helpers.CreateActionList(changeAction<T>((actions[i] as Conditional).IfFalse.Actions, change));
+                }
+                else if (actions[i] is Conditional)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as ContextActionConditionalSaved).Succeed = Helpers.CreateActionList(changeAction<T>((actions[i] as ContextActionConditionalSaved).Succeed.Actions, change));
+                    (actions[i] as ContextActionConditionalSaved).Failed = Helpers.CreateActionList(changeAction<T>((actions[i] as ContextActionConditionalSaved).Failed.Actions, change));
+                }
+                else if (actions[i] is ContextActionSavingThrow)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as ContextActionSavingThrow).Actions = Helpers.CreateActionList(changeAction<T>((actions[i] as ContextActionSavingThrow).Actions.Actions, change));
+                }
+            }
+
+            return actions.ToArray();
+        }
+
+
         static public ContextActionOnContextCaster createContextActionOnContextCaster(params GameAction[] actions)
         {
             var c = Helpers.Create<ContextActionOnContextCaster>();

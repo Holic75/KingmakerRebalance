@@ -488,8 +488,8 @@ namespace CallOfTheWild
             ;
                                                                            );*/
 
-            var positive_damage = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1));
-            var negative_damage = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1));
+            var positive_damage = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1), IgnoreCritical: true);
+            var negative_damage = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1), IgnoreCritical: true);
 
             var smite_positive_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodfire_buff), new GameAction[] { positive_damage, save_failed_action });
             var smite_negative_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodfire_buff), new GameAction[] { negative_damage, save_failed_action });

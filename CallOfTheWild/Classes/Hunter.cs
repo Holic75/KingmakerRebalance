@@ -201,8 +201,8 @@ namespace CallOfTheWild
             planar_focus_chaos.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Chaotic));
 
             var deal_cold_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold,
-                                                                  Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice))
-                                                                  );
+                                                                  Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+                                                                  IgnoreCritical: true);
             planar_focus_cold = createToggleFocus("PlanarFocusCold",
                                                  "Planar Focus: Cold",
                                                  "Creatures that attack you with natural attacks or melee weapons take 1d4 points of cold damage for every 4 class levels you possess.",

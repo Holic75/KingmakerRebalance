@@ -1012,6 +1012,8 @@ namespace CallOfTheWild
 
             Common.addFeaturePrerequisiteOr(channel_smite, c.parent_feature);
 
+            var new_actions = Common.changeAction<ContextActionDealDamage>(c.ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, 
+                                                                        cad => cad.IgnoreCritical = true);
             var resounding_blow = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea");
             var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
             var buff = Helpers.CreateBuff("ChannelSmite" + c.ability.name + "Buff",
@@ -1020,7 +1022,7 @@ namespace CallOfTheWild
                                           Helpers.MergeIds(c.ability.AssetGuid, "0d406cf592524c85b796216ed4ee3ab3"),
                                           resounding_blow.Icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(c.ability.GetComponent<AbilityEffectRunAction>().Actions,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger( Helpers.CreateActionList(new_actions),
                                                                                            check_weapon_range_type: true),
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
                                                                                            check_weapon_range_type: true,
