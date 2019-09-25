@@ -179,10 +179,58 @@ namespace CallOfTheWild
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extend spell
             //change harrim stats
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
-            harrim_companion.Strength = 16;
+            harrim_companion.Strength = 17;
+            harrim_companion.Constitution = 14;
+            harrim_companion.Charisma = 10;
+            harrim_companion.Wisdom = 14;
+
             var harrim_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8910febae2a7b9f4ba5eca4dde1e9649");
+
             var harrim_class_level = harrim_feature.GetComponent<AddClassLevels>();
-            harrim_class_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("9ebe166b9b901c746b1858029f13a2c5"); //madness domain instead of chaos
+            harrim_class_level.CharacterClass = Warpriest.warpriest_class;
+            harrim_class_level.Selections[0].Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"), //sf
+                                                                                 library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482"), //af
+                                                                                 library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa
+                                                                                 NewFeats.furious_focus,
+                                                                                 library.Get<BlueprintFeature>("31470b17e8446ae4ea0dacd6c5817d86"), //ws
+                                                                                 library.Get<BlueprintParametrizedFeature>("7cf5edc65e785a24f9cf93af987d66b3"), //gws
+                                                                                 library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088"), //gwf
+                                                                                 library.Get<BlueprintFeature>("afd05ca5363036c44817c071189b67e1"), //gsf
+                                                                                 Warpriest.extra_channel
+                                                                                 };
+            harrim_class_level.Selections[2].Selection = Warpriest.warpriest_energy_selection;
+            harrim_class_level.Selections[2].Features = new BlueprintFeature[] { Warpriest.warpriest_spontaneous_heal };
+            harrim_class_level.Selections[3].Selection = Warpriest.warpriest_blessings;
+            harrim_class_level.Selections[3].Features = new BlueprintFeature[] { Warpriest.blessings_map["WarpriestBlessingChaos"], Warpriest.blessings_map["WarpriestBlessingDestruction"] };
+            harrim_class_level.Selections[4].Selection = Warpriest.fighter_feat;
+            harrim_class_level.Selections[4].Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"), //sf
+                                                                                 library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482"), //af
+                                                                                 library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa
+                                                                                 NewFeats.furious_focus,
+                                                                                 library.Get<BlueprintFeature>("31470b17e8446ae4ea0dacd6c5817d86"), //ws
+                                                                                 library.Get<BlueprintParametrizedFeature>("7cf5edc65e785a24f9cf93af987d66b3"), //gws
+                                                                                 library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088"), //gwf
+                                                                                 library.Get<BlueprintFeature>("afd05ca5363036c44817c071189b67e1"), //gsf
+                                                                                };
+            harrim_class_level.Selections[5].IsParametrizedFeature = false;
+            harrim_class_level.Selections[5].Selection = Warpriest.weapon_focus_selection;
+            harrim_class_level.Selections[5].Features = new BlueprintFeature[] { library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e") }; //wf
+            harrim_class_level.Selections[6].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"); //wf
+            harrim_class_level.Selections[6].ParamWeaponCategory = WeaponCategory.Flail;
+            harrim_class_level.Selections[7].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("31470b17e8446ae4ea0dacd6c5817d86"); //ws
+            harrim_class_level.Selections[7].ParamWeaponCategory = WeaponCategory.Flail;
+            harrim_class_level.Selections[8].IsParametrizedFeature = false;
+            harrim_class_level.Selections[8].Selection = library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482"); //af
+            harrim_class_level.Selections[8].Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("c27e6d2b0d33d42439f512c6d9a6a601") }; //heavy
+            harrim_class_level.Selections[9].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088"); //gwf
+            harrim_class_level.Selections[9].ParamWeaponCategory = WeaponCategory.Flail;
+
+            harrim_feature.GetComponent<AddFacts>().Facts =  harrim_feature.GetComponent<AddFacts>().Facts.Take(1).ToArray();
+
+
+
+
+            //harrim_class_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("9ebe166b9b901c746b1858029f13a2c5"); //madness domain instead of chaos
 
             //change linzi
             var linzi_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("77c11edb92ce0fd408ad96b40fd27121");
@@ -213,6 +261,11 @@ namespace CallOfTheWild
             var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
             noknok_companion.Constitution = 14;
             noknok_companion.Wisdom = 10;
+
+            //change jaethal
+            var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
+            var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();
+            jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
         }
 
 

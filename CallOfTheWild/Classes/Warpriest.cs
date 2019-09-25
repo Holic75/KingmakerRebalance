@@ -85,6 +85,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection warpriest_energy_selection;
         static public BlueprintAbilityResource warpriest_fervor_resource;
         static public BlueprintAbilityResource warpriest_extra_channel_resource;
+        static public BlueprintFeature extra_channel;
         static public BlueprintFeature warpriest_fervor;
         static public BlueprintFeature fervor_positive;
         static public BlueprintFeature fervor_negative;
@@ -123,6 +124,7 @@ namespace CallOfTheWild
 
         static public BlueprintArchetype cult_leader_archetype;
         static public BlueprintArchetype champion_of_the_faith_archetype;
+        static public Dictionary<string, BlueprintFeature> blessings_map = new Dictionary<string, BlueprintFeature>();
 
 
 
@@ -672,7 +674,7 @@ namespace CallOfTheWild
                                                              Common.createAddFeatureIfHasFact(warpriest_spontaneous_heal, channel_positive_energy),
                                                              Common.createAddFeatureIfHasFact(warpriest_spontaneous_harm, channel_negative_energy)
                                                              );
-            ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, warpriest_channel_energy, "ExtraChannelWarpriest", "Extra Channel (Warpriest)", "");
+            extra_channel = ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, warpriest_channel_energy, "ExtraChannelWarpriest", "Extra Channel (Warpriest)", "");
         }
 
 
@@ -1284,6 +1286,8 @@ namespace CallOfTheWild
             progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(minor_blessing, major_blessing) };
 
             warpriest_blessings.AllFeatures = warpriest_blessings.AllFeatures.AddToArray(progression);
+
+            blessings_map.Add(name_prefix, progression);
         }
 
 

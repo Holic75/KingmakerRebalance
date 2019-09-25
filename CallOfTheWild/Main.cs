@@ -111,16 +111,6 @@ namespace CallOfTheWild
                         CallOfTheWild.Rebalance.fixSkillPoints();
                     }
 
-                    if (settings.update_companions)
-                    {
-                        Main.logger.Log("Updating companion stats.");
-                        CallOfTheWild.Rebalance.fixCompanions();
-                    }
-                    if (settings.use_armor_in_wildshape)
-                    {
-                        Main.logger.Log("Allow using armor in wildshape.");
-                        CallOfTheWild.Rebalance.fixCompanions();
-                    }
 
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
@@ -181,6 +171,13 @@ namespace CallOfTheWild
 
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
+
+
+                    if (settings.update_companions)
+                    {
+                        Main.logger.Log("Updating companion stats.");
+                        CallOfTheWild.Rebalance.fixCompanions();
+                    }
 
 
 #if DEBUG
