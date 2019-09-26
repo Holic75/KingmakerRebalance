@@ -142,16 +142,21 @@ namespace CallOfTheWild
             //change stats of certain companions
             //Valerie 
             var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
-            valerie_companion.Strength = 14;//+2
-            valerie_companion.Dexterity = 15;
-            valerie_companion.Constitution = 14;
-            valerie_companion.Intelligence = 13;
-            valerie_companion.Wisdom = 8;
-            valerie_companion.Charisma = 15;
+            valerie_companion.Strength = 15;//+2
+            valerie_companion.Dexterity = 14;
+            valerie_companion.Constitution = 16;
+            valerie_companion.Intelligence = 8;
+            valerie_companion.Wisdom = 10;
+            valerie_companion.Charisma = 14;
             var valerie1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("912444657701e2d4ab2634c3d1e130ad");
             var valerie_class_level = valerie1_feature.GetComponent<AddClassLevels>();
+            valerie_class_level.CharacterClass = Bloodrager.bloodrager_class;
+            valerie_class_level.Archetypes[0] = Bloodrager.steelblood_archetype;
             valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
-            valerie_class_level.Selections[1].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"); //shield focus instead of bastard sword
+            valerie_class_level.Selections[0].Features[0] = library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835");
+            valerie_class_level.Selections[1].Selection = Bloodrager.bloodline_selection;
+            valerie_class_level.Selections[1].Features = new BlueprintFeature[] { Bloodrager.bloodlines["Destined"].progression };
+            valerie_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillUseMagicDevice, StatType.SkillAthletics };
             valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
             valerie_companion.Body.Armor = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Armors.BlueprintItemArmor>("9809987cc12d94545a64ff20e6fdb216");//breastplate
             //change amiri stats
@@ -164,7 +169,11 @@ namespace CallOfTheWild
             amiri_companion.Charisma = 8;
             var amiri1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("df943986ee329e84a94360f2398ae6e6");
             var amiri_class_level = amiri1_feature.GetComponent<AddClassLevels>();
+            amiri_class_level.Archetypes = new BlueprintArchetype[] { library.Get<BlueprintArchetype>("a2ccb759dc6f1f94d9aae8061509bf87") };
             amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
+            amiri_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+            //amiri_class_level.Selections[0].Features[1] = NewFeats.furious_focus;
+            amiri_class_level.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillAthletics, StatType.SkillMobility };
             //change tristian stats
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
             tristian_companion.Strength = 8;
@@ -179,12 +188,16 @@ namespace CallOfTheWild
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extend spell
             //change harrim stats
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
-            harrim_companion.Strength = 17;
+            harrim_companion.Strength = 18;
             harrim_companion.Constitution = 14;
-            harrim_companion.Charisma = 10;
+            harrim_companion.Charisma = 9;
             harrim_companion.Wisdom = 14;
+            harrim_companion.Dexterity = 10;
+           
+
 
             var harrim_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8910febae2a7b9f4ba5eca4dde1e9649");
+            harrim_feature.GetComponent<AddFacts>().Facts = harrim_feature.GetComponent<AddFacts>().Facts.Skip(1).ToArray();
 
             var harrim_class_level = harrim_feature.GetComponent<AddClassLevels>();
             harrim_class_level.CharacterClass = Warpriest.warpriest_class;

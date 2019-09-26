@@ -42,40 +42,40 @@ namespace CallOfTheWild
     {
         static internal LibraryScriptableObject library => Main.library;
         static internal bool test_mode = false;
-        static internal BlueprintCharacterClass bloodrager_class;
-        static internal BlueprintProgression bloodrager_progression;
-        static internal BlueprintFeatureSelection bloodline_selection;
+        static public BlueprintCharacterClass bloodrager_class;
+        static public BlueprintProgression bloodrager_progression;
+        static public BlueprintFeatureSelection bloodline_selection;
 
-        static internal BlueprintFeature bloodrage;
-        static internal BlueprintFeature greater_bloodrage;
-        static internal BlueprintFeature mighty_bloodrage;
-        static internal BlueprintFeature tireless_bloodrage;
-        static internal BlueprintBuff bloodrage_buff;
-        static internal BlueprintAbilityResource bloodrage_resource;
-        static internal BlueprintFeature damage_reduction;
-        static internal BlueprintFeature uncanny_dodge;
-        static internal BlueprintFeature improved_uncanny_dodge;
-        static internal BlueprintFeature fast_movement;
-        static internal BlueprintFeature indomitable_will;
-        static internal BlueprintFeature bloodrager_proficiencies;
-        static internal BlueprintFeature blood_sanctuary;
+        static public BlueprintFeature bloodrage;
+        static public BlueprintFeature greater_bloodrage;
+        static public BlueprintFeature mighty_bloodrage;
+        static public BlueprintFeature tireless_bloodrage;
+        static public BlueprintBuff bloodrage_buff;
+        static public BlueprintAbilityResource bloodrage_resource;
+        static public BlueprintFeature damage_reduction;
+        static public BlueprintFeature uncanny_dodge;
+        static public BlueprintFeature improved_uncanny_dodge;
+        static public BlueprintFeature fast_movement;
+        static public BlueprintFeature indomitable_will;
+        static public BlueprintFeature bloodrager_proficiencies;
+        static public BlueprintFeature blood_sanctuary;
 
 
-        static internal BlueprintArchetype metamagic_rager_archetype;
-        static internal BlueprintArchetype steelblood_archetype;
-        static internal BlueprintArchetype spelleater_archetype;
+        static public BlueprintArchetype metamagic_rager_archetype;
+        static public BlueprintArchetype steelblood_archetype;
+        static public BlueprintArchetype spelleater_archetype;
 
-        static internal BlueprintFeature metarage;
-        static internal BlueprintFeature blood_of_life;
-        static internal BlueprintFeature spell_eating;
-        static internal BlueprintFeature steelblood_proficiencies;
-        static internal BlueprintFeature blood_deflection;
-        static internal BlueprintFeature blood_deflection_bonus;
-        static internal BlueprintFeatureSelection bloodline_feat_selection;
+        static public BlueprintFeature metarage;
+        static public BlueprintFeature blood_of_life;
+        static public BlueprintFeature spell_eating;
+        static public BlueprintFeature steelblood_proficiencies;
+        static public BlueprintFeature blood_deflection;
+        static public BlueprintFeature blood_deflection_bonus;
+        static public BlueprintFeatureSelection bloodline_feat_selection;
 
-        static internal ActivatableAbilityGroup metarage_group = ActivatableAbilityGroupExtension.MetaRage.ToActivatableAbilityGroup();
+        static public ActivatableAbilityGroup metarage_group = ActivatableAbilityGroupExtension.MetaRage.ToActivatableAbilityGroup();
 
-        class BloodlineInfo
+        public class BloodlineInfo
         {
             public BlueprintProgression progression;
             public BlueprintFeatureSelection bonus_feats;
@@ -87,7 +87,7 @@ namespace CallOfTheWild
             }
         }
 
-        static List<BloodlineInfo> bloodlines = new List<BloodlineInfo>();
+        static public Dictionary<String, BloodlineInfo> bloodlines = new Dictionary<String, BloodlineInfo>();
 
         internal static void createBloodragerClass()
         {
@@ -176,7 +176,7 @@ namespace CallOfTheWild
             non_dragon_bloodline.HideInCharacterSheetAndLevelUp = true;
 
             var allowed_features = dragon_disciple.GetComponent<PrerequisiteFeaturesFromList>();
-            foreach (var b in bloodlines)
+            foreach (var b in bloodlines.Values)
             {
                 if (!allowed_features.Features.Contains(b.progression))
                 {
@@ -2723,7 +2723,7 @@ namespace CallOfTheWild
 
             progression.AddComponent(Helpers.PrerequisiteClassLevel(bloodrager_class, 1)); //require level 1 bloodrager to not allow dd to pick bloodrager lines
             var bloodline_info = new BloodlineInfo(progression, feat_selection);
-            bloodlines.Add(bloodline_info);
+            bloodlines.Add(name + name_ext, bloodline_info);
 
             feat_selection.AddComponent(Helpers.PrerequisiteFeature(progression));
 
@@ -2810,7 +2810,7 @@ namespace CallOfTheWild
                 metarager_metamagics[i].HideInCharacterSheetAndLevelUp = true;
             }
             //add metamagic to feat selection
-            foreach (var b in bloodlines)
+            foreach (var b in bloodlines.Values)
             {
                 
                 b.bonus_feats.AllFeatures = b.bonus_feats.AllFeatures.AddToArray(metarager_metamagics);

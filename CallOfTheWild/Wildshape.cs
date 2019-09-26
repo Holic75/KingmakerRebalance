@@ -354,7 +354,7 @@ namespace CallOfTheWild
             var wildshape_treant = replaceForm(wildshape_wolf, wildshape_treant_buff, "DruidWildshapeVTreantAbility", wildshape_treant_buff.Name, treant_form_spell.Description);
 
             var leopard_feature = library.Get<BlueprintFeature>("c4d651bc0d4eabd41b08ee81bfe701d8");
-            leopard_feature.AddComponent(Helpers.CreateAddAbilityResource(library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4")));
+            //leopard_feature.AddComponent(Helpers.CreateAddAbilityResource(library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4")));
 
             var bear_feature = library.Get<BlueprintFeature>("1368c7ce69702444893af5ffd3226e19");
             bear_feature.GetComponent<AddFacts>().Facts[0] = wildshape_bear;
@@ -475,6 +475,16 @@ namespace CallOfTheWild
             //fix natural spell requirement
             var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
             natural_spell.GetComponent<PrerequisiteFeature>().Feature = first_wildshape_form;
+
+            //add wolf form if it is missing
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor u)
+            {
+                if (u.HasFact(leopard_feature) && !u.HasFact(wolf_feature))
+                {
+                    u.AddFact(wolf_feature);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 
