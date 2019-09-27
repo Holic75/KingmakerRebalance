@@ -149,7 +149,9 @@ namespace CallOfTheWild
                     CallOfTheWild.Warpriest.test_mode = true;
                     CallOfTheWild.HolyVindicator.test_mode = true;
                     CallOfTheWild.NewFeats.test_mode = true;
+                    CallOfTheWild.VindicativeBastard.test_mode = true;
 #endif
+                    CallOfTheWild.VindicativeBastard.createClass();
                     CallOfTheWild.Hunter.createHunterClass();
                     if (settings.sacred_huntsmaster_animal_focus)
                     {

@@ -2853,6 +2853,72 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class AddIncomingDamageTriggerOnAttacker : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, ITargetRulebookHandler<RuleDealStatDamage>, ITargetRulebookHandler<RuleDrainEnergy>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber, IRulebookHandler<RuleDealStatDamage>, IRulebookHandler<RuleDrainEnergy>
+        {
+            public ActionList Actions;
+            public bool TriggerOnStatDamageOrEnergyDrain;
+            public bool reduce_below0;
+
+            private void RunAction(TargetWrapper target)
+            {
+                if (!this.Actions.HasActions)
+                    return;
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, target);
+            }
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                if (evt.Damage <= 0)
+                {
+                    return;
+                }
+
+                if ((evt.Target.Damage + evt.Target.HPLeft <0 || evt.Target.HPLeft > 0) && reduce_below0)
+                {
+                    return;
+                }
+
+                this.RunAction(evt.Initiator);
+
+            }
+
+            public void OnEventAboutToTrigger(RuleDealStatDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealStatDamage evt)
+            {
+                if (!this.TriggerOnStatDamageOrEnergyDrain)
+                    return;
+
+                if (reduce_below0 && !evt.Target.Descriptor.State.MarkedForDeath)
+                {
+                    return;
+                }
+                this.RunAction(evt.Initiator);
+            }
+
+            public void OnEventAboutToTrigger(RuleDrainEnergy evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDrainEnergy evt)
+            {
+                if (!this.TriggerOnStatDamageOrEnergyDrain)
+                    return;
+                if (reduce_below0 && !evt.Target.Descriptor.State.MarkedForDeath)
+                {
+                    return;
+                }
+                this.RunAction(evt.Initiator);
+            }
+        }
+
     }
 
 }

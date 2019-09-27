@@ -1686,6 +1686,9 @@ namespace CallOfTheWild
             Hunter.hunter_teamwork_feat.AllFeatures = teamwork_feat.AllFeatures;
             teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feats);
 
+            VindicativeBastard.teamwork_feat.AllFeatures = VindicativeBastard.teamwork_feat.AllFeatures.AddToArray(feats);
+
+
 
             //update vanguard features
             var vanguard_variants = library.Get<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8").GetComponent<AbilityVariants>();
