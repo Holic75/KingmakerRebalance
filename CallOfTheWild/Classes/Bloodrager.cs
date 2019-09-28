@@ -377,9 +377,11 @@ namespace CallOfTheWild
                 new Common.SpellId( "9a46dfd390f943647ab4395fc997936d", 2), //acid arrow
                 new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
+                new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
                 new Common.SpellId( "de7a025d48ad5da4991e7d3c682cf69d", 2), //cats grace
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagles splendor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
+                new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "c83447189aabc72489164dfc246f3a36", 2), //frigid touch
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
@@ -390,6 +392,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2), 
 
                 new Common.SpellId( "61a7ed778dd93f344a5dacdbad324cc9", 3), //beast shape 1
+                new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "2d81362af43aeac4387a3d4fced489c3", 3), //fireball
                 new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism

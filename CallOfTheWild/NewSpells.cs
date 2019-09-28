@@ -3,7 +3,9 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.Designers.Mechanics.Recommendations;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -58,6 +60,11 @@ namespace CallOfTheWild
         static public BlueprintAbility sheet_lightning;
         static public BlueprintAbility poison_breath;
 
+        static public BlueprintAbility countless_eyes;
+        static public BlueprintAbility righteous_vigor;
+        static public BlueprintAbility force_sword;
+        static public BlueprintAbility blood_armor;
+
 
         static public BlueprintWeaponEnchantment empower_enchant;
         static public BlueprintWeaponEnchantment maximize_enchant;
@@ -80,8 +87,245 @@ namespace CallOfTheWild
             createSheetLightning();
             createVineStrike();
             createPoisonBreath();
+
+            createCountlessEyes();
+            createRighteousVigor();
+            createForceSword();
+            createBloodArmor();
         }
 
+
+        static void createCountlessEyes()
+        {
+            var improved_uncanny_dodge = library.Get<BlueprintFeature>("485a18c05792521459c7d06c63128c79");
+            countless_eyes = library.CopyAndAdd<BlueprintAbility>("c927a8b0cd3f5174f8c0b67cdbfde539", "CountlessEyesAbility", "");
+
+            countless_eyes.SetName("Countless Eyes");
+            countless_eyes.SetDescription("The target sprouts extra eyes all over its body, including on the back of its head. It gains all-around vision and cannot be flanked.");
+
+            var buff = Helpers.CreateBuff("NoFlankingBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          improved_uncanny_dodge.ComponentsArray[0]
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Hours), true);
+            countless_eyes.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff));
+            countless_eyes.RemoveComponents<SpellListComponent>();
+            countless_eyes.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Transmutation);
+            countless_eyes.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+
+            countless_eyes.AddToSpellList(Helpers.alchemistSpellList, 3);
+            countless_eyes.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            countless_eyes.AddToSpellList(Helpers.wizardSpellList, 3);
+
+            countless_eyes.AddSpellAndScroll("de172db6e10f6d54896cb6a48b9fe8f7");
+        }
+
+        
+        static void createRighteousVigor()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/RighteousVigor.png");
+            var freedom_of_movement = library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e");
+
+            var buff = Helpers.CreateBuff("RighteousVigorBuff",
+                                          "Righteous Vigor",
+                                          "Infusing the target with a surge of furious divine energy, you enhance a creature’s ability to hit an opponent based on the number of times it has already hit that opponent with a successful attack. Each time the subject successfully strikes an opponent with a successful melee attack, the subject gains a cumulative +1 morale bonus on attack rolls (maximum +4 bonus) and gains 1d8 temporary hit points (to a maximum of 20 temporary hit points). If an attack misses, the attack bonus resets to +0 but any accumulated temporary hit points remain. The temporary hit points disappear at the end of the spell’s duration.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 0, ModifierDescriptor.Morale),
+                                          Helpers.Create<NewMechanics.PersistentTemporaryHitPoints>(t => { t.Value = 0; t.Descriptor = ModifierDescriptor.Morale; }),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                          );
+            var on_hit_actions = Helpers.CreateActionList(Common.createAddStackingStatBonusToModifierFromFact(1, StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, buff, 4),
+                                                          Common.createAddStackingStatBonusToModifierFromFact(Helpers.CreateContextDiceValue(DiceType.D8, 1), StatType.TemporaryHitPoints,
+                                                                                                               ModifierDescriptor.Morale, buff, 20)
+                                                         );
+                                                                                                                                                       
+            var on_hit = Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_actions, on_initiator: true);
+
+            var on_miss_actions = Helpers.CreateActionList(Common.createAddStackingStatBonusToModifierFromFact(0, StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, buff, 0, set: true));
+            var on_miss = Helpers.Create<NewMechanics.AddInitiatorAttackRollMissTrigger>(a => { a.Action = on_miss_actions; a.OnOwner = true; });
+
+            buff.AddComponents(on_hit, on_miss);
+
+            righteous_vigor = Helpers.CreateAbility("RighteousVigorAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Touch,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    "",
+                                                    freedom_of_movement.GetComponent<AbilitySpawnFx>(),
+                                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                                    );
+            righteous_vigor.setMiscAbilityParametersTouchFriendly();
+            righteous_vigor.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | Metamagic.Maximize;
+
+            righteous_vigor.AddToSpellList(Helpers.paladinSpellList, 2);
+            righteous_vigor.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            righteous_vigor.AddSpellAndScroll("f49fc4e47cef56e42a49d561289dd500");
+        }
+
+
+        static void createForceSword()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ForceSword.png");
+            var air_enchatment = library.Get<BlueprintWeaponEnchantment>("1d64abd0002b98043b199c0e3109d3ee");
+            var force_damage = Common.createForceDamageDescription();
+
+            var force_enchant = Common.createWeaponEnchantment("ForceWeaponEnchantment", "Force", "This weapon deals force damage.", "", "", "", 0, air_enchatment.WeaponFxPrefab);
+            force_enchant.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
+                                                                                                            {
+                                                                                                                w.dice_formula = new DiceFormula(1, DiceType.D8);
+                                                                                                                w.damage_type_description = force_damage;
+                                                                                                            }
+                                                                                                            )
+                                      );
+
+            BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("d42fc23b92c640846ac137dc26e000d4"),
+                library.Get<BlueprintWeaponEnchantment>("eb2faccc4c9487d43b3575d7e77ff3f5"),
+                library.Get<BlueprintWeaponEnchantment>("80bb8a737579e35498177e1e3c75899b")
+            };
+        
+            
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("6fd0a849531617844b195f452661b2cd", "ForceSwordWeapon", "");//longsword
+
+            Helpers.SetField(weapon, "m_DamageType", force_damage);
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("ForceBladeName", "Force Sword"));
+            Helpers.SetField(weapon, "m_Icon", icon);
+
+
+            var buff = Helpers.CreateBuff("ForceSwordBuff",
+                                            "Force Sword",
+                                            "You create a +1 longsword of pure force sized appropriately for you that you can wield or give to another creature like any other longsword. At 8th level, the sword functions as a +2 longsword."
+                                            + "At 13th level, it functions as a + 3 longsword.A force sword cannot be attacked or harmed by physical attacks, but dispel magic, disintegrate, a sphere of annihilation, or a rod of cancellation affects it.",
+                                            "",
+                                            icon,
+                                            null,
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => c.weapon = weapon),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
+                                                                                            new BlueprintWeaponType[] {}, enchants),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(1, false, false, new BlueprintWeaponType[] { }, force_enchant),
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                            type: AbilityRankType.DamageBonus, stepLevel: 5, startLevel: 3, max: 3)
+                                            );
+            buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            force_sword = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, "ForceSwordAbility", "");
+            force_sword.setMiscAbilityParametersTouchFriendly();
+            force_sword.Range = AbilityRange.Touch;
+            force_sword.NeedEquipWeapons = false;
+            force_sword.SetIcon(icon);
+            force_sword.SetName(buff.Name);
+            force_sword.SetDescription(buff.Description);
+
+            force_sword.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
+            force_sword.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
+
+            var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                    Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes)
+                                                );
+            force_sword.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
+            force_sword.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            force_sword.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
+
+            force_sword.AddToSpellList(Helpers.magusSpellList, 2);
+            force_sword.AddToSpellList(Helpers.wizardSpellList, 2);
+            force_sword.AddSpellAndScroll("7a02193480a473f44b8c307627985f97"); //blade barrier
+        }
+
+
+        static void createBloodArmor()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/BloodArmor.png");
+            var blood_fx = library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b").FxOnStart;
+
+            BlueprintBuff[] blood_armor_buffs = new BlueprintBuff[5];
+
+            for (int i = 0; i < blood_armor_buffs.Length; i++)
+            {
+                blood_armor_buffs[i] = Helpers.CreateBuff($"BloodArmor{i + 1}Buff",
+                                                          "",
+                                                          "",
+                                                          "",
+                                                          icon,
+                                                          blood_fx,
+                                                          Common.createBuffContextEnchantArmor(1, false, true, new BlueprintArmorEnchantment[] { ArmorEnchantments.temporary_armor_enchantments[i] })
+                                                          );
+                blood_armor_buffs[i].SetBuffFlags(BuffFlags.HiddenInUi);
+            }
+
+
+            var conditional = Helpers.CreateConditional(Helpers.CreateConditionHasBuff(blood_armor_buffs[0]),
+                                            new GameAction[] {Common.createContextActionRemoveBuff(blood_armor_buffs[0]),
+                                                              Common.createContextActionApplyBuff(blood_armor_buffs[1], Helpers.CreateContextDuration(), is_from_spell: true, is_child: true, is_permanent: true)      
+                                                             },
+                                            new GameAction[] { Common.createContextActionApplyBuff(blood_armor_buffs[0], Helpers.CreateContextDuration(), is_from_spell: true, is_child: true, is_permanent: true) }
+                                           );
+            for (int i = 1; i < blood_armor_buffs.Length; i++)
+            {
+                GameAction[] if_true = null;
+                if (i < blood_armor_buffs.Length - 1)
+                {
+                    if_true = new GameAction[] {Common.createContextActionRemoveBuff(blood_armor_buffs[i]),
+                                                Common.createContextActionApplyBuff(blood_armor_buffs[i+1],
+                                                                                    Helpers.CreateContextDuration(),
+                                                                                    is_from_spell: true,
+                                                                                    is_child: true,
+                                                                                    is_permanent:true)
+                                               };
+                }
+                conditional = Helpers.CreateConditional(Helpers.CreateConditionHasBuff(blood_armor_buffs[i]),
+                                                        if_true,
+                                                        new GameAction[] { conditional });
+
+            }
+
+
+            var on_dmg = Helpers.Create<NewMechanics.AddIncomingDamageTriggerOnAttacker>(a => { a.on_self = true; a.min_dmg = 5; a.Actions = Helpers.CreateActionList(conditional); });
+
+            var buff = Helpers.CreateBuff("BloodArmorBuff",
+                                          "Blood Armor",
+                                          "Your blood becomes as hard as iron upon contact with air. Each time you take at least 5 points of damage, your armor gains a +1 enhancement bonus to your AC. An outfit of regular clothing counts as armor that grants no AC bonus for the purpose of this spell. This enhancement bonus stacks with itself, but not with an existing enhancement bonus, to a maximum enhancement bonus of +5. This spell has no effect while underwater or in environments that lack air.",
+                                          "",
+                                          icon,
+                                          null,
+                                          on_dmg);
+            buff.Stacking = StackingType.Replace;
+
+            var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                     Helpers.CreateContextDuration(bonus: Helpers.CreateContextValue(AbilityRankType.Default), rate: DurationRate.Minutes),
+                                                     is_from_spell: true);
+
+            blood_armor = library.CopyAndAdd<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568", "BloodArmorAbility", "");//mage armor
+            blood_armor.setMiscAbilityParametersSelfOnly();
+            blood_armor.Range = AbilityRange.Personal;
+            blood_armor.SetIcon(buff.Icon);
+            blood_armor.SetName(buff.Name);
+            blood_armor.SetDescription(buff.Description);
+            blood_armor.setMiscAbilityParametersSelfOnly();
+            blood_armor.LocalizedDuration = Helpers.CreateString("BloodArmor.Duration", Helpers.minutesPerLevelDuration);
+            blood_armor.RemoveComponents<RecommendationNoFeatFromGroup>();
+            blood_armor.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Transmutation);
+            blood_armor.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff));
+
+            blood_armor.AddToSpellList(Helpers.alchemistSpellList, 2);
+            blood_armor.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            blood_armor.AddSpellAndScroll("e8308a74821762e49bc3211358e81016");
+        }
 
         static void createPoisonBreath()
         {

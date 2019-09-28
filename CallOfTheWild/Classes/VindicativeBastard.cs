@@ -202,6 +202,9 @@ namespace CallOfTheWild
             vindicative_smite_buff.SetName("Vindicative Smite");
             vindicative_smite_buff.RemoveComponents<IgnoreTargetDR>();
 
+            Common.addConditionToResoundingBlow(Common.createContextConditionHasBuffFromCaster(vindicative_smite_buff));
+
+
             var vindicative_smite_allowed = Helpers.CreateBuff("VindicativeSmiteAllowedBuff",
                                                                "Vindicative Smite Allowed",
                                                                "",

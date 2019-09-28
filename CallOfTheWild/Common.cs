@@ -814,6 +814,20 @@ namespace CallOfTheWild
         }
 
 
+        public static void addConditionToResoundingBlow(ContextCondition new_condtion)
+        {
+            //add it to resounding blow
+            var resounding_blow_buff = library.Get<BlueprintBuff>("06173a778d7067a439acffe9004916e9");
+            foreach (var attack_trigger in resounding_blow_buff.GetComponents<AddInitiatorAttackWithWeaponTrigger>())
+            {
+                var cnd = (attack_trigger.Action.Actions[0] as Conditional);
+                cnd.ConditionsChecker.Conditions = cnd.ConditionsChecker.Conditions.AddToArray(new_condtion);
+
+            }
+            
+        }
+
+
         public static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintCharacterClass character_class, BlueprintArchetype archetype, bool any = false)
         {
             var p = Helpers.Create<PrerequisiteNoArchetype>();
@@ -2094,6 +2108,13 @@ namespace CallOfTheWild
             return d;
         }
 
+        static public DamageTypeDescription createForceDamageDescription()
+        {
+            var d = new DamageTypeDescription();
+            d.Type = DamageType.Force;
+            return d;
+        }
+
 
         static public NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantPrimaryHandWeapon(ContextValue value,
                                                                                                                    bool only_non_magical, bool lock_slot,
@@ -2805,6 +2826,36 @@ namespace CallOfTheWild
             a.Projectiles = new BlueprintProjectile[] { projectile };
             a.Length = length;
             a.LineWidth = width;
+
+            return a;
+        }
+
+
+        static public NewMechanics.AddStackingStatBonusToModifierFromFact createAddStackingStatBonusToModifierFromFact(ContextDiceValue dice_value, StatType stat, ModifierDescriptor descriptor,
+                                                                                                                       BlueprintUnitFact fact, int max_value = 0, bool set = false)
+        {
+            var a = Helpers.Create<NewMechanics.AddStackingStatBonusToModifierFromFact>();
+            a.stat = stat;
+            a.dice_value = dice_value;
+            a.Descriptor = descriptor;
+            a.storing_fact = fact;
+            a.max_value = max_value;
+            a.set = set;
+
+            return a;
+        }
+
+
+        static public NewMechanics.AddStackingStatBonusToModifierFromFact createAddStackingStatBonusToModifierFromFact(ContextValue value, StatType stat, ModifierDescriptor descriptor,
+                                                                                                               BlueprintUnitFact fact, int max_value = 0, bool set = false)
+        {
+            var a = Helpers.Create<NewMechanics.AddStackingStatBonusToModifierFromFact>();
+            a.stat = stat;
+            a.dice_value = Helpers.CreateContextDiceValue(DiceType.Zero, 0, value);
+            a.Descriptor = descriptor;
+            a.storing_fact = fact;
+            a.max_value = max_value;
+            a.set = set;
 
             return a;
         }

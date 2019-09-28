@@ -8,7 +8,8 @@ It introduces new classes:
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
-- Hinterlander and Holy Vindicator prestige classes.
+- Hinterlander and Holy Vindicator prestige classes,
+- Vindicative Bastard Paladin Archetype (implemented as a separate class).
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
 with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.
@@ -69,16 +70,20 @@ New features:
 
 
 New spells:
-- Hex Vulnerability,
-- Sanctuary,
 - Command,
+- Hex Vulnerability,
 - Produce Flame,
+- Sanctuary,
 - Shillelagh,
-- Invisibility Purge,
+- Blood Armor,
 - Flame Blade,
 - Flurry of Snowballs,
-- Vine Strike,
+- Force Sword,
 - Ice Slick,
+- Invisibility Purge,
+- Righteous Vigor,
+- Vine Strike,
+- Countless Eyes,
 - Deadly Juggernaut,
 - Sheet Lightning,
 - Fire Shield,

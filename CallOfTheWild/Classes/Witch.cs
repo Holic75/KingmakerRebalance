@@ -857,12 +857,14 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.command.AssetGuid, 1), //command
 
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
+                new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
                 new Common.SpellId( "b7731c2b4fa1c9844a092329177be4c3", 2), //boneshaker
                 new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds
                 new Common.SpellId( "b48b4c5ffb4eab0469feba27fc86a023", 2), //delay poison
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( "2dbe271c979d9104c8e2e6b42e208e32", 2), //fester
                 new Common.SpellId( NewSpells.flurry_of_snowballs.AssetGuid, 2),
+                new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
@@ -876,6 +878,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "134cb6d492269aa4f8662700ef57449f", 2), //web
 
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
+                new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
                 new Common.SpellId( "04e820e1ce3a66f47a50ad5074d3ae40", 3), //delay posion communal
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic

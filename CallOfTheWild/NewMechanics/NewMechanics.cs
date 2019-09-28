@@ -2822,7 +2822,7 @@ namespace CallOfTheWild
 
             public string GetReason()
             {
-                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+                return "Need free primary hand.";
             }
         }
 
@@ -2859,6 +2859,8 @@ namespace CallOfTheWild
             public ActionList Actions;
             public bool TriggerOnStatDamageOrEnergyDrain;
             public bool reduce_below0;
+            public int min_dmg = 1;
+            public bool on_self = false;
 
             private void RunAction(TargetWrapper target)
             {
@@ -2873,7 +2875,7 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
-                if (evt.Damage <= 0)
+                if (evt.Damage <= min_dmg)
                 {
                     return;
                 }
@@ -2883,7 +2885,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                this.RunAction(evt.Initiator);
+                this.RunAction(on_self ? evt.Target : evt.Initiator);
 
             }
 
@@ -2900,7 +2902,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                this.RunAction(evt.Initiator);
+                this.RunAction(on_self ? evt.Target : evt.Initiator);
             }
 
             public void OnEventAboutToTrigger(RuleDrainEnergy evt)
@@ -2915,7 +2917,142 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                this.RunAction(evt.Initiator);
+                this.RunAction(on_self ? evt.Target : evt.Initiator);
+            }
+        }
+
+
+
+        [ComponentName("BuffStackingBonus")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddStackingStatBonusToModifierFromFact : ContextAction
+        {
+            public ModifierDescriptor Descriptor;
+            public ContextDiceValue dice_value;
+            public StatType stat;
+            public int max_value = 0;
+            public BlueprintUnitFact storing_fact;
+            public bool set = false;
+
+            public override string GetCaption()
+            {
+                return "";
+            }
+
+            public override void RunAction()
+            {
+                ModifiableValue target_stat = null;
+                if (stat == StatType.TemporaryHitPoints)
+                {
+                    target_stat = this.Target?.Unit?.Descriptor.Stats.TemporaryHitPoints;
+                }
+                else
+                {
+                    target_stat = this.Target?.Unit?.Descriptor.Stats.GetStat(stat);
+                }
+                if (target_stat == null)
+                {
+                    return;
+                }
+
+                var modifier = target_stat.Modifiers.Where(m => m.Source?.Blueprint == this.storing_fact && m.ModDescriptor == Descriptor).FirstOrDefault();
+                if (modifier == null)
+                {
+                    return;
+                }
+                else
+                {
+                    modifier.ModValue  = set ? dice_value.Calculate(this.Context) : modifier.ModValue + dice_value.Calculate(this.Context);
+                    if (modifier.ModValue > max_value && max_value != 0)
+                    {
+                        modifier.ModValue = max_value;
+                    }
+                    this.Target?.Unit?.Descriptor.Stats.GetStat(stat).UpdateValue();
+                }
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        public class AddInitiatorAttackRollMissTrigger : GameLogicComponent, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+        {
+            [HideIf("CriticalHit")]
+            public bool OnOwner;
+            public bool CheckWeapon;
+            [ShowIf("CheckWeapon")]
+            public WeaponCategory WeaponCategory;
+            public bool AffectFriendlyTouchSpells;
+            public ActionList Action;
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+                if (!this.CheckConditions(evt))
+                    return;
+                using (new ContextAttackData(evt, (Projectile)null))
+                {
+                    if (this.OnOwner)
+                    {
+                        UnitDescriptor unitDescriptor = (this.Fact as OwnedFact<UnitDescriptor>)?.Owner ?? (this.Fact as ItemEnchantment)?.Owner.Wielder;
+                        if (unitDescriptor != null)
+                            (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)unitDescriptor.Unit);
+                        else
+                            UberDebug.LogError((object)string.Format("Fact has no owner: {0}", (object)this.Fact), (object[])Array.Empty<object>());
+                    }
+                    else
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)evt.Target);
+                }
+            }
+
+            private bool CheckConditions(RuleAttackRoll evt)
+            {
+                ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+                ItemEntityWeapon weapon = (evt.Reason.Rule as RuleAttackWithWeapon)?.Weapon;
+                return (owner == null || owner == weapon) && (!this.CheckWeapon || weapon != null && this.WeaponCategory == weapon.Blueprint.Category) && (!evt.IsHit) && ((this.AffectFriendlyTouchSpells || evt.Initiator.IsEnemy(evt.Target) || evt.Weapon.Blueprint.Type.AttackType != AttackType.Touch));
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class PersistentTemporaryHitPoints : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        {
+            public ModifierDescriptor Descriptor;
+            public ContextValue Value;
+            [JsonProperty]
+            private ModifiableValue.Modifier m_Modifier;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+            public override void OnFactActivate()
+            {
+                this.m_Modifier = this.Owner.Stats.TemporaryHitPoints.AddModifier(this.Value.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor);
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (this.m_Modifier != null)
+                    this.m_Modifier.Remove();
+                this.m_Modifier = (ModifiableValue.Modifier)null;
+            }
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                if (this.m_Modifier.AppliedTo != null)
+                    this.m_Modifier.Remove();
+                this.m_Modifier = this.Owner.Stats.TemporaryHitPoints.AddModifier(0, (GameLogicComponent)this, this.Descriptor);
             }
         }
 
