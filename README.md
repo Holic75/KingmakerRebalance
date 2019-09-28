@@ -85,6 +85,8 @@ New spells:
 - Vine Strike,
 - Countless Eyes,
 - Deadly Juggernaut,
+- Flame Arrow,
+- Keen Edge,
 - Sheet Lightning,
 - Fire Shield,
 - Virtuoso Performance,

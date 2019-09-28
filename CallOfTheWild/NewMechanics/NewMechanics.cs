@@ -315,6 +315,29 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilitTargetMainWeaponNonNatural : BlueprintComponent, IAbilityTargetChecker
+        {
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                if (unit.Body.PrimaryHand.HasWeapon)
+                    return !(unit.Body.PrimaryHand.Weapon.Blueprint.Type.IsNatural || unit.Body.PrimaryHand.Weapon.Blueprint.Type.IsUnarmed);
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class SavingThrowBonusAgainstSpecificSpells : RuleInitiatorLogicComponent<RuleSavingThrow>
         {
@@ -2116,6 +2139,23 @@ namespace CallOfTheWild
             {
                 if (evt.Weapon == null && !this.range_types.Contains(evt.Weapon.Blueprint.AttackType))
                     return;
+                bool is_maximized = this.Context.HasMetamagic(Metamagic.Maximize);
+                bool is_empowered = this.Context.HasMetamagic(Metamagic.Empower);
+
+                DiceFormula dice_formula = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType);
+                int bonus = this.dice_value.BonusValue.Calculate(this.Context);
+
+                if (is_maximized)
+                {
+                    bonus += dice_formula.MaxValue(0, false);
+                    dice_formula = new DiceFormula(0, DiceType.Zero);
+                }
+
+                if (is_empowered)
+                {
+                    bonus = Mathf.FloorToInt((bonus + dice_formula.MaxValue(0, false)) / 2.0f);
+                }
+                
 
                 DamageDescription damageDescription = new DamageDescription()
                 {
@@ -2124,8 +2164,8 @@ namespace CallOfTheWild
                         Type = DamageType.Energy,
                         Energy = this.Element
                     },
-                    Dice = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType),
-                    Bonus = this.dice_value.BonusValue.Calculate(this.Context)
+                    Dice = dice_formula,
+                    Bonus = bonus
                 };
                 evt.DamageDescription.Add(damageDescription);
             }

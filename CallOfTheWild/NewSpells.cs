@@ -64,6 +64,8 @@ namespace CallOfTheWild
         static public BlueprintAbility righteous_vigor;
         static public BlueprintAbility force_sword;
         static public BlueprintAbility blood_armor;
+        static public BlueprintAbility flame_arrow;
+        static public BlueprintAbility keen_edge;
 
 
         static public BlueprintWeaponEnchantment empower_enchant;
@@ -92,6 +94,75 @@ namespace CallOfTheWild
             createRighteousVigor();
             createForceSword();
             createBloodArmor();
+            createKeenEdge();
+            createFlameArrow();
+        }
+
+
+        static void createKeenEdge()
+        {
+            var keen_edge_enchant = library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0");
+
+            var icon = library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon; //keen weapon bond
+
+            keen_edge = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", "KeenEdgeAbility", "");
+
+            keen_edge.SetIcon(icon);
+            keen_edge.SetDescription("This spell makes a weapon magically keen, improving its ability to deal telling blows. This transmutation doubles the threat range of the weapon. A threat range of 20 becomes 19-20, a threat range of 19-20 becomes 17-20, and a threat range of 18-20 becomes 15-20. The spell can be cast only on piercing or slashing weapons. If cast on arrows or crossbow bolts, the keen edge on a particular projectile ends after one use, whether or not the missile strikes its intended target. Treat shuriken as arrows, rather than as thrown weapons, for the purpose of this spell.\n"
+                + "Multiple effects that increase a weapon’s threat range (such as the keen special weapon property and the Improved Critical feat) don’t stack. You can’t cast this spell on a natural weapon, such as a claw.");
+            keen_edge.SetName("Keen Edge");
+            keen_edge.setMiscAbilityParametersTouchFriendly();
+            keen_edge.RemoveComponents<AbilityDeliverTouch>();
+            var action = (keen_edge.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
+            action.Enchantment = keen_edge_enchant;
+            action.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes);
+
+            keen_edge.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+            keen_edge.LocalizedDuration = Helpers.tenMinPerLevelDuration;
+
+            keen_edge.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            keen_edge.AddToSpellList(Helpers.magusSpellList, 3);
+            keen_edge.AddToSpellList(Helpers.wizardSpellList, 3);
+
+            keen_edge.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
+        }
+
+
+        static void createFlameArrow()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameArrow.png");
+            var buff = Helpers.CreateBuff("FlameArrowBuff",
+                                          "Flame Arrow",
+                                          "This spell allows you to turn ammunition (such as arrows, crossbow bolts, shuriken, and sling stones) into fiery projectiles. Each piece of ammunition deals an extra 1d6 points of fire damage to any target it hits. A flaming projectile can easily ignite a flammable object or structure, but it won’t ignite a creature it strikes.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D6, 1), DamageEnergyType.Fire, AttackType.Ranged)
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            flame_arrow = Helpers.CreateAbility("FlameArrowAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //CommonTransmutationBuff00
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                );
+
+            flame_arrow.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Quicken;
+
+            flame_arrow.setMiscAbilityParametersTouchFriendly();
+
+            flame_arrow.AddToSpellList(Helpers.magusSpellList, 3);
+            flame_arrow.AddToSpellList(Helpers.wizardSpellList, 3);
+
+            flame_arrow.AddSpellAndScroll("ce41e625eae914d4bad729f090e9001f"); //hurricane arrow
         }
 
 
@@ -209,8 +280,9 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("ForceSwordBuff",
                                             "Force Sword",
-                                            "You create a +1 longsword of pure force sized appropriately for you that you can wield or give to another creature like any other longsword. At 8th level, the sword functions as a +2 longsword."
-                                            + "At 13th level, it functions as a + 3 longsword.A force sword cannot be attacked or harmed by physical attacks, but dispel magic, disintegrate, a sphere of annihilation, or a rod of cancellation affects it.",
+                                            "You create a +1 longsword of pure force sized appropriately for you that you can wield or give to another creature like any other longsword. At 8th level, the sword functions as a +2 longsword. "
+                                            + "At 13th level, it functions as a + 3 longsword.A force sword cannot be attacked or harmed by physical attacks, but dispel magic, disintegrate, a sphere of annihilation, or a rod of cancellation affects it.\n"
+                                            + "Target's primary hand must be free when you cast this spell. Upon spell cast a standard action will be consumed to equip weapon.",
                                             "",
                                             icon,
                                             null,
@@ -230,6 +302,7 @@ namespace CallOfTheWild
             force_sword.SetIcon(icon);
             force_sword.SetName(buff.Name);
             force_sword.SetDescription(buff.Description);
+            force_sword.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free;
 
             force_sword.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
             force_sword.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
@@ -238,7 +311,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes)
                                                 );
             force_sword.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
-            force_sword.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            force_sword.AvailableMetamagic = Metamagic.Heighten | Metamagic.Reach | Metamagic.Extend;
             force_sword.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
 
             force_sword.AddToSpellList(Helpers.magusSpellList, 2);
@@ -1009,7 +1082,7 @@ namespace CallOfTheWild
                 flame_blade_enchantments[i] = Common.createWeaponEnchantment($"FlameBlade{i}Enchantment",
                                                                              "Flame Blade",
                                                                              "A 3-foot-long, blazing beam of red-hot fire springs forth from your hand. You wield this blade-like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage + 1 point per two caster levels (maximum +10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
-                                                                             + "You primary hand must be free when you cast this spell.",
+                                                                             + "You primary hand must be free when you cast this spell. Upon spell cast a standard action will be consumed to equip weapon.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -1074,6 +1147,7 @@ namespace CallOfTheWild
             flame_blade.SetIcon(bless_weapon.Icon);
             flame_blade.SetName(buff.Name);
             flame_blade.SetDescription(buff.Description);
+            flame_blade.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free;
 
             flame_blade.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
             flame_blade.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
@@ -1082,7 +1156,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes)
                                                 );
             flame_blade.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
-            flame_blade.AvailableMetamagic = flame_blade.AvailableMetamagic | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+            flame_blade.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten  | Metamagic.Empower | Metamagic.Maximize;
             flame_blade.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
 
             flame_blade.AddToSpellList(Helpers.druidSpellList, 2);
@@ -1137,7 +1211,7 @@ namespace CallOfTheWild
                                                                              "Produce Flame",
                                                                              "Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment.\n"
                                                                              + "In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.\n"
-                                                                             + "You primary hand must be free when you cast this spell.",
+                                                                             + "You primary hand must be free when you cast this spell. Upon spell cast a standard action will be consumed to equip weapon.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -1189,7 +1263,7 @@ namespace CallOfTheWild
                                                   "",
                                                   buff.Icon,
                                                   AbilityType.Spell,
-                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                   AbilityRange.Medium,
                                                   Helpers.minutesPerLevelDuration,
                                                   "",
@@ -1200,7 +1274,7 @@ namespace CallOfTheWild
                                                   );
             produce_flame.setMiscAbilityParametersSingleTargetRangedHarmful();
 
-            produce_flame.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize | Metamagic.Quicken;
+            produce_flame.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
 
             produce_flame.AddToSpellList(Helpers.druidSpellList, 1);
             produce_flame.AddSpellAndScroll("5b172c2c3e356eb43ba5a8f8008a8a5a"); //fireball
