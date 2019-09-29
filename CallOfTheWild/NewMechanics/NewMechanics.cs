@@ -2139,24 +2139,10 @@ namespace CallOfTheWild
             {
                 if (evt.Weapon == null && !this.range_types.Contains(evt.Weapon.Blueprint.AttackType))
                     return;
-                bool is_maximized = this.Context.HasMetamagic(Metamagic.Maximize);
-                bool is_empowered = this.Context.HasMetamagic(Metamagic.Empower);
 
                 DiceFormula dice_formula = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType);
                 int bonus = this.dice_value.BonusValue.Calculate(this.Context);
-
-                if (is_maximized)
-                {
-                    bonus += dice_formula.MaxValue(0, false);
-                    dice_formula = new DiceFormula(0, DiceType.Zero);
-                }
-
-                if (is_empowered)
-                {
-                    bonus = Mathf.FloorToInt((bonus + dice_formula.MaxValue(0, false)) / 2.0f);
-                }
                 
-
                 DamageDescription damageDescription = new DamageDescription()
                 {
                     TypeDescription = new DamageTypeDescription()

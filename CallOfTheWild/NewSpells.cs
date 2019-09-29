@@ -131,13 +131,22 @@ namespace CallOfTheWild
         static void createFlameArrow()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameArrow.png");
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 1), IgnoreCritical: true);
             var buff = Helpers.CreateBuff("FlameArrowBuff",
                                           "Flame Arrow",
                                           "This spell allows you to turn ammunition (such as arrows, crossbow bolts, shuriken, and sling stones) into fiery projectiles. Each piece of ammunition deals an extra 1d6 points of fire damage to any target it hits. A flaming projectile can easily ignite a flammable object or structure, but it won’t ignite a creature it strikes.",
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D6, 1), DamageEnergyType.Fire, AttackType.Ranged)
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.Longbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.Shortbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.LightCrossbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.HeavyCrossbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.LightRepeatingCrossbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.HeavyRepeatingCrossbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.HandCrossbow),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.Sling),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true, weapon_category: WeaponCategory.SlingStaff)
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
             flame_arrow = Helpers.CreateAbility("FlameArrowAbility",
@@ -155,7 +164,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation)
                                                 );
 
-            flame_arrow.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Quicken;
+            flame_arrow.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Reach;
 
             flame_arrow.setMiscAbilityParametersTouchFriendly();
 

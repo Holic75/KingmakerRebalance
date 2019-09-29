@@ -27,6 +27,7 @@ using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
+using Kingmaker.Utility;
 
 namespace CallOfTheWild
 {
@@ -142,27 +143,26 @@ namespace CallOfTheWild
             //change stats of certain companions
             //Valerie 
             var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
-            valerie_companion.Strength = 15;//+2
-            valerie_companion.Dexterity = 14;
+            valerie_companion.Strength = 16;//+2
+            valerie_companion.Dexterity = 10;
             valerie_companion.Constitution = 16;
             valerie_companion.Intelligence = 8;
             valerie_companion.Wisdom = 10;
-            valerie_companion.Charisma = 14;
+            valerie_companion.Charisma = 15;
             var valerie1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("912444657701e2d4ab2634c3d1e130ad");
             var valerie_class_level = valerie1_feature.GetComponent<AddClassLevels>();
-            valerie_class_level.CharacterClass = Bloodrager.bloodrager_class;
-            valerie_class_level.Archetypes[0] = Bloodrager.steelblood_archetype;
+            valerie_class_level.CharacterClass = VindicativeBastard.vindicative_bastard_class;
+            valerie_class_level.Archetypes = new BlueprintArchetype[0];
             valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
-            valerie_class_level.Selections[0].Features[0] = library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835");
-            valerie_class_level.Selections[1].Selection = Bloodrager.bloodline_selection;
-            valerie_class_level.Selections[1].Features = new BlueprintFeature[] { Bloodrager.bloodlines["Destined"].progression };
-            valerie_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillUseMagicDevice, StatType.SkillAthletics };
+            valerie_class_level.Selections[0].Features[1] = valerie_class_level.Selections[0].Features[2];
+            valerie_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillLoreReligion, StatType.SkillAthletics };
             valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
-            valerie_companion.Body.Armor = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Armors.BlueprintItemArmor>("9809987cc12d94545a64ff20e6fdb216");//breastplate
+            valerie_companion.Body.SecondaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Shields.BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b");//shield
+            valerie1_feature.GetComponent<AddFacts>().Facts = valerie1_feature.GetComponent<AddFacts>().Facts.Skip(1).ToArray();
             //change amiri stats
             var amiri_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b3f29faef0a82b941af04f08ceb47fa2");
-            amiri_companion.Strength = 16;//+2
-            amiri_companion.Dexterity = 14;
+            amiri_companion.Strength = 17;//+2
+            amiri_companion.Dexterity = 12;
             amiri_companion.Constitution = 16;
             amiri_companion.Intelligence = 10;
             amiri_companion.Wisdom = 12;
@@ -704,6 +704,36 @@ namespace CallOfTheWild
 
             cave_fangs_stalactites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = cave_fangs_stalactites_area));
             cave_fangs_stalactites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = dummy_area));
+        }
+
+
+        //fix range
+        [Harmony12.HarmonyPatch(typeof(BlueprintAbility))]
+        [Harmony12.HarmonyPatch("GetRange", Harmony12.MethodType.Normal)]
+        class BlueprintAbility_GetRange
+        {
+            static void Postfix(BlueprintAbility __instance, bool reach, ref Feet __result)
+            {
+                AbilityRange range = __instance.Range;
+                if (!(range == AbilityRange.Touch || range == AbilityRange.Close || range == AbilityRange.Medium || range == AbilityRange.Long))
+                {
+                    return;
+                }
+
+                if (reach && range != AbilityRange.Long)
+                {
+                    ++range;
+                }
+
+                if (range == AbilityRange.Medium)
+                {
+                    __result =  60.Feet();
+                }
+                else if (range == AbilityRange.Long)
+                {
+                    __result = 100.Feet();
+                }
+            }
         }
     }
 }
