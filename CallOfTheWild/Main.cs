@@ -26,6 +26,7 @@ namespace CallOfTheWild
             internal bool reduce_skill_points { get; }
             internal bool sacred_huntsmaster_animal_focus { get; }
             internal bool use_armor_in_wildshape { get; }
+            internal bool x3_crit_multiplier_for_flails { get; }
 
             internal Settings()
             {
@@ -39,6 +40,7 @@ namespace CallOfTheWild
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
                     use_armor_in_wildshape = (bool)jo["use_armor_in_wildshape"];
+                    x3_crit_multiplier_for_flails = (bool)jo["x3_crit_multiplier_for_flails"];
                 }
             }
         }
@@ -101,7 +103,7 @@ namespace CallOfTheWild
 
                     if (settings.nerf_animal_companion)
                     {
-                        Main.logger.Log("Upating animal companion bonuses.");
+                        Main.logger.Log("Updating animal companion bonuses.");
                         CallOfTheWild.Rebalance.fixAnimalCompanion();
                     }
 
@@ -109,6 +111,12 @@ namespace CallOfTheWild
                     {
                         Main.logger.Log("Reducing class skillpoints to 1/2 of pnp value.");
                         CallOfTheWild.Rebalance.fixSkillPoints();
+                    }
+
+                    if (settings.x3_crit_multiplier_for_flails)
+                    {
+                        Main.logger.Log("Increasing flails crit multiplier to x3");
+                        CallOfTheWild.Rebalance.fixFlailCritMultiplier();
                     }
 
 

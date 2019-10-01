@@ -308,9 +308,13 @@ namespace CallOfTheWild
         }
 
 
-        public static T CreateCopy<T>(this T original) where T : UnityEngine.Object
+        public static T CreateCopy<T>(this T original, Action<T> action = null) where T : UnityEngine.Object
         {
             var clone = UnityEngine.Object.Instantiate(original);
+            if (action != null)
+            {
+                action(clone);
+            }
             return clone;
         }
 
@@ -1261,6 +1265,7 @@ namespace CallOfTheWild
                 "da03141df23f3fe45b0c7c323a8e5a0e",
                 /*WarDomainGreaterFeatSelection*/
                 "79c6421dbdb028c4fa0c31b8eea95f16",
+                Warpriest.fighter_feat.AssetGuid,
             };
             foreach (var id in featSelectionIds)
             {

@@ -67,6 +67,8 @@ namespace CallOfTheWild
         static public BlueprintAbility flame_arrow;
         static public BlueprintAbility keen_edge;
 
+        static public BlueprintAbility savage_maw;
+
 
         static public BlueprintWeaponEnchantment empower_enchant;
         static public BlueprintWeaponEnchantment maximize_enchant;
@@ -96,6 +98,55 @@ namespace CallOfTheWild
             createBloodArmor();
             createKeenEdge();
             createFlameArrow();
+
+            createSavageMaw();
+        }
+
+
+        static void createSavageMaw()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SavageMaw.png");
+            var buff = library.CopyAndAdd<BlueprintBuff>("a67b51a8074ae47438280be0a87b01b6", "SavageMawBuff", "");//animal fury
+            var bleed1d4 = library.Get<BlueprintBuff>("5eb68bfe186d71a438d4f85579ce40c1");
+            var apply_bleed = Common.createContextActionApplyBuff(bleed1d4, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_bleed), critical_hit: true, weapon_category: WeaponCategory.Bite));
+
+            var roar = library.CopyAndAdd<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb", "SavageMawRoarAbility", "");
+            roar.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift;
+            roar.SetNameDescriptionIcon("Savage Maw: Roar",
+                                        "Your teeth extend and sharpen, transforming your mouth into a maw of razor-sharp fangs. You gain a secondary bite attack that deals 1d4 points of damage plus your Strength modifier. If you confirm a critical hit with this attack, it also deals 1d4 bleed damage. You can end this spell before its normal duration by making a bestial roar as a swift action. When you do, you can make an Intimidate check to demoralize all foes within a 30-foot radius that can hear the roar.",
+                                        icon);
+
+            buff.AddComponent(Helpers.CreateAddFact(roar));
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            savage_maw = Helpers.CreateAbility("SavageMawAbility",
+                                               "Savage Maw",
+                                                roar.Description,
+                                                "",
+                                                roar.Icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                );
+            savage_maw.setMiscAbilityParametersSelfOnly();
+            savage_maw.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+            var remove_self = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff));
+            roar.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(Common.createContextActionRemoveBuff(buff))));
+
+            savage_maw.AddToSpellList(Helpers.druidSpellList, 2);
+            savage_maw.AddToSpellList(Helpers.clericSpellList, 2);
+            savage_maw.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            savage_maw.AddToSpellList(Helpers.magusSpellList, 2);
+            savage_maw.AddToSpellList(Helpers.rangerSpellList, 2);
+
+            savage_maw.AddSpellAndScroll("1cd597e316ac49941a568312de2be6ae");
         }
 
 

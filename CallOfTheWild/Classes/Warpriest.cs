@@ -778,7 +778,7 @@ namespace CallOfTheWild
                                                                     sacred_weapon_enhancement_buff,
                                                                     library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f"),
                                                                     1, sacred_weapon_enchancement_group,
-                                                                    AlignmentMaskType.LawfulNeutral | AlignmentMaskType.NeutralEvil | AlignmentMaskType.NeutralGood | AlignmentMaskType.ChaoticNeutral | AlignmentMaskType.TrueNeutral);
+                                                                    AlignmentMaskType.TrueNeutral);
 
             var keen = createSacredEnhancementFeature("WarpriestSacredWeaponEnchancementKeen",
                                                             "Sacred Weapon - Keen",
@@ -1715,7 +1715,7 @@ namespace CallOfTheWild
                                                                 remove_fear.Icon,
                                                                 null,
                                                                 Common.createAttackTypeAttackBonus(Common.createSimpleContextValue(4), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
-                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true)
+                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true, on_initiator: true)
                                                                 );
             aid_another_buffs[0].Stacking = StackingType.Stack;
 

@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
@@ -50,6 +51,13 @@ namespace CallOfTheWild
         static public BlueprintFeature powerful_shape;
         static public BlueprintFeature discordant_voice;
 
+        static public BlueprintFeature weapon_of_the_chosen;
+        static public BlueprintFeature improved_weapon_of_the_chosen;
+        static public BlueprintFeature greater_weapon_of_the_chosen;
+
+        static public BlueprintFeature devastating_strike;
+        static public BlueprintFeature strike_true;
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -74,6 +82,227 @@ namespace CallOfTheWild
 
             createPowerfulShape();
             createDiscordantVoice();
+
+            createWeaponOfTheChosen();
+            createGreaterWeaponOfTheChosen();
+
+            createDevastatingStrike();
+            createStrikeTrue();
+        }
+
+
+        static void createDevastatingStrike()
+        {
+            devastating_strike = Helpers.CreateFeature("DevastatingStrikeFeature",
+                                                       "Devastating Strike",
+                                                       "Whenever you use Vital Strike, Improved Vital Strike, or Greater Vital Strike, you gain a +2 bonus on each extra weapon damage dice roll those feats grant (+6 maximum). This bonus damage is multiplied on a critical hit.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.Feat,
+                                                       Common.createVitalStrikeScalingDamage(2),
+                                                       Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 9),
+                                                       Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("14a1fc1356df9f146900e1e42142fc9d")) //vital strike
+                                                       );
+            devastating_strike.Groups = devastating_strike.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(devastating_strike);
+        }
+
+
+        static void createStrikeTrue()
+        {
+            var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
+            var buff = Helpers.CreateBuff("StrikeTrueBuff",
+                                            "Strike True",
+                                            "You can focus yourself as a move action. When focused, you gain a +4 bonus on your next melee attack roll before the end of your turn.",
+                                            "",
+                                            true_strike.Icon,
+                                            null,
+                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
+                                            Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true)
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 4);
+            var strike_true_ability = Helpers.CreateAbility("StrikeTrueFeature",
+                                                            buff.Name,
+                                                            buff.Description,
+                                                            "",
+                                                            buff.Icon,
+                                                            AbilityType.Special,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move,
+                                                            AbilityRange.Personal,
+                                                            "First Attack or untile end of the round.",
+                                                            "",
+                                                            Helpers.CreateRunActions(apply_buff),
+                                                            Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a")),//combat expertise
+                                                            Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
+                                                            );
+            strike_true_ability.setMiscAbilityParametersSelfOnly(animation: Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Special);
+            strike_true = Common.AbilityToFeature(strike_true_ability);
+            strike_true.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+            strike_true.SetIcon(null);
+            library.AddCombatFeats(strike_true);
+        }
+
+
+
+
+
+        static void createGreaterWeaponOfTheChosen()
+        {
+            greater_weapon_of_the_chosen = Helpers.CreateFeature("GreaterWeaponChosenFeature",
+                                                                 "Greater Weapon of the Chosen",
+                                                                 "When you use your deity’s favored weapon to attempt a single attack with the attack action, you roll two dice for your attack roll and take the higher result. You do not need to use your Weapon of the Chosen feat to gain this feat’s benefit. As usual, the reroll does not apply to any confirmation rolls.",
+                                                                 "",
+                                                                 null,
+                                                                 FeatureGroup.Feat,
+                                                                 Helpers.Create<NewMechanics.RerollOnStandardSingleAttack>(r => r.required_features = new BlueprintParametrizedFeature[] { NewFeats.deity_favored_weapon }),
+                                                                 Helpers.PrerequisiteFeature(NewFeats.improved_weapon_of_the_chosen)
+                                                                 );
+
+            greater_weapon_of_the_chosen.Groups = greater_weapon_of_the_chosen.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(greater_weapon_of_the_chosen);
+        }
+
+
+        static void createWeaponOfTheChosen()
+        {
+            string[] icon_names = new string[] { @"AbilityIcons/WeaponGood.png",
+                                                 @"AbilityIcons/WeaponEvil.png",
+                                                 @"AbilityIcons/WeaponLawful.png",
+                                                 @"AbilityIcons/WeaponChaotic.png",
+                                                 @"AbilityIcons/WeaponSilver.png"};
+
+            string[] names = new string[] { "Good", "Evil", "Lawful", "Chaotic", "ColdIronSilver" };
+            string[] display_names = new string[] { "Good", "Evil", "Lawful", "Chaotic", "Cold Iron and Silver" };
+            BlueprintComponent[] weapon_components = new BlueprintComponent[]
+            {
+                Common.createAddOutgoingAlignment(Kingmaker.Enums.Damage.DamageAlignment.Good),
+                Common.createAddOutgoingAlignment(Kingmaker.Enums.Damage.DamageAlignment.Evil),
+                Common.createAddOutgoingAlignment(Kingmaker.Enums.Damage.DamageAlignment.Lawful),
+                Common.createAddOutgoingAlignment(Kingmaker.Enums.Damage.DamageAlignment.Chaotic),
+                Common.createAddOutgoingMaterial(Kingmaker.Enums.Damage.PhysicalDamageMaterial.ColdIron | Kingmaker.Enums.Damage.PhysicalDamageMaterial.Silver)
+            };
+
+            RestrictionHasFact[] restrictions = new RestrictionHasFact[]
+            {
+                Common.createActivatableAbilityRestrictionHasFact(library.Get<BlueprintFeature>("882521af8012fc749930b03dc18a69de")),//good
+                Common.createActivatableAbilityRestrictionHasFact(library.Get<BlueprintFeature>("351235ac5fc2b7e47801f63d117b656c")),//evil
+                Common.createActivatableAbilityRestrictionHasFact(library.Get<BlueprintFeature>("092714336606cfc45a37d2ab39fabfa8")),//law
+                Common.createActivatableAbilityRestrictionHasFact(library.Get<BlueprintFeature>("8c7d778bc39fec642befc1435b00f613")),//chaos
+            };
+
+            BlueprintBuff[] improved_buffs = new BlueprintBuff[5];
+            BlueprintBuff[] improved_effect_buffs = new BlueprintBuff[5];
+            BlueprintActivatableAbility[] abilities = new BlueprintActivatableAbility[5];
+
+            var improved_description = "This feat acts as Weapon of the Chosen, except you gain the benefits on all attacks until the start of your next turn. Your attacks gain a single alignment component of your deity—either chaotic, evil, good, or lawful—for the purpose of overcoming damage reduction. If your deity is neutral with no other alignment components, your attacks instead overcome damage reduction as though your weapon were both cold iron and silver.";
+            for (int i = 0; i < abilities.Length; i++)
+            {
+                improved_buffs[i] = Helpers.CreateBuff($"ImprovedWeaponOfChosen{names[i]}Buff",
+                                                       $"Improved Weapon of the Chosen: {display_names[i]}",
+                                                       improved_description,
+                                                       "",
+                                                       LoadIcons.Image2Sprite.Create(icon_names[i]),
+                                                       null);
+                improved_buffs[i].SetBuffFlags(BuffFlags.HiddenInUi);
+
+                improved_effect_buffs[i] = Helpers.CreateBuff($"ImprovedWeaponOfChosen{names[i]}EffectBuff",
+                                                                improved_buffs[i].Name,
+                                                                improved_buffs[i].Description,
+                                                                "",
+                                                                improved_buffs[i].Icon,
+                                                                null,
+                                                                weapon_components[i]
+                                                              );
+
+
+
+                abilities[i] = Helpers.CreateActivatableAbility($"ImprovedWeaponOfChosen{names[i]}Ability",
+                                                                improved_buffs[i].Name,
+                                                                improved_buffs[i].Description,
+                                                                "",
+                                                                improved_buffs[i].Icon,
+                                                                improved_buffs[i],
+                                                                AbilityActivationType.Immediately,
+                                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                                null);
+                if (i < 4)
+                {
+                    abilities[i].AddComponent(restrictions[i]);
+                }
+                else
+                {
+                    foreach (var r in restrictions)
+                    {
+                        var not_restriction = r.CreateCopy();
+                        abilities[i].AddComponent(r.CreateCopy(c => c.Not = true));
+                    }
+                }
+                abilities[i].DeactivateImmediately = true;
+                abilities[i].Group = ActivatableAbilityGroupExtension.ImprovedWeaponOfChosen.ToActivatableAbilityGroup();
+            }
+
+            improved_weapon_of_the_chosen = Helpers.CreateFeature("ImprovedWeaponChosenFeature",
+                                                                  "Improved Weapon of the Chosen",
+                                                                  improved_description,
+                                                                  "",
+                                                                  null,
+                                                                  FeatureGroup.CombatFeat,
+                                                                  Helpers.CreateAddFacts(abilities));
+            improved_weapon_of_the_chosen.Groups = improved_weapon_of_the_chosen.Groups.AddToArray(FeatureGroup.Feat);
+
+            var remove_action = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(improved_weapon_of_the_chosen, not: true),
+                                                                                    Helpers.Create<ContextActionRemoveSelf>()
+                                                         );
+                                                         
+            BlueprintBuff weapon_of_choosen_buff = Helpers.CreateBuff("WeaponOfChosentBuff",
+                                                                      "Weapon of the Chosen",
+                                                                       "As a swift action, you can call upon your deity to guide an attack you make with your deity’s favored weapon. On your next attack in that round with that weapon, your weapon counts as magical for the purpose of overcoming damage reduction or striking an incorporeal creature. If your attack misses because of concealment, you can reroll your miss chance one time to see whether you actually hit.",
+                                                                       "",
+                                                                       LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponMagic.png"),
+                                                                       null,
+                                                                       Helpers.Create<RerollConcealment>(),
+                                                                       Common.createAddOutgoingMagic(),
+                                                                       Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_action))
+                                                                     );
+            for (int i = 0; i < improved_buffs.Length; i++)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(weapon_of_choosen_buff, improved_effect_buffs[i], improved_buffs[i]);
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(weapon_of_choosen_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var weapon_of_choosen_ability = Helpers.CreateAbility("WeaponOfTheChosenAbility",
+                                                                  weapon_of_choosen_buff.Name,
+                                                                  weapon_of_choosen_buff.Description,
+                                                                  "",
+                                                                  weapon_of_choosen_buff.Icon,
+                                                                  AbilityType.Supernatural,
+                                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                                  AbilityRange.Personal,
+                                                                  "First Attack",
+                                                                  "",
+                                                                  Helpers.CreateRunActions(apply_buff),
+                                                                  Helpers.Create<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>(a => a.feature = deity_favored_weapon)
+                                                                  );
+            weapon_of_choosen_ability.setMiscAbilityParametersSelfOnly();
+
+            weapon_of_the_chosen = Common.AbilityToFeature(weapon_of_choosen_ability, false);
+            weapon_of_the_chosen.SetIcon(null);
+            weapon_of_the_chosen.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+
+            weapon_of_the_chosen.AddComponent(Helpers.Create<NewMechanics.PrerequisiteMatchingParamtrizedFeature>(p =>
+                                                                                                                  {
+                                                                                                                      p.base_feature = NewFeats.deity_favored_weapon;
+                                                                                                                      p.matching_feature = weapon_focus;
+                                                                                                                  }
+                                                                                                                  )
+                                             );
+            weapon_of_the_chosen.AddComponent(Common.createPrerequisiteCasterTypeSpellLevel(false, 1));
+
+            improved_weapon_of_the_chosen.AddComponent(Helpers.PrerequisiteFeature(weapon_of_the_chosen));
+
+            library.AddCombatFeats(weapon_of_the_chosen, improved_weapon_of_the_chosen);
         }
 
 

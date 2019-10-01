@@ -722,6 +722,27 @@ namespace CallOfTheWild
         }
 
 
+        static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingMaterial(PhysicalDamageMaterial matrerial, bool check_range = false, bool is_ranged = false)
+        {
+            var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
+            a.AddMaterial = true;
+            a.Material = matrerial;
+            a.CheckRange = check_range;
+            a.IsRanged = is_ranged;
+            return a;
+        }
+
+
+        static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingMagic(bool check_range = false, bool is_ranged = false)
+        {
+            var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
+            a.AddMagic = true;
+            a.CheckRange = check_range;
+            a.IsRanged = is_ranged;
+            return a;
+        }
+
+
         static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingGhost(bool check_range = false, bool is_ranged = false)
         {
             var a = Helpers.Create<AddOutgoingPhysicalDamageProperty>();
@@ -2005,9 +2026,9 @@ namespace CallOfTheWild
         }
 
 
-        static public NewMechanics.VitalStrikeScalingDamage createVitalStrikeScalingDamage(ContextValue value, int multiplier = 1)
+        static public VitalStrikeMechanics.VitalStrikeScalingDamage createVitalStrikeScalingDamage(ContextValue value, int multiplier = 1)
         {
-            var v = Helpers.Create<NewMechanics.VitalStrikeScalingDamage>();
+            var v = Helpers.Create<VitalStrikeMechanics.VitalStrikeScalingDamage>();
             v.Value = value;
             v.multiplier = multiplier;
             return v;

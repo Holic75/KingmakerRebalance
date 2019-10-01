@@ -847,5 +847,4 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     }
 
 
-
 }

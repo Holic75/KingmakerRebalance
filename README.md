@@ -25,6 +25,9 @@ New feats:
 - Riving Strike,
 - Feral Combat Training,
 - Furious Focus,
+- Strike True,
+- Devastating Strike,
+- Weapon of The Chosen, Improved Weapon of the Chosen, Greater Weapon of the Chosen,
 - Planar Wild Shape,
 - Powerful Shape,
 - Coordinated Shot,
@@ -118,7 +121,9 @@ enchanced attacks).
 - Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
 - Empyreal Sorcerer Channel Energy ability depends now on Wisdom rather than Charisma,
 - Channel Energy dc no longer scales with character level, but with class level that gave access to it.
-- all flying creatures are immune to difficult terrain and ground based buff effects.
+- all flying creatures are immune to difficult terrain and ground based buff effects,
+- flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties,
+- medium range for spells was increased to 60 ft, long range to 100 ft.
 
 
 Original game bug fixes:
@@ -129,7 +134,8 @@ Original game bug fixes:
 
 
 Mod also changes stats of some npcs
-- Valerie to 16/15/14/13/8/15  and replaces bastard sword proficiency with shield focus at lvl 1
+- Valerie class was changed to Vindicative Bastard and stats to 18/10/16/8/10/15
+- Harrim class was changed to Warpriest and stats to 18/10/16/10/16/7
 - Amiri to 18/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
 - Tristian to 8/16/12/10/18/14 and repalces his primary domain to fire

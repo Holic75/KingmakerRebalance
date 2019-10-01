@@ -28,6 +28,7 @@ using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Utility;
+using Kingmaker.Blueprints.Items.Weapons;
 
 namespace CallOfTheWild
 {
@@ -704,6 +705,18 @@ namespace CallOfTheWild
 
             cave_fangs_stalactites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = cave_fangs_stalactites_area));
             cave_fangs_stalactites_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(a => a.area_effect = dummy_area));
+        }
+
+
+        public static void fixFlailCritMultiplier()
+        {
+            BlueprintWeaponType[] flails = new BlueprintWeaponType[] {library.Get<BlueprintWeaponType>("bf1e53f7442ed0c43bf52d3abe55e16a"),
+                                                                      library.Get<BlueprintWeaponType>("8fefb7e0da38b06408f185e29372c703")
+                                                                     };
+            foreach (var f in flails)
+            {
+                Helpers.SetField(f, "m_CriticalModifier", 3);
+            }
         }
 
 

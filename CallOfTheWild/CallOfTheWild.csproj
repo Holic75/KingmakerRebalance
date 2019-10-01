@@ -149,6 +149,7 @@
     <Compile Include="NewMechanics\NewMechanics.cs" />
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />
+    <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WildArmor.cs" />
     <Compile Include="NewRagePowers.cs" />
     <Compile Include="NewSpells.cs" />

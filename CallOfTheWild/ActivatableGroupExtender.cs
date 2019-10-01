@@ -20,6 +20,7 @@ namespace CallOfTheWild
             PlanarWildshape,
             HunterTrick,
             Stigmata,
+            ImprovedWeaponOfChosen
         }
 
         public static partial class Extensions

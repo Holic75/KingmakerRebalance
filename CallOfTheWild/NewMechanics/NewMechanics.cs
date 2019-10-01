@@ -711,53 +711,6 @@ namespace CallOfTheWild
             }
         }
 
-        [AllowedOn(typeof(BlueprintFeature))]
-        [AllowedOn(typeof(BlueprintBuff))]
-        [AllowMultipleComponents]
-        public class VitalStrikeScalingDamage : OwnedGameLogicComponent<UnitDescriptor>
-        {
-            public ContextValue Value;
-            public int multiplier = 1;
-            private MechanicsContext Context
-            {
-                get
-                {
-                    return this.Fact.MaybeContext;
-                }
-            }
-
-        }
-
-
-
-        [Harmony12.HarmonyPatch(typeof(VitalStrike))]
-        [Harmony12.HarmonyPatch("OnEventDidTrigger", Harmony12.MethodType.Normal)]
-        class VitalStrike__OnEventDidTrigger__Patch
-        {
-            static void Postfix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
-            {
-                DamageDescription damageDescription = evt.DamageDescription.FirstItem<DamageDescription>();
-                if (damageDescription == null || damageDescription.TypeDescription.Type != DamageType.Physical)
-                    return;
-
-                int bonus = 0;
-                foreach (var b in evt.Initiator.Buffs)
-                {
-                    var dmg = b.Get<VitalStrikeScalingDamage>();
-                    if (dmg == null || b.Context == null)
-                    {
-                        continue;
-                    }
-                    bonus += dmg.Value.Calculate(b.Context) * dmg.multiplier;
-                }
-                bonus *= ___m_DamageMod - 1;
-                if (bonus <= 0)
-                {
-                    return;
-                }
-                damageDescription.Bonus += bonus;
-            }
-        }
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -969,8 +922,8 @@ namespace CallOfTheWild
                     dice_id = dice_formulas.Length - 1;
                 }
 
-                int new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2;
-                int current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2;
+                double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
+                double current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2.0;
 
                 if (new_avg_dmg > current_avg_damage)
                 {
@@ -2061,7 +2014,7 @@ namespace CallOfTheWild
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class AttackBonusOnAttackInitiationIfHasFact : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        public class AttackBonusOnAttackInitiationIfHasFact : RuleInitiatorLogicComponent<RuleAttackRoll>
         {
             public BlueprintUnitFact CheckedFact;
             public ContextValue Bonus;
@@ -2081,18 +2034,22 @@ namespace CallOfTheWild
                 }
             }
 
-            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {
+                if (evt.RuleAttackWithWeapon == null)
+                {
+                    return;
+                }
                 if (evt.Weapon == null || !evt.Initiator.Descriptor.HasFact(this.CheckedFact) 
                     || (!evt.Weapon.HoldInTwoHands && OnlyTwoHanded)
-                    || (!evt.IsFirstAttack && OnlyFirstAttack)
+                    || (!evt.RuleAttackWithWeapon.IsFirstAttack && OnlyFirstAttack)
                     || !WeaponAttackTypes.Contains(evt.Weapon.Blueprint.AttackType))
                     return;
 
                 evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
             }
 
-            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
             }
         }
@@ -3079,6 +3036,108 @@ namespace CallOfTheWild
                 if (this.m_Modifier.AppliedTo != null)
                     this.m_Modifier.Remove();
                 this.m_Modifier = this.Owner.Stats.TemporaryHitPoints.AddModifier(0, (GameLogicComponent)this, this.Descriptor);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class RerollOnStandardSingleAttack : RuleInitiatorLogicComponent<RuleAttackRoll>, IInitiatorRulebookHandler<RuleRollD20>, IRulebookHandler<RuleRollD20>, ITargetRulebookSubscriber
+        {
+            public BlueprintParametrizedFeature[] required_features;
+            bool is_single = false;
+
+            private bool checkFeatures(WeaponCategory category)
+            {
+                if (required_features.Empty())
+                {
+                    return true;
+                }
+
+                bool ok = true;
+
+                foreach (var f in required_features)
+                {
+                    ok = ok && this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category);
+                }
+                return ok;
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                is_single = false;
+
+                if (evt.RuleAttackWithWeapon == null || evt.Weapon == null)
+                {
+                    return;
+                }
+
+                if (!checkFeatures(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+
+                if (evt.RuleAttackWithWeapon.IsCharge || evt.RuleAttackWithWeapon.AttacksCount != 1 || evt.RuleAttackWithWeapon.IsAttackOfOpportunity)
+                {
+                    return;
+                }
+
+                is_single = true;
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+                is_single = false;
+            }
+
+            public void OnEventAboutToTrigger(RuleRollD20 evt)
+            {
+                
+                if (!is_single)
+                {
+                    return;
+                }
+                var previous_event = Rulebook.CurrentContext.PreviousEvent;
+                if (previous_event != null && (previous_event is RuleAttackRoll) && !(previous_event as RuleAttackRoll).IsCriticalRoll)
+                {
+                    evt.SetReroll(1, true);
+                }
+            }
+
+            public void OnEventDidTrigger(RuleRollD20 evt)
+            {
+
+            }
+        }
+
+
+        public class PrerequisiteMatchingParamtrizedFeature : Prerequisite
+        {
+            public BlueprintParametrizedFeature base_feature;
+            public BlueprintParametrizedFeature matching_feature;
+
+            public override bool Check(
+              FeatureSelectionState selectionState,
+              UnitDescriptor unit,
+              LevelUpState state)
+            {
+                if (selectionState != (FeatureSelectionState)null && selectionState.IsSelectedInChildren((IFeatureSelectionItem)this.matching_feature))
+                    return false;
+
+                foreach (var f in unit.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == base_feature))
+                {
+                    if (unit.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == matching_feature).Any(p => (p.Param == f.Param)))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            public override string GetUIText()
+            {
+                return  $"{matching_feature.Name} for {base_feature.Name}";
             }
         }
 
