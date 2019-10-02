@@ -107,7 +107,12 @@ namespace CallOfTheWild.VitalStrikeMechanics
                 return false;
             }
             damageDescription.Bonus += bonus;
-            damageDescription.Dice = new DiceFormula(damageDescription.Dice.Rolls * ___m_DamageMod, damageDescription.Dice.Dice);
+            //make vital strike damage not multipliable on critical hit
+            var vital_strike_damage = new DamageDescription();
+            vital_strike_damage.TypeDescription = damageDescription.TypeDescription;
+            vital_strike_damage.Dice = new DiceFormula(damageDescription.Dice.Rolls * (___m_DamageMod - 1), damageDescription.Dice.Dice);
+            evt.DamageDescription.Insert(1, vital_strike_damage);
+            //damageDescription.Dice = new DiceFormula(damageDescription.Dice.Rolls * ___m_DamageMod, damageDescription.Dice.Dice);
             return false;
         }
     }

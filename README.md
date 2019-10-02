@@ -81,11 +81,13 @@ New spells:
 - Blood Armor,
 - Flame Blade,
 - Flurry of Snowballs,
+- Savage Maw,
 - Force Sword,
 - Ice Slick,
 - Invisibility Purge,
 - Righteous Vigor,
 - Vine Strike,
+- Winter's Grasp,
 - Countless Eyes,
 - Deadly Juggernaut,
 - Flame Arrow,
@@ -97,6 +99,7 @@ New spells:
 - Poison Breath,
 - Plant Shape I, II and III,
 - Giant Form I and II,
+- Blood Mist,
 - Shapechange.  
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
@@ -109,31 +112,30 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 
 
 In addition mod also makes some changes to existing features to make them closer to pnp:
-- nerfs animal compnions to make them closer to pnp (reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
-enchanced attacks).
-- sets base skill points of every classes to 1/2 of pnp value (since most skills in the game correspond to 2 skills in pnp),
-- replaces favored enemy for Sacred Huntsmaster with animal focus as per pnp,
+- nerfs animal compnions to make them closer to pnp : reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
+enchanced attacks (optional),
+- sets base skill points of every classes to 1/2 of pnp value, since most skills in the game correspond to 2 skills in pnp (optional),
+- replaces favored enemy for Sacred Huntsmaster with animal focus as per pnp (optional),
 - fixes Magic Vestment spell to work as per pnp rules,  
 - Rangers now should get improvement of their favored terrain bonuses,
 - Legendary proportions increases size by only one category and changes Natural Armor bonus to untyped (instead of enchancement),
 - Animal Growth properly increases size of animal companion,
-- Arcane Bond works with spontaneous spells,
 - Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
 - Empyreal Sorcerer Channel Energy ability depends now on Wisdom rather than Charisma,
 - Channel Energy dc no longer scales with character level, but with class level that gave access to it.
 - all flying creatures are immune to difficult terrain and ground based buff effects,
-- flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties,
+- flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties (optional),
 - medium range for spells was increased to 60 ft, long range to 100 ft.
 
 
 Original game bug fixes:
-- Vital Strike now takes standard action,
+- Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits.
 - Singing Steel works properly,
 - Archaelogist luck works with Lingering Performance and Singing Steel,
 - Lingering Performance no longer allows to overlap different bardic performances.
 
 
-Mod also changes stats of some npcs
+Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindicative Bastard and stats to 18/10/16/8/10/15
 - Harrim class was changed to Warpriest and stats to 18/10/16/10/16/7
 - Amiri to 18/14/16/10/12/8

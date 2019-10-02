@@ -863,7 +863,9 @@ namespace CallOfTheWild
                                           buff_guid,
                                           animal_fury.Icon,
                                           null,
-                                          Common.createAddSecondaryAttacks(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218")) //bite 1d8
+                                          Common.createAddSecondaryAttacks(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"), //bite 1d8
+                                                                           library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be") //gore 1d6
+                                                                          )
                                           );
 
             var hex_ability = library.CopyAndAdd<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33", name_prefix + "HexAbility", ability_guid); //magic fang

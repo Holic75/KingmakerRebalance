@@ -68,6 +68,8 @@ namespace CallOfTheWild
         static public BlueprintAbility keen_edge;
 
         static public BlueprintAbility savage_maw;
+        static public BlueprintAbility blood_mist;
+        static public BlueprintAbility winter_grasp;
 
 
         static public BlueprintWeaponEnchantment empower_enchant;
@@ -100,8 +102,111 @@ namespace CallOfTheWild
             createFlameArrow();
 
             createSavageMaw();
+            createBloodMist();
+            createWinterGrasp();
         }
 
+
+        static void createWinterGrasp()
+        {
+            var icon = library.Get<BlueprintFeature>("6ac87a3af9ccf014787c49745df75e6a").Icon; //chilling infusion
+
+            var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "WinterGraspDifficultTerrainBuff", "");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd", "WinterGraspArea", ""); //spike stones
+            area.Size = 20.Feet();
+
+            var chill_buff = Helpers.CreateBuff("WinterGraspChillBuff",
+                                                "Winter's Grasp",
+                                                "Ice encrusts the ground, radiating supernatural cold and making it hard for creatures to maintain their balance. This icy ground is treated as difficult terrain. A creature that begins its turn in the affected area takes 1d6 points of cold damage and takes a –2 penalty on saving throws against spells with the cold descriptor for 1 round.",
+                                                "",
+                                                icon,
+                                                Common.createPrefabLink("d7f055790fceee34e87c4902877c894f"), //cold creature
+                                                Common.createContextSavingThrowBonusAgainstDescriptor(-2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Cold),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Cold)
+                                                );
+
+            area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            area.Fx.AssetId = "fd21d914e9f6f5e4faa77365549ad0a7";
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Cold));
+            var area_effect = Helpers.CreateAreaEffectRunAction(round: new GameAction[]{Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 1)),
+                                                                                        Common.createContextActionApplyBuff(chill_buff, Helpers.CreateContextDuration(1), is_child: true)
+                                                                                        }
+                                                               );
+            area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
+
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds));
+            winter_grasp = Helpers.CreateAbility("WinterGraspAbility",
+                                                  chill_buff.Name,
+                                                  chill_buff.Description,
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Medium,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  Helpers.savingThrowNone,
+                                                  Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_area)),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                                  Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
+                                                  );
+
+            winter_grasp.setMiscAbilityParametersRangedDirectional();
+            winter_grasp.SpellResistance = false;
+            winter_grasp.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
+            winter_grasp.AddToSpellList(Helpers.druidSpellList, 2);
+
+            winter_grasp.AddSpellAndScroll("341915f4a228e184e8d28886ea551a17");
+        }
+
+
+        static void createBloodMist()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/BloodMist.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("aa2e0a0fe89693f4e9205fd52c5ba3e5", "BloodMistArea", "");
+            area.Fx = Common.createPrefabLink("253fdbf42ebf7094f9e55f052a3c093c");
+            area.Size = 30.Feet();
+
+            var buff = Helpers.CreateBuff("BloodMistBuff",
+                                          "Blood Mist",
+                                          "This spell summons forth a misty cloud of rust-red toxic algae. Any creature within the mist is coated by it, turning the creature the same reddish color. Any creature within the mist must save or take 1d4 points of Wisdom damage and become enraged, attacking any creatures it detects nearby (as the “attack nearest creature” result of the confused condition). An enraged creature remains so as long as the spell is in effect. A creature only needs to save once each time it is within the mist (though leaving and returning requires another save).",
+                                          "",
+                                          icon,
+                                          null,
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.AttackNearest));
+
+            var concleament_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", "BloodMistConcleamentBuff", "");
+            concleament_buff.SetName("Blood Mist Concleament");
+            concleament_buff.SetDescription(buff.Description);
+            concleament_buff.FxOnStart = null;
+
+            var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+            var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
+            var apply_attack = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true));
+            var apply_buff = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(undead, not: true), Helpers.CreateConditionHasFact(construct, not: true) },
+                                                       Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(apply_attack))
+                                                       );
+            var apply_concleament = Common.createContextActionApplyBuff(concleament_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true);
+
+            var mist_action = Helpers.CreateAreaEffectRunAction(unitEnter: new GameAction[] { apply_buff},
+                                                                unitExit: new GameAction[] {Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = buff)
+                                                                                            }
+                                                               );
+
+            area.ReplaceComponent<AbilityAreaEffectRunAction>(mist_action);
+
+            blood_mist = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "BloodMistAbility", "");
+            blood_mist.RemoveComponents<SpellListComponent>();
+            blood_mist.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 30.Feet()));
+            blood_mist.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
+            blood_mist.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+
+            blood_mist.AddToSpellList(Helpers.druidSpellList, 8);
+            blood_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+        }
 
         static void createSavageMaw()
         {
@@ -116,9 +221,9 @@ namespace CallOfTheWild
             roar.SetNameDescriptionIcon("Savage Maw: Roar",
                                         "Your teeth extend and sharpen, transforming your mouth into a maw of razor-sharp fangs. You gain a secondary bite attack that deals 1d4 points of damage plus your Strength modifier. If you confirm a critical hit with this attack, it also deals 1d4 bleed damage. You can end this spell before its normal duration by making a bestial roar as a swift action. When you do, you can make an Intimidate check to demoralize all foes within a 30-foot radius that can hear the roar.",
                                         icon);
-
             buff.AddComponent(Helpers.CreateAddFact(roar));
             buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
 
             savage_maw = Helpers.CreateAbility("SavageMawAbility",
@@ -138,8 +243,9 @@ namespace CallOfTheWild
             savage_maw.setMiscAbilityParametersSelfOnly();
             savage_maw.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
             var remove_self = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff));
-            roar.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(Common.createContextActionRemoveBuff(buff))));
-
+            //roar.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(Common.createContextActionRemoveBuff(buff))));
+            roar.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(remove_self)));
+            
             savage_maw.AddToSpellList(Helpers.druidSpellList, 2);
             savage_maw.AddToSpellList(Helpers.clericSpellList, 2);
             savage_maw.AddToSpellList(Helpers.inquisitorSpellList, 2);
@@ -627,7 +733,6 @@ namespace CallOfTheWild
 
         static void createIceSlick()
         {
-            var grease = library.Get<BlueprintAbility>("95851f6e85fe87d4190675db0419d112");
 
             var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "IceSlickDifficultTerrainBuff", "");
             var slick_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd", "IceSlickArea", ""); //spike stones
@@ -653,16 +758,13 @@ namespace CallOfTheWild
                                               + "Any creature in the area when the spell is cast takes 1d6 points of cold damage + 1 point per caster level (maximum +10) and falls prone; creatures that succeed at a Reflex save take half damage and don’t fall prone. Spell resistance applies to this initial effect.\n"
                                               + "A creature can walk within or through the area of ice at half its normal speed with a successful DC 10 Mobility check. Failure means the creature can’t move and  it falls. Creatures that do not move on their turn do not need to attempt this check.",
                                               "",
-                                              grease.Icon,
+                                              LoadIcons.Image2Sprite.Create(@"AbilityIcons/IceSlick.png"),
                                               AbilityType.Spell,
                                               Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                               AbilityRange.Close,
                                               Helpers.minutesPerLevelDuration,
                                               Helpers.reflexHalfDamage,
-                                              Helpers.CreateRunActions(SavingThrowType.Reflex, deal_damage,
-                                                                                               Helpers.CreateConditionalSaved(null, apply_prone)
-                                                                                               
-                                                                      ),
+                                              Helpers.CreateRunActions(SavingThrowType.Reflex, deal_damage, Helpers.CreateConditionalSaved(null, apply_prone)),
                                               Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, max: 10),
                                               Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_area)),
                                               Helpers.CreateSpellComponent(SpellSchool.Evocation),

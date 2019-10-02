@@ -876,6 +876,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( "134cb6d492269aa4f8662700ef57449f", 2), //web
+                new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
 
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
@@ -1186,7 +1187,7 @@ namespace CallOfTheWild
         static void createBeastGift()
         {
             beast_gift = hex_engine.createBeastGift("WitchBeastGift", "Beast’s Gift",
-                                                    "Effect: The witch can use her magic to grant her allies ferocious animal abilities.The witch can partially transform a willing ally, granting him one bite attack dealing 1d8 points of damage for a number of minutes equal to the witch’s level. Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.",
+                                                    "Effect: The witch can use her magic to grant her allies ferocious animal abilities. The witch can partially transform a willing ally, granting him one bite attack dealing 1d8 points of damage and one gore attack dealing 1d6 points of damage for a number of minutes equal to the witch’s level. Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.",
                                                     "b87be54ce5ef465786f74d89efa53678",
                                                     "9007fc6505104436b01dfc7f989e82c4",
                                                     "fb4abd4dec1f4a029ebbc39c28139e8c",
