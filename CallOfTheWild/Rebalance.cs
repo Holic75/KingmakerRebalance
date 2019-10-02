@@ -189,12 +189,12 @@ namespace CallOfTheWild
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extend spell
             //change harrim stats
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
-            harrim_companion.Strength = 18;
-            harrim_companion.Constitution = 14;
-            harrim_companion.Charisma = 9;
-            harrim_companion.Wisdom = 14;
+            harrim_companion.Strength = 16;
+            harrim_companion.Constitution = 16;
+            harrim_companion.Charisma = 8;
+            harrim_companion.Wisdom = 15;
             harrim_companion.Dexterity = 10;
-           
+            harrim_companion.Body.PrimaryHandAlternative1 = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("7f7c8e1e4fdd99e438b30ed9622e9e3f");//heavy flail
 
 
             var harrim_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8910febae2a7b9f4ba5eca4dde1e9649");
@@ -202,8 +202,9 @@ namespace CallOfTheWild
 
             var harrim_class_level = harrim_feature.GetComponent<AddClassLevels>();
             harrim_class_level.CharacterClass = Warpriest.warpriest_class;
-            harrim_class_level.Selections[0].Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"), //sf
-                                                                                 library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482"), //af
+            harrim_class_level.Selections[0].Features = new BlueprintFeature[] { NewFeats.weapon_of_the_chosen,
+                                                                                 NewFeats.improved_weapon_of_the_chosen,
+                                                                                 NewFeats.greater_weapon_of_the_chosen,
                                                                                  library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa
                                                                                  NewFeats.furious_focus,
                                                                                  library.Get<BlueprintFeature>("31470b17e8446ae4ea0dacd6c5817d86"), //ws
@@ -217,8 +218,9 @@ namespace CallOfTheWild
             harrim_class_level.Selections[3].Selection = Warpriest.warpriest_blessings;
             harrim_class_level.Selections[3].Features = new BlueprintFeature[] { Warpriest.blessings_map["WarpriestBlessingChaos"], Warpriest.blessings_map["WarpriestBlessingDestruction"] };
             harrim_class_level.Selections[4].Selection = Warpriest.fighter_feat;
-            harrim_class_level.Selections[4].Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"), //sf
-                                                                                 library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482"), //af
+            harrim_class_level.Selections[4].Features = new BlueprintFeature[] {  NewFeats.weapon_of_the_chosen,
+                                                                                 NewFeats.improved_weapon_of_the_chosen,
+                                                                                 NewFeats.greater_weapon_of_the_chosen,
                                                                                  library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa
                                                                                  NewFeats.furious_focus,
                                                                                  library.Get<BlueprintFeature>("31470b17e8446ae4ea0dacd6c5817d86"), //ws
@@ -230,14 +232,14 @@ namespace CallOfTheWild
             harrim_class_level.Selections[5].Selection = Warpriest.weapon_focus_selection;
             harrim_class_level.Selections[5].Features = new BlueprintFeature[] { library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e") }; //wf
             harrim_class_level.Selections[6].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"); //wf
-            harrim_class_level.Selections[6].ParamWeaponCategory = WeaponCategory.Flail;
+            harrim_class_level.Selections[6].ParamWeaponCategory = WeaponCategory.HeavyFlail;
             harrim_class_level.Selections[7].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("31470b17e8446ae4ea0dacd6c5817d86"); //ws
-            harrim_class_level.Selections[7].ParamWeaponCategory = WeaponCategory.Flail;
+            harrim_class_level.Selections[7].ParamWeaponCategory = WeaponCategory.HeavyFlail;
             harrim_class_level.Selections[8].IsParametrizedFeature = false;
             harrim_class_level.Selections[8].Selection = library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482"); //af
             harrim_class_level.Selections[8].Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("c27e6d2b0d33d42439f512c6d9a6a601") }; //heavy
             harrim_class_level.Selections[9].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088"); //gwf
-            harrim_class_level.Selections[9].ParamWeaponCategory = WeaponCategory.Flail;
+            harrim_class_level.Selections[9].ParamWeaponCategory = WeaponCategory.HeavyFlail;
 
             harrim_feature.GetComponent<AddFacts>().Facts =  harrim_feature.GetComponent<AddFacts>().Facts.Take(1).ToArray();
 

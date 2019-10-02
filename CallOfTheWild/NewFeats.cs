@@ -131,14 +131,15 @@ namespace CallOfTheWild
                                                             AbilityRange.Personal,
                                                             "First Attack or untile end of the round.",
                                                             "",
-                                                            Helpers.CreateRunActions(apply_buff),
-                                                            Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a")),//combat expertise
-                                                            Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
+                                                            Helpers.CreateRunActions(apply_buff)
                                                             );
             strike_true_ability.setMiscAbilityParametersSelfOnly(animation: Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Special);
             strike_true = Common.AbilityToFeature(strike_true_ability);
             strike_true.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
             strike_true.SetIcon(null);
+            strike_true.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a")),//combat expertise
+                                      Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
+                                     );
             library.AddCombatFeats(strike_true);
         }
 

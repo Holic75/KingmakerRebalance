@@ -50,6 +50,39 @@ namespace CallOfTheWild.VitalStrikeMechanics
         }
     }
 
+
+    public class UnitPartVitalStrikeCriticalConfirmationBonus : UnitPart
+    {
+        [JsonProperty]
+        private List<Fact> buffs = new List<Fact>();
+
+        public void addBuff(Fact buff)
+        {
+            buffs.Add(buff);
+        }
+
+
+        public void removeBuff(Fact buff)
+        {
+            buffs.Remove(buff);
+        }
+
+
+        public int getBonus()
+        {
+            var bonus = 0;
+            foreach (var b in buffs)
+            {
+                int new_bonus = 0;
+
+                b.CallComponents<VitalStrikeCriticalConfirmationBonus>(v => v.getValue(out new_bonus));
+                bonus += new_bonus;
+            }
+
+            return bonus;
+        }
+    }
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     [AllowMultipleComponents]
     public class VitalStrikeScalingDamage : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
@@ -75,6 +108,42 @@ namespace CallOfTheWild.VitalStrikeMechanics
         public override void OnFactDeactivate()
         {
             this.Owner.Ensure<UnitPartVitalStrikeScalingDamageBonus>().removeBuff(this.Fact);
+        }
+
+
+        public void getValue(out int val)
+        {
+            val = Value.Calculate(this.Context) * multiplier;
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class VitalStrikeCriticalConfirmationBonus : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public ContextValue Value;
+        public int multiplier = 1;
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                return this.Fact.MaybeContext;
+            }
+        }
+
+
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartVitalStrikeCriticalConfirmationBonus>().addBuff(this.Fact);
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartVitalStrikeCriticalConfirmationBonus>().removeBuff(this.Fact);
         }
 
 
@@ -122,7 +191,7 @@ namespace CallOfTheWild.VitalStrikeMechanics
     [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
     class VitalStrike__OnEventAboutToTrigger__Patch
     {
-        static void Postfix(VitalStrike __instance, RuleCalculateWeaponStats evt)
+        static void Postfix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
         {
             if (evt.AttackWithWeapon != null)
             {

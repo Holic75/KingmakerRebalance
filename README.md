@@ -138,7 +138,7 @@ Original game bug fixes:
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindicative Bastard and stats to 18/10/16/8/10/15
 - Harrim class was changed to Warpriest and stats to 18/10/16/10/16/7
-- Amiri to 18/14/16/10/12/8
+- Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
 - Tristian to 8/16/12/10/18/14 and repalces his primary domain to fire
 - Linzi to 8/18/14/14/10/16
