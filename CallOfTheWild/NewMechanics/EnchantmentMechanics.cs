@@ -60,6 +60,8 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Designers.EventConditionActionSystem.ContextData;
+using Kingmaker.View.Equipment;
+using Kingmaker.Items.Slots;
 
 namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 {
@@ -843,6 +845,36 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             this.m_Applied.HoldingSlot?.RemoveItem();
             ItemsCollection.DoWithoutEvents((Action)(() => this.m_Applied.Collection?.Remove((ItemEntity)this.m_Applied)));
             this.m_Applied = (ItemEntityWeapon)null;
+        }
+    }
+
+    //allow summoned weapons to equip as free action
+    [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
+    [Harmony12.HarmonyPatch("HandleEquipmentSlotUpdated", Harmony12.MethodType.Normal)]
+    class UnitViewHandsEquipment_HandleEquipmentSlotUpdated_Patch
+    {
+        static bool Prefix(UnitViewHandsEquipment __instance, HandSlot slot, ItemEntity previousItem)
+        {
+            var tr = Harmony12.Traverse.Create(__instance);
+
+            if ( !tr.Property("Active").GetValue<bool>() || tr.Method("GetSlotData", slot).GetValue<UnitViewHandSlotData>() == null)
+            {
+                return true;
+            }
+
+            if (slot.MaybeWeapon?.EnchantmentsCollection == null)
+            {
+                return true;
+            }
+
+            if (slot.MaybeWeapon.EnchantmentsCollection.HasFact(WeaponEnchantments.summoned_weapon_enchant)
+                 && __instance.InCombat && (__instance.Owner.Descriptor.State.CanAct || __instance.IsDollRoom) && slot.Active)
+            {
+                tr.Method("ChangeEquipmentWithoutAnimation").GetValue();
+                return false;
+            }
+
+            return true;
         }
     }
 

@@ -72,9 +72,6 @@ namespace CallOfTheWild
         static public BlueprintAbility winter_grasp;
 
 
-        static public BlueprintWeaponEnchantment empower_enchant;
-        static public BlueprintWeaponEnchantment maximize_enchant;
-
         static public void load()
         {
             createShillelagh();
@@ -442,13 +439,14 @@ namespace CallOfTheWild
             Helpers.SetField(weapon, "m_DamageType", force_damage);
             Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("ForceBladeName", "Force Sword"));
             Helpers.SetField(weapon, "m_Icon", icon);
+            Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
 
 
             var buff = Helpers.CreateBuff("ForceSwordBuff",
                                             "Force Sword",
                                             "You create a +1 longsword of pure force sized appropriately for you that you can wield or give to another creature like any other longsword. At 8th level, the sword functions as a +2 longsword. "
                                             + "At 13th level, it functions as a + 3 longsword.A force sword cannot be attacked or harmed by physical attacks, but dispel magic, disintegrate, a sphere of annihilation, or a rod of cancellation affects it.\n"
-                                            + "Target's primary hand must be free when you cast this spell. Upon spell cast a standard action will be consumed to equip weapon.",
+                                            + "Target's primary hand must be free when you cast this spell.",
                                             "",
                                             icon,
                                             null,
@@ -468,7 +466,7 @@ namespace CallOfTheWild
             force_sword.SetIcon(icon);
             force_sword.SetName(buff.Name);
             force_sword.SetDescription(buff.Description);
-            force_sword.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free;
+            force_sword.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard;
 
             force_sword.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
             force_sword.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
@@ -1233,6 +1231,8 @@ namespace CallOfTheWild
             Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("FlameBladeName", "Flame Blade"));
             Helpers.SetField(weapon, "m_Icon", bless_weapon.Icon);
 
+            Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
+
             for (int i = 0; i < flame_blade_enchantments.Length; i++)
             {
                 var flame_blade_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
@@ -1244,7 +1244,7 @@ namespace CallOfTheWild
                 flame_blade_enchantments[i] = Common.createWeaponEnchantment($"FlameBlade{i}Enchantment",
                                                                              "Flame Blade",
                                                                              "A 3-foot-long, blazing beam of red-hot fire springs forth from your hand. You wield this blade-like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage + 1 point per two caster levels (maximum +10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
-                                                                             + "You primary hand must be free when you cast this spell. Upon spell cast a standard action will be consumed to equip weapon.",
+                                                                             + "Your primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -1256,35 +1256,16 @@ namespace CallOfTheWild
             }
 
 
-           empower_enchant = Common.createWeaponEnchantment("EmpowerWeaponEnchantment",
-                                                         "Empowered",
-                                                         "All variable, numeric effects of an empowered spell are increased by half including bonuses to those dice rolls.",
-                                                         "",
-                                                         "",
-                                                         "",
-                                                         0,
-                                                         null,
-                                                         Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponMetamagicDamage>(w => w.empower = true)
-                                                         );
-            maximize_enchant = Common.createWeaponEnchantment("MaximizeWeaponEnchantment",
-                                                         "Maximized",
-                                                         "All variable, numeric effects of a spell are maximized.",
-                                                         "",
-                                                         "",
-                                                         "",
-                                                         0,
-                                                         null,
-                                                         Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponMetamagicDamage>(w => w.maximize = true)
-                                                         );
+
 
 
             var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
                                                                                                   false, false,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, empower_enchant);
+                                                                                                  new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.empower_enchant);
 
             var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
                                                                                                   false, false,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, maximize_enchant);
+                                                                                                  new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.maximize_enchant);
 
 
             var buff = Helpers.CreateBuff("FlameBladeBuff",
@@ -1309,7 +1290,7 @@ namespace CallOfTheWild
             flame_blade.SetIcon(bless_weapon.Icon);
             flame_blade.SetName(buff.Name);
             flame_blade.SetDescription(buff.Description);
-            flame_blade.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free;
+            flame_blade.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard;
 
             flame_blade.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
             flame_blade.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
@@ -1359,6 +1340,7 @@ namespace CallOfTheWild
             Helpers.SetField(weapon, "m_Icon", fireball.Icon);
             var fire_ray = library.Get<BlueprintProjectile>("30a5f408ea9d163418c86a7107fc4326");
             Helpers.SetField(weapon, "m_VisualParameters", Common.replaceProjectileInWeaponVisualParameters(weapon.VisualParameters, fire_ray));
+            Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
 
             for (int i = 0; i < produce_flame_enchantments.Length; i++)
             {
@@ -1373,7 +1355,7 @@ namespace CallOfTheWild
                                                                              "Produce Flame",
                                                                              "Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment.\n"
                                                                              + "In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.\n"
-                                                                             + "You primary hand must be free when you cast this spell. Upon spell cast a standard action will be consumed to equip weapon.",
+                                                                             + "Your primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -1389,11 +1371,11 @@ namespace CallOfTheWild
 
             var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
                                                                                                   false, false,
-                                                                                                  new BlueprintWeaponType[0],  empower_enchant);
+                                                                                                  new BlueprintWeaponType[0],  WeaponEnchantments.empower_enchant);
 
             var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
                                                                                                   false, false,
-                                                                                                  new BlueprintWeaponType[0], maximize_enchant);
+                                                                                                  new BlueprintWeaponType[0], WeaponEnchantments.maximize_enchant);
 
 
             var buff = Helpers.CreateBuff("ProduceFlameBuff",
@@ -1425,7 +1407,7 @@ namespace CallOfTheWild
                                                   "",
                                                   buff.Icon,
                                                   AbilityType.Spell,
-                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                   AbilityRange.Medium,
                                                   Helpers.minutesPerLevelDuration,
                                                   "",

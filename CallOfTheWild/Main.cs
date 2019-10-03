@@ -100,6 +100,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Helpers.GuidStorage.load(CallOfTheWild.Properties.Resources.blueprints, allow_guid_generation);
                     CallOfTheWild.Helpers.Load();
                     CallOfTheWild.ArmorEnchantments.initialize();
+                    CallOfTheWild.WeaponEnchantments.initialize();
 
                     if (settings.nerf_animal_companion)
                     {

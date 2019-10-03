@@ -124,13 +124,14 @@
   <ItemGroup>
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
-    <Compile Include="ArmorEnchantments.cs" />
+    <Compile Include="Enchantments\ArmorEnchantments.cs" />
     <Compile Include="Classes\Bloodrager.cs" />
     <Compile Include="ChannelEnergyEngine.cs" />
     <Compile Include="Classes\Hinterlander.cs" />
     <Compile Include="Classes\HolyVindicator.cs" />
     <Compile Include="Classes\VindicativeBastard.cs" />
     <Compile Include="CleanUp.cs" />
+    <Compile Include="Enchantments\WeaponEnchantments.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="NewMechanics\NewMechanics.cs" />
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />
+    <Compile Include="NewMechanics\SharedHandItems.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WildArmor.cs" />
     <Compile Include="NewRagePowers.cs" />
