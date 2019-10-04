@@ -84,7 +84,7 @@ namespace CallOfTheWild
             library.AddAsset(vindicative_bastard_class, "");
 
 
-            vindicative_bastard_class.LocalizedName = Helpers.CreateString("VindicativeBastard.Name", "Vindicative Bastard");
+            vindicative_bastard_class.LocalizedName = Helpers.CreateString("VindicativeBastard.Name", "Vindictive Bastard");
             vindicative_bastard_class.LocalizedDescription = Helpers.CreateString("VindicativeBastard.Description",
                                                                         "While paladins often collaborate with less righteous adventurers in order to further their causes, those who spend too much time around companions with particularly loose morals run the risk of adopting those same unscrupulous ideologies and methods. Such a vindictive bastard, as these fallen paladins are known, strikes out for retribution and revenge, far more interested in tearing down those who have harmed her or her companions than furthering a distant deity’s cause."
                                                                         );
@@ -153,7 +153,7 @@ namespace CallOfTheWild
 
             var proficiencies = library.CopyAndAdd<BlueprintFeature>("b10ff88c03308b649b50c31611c2fefb", "VindicativeBastardProficiencies", "");
             proficiencies.SetName("Vindicative Bastard Proficiencies");
-            proficiencies.SetDescription("Vindicative Bastards are proficient with all simple and martial weapons, with all types of armor (heavy, medium, and light), and with shields (except tower shields).");
+            proficiencies.SetDescription("Vindictive Bastards are proficient with all simple and martial weapons, with all types of armor (heavy, medium, and light), and with shields (except tower shields).");
 
             vindicative_bastard_progression = Helpers.CreateProgression("VindicativeBastardProgression",
                                                    vindicative_bastard_class.Name,
@@ -206,7 +206,7 @@ namespace CallOfTheWild
 
 
             var vindicative_smite_allowed = Helpers.CreateBuff("VindicativeSmiteAllowedBuff",
-                                                               "Vindicative Smite Allowed",
+                                                               "Vindictive Smite Allowed",
                                                                "",
                                                                "",
                                                                vindicative_smite_buff.Icon,
@@ -340,7 +340,7 @@ namespace CallOfTheWild
             var diehard = library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad");
             spiteful_tenacity = Helpers.CreateFeature("SpitefulTenacityFeature",
                                                        "Spiteful Tenacity",
-                                                       "At 3rd level vindicative bastard receives Diehard Feat for free",
+                                                       "At 3rd level vindictive bastard receives Diehard Feat for free",
                                                        "",
                                                        diehard.Icon,
                                                        FeatureGroup.None,
@@ -394,7 +394,7 @@ namespace CallOfTheWild
         static void createStalwart()
         {
             stalwart = library.Get<BlueprintFeature>("ec9dbc9a5fa26e446a54fe5df6779088");
-            stalwart.SetDescription("At 14th level, a vindicative bastard can use mental and physical resiliency to avoid certain attacks. If she makes a Fortitude or Will saving throw against an attack that has a halved damage on a successful save, she instead avoids the damage entirely.");
+            stalwart.SetDescription("At 14th level, a vindictive bastard can use mental and physical resiliency to avoid certain attacks. If she makes a Fortitude or Will saving throw against an attack that has a halved damage on a successful save, she instead avoids the damage entirely.");
         }
 
 
