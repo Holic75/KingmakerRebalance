@@ -27,6 +27,7 @@ namespace CallOfTheWild
             internal bool sacred_huntsmaster_animal_focus { get; }
             internal bool use_armor_in_wildshape { get; }
             internal bool x3_crit_multiplier_for_flails { get; }
+            internal bool swap_weapon_sets_as_move_action { get; }
 
             internal Settings()
             {
@@ -41,12 +42,14 @@ namespace CallOfTheWild
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
                     use_armor_in_wildshape = (bool)jo["use_armor_in_wildshape"];
                     x3_crit_multiplier_for_flails = (bool)jo["x3_crit_multiplier_for_flails"];
+                    swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
                 }
             }
         }
 
         static internal Settings settings = new Settings();
         internal static UnityModManagerNet.UnityModManager.ModEntry.ModLogger logger;
+        internal static Harmony12.HarmonyInstance harmony;
         internal static LibraryScriptableObject library;
 
         static readonly Dictionary<Type, bool> typesPatched = new Dictionary<Type, bool>();
@@ -68,8 +71,13 @@ namespace CallOfTheWild
             try
             {
                 logger = modEntry.Logger;
-                var harmony = Harmony12.HarmonyInstance.Create(modEntry.Info.Id);
+                harmony = Harmony12.HarmonyInstance.Create(modEntry.Info.Id);
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+                if (settings.swap_weapon_sets_as_move_action)
+                {
+                    NewMechanics.WeaponSetSwapPatch.Run();
+                }
             }
             catch (Exception ex)
             {

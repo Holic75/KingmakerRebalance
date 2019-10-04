@@ -4,5 +4,6 @@
     "reduce_skill_points": true,
     "sacred_huntsmaster_animal_focus": true,
     "use_armor_in_wildshape": true,
-    "x3_crit_multiplier_for_flails":  true
+    "x3_crit_multiplier_for_flails": true,
+    "swap_weapon_sets_as_move_action":  true
 }
