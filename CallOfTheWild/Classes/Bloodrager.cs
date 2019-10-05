@@ -355,12 +355,14 @@ namespace CallOfTheWild
             {
                 new Common.SpellId( "4783c3709a74a794dbe7c8e7e0b1b038", 1), //burning hands
                 new Common.SpellId( "bd81a3931aa285a4f9844585b5d97e51", 1), //cause fear
+                new Common.SpellId( NewSpells.chill_touch.AssetGuid, 1),
                 new Common.SpellId( "91da41b9793a4624797921f221db653c", 1), //color sparay
                 new Common.SpellId( "1a40fc88aeac9da4aa2fbdbb88335f5d", 1), //corrosive touch
                 new Common.SpellId( "8e7cfa5f213a90549aadd18f8f6f4664", 1), //ear piercing scream
                 new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
                 new Common.SpellId( "b065231094a21d14dbf1c3832f776871", 1), //fire belly
                 new Common.SpellId( "39a602aa80cc96f4597778b6d4d49c0a", 1), //flare burst
+                new Common.SpellId( NewSpells.frost_bite.AssetGuid, 1),
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "4ac47ddb9fa1eaf43a1b6809980cfbd2", 1), //magic missile
                 new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //mage shield
@@ -393,6 +395,7 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "61a7ed778dd93f344a5dacdbad324cc9", 3), //beast shape 1
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
+                new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
                 new Common.SpellId( "2d81362af43aeac4387a3d4fced489c3", 3), //fireball
                 new Common.SpellId( NewSpells.flame_arrow.AssetGuid, 3),
                 new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste

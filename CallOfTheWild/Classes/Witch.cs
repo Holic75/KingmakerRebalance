@@ -839,9 +839,11 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "4783c3709a74a794dbe7c8e7e0b1b038", 1), //burning hands
                 new Common.SpellId( "bd81a3931aa285a4f9844585b5d97e51", 1), //cause fear
+                new Common.SpellId( NewSpells.chill_touch.AssetGuid, 1),
                 new Common.SpellId( "5590652e1c2225c4ca30c4a699ab3649", 1), //cure light wounds
                 new Common.SpellId( "8e7cfa5f213a90549aadd18f8f6f4664", 1), //ear piercing scream
                 new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
+                new Common.SpellId( NewSpells.frost_bite.AssetGuid, 1),
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
                 new Common.SpellId( "e5af3674bb241f14b9a9f6b0c7dc3d27", 1), //inflict light wounds
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
@@ -883,6 +885,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
                 new Common.SpellId( "04e820e1ce3a66f47a50ad5074d3ae40", 3), //delay posion communal
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
+                new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage

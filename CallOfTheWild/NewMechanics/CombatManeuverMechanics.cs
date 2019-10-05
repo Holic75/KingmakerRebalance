@@ -130,6 +130,27 @@ namespace CallOfTheWild.CombatManeuverMechanics
     }
 
 
+    public class ContextConditionTargetSizeLessOrEqual : ContextCondition
+    {
+        public Size target_size;
+
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
+
+        protected override bool CheckCondition()
+        {
+            if (Target == null)
+            {
+                return false;
+            }
+
+            return this.Target.Unit.Ensure<UnitPartFakeSizeBonus>().getEffectiveSize() <= target_size;
+        }
+    }
+
+
     public class ContextConditionCasterBuffRankLess : ContextCondition
     {
         public BlueprintBuff buff;

@@ -674,6 +674,22 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     }
 
 
+    [ComponentName("touch attack")]
+    public class TouchEnchant : WeaponEnchantmentLogic, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
+    {
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (this.Owner.Wielder == null || evt.Weapon != this.Owner)
+                return;
+            evt.AttackType = AttackType.Touch;
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+        }
+    }
+
+
 
 
 
@@ -862,12 +878,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 return true;
             }
 
-            if (slot.MaybeWeapon?.EnchantmentsCollection == null)
-            {
-                return true;
-            }
 
-            if (slot.MaybeWeapon.EnchantmentsCollection.HasFact(WeaponEnchantments.summoned_weapon_enchant)
+            if (isSummoned(slot.MaybeWeapon) || isSummoned(previousItem)
                  && __instance.InCombat && (__instance.Owner.Descriptor.State.CanAct || __instance.IsDollRoom) && slot.Active)
             {
                 tr.Method("ChangeEquipmentWithoutAnimation").GetValue();
@@ -875,6 +887,17 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             }
 
             return true;
+        }
+
+
+        static bool isSummoned(ItemEntity item)
+        {
+            if (item?.EnchantmentsCollection == null)
+            {
+                return false;
+            }
+
+            return item.EnchantmentsCollection.HasFact(WeaponEnchantments.summoned_weapon_enchant);
         }
     }
 

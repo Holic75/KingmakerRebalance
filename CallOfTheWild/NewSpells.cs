@@ -71,6 +71,17 @@ namespace CallOfTheWild
         static public BlueprintAbility blood_mist;
         static public BlueprintAbility winter_grasp;
 
+        static public BlueprintAbility frost_bite;
+        static public BlueprintWeaponType touch_slam_cold;
+        static public BlueprintAbility chill_touch;
+        static public BlueprintWeaponType touch_slam_negative;
+
+
+        static public BlueprintAbility earth_tremor;
+        static public BlueprintAbility bone_fists;
+        static public BlueprintAbility explosion_of_rot;
+
+
 
         static public void load()
         {
@@ -101,6 +112,314 @@ namespace CallOfTheWild
             createSavageMaw();
             createBloodMist();
             createWinterGrasp();
+
+            createFrostBite();
+            createChillTouch();
+            createEarthTremor();
+        }
+
+
+        static void createEarthTremor()
+        {
+            var icon = library.Get<BlueprintAbility>("29ccc62632178d344ad0be0865fd3113").Icon; //create pit
+            var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "EarthTremorDifficultTerrainBuff", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("8b4ea698ae053c541beed4e050f32dc3", "EarthTremorArea", "");
+            area.RemoveComponents<AbilityAreaEffectRunAction>();
+            area.AddComponent(Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = difficult_terrain; a.Condition = Helpers.CreateConditionsCheckerOr(); }));
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
+
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                     isAoE: true, halfIfSaved: true);
+
+            var prone_buff = library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97");
+            var apply_prone = Common.createContextActionApplyBuff(prone_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var failure_prone_action = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
+                                                           Helpers.CreateConditionalSaved(null, apply_prone)
+                                                          );
+
+            var description = "You strike the ground and unleash a tremor of seismic force, hurling up earth, rock, and sand.\n" 
+                              +"You choose whether the earth tremor affects a 30 - foot line, a 20 - foot cone - shaped spread, or a 10 - foot - radius spread centered on you. the space you occupy is not affected by earth tremor.the area you choose becomes dense rubble that costs 2 squares of movement to enter.Dense rubble and is considered as difficult terrain. Creatures on the ground in the area take 1d4 points of bludgeoning damage per caster level you have (maximum 10d4) or half damage on a successful save. Medium or smaller creatures that fail their saves are knocked prone.\n"
+                              + "This spell can be cast only on a surface of earth, sand, or stone. It has no effect if you are in a wooden or metal structure or if you are not touching the ground.";
+
+            var earth_tremor_cone = Helpers.CreateAbility("EarthTremorCone",
+                                                 "Earth Tremor: 20-foot Cone",
+                                                 description,
+                                                 "",
+                                                 icon,
+                                                 AbilityType.Spell,
+                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Projectile,
+                                                 "",
+                                                 Helpers.savingThrowNone,
+                                                 Helpers.CreateRunActions(SavingThrowType.Reflex, dmg, failure_prone_action,
+                                                                          Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(1, DurationRate.Hours))
+                                                                          ),
+                                                 Helpers.CreateContextRankConfig(max: 10),
+                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Ground),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                 Common.createAbilityDeliverProjectile(AbilityProjectileType.Cone, 
+                                                                                      library.Get<BlueprintProjectile>("868f9126707bdc5428528dd492524d52"), 20.Feet(), 5.Feet()) //sonic cone
+                                                 );
+
+            earth_tremor_cone.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Quicken;
+            earth_tremor_cone.setMiscAbilityParametersRangedDirectional();
+
+            var earth_tremor_line = library.CopyAndAdd<BlueprintAbility>(earth_tremor_cone.AssetGuid, "EarthTremorLine", "");
+            earth_tremor_line.SetName("Earth Tremor: 30-foot Line");
+            earth_tremor_line.ReplaceComponent<AbilityDeliverProjectile>(a => { a.Type = AbilityProjectileType.Line;
+                                                                                a.Length = 30.Feet();
+                                                                                a.Projectiles = new BlueprintProjectile[] { library.Get<BlueprintProjectile>("868f9126707bdc5428528dd492524d52") };//same cone
+                                                                               });
+
+            var earth_tremor_burst = library.CopyAndAdd<BlueprintAbility>(earth_tremor_cone.AssetGuid, "EarthTremorBurst", "");
+            earth_tremor_burst.SetName("Earth Tremor: 10-foot Spread");
+            earth_tremor_burst.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any,
+                                                                                                            Helpers.CreateConditionsCheckerOr(Common.createContextConditionIsCaster(not: true))
+                                                                                                            )
+                                                                        );
+            earth_tremor_burst.setMiscAbilityParametersSelfOnly();
+            earth_tremor_burst.Range = AbilityRange.Personal;
+            earth_tremor = Common.createVariantWrapper("EarthTremorAbility", "", earth_tremor_cone, earth_tremor_line, earth_tremor_burst);
+            earth_tremor.SetName("Earth Tremor");
+            earth_tremor.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground),
+                                       Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+
+            earth_tremor.AddToSpellList(Helpers.druidSpellList, 3);
+            earth_tremor.AddToSpellList(Helpers.magusSpellList, 3);
+            earth_tremor.AddToSpellList(Helpers.wizardSpellList, 3);
+            earth_tremor.AddSpellAndScroll("bc948837c7acb664eb8d89ac7749fa18");
+        }
+
+
+        static void createFrostBite()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FrostBite.png");
+           
+            BlueprintWeaponEnchantment[] frost_bite_enchantments = new BlueprintWeaponEnchantment[10];
+            var cold_damage = Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.Cold);
+
+            var frost_enchant = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
+            touch_slam_cold = library.CopyAndAdd<BlueprintWeaponType>("f18cbcb39a1b35643a8d129b1ec4e716", "TouchSlamColdType", "");//slam
+            touch_slam_cold.Category = WeaponCategory.Touch;
+            Helpers.SetField(touch_slam_cold, "m_IsTwoHanded", false);
+
+            var damage_type = new DamageTypeDescription()
+            {
+                Type = DamageType.Energy,
+                Energy = DamageEnergyType.Cold,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+
+            Helpers.SetField(touch_slam_cold, "m_DamageType", damage_type);
+            Helpers.SetField(touch_slam_cold, "m_TypeNameText", Helpers.CreateString("TouchSlamColdName", "Touch"));
+            Helpers.SetField(touch_slam_cold, "m_DefaultNameText", Helpers.CreateString("TouchSlamColdName", "Touch"));
+
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137", "FrostBiteWeapon", "");//sling
+            Helpers.SetField(weapon, "m_Type", touch_slam_cold);
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("FrostBiteWeaponName", "Frost Bite"));
+            Helpers.SetField(weapon, "m_Icon", icon);
+            Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
+
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var apply_fatigued = Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1, DurationRate.Minutes), is_child: true);
+
+            for (int i = 0; i < frost_bite_enchantments.Length; i++)
+            {
+                var frost_bite_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
+                {
+                    w.bonus_damage = 1 + i;
+                    w.dice_formula = new DiceFormula(1, DiceType.D6);
+                    w.damage_type_description = cold_damage;
+                });
+
+                frost_bite_enchantments[i] = Common.createWeaponEnchantment($"FrostBite{i}Enchantment",
+                                                                             "Frostbite",
+                                                                             "Your melee touch attack deals 1d6 points of cold damage + 1 point per level (maximum + 10), and the target is fatigued for 1 minute. This spell cannot make a creature exhausted even if it is already fatigued. Each attack you make reduces the remaining duration of the spell by 1 minute.",
+                                                                             "",
+                                                                             "",
+                                                                             "",
+                                                                             0,
+                                                                             frost_enchant.WeaponFxPrefab,
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.Immaterial>(),
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.NoDamageScalingEnchant>(),
+                                                                             frost_bite_enchant,
+                                                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_fatigued))
+                                                                             );
+            }
+
+
+            var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], WeaponEnchantments.empower_enchant);
+
+            var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], WeaponEnchantments.maximize_enchant);
+
+
+            var buff = Helpers.CreateBuff("FrostBiteBuff",
+                                            frost_bite_enchantments[0].Name,
+                                            frost_bite_enchantments[0].Description,
+                                            "",
+                                            icon,
+                                            null,
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = weapon;}),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
+                                                                                            new BlueprintWeaponType[0], frost_bite_enchantments),
+                                            empower_buff,
+                                            maximize_buff,
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.DivStep,
+                                                                            type: AbilityRankType.DamageBonus, stepLevel: 1, max: 10)
+                                            );
+            buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
+            foreach (var e in frost_bite_enchantments)
+            {
+                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); }));
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            frost_bite = Helpers.CreateAbility("FrostBiteAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Touch,
+                                                  Helpers.minutesPerLevelDuration,
+                                                  Helpers.savingThrowNone,
+                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
+                                                  Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Transmutation),
+                                                  Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff)))
+                                                  );
+            frost_bite.setMiscAbilityParametersTouchHarmful();
+
+            frost_bite.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+
+            frost_bite.AddToSpellList(Helpers.druidSpellList, 1);
+            frost_bite.AddToSpellList(Helpers.magusSpellList, 1);
+            frost_bite.AddSpellAndScroll("1cd597e316ac49941a568312de2be6ae"); //acid maw
+        }
+
+
+        static void createChillTouch()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ChillTouch.png");
+
+            BlueprintWeaponEnchantment[] chill_touch_echantments = new BlueprintWeaponEnchantment[10];
+            var negative_damage = Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.NegativeEnergy);
+
+            var frost_enchant = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
+            touch_slam_negative = library.CopyAndAdd<BlueprintWeaponType>("f18cbcb39a1b35643a8d129b1ec4e716", "TouchSlamNegativeType", "");//slam
+            touch_slam_negative.Category = WeaponCategory.Touch;
+            Helpers.SetField(touch_slam_negative, "m_IsTwoHanded", false);
+
+            var damage_type = new DamageTypeDescription()
+            {
+                Type = DamageType.Energy,
+                Energy = DamageEnergyType.NegativeEnergy,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+
+            Helpers.SetField(touch_slam_negative, "m_DamageType", damage_type);
+            Helpers.SetField(touch_slam_negative, "m_TypeNameText", Helpers.CreateString("TouchSlamNegativeName", "Touch"));
+            Helpers.SetField(touch_slam_negative, "m_DefaultNameText", Helpers.CreateString("TouchSlamNegativeName", "Touch"));
+            
+
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137", "ChillTouchWeapon", "");
+            Helpers.SetField(weapon, "m_Type", touch_slam_negative);
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("ChillTouchWeaponName", "Chill Tocuh"));
+            Helpers.SetField(weapon, "m_Icon", icon);
+            Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
+
+            var frightened = library.CopyAndAdd<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf", "ChillTouchUndeadFrightenedBuff", "");
+            frightened.RemoveComponents<SpellDescriptorComponent>();
+            var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+
+
+            for (int i = 0; i < chill_touch_echantments.Length; i++)
+            {
+                var on_living = Helpers.CreateConditionalSaved(null, Helpers.CreateActionDealDamage(StatType.Strength, Helpers.CreateContextDiceValue(DiceType.Zero, bonus: 1)));
+                var on_undead = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(i + 1, diceType: DiceType.D4, diceCount: 1)));
+                var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(undead),
+                                                       Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(on_undead)),
+                                                       Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(on_living))
+                                                      );
+                chill_touch_echantments[i] = Common.createWeaponEnchantment($"ChillTouch{i}Enchantment",
+                                                                             "Chill Touch",
+                                                                             "A touch from your hand, which glows with blue energy, disrupts the life force of living creatures. Each touch channels negative energy that deals 1d6 points of damage. The touched creature also takes 1 point of Strength damage unless it makes a successful Fortitude saving throw.  Each attack you make reduces the remaining duration of the spell by 1 minute.\n"
+                                                                             + "An undead creature you touch takes no damage of either sort, but it must make a successful Will saving throw or flee as if panicked for 1d4 rounds + 1 round per caster level (max + 10).",
+                                                                             "",
+                                                                             "",
+                                                                             "",
+                                                                             0,
+                                                                             frost_enchant.WeaponFxPrefab,
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.Immaterial>(),
+                                                                             Helpers.Create<NewMechanics.EnchantmentMechanics.NoDamageScalingEnchant>(),
+                                                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect))
+                                                                             );
+            }
+
+            var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], WeaponEnchantments.empower_enchant);
+            var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], WeaponEnchantments.maximize_enchant);
+            var buff = Helpers.CreateBuff("ChillTouchBuff",
+                                            chill_touch_echantments[0].Name,
+                                            chill_touch_echantments[0].Description,
+                                            "",
+                                            icon,
+                                            null,
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = weapon; }),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
+                                                                                            new BlueprintWeaponType[0], chill_touch_echantments),
+                                            empower_buff,
+                                            maximize_buff,
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.DivStep,
+                                                                            type: AbilityRankType.DamageBonus, stepLevel: 1, max: 10)
+                                            );
+            buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
+            foreach (var e in chill_touch_echantments)
+            {
+                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); }));
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            chill_touch = Helpers.CreateAbility("ChillTouchAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Touch,
+                                                  Helpers.minutesPerLevelDuration,
+                                                  "",
+                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
+                                                  Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Necromancy),
+                                                  Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff)))
+                                                  );
+            chill_touch.setMiscAbilityParametersTouchHarmful();
+
+            chill_touch.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+
+            chill_touch.AddToSpellList(Helpers.wizardSpellList, 1);
+            chill_touch.AddToSpellList(Helpers.magusSpellList, 1);
+            chill_touch.AddSpellAndScroll("01bd2a92d4112864b871995c93456b54"); //bestow curse
         }
 
 
@@ -1321,6 +1640,8 @@ namespace CallOfTheWild
             weapon_type.Category = WeaponCategory.Ray;
             Helpers.SetField(weapon_type, "m_IsTwoHanded", false);
 
+            Helpers.SetField(weapon_type, "m_Enchantments", new BlueprintWeaponEnchantment[0]); //remove str bonus
+
             var damage_type = new DamageTypeDescription()
             {
                 Type = DamageType.Energy,
@@ -1384,12 +1705,12 @@ namespace CallOfTheWild
                                             "",
                                             fireball.Icon,
                                             null,
-                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = weapon; c.disable_aoo = true; }),
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = weapon; }),
                                             Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
                                                                                             new BlueprintWeaponType[0], produce_flame_enchantments),
                                             empower_buff,
                                             maximize_buff,
-                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.DivStep,
                                                                             type: AbilityRankType.DamageBonus, stepLevel: 1, max: 5)
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
@@ -1411,10 +1732,11 @@ namespace CallOfTheWild
                                                   AbilityRange.Medium,
                                                   Helpers.minutesPerLevelDuration,
                                                   "",
-                                                  Helpers.CreateRunActions(Common.createContextActionOnContextCaster(apply_buff), Common.createContextActionAttack()),
+                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),  
-                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
+                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff)))
                                                   );
             produce_flame.setMiscAbilityParametersSingleTargetRangedHarmful();
 
