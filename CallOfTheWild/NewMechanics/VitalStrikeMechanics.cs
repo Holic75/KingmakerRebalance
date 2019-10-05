@@ -171,16 +171,19 @@ namespace CallOfTheWild.VitalStrikeMechanics
             int bonus = evt.Initiator.Ensure<UnitPartVitalStrikeScalingDamageBonus>().getDamageBonus();
 
             bonus *= (___m_DamageMod - 1);
-            if (bonus <= 0)
-            {
-                return false;
-            }
             damageDescription.Bonus += bonus;
             //make vital strike damage not multipliable on critical hit
             var vital_strike_damage = new DamageDescription();
             vital_strike_damage.TypeDescription = damageDescription.TypeDescription;
             vital_strike_damage.Dice = new DiceFormula(damageDescription.Dice.Rolls * (___m_DamageMod - 1), damageDescription.Dice.Dice);
-            evt.DamageDescription.Insert(1, vital_strike_damage);
+            if (evt.DamageDescription.Count() <= 1)
+            {
+                evt.DamageDescription.Add(vital_strike_damage);
+            }
+            else
+            {
+                evt.DamageDescription.Insert(1, vital_strike_damage);
+            }
             //damageDescription.Dice = new DiceFormula(damageDescription.Dice.Rolls * ___m_DamageMod, damageDescription.Dice.Dice);
             return false;
         }

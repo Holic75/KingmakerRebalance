@@ -918,7 +918,7 @@ namespace CallOfTheWild
 
         public static LocalizedString tenMinPerLevelDuration, minutesPerLevelDuration, hourPerLevelDuration, roundsPerLevelDuration, oneRoundDuration, oneMinuteDuration;
 
-        public static LocalizedString reflexHalfDamage, savingThrowNone, willNegates;
+        public static LocalizedString reflexHalfDamage, savingThrowNone, willNegates, fortNegates;
 
         public static BlueprintSpellList wizardSpellList, magusSpellList, druidSpellList, clericSpellList, paladinSpellList, inquisitorSpellList, alchemistSpellList, bardSpellList, rangerSpellList;
 
@@ -970,6 +970,7 @@ namespace CallOfTheWild
             reflexHalfDamage = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").LocalizedSavingThrow; // fireball
             savingThrowNone = library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").LocalizedSavingThrow; // magic missle
             willNegates = library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734").LocalizedSavingThrow; //bane
+            fortNegates = library.Get<BlueprintAbility>("48e2744846ed04b4580be1a3343a5d3d").LocalizedSavingThrow; //contagion
 
             wizardSpellList = library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89");
             magusSpellList = library.Get<BlueprintSpellList>("4d72e1e7bd6bc4f4caaea7aa43a14639");
@@ -1185,7 +1186,9 @@ namespace CallOfTheWild
             String oldValue;
             if (strings.TryGetValue(key, out oldValue) && value != oldValue)
             {
+#if DEBUG
                 Log.Write($"Info: duplicate localized string `{key}`, different text.");
+#endif
             }
             strings[key] = value;
             localized = new LocalizedString();

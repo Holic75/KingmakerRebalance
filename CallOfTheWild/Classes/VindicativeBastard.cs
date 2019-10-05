@@ -77,7 +77,7 @@ namespace CallOfTheWild
 
         static internal void createClass()
         {
-            Main.logger.Log("Vindicative Bastard class test mode: " + test_mode.ToString());
+            Main.logger.Log("Vindictive Bastard class test mode: " + test_mode.ToString());
             var paladin_class = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
             vindicative_bastard_class = Helpers.Create<BlueprintCharacterClass>();
             vindicative_bastard_class.name = "VindicativeBastardClass";

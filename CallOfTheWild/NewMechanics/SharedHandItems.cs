@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace CallOfTheWild.SharedHandItems
 {
     //allow summoned weapons to equip as free action
-    /*[Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
+   /* [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
     [Harmony12.HarmonyPatch("HandleEquipmentSetChanged", Harmony12.MethodType.Normal)]
     class UnitViewHandsEquipment_HandleEquipmentSlotUpdated_Patch
     {
@@ -32,6 +32,7 @@ namespace CallOfTheWild.SharedHandItems
             WeaponSet active_set = tr.Field("m_ActiveSet").GetValue<WeaponSet>();
             WeaponSet new_set = __instance.GetSelectedWeaponSet();
 
+            Main.logger.Log($"Dollroom: {__instance.IsDollRoom}");
             int current_slot = __instance.Owner.Body.CurrentHandEquipmentSetIndex;
             int paired_slot = secondary_hand_share_slots[current_slot];
             if (paired_slot != -1
@@ -44,8 +45,8 @@ namespace CallOfTheWild.SharedHandItems
                 var item = __instance.Owner.Body.HandsEquipmentSets[paired_slot].SecondaryHand.MaybeItem;
                 __instance.Owner.Body.HandsEquipmentSets[current_slot].SecondaryHand.InsertItem(item);
                 __instance.Owner.Body.HandsEquipmentSets[paired_slot].SecondaryHand.RemoveItem();
-                __instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[current_slot].SecondaryHand, null);
-                __instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[paired_slot].SecondaryHand, item);
+                //__instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[current_slot].SecondaryHand, null);
+                //__instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[paired_slot].SecondaryHand, item);
             }
 
 
@@ -60,8 +61,8 @@ namespace CallOfTheWild.SharedHandItems
                 var item = __instance.Owner.Body.HandsEquipmentSets[paired_slot].PrimaryHand.MaybeItem;
                 __instance.Owner.Body.HandsEquipmentSets[current_slot].PrimaryHand.InsertItem(item);
                 __instance.Owner.Body.HandsEquipmentSets[paired_slot].PrimaryHand.RemoveItem();
-                __instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[current_slot].PrimaryHand, null);
-                __instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[paired_slot].PrimaryHand, item);
+               // __instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[current_slot].PrimaryHand, null);
+               // __instance.Owner.View.HandleEquipmentSlotUpdated(__instance.Owner.Body.HandsEquipmentSets[paired_slot].PrimaryHand, item);
             }
 
             return true;

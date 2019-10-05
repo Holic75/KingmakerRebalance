@@ -76,6 +76,7 @@ namespace CallOfTheWild
 
                 if (settings.swap_weapon_sets_as_move_action)
                 {
+                    Main.logger.Log("Changing weapons will take move action.");
                     NewMechanics.WeaponSetSwapPatch.Run();
                 }
             }
@@ -124,7 +125,7 @@ namespace CallOfTheWild
 
                     if (settings.x3_crit_multiplier_for_flails)
                     {
-                        Main.logger.Log("Increasing flails crit multiplier to x3");
+                        Main.logger.Log("Increasing flails crit multiplier to x3.");
                         CallOfTheWild.Rebalance.fixFlailCritMultiplier();
                     }
 

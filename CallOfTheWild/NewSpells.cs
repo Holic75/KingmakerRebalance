@@ -25,6 +25,7 @@ using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -81,6 +82,9 @@ namespace CallOfTheWild
         static public BlueprintAbility bone_fists;
         static public BlueprintAbility explosion_of_rot;
 
+        static public BlueprintAbility aura_of_doom;
+        static public BlueprintAbility archons_trumpet;
+
 
 
         static public void load()
@@ -118,6 +122,92 @@ namespace CallOfTheWild
             createEarthTremor();
             createExplosionOfRot();
             createBoneFists();
+            createAuraOfDoom();
+            createArchonsTrumpet();
+        }
+
+
+        static void createArchonsTrumpet()
+        {
+            var paralyzed = library.Get<BlueprintBuff>("af1e2d232ebbb334aaf25e2a46a92591");
+            var icon = library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162").Icon;
+
+            var apply_paralyzed = Common.createContextActionApplyBuff(paralyzed, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1));
+            var on_failed = Helpers.CreateConditionalSaved(null, apply_paralyzed);
+
+            archons_trumpet = Helpers.CreateAbility("ArchonsTrumpetAbility",
+                                                    "Archon’s Trumpet",
+                                                    "Upon hearing a booming report, as if from a trumpet archon’s mighty horn, all creatures in the area of the burst are paralyzed for 1d4 rounds.",
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Spell,
+                                                    Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Projectile,
+                                                    "",
+                                                    Helpers.fortNegates,
+                                                    Helpers.CreateRunActions(SavingThrowType.Fortitude, on_failed),
+                                                    Common.createAbilityDeliverProjectile(AbilityProjectileType.Cone, library.Get<BlueprintProjectile>("c7fd792125b79904881530dbc2ff83de"),
+                                                                                          30.Feet(), 5.Feet()),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Sonic | SpellDescriptor.Paralysis | SpellDescriptor.MovementImpairing),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Evocation)
+                                                    );
+            archons_trumpet.setMiscAbilityParametersRangedDirectional();
+            archons_trumpet.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten;
+            archons_trumpet.SpellResistance = true;
+
+            archons_trumpet.AddToSpellList(Helpers.bardSpellList, 5);
+            archons_trumpet.AddToSpellList(Helpers.clericSpellList, 7);
+            archons_trumpet.AddToSpellList(Helpers.paladinSpellList, 4);
+            archons_trumpet.AddToSpellList(Helpers.wizardSpellList, 7);
+            archons_trumpet.AddSpellAndScroll("4c73f11f91ca3fb4a8af325686b660d8"); //shout
+        }
+
+
+        static void createAuraOfDoom()
+        {
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "AuraOfDoomArea", "");
+
+            var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+
+            var apply_shaken = Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(1, DurationRate.Hours), is_child: true);
+            var on_save_failed = Helpers.CreateConditionalSaved(null, apply_shaken);
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(on_save_failed));
+
+            var conditional_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), effect);
+            area.ReplaceComponent<AbilityAreaEffectRunAction>(a => a.UnitEnter = Helpers.CreateActionList(conditional_effect));
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Emotion | SpellDescriptor.Fear | SpellDescriptor.Shaken));
+
+            var buff = Helpers.CreateBuff("AuraOfDoomBuff",
+                                          "Aura of Doom",
+                                          "You emanate an almost palpable aura of horror. All non-allies within this spell’s area, or that later enter the area, must make a Will save to avoid becoming shaken. A successful save suppresses the effect. Creatures that leave the area and come back must save again to avoid being affected by the effect.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/AuraOfDoom.png"),
+                                          null,
+                                          Common.createAddAreaEffect(area)
+                                          );
+            var apply_aura = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes));
+            aura_of_doom = Helpers.CreateAbility("AuraOfDoomAbility",
+                                                 buff.Name,
+                                                 buff.Description,
+                                                 "",
+                                                 buff.Icon,
+                                                 AbilityType.Spell,
+                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Personal,
+                                                 Helpers.tenMinPerLevelDuration,
+                                                 Helpers.willNegates,
+                                                 Helpers.CreateRunActions(apply_aura),
+                                                 Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),//necromancy buff
+                                                 Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Emotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)
+                                                 );
+            aura_of_doom.setMiscAbilityParametersSelfOnly();
+            aura_of_doom.SpellResistance = true;
+            aura_of_doom.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            aura_of_doom.AddToSpellList(Helpers.clericSpellList, 4);
+            aura_of_doom.AddSpellAndScroll("124d26c97479b424383124e047183828");
+
         }
 
 
