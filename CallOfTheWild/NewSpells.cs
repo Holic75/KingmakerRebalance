@@ -116,6 +116,93 @@ namespace CallOfTheWild
             createFrostBite();
             createChillTouch();
             createEarthTremor();
+            createExplosionOfRot();
+            createBoneFists();
+        }
+
+
+        static void createBoneFists()
+        {
+            var allowed_categories = new WeaponCategory[] { WeaponCategory.Claw, WeaponCategory.Bite, WeaponCategory.Gore, WeaponCategory.OtherNaturalWeapons, WeaponCategory.UnarmedStrike };
+            var buff = Helpers.CreateBuff("BoneFistsBuff",
+                                          "Bone Fists",
+                                          "The bones of your targets’ joints grow thick and sharp, protruding painfully through the skin at the knuckles, elbows, shoulders, spine, and knees. The targets each gain a +1 bonus to natural armor and a +2 bonus on damage rolls with natural weapons.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/BoneFists.png"),
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.NaturalArmor),
+                                          Helpers.Create<NewMechanics.ContextWeaponCategoryDamageBonus>(c => { c.Value = 2; c.categories = allowed_categories; })
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            bone_fists = Helpers.CreateAbility("BoneFistsAbility",
+                                               buff.Name,
+                                               buff.Description,
+                                               "",
+                                               buff.Icon,
+                                               AbilityType.Spell,
+                                               Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                               AbilityRange.Personal,
+                                               Helpers.oneMinuteDuration,
+                                               "",
+                                               Helpers.CreateRunActions(apply_buff),
+                                               Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),//necromancy buff
+                                               Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                               Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally)
+                                               );
+            bone_fists.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+            bone_fists.setMiscAbilityParametersSelfOnly();
+
+            bone_fists.AddToSpellList(Helpers.druidSpellList, 2);
+            bone_fists.AddToSpellList(Helpers.clericSpellList, 2);
+            bone_fists.AddToSpellList(Helpers.wizardSpellList, 2);
+
+
+            bone_fists.AddSpellAndScroll("42d9445b9cdfac94385eaa2a3499b204");
+        }
+
+
+        static void createExplosionOfRot()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ExplosionOfRot.png");
+            var normal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)), 
+                                                     isAoE: true, halfIfSaved: true);
+            var plant_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+
+            var apply_staggered = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(0, DurationRate.Rounds, diceType: DiceType.D4, diceCount: 1));
+
+            var plant = library.Get<BlueprintFeature>("706e61781d692a042b35941f14bc41c5");
+            var is_plant = Helpers.CreateConditionHasFact(plant);
+            var dmg = Helpers.CreateConditional(is_plant, plant_dmg, normal_dmg);
+            var effect = Helpers.CreateConditionalSaved(new GameAction[0], new GameAction[] { apply_staggered });
+            var action_savingthrow = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(effect, dmg));
+            Common.addConditionalDCIncrease(action_savingthrow, Helpers.CreateConditionsCheckerOr(is_plant), 2);
+
+
+            explosion_of_rot = Helpers.CreateAbility("ExplosionOfRotAbility",
+                                                     "Explosion of Rot",
+                                                     "You call forth a burst of decay that ravages all creatures in the area. Even nonliving creatures such as constructs and undead crumble or wither in this malignant eruption of rotting energy. Creatures in the area of effect take 1d6 points of damage per caster level (maximum 15d6) and are staggered for 1d4 rounds. A target that succeeds at a Reflex saving throw takes half damage and negates the staggered effect. Plant creatures are particularly susceptible to this rotting effect; a plant creature caught in the burst takes a –2 penalty on the saving throw and takes 1 extra point of damage per die.",
+                                                     "",
+                                                     icon,
+                                                     AbilityType.Spell,
+                                                     Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Close,
+                                                     "",
+                                                     Helpers.reflexHalfDamage,
+                                                     Helpers.CreateRunActions(action_savingthrow),
+                                                     Common.createAbilitySpawnFx("a65a25d577ea8564e81c0368f09bf585", anchor: AbilitySpawnFxAnchor.ClickedTarget),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                     Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any)
+                                                     );
+            explosion_of_rot.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken;
+            explosion_of_rot.setMiscAbilityParametersRangedDirectional();
+            explosion_of_rot.SpellResistance = true;
+
+            explosion_of_rot.AddToSpellList(Helpers.druidSpellList, 4);
+            explosion_of_rot.AddSpellAndScroll("a578283bf8f2eaa418823e5b5f661966"); //contagion
         }
 
 
@@ -1463,7 +1550,6 @@ namespace CallOfTheWild
 
         static internal void createShillelagh()
         {
-            var boneshaker = library.Get<BlueprintAbility>("b7731c2b4fa1c9844a092329177be4c3");
             var bless_weapon = library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b");
             var enchant_dice = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>();
             enchant_dice.dice_formula = new DiceFormula(2, DiceType.D6);
@@ -1487,7 +1573,7 @@ namespace CallOfTheWild
                                           enchantment_size.Name,
                                           enchantment_size.Description,
                                           "",
-                                          boneshaker.Icon,
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/Shillelagh.png"),
                                           null,
                                           Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), true, true, shillelagh_types, enchantment_size),
                                           Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), true, true, shillelagh_types, enhantment1)

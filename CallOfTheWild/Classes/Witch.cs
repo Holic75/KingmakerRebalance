@@ -860,6 +860,7 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
                 new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
+                new Common.SpellId( NewSpells.bone_fists.AssetGuid, 2),
                 new Common.SpellId( "b7731c2b4fa1c9844a092329177be4c3", 2), //boneshaker
                 new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds
                 new Common.SpellId( "b48b4c5ffb4eab0469feba27fc86a023", 2), //delay poison

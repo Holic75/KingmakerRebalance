@@ -508,6 +508,28 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [ComponentName("Damage bonus for specific weapon types")]
+        public class ContextWeaponCategoryDamageBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public WeaponCategory[] categories;
+            public ContextValue Value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                int num = Value.Calculate(this.Fact.MaybeContext);
+
+                if ( categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    evt.AddBonusDamage(num);
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
 
         [AllowedOn(typeof(BlueprintBuff))]
         [ComponentName("Buffs/Damage bonus for specific weapon types")]

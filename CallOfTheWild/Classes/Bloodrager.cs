@@ -380,6 +380,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
                 new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
+                new Common.SpellId( NewSpells.bone_fists.AssetGuid, 2),
                 new Common.SpellId( "de7a025d48ad5da4991e7d3c682cf69d", 2), //cats grace
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagles splendor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
