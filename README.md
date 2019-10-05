@@ -74,11 +74,14 @@ New features:
 
 New spells:
 - Command,
+- Chill Touch,
+- Frostbite,
 - Hex Vulnerability,
 - Produce Flame,
 - Sanctuary,
 - Shillelagh,
 - Blood Armor,
+- Bone Fists,
 - Flame Blade,
 - Flurry of Snowballs,
 - Savage Maw,
@@ -90,9 +93,13 @@ New spells:
 - Winter's Grasp,
 - Countless Eyes,
 - Deadly Juggernaut,
+- Earth Tremor,
 - Flame Arrow,
 - Keen Edge,
 - Sheet Lightning,
+- Archon's Trumpet,
+- Aura of Doom,
+- Explosion of Rot,
 - Fire Shield,
 - Virtuoso Performance,
 - Contingency,
@@ -125,7 +132,8 @@ enchanced attacks (optional),
 - Channel Energy dc no longer scales with character level, but with class level that gave access to it.
 - all flying creatures are immune to difficult terrain and ground based buff effects,
 - flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties (optional),
-- medium range for spells was increased to 60 ft, long range to 100 ft.
+- medium range for spells was increased to 60 ft, long range to 100 ft,
+- weapon swap consumes move action instead of standard.
 
 
 Original game bug fixes:
