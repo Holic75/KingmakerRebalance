@@ -2341,7 +2341,8 @@ namespace CallOfTheWild
             }
             //add to all parametrized features
             BlueprintFeature[] spell_specializations = Main.library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures;
-            spell_specializations = spell_specializations.AddToArray(Main.library.Get<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956"),
+            spell_specializations = spell_specializations.AddToArray(Main.library.Get<BlueprintParametrizedFeature>("f327a765a4353d04f872482ef3e48c35"), //spell specialization first
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("4869109802e135e45af20741f9056fd5"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("e3a9ed781f9093341ac1073f59018e3f"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("7668fd94a4f943e4f85ee025a0140434"),

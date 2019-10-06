@@ -2887,6 +2887,10 @@ namespace CallOfTheWild
             return a;
         }
 
-
+        public static void clearParametrizedFeaturesCache(BlueprintParametrizedFeature feature)
+        {
+            var tr = Harmony12.Traverse.Create(feature);
+            tr.Field("m_CachedItems").SetValue(null);
+        }
     }
 }
