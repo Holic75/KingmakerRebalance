@@ -179,7 +179,7 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("AuraOfDoomBuff",
                                           "Aura of Doom",
-                                          "You emanate an almost palpable aura of horror. All non-allies within this spell’s area, or that later enter the area, must make a Will save to avoid becoming shaken. A successful save suppresses the effect. Creatures that leave the area and come back must save again to avoid being affected by the effect.",
+                                          "You emanate an almost palpable aura of horror (with 20 ft. radius). All enemies within this spell’s area, or that later enter the area, must make a Will save to avoid becoming shaken. A successful save suppresses the effect. Creatures that leave the area and come back must save again to avoid being affected by the effect.",
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/AuraOfDoom.png"),
                                           null,
@@ -234,7 +234,7 @@ namespace CallOfTheWild
                                                AbilityType.Spell,
                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                AbilityRange.Personal,
-                                               Helpers.oneMinuteDuration,
+                                               Helpers.minutesPerLevelDuration,
                                                "",
                                                Helpers.CreateRunActions(apply_buff),
                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),//necromancy buff
