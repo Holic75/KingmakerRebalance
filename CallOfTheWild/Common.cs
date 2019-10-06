@@ -2664,6 +2664,12 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.ContextActionForceAttack createContextActionForceAttack()
+        {
+            return Helpers.Create<NewMechanics.ContextActionForceAttack>(); ;
+        }
+
+
         public static BlueprintAbility createVariantWrapper(string name, string guid, params BlueprintAbility[] variants)
         {
             var wrapper = library.CopyAndAdd<BlueprintAbility>(variants[0].AssetGuid, name, guid);

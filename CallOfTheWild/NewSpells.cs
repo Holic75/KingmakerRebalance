@@ -455,7 +455,7 @@ namespace CallOfTheWild
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in frost_bite_enchantments)
             {
-                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); }));
+                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); a.only_on_hit = true; }));
             }
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
@@ -466,10 +466,10 @@ namespace CallOfTheWild
                                                   buff.Icon,
                                                   AbilityType.Spell,
                                                   Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
-                                                  AbilityRange.Touch,
+                                                  AbilityRange.DoubleMove,
                                                   Helpers.minutesPerLevelDuration,
                                                   Helpers.savingThrowNone,
-                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
+                                                  Helpers.CreateRunActions(Common.createContextActionForceAttack()),
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Transmutation),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
@@ -570,7 +570,7 @@ namespace CallOfTheWild
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in chill_touch_echantments)
             {
-                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); }));
+                e.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.ActionOnAttackWithEnchantedWeapon>(a => { a.ActionsOnSelf = Helpers.CreateActionList(reduce_buff_duration); a.only_on_hit = true; }));
             }
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
@@ -581,10 +581,10 @@ namespace CallOfTheWild
                                                   buff.Icon,
                                                   AbilityType.Spell,
                                                   Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
-                                                  AbilityRange.Touch,
+                                                  AbilityRange.DoubleMove,
                                                   Helpers.minutesPerLevelDuration,
                                                   "",
-                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
+                                                  Helpers.CreateRunActions(Common.createContextActionForceAttack()),
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Necromancy),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),

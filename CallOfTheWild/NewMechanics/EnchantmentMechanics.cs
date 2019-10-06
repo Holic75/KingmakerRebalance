@@ -616,6 +616,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     {
         public ActionList ActionsOnSelf = null;
         public ActionList ActionsOnTarget = null;
+        public bool only_on_hit = false;
 
         public void OnEventAboutToTrigger(RuleAttackWithWeaponResolve evt)
         {
@@ -629,11 +630,12 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public void OnEventDidTrigger(RuleAttackWithWeaponResolve evt)
         {
-            Main.logger.Log("Here");
             if (this.Owner.Wielder == null || evt.AttackWithWeapon.Weapon != this.Owner)
                 return;
-
-            Main.logger.Log("Here2");
+            if (!evt.AttackRoll.IsHit && only_on_hit)
+            {
+                return;
+            }
             TryRunActions(evt.AttackWithWeapon);
         }
 

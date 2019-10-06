@@ -137,7 +137,7 @@ enchanced attacks (optional),
 
 
 Original game bug fixes:
-- Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits.
+- Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
 - Singing Steel works properly,
 - Archaelogist luck works with Lingering Performance and Singing Steel,
 - Lingering Performance no longer allows to overlap different bardic performances.
@@ -145,7 +145,7 @@ Original game bug fixes:
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindicative Bastard and stats to 18/10/16/8/10/15
-- Harrim class was changed to Warpriest and stats to 18/10/16/10/16/7
+- Harrim class was changed to Warpriest and stats to 16/10/18/10/17/6
 - Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
 - Tristian to 8/16/12/10/18/14 and repalces his primary domain to fire
@@ -155,7 +155,7 @@ Mod also changes stats of some npcs (optional)
 - Nok-Nok to 8/22/14/12/10/8
 
 
-NOTE: Changes to animal companion bonuses, npc companions, and class skill points are optional and can be disabled (set corresponding values to false,
+NOTE: Changes to animal companion bonuses, npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,
 in your_game_folder/Mods/CallOfTheWild/settings.json)
 
 Install

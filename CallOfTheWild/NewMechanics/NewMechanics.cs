@@ -65,6 +65,9 @@ using Kingmaker.Visual.Animation.Kingmaker;
 using Kingmaker.Blueprints.Area;
 using Kingmaker.Items.Slots;
 using Kingmaker.Blueprints.Items.Components;
+using Kingmaker.AreaLogic.Cutscenes.Commands;
+using Pathfinding;
+using Kingmaker.Controllers.Combat;
 
 namespace CallOfTheWild
 {
@@ -2392,6 +2395,55 @@ namespace CallOfTheWild
                         action_on_miss?.Run();
                     }
                 }
+            }
+        }
+
+
+        public class ContextActionForceAttack : ContextAction
+        {
+            public override string GetCaption()
+            {
+                return string.Format("Caster force attack");
+            }
+
+            public override void RunAction()
+            {
+                UnitEntityData maybeCaster = this.Context.MaybeCaster;
+                if (maybeCaster == null)
+                {
+                    UberDebug.LogError((object)"Caster is missing", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    var target = this.Target;
+                    if (target == null)
+                        return;
+
+                    if (isInThreatRange(maybeCaster.Descriptor.Unit, target.Unit))
+                    {
+                        RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(maybeCaster, target.Unit, maybeCaster.Body.PrimaryHand.MaybeWeapon, 0);
+                        attackWithWeapon.Reason = (RuleReason)this.Context;
+                        RuleAttackWithWeapon rule = attackWithWeapon;
+                        this.Context.TriggerRule<RuleAttackWithWeapon>(rule);
+                    }
+                    else
+                    {
+                        var attack_command = new UnitAttack(target.Unit);
+                        attack_command.Init(maybeCaster);
+                        attack_command.IgnoreCooldown(Game.Instance.TimeController.GameTime + 1.Rounds().Seconds);
+                        maybeCaster.Commands.AddToQueueFirst(attack_command);
+                    }
+                }
+            }
+
+
+            private bool isInThreatRange(UnitEntityData unit, UnitEntityData enemy)
+            {
+                WeaponSlot threatHand = unit.Body?.PrimaryHand;
+                if (threatHand == null || !unit.IsReach(enemy, threatHand))
+                    return false;
+
+                return true;
             }
         }
 
