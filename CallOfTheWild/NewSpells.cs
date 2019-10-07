@@ -198,11 +198,10 @@ namespace CallOfTheWild
                                                  Helpers.willNegates,
                                                  Helpers.CreateRunActions(apply_aura),
                                                  Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),//necromancy buff
-                                                 Helpers.CreateSpellComponent(SpellSchool.Necromancy),
-                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Emotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)
+                                                 Helpers.CreateSpellComponent(SpellSchool.Necromancy)
                                                  );
             aura_of_doom.setMiscAbilityParametersSelfOnly();
-            aura_of_doom.SpellResistance = true;
+            //aura_of_doom.SpellResistance = true;
             aura_of_doom.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
 
             aura_of_doom.AddToSpellList(Helpers.clericSpellList, 4);
