@@ -9,7 +9,7 @@ It introduces new classes:
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Hinterlander and Holy Vindicator prestige classes,
-- Vindicative Bastard Paladin Archetype (implemented as a separate class).
+- Vindictive Bastard Paladin Archetype (implemented as a separate class).
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
 with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.
@@ -144,7 +144,7 @@ Original game bug fixes:
 
 
 Mod also changes stats of some npcs (optional)
-- Valerie class was changed to Vindicative Bastard and stats to 18/10/16/8/10/15
+- Valerie class was changed to Vindictive Bastard and stats to 18/10/16/8/10/15
 - Harrim class was changed to Warpriest and stats to 16/10/18/10/17/6
 - Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8

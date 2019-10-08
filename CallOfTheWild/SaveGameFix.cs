@@ -53,13 +53,19 @@ namespace CallOfTheWild
 
         static public List<Action<UnitDescriptor>> save_game_actions = new List<Action<UnitDescriptor>>(); 
 
-        static BlueprintAbility createDummyAbility(string name, string guid)
+        static public BlueprintAbility createDummyAbility(string name, string guid)
         {
             return Helpers.CreateAbility(name, "", "", guid, null, AbilityType.Special, CommandType.Free, AbilityRange.Close, "", "");
         }
 
 
-        static BlueprintFeature createDummyFeature(string name, string guid)
+        static public BlueprintActivatableAbility createDummyActivatableAbility(string name, string guid)
+        {
+            return Helpers.CreateActivatableAbility(name, "", "", guid, null, null, AbilityActivationType.Immediately, CommandType.Free, null);
+        }
+
+
+        static public BlueprintFeature createDummyFeature(string name, string guid)
         {
             return Helpers.CreateFeature(name, "", "", guid, null, FeatureGroup.None);
         }
