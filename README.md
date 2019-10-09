@@ -25,6 +25,7 @@ New feats:
 - Riving Strike,
 - Feral Combat Training,
 - Furious Focus,
+- Felling Smash,
 - Strike True,
 - Devastating Strike,
 - Weapon of The Chosen, Improved Weapon of the Chosen, Greater Weapon of the Chosen,

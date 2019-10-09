@@ -57,6 +57,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature devastating_strike;
         static public BlueprintFeature strike_true;
+        static public BlueprintFeature felling_smash;
 
         static internal void load()
         {
@@ -88,6 +89,71 @@ namespace CallOfTheWild
 
             createDevastatingStrike();
             createStrikeTrue();
+
+            createFellingSmash();
+        }
+
+
+        static void createFellingSmash()
+        {
+            var icon = library.Get<BlueprintAbility>("95851f6e85fe87d4190675db0419d112").Icon;
+            var power_attack_buff = library.Get<BlueprintBuff>("5898bcf75a0942449a5dc16adc97b279");
+            var power_attack_feature = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+            var combat_expertise = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a");
+            var improved_trip = library.Get<BlueprintFeature>("0f15c6f70d8fb2b49aa6cc24239cc5fa");
+
+            var action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(power_attack_buff),
+                                                   Helpers.Create<ContextActionCombatManeuver>(c =>
+                                                                                                 {
+                                                                                                     c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip;
+                                                                                                     c.OnSuccess = Helpers.CreateActionList();
+                                                                                                 }
+                                                                                               )
+                                                   );
+            var buff = Helpers.CreateBuff("FellingSmashBuff",
+                                          "Felling Smash",
+                                          "If you use the attack action to make a single melee attack at your highest base attack bonus while using Power Attack and you hit an opponent, you can spend a swift action to attempt a trip combat maneuver against that opponent.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.ContextActionOnSingleMeleeAttack>(c =>
+                                                                                                        { c.allowed_attack_types = new AttackType[] { AttackType.Melee, AttackType.Touch };
+                                                                                                          c.action = Helpers.CreateActionList(action);
+                                                                                                        })
+                                          );
+
+            var ability = Helpers.CreateActivatableAbility("FellingSmashActivatableAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                           null);
+            if (!test_mode)
+            {
+                ability.AddComponent(Common.createActivatableAbilityUnitCommand(Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift));
+            }
+
+            felling_smash = Helpers.CreateFeature("FellingSmashFeature",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  null,
+                                                  FeatureGroup.Feat,
+                                                  Helpers.CreateAddFact(ability),
+                                                  Helpers.PrerequisiteStatValue(StatType.Intelligence, 13),
+                                                  Helpers.PrerequisiteStatValue(StatType.Strength, 13),
+                                                  Helpers.PrerequisiteFeature(combat_expertise),
+                                                  Helpers.PrerequisiteFeature(improved_trip),
+                                                  Helpers.PrerequisiteFeature(power_attack_feature),
+                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
+                                                  );
+
+
+            felling_smash.Groups = felling_smash.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(felling_smash);
         }
 
 

@@ -1726,7 +1726,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (attack_types.Contains(evt.Weapon.Blueprint.AttackType))
+                if (attack_types.Contains(evt.AttackType))
                 {
                     evt.AutoMiss = true;
                 }
@@ -2068,7 +2068,7 @@ namespace CallOfTheWild
                 if (evt.Weapon == null || !evt.Initiator.Descriptor.HasFact(this.CheckedFact) 
                     || (!evt.Weapon.HoldInTwoHands && OnlyTwoHanded)
                     || (!evt.RuleAttackWithWeapon.IsFirstAttack && OnlyFirstAttack)
-                    || !WeaponAttackTypes.Contains(evt.Weapon.Blueprint.AttackType))
+                    || !WeaponAttackTypes.Contains(evt.AttackType))
                     return;
 
                 evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
@@ -3068,7 +3068,7 @@ namespace CallOfTheWild
             {
                 ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
                 ItemEntityWeapon weapon = (evt.Reason.Rule as RuleAttackWithWeapon)?.Weapon;
-                return (owner == null || owner == weapon) && (!this.CheckWeapon || weapon != null && this.WeaponCategory == weapon.Blueprint.Category) && (!evt.IsHit) && ((this.AffectFriendlyTouchSpells || evt.Initiator.IsEnemy(evt.Target) || evt.Weapon.Blueprint.Type.AttackType != AttackType.Touch));
+                return (owner == null || owner == weapon) && (!this.CheckWeapon || weapon != null && this.WeaponCategory == weapon.Blueprint.Category) && (!evt.IsHit) && ((this.AffectFriendlyTouchSpells || evt.Initiator.IsEnemy(evt.Target) || evt.AttackType != AttackType.Touch));
             }
         }
 
@@ -3115,10 +3115,9 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class RerollOnStandardSingleAttack : RuleInitiatorLogicComponent<RuleAttackRoll>, IInitiatorRulebookHandler<RuleRollD20>, IRulebookHandler<RuleRollD20>, ITargetRulebookSubscriber
+        public class RerollOnStandardSingleAttack : RuleInitiatorLogicComponent<RuleRollD20>,  ITargetRulebookSubscriber
         {
             public BlueprintParametrizedFeature[] required_features;
-            bool is_single = false;
 
             private bool checkFeatures(WeaponCategory category)
             {
@@ -3136,51 +3135,74 @@ namespace CallOfTheWild
                 return ok;
             }
 
-            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            public override void OnEventAboutToTrigger(RuleRollD20 evt)
             {
-                is_single = false;
-
-                if (evt.RuleAttackWithWeapon == null || evt.Weapon == null)
-                {
-                    return;
-                }
-
-                if (!checkFeatures(evt.Weapon.Blueprint.Category))
-                {
-                    return;
-                }
-
-
-                if (evt.RuleAttackWithWeapon.IsCharge || evt.RuleAttackWithWeapon.AttacksCount != 1 || evt.RuleAttackWithWeapon.IsAttackOfOpportunity)
-                {
-                    return;
-                }
-
-                is_single = true;
-            }
-
-            public override void OnEventDidTrigger(RuleAttackRoll evt)
-            {
-                is_single = false;
-            }
-
-            public void OnEventAboutToTrigger(RuleRollD20 evt)
-            {
-                
-                if (!is_single)
-                {
-                    return;
-                }
                 var previous_event = Rulebook.CurrentContext.PreviousEvent;
+                if (previous_event == null)
+                {
+                    return;
+                }
+                var attack_roll = previous_event as RuleAttackRoll;
+                if (attack_roll == null || attack_roll.IsCriticalRoll)
+                {
+                    return;
+                }
+
+                var attack_with_weapon = attack_roll.RuleAttackWithWeapon;
+
+                if (attack_with_weapon == null || attack_roll.Weapon == null)
+                {
+                    return;
+                }
+
+                if (!checkFeatures(attack_roll.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                if (attack_with_weapon.IsCharge || attack_with_weapon.AttacksCount != 1 || attack_with_weapon.IsAttackOfOpportunity)
+                {
+                    return;
+                }
+
                 if (previous_event != null && (previous_event is RuleAttackRoll) && !(previous_event as RuleAttackRoll).IsCriticalRoll)
                 {
                     evt.SetReroll(1, true);
                 }
             }
 
-            public void OnEventDidTrigger(RuleRollD20 evt)
+            public override void OnEventDidTrigger(RuleRollD20 evt)
             {
 
+            }
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextActionOnSingleMeleeAttack : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        {
+            public ActionList action;
+            public AttackType[] allowed_attack_types;
+
+
+            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+                if (evt.IsCharge || evt.AttacksCount != 1 || evt.IsAttackOfOpportunity)
+                {
+                    return;
+                }
+
+                if (allowed_attack_types.Contains(evt.AttackRoll.AttackType) && evt.AttackRoll.IsHit)
+                {
+                    using (new ContextAttackData(evt.AttackRoll, (Projectile)null))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, (TargetWrapper)evt.Target);
+                }
             }
         }
 

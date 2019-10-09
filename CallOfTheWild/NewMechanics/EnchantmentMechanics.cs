@@ -837,6 +837,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             if (!this.Owner.Body.PrimaryHand.CanInsertItem((ItemEntity)this.m_Applied))
             {
                 this.m_Applied = null;
+                this.Buff.Remove();
             }
             else
             {
