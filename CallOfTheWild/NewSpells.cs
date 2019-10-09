@@ -85,6 +85,8 @@ namespace CallOfTheWild
         static public BlueprintAbility aura_of_doom;
         static public BlueprintAbility archons_trumpet;
 
+        static public BlueprintAbility burning_entanglement;
+
 
 
         static public void load()
@@ -124,6 +126,54 @@ namespace CallOfTheWild
             createBoneFists();
             createAuraOfDoom();
             createArchonsTrumpet();
+            createBurningEntanglement();
+        }
+
+
+        static void createBurningEntanglement()
+        {
+            var fog_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("aa2e0a0fe89693f4e9205fd52c5ba3e5", "BurningEntanglementFogArea", "");
+            fog_area.Fx = Common.createPrefabLink("098a29fefbbc4564281afa5a6887cd2c");
+            fog_area.Size = 40.Feet();
+            GameAction no_action = null;
+            fog_area.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAreaEffectRunAction(no_action) };
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("bcb6329cefc66da41b011299a43cc681", "BurningEntanglementArea", ""); //entangle
+
+            var area_run_actions = area.GetComponent<AbilityAreaEffectRunAction>().CreateCopy();
+            var entnagle_buff = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
+
+            var dmg = Helpers.CreateConditional(Helpers.CreateConditionHasFact(entnagle_buff),
+                                                Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 4), halfIfSaved: true),
+                                                Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 2), halfIfSaved: true)
+                                               );
+            var save_action = Helpers.CreateActionSavingThrow(SavingThrowType.Reflex, dmg);
+
+            area_run_actions.Round = Helpers.CreateActionList(area_run_actions.Round.Actions.AddToArray(save_action));
+            var concealement_buff = library.CopyAndAdd<BlueprintBuff>("49786ccc94a5ee848a5637b4145b2092", "BurningEntanglementConcealementBuff", ""); //chameleon stride
+
+            area.ReplaceComponent<AbilityAreaEffectRunAction>(area_run_actions);
+            area.AddComponent(Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = concealement_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }));
+
+            burning_entanglement = library.CopyAndAdd<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca", "BurningEntanglementAbility", "");
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            var spawn_fog = Common.createContextActionSpawnAreaEffect(fog_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            burning_entanglement.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(spawn_area, spawn_fog));
+            burning_entanglement.RemoveComponents<SpellListComponent>();
+            burning_entanglement.AvailableMetamagic = burning_entanglement.AvailableMetamagic | Metamagic.Empower | Metamagic.Maximize;
+
+            burning_entanglement.SetNameDescriptionIcon("Burning Entanglement",
+                                                        "This spell functions as per entangle, except it sets the foliage on fire. A creature that begins its turn entangled by the spell takes 4d6 points of fire damage (Reflex half), and a creature that begins its turn in the area but is not entangled takes 2d6 points of fire damage (Reflex negates). Smoke rising from the vines partially obscures visibility. Creatures can see things in the smoke within 5 feet clearly, but attacks against anything farther away in the smoke must contend with concealment (20% miss chance). When the spell’s duration expires, the vines burn away entirely.",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/BurningEntanglement.png")
+                                                        );
+            concealement_buff.SetNameDescriptionIcon(burning_entanglement.Name, burning_entanglement.Description, burning_entanglement.Icon);
+            concealement_buff.FxOnStart = Common.createPrefabLink("ba8a4e16282d63a439434697ee656a3a"); //fire theme buff
+            burning_entanglement.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Evocation);
+
+            burning_entanglement.AddToSpellList(Helpers.druidSpellList, 3);
+            burning_entanglement.AddToSpellList(Helpers.rangerSpellList, 3);
+
+            burning_entanglement.AddSpellAndScroll("5022612735a9e2345bfc5110106823d8"); //entangle
         }
 
 

@@ -92,6 +92,7 @@ New spells:
 - Righteous Vigor,
 - Vine Strike,
 - Winter's Grasp,
+- Burning Entanglement,
 - Countless Eyes,
 - Deadly Juggernaut,
 - Earth Tremor,

@@ -882,6 +882,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
 
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
+                new Common.SpellId( NewSpells.burning_entanglement.AssetGuid, 3),
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
                 new Common.SpellId( "04e820e1ce3a66f47a50ad5074d3ae40", 3), //delay posion communal
