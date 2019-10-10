@@ -891,6 +891,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
+                new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),
                 new Common.SpellId( "c927a8b0cd3f5174f8c0b67cdbfde539", 3), //remove blindness
                 new Common.SpellId( "b48674cef2bff5e478a007cf57d8345b", 3), //remove curse
                 new Common.SpellId( "4093d5a0eb5cae94e909eb1e0e1a6b36", 3), //remove disease

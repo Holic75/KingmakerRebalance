@@ -86,6 +86,8 @@ namespace CallOfTheWild
         static public BlueprintAbility archons_trumpet;
 
         static public BlueprintAbility burning_entanglement;
+        static public BlueprintAbility bow_spirit;
+        static public BlueprintAbility ray_of_exhaustion;
 
 
 
@@ -127,6 +129,107 @@ namespace CallOfTheWild
             createAuraOfDoom();
             createArchonsTrumpet();
             createBurningEntanglement();
+            createBowSpirit();
+            createRayOfExhaustion();
+        }
+
+
+
+        static void createRayOfExhaustion()
+        {
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+
+            var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+            var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
+
+            var apply_fatigued = Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            var apply_exhausted = Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            var exhausted_guard = Helpers.CreateConditional(Common.createContextConditionHasFact(exhausted, false), apply_exhausted);
+            var fatigued_guard = Helpers.CreateConditional(Common.createContextConditionHasFact(fatigued), exhausted_guard, apply_fatigued);
+
+            var conditional_saved = Helpers.CreateConditionalSaved(fatigued_guard, exhausted_guard);
+
+            var effect = Helpers.CreateConditional(new Condition[] { Common.createContextConditionHasFact(undead, false), Common.createContextConditionHasFact(construct, false) },
+                                                    conditional_saved);
+            var deliver = library.Get<BlueprintAbility>("450af0402422b0b4980d9c2175869612").GetComponent<AbilityDeliverProjectile>().CreateCopy(); //ray of enfeeblement
+            deliver.Projectiles = new BlueprintProjectile[] { library.Get<BlueprintProjectile>("8e38d2cfc358e124e93c792dea56ff9a") }; //ray of exhaustion ?
+            ray_of_exhaustion = Helpers.CreateAbility("RayOfExhaustionAbility",
+                                                      "Ray of Exhaustion",
+                                                      "A black ray projects from your pointing finger. You must succeed on a ranged touch attack with the ray to strike a target.\n"
+                                                     + "The subject is immediately exhausted for the spell’s duration.A successful Fortitude save means the creature is only fatigued.\n"
+                                                     + "A character that is already fatigued instead becomes exhausted.\n"
+                                                     + "This spell has no effect on a creature that is already exhausted. Unlike normal exhaustion or fatigue, the effect ends as soon as the spell’s duration expires.",
+                                                     "",
+                                                     LoadIcons.Image2Sprite.Create(@"AbilityIcons/RayOfExhaustion.png"),
+                                                     AbilityType.Spell,
+                                                     Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Close,
+                                                     Helpers.minutesPerLevelDuration,
+                                                     "Fortitude partial",
+                                                     Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
+                                                     deliver,
+                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy));
+            ray_of_exhaustion.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+            ray_of_exhaustion.SpellResistance = true;
+            ray_of_exhaustion.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
+
+            ray_of_exhaustion.AddToSpellList(Helpers.magusSpellList, 3);
+            ray_of_exhaustion.AddToSpellList(Helpers.wizardSpellList, 3);
+            ray_of_exhaustion.AddSpellAndScroll("792862674c565ad4fbb1ab0c97c42acd");
+        }
+        
+        static void createBowSpirit()
+        {
+            var bow_spirit_swift = Helpers.CreateAbility("BowSpiritEffectAbility",
+                                                         "Bow Spirit",
+                                                         "A bow spirit is a shapeless force that hovers about you, taking ammunition from your quiver and firing it. For as long as the bow spirit lasts, you can spend a swift action to direct the bow spirit to fire an arrow or a bolt at a target of your choice, as if the bow spirit were firing the necessary ranged weapon. The bow spirit uses your base attack bonus plus your Dexterity modifier, as well as any bonuses and effects from feats you have that affect ranged attacks, or bonuses from the ammunition it uses.\n"
+                                                         + "A bow spirit‘s attacks do not provoke attacks of opportunity.\n"
+                                                         + "There must be ammunition available for the bow spirit to use, and it expends ammunition as if used by you.\n"
+                                                         + "A bow spirit occupies your space, and moves with you.\n",
+                                                         "",
+                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/BowSpirit.png"),
+                                                         AbilityType.Special,
+                                                         Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                         AbilityRange.Weapon,
+                                                         "",
+                                                         "",
+                                                         Common.createAbilityCasterMainWeaponCheck(WeaponCategory.Longbow, WeaponCategory.Shortbow),
+                                                         Helpers.CreateRunActions((Common.createContextActionAttack()))
+                                                        );
+            bow_spirit_swift.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+
+            var buff = Helpers.CreateBuff("BowSpiritBuff",
+                                          bow_spirit_swift.Name,
+                                          bow_spirit_swift.Description,
+                                          "",
+                                          bow_spirit_swift.Icon,
+                                          null,
+                                          Helpers.CreateAddFact(bow_spirit_swift)
+                                          );
+
+
+            bow_spirit = Helpers.CreateAbility("BowSpiritAbility",
+                                               buff.Name,
+                                               buff.Description,
+                                               "",
+                                               buff.Icon,
+                                               AbilityType.Spell,
+                                               Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                               AbilityRange.Personal,
+                                               Helpers.roundsPerLevelDuration,
+                                               "",
+                                               Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                               Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                               Common.createAbilitySpawnFx("0c07afb9ee854184cb5110891324e3ad", position_anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                               Common.createAbilitTargetMainWeaponCheck(WeaponCategory.Longbow, WeaponCategory.Shortbow)
+                                               );
+            bow_spirit.setMiscAbilityParametersSelfOnly();
+            bow_spirit.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            bow_spirit.AddToSpellList(Helpers.rangerSpellList, 4);
+            bow_spirit.AddSpellAndScroll("ce41e625eae914d4bad729f090e9001f"); // hurricane bow
         }
 
 

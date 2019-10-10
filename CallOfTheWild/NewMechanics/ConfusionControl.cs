@@ -70,7 +70,10 @@ namespace CallOfTheWild
 
             public void addBuff(Buff buff)
             {
-                buffs.Add(buff);
+                if (!buffs.Contains(buff))
+                {
+                    buffs.Add(buff);
+                }
             }
 
 

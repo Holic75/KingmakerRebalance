@@ -406,6 +406,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
+                new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampiric touch
 

@@ -20,23 +20,8 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.HealingMechanics
 {
-    public class UnitPartReceiveBonusCasterLevelHealing : UnitPart
+    public class UnitPartReceiveBonusCasterLevelHealing : AdditiveUnitPart
     {
-        [JsonProperty]
-        private List<Fact> buffs = new List<Fact>();
-
-        public void addBuff(Fact buff)
-        {
-            buffs.Add(buff);
-        }
-
-
-        public void removeBuff(Fact buff)
-        {
-            buffs.Remove(buff);
-        }
-
-
         public bool active()
         {
             return !buffs.Empty();
@@ -44,23 +29,8 @@ namespace CallOfTheWild.HealingMechanics
     }
 
 
-    public class UnitPartSelfHealingMetamagic : UnitPart
+    public class UnitPartSelfHealingMetamagic : AdditiveUnitPart
     {
-        [JsonProperty]
-        private List<Fact> buffs = new List<Fact>();
-
-        public void addBuff(Fact buff)
-        {
-            buffs.Add(buff);
-        }
-
-
-        public void removeBuff(Fact buff)
-        {
-            buffs.Remove(buff);
-        }
-
-
         public bool hasEmpower(BlueprintAbility spell)
         {
             foreach (var b in buffs)
@@ -107,13 +77,13 @@ namespace CallOfTheWild.HealingMechanics
         public bool empower = false;
         public bool maximize = false;
 
-        public override void OnFactActivate()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartSelfHealingMetamagic>().addBuff(this.Fact);
         }
 
 
-        public override void OnFactDeactivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartSelfHealingMetamagic>().removeBuff(this.Fact);
         }
@@ -132,13 +102,13 @@ namespace CallOfTheWild.HealingMechanics
     public class ReceiveBonusCasterLevelHealing : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {
 
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartReceiveBonusCasterLevelHealing>().addBuff(this.Fact);
         }
 
 
-        public override void OnFactDeactivate()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartReceiveBonusCasterLevelHealing>().removeBuff(this.Fact);
         }

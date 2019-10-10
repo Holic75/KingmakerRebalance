@@ -18,23 +18,8 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.CombatManeuverMechanics
 {
-    public class UnitPartFakeSizeBonus : UnitPart
+    public class UnitPartFakeSizeBonus : AdditiveUnitPart
     {
-        [JsonProperty]
-        private List<Fact> buffs = new List<Fact>();
-
-        public void addBuff(Fact buff)
-        {
-            buffs.Add(buff);
-        }
-
-
-        public void removeBuff(Fact buff)
-        {
-            buffs.Remove(buff);
-        }
-
-
         public Size getEffectiveSize()
         {
             var unit_size = this.Owner.State.Size;
@@ -96,13 +81,13 @@ namespace CallOfTheWild.CombatManeuverMechanics
         {
         }
 
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartFakeSizeBonus>().addBuff(this.Fact);
         }
 
 
-        public override void OnFactDeactivate()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartFakeSizeBonus>().removeBuff(this.Fact);
         }

@@ -37,7 +37,10 @@ namespace CallOfTheWild.ActivatableAbilityActionTypeModierMechanics
 
         public void addEntry(Fact new_buff, ActivatableAbilityGroup new_group, UnitCommand.CommandType new_action)
         {
-            entries.Add(new Entry(new_buff, new_group, new_action));
+            if (!entries.Any(e => e.buff == new_buff))
+            {
+                entries.Add(new Entry(new_buff, new_group, new_action));
+            }
         }
 
 
@@ -71,13 +74,13 @@ namespace CallOfTheWild.ActivatableAbilityActionTypeModierMechanics
         public ActivatableAbilityGroup group;
         public UnitCommand.CommandType action;
 
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartActivatableAbilityActionTypeModifier>().addEntry(this.Fact, group, action);
         }
 
 
-        public override void OnFactDeactivate()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartActivatableAbilityActionTypeModifier>().removeBuff(this.Fact);
         }

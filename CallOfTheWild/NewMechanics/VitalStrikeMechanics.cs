@@ -18,23 +18,8 @@ using static Kingmaker.UnitLogic.Abilities.Components.AbilityCustomMeleeAttack;
 namespace CallOfTheWild.VitalStrikeMechanics
 {
 
-    public class UnitPartVitalStrikeScalingDamageBonus : UnitPart
+    public class UnitPartVitalStrikeScalingDamageBonus : AdditiveUnitPart
     {
-        [JsonProperty]
-        private List<Fact> buffs = new List<Fact>();
-
-        public void addBuff(Fact buff)
-        {
-            buffs.Add(buff);
-        }
-
-
-        public void removeBuff(Fact buff)
-        {
-            buffs.Remove(buff);
-        }
-
-
         public int getDamageBonus()
         {
             var bonus = 0;
@@ -51,23 +36,8 @@ namespace CallOfTheWild.VitalStrikeMechanics
     }
 
 
-    public class UnitPartVitalStrikeCriticalConfirmationBonus : UnitPart
+    public class UnitPartVitalStrikeCriticalConfirmationBonus : AdditiveUnitPart
     {
-        [JsonProperty]
-        private List<Fact> buffs = new List<Fact>();
-
-        public void addBuff(Fact buff)
-        {
-            buffs.Add(buff);
-        }
-
-
-        public void removeBuff(Fact buff)
-        {
-            buffs.Remove(buff);
-        }
-
-
         public int getBonus()
         {
             var bonus = 0;
@@ -99,13 +69,13 @@ namespace CallOfTheWild.VitalStrikeMechanics
         }
 
 
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartVitalStrikeScalingDamageBonus>().addBuff(this.Fact);
         }
 
 
-        public override void OnFactDeactivate()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartVitalStrikeScalingDamageBonus>().removeBuff(this.Fact);
         }
@@ -135,13 +105,13 @@ namespace CallOfTheWild.VitalStrikeMechanics
         }
 
 
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartVitalStrikeCriticalConfirmationBonus>().addBuff(this.Fact);
         }
 
 
-        public override void OnFactDeactivate()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartVitalStrikeCriticalConfirmationBonus>().removeBuff(this.Fact);
         }

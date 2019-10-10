@@ -13,23 +13,8 @@ using Kingmaker.Items;
 
 namespace CallOfTheWild.WildArmorMechanics
 {
-    public class UnitPartWildArmor : UnitPart
+    public class UnitPartWildArmor : AdditiveUnitPart
     {
-        [JsonProperty]
-        private List<Fact> buffs = new List<Fact>();
-
-        public void addBuff(Fact buff)
-        {
-            buffs.Add(buff);
-        }
-
-
-        public void removeBuff(Fact buff)
-        {
-            buffs.Remove(buff);
-        }
-
-
         public bool active()
         {
             return !buffs.Empty();
