@@ -2812,7 +2812,13 @@ namespace CallOfTheWild
             return Helpers.Create<ContextActionSpawnAreaEffect>(c => { c.AreaEffect = area_effect; c.DurationValue = duration; });
         }
 
-        
+
+        public static NewMechanics.ContextActionSpawnAreaEffectMultiple createContextActionSpawnAreaEffectMultiple(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration, params Vector2[] points)
+        {
+            return Helpers.Create<NewMechanics.ContextActionSpawnAreaEffectMultiple>(c => { c.AreaEffect = area_effect; c.DurationValue = duration; c.points_around_target = points; });
+        }
+
+
         public static void addConditionalDCIncrease(ContextActionSavingThrow context_action_savingthrow, ConditionsChecker condition, ContextValue value)
         {
             var data = Activator.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease);

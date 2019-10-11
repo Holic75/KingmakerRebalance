@@ -3237,6 +3237,38 @@ namespace CallOfTheWild
             }
         }
 
+
+
+
+        public class ContextActionSpawnAreaEffectMultiple : ContextAction
+        {
+            public BlueprintAbilityAreaEffect AreaEffect;
+            public ContextDurationValue DurationValue;
+            public Vector2[] points_around_target;
+
+            public override string GetCaption()
+            {
+                return string.Format("Spawn multiple {0} for {1}", !((UnityEngine.Object)this.AreaEffect != (UnityEngine.Object)null) ? (object)"<undefined>" : (object)this.AreaEffect.ToString(), (object)this.DurationValue);
+            }
+
+            public override void RunAction()
+            {
+                foreach (var p in points_around_target)
+                {
+                    var target = new TargetWrapper(this.Target.Point + p.To3D());
+                    AreaEffectEntityData effectEntityData = AreaEffectsController.Spawn(this.Context, this.AreaEffect, target, new TimeSpan?(this.DurationValue.Calculate(this.Context).Seconds));
+                    if (this.AbilityContext == null)
+                        return;
+                    foreach (UnitEntityData unit in Game.Instance.State.Units)
+                    {
+                        UnitEntityData u = unit;
+                        
+                        if (!u.Descriptor.State.IsDead && u.IsInGame && (effectEntityData.View.Shape != null && effectEntityData.View.Shape.Contains(u.Position, u.View.Corpulence)) && (effectEntityData.AffectEnemies || !this.AbilityContext.Caster.IsEnemy(u)))
+                            EventBus.RaiseEvent<IApplyAbilityEffectHandler>((Action<IApplyAbilityEffectHandler>)(h => h.OnTryToApplyAbilityEffect(this.AbilityContext, (TargetWrapper)u)));
+                    }
+                }
+            }
+        }
     }
 
 }

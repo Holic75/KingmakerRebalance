@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CallOfTheWild
 {
@@ -170,7 +171,8 @@ namespace CallOfTheWild
                                                      "Fortitude partial",
                                                      Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
                                                      deliver,
-                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy));
+                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Fatigue | SpellDescriptor.Exhausted));
             ray_of_exhaustion.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
             ray_of_exhaustion.SpellResistance = true;
             ray_of_exhaustion.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
@@ -260,7 +262,16 @@ namespace CallOfTheWild
 
             burning_entanglement = library.CopyAndAdd<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca", "BurningEntanglementAbility", "");
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
-            var spawn_fog = Common.createContextActionSpawnAreaEffect(fog_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            List<Vector2> fog_points = new List<Vector2>();
+            for (int i = -1; i <= 1; i++ )
+            {
+                fog_points.Add(new Vector2(0.0f, (i*20).Feet().Meters));
+            }
+           
+
+            var spawn_fog = Common.createContextActionSpawnAreaEffectMultiple(fog_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), 
+                                                                              fog_points.ToArray());
             burning_entanglement.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(spawn_area, spawn_fog));
             burning_entanglement.RemoveComponents<SpellListComponent>();
             burning_entanglement.AvailableMetamagic = burning_entanglement.AvailableMetamagic | Metamagic.Empower | Metamagic.Maximize;
