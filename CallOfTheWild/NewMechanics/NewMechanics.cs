@@ -247,7 +247,7 @@ namespace CallOfTheWild
         }
 
 
-      
+
         [AllowMultipleComponents]
         [ComponentName("Predicates/Target has fact unless alternative")]
         [AllowedOn(typeof(BlueprintAbility))]
@@ -522,7 +522,7 @@ namespace CallOfTheWild
             {
                 int num = Value.Calculate(this.Fact.MaybeContext);
 
-                if ( categories.Contains(evt.Weapon.Blueprint.Category))
+                if (categories.Contains(evt.Weapon.Blueprint.Category))
                 {
                     evt.AddBonusDamage(num);
                 }
@@ -890,7 +890,7 @@ namespace CallOfTheWild
                     int owner_bonus = evt.Initiator.Stats.GetStat<ModifiableValueAttributeStat>(Stat).Bonus;
                     evt.AddBonus(caster_bonus - owner_bonus, this.Fact);
                 }
-               
+
             }
 
             public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
@@ -922,7 +922,7 @@ namespace CallOfTheWild
                 }
                 foreach (var f in required_parametrized_features)
                 {
-                    if( this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
+                    if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
                     {
                         return true;
                     }
@@ -1388,7 +1388,7 @@ namespace CallOfTheWild
                         return false;
                     return evt.Target.HPLeft + evt.MeleeDamage.Damage > 0;
                 }
-                
+
                 return true;
             }
         }
@@ -2065,7 +2065,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                if (evt.Weapon == null || !evt.Initiator.Descriptor.HasFact(this.CheckedFact) 
+                if (evt.Weapon == null || !evt.Initiator.Descriptor.HasFact(this.CheckedFact)
                     || (!evt.Weapon.HoldInTwoHands && OnlyTwoHanded)
                     || (!evt.RuleAttackWithWeapon.IsFirstAttack && OnlyFirstAttack)
                     || !WeaponAttackTypes.Contains(evt.AttackType))
@@ -2102,7 +2102,7 @@ namespace CallOfTheWild
                 int num = this.Value.Calculate(this.Context);
                 if (!evt.Target.Descriptor.Alignment.Value.HasComponent(EnemyAlignment))
                     return;
-                evt.CriticalConfirmationBonus += num; 
+                evt.CriticalConfirmationBonus += num;
             }
 
             public override void OnEventDidTrigger(RuleAttackRoll evt)
@@ -2124,7 +2124,7 @@ namespace CallOfTheWild
 
                 DiceFormula dice_formula = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType);
                 int bonus = this.dice_value.BonusValue.Calculate(this.Context);
-                
+
                 DamageDescription damageDescription = new DamageDescription()
                 {
                     TypeDescription = new DamageTypeDescription()
@@ -2188,11 +2188,11 @@ namespace CallOfTheWild
                 ModifiableValueAttributeStat stat2 = this.Owner.Stats.GetStat(this.ReplacementStat) as ModifiableValueAttributeStat;
                 bool flag = stat2 != null && stat1 != null && stat2.Bonus >= stat1.Bonus;
 
-                if (flag 
+                if (flag
                     && this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == evt.Weapon.Blueprint.Category))
                 {
                     evt.AttackBonusStat = this.ReplacementStat;
-                }   
+                }
             }
 
             public override void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
@@ -2342,8 +2342,8 @@ namespace CallOfTheWild
                 if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
                 {
                     //double damage dice
-                    DiceFormula double_damage = new DiceFormula(2* baseDice.Rolls, baseDice.Dice);
-                    evt.WeaponDamageDiceOverride = new DiceFormula? (double_damage);
+                    DiceFormula double_damage = new DiceFormula(2 * baseDice.Rolls, baseDice.Dice);
+                    evt.WeaponDamageDiceOverride = new DiceFormula?(double_damage);
                 }
                 else
                 {
@@ -2378,9 +2378,9 @@ namespace CallOfTheWild
                     var target = this.Target;
                     if (target == null)
                         return;
-                   // UnitAttack attack = new UnitAttack(this.Target.Unit);
-                   // attack.IgnoreCooldown(null);
-                   // maybeCaster.Commands.AddToQueueFirst(attack);
+                    // UnitAttack attack = new UnitAttack(this.Target.Unit);
+                    // attack.IgnoreCooldown(null);
+                    // maybeCaster.Commands.AddToQueueFirst(attack);
 
                     RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(maybeCaster, target.Unit, maybeCaster.Body.PrimaryHand.MaybeWeapon, 0);
                     attackWithWeapon.Reason = (RuleReason)this.Context;
@@ -2468,7 +2468,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
-                if (evt.DamageBundle.Weapon == null || evt.DamageBundle.WeaponDamage == null || evt.Initiator != this.Owner.Unit 
+                if (evt.DamageBundle.Weapon == null || evt.DamageBundle.WeaponDamage == null || evt.Initiator != this.Owner.Unit
                     || !evt.Initiator.Descriptor.HasFact(CheckedFact) || !attack_types.Contains(evt.DamageBundle.Weapon.Blueprint.AttackType))
                     return;
 
@@ -2594,11 +2594,11 @@ namespace CallOfTheWild
                     return;
                 }
                 int bonus = this.value.Calculate(this.Context);
-                evt.AddBonusCasterLevel(multiplier*bonus);
+                evt.AddBonusCasterLevel(multiplier * bonus);
 
                 if (!correct_dc)
                 {
-                    evt.AddBonusDC((multiplier*bonus / 2));
+                    evt.AddBonusDC((multiplier * bonus / 2));
                 }
             }
 
@@ -2850,7 +2850,7 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class AbilityCasterPrimaryHandFree : BlueprintComponent, IAbilityCasterChecker
         {
-          
+
             public bool CorrectCaster(UnitEntityData caster)
             {
                 return !caster.Body.PrimaryHand.HasItem;
@@ -2905,7 +2905,7 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-                
+
                 return armor.Blueprint.GetComponents<EquipmentRestrictionClass>().Where(c => c.Not && c.Class == druid).Count() != 0;
             }
         }
@@ -2918,6 +2918,13 @@ namespace CallOfTheWild
             public bool reduce_below0;
             public int min_dmg = 1;
             public bool on_self = false;
+
+            public bool only_from_weapon = false;
+            public bool only_from_spell = false;
+            public bool consider_damage_type = false;
+
+            public DamageEnergyType[] energy_types;
+            public PhysicalDamageForm[] physical_types;
 
             private void RunAction(TargetWrapper target)
             {
@@ -2932,12 +2939,46 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
-                if (evt.Damage <= min_dmg)
+                if (only_from_spell && (evt.Reason?.Rule is RuleAttackWithWeapon))
+                {
+                    return;
+                }
+                if (only_from_weapon && !(evt.Reason?.Rule is RuleAttackWithWeapon))
                 {
                     return;
                 }
 
-                if ((evt.Target.Damage + evt.Target.HPLeft <0 || evt.Target.HPLeft > 0) && reduce_below0)
+                int received_damage = 0;
+
+
+                if (!consider_damage_type)
+                {
+                    received_damage = evt.Damage;
+                }
+                else
+                {
+                    foreach (var d in evt.Calculate.CalculatedDamage)
+                    {
+                        var energy_damage = (d.Source as EnergyDamage);
+                        var physical_damage = (d.Source as PhysicalDamage);
+
+                        if (energy_damage != null && energy_types.Contains(energy_damage.EnergyType))
+                        {
+                            received_damage += d.FinalValue;
+                        }
+                        if (physical_damage != null && physical_damage.Form.HasValue && physical_types.Contains(physical_damage.Form.Value))
+                        {
+                            received_damage += d.FinalValue;
+                        }
+                    }
+                }
+
+                if (received_damage <= min_dmg)
+                {
+                    return;
+                }
+
+                if ((evt.Target.Damage + evt.Target.HPLeft < 0 || evt.Target.HPLeft > 0) && reduce_below0)
                 {
                     return;
                 }
@@ -3019,7 +3060,7 @@ namespace CallOfTheWild
                 }
                 else
                 {
-                    modifier.ModValue  = set ? dice_value.Calculate(this.Context) : modifier.ModValue + dice_value.Calculate(this.Context);
+                    modifier.ModValue = set ? dice_value.Calculate(this.Context) : modifier.ModValue + dice_value.Calculate(this.Context);
                     if (modifier.ModValue > max_value && max_value != 0)
                     {
                         modifier.ModValue = max_value;
@@ -3115,7 +3156,7 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class RerollOnStandardSingleAttack : RuleInitiatorLogicComponent<RuleRollD20>,  ITargetRulebookSubscriber
+        public class RerollOnStandardSingleAttack : RuleInitiatorLogicComponent<RuleRollD20>, ITargetRulebookSubscriber
         {
             public BlueprintParametrizedFeature[] required_features;
 
@@ -3233,7 +3274,7 @@ namespace CallOfTheWild
 
             public override string GetUIText()
             {
-                return  $"{matching_feature.Name} for {base_feature.Name}";
+                return $"{matching_feature.Name} for {base_feature.Name}";
             }
         }
 
@@ -3262,11 +3303,129 @@ namespace CallOfTheWild
                     foreach (UnitEntityData unit in Game.Instance.State.Units)
                     {
                         UnitEntityData u = unit;
-                        
+
                         if (!u.Descriptor.State.IsDead && u.IsInGame && (effectEntityData.View.Shape != null && effectEntityData.View.Shape.Contains(u.Position, u.View.Corpulence)) && (effectEntityData.AffectEnemies || !this.AbilityContext.Caster.IsEnemy(u)))
                             EventBus.RaiseEvent<IApplyAbilityEffectHandler>((Action<IApplyAbilityEffectHandler>)(h => h.OnTryToApplyAbilityEffect(this.AbilityContext, (TargetWrapper)u)));
                     }
                 }
+            }
+        }
+
+
+
+        public class AddInitiatorSavingThrowTrigger : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleSavingThrow>, IRulebookHandler<RuleSavingThrow>, IInitiatorRulebookSubscriber
+        {
+            public bool OnPass;
+            public bool OnFail;
+            public ActionList Action;
+
+            public void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+                if (!this.CheckConditions(evt) || this.Fact.MaybeContext == null)
+                    return;
+                using (this.Fact.MaybeContext?.GetDataScope((TargetWrapper)this.Owner.Unit))
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)this.Owner.Unit);
+            }
+
+            private bool CheckConditions(RuleSavingThrow evt)
+            {
+                return (this.OnPass && evt.IsPassed) || (this.OnFail && !evt.IsPassed);
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        public class AddTargetConcealmentRollTrigger : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleConcealmentCheck>, IRulebookHandler<RuleConcealmentCheck>, IInitiatorRulebookSubscriber
+        {
+            public bool only_on_miss;
+            public bool only_on_success;
+
+            public ActionList actions;
+            public bool on_attacker = false;
+
+            public void OnEventAboutToTrigger(RuleConcealmentCheck evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleConcealmentCheck evt)
+            {
+                if (evt.Success && only_on_miss)
+                {
+                    return;
+                }
+
+                if (!evt.Success && only_on_success)
+                {
+                    return;
+                }
+
+                if (on_attacker)
+                {
+                    using (this.Fact.MaybeContext?.GetDataScope((TargetWrapper)this.Owner.Unit))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, (TargetWrapper)evt.Initiator);
+                }
+                else
+                {
+                    using (this.Fact.MaybeContext?.GetDataScope((TargetWrapper)this.Owner.Unit))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, (TargetWrapper)evt.Target);
+                }
+
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class TargetWeaponSubCategoryAttackTrigger : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleAttackWithWeapon>, ITargetRulebookHandler<RuleAttackWithWeaponResolve>, IRulebookHandler<RuleAttackWithWeapon>, ITargetRulebookSubscriber, IRulebookHandler<RuleAttackWithWeaponResolve>
+        {
+            public bool WaitForAttackResolve;
+            public bool CriticalHit;
+            public bool OnlyMelee;
+            public bool NotReach;
+            [ShowIf("CheckCategory")]
+            public WeaponSubCategory SubCategory;
+            public ActionList ActionsOnAttacker;
+            public ActionList ActionOnSelf;
+
+            public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+                if (this.WaitForAttackResolve)
+                    return;
+                this.TryRunActions(evt);
+            }
+
+            public void OnEventAboutToTrigger(RuleAttackWithWeaponResolve evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleAttackWithWeaponResolve evt)
+            {
+                if (!this.WaitForAttackResolve)
+                    return;
+                this.TryRunActions(evt.AttackWithWeapon);
+            }
+
+            private void TryRunActions(RuleAttackWithWeapon evt)
+            {
+                if (!this.CheckConditions(evt))
+                    return;
+                using (new ContextAttackData(evt.AttackRoll, (Projectile)null))
+                {
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.ActionsOnAttacker, (TargetWrapper)evt.Initiator);
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.ActionOnSelf, (TargetWrapper)evt.Target);
+                }
+            }
+
+            private bool CheckConditions(RuleAttackWithWeapon evt)
+            {
+                return evt.AttackRoll.IsHit && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyMelee || evt.Weapon != null && evt.Weapon.Blueprint.IsMelee) && (!this.NotReach || evt.Weapon != null && !(evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange))) && ( evt.Weapon != null && (evt.Weapon.Blueprint.Type.Category.HasSubCategory(SubCategory)));
             }
         }
     }

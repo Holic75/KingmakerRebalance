@@ -60,6 +60,7 @@ namespace CallOfTheWild
         static public BlueprintFeature evil_eye;
         static public BlueprintFeature summer_heat;
         static public BlueprintFeature cackle;
+        static public BlueprintFeature ward;
         //major hexes
         static public BlueprintFeature major_ameliorating;
         static public BlueprintFeature major_healing;
@@ -482,6 +483,7 @@ namespace CallOfTheWild
             createAmeliorating();
             createEvilEye();
             createSummerHeat();
+            createWard();
 
             createMajorHealing();
             createMajorAmeliorating();
@@ -500,6 +502,7 @@ namespace CallOfTheWild
             createEternalSlumber();
             createCackle();
 
+
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
                                                            "Witches learn a number of magic tricks, called hexes, that grant them powers or weaken foes. At 1st level, a witch gains one hex of her choice. She gains an additional hex at 2nd level and for every 2 levels attained after 2nd level. A witch cannot select an individual hex more than once.\n" +
@@ -507,7 +510,7 @@ namespace CallOfTheWild
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
-            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle,
+            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle, ward,
                                                               major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew, retribution,
                                                               animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
@@ -1138,6 +1141,14 @@ namespace CallOfTheWild
                                                        "383672cfa7804b20b3c27d20cf62bc73",
                                                        "7e5ed75385894376833e5dda98b12f8d",
                                                        "4ade4bcdcef14344b7f09c99fb60a672");
+        }
+
+
+        static void createWard()
+        {
+            ward = hex_engine.createWardHex("WitchWard", "Ward",
+                                             "Effect: The warded creature receives a +2 deflection bonus to AC and a +2 resistance bonus on saving throws. This ward lasts until the warded creature is hit or fails a saving throw. A witch knows when a warded creature is no longer protected. A witch can have only one ward active at a time. If the witch uses this ability again, the previous ward immediately ends. A witch cannot use this ability on herself. At 8th level and 16th level, the bonuses provided by this ward increase by +1."
+                                             );
         }
 
 

@@ -39,7 +39,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    public class HexEngine
+    public partial class HexEngine
     {
         static LibraryScriptableObject library => Main.library;
         static internal bool test_mode = false;
@@ -894,6 +894,58 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createWardHex(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintBuff>("5274ddc289f4a7447b7ace68ad8bebb0").Icon; //shield of faith
+
+            var buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Deflection, rankType: AbilityRankType.StatBonus),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
+                                          Helpers.Create<UniqueBuff>(),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, 
+                                                                          classes: hex_classes, 
+                                                                          progression: ContextRankProgression.StartPlusDivStep,
+                                                                          startLevel: -8,
+                                                                          stepLevel: 8,
+                                                                          type: AbilityRankType.StatBonus),
+                                          Helpers.Create<AddTargetAttackRollTrigger>( a => { a.ActionsOnAttacker = Helpers.CreateActionList(); a.OnlyHit = true;
+                                                                                             a.ActionOnSelf = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()); }),
+                                          Helpers.Create<NewMechanics.AddInitiatorSavingThrowTrigger>( a => { a.OnFail = true;
+                                                                                                              a.Action = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()); }
+                                                                                                     )
+                                         );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445", name_prefix + "HexAbility", ""); //shield of faith
+            hex_ability.RemoveComponents<SpellListComponent>();
+            hex_ability.RemoveComponents<SpellComponent>();
+            hex_ability.Type = AbilityType.Supernatural;
+            hex_ability.setMiscAbilityParametersSingleTargetRangedFriendly();
+            hex_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));  
+            hex_ability.SetIcon(buff.Icon);
+            hex_ability.SetName(buff.Name);
+            hex_ability.SetDescription(buff.Description);
+
+            var ward = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  hex_ability.Name,
+                                                  hex_ability.Description,
+                                                  "",
+                                                  hex_ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(hex_ability));
+            ward.Ranks = 1;
+            return ward;
+        }
+
+
         public BlueprintFeature createHarrowingCurse(string name_prefix, string display_name, string description, string ability_guid,
                                                       string feature_guid, string cooldown_guid)
         {
@@ -972,7 +1024,7 @@ namespace CallOfTheWild
                                                 serenity.GetComponent<AbilitySpawnFx>(),
                                                 Common.createContextCalculateAbilityParamsBasedOnClasses(hex_classes, hex_stat),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
-                                                                                stat: StatType.Intelligence,
+                                                                                stat: hex_stat,
                                                                                 progression: ContextRankProgression.AsIs,
                                                                                 type: AbilityRankType.DamageBonus, min: 1)
                                                 );

@@ -132,12 +132,13 @@
     <Compile Include="Classes\VindicativeBastard.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="Enchantments\WeaponEnchantments.cs" />
+    <Compile Include="Hexes\ShamanHexes.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="FeralCombatTraining.cs" />
-    <Compile Include="HexEngine.cs" />
+    <Compile Include="Hexes\HexEngine.cs" />
     <Compile Include="LoadIcons.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Helpers.cs" />

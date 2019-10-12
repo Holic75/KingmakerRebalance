@@ -896,7 +896,7 @@ namespace CallOfTheWild
         }
 
 
-        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMatrialDR(int dr_value, PhysicalDamageMaterial material)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMatrerialDR(int dr_value, PhysicalDamageMaterial material)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.Material = material;
@@ -924,6 +924,17 @@ namespace CallOfTheWild
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.BypassedByMaterial = false;
             feat.Value = value;
+            return feat;
+        }
+
+
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMaterialDR(ContextValue value, PhysicalDamageMaterial material)
+        {
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
+            feat.Material = material;
+            feat.BypassedByMaterial = true;
+            feat.Value = value;
+
             return feat;
         }
 

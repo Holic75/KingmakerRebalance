@@ -20,6 +20,23 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.HealingMechanics
 {
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncomingHealingModifier : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookSubscriber, IRulebookHandler<RuleHealDamage>
+    {
+        public ContextValue ModifierPercents;
+
+        public void OnEventAboutToTrigger(RuleHealDamage evt)
+        {
+            evt.Modifier = new float?((float)this.ModifierPercents.Calculate(this.Fact.MaybeContext) / 100f);
+        }
+
+        public void OnEventDidTrigger(RuleHealDamage evt)
+        {
+        }
+    }
+
+
     public class UnitPartReceiveBonusCasterLevelHealing : AdditiveUnitPart
     {
         public bool active()
