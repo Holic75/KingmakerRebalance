@@ -32,8 +32,121 @@ namespace CallOfTheWild
         //evil eye, fortune, misfirtune, ward, healing - same; + witch hex
         //fury,
         //intimidating display - give feat
+        //secret - give metamagic feat
         //shapeshift  - give spells in 1 minute increments
         //wings - attack at lvl1, normal wings at lvl 8
+
+
+        BlueprintFeature createDraconicResilence(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("f767399367df54645ac620ef7b2062bb").Icon; //form of the dragon
+
+            var buff1 = Helpers.CreateBuff(name_prefix + "1HexBuff",
+                                           display_name,
+                                           description,
+                                           "",
+                                           icon,
+                                           null,
+                                           Common.createBuffDescriptorImmunity(SpellDescriptor.Sleep),
+                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Sleep)
+                                           );
+
+            var buff2 = library.CopyAndAdd<BlueprintBuff>(buff1, name_prefix + "2HexBuff", "");
+            buff2.AddComponents(Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis),
+                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis)
+                                );
+
+
+            var apply1 = Common.createContextActionApplyBuff(buff1, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+            var apply7 = Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+          
+
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                Helpers.roundsPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                                        Helpers.CreateActionList(apply1),
+                                                                                                                        Helpers.CreateActionList(apply7))
+                                                                        ),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                           type: AbilityRankType.StatBonus, stepLevel: 7, min: 1, max: 2, classes: hex_classes),
+                                                Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                               );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            addWitchHexCooldownScaling(ability, "");
+
+            addToAmplifyHex(ability);
+            //addToSplitHex(ability, true);
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  ability.Name,
+                                                  ability.Description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        BlueprintFeature createFury(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2").Icon; //rage
+
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
+                                           display_name,
+                                           description,
+                                           "",
+                                           icon,
+                                           null,
+                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
+                                           Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
+                                           Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
+                                           Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
+                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                           type: AbilityRankType.StatBonus, startLevel: -8, stepLevel: 8, classes: hex_classes)
+                                           );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.SpeedBonus)), dispellable: false);
+
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "Variable",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, progression: ContextRankProgression.AsIs,
+                                                                           type: AbilityRankType.SpeedBonus, stat: hex_stat),
+                                                Common.createAbilitySpawnFx("97b991256e43bb140b263c326f690ce2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                               );
+
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            addWitchHexCooldownScaling(ability, "");
+
+            addToAmplifyHex(ability);
+            //addToSplitHex(ability, true);
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  ability.Name,
+                                                  ability.Description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability));
+            feature.Ranks = 1;
+            return feature;
+        }
 
 
 
