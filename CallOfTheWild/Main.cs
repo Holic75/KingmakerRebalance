@@ -148,6 +148,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.addRangerImprovedFavoredTerrain();
                     CallOfTheWild.Rebalance.fixChannelEnergySaclaing();
                     CallOfTheWild.Rebalance.fixCaveFangs();
+                    CallOfTheWild.Rebalance.fixDazzlingDisplay();
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                     CallOfTheWild.ChannelEnergyEngine.init();

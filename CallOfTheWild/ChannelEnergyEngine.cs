@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -18,6 +19,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +34,11 @@ namespace CallOfTheWild
         public static bool isOf(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
         {
             return (this_type & channel_type) != 0;
+        }
+
+        public static bool isStrictlyOf(this ChannelEnergyEngine.ChannelType this_type, ChannelEnergyEngine.ChannelType channel_type)
+        {
+            return (~this_type & channel_type) == 0;
         }
 
 
@@ -173,7 +180,7 @@ namespace CallOfTheWild
         static AbilityDeliverProjectile negative_cone_projectile;
         static AbilityDeliverProjectile positive_cone_projectile;
 
-
+        static BlueprintFeature[] channel_resistances = new BlueprintFeature[] { library.Get<BlueprintFeature>("a9ac84c6f48b491438f91bb237bc9212") };
 
 
         internal static void init()
@@ -210,7 +217,6 @@ namespace CallOfTheWild
             var hospitalier_positive_heal_base = Common.createVariantWrapper("HospitalierPositiveChannelHealBase", "", hospitalier_positive_heal);
             var hospitalier_positive_harm_base = Common.createVariantWrapper("HospitalierPositiveChannelHarmBase", "", hospitalier_positive_harm);
 
-
             empyreal_sorc_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { empyreal_sorc_positive_harm_base, empyreal_sorc_positive_heal_base };
             paladin_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { paladin_positive_harm_base, paladin_positive_heal_base };
             hospitalier_channel_feature.GetComponent<AddFacts>().Facts = new BlueprintUnitFact[] { hospitalier_positive_harm_base, hospitalier_positive_heal_base };
@@ -234,6 +240,65 @@ namespace CallOfTheWild
             storeChannel(cleric_negative_heal, cleric_negative_channel_feature, ChannelType.NegativeHeal);
             storeChannel(cleric_negative_harm, cleric_negative_channel_feature, ChannelType.NegativeHarm);
 
+            //replace undead check to work easier
+            var channels_to_fix = new BlueprintAbility[]
+            {
+                cleric_negative_harm,
+                cleric_negative_heal,
+                cleric_positive_harm,
+                cleric_positive_heal,
+                paladin_positive_harm,
+                paladin_positive_heal,
+                hospitalier_positive_harm,
+                hospitalier_positive_heal,
+                empyreal_sorc_positive_harm,
+                empyreal_sorc_positive_heal,
+                //cure
+                library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f"),
+                library.Get<BlueprintAbility>("1c1ebf5370939a9418da93176cc44cd9"),
+                library.Get<BlueprintAbility>("6e81a6679a0889a429dec9cedcf3729c"),
+                library.Get<BlueprintAbility>("0d657aa811b310e4bbd8586e60156a2d"),
+                library.Get<BlueprintAbility>("5d3d689392e4ff740a761ef346815074"),
+                library.Get<BlueprintAbility>("571221cc141bc21449ae96b3944652aa"),
+                library.Get<BlueprintAbility>("0cea35de4d553cc439ae80b3a8724397"),
+                library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449"),
+                //inflict
+                library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063"),
+                library.Get<BlueprintAbility>("14d749ecacca90a42b6bf1c3f580bb0c"),
+                library.Get<BlueprintAbility>("3cf05ef7606f06446ad357845cb4d430"),
+                library.Get<BlueprintAbility>("b0b8a04a3d74e03489862b03f4e467a6"),
+                library.Get<BlueprintAbility>("9da37873d79ef0a468f969e4e5116ad2"),
+                library.Get<BlueprintAbility>("03944622fbe04824684ec29ff2cec6a7"),
+                library.Get<BlueprintAbility>("820170444d4d2a14abc480fcbdb49535"),
+                library.Get<BlueprintAbility>("5ee395a2423808c4baf342a4f8395b19"),
+                library.Get<BlueprintAbility>("caae1dc6fcf7b37408686971ee27db13"), //lay on hands others
+                library.Get<BlueprintAbility>("8d6073201e5395d458b8251386d72df1"), //lay on hands self
+            };
+
+            var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+            foreach (var c in channels_to_fix)
+            {
+                Common.changeAction<Conditional>(c.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                                                 a =>
+                                                 {
+                                                     var condition = a.ConditionsChecker.Conditions.Length > 0 ? a.ConditionsChecker.Conditions[0] as ContextConditionHasFact : null;
+                                                     if (condition != null && condition.Fact == undead)
+                                                     {
+                                                         a.ConditionsChecker = Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.ContextConditionConsideredAsUndeadForenergy>(e => e.Not = condition.Not));
+                                                     }
+                                                 }
+                                                 );
+            }
+        }
+
+
+        static public void addChannelResitance(BlueprintFeature new_cr)
+        {
+            channel_resistances = channel_resistances.AddToArray(new_cr);
+            foreach (var c in channel_entires)
+            {
+                addToSpecificChannelResistance(c, new_cr);
+            }
         }
 
 
@@ -761,6 +826,36 @@ namespace CallOfTheWild
 
             //should be last
             addToBloodfireAndBloodrain(entry);
+            addToChannelResistance(entry);
+        }
+
+
+        internal static void addToSpecificChannelResistance(ChannelEntry entry, BlueprintFeature cr)
+        {
+            if (!entry.channel_type.isStrictlyOf(ChannelType.Positive | ChannelType.Harm))
+            {
+                return;
+            }
+
+            var comp = cr.GetComponent<SavingThrowBonusAgainstSpecificSpells>();
+            if (comp != null && !comp.Spells.Contains (entry.ability))
+            {
+                comp.Spells = comp.Spells.AddToArray(entry.ability);
+            }
+
+            var comp2 = cr.GetComponent<NewMechanics.ContextSavingThrowBonusAgainstSpecificSpells>();
+            if (comp2 != null && !comp2.Spells.Contains(entry.ability))
+            {
+                comp2.Spells = comp2.Spells.AddToArray(entry.ability);
+            }
+        }
+
+        static void addToChannelResistance(ChannelEntry entry)
+        {
+            foreach (var cr in channel_resistances)
+            {
+                addToSpecificChannelResistance(entry, cr);
+            }
         }
 
 

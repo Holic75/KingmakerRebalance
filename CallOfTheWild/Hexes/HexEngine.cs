@@ -219,8 +219,8 @@ namespace CallOfTheWild
         {
             var healing = createHealingHex(name_prefix + "Hex", display_name,
                                         description,
-                                        "47808d23c67033d4bbab86a1070fd62f", //cure light wounds
-                                        "1c1ebf5370939a9418da93176cc44cd9", //cure moderate wounds
+                                        "5590652e1c2225c4ca30c4a699ab3649", //"47808d23c67033d4bbab86a1070fd62f", //cure light wounds
+                                        "6b90c773a6543dc49b2505858ce33db5",//"1c1ebf5370939a9418da93176cc44cd9", //cure moderate wounds
                                         abil1_guid,
                                         abil2_guid,
                                         feature1_guid,
@@ -274,7 +274,7 @@ namespace CallOfTheWild
                                                     AbilityType.Supernatural,
                                                     CommandType.Standard,
                                                     AbilityRange.Close,
-                                                    sleep_spell.LocalizedDuration,
+                                                    Helpers.roundsPerLevelDuration,
                                                     sleep_spell.LocalizedSavingThrow);
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetEnemies = true;
@@ -660,8 +660,8 @@ namespace CallOfTheWild
         {
             var major_healing = createHealingHex(name_prefix + "Hex", display_name,
                                              description,
-                                             "6e81a6679a0889a429dec9cedcf3729c", //cure serious wounds
-                                             "0d657aa811b310e4bbd8586e60156a2d", //cure critical wounds
+                                             "3361c5df793b4c8448756146a88026ad", //"6e81a6679a0889a429dec9cedcf3729c", //cure serious wounds
+                                             "41c9016596fe1de4faf67425ed691203",//"0d657aa811b310e4bbd8586e60156a2d", //cure critical wounds
                                              abil1_guid,
                                              abil2_guid,
                                              feature1_guid,
@@ -674,8 +674,73 @@ namespace CallOfTheWild
             return major_healing;
         }
 
-
         BlueprintFeature createHealingHex(string name, string display_name, string description, string heal1_guid, string heal2_guid, string ability1_guid, string ability2_guid,
+                                            string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid, int update_level)
+        {
+            var heal1_hex_ability = Common.replaceCureInflictSpellParameters(library.Get<BlueprintAbility>(heal1_guid),
+                                                                             name + "1Ability",
+                                                                             display_name,
+                                                                             description,
+                                                                             AbilityType.Supernatural,
+                                                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                             classes: hex_classes,
+                                                                                                             max: update_level),
+                                                                             null,
+                                                                             false,
+                                                                             ability1_guid,
+                                                                             "", "", "");
+            var hex_cooldown = addWitchHexCooldownScaling(heal1_hex_ability, cooldown_guid);
+
+
+            var heal2_hex_ability = Common.replaceCureInflictSpellParameters(library.Get<BlueprintAbility>(heal2_guid),
+                                                                 name + "2Ability",
+                                                                 display_name,
+                                                                 description,
+                                                                 AbilityType.Supernatural,
+                                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                classes: hex_classes,
+                                                                                                max: update_level + 5),
+                                                                 null,
+                                                                 false,
+                                                                 ability2_guid,
+                                                                 "", "", "");
+
+            addWitchHexCooldownScaling(heal2_hex_ability, hex_cooldown);
+
+            var healing_hex1_feature = Helpers.CreateFeature(name + "1Feature", heal1_hex_ability.Name, heal1_hex_ability.Description,
+                                                             feature1_guid,
+                                                             heal1_hex_ability.Icon,
+                                                             FeatureGroup.None,
+                                                             Helpers.CreateAddFact(heal1_hex_ability));
+            healing_hex1_feature.HideInCharacterSheetAndLevelUp = true;
+            var healing_hex2_feature = Helpers.CreateFeature(name + "2Feature", heal1_hex_ability.Name, heal1_hex_ability.Description,
+                                                 feature2_guid,
+                                                 heal1_hex_ability.Icon,
+                                                 FeatureGroup.None,
+                                                 Helpers.CreateAddFact(heal2_hex_ability));
+            healing_hex2_feature.HideInCharacterSheetAndLevelUp = true;
+            var healing = Helpers.CreateFeature(name + "Feature",
+                                                heal1_hex_ability.Name,
+                                                heal1_hex_ability.Description,
+                                                feature_guid,
+                                                heal1_hex_ability.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, update_level, hex_classes, new BlueprintArchetype[0], true),
+                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, update_level, hex_classes, new BlueprintArchetype[0], false)
+                                                );
+            healing.Ranks = 1;
+            addToAmplifyHex(heal1_hex_ability);
+            addToAmplifyHex(heal2_hex_ability);
+            if (update_level < 10)
+            {
+                addToSplitHex(heal1_hex_ability, true);
+                addToSplitHex(heal2_hex_ability, true);
+            };
+            return healing;
+        }
+
+
+        /*BlueprintFeature createHealingHex(string name, string display_name, string description, string heal1_guid, string heal2_guid, string ability1_guid, string ability2_guid,
                                                     string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid, int update_level)
         {
             var heal1_hex_ability = library.CopyAndAdd<BlueprintAbility>(heal1_guid, name + "1Ability", ability1_guid);
@@ -728,7 +793,7 @@ namespace CallOfTheWild
                 addToSplitHex(heal2_hex_ability, true);
             };
             return healing;
-        }
+        }*/
 
 
         public BlueprintFeature createMajorAmeliorating(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,

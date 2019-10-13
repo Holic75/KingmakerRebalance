@@ -2904,10 +2904,81 @@ namespace CallOfTheWild
             return a;
         }
 
-        public static void clearParametrizedFeaturesCache(BlueprintParametrizedFeature feature)
+
+        public static BlueprintAbility replaceCureInflictSpellParameters(BlueprintAbility spell, string new_name, string new_display_name, string new_description, AbilityType new_type,
+                                                                     ContextRankConfig new_context_rank_config, ContextDiceValue new_dice, bool spell_resistance,
+                                                                     string guid_ability, string guid_primary, string guid_buff, string guid_secondary)
         {
-            var tr = Harmony12.Traverse.Create(feature);
-            tr.Field("m_CachedItems").SetValue(null);
+
+            var new_ability = library.CopyAndAdd<BlueprintAbility>(spell, new_name, guid_ability);
+            new_ability.Type = new_type;
+            new_ability.SpellResistance = spell_resistance;
+
+            var primary_ability = library.CopyAndAdd<BlueprintAbility>(spell.StickyTouch.TouchDeliveryAbility, new_name + "Cast", guid_primary);
+            primary_ability.SetNameDescription(new_name, new_description);
+            primary_ability.Type = new_type;
+            primary_ability.ReplaceComponent<ContextRankConfig>(new_context_rank_config);
+            Common.replaceDamageOrHealDice(primary_ability, new_dice, true, true);
+            BlueprintAbility secondary_spell = null;
+
+            var new_actions = Common.changeAction<ContextActionCastSpell>(primary_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                                                                            a =>
+                                                                            {
+                                                                                secondary_spell = library.CopyAndAdd<BlueprintAbility>(a.Spell, new_name + "Secondary", guid_secondary);
+                                                                                secondary_spell.Type = new_type;
+                                                                                secondary_spell.ReplaceComponent<ContextRankConfig>(new_context_rank_config);
+                                                                                Common.replaceDamageOrHealDice(secondary_spell, new_dice, true, true);
+                                                                                a.Spell = secondary_spell;
+                                                                                secondary_spell.SetNameDescription(new_display_name, new_description);
+                                                                            }
+                                                                            );
+
+            new_actions = Common.changeAction<ContextActionApplyBuff>(new_actions,
+                                                                        a =>
+                                                                        {
+                                                                            var buff = library.CopyAndAdd<BlueprintBuff>(a.Buff, new_name + "CasterBuff", guid_buff);
+                                                                            buff.GetComponent<ReplaceAbilityParamsWithContext>().Ability = secondary_spell;
+                                                                            a.Buff = buff;
+                                                                        }
+                                                                        );
+            primary_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+            new_ability.StickyTouch.TouchDeliveryAbility = primary_ability;
+            new_ability.SpellResistance = spell_resistance;
+            primary_ability.SpellResistance = spell_resistance;
+            secondary_spell.SpellResistance = spell_resistance;
+
+            return new_ability;
         }
+
+
+        public static void replaceDamageOrHealDice(BlueprintAbility ability, ContextDiceValue new_dice, bool heal, bool damage)
+        {
+            if (new_dice == null)
+            {
+                return;
+            }
+            if (heal)
+            {
+                ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionHealTarget>(a.Actions.Actions,
+                                                                                                                                                        c =>
+                                                                                                                                                        {
+                                                                                                                                                            c.Value = new_dice;
+                                                                                                                                                        })
+                                                                                                          )
+                                                                );
+            }
+            if (damage)
+            {
+                ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionDealDamage>(a.Actions.Actions,
+                                                                                                                                                        c =>
+                                                                                                                                                        {
+                                                                                                                                                            c.Value = new_dice;
+                                                                                                                                                        })
+                                                                                                          )
+                                                                );
+            }
+        }
+
+
     }
 }

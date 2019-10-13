@@ -1,6 +1,8 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -10,6 +12,7 @@ using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -28,13 +31,130 @@ namespace CallOfTheWild
     {
         //general hexes:
         //chant = cackle
-        //draconic resilence
+        //draconic resilence - done
         //evil eye, fortune, misfirtune, ward, healing - same; + witch hex
-        //fury,
-        //intimidating display - give feat
-        //secret - give metamagic feat
-        //shapeshift  - give spells in 1 minute increments
-        //wings - attack at lvl1, normal wings at lvl 8
+        //fury - done
+        //intimidating display - give feat - done
+        //secret - give metamagic feat - done
+        //shapeshift  - give spells in 1 minute increments - done
+        //wings - attack at lvl1, normal wings at lvl 8 - done
+
+
+        BlueprintFeature CreateWingsAttackHex(string name_prefix, string display_name, string description)
+        {
+            var wing_weapon = library.Get<BlueprintItemWeapon>("864e29d3e07ad4a4f96d576b366b4a86");//wing 1d4
+
+            var ability = library.CopyAndAdd<BlueprintActivatableAbility>("7679910a16368cc43b496cef2babe1cb", name_prefix + "HexActivatableAbility", ""); //silver dragon wings
+
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          ability.Icon,
+                                          ability.Buff.FxOnStart,
+                                          Common.createAddSecondaryAttacks(wing_weapon)
+                                          );
+
+            ability.Buff = buff;
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  ability.Name,
+                                                  ability.Description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        BlueprintFeature CreateWingsHex(string name_prefix, string display_name, string description)
+        {
+            var ability = library.Get<BlueprintActivatableAbility>("7679910a16368cc43b496cef2babe1cb"); //silver dragon wings
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  display_name,
+                                                  description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        BlueprintFeatureSelection createSecret(string name_prefix, string display_name, string description)
+        {
+            var metamagic_feats = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null));
+
+            var feature = Helpers.CreateFeatureSelection(name_prefix + "HexFeature",
+                                      display_name,
+                                      description,
+                                      "",
+                                      null,
+                                      FeatureGroup.None);
+            feature.Ranks = 1;
+            feature.AddComponent(Helpers.PrerequisiteNoFeature(feature));
+            feature.AllFeatures = metamagic_feats.ToArray();
+
+            return feature;
+        }
+
+
+        BlueprintFeatureSelection createIntimidatingDisplay(string name_prefix, string display_name, string description)
+        {
+            var dazzling_display_feature = library.Get<BlueprintAbility>("bcbd674ec70ff6f4894bb5f07b6f4095");
+            var feature = Helpers.CreateFeatureSelection(name_prefix + "HexFeature",
+                          display_name,
+                          description,
+                          "",
+                          null,
+                          FeatureGroup.None,
+                          Helpers.CreateAddFact(dazzling_display_feature));
+            feature.Ranks = 1;
+
+            
+            var dazzling_display = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb");
+            dazzling_display.GetComponent<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>().alternative = feature; 
+
+            return feature;
+        }
+
+
+        BlueprintFeature createShapeshiftHex(string name_prefix, string display_name, string description)
+        {
+            var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, hex_classes);
+            BlueprintAbility[] shapes = new BlueprintAbility[] {Wildshape.wolf_form_spell, Wildshape.leopard_form_spell, Wildshape.bear_form_spell, Wildshape.dire_wolf_form_spell,
+                                                               Wildshape.smilodon_form_spell, Wildshape.mastodon_form_spell, Wildshape.hodag_form_spell, Wildshape.winter_wolf_form_spell};
+            int[] levels = new int[] { 8, 8, 12, 12, 16, 16, 20, 20 };
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                      display_name,
+                                      description,
+                                      "",
+                                      Wildshape.wolf_form_spell.Icon,
+                                      FeatureGroup.None,
+                                      Helpers.CreateAddAbilityResource(resource));
+            feature.Ranks = 1;
+            var minute_duration = Helpers.CreateContextDuration(1, DurationRate.Minutes);
+            for (int i = 0; i < shapes.Length; i++)
+            {
+                var ability_i = library.CopyAndAdd<BlueprintAbility>(shapes[i], name_prefix + shapes[i].name, "");
+                ability_i.AddComponent(Helpers.CreateResourceLogic(resource));
+                ability_i.Type = AbilityType.Supernatural;
+                ability_i.LocalizedDuration = Helpers.CreateString(ability_i.name + ".Duration", Helpers.oneMinuteDuration);
+                ability_i.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
+                ability_i.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(hex_classes, hex_stat));
+                ability_i.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, b => b.DurationValue = minute_duration)));
+                var feature_i = Common.AbilityToFeature(ability_i);
+
+                feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature_i, levels[i], hex_classes));
+            }
+
+            return feature;
+        }
 
 
         BlueprintFeature createDraconicResilence(string name_prefix, string display_name, string description)
@@ -371,7 +491,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createFearfulGaze(string name_prefix, string display_name, string description)
+        public BlueprintFeature createFearfulGaze(string name_prefix, string display_name, string description)
         {
             var fear = library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0");
 
@@ -420,7 +540,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createBoneLock(string name_prefix, string display_name, string description)
+        public BlueprintFeature createBoneLock(string name_prefix, string display_name, string description)
         {
             var boneshaker = library.Get<BlueprintAbility>("b7731c2b4fa1c9844a092329177be4c3");
 

@@ -586,6 +586,15 @@ namespace CallOfTheWild
         }
 
 
+        internal static void fixDazzlingDisplay()
+        {
+            //require holding weapon with weapon focus
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            var dazzling_display = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb");
+            dazzling_display.AddComponent(Helpers.Create<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>(a => a.feature = weapon_focus));
+        }
+
+
         internal static void fixChannelEnergySaclaing()
         {
             var empyreal_resource = library.Get<BlueprintAbilityResource>("f9af9354fb8a79649a6e512569387dc5");

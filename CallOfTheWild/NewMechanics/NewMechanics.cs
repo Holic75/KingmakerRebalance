@@ -374,6 +374,40 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextSavingThrowBonusAgainstSpecificSpells : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public BlueprintAbility[] Spells;
+            public ModifierDescriptor ModifierDescriptor;
+            public ContextValue Value;
+            public BlueprintUnitFact[] BypassFeatures;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                BlueprintAbility sourceAbility = evt.Reason.Context?.SourceAbility;
+                UnitEntityData maybeCaster = evt.Reason.Context?.MaybeCaster;
+                bool flag = maybeCaster != null;
+                if (flag)
+                {
+                    flag = false;
+                    foreach (BlueprintUnitFact bypassFeature in this.BypassFeatures)
+                        flag = maybeCaster.Descriptor.HasFact(bypassFeature);
+                }
+                if (!(sourceAbility != null) || !((IEnumerable<BlueprintAbility>)this.Spells).Contains<BlueprintAbility>(sourceAbility) || flag)
+                    return;
+
+                int val = this.Value.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(val, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(val, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(val, (GameLogicComponent)this, this.ModifierDescriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
+
+
         public class ContextCalculateAbilityParamsBasedOnClasses : ContextAbilityParamsCalculator
         {
             public StatType StatType = StatType.Charisma;
@@ -1216,16 +1250,25 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class AbilityCasterMainWeaponCheckHasParametrizedFeature : BlueprintComponent, IAbilityCasterChecker
         {
-            public BlueprintParametrizedFeature feature;
-
+            public BlueprintParametrizedFeature feature = null;
+            public BlueprintFeature alternative = null;
 
             private bool checkFeature(UnitEntityData caster, WeaponCategory category)
             {
                 if (feature == null)
                 {
-                    return true;
+                    return false;
                 }
                 return caster.Descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == category);
+            }
+
+            private bool checkAlternative(UnitEntityData caster)
+            {
+                if (alternative == null)
+                {
+                    return false;
+                }
+                return caster.Descriptor.Progression.Features.HasFact(alternative);
             }
 
             public bool CorrectCaster(UnitEntityData caster)
@@ -1236,7 +1279,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                return checkFeature(caster, weapon.Blueprint.Category);
+                return checkFeature(caster, weapon.Blueprint.Category) || checkAlternative(caster);
             }
 
             public string GetReason()
@@ -3428,6 +3471,34 @@ namespace CallOfTheWild
                 return evt.AttackRoll.IsHit && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyMelee || evt.Weapon != null && evt.Weapon.Blueprint.IsMelee) && (!this.NotReach || evt.Weapon != null && !(evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange))) && ( evt.Weapon != null && (evt.Weapon.Blueprint.Type.Category.HasSubCategory(SubCategory)));
             }
         }
+
+
+
+        public class ContextConditionConsideredAsUndeadForenergy: ContextCondition
+        {
+            static public BlueprintUnitFact[] checked_facts = new BlueprintUnitFact[] { ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") };
+
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                foreach (var f in checked_facts)
+                {
+                    if (this.Target.Unit.Descriptor.HasFact(f) )
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+
+
     }
 
 }

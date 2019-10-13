@@ -875,6 +875,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.ice_slick.AssetGuid, 2),
+                new Common.SpellId( NewSpells.fog_cloud.AssetGuid, 2),
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
                 new Common.SpellId( "dee3074b2fbfb064b80b973f9b56319e", 2), //pernicious poison"
                 new Common.SpellId( "bc153808ef4884a4594bc9bec2299b69", 2), //pox postules

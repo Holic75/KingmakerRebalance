@@ -124,6 +124,9 @@
   <ItemGroup>
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
+    <Compile Include="Classes\Shaman.cs" />
+    <Compile Include="Classes\ShamanSpirits\Battle.cs" />
+    <Compile Include="Classes\ShamanSpirits\Bones.cs" />
     <Compile Include="Enchantments\ArmorEnchantments.cs" />
     <Compile Include="Classes\Bloodrager.cs" />
     <Compile Include="ChannelEnergyEngine.cs" />

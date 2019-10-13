@@ -22,6 +22,7 @@ using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -43,6 +44,7 @@ namespace CallOfTheWild
         static public BlueprintAbility flame_blade;
         static public BlueprintAbility virtuoso_performance;
         static public BlueprintAbility deadly_juggernaut;
+        static public BlueprintBuff deadly_juggernaut_buff;
         static public BlueprintAbility invisibility_purge;
         static public BlueprintAbility sanctuary;
         static public BlueprintBuff sanctuary_buff;
@@ -90,6 +92,8 @@ namespace CallOfTheWild
         static public BlueprintAbility bow_spirit;
         static public BlueprintAbility ray_of_exhaustion;
 
+        static public BlueprintAbility fog_cloud;
+
 
 
         static public void load()
@@ -132,7 +136,49 @@ namespace CallOfTheWild
             createBurningEntanglement();
             createBowSpirit();
             createRayOfExhaustion();
+            createFogCloud();
         }
+
+
+        static void createFogCloud()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "FogArea", ""); //mind fog
+            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Size = 20.Feet();
+            area.SpellResistance = false;
+
+            var buff = Helpers.CreateBuff("FogCloudBuff",
+                                          "Fog Cloud",
+                                          "A bank of fog billows out from the point you designate. The fog obscures all sight, including darkvision, beyond 5 feet. A creature within 5 feet has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker can’t use sight to locate the target).",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.TargetIsInvisible; a.Concealment = Concealment.Partial; }),
+                                          Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.TargetIsInvisible; a.Concealment = Concealment.Total; })
+                                          );
+
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
+
+            
+            fog_cloud = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "FogCloudAbility", "");
+            fog_cloud.SpellResistance = false;
+            fog_cloud.RemoveComponents<SpellListComponent>();
+            fog_cloud.RemoveComponents<SpellDescriptorComponent>();
+            fog_cloud.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            fog_cloud.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
+            fog_cloud.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+
+            fog_cloud.AddToSpellList(Helpers.druidSpellList, 2);
+            fog_cloud.AddToSpellList(Helpers.magusSpellList, 2);
+            fog_cloud.AddToSpellList(Helpers.wizardSpellList, 2);
+            //replace 2nd level spell in water domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), fog_cloud, 2);
+            fog_cloud.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+        }
+
+
 
 
 
@@ -823,7 +869,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/BloodMist.png");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("aa2e0a0fe89693f4e9205fd52c5ba3e5", "BloodMistArea", "");
-            area.Fx = Common.createPrefabLink("253fdbf42ebf7094f9e55f052a3c093c");
+            area.Fx = Common.createPrefabLink("bce77ff907d02f04b883ae53d77a983f");
             area.Size = 30.Feet();
 
             var buff = Helpers.CreateBuff("BloodMistBuff",
@@ -2219,6 +2265,7 @@ namespace CallOfTheWild
             deadly_juggernaut.AddToSpellList(Helpers.inquisitorSpellList, 3);
             deadly_juggernaut.AddToSpellList(Helpers.paladinSpellList, 3);
             deadly_juggernaut.AddSpellAndScroll("539ff89add7d8e4409ab92df30e6afee"); //lead_blades
+            deadly_juggernaut_buff = buff;
         }
 
 
