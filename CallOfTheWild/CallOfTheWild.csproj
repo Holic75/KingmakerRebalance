@@ -156,6 +156,7 @@
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />
     <Compile Include="NewMechanics\SharedHandItems.cs" />
+    <Compile Include="NewMechanics\UndeadMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />
     <Compile Include="NewMechanics\WildArmor.cs" />

@@ -3471,34 +3471,6 @@ namespace CallOfTheWild
                 return evt.AttackRoll.IsHit && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyMelee || evt.Weapon != null && evt.Weapon.Blueprint.IsMelee) && (!this.NotReach || evt.Weapon != null && !(evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange))) && ( evt.Weapon != null && (evt.Weapon.Blueprint.Type.Category.HasSubCategory(SubCategory)));
             }
         }
-
-
-
-        public class ContextConditionConsideredAsUndeadForenergy: ContextCondition
-        {
-            static public BlueprintUnitFact[] checked_facts = new BlueprintUnitFact[] { ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") };
-
-
-            protected override string GetConditionCaption()
-            {
-                return string.Empty;
-            }
-
-            protected override bool CheckCondition()
-            {
-                foreach (var f in checked_facts)
-                {
-                    if (this.Target.Unit.Descriptor.HasFact(f) )
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-
-
     }
 
 }

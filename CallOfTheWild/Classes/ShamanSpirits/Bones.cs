@@ -148,6 +148,7 @@ namespace CallOfTheWild
                                                             "",
                                                             icon,
                                                             FeatureGroup.None,
+                                                            Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                                             Helpers.Create<AddEnergyImmunity>(a => a.Type = DamageEnergyType.NegativeEnergy),
                                                             Helpers.CreateAddFeatureOnClassLevel(saves_feature, 8, getShamanArray()),
                                                             Helpers.CreateAddFeatureOnClassLevel(energy_drain_feature, 16, getShamanArray())
@@ -164,7 +165,7 @@ namespace CallOfTheWild
                                                             Common.createAddFeatureIfHasFact(undead, living_feature, not: true),
                                                             Common.createAddFeatureIfHasFact(undead, undead_feature)
                                                             );
-                NewMechanics.ContextConditionConsideredAsUndeadForenergy.checked_facts = NewMechanics.ContextConditionConsideredAsUndeadForenergy.checked_facts.AddToArray(living_feature);
+                
             }
 
         }

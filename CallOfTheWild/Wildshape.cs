@@ -840,6 +840,7 @@ namespace CallOfTheWild
             plant_shapeII.AddToSpellList(Helpers.wizardSpellList, 6);
             plant_shapeII.SetIcon(entangle.Icon);
             Helpers.AddSpellAndScroll(plant_shapeII, "5022612735a9e2345bfc5110106823d8");
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("467d2a1d2107da64395b591393baad17"), plant_shapeII, 6);
         }
 
 
