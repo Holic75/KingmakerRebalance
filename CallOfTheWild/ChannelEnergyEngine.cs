@@ -241,44 +241,63 @@ namespace CallOfTheWild
             storeChannel(cleric_negative_harm, cleric_negative_channel_feature, ChannelType.NegativeHarm);
 
             //replace undead check to work easier
-            var channels_to_fix = new BlueprintAbility[]
+            var channels_to_fix = new string[]
             {
-                cleric_negative_harm,
-                cleric_negative_heal,
-                cleric_positive_harm,
-                cleric_positive_heal,
-                paladin_positive_harm,
-                paladin_positive_heal,
-                hospitalier_positive_harm,
-                hospitalier_positive_heal,
-                empyreal_sorc_positive_harm,
-                empyreal_sorc_positive_heal,
-                //cure
-                library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f"),
-                library.Get<BlueprintAbility>("1c1ebf5370939a9418da93176cc44cd9"),
-                library.Get<BlueprintAbility>("6e81a6679a0889a429dec9cedcf3729c"),
-                library.Get<BlueprintAbility>("0d657aa811b310e4bbd8586e60156a2d"),
-                library.Get<BlueprintAbility>("5d3d689392e4ff740a761ef346815074"),
-                library.Get<BlueprintAbility>("571221cc141bc21449ae96b3944652aa"),
-                library.Get<BlueprintAbility>("0cea35de4d553cc439ae80b3a8724397"),
-                library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449"),
-                //inflict
-                library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063"),
-                library.Get<BlueprintAbility>("14d749ecacca90a42b6bf1c3f580bb0c"),
-                library.Get<BlueprintAbility>("3cf05ef7606f06446ad357845cb4d430"),
-                library.Get<BlueprintAbility>("b0b8a04a3d74e03489862b03f4e467a6"),
-                library.Get<BlueprintAbility>("9da37873d79ef0a468f969e4e5116ad2"),
-                library.Get<BlueprintAbility>("03944622fbe04824684ec29ff2cec6a7"),
-                library.Get<BlueprintAbility>("820170444d4d2a14abc480fcbdb49535"),
-                library.Get<BlueprintAbility>("5ee395a2423808c4baf342a4f8395b19"),
-                library.Get<BlueprintAbility>("caae1dc6fcf7b37408686971ee27db13"), //lay on hands others
-                library.Get<BlueprintAbility>("8d6073201e5395d458b8251386d72df1"), //lay on hands self
+                "cbd03c874e39e6c4795fe0093544f2a2", //BreathOfLifeTouch
+                "9c7ebca48b7340242a761a9f53e2f010", //FmaewardenEmbersTouch
+                "788d72e7713cf90418ee1f38449416dc", //InspiringRecovery (Shouldn't resurrect dhampirs)
+                "0e370822d9e0ff54f897e7fdf24cffb8", //KineticRevificationAbility (Shouldn't resurrect dhampirs)
+
+                "f5fc9a1a2a3c1a946a31b320d1dd31b2", //ChannelEnergy
+                "e1536ee240c5d4141bf9f9485a665128", //ChannelEnergyEmpyrealHarm
+                "574cf074e8b65e84d9b69a8c6f1af27b", //ChannelEnergyEmpyrealHeal
+                "cc17243b2185f814aa909ac6b6599eaa", //ChannelEnergyHospitalerHarm
+                "0c0cf7fcb356d2448b7d57f2c4db3c0c", //ChannelEnergyHospitalerHeal
+                "4937473d1cfd7774a979b625fb833b47", //ChannelEnergyPaladinHarm
+                "6670f0f21a1d7f04db2b8b115e8e6abf", //ChannelEnergyPaladinHeal
+                "89df18039ef22174b81052e2e419c728", //ChannelNegativeEnergy
+                "9be3aa47a13d5654cbcb8dbd40c325f2", //ChannelNegativeHeal
+                "90db8c09596a6734fa3b281399d672f7", //ChannelOnCritAbility
+                "279447a6bf2d3544d93a0a39c3b8e91d", //ChannelPositiveHarm
+                "0d657aa811b310e4bbd8586e60156a2d", //CureCriticalWounds
+                "1f173a16120359e41a20fc75bb53d449", //CureCriticalWoundsMass
+                "0e41945b6701d7643b4f19c145d7d9e1", //CureCriticalWoundsPretendPotion
+                "47808d23c67033d4bbab86a1070fd62f", //CureLightWounds
+                "5d3d689392e4ff740a761ef346815074", //CureLightWoundsMass
+                "1c1ebf5370939a9418da93176cc44cd9", //CureModerateWounds
+                "571221cc141bc21449ae96b3944652aa", //CureModerateWoundsMass
+                "6e81a6679a0889a429dec9cedcf3729c", //CureSeriousWounds
+                "0cea35de4d553cc439ae80b3a8724397", //CureSeriousWoundsMass
+                "c8feb35c95f9f83438655f93552b900b", //DivineHunterDistantMercyAbility
+                "ff8f1534f66559c478448723e16b6624", //Heal
+                "caae1dc6fcf7b37408686971ee27db13", //LayOnHandsOthers
+                "8d6073201e5395d458b8251386d72df1", //LayOnHandsSelf
+                "8337cea04c8afd1428aad69defbfc365", //LayOnHandsSelfOrTroth
+                "a8666d26bbbd9b640958284e0eee3602", //LifeBlast
+                "02a98da52a022534b94604dfb06e6fe9", //VeilOfPositiveEnergySwift
+
+                "a44adb55cfca17d488faefeffd321b07", //FriendlyInflictCriticalWounds
+                "137af566f68fd9b428e2e12da43c1482", //Harm
+                "db611ffeefb8f1e4f88e7d5393fc651d", //HealingBurstAbility
+                "867524328b54f25488d371214eea0d90", //HealMass
+                "3cf05ef7606f06446ad357845cb4d430", //InflictCriticalWounds
+                "5ee395a2423808c4baf342a4f8395b19", //InflictCriticalWoundsMass
+                "244a214d3b0188e4eb43d3a72108b67b", //InflictLightWounds_PrologueTrap
+                "e5cb4c4459e437e49a4cd73fde6b9063", //InflictLightWounds
+                "9da37873d79ef0a468f969e4e5116ad2", //InflictLightWoundsMass
+                "14d749ecacca90a42b6bf1c3f580bb0c", //InflictModerateWounds
+                "03944622fbe04824684ec29ff2cec6a7", //InflictModerateWoundsMass
+                "b0b8a04a3d74e03489862b03f4e467a6", //InflictSeriousWounds
+                "820170444d4d2a14abc480fcbdb49535", //InflictSeriousWoundsMass
+                "5c24b3e2633a8f74f8419492eda5bf11", //ZombieLairChannelNegativeHarm
+                "ab32492b5b46dea4199fe724efa5f800", //ZombieLairChannelNegativeHeal
             };
 
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
-            foreach (var c in channels_to_fix)
+            foreach (var c_guid in channels_to_fix)
             {
-                Common.changeAction<Conditional>(c.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                var c = library.Get<BlueprintAbility>(c_guid);
+                var new_actions = Common.changeAction<Conditional>(c.GetComponent<AbilityEffectRunAction>().Actions.Actions,
                                                  a =>
                                                  {
                                                      var condition = a.ConditionsChecker.Conditions.Length > 0 ? a.ConditionsChecker.Conditions[0] as ContextConditionHasFact : null;
@@ -288,6 +307,7 @@ namespace CallOfTheWild
                                                      }
                                                  }
                                                  );
+                c.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
             }
         }
 

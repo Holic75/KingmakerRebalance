@@ -92,7 +92,8 @@ namespace CallOfTheWild
         static public BlueprintAbility bow_spirit;
         static public BlueprintAbility ray_of_exhaustion;
 
-        static public BlueprintAbility fog_cloud;
+        static public BlueprintAbility obscuring_mist;
+        static public BlueprintAbility burst_of_radiance;
 
 
 
@@ -136,22 +137,59 @@ namespace CallOfTheWild
             createBurningEntanglement();
             createBowSpirit();
             createRayOfExhaustion();
-            createFogCloud();
+            createObscuringMist();
+
+            createBurstOfRadiance();
         }
 
 
-        static void createFogCloud()
+        static void createBurstOfRadiance()
+        {
+            burst_of_radiance = library.CopyAndAdd<BlueprintAbility>("39a602aa80cc96f4597778b6d4d49c0a", "BurstOfRadianceAbility", "");
+
+            burst_of_radiance.RemoveComponents<SpellListComponent>();
+            burst_of_radiance.SetName("Burst of Radiance");
+            burst_of_radiance.SetDescription("This spell fills the area with a brilliant flash of shimmering light. Creatures in the area are blinded for 1d4 rounds, or dazzled for 1d4 rounds if they succeed at a Reflex save. Evil creatures in the area of the burst take 1d4 points of damage per caster level (max 5d4), whether they succeed at the Reflex save or not.");
+            burst_of_radiance.LocalizedSavingThrow = Helpers.CreateString("BurstOfRadianceAbility.SavingThrow", "Reflex partial");
+            burst_of_radiance.Range = AbilityRange.Long;
+            burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower;
+            burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness));
+
+            var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
+            var blind = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+
+            var duration = Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1);
+            var effect = Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(dazzled, duration),
+                                                        Common.createContextActionApplyBuff(blind, duration));
+
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true);
+
+            var apply_damage = Helpers.CreateConditional(Helpers.CreateContextConditionAlignment(AlignmentComponent.Evil),
+                                                         damage);
+
+            burst_of_radiance.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Reflex, effect, apply_damage));
+            burst_of_radiance.AddComponent(Helpers.CreateContextRankConfig(max: 5));
+
+            burst_of_radiance.AddToSpellList(Helpers.clericSpellList, 2);
+            burst_of_radiance.AddToSpellList(Helpers.druidSpellList, 2);
+            burst_of_radiance.AddToSpellList(Helpers.wizardSpellList, 2);
+            burst_of_radiance.AddSpellAndScroll("2af933b93ac31ba449001e7e3b911b5b");
+        }
+
+
+
+        static void createObscuringMist()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
 
-            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "FogArea", ""); //mind fog
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "ObscuringMistFogArea", ""); //mind fog
             area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
             area.Size = 20.Feet();
             area.SpellResistance = false;
 
-            var buff = Helpers.CreateBuff("FogCloudBuff",
-                                          "Fog Cloud",
-                                          "A bank of fog billows out from the point you designate. The fog obscures all sight, including darkvision, beyond 5 feet. A creature within 5 feet has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker can’t use sight to locate the target).",
+            var buff = Helpers.CreateBuff("ObscuringMistBuff",
+                                          "Obscuring Mist",
+                                          "A misty vapor arises around you. It is stationary. The vapor obscures all sight, including darkvision, beyond 5 feet. A creature 5 feet away has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker cannot use sight to locate the target).",
                                           "",
                                           icon,
                                           null,
@@ -161,21 +199,25 @@ namespace CallOfTheWild
 
             area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
 
-            
-            fog_cloud = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "FogCloudAbility", "");
-            fog_cloud.SpellResistance = false;
-            fog_cloud.RemoveComponents<SpellListComponent>();
-            fog_cloud.RemoveComponents<SpellDescriptorComponent>();
-            fog_cloud.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
-            fog_cloud.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
-            fog_cloud.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
 
-            fog_cloud.AddToSpellList(Helpers.druidSpellList, 2);
-            fog_cloud.AddToSpellList(Helpers.magusSpellList, 2);
-            fog_cloud.AddToSpellList(Helpers.wizardSpellList, 2);
-            //replace 2nd level spell in water domain
-            Common.replaceDomainSpell(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), fog_cloud, 2);
-            fog_cloud.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            obscuring_mist = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "ObscuringMistAbility", "");
+            obscuring_mist.SpellResistance = false;
+            obscuring_mist.RemoveComponents<SpellListComponent>();
+            obscuring_mist.RemoveComponents<SpellDescriptorComponent>();
+            obscuring_mist.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            obscuring_mist.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
+            obscuring_mist.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+            obscuring_mist.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            obscuring_mist.AddToSpellList(Helpers.druidSpellList, 1);
+            obscuring_mist.AddToSpellList(Helpers.clericSpellList, 1);
+            obscuring_mist.AddToSpellList(Helpers.magusSpellList, 1);
+            obscuring_mist.AddToSpellList(Helpers.wizardSpellList, 1);
+            //replace 1st level spell in air, darkness, water and weather domains
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("750bfcd133cd52f42acbd4f7bc9cc365"), obscuring_mist, 1);//air
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("1e1b4128290b11a41ba55280ede90d7d"), obscuring_mist, 1);//darkness
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("c18a821ee662db0439fb873165da25be"), obscuring_mist, 1);//weather
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), obscuring_mist, 1);//water
+            obscuring_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
         }
 
 
@@ -905,7 +947,7 @@ namespace CallOfTheWild
             blood_mist.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 30.Feet()));
             blood_mist.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
             blood_mist.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
-
+            blood_mist.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | Metamagic.Quicken;
             blood_mist.AddToSpellList(Helpers.druidSpellList, 8);
             blood_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
         }

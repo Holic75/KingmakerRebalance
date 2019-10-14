@@ -867,6 +867,86 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
     }
 
+
+    [ComponentName("Persistent weapon enchantment")]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class PersistentWeaponEnchantment : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public BlueprintWeaponEnchantment enchant;
+        public bool primary_hand = true;
+        public bool secondary_hand = true;
+
+        [JsonProperty]
+        private ItemEnchantment m_PrimaryHandEnchantment = null;
+        [JsonProperty]
+        private ItemEnchantment m_SecondaryHandEnchantment = null;
+        [JsonProperty]
+        private ItemEntityWeapon m_PriamryHandWeapon;
+        [JsonProperty]
+        private ItemEntityWeapon m_SecondaryHandWeapon;
+
+
+        public override void OnTurnOn()
+        {
+            this.checkWeapons();
+        }
+
+        public override void OnTurnOff()
+        {
+            this.deactivateEnchants();
+        }
+
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.checkWeapons();
+        }
+
+        private void checkWeapons()
+        {
+            deactivateEnchants();
+            var primary_hand_weapon = this.Owner.Body.PrimaryHand.MaybeWeapon;
+            var secondary_hand_weapon = this.Owner.Body.SecondaryHand.MaybeWeapon;
+
+            if (primary_hand && primary_hand_weapon != null && primary_hand_weapon.Enchantments.HasFact(enchant))
+            {
+                m_PrimaryHandEnchantment = primary_hand_weapon.AddEnchantment(enchant, this.Fact.MaybeContext, new Rounds?());
+                m_PrimaryHandEnchantment.RemoveOnUnequipItem = true;
+                m_PriamryHandWeapon = primary_hand_weapon;
+            }
+            if (secondary_hand && secondary_hand_weapon != null && secondary_hand_weapon.Enchantments.HasFact(enchant))
+            {
+                m_SecondaryHandEnchantment = secondary_hand_weapon.AddEnchantment(enchant, this.Fact.MaybeContext, new Rounds?());
+                m_SecondaryHandEnchantment.RemoveOnUnequipItem = true;
+                m_SecondaryHandWeapon = secondary_hand_weapon;
+            }
+        }
+
+        private void deactivateEnchants()
+        {
+            if (m_PrimaryHandEnchantment != null && m_PriamryHandWeapon != null)
+            {
+                m_PrimaryHandEnchantment.Owner?.RemoveEnchantment(this.m_PrimaryHandEnchantment);
+                m_PrimaryHandEnchantment = null;
+                m_PriamryHandWeapon = null;
+            }
+
+            if (m_SecondaryHandEnchantment != null && m_SecondaryHandWeapon != null)
+            {
+                m_SecondaryHandEnchantment.Owner?.RemoveEnchantment(this.m_SecondaryHandEnchantment);
+                m_SecondaryHandEnchantment = null;
+                m_SecondaryHandWeapon = null;
+            }
+        }
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+            this.checkWeapons();
+        }
+    }
+
     //allow summoned weapons to equip as free action
     [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
     [Harmony12.HarmonyPatch("HandleEquipmentSlotUpdated", Harmony12.MethodType.Normal)]

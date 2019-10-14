@@ -1584,6 +1584,27 @@ namespace CallOfTheWild
             return castSpell;
         }
 
+
+        public static BlueprintAbility CreateTouchSpellCast(this BlueprintAbility spell, string name, string guid, BlueprintAbilityResource resource = null)
+        {
+            var castSpell = Main.library.CopyAndAdd(spell, name, guid);
+
+            var components = new List<BlueprintComponent>();
+            components.Add(Helpers.CreateStickyTouch(spell));
+
+            var schoolComponent = spell.GetComponent<SpellComponent>();
+            if (schoolComponent != null) components.Add(schoolComponent);
+            if (resource != null) components.Add(resource.CreateResourceLogic());
+
+            if (spell.GetComponent<AbilityResourceLogic>() != null)
+            {
+                Log.Write($"Warning: resource logic should be passed to CreateTouchSpellCast instead of a component: {spell.name}");
+            }
+
+            castSpell.SetComponents(components);
+            return castSpell;
+        }
+
         public static BindAbilitiesToClass CreateBindToClass(this BlueprintAbility ability, BlueprintProgression bloodline, StatType stat)
         {
             var b = Helpers.Create<BindAbilitiesToClass>();

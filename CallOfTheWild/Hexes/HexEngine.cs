@@ -163,7 +163,7 @@ namespace CallOfTheWild
                     }
                 }
                 
-                if (!found_save)
+                if (!found_save && ability.GetComponent<AbilityEffectRunAction>().SavingThrowType != SavingThrowType.Unknown)
                 {
                     run_actions = run_actions.AddToArray(accursed_hex_conditional);
                 }
@@ -1020,7 +1020,7 @@ namespace CallOfTheWild
         public BlueprintFeature createHarrowingCurse(string name_prefix, string display_name, string description, string ability_guid,
                                                       string feature_guid, string cooldown_guid)
         {
-            var hex_ability = library.CopyAndAdd<BlueprintAbility>("69851cc3b821c2d479ac1f2d86e8ffa5", name_prefix + "Hex", ability_guid);
+            var hex_ability = library.CopyAndAdd<BlueprintAbility>("69851cc3b821c2d479ac1f2d86e8ffa5", name_prefix + "TouchHex", "");
             BlueprintBuff[] curses = new BlueprintBuff[] {library.Get<BlueprintBuff>("caae9592917719a41b601b678a8e6ddf"),
                                                               library.Get<BlueprintBuff>("c092750ba895e014cb24a25e2e8274a7"),
                                                               library.Get<BlueprintBuff>("7fbb7799e8684434e80487cef9cc7f09"),
@@ -1041,7 +1041,9 @@ namespace CallOfTheWild
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(action_saved));
             
             hex_ability.AddComponent(Helpers.CreateRunActions(effect));
-            addWitchHexCooldownScaling(hex_ability, cooldown_guid);
+
+            var hex_sticky_touch_ability = Helpers.CreateTouchSpellCast(hex_ability, name_prefix + "Hex", ability_guid);
+            addWitchHexCooldownScaling(hex_sticky_touch_ability, cooldown_guid);
 
             var harrowing_curse = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
@@ -1049,7 +1051,7 @@ namespace CallOfTheWild
                                                       feature_guid,
                                                       hex_ability.Icon,
                                                       FeatureGroup.None,
-                                                      Helpers.CreateAddFact(hex_ability));
+                                                      Helpers.CreateAddFact(hex_sticky_touch_ability));
             harrowing_curse.Ranks = 1;
             addMajorHexPrerequisite(harrowing_curse);
             addToAmplifyHex(hex_ability);
@@ -1411,10 +1413,10 @@ namespace CallOfTheWild
             var hex_buff = library.CopyAndAdd<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a", name_prefix + "HexBuff", buff_guid);
             hex_buff.SetIcon(touch_of_fatigue_spell.Icon);
             hex_buff.RemoveComponent(hex_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger>());
-            var hex_ability = Helpers.CreateAbility(name_prefix + "HexAbility",
+            var hex_ability = Helpers.CreateAbility(name_prefix + "HexTouchAbility",
                                                     display_name,
                                                     description,
-                                                    ability_guid,
+                                                    "",
                                                     hex_buff.Icon,
                                                     AbilityType.Supernatural,
                                                     CommandType.Standard,
@@ -1449,14 +1451,16 @@ namespace CallOfTheWild
             touch.TouchWeapon = library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("bb337517547de1a4189518d404ec49d4");
             hex_ability.AddComponent(touch);
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
-            var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
+
+            var hex_sticky_touch = Helpers.CreateTouchSpellCast(hex_ability, name_prefix + "HexAbility", ability_guid);
+            var hex_cooldown = addWitchHexCooldownScaling(hex_sticky_touch, cooldown_guid);
             var eternal_slumber = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
                                                       hex_ability.Description,
                                                       feature_guid,
                                                       hex_ability.Icon,
                                                       FeatureGroup.None,
-                                                      Helpers.CreateAddFact(hex_ability));
+                                                      Helpers.CreateAddFact(hex_sticky_touch));
             eternal_slumber.Ranks = 1;
             addGrandHexPrerequisite(eternal_slumber);
             addToAmplifyHex(hex_ability);

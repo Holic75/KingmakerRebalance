@@ -60,6 +60,7 @@ namespace CallOfTheWild.UndeadMechanics
         {
             try
             {
+                Main.logger.Log("Checking " + __instance.CharacterName);
                 if (!__result) __result = __instance.Ensure< UnitPartConsiderUndeadForHealing>().active();
             }
             catch (Exception ex)

@@ -437,7 +437,7 @@ namespace CallOfTheWild
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                                       type: AbilityRankType.DamageBonus, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3);
 
-            var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersAbility",
+            var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersTouchAbility",
                                                                         "Fervor (Postive Energy) Others",
                                                                         "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.",
                                                                         "",
@@ -447,16 +447,14 @@ namespace CallOfTheWild
                                                                         AbilityRange.Touch,
                                                                         "",
                                                                         Helpers.savingThrowNone,
-                                                                        Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(undead_type),
+                                                                        Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionConsideredAsUndeadForenergy>(),
                                                                                                                            damage_undead_action,
                                                                                                                            heal_action)),
                                                                         cure_light_wounds.GetComponent<SpellDescriptorComponent>(),
                                                                         cure_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                                         cure_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                                         Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealDamage),
-                                                                        context_rank_config,
-                                                                        Common.createAbilityTargetHasFact(true, construct_type),
-                                                                        Helpers.CreateResourceLogic(warpriest_fervor_resource)
+                                                                        context_rank_config
                                                                         );
             fervor_positive_ability_others.CanTargetFriends = true;
             fervor_positive_ability_others.CanTargetEnemies = true;
@@ -466,6 +464,10 @@ namespace CallOfTheWild
             fervor_positive_ability_others.EffectOnAlly = AbilityEffectOnUnit.Helpful;
             fervor_positive_ability_others.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
             fervor_positive_ability_others.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+
+            var fervor_positive_ability_others_sticky = Helpers.CreateTouchSpellCast(fervor_positive_ability_others, "WarpriestFervorPositiveOthersAbility", "");
+            fervor_positive_ability_others_sticky.AddComponents(Common.createAbilityTargetHasFact(true, construct_type),
+                                                                Helpers.CreateResourceLogic(warpriest_fervor_resource));
 
             var fervor_positive_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_positive_ability_others, "WarpriestFervorPositiveSelfAbility", "");
             fervor_positive_ability_self.SetName("Fervor (Postive Energy) Self");
@@ -482,11 +484,11 @@ namespace CallOfTheWild
                                                     "",
                                                     fervor_positive_ability_others.Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.CreateAddFacts(fervor_positive_ability_self, fervor_positive_ability_others, fervor_swift_cast_ability)
+                                                    Helpers.CreateAddFacts(fervor_positive_ability_self, fervor_positive_ability_others_sticky, fervor_swift_cast_ability)
                                                     );
 
 
-            var fervor_negative_ability_others = Helpers.CreateAbility("WarpriestFervorNegativeOthersAbility",
+            var fervor_negative_ability_others = Helpers.CreateAbility("WarpriestFervorNegativeTouchOthersAbility",
                                                             "Fervor (Negative Energy) Others",
                                                             "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, an evil warpriest (or one who worships an evil deity) can touch a living creature and deal to it 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to heal an undead creature for same amount of damage he would otherwise deal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Living creatures do not receive a saving throw against this damage. This counts as negative energy.",
                                                             "",
@@ -496,15 +498,13 @@ namespace CallOfTheWild
                                                             AbilityRange.Touch,
                                                             "",
                                                             Helpers.savingThrowNone,
-                                                            Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(undead_type),
+                                                            Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionConsideredAsUndeadForenergy>(),
                                                                                                                heal_action,
                                                                                                                damage_living_action)),
                                                             inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                             inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                             context_rank_config,
-                                                            Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealUndead),
-                                                            Common.createAbilityTargetHasFact(true, construct_type),
-                                                            Helpers.CreateResourceLogic(warpriest_fervor_resource)
+                                                            Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealUndead)
                                                             );
             fervor_negative_ability_others.CanTargetFriends = true;
             fervor_negative_ability_others.CanTargetEnemies = true;
@@ -514,6 +514,10 @@ namespace CallOfTheWild
             fervor_negative_ability_others.EffectOnAlly = AbilityEffectOnUnit.Helpful;
             fervor_negative_ability_others.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Touch;
             fervor_negative_ability_others.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionOmni;
+
+            var fervor_negative_ability_others_sticky = Helpers.CreateTouchSpellCast(fervor_negative_ability_others, "WarpriestFervorNegativeOthersAbility", "");
+            fervor_negative_ability_others_sticky.AddComponents(Common.createAbilityTargetHasFact(true, construct_type),
+                                                                Helpers.CreateResourceLogic(warpriest_fervor_resource));
 
             var fervor_negative_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_negative_ability_others, "WarpriestFervorNegativeSelfAbility", "");
             fervor_negative_ability_self.SetName("Fervor (Negative Energy) Self");
@@ -530,7 +534,7 @@ namespace CallOfTheWild
                                                     "",
                                                     fervor_negative_ability_others.Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.CreateAddFacts(fervor_negative_ability_self, fervor_negative_ability_others, fervor_swift_cast_ability)
+                                                    Helpers.CreateAddFacts(fervor_negative_ability_self, fervor_negative_ability_others_sticky, fervor_swift_cast_ability)
                                                     );
 
             warpriest_fervor = Helpers.CreateFeature("WarpriestFervorFeature",

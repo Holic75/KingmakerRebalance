@@ -67,7 +67,7 @@ namespace CallOfTheWild
                 spells = new BlueprintAbility[9]
                 {
                     library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039"), //enlarge person
-                    NewSpells.fog_cloud,
+                    library.Get<BlueprintAbility>("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
                     library.Get<BlueprintAbility>("2d4263d80f5136b4296d6eb43a221d7d"), //magical vestment,
                     library.Get<BlueprintAbility>("f72f8f03bf0136c4180cd1d70eb773a5"), //controlled fireball
                     library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252"), //righteous might
@@ -169,7 +169,7 @@ namespace CallOfTheWild
 
                 var ability = Common.convertPerformance(library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70"), buff, "ShamanBattleSpirit");
                 ability.Group = ActivatableAbilityGroup.None;
-                Helpers.SetField(ability, "m_ActivateWithUnitCommand", CommandType.Free);
+                Helpers.SetField(ability, "m_ActivateWithUnitCommand", CommandType.Standard);
                 ability.ReplaceComponent<ActivatableAbilityResourceLogic>(a => a.RequiredResource = resource);
 
                 spirit_ability = Common.ActivatableAbilityToFeature(ability, hide: false);

@@ -2405,8 +2405,16 @@ namespace CallOfTheWild
             var spell_list = domain_progression.GetComponent<LearnSpellList>().SpellList;
             var spells = spell_list.SpellsByLevel.First(s => s.SpellLevel == level).Spells;
             var old_spell = spells[0];
+
+            var new_description = domain_progression.Description.Replace(old_spell.Name, new_spell.Name);
+            var old_description = domain_progression.Description;
+            var blueprints = library.GetAllBlueprints().OfType<BlueprintProgression>().Where(f => f.Description == old_description).ToArray();
+            foreach (var b in blueprints)
+            {
+                b.SetDescription(new_description);
+            }
             base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name, new_spell.Name));
-            domain_progression.SetDescription(domain_progression.Description.Replace(old_spell.Name, new_spell.Name));
+
             spells.Clear();
             spells.Add(new_spell);
         }
@@ -2914,7 +2922,9 @@ namespace CallOfTheWild
             new_ability.Type = new_type;
             new_ability.SpellResistance = spell_resistance;
             new_ability.SetNameDescription(new_display_name, new_description);
+            
             var primary_ability = library.CopyAndAdd<BlueprintAbility>(spell.StickyTouch.TouchDeliveryAbility, new_name + "Cast", guid_primary);
+            new_ability.ReplaceComponent<AbilityEffectStickyTouch>(s => s.TouchDeliveryAbility = primary_ability);
             primary_ability.SetNameDescription(new_display_name, new_description);
             primary_ability.Type = new_type;
             primary_ability.ReplaceComponent<ContextRankConfig>(new_context_rank_config);

@@ -850,6 +850,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
                 new Common.SpellId( "e5af3674bb241f14b9a9f6b0c7dc3d27", 1), //inflict light wounds
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
+                new Common.SpellId( NewSpells.obscuring_mist.AssetGuid, 1),
                 new Common.SpellId( "450af0402422b0b4980d9c2175869612", 1), //ray of enfeeblement
                 new Common.SpellId( "fa3078b9976a5b24caf92e20ee9c0f54", 1), //ray of sickening
                 new Common.SpellId( "4e0e9aba6447d514f88eff1464cc4763", 1), //reduce person
@@ -875,7 +876,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.ice_slick.AssetGuid, 2),
-                new Common.SpellId( NewSpells.fog_cloud.AssetGuid, 2),
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
                 new Common.SpellId( "dee3074b2fbfb064b80b973f9b56319e", 2), //pernicious poison"
                 new Common.SpellId( "bc153808ef4884a4594bc9bec2299b69", 2), //pox postules

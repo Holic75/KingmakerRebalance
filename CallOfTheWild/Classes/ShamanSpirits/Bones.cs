@@ -59,7 +59,7 @@ namespace CallOfTheWild
             {
                 createDeathlyBeingHex();
 
-                //createSpiritAbility();
+                createSpiritAbility();
                 //createGreaterSpiritAbility();
                 //createTrueSpiritAbility();
                 //createManifestation();
@@ -165,7 +165,48 @@ namespace CallOfTheWild
                                                             Common.createAddFeatureIfHasFact(undead, living_feature, not: true),
                                                             Common.createAddFeatureIfHasFact(undead, undead_feature)
                                                             );
-                
+            }
+
+
+            static void createSpiritAbility()
+            {
+                var resource = Helpers.CreateAbilityResource("TouchOfTheGraveResource", "", "", "", null);
+                resource.SetIncreasedByStat(3, StatType.Charisma);
+                var inflict_light_wounds = library.Get<BlueprintAbility>("e5af3674bb241f14b9a9f6b0c7dc3d27");
+                var touch_of_the_grave_ability =  Common.replaceCureInflictSpellParameters(inflict_light_wounds,
+                                                                                            "TouchOfTheGraveAbility",
+                                                                                            "Touch of the Grave",
+                                                                                            "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier",
+                                                                                            AbilityType.Supernatural,
+                                                                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
+                                                                                                                            classes: getShamanArray()),
+                                                                                            Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                            false,
+                                                                                            "",
+                                                                                            "",
+                                                                                            "",
+                                                                                            ""
+                                                                                            );
+                touch_of_the_grave_ability.RemoveComponents<SpellComponent>();
+                touch_of_the_grave_ability.RemoveComponents<SpellListComponent>();
+                touch_of_the_grave_ability.AddComponent(Helpers.CreateResourceLogic(resource));
+
+                var unholy = library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453");
+
+                var unholy_weapon_feature = Helpers.CreateFeature("TouchOfTheGraveUnholyWeaponFeature",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              null,
+                                                              FeatureGroup.None,
+                                                              Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => p.enchant = unholy)
+                                                              );
+
+                unholy_weapon_feature.HideInCharacterSheetAndLevelUp = true;
+
+                spirit_ability = Common.AbilityToFeature(touch_of_the_grave_ability, false);
+                spirit_ability.SetDescription("As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon that the shaman wields is treated as an unholy weapon.");
+                spirit_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(unholy_weapon_feature, 11, getShamanArray()));
             }
 
         }
