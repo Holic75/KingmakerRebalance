@@ -104,7 +104,7 @@ namespace CallOfTheWild
         }
 
 
-        void addWitchHexCooldownScaling(BlueprintAbility ability, BlueprintBuff hex_cooldown, bool allow_hex_vulnerability = true)
+        void addWitchHexCooldownScaling(BlueprintAbility hex_ability, BlueprintBuff hex_cooldown, bool allow_hex_vulnerability = true)
         {
             var cooldown_action = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             cooldown_action.Buff = hex_cooldown;
@@ -118,6 +118,7 @@ namespace CallOfTheWild
                                                                             rate: DurationRate.Days);
             cooldown_action.IsNotDispelable = true;
 
+            var ability = hex_ability.StickyTouch == null ? hex_ability : hex_ability.StickyTouch.TouchDeliveryAbility;
             bool has_action = (ability.GetComponents<AbilityEffectRunAction>().Count() != 0);
             if (!has_action)
             {
@@ -172,27 +173,32 @@ namespace CallOfTheWild
                 var target_checker = Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { hex_cooldown },
                                                                           new BlueprintBuff[] { accursed_hex_personalized, hex_vulnerability_buff }//allow to to reapply if has hex vulnerability
                                                                           );
-                ability.AddComponent(target_checker);
+                hex_ability.AddComponent(target_checker);
             }
 
 
 
             var scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(hex_classes, hex_stat);
             ability.AddComponent(scaling);
-            var spell_list_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>().ToArray();
-            foreach (var c in spell_list_components)
+            var abilities = new BlueprintAbility[] { ability, hex_ability };
+
+            foreach (var a in abilities)
             {
-                ability.RemoveComponent(c);
+                var spell_list_components = a.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellListComponent>().ToArray();
+                foreach (var c in spell_list_components)
+                {
+                    a.RemoveComponent(c);
+                }
+                a.Type = AbilityType.Supernatural;
+                a.SpellResistance = false;
+                var spell_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>().ToArray();
+                foreach (var s in spell_components)
+                {
+                    a.RemoveComponent(s);
+                }
+                a.RemoveComponent(ability.GetComponent<Kingmaker.Blueprints.Classes.Spells.ChirurgeonSpell>());
+                a.RemoveComponent(ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
             }
-            ability.Type = AbilityType.Supernatural;
-            ability.SpellResistance = false;
-            var spell_components = ability.GetComponents<Kingmaker.Blueprints.Classes.Spells.SpellComponent>().ToArray();
-            foreach (var s in spell_components)
-            {
-                ability.RemoveComponent(s);
-            }
-            ability.RemoveComponent(ability.GetComponent<Kingmaker.Blueprints.Classes.Spells.ChirurgeonSpell>());
-            ability.RemoveComponent(ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityUseOnRest>());
             //ability.AvailableMetamagic = 0;
         }
 
@@ -1751,9 +1757,10 @@ namespace CallOfTheWild
                                                               );
             var apply_caster_buff2 = Common.createContextActionRemoveBuffFromCaster(split_hex_buff);
 
-            var run_action_original = hex.GetComponent<AbilityEffectRunAction>().CreateCopy();
+            var original = hex.StickyTouch == null ? hex : hex.StickyTouch.TouchDeliveryAbility;
+            var run_action_original = original.GetComponent<AbilityEffectRunAction>().CreateCopy();
             run_action_original.addAction(apply_target_buff);
-            hex.ReplaceComponent<AbilityEffectRunAction>(run_action_original);
+            original.ReplaceComponent<AbilityEffectRunAction>(run_action_original);
 
             var spell_trigger_original = Helpers.Create<NewMechanics.AbilityUsedTrigger>();
             spell_trigger_original.Spells = new BlueprintAbility[] { hex };

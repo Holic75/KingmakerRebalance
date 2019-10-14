@@ -2913,9 +2913,9 @@ namespace CallOfTheWild
             var new_ability = library.CopyAndAdd<BlueprintAbility>(spell, new_name, guid_ability);
             new_ability.Type = new_type;
             new_ability.SpellResistance = spell_resistance;
-
+            new_ability.SetNameDescription(new_display_name, new_description);
             var primary_ability = library.CopyAndAdd<BlueprintAbility>(spell.StickyTouch.TouchDeliveryAbility, new_name + "Cast", guid_primary);
-            primary_ability.SetNameDescription(new_name, new_description);
+            primary_ability.SetNameDescription(new_display_name, new_description);
             primary_ability.Type = new_type;
             primary_ability.ReplaceComponent<ContextRankConfig>(new_context_rank_config);
             Common.replaceDamageOrHealDice(primary_ability, new_dice, true, true);
