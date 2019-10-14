@@ -1734,7 +1734,18 @@ namespace CallOfTheWild
 
         BlueprintAbility addToSplitHex(BlueprintAbility hex, bool amplify = false)
         {
-            var split_hex = library.CopyAndAdd<BlueprintAbility>(hex.AssetGuid, "SplitHex" + hex.name, "");
+            BlueprintAbility split_hex = null;
+            if (hex.StickyTouch == null)
+            {
+                split_hex = library.CopyAndAdd<BlueprintAbility>(hex.AssetGuid, "SplitHex" + hex.name, "");
+            }
+            else
+            {
+                split_hex = library.CopyAndAdd<BlueprintAbility>(hex.StickyTouch.TouchDeliveryAbility.AssetGuid, "SplitHex" + hex.name, "");
+                split_hex.RemoveComponents<AbilityDeliverTouch>();
+                split_hex.Range = AbilityRange.Close;
+                split_hex.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
+            }
             split_hex.SetName("Split Hex : " + hex.Name);
             split_hex.SetIcon(immune_to_split_hex_buff.Icon);
             split_hex.ActionType = CommandType.Free;
