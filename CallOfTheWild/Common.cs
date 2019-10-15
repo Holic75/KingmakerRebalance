@@ -939,12 +939,11 @@ namespace CallOfTheWild
         }
 
 
-        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(int dr_value)
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMagicDR(ContextValue dr_value)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
             feat.BypassedByMagic = true;
-            feat.Value.ValueType = ContextValueType.Simple;
-            feat.Value.Value = dr_value;
+            feat.Value = dr_value;
 
             return feat;
         }
@@ -2987,6 +2986,22 @@ namespace CallOfTheWild
                                                                                                           )
                                                                 );
             }
+        }
+
+
+
+        public static BlueprintActivatableAbility CreateMetamagicAbility(BlueprintFeature feat, String name, String display_name, Metamagic metamagic, SpellDescriptor descriptor, 
+                                                                  String buff_id, String ability_id)
+        {
+            var buff = Helpers.CreateBuff($"{feat.name}{name}Buff", display_name, feat.Description,
+                buff_id, feat.Icon, null,
+                Helpers.Create<AutoMetamagic>(a => { a.Metamagic = metamagic; a.Descriptor = descriptor; }));
+
+            var ability = Helpers.CreateActivatableAbility($"{feat.name}{name}ToggleAbility", display_name, feat.Description,
+                ability_id, feat.Icon, buff, AbilityActivationType.Immediately,
+                CommandType.Free, null);
+            ability.DeactivateImmediately = true;
+            return ability;
         }
 
 

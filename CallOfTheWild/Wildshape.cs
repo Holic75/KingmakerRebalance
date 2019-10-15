@@ -601,8 +601,10 @@ namespace CallOfTheWild
                               ability.Icon,
                               null,
                               Helpers.CreateAddFact(ability),
-                              Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph))
+                              Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph)),
+                              Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = ability)
                               );
+
 
 
             shapechange = Helpers.CreateAbility("ShapechangeSpell",

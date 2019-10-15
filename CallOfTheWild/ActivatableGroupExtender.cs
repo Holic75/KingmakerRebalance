@@ -20,7 +20,11 @@ namespace CallOfTheWild
             PlanarWildshape,
             HunterTrick,
             Stigmata,
-            ImprovedWeaponOfChosen
+            ImprovedWeaponOfChosen,
+            ShamanFlamesMetamagic,
+            ShamanWavesMetamagic,
+            ShamanWindMetamagic,
+            ShamanStoneMetamagic
         }
 
         public static partial class Extensions

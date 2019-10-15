@@ -303,7 +303,7 @@ namespace CallOfTheWild
                                                      var condition = a.ConditionsChecker.Conditions.Length > 0 ? a.ConditionsChecker.Conditions[0] as ContextConditionHasFact : null;
                                                      if (condition != null && condition.Fact == undead)
                                                      {
-                                                         a.ConditionsChecker = Helpers.CreateConditionsCheckerOr(Helpers.Create<UndeadMechanics.ContextConditionConsideredAsUndeadForenergy>(e => e.Not = condition.Not));
+                                                         a.ConditionsChecker = Helpers.CreateConditionsCheckerOr(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(e => e.Not = condition.Not));
                                                      }
                                                  }
                                                  );

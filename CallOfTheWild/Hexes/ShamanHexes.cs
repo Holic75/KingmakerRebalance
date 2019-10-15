@@ -271,7 +271,6 @@ namespace CallOfTheWild
 
 
         //battle spirit hexes
-        //will need to add battle master
         public BlueprintFeature createBattleWardHex(string name_prefix, string display_name, string description)
         {
             var shield_spell = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4"); //shield spell
@@ -436,7 +435,6 @@ namespace CallOfTheWild
         }
 
         //bones spirit hexes
-        //will need to add deathly being
         public BlueprintFeature createBoneWard(string name_prefix, string display_name, string description)
         {
             var shield_spell = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4"); //shield spell
@@ -675,7 +673,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createFireNimbus(string name_prefix, string display_name, string description)
+        public BlueprintFeature createFireNimbus(string name_prefix, string display_name, string description)
         {
             var buff = library.CopyAndAdd<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54", name_prefix + "Buff", ""); //faery fire
             buff.AddComponent(Common.createContextSavingThrowBonusAgainstDescriptor(-2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Fire));
@@ -715,7 +713,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createFlameCurse(string name_prefix, string display_name, string description)
+        public BlueprintFeature createFlameCurse(string name_prefix, string display_name, string description)
         {
             var fire_belly = library.Get<BlueprintBuff>("7c33de68880aa444bbb916271b653016"); //fire belly
 
@@ -764,7 +762,7 @@ namespace CallOfTheWild
 
         //waves spirit hexes
         //will need to add crashing waves and fluid magic     
-        BlueprintFeature createBeckoningChill(string name_prefix, string display_name, string description)
+        public  BlueprintFeature createBeckoningChill(string name_prefix, string display_name, string description)
         {
             var icy_prison_entangle = library.Get<BlueprintBuff>("c53b286bb06a0544c85ca0f8bcc86950");
             icy_prison_entangle.Stacking = StackingType.Prolong;
