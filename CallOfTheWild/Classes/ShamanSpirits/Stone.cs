@@ -231,7 +231,7 @@ namespace CallOfTheWild
                                                       "",
                                                       library.Get<BlueprintAbility>("1e418794638cf95409f6e33c8c3dbe1a").Icon, //wall of acid
                                                       FeatureGroup.None,
-                                                      Common.createEnergyDR(30, DamageEnergyType.Fire));
+                                                      Common.createEnergyDR(30, DamageEnergyType.Acid));
 
                 var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Acid)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Acid, "", "");
                 extend.Group = ActivatableAbilityGroupExtension.ShamanStoneMetamagic.ToActivatableAbilityGroup();
