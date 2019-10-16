@@ -627,10 +627,11 @@ namespace CallOfTheWild
             shapechange.AvailableMetamagic = beast_shape_prototype.AvailableMetamagic;
             shapechange.Animation = beast_shape_prototype.Animation;
             shapechange.AnimationStyle = beast_shape_prototype.AnimationStyle;
-            shapechange.AddToSpellList(Helpers.wizardSpellList, 9);
-            shapechange.AddToSpellList(Helpers.druidSpellList, 9);
+
             shapechange.MaterialComponent = library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28").MaterialComponent; //from legendary proportions
 
+            shapechange.AddToSpellList(Helpers.wizardSpellList, 9);
+            shapechange.AddToSpellList(Helpers.druidSpellList, 9);
             Helpers.AddSpellAndScroll(shapechange, "bb2f172e429b40840a7dc25bc83732cb"); //disintegrate
 
             //replace 9th level spell in animal domain

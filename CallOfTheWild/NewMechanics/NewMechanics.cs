@@ -2982,7 +2982,8 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
-                if (only_from_spell && (evt.Reason?.Rule is RuleAttackWithWeapon))
+                var spellbook = Helpers.GetMechanicsContext()?.SourceAbilityContext?.Ability.Spellbook;
+                if (only_from_spell && spellbook == null)
                 {
                     return;
                 }
@@ -3060,6 +3061,68 @@ namespace CallOfTheWild
                 }
                 this.RunAction(on_self ? evt.Target : evt.Initiator);
             }
+        }
+
+
+
+        public class ActionOnSpellDamage : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        {
+            public ActionList action;
+            public int min_dmg = 1;
+            public bool only_critical;
+
+            public SavingThrowType save_type = SavingThrowType.Unknown;
+            public SpellDescriptorWrapper descriptor;
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
+                {
+                    return;
+                }
+                var context = Helpers.GetMechanicsContext();
+                var spellContext = context?.SourceAbilityContext;
+                var target = Helpers.GetTargetWrapper()?.Unit;
+                var spellbook = spellContext.Ability.Spellbook;
+
+                if (descriptor.Value != SpellDescriptor.None && !descriptor.HasAnyFlag(spellContext.SpellDescriptor))
+                {
+                    return;
+                }
+                if (spellContext == null || target == null || spellbook == null)
+                {
+                    return;
+                }
+
+
+                if (evt.Damage <= min_dmg)
+                {
+                    return;
+                }
+
+                var dc = context.Params.DC;
+
+                if (save_type != SavingThrowType.Unknown)
+                {
+                    var rule_saving_throw = new RuleSavingThrow(target, save_type, dc);
+
+                    Rulebook.Trigger(rule_saving_throw);
+                    if (rule_saving_throw.IsPassed)
+                    {
+                        return;
+                    }
+                }
+
+                if (!this.action.HasActions)
+                    return;
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, target);
+            }
+
+
         }
 
 
@@ -3469,6 +3532,30 @@ namespace CallOfTheWild
             private bool CheckConditions(RuleAttackWithWeapon evt)
             {
                 return evt.AttackRoll.IsHit && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyMelee || evt.Weapon != null && evt.Weapon.Blueprint.IsMelee) && (!this.NotReach || evt.Weapon != null && !(evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange))) && ( evt.Weapon != null && (evt.Weapon.Blueprint.Type.Category.HasSubCategory(SubCategory)));
+            }
+        }
+
+
+
+        [ComponentName("Increase spell descriptor CL")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseSpellDescriptorCasterLevel : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public SpellDescriptorWrapper Descriptor;
+            public ContextValue BonusCasterLevel;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                bool flag = false;
+                foreach (SpellDescriptorComponent component in evt.Spell.GetComponents<SpellDescriptorComponent>())
+                    flag = component.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                if (!flag)
+                    return;
+                evt.AddBonusCasterLevel(this.BonusCasterLevel.Calculate(this.Fact.MaybeContext));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
             }
         }
     }

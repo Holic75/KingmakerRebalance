@@ -282,6 +282,7 @@ namespace CallOfTheWild
                                                                                      classes: getShamanArray(), startLevel: 4),
                                                      Helpers.CreateAddAbilityResource(resource)
                                                     );
+                greater_spirit_ability.SetDescription("The shaman gains DR 3/magic. This DR increases by 1 for every 4 shaman levels she possesses beyond 8th. In addition, as a standard action she can cause jagged pieces of bone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage for every 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.");
             }
 
 

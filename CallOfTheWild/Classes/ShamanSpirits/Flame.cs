@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -92,7 +86,7 @@ namespace CallOfTheWild
                                                             );
 
                 flame_curse = hex_engine.createBoneWard("ShamanFlameCurse",
-                                                        "FlameCurse",
+                                                        "Flame Curse",
                                                         "The shaman causes a creature within 30 feet to become vulnerable to fire until the end of the shaman’s next turn. If the creature is already vulnerable to fire, this hex has no effect. Fire immunity and resistances apply as normal, and any saving throw allowed by the effect that caused the damage reduces it as normal. At 8th and 16th levels, the duration of this hex is extended by 1 round. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                         );
 
@@ -118,7 +112,7 @@ namespace CallOfTheWild
                 woodland_stride.SetNameDescriptionIcon("", "", null);
 
                 cinder_dance = Helpers.CreateFeature("ShamanCinderDanceHexFeature",
-                                                     "Cidner Dance",
+                                                     "Cinder Dance",
                                                      "Your base speed increases by 10 feet.At 10th level, you can ignore difficult terrain when moving.",
                                                      "",
                                                      icon,
@@ -179,7 +173,7 @@ namespace CallOfTheWild
                 var resource = Helpers.CreateAbilityResource("ShamanFierySoulResource", "", "", "", null);
                 resource.SetFixedResource(3);
                 var cooldown_buff = Helpers.CreateBuff("ShamanFierySoulCooldownBuff",
-                                       "FierySoul Soul: Cooldown",
+                                       "Fiery Soul: Cooldown",
                                        "As a standard action she can unleash a 15-foot cone of flame from her mouth, dealing 1d4 points of fire damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                        "",
                                        icon,
@@ -210,14 +204,14 @@ namespace CallOfTheWild
 
             static void createTrueSpiritAbility()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanElementalFormResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource("ShamanFlameElementalFormResource", "", "", "", null);
                 resource.SetFixedResource(1);
 
                 var wildshape_fire_elemental_burn = library.CopyAndAdd<BlueprintFeature>("9320bbafe4e535b4eb37ff5c6eaff0ed", "ShamanFlamesElementalFormBurnFeature", "");
                 wildshape_fire_elemental_burn.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
 
                 var buff = library.CopyAndAdd<BlueprintBuff>("90aa5552c8db06045b1303de6ec7b627", "ShamanFlamesElementalFormBuff", "");
-                buff.SetName("Elemental Form(Huge Fire Elemental)");
+                buff.SetName("Elemental Form (Huge Fire Elemental)");
                 buff.ReplaceComponent<Polymorph>(p => p.Facts = new BlueprintUnitFact[] { p.Facts[0], wildshape_fire_elemental_burn });
 
                 var ability = library.CopyAndAdd<BlueprintAbility>("90aa5552c8db06045b1303de6ec7b627", "ShamanFlamesElementalFormAbility", "");
@@ -230,7 +224,7 @@ namespace CallOfTheWild
                                                                 );
                 ability.SetName("Elemental Form (Huge Fire Elemental)");
                 true_spirit_ability = Common.AbilityToFeature(ability, false);
-                true_spirit_ability.SetDescription("As a standard action, the shaman assumes the form of a Huge (or smaller) fire elemental, as if using elemental body IV with a duration of 1 hour per level. The shaman can use this ability once per day.");
+                true_spirit_ability.SetDescription("As a standard action, the shaman assumes the form of a Huge fire elemental, as if using elemental body IV with a duration of 1 hour per level. The shaman can use this ability once per day.");
                 true_spirit_ability.AddComponent(Helpers.CreateAddAbilityResource(resource));
             }
 

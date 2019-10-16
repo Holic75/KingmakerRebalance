@@ -349,7 +349,7 @@ namespace CallOfTheWild
             area.AddComponent(Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = concealement_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }));
 
             burning_entanglement = library.CopyAndAdd<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca", "BurningEntanglementAbility", "");
-            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds));
 
             List<Vector2> fog_points = new List<Vector2>();
             for (int i = -1; i <= 1; i++ )
@@ -358,7 +358,7 @@ namespace CallOfTheWild
             }
            
 
-            var spawn_fog = Common.createContextActionSpawnAreaEffectMultiple(fog_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), 
+            var spawn_fog = Common.createContextActionSpawnAreaEffectMultiple(fog_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), 
                                                                               fog_points.ToArray());
             burning_entanglement.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(spawn_area, spawn_fog));
             burning_entanglement.RemoveComponents<SpellListComponent>();
@@ -368,6 +368,7 @@ namespace CallOfTheWild
                                                         "This spell functions as per entangle, except it sets the foliage on fire. A creature that begins its turn entangled by the spell takes 4d6 points of fire damage (Reflex half), and a creature that begins its turn in the area but is not entangled takes 2d6 points of fire damage (Reflex negates). Smoke rising from the vines partially obscures visibility. Creatures can see things in the smoke within 5 feet clearly, but attacks against anything farther away in the smoke must contend with concealment (20% miss chance). When the spell’s duration expires, the vines burn away entirely.",
                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/BurningEntanglement.png")
                                                         );
+            burning_entanglement.LocalizedDuration = Helpers.CreateString("BurningEntanglementAbility.Duration", Helpers.roundsPerLevelDuration);
             concealement_buff.SetNameDescriptionIcon(burning_entanglement.Name, burning_entanglement.Description, burning_entanglement.Icon);
             concealement_buff.FxOnStart = Common.createPrefabLink("ba8a4e16282d63a439434697ee656a3a"); //fire theme buff
             burning_entanglement.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Evocation);
@@ -559,8 +560,7 @@ namespace CallOfTheWild
             var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
                                                      isAoE: true, halfIfSaved: true);
 
-            var prone_buff = library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97");
-            var apply_prone = Common.createContextActionApplyBuff(prone_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
             var failure_prone_action = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
                                                            Helpers.CreateConditionalSaved(null, apply_prone)
                                                           );
@@ -1486,8 +1486,8 @@ namespace CallOfTheWild
             slick_area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
             slick_area.Fx.AssetId = "b6a8750499b0ec647ba68430e83bfc2f";// "d0b113580baee53449fe4c5cb8f941e0"; //obsidian
             slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
-            var prone_buff = library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97");
-            var apply_prone = Common.createContextActionApplyBuff(prone_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
             var failure_action = Common.createContextActionSkillCheck(StatType.SkillMobility, Helpers.CreateActionList(apply_prone));
             var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
                                                                 unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),

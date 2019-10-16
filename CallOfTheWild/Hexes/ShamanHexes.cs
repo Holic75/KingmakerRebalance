@@ -761,7 +761,66 @@ namespace CallOfTheWild
         }
 
         //waves spirit hexes
-        //will need to add crashing waves and fluid magic     
+        //will need to add fluid magic     
+        public BlueprintFeature createCrashingWaves(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac").Icon;
+
+            var caster_level_increase = Helpers.Create<NewMechanics.ContextIncreaseSpellDescriptorCasterLevel>();
+            caster_level_increase.BonusCasterLevel = Helpers.CreateContextValue(AbilityRankType.Default);
+            caster_level_increase.Descriptor = SpellDescriptor.Cold;
+            var caster_level_increase_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                               progression: ContextRankProgression.OnePlusDivStep,
+                                                                               startLevel: 8, max: 2, classes: hex_classes);
+
+            var on_dmg_action = Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>());
+            var crashing_waves1 = Helpers.CreateFeature(name_prefix + "1HexFeature",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None,
+                                                        caster_level_increase,
+                                                        caster_level_increase_config,
+                                                        Helpers.Create<NewMechanics.ActionOnSpellDamage>(a =>
+                                                                                                        {
+                                                                                                            a.descriptor = SpellDescriptor.Cold;
+                                                                                                            a.save_type = SavingThrowType.Fortitude;
+                                                                                                            a.action = on_dmg_action;
+                                                                                                        }
+                                                                                                        )
+                                                        );
+            crashing_waves1.HideInCharacterSheetAndLevelUp = true;
+            var crashing_waves2 = Helpers.CreateFeature(name_prefix + "2HexFeature",
+                                            "",
+                                            "",
+                                            "",
+                                            null,
+                                            FeatureGroup.None,
+                                            caster_level_increase,
+                                            caster_level_increase_config,
+                                            Helpers.Create<NewMechanics.ActionOnSpellDamage>(a =>
+                                                                                            {
+                                                                                                a.descriptor = SpellDescriptor.None;
+                                                                                                a.save_type = SavingThrowType.Fortitude;
+                                                                                                a.action = on_dmg_action;
+                                                                                            }
+                                                                                            )
+                                            );
+            crashing_waves2.HideInCharacterSheetAndLevelUp = true;
+            var crashing_waves = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                       display_name,
+                                                       description,
+                                                       "",
+                                                       icon,
+                                                       FeatureGroup.None,
+                                                       Helpers.CreateAddFeatureOnClassLevel(crashing_waves1, 16, hex_classes, before: true),
+                                                       Helpers.CreateAddFeatureOnClassLevel(crashing_waves2, 16, hex_classes)
+                                                       );
+            return crashing_waves;
+        }
+
+
         public  BlueprintFeature createBeckoningChill(string name_prefix, string display_name, string description)
         {
             var icy_prison_entangle = library.Get<BlueprintBuff>("c53b286bb06a0544c85ca0f8bcc86950");
@@ -1050,8 +1109,28 @@ namespace CallOfTheWild
         }
 
         //stone spirit hexes
-        //will need to add stone stability
-        BlueprintFeature createMagneticCurse(string name_prefix, string display_name, string description)
+
+        public BlueprintFeature createStoneStability(string name_prefix, string display_name, string description)
+        {
+            var improved_trip = library.Get<BlueprintFeature>("0f15c6f70d8fb2b49aa6cc24239cc5fa");
+            var greater_trip = library.Get<BlueprintFeature>("4cc71ae82bdd85b40b3cfe6697bb7949");
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                display_name,
+                                                description,
+                                                "",
+                                                library.Get<BlueprintFeature>("2a6a2f8e492ab174eb3f01acf5b7c90a").Icon, //defensive stance
+                                                FeatureGroup.None,
+                                                Common.createManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Trip, 4),
+                                                Common.createManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush, 4),
+                                                Helpers.CreateAddFeatureOnClassLevel(improved_trip, 5, hex_classes),
+                                                Helpers.CreateAddFeatureOnClassLevel(greater_trip, 10, hex_classes)
+                                                );
+            return feature;
+        }
+
+
+        public BlueprintFeature createMetalCurse(string name_prefix, string display_name, string description)
         {
             var magnetic_infusion = library.Get<BlueprintBuff>("07afee46a4533e74bbb2e962768864ad");
             var actions = new ActionList[3];
@@ -1175,7 +1254,7 @@ namespace CallOfTheWild
         }
 
         //loadstone replace with slow effect
-        BlueprintFeature createLoadStone(string name_prefix, string display_name, string description)
+       public  BlueprintFeature createLoadStone(string name_prefix, string display_name, string description)
         {
             var load_stone = library.CopyAndAdd<BlueprintAbility>("f492622e473d34747806bdb39356eb89", name_prefix + "HexAbility", "");
 
@@ -1204,8 +1283,94 @@ namespace CallOfTheWild
 
 
         //wind spirit hexes
-        //will need to add air barrier and vortex spells
-        BlueprintFeature createSparklingAura(string name_prefix, string display_name, string description)
+        public BlueprintFeature createAirBarrier(string name_prefix, string display_name, string description)
+        {
+            var mage_armor = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568");
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          mage_armor.Icon,
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Armor, rankType: AbilityRankType.Default, multiplier: 2),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                          classes: hex_classes, stepLevel: 4, startLevel: -5, min: 2)
+                                         );
+            var buff2 = Helpers.CreateBuff(name_prefix + "Hex2Buff",
+                              display_name,
+                              description,
+                              "",
+                              buff.Icon,
+                              null,
+                              Helpers.Create<AddConcealment>(c => { c.CheckWeaponRangeType = true;
+                                                                    c.RangeType = AttackTypeAttackBonus.WeaponRangeType.Ranged;
+                                                                    c.Concealment = Concealment.Total;
+                                                                    c.Descriptor = ConcealmentDescriptor.Fog;
+                                                                  }
+                                                            )
+                             );
+            buff2.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
+            var apply_buff2 = Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
+            var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, hex_classes);
+
+            var ability = Helpers.CreateAbility(name_prefix + "HexAbility",
+                                                display_name,
+                                                description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "One hour",
+                                                "",
+                                                mage_armor.GetComponent<AbilitySpawnFx>(),
+                                                Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                                        Helpers.CreateActionList(apply_buff),
+                                                                                                                        Helpers.CreateActionList(apply_buff, apply_buff2)
+                                                                                                                        )
+                                                                        ),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes,
+                                                                                type: AbilityRankType.StatBonus, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                stepLevel: 13),
+                                                Helpers.CreateResourceLogic(resource)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            var feature = Common.AbilityToFeature(ability);
+            feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
+            return feature;
+        }
+
+
+        public BlueprintFeature createVortexSpells(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintFeature>("f2fa7541f18b8af4896fbaf9f2a21dfe").Icon; //cyclone form infusion
+
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var apply_staggered1 = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1), dispellable: false);
+            var apply_staggered1d4 = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(0, diceType: Kingmaker.RuleSystem.DiceType.D4, diceCount: 1), dispellable: false);
+            var action = Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                        Helpers.CreateActionList(apply_staggered1),
+                                                                        Helpers.CreateActionList(apply_staggered1d4)
+                                                                        );
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.Create<NewMechanics.ActionOnSpellDamage>(a => { a.only_critical = true; a.action = Helpers.CreateActionList(action); }),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes,
+                                                                                progression: ContextRankProgression.OnePlusDivStep, stepLevel: 11)
+                                               );
+            return feature;
+        }
+
+
+        public BlueprintFeature createSparklingAura(string name_prefix, string display_name, string description)
         {
             var buff = library.CopyAndAdd<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54", name_prefix + "Buff", ""); //faery fire           
             buff.SetNameDescriptionIcon(display_name, description, LoadIcons.Image2Sprite.Create(@"AbilityIcons/SparklingAura.png"));
