@@ -68,6 +68,7 @@ using Kingmaker.Blueprints.Items.Components;
 using Kingmaker.AreaLogic.Cutscenes.Commands;
 using Pathfinding;
 using Kingmaker.Controllers.Combat;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 
 namespace CallOfTheWild
 {
@@ -3558,6 +3559,126 @@ namespace CallOfTheWild
             {
             }
         }
-    }
 
+
+        public class AbilityAreaEffectRunActionWithFirstRound : AbilityAreaEffectLogic
+        {
+            public ActionList UnitEnter = Helpers.CreateActionList(null);
+            public ActionList UnitExit = Helpers.CreateActionList(null);
+            public ActionList UnitMove = Helpers.CreateActionList(null);
+            public ActionList Round = Helpers.CreateActionList(null);
+            public ActionList FirstRound = Helpers.CreateActionList(null);
+            private int round_number = 0;
+
+            protected override void OnUnitEnter(
+              MechanicsContext context,
+              AreaEffectEntityData areaEffect,
+              UnitEntityData unit)
+            {
+                if (!this.UnitEnter.HasActions)
+                    return;
+                using (new AreaEffectContextData(areaEffect))
+                {
+                    using (context.GetDataScope((TargetWrapper)unit))
+                        this.UnitEnter.Run();
+                }
+            }
+
+            protected override void OnUnitExit(
+              MechanicsContext context,
+              AreaEffectEntityData areaEffect,
+              UnitEntityData unit)
+            {
+                if (!this.UnitExit.HasActions)
+                    return;
+                using (new AreaEffectContextData(areaEffect))
+                {
+                    using (context.GetDataScope((TargetWrapper)unit))
+                        this.UnitExit.Run();
+                }
+            }
+
+            protected override void OnUnitMove(
+              MechanicsContext context,
+              AreaEffectEntityData areaEffect,
+              UnitEntityData unit)
+            {
+                if (!this.UnitMove.HasActions)
+                    return;
+                using (new AreaEffectContextData(areaEffect))
+                {
+                    using (context.GetDataScope((TargetWrapper)unit))
+                        this.UnitMove.Run();
+                }
+            }
+
+            protected override void OnRound(MechanicsContext context, AreaEffectEntityData areaEffect)
+            {
+                if (!this.Round.HasActions)
+                    return;
+                using (new AreaEffectContextData(areaEffect))
+                {
+                    foreach (UnitEntityData unitEntityData in areaEffect.UnitsInside)
+                    {
+                        using (context.GetDataScope((TargetWrapper)unitEntityData))
+                        {
+                            if (!isFirstRound(areaEffect))
+                            {
+                                this.Round.Run();
+                            }
+                            else
+                            {
+                                this.FirstRound.Run();
+                            }
+                        }
+                    }
+                }
+            }
+
+            private bool isFirstRound(AreaEffectEntityData areaEffect)
+            {
+                return Helpers.GetField<TimeSpan>(areaEffect, "m_CreationTime").Add(new TimeSpan(0, 0, 1)) > Game.Instance.TimeController.GameTime;
+            }
+        }
+
+
+        public class ContextConditionMainTargetHasFact : ContextCondition
+        {
+            public BlueprintUnitFact Fact;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                if (this.Context.MainTarget?.Unit != null)
+                    return this.Context.MainTarget.Unit.Descriptor.HasFact(this.Fact);
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Target is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
+
+
+        public class ContextActionOnMainTarget : ContextAction
+        {
+            public ActionList Actions;
+
+            public override string GetCaption()
+            {
+                return "Run a context action on main target of that context";
+            }
+
+            public override void RunAction()
+            {
+                UnitEntityData maybeTarget = this.Context.MainTarget?.Unit;
+                if (maybeTarget == null)
+                    return;
+                using (this.Context.GetDataScope((TargetWrapper)maybeTarget))
+                    this.Actions.Run();
+            }
+        }
+
+    }
 }

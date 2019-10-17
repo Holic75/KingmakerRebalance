@@ -509,7 +509,7 @@ namespace CallOfTheWild
                                                                Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Self,
                                                                Kingmaker.View.Animation.CastAnimationStyle animation_style = Kingmaker.View.Animation.CastAnimationStyle.CastActionSelf)
         {
-            ability.CanTargetFriends = true;
+            ability.CanTargetFriends = false;
             ability.CanTargetEnemies = false;
             ability.CanTargetSelf = true;
             ability.CanTargetPoint = false;

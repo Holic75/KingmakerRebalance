@@ -130,6 +130,7 @@
     <Compile Include="Classes\ShamanSpirits\Flame.cs" />
     <Compile Include="Classes\ShamanSpirits\Stone.cs" />
     <Compile Include="Classes\ShamanSpirits\Waves.cs" />
+    <Compile Include="Classes\ShamanSpirits\Wind.cs" />
     <Compile Include="Enchantments\ArmorEnchantments.cs" />
     <Compile Include="Classes\Bloodrager.cs" />
     <Compile Include="ChannelEnergyEngine.cs" />

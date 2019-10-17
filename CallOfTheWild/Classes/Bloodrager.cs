@@ -425,6 +425,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass
+                new Common.SpellId( NewSpells.river_of_wind.AssetGuid, 4), //river of wind
                 new Common.SpellId( "f09453607e683784c8fca646eec49162", 4), //shout
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
