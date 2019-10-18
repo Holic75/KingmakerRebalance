@@ -46,20 +46,20 @@ namespace CallOfTheWild
 {
     partial class Shaman
     {
-        public class WavesSpirit
+        internal class WavesSpirit
         {
-            public static BlueprintFeature spirit_ability;
-            public static BlueprintFeature greater_spirit_ability;
-            public static BlueprintFeature true_spirit_ability;
-            public static BlueprintFeature manifestation;
-            public static BlueprintFeature fluid_magic;
-            public static BlueprintFeature beckoning_chill;
-            public static BlueprintFeature mists_shroud;
-            public static BlueprintFeature crashing_waves;
-            public static BlueprintAbility[] spells;
-            public static BlueprintFeature[] hexes;
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeature fluid_magic;
+            internal static BlueprintFeature beckoning_chill;
+            internal static BlueprintFeature mists_shroud;
+            internal static BlueprintFeature crashing_waves;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
 
-            public static void create()
+            internal static Spirit create()
             {
                 createFluidMagicHex();
 
@@ -102,12 +102,30 @@ namespace CallOfTheWild
                     mists_shroud,
                     fluid_magic,
                 };
+
+
+                return new Spirit("Waves",
+                                  "Waves",
+                                  "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
+                                  library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac").Icon,//tsunami
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
             }
 
 
-            static public void createFluidMagicHex()
+            static internal void createFluidMagicHex()
             {
-                //TODO
+                fluid_magic = Helpers.CreateFeature("ShamanFluidMagic",
+                                                    "Fluid Magic",
+                                                    "The shaman’s magic is not constrained by the reservoirs of magic that hold others back. She is able to prepare her spirit magic spells in her regular spell slots.",
+                                                    "",
+                                                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac").Icon,
+                                                    FeatureGroup.None);
             }
 
 
@@ -229,7 +247,7 @@ namespace CallOfTheWild
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a spirit of flame. The shaman gains cold resistance 30. She can also apply any one of the following feats to any cold spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
-                                                      library.Get<BlueprintAbility>("c8dda5accb6354b40aa3618484e91029").Icon, //cold wall
+                                                      library.Get<BlueprintProgression>("7c692e90592257a4e901d12ae6ec1e41").Icon, //cold wall
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Cold));
 

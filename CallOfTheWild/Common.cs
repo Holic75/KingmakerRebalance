@@ -508,7 +508,7 @@ namespace CallOfTheWild
                                        Common.createSpellsLevelEntry(),  //0
                                        Common.createSpellsLevelEntry(),  //1
                                        Common.createSpellsLevelEntry(),  //2
-                                       Common.createSpellsLevelEntry(),  //2
+                                       Common.createSpellsLevelEntry(),  //3
                                        Common.createSpellsLevelEntry(0, 1), //4
                                        Common.createSpellsLevelEntry(0, 1), //5
                                        Common.createSpellsLevelEntry(0, 1), //6
@@ -527,6 +527,26 @@ namespace CallOfTheWild
                                        Common.createSpellsLevelEntry(0, 4, 3, 3, 2), //19
                                        Common.createSpellsLevelEntry(0, 4, 4, 3, 2) //20
                                        );
+        }
+
+
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createEmptySpellTable(string name, string guid)
+        {
+            return createSpellsTable(name, guid, Enumerable.Repeat(Common.createSpellsLevelEntry(), 21).ToArray());
+        }
+
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createOneSpellSpellTable(string name, string guid)
+        {
+            var spell_array = new int[] { 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+            var table_array = new SpellsLevelEntry[21];
+
+            for (int i = 0; i < 21; i++)
+            {
+                table_array[i] = Common.createSpellsLevelEntry(spell_array.Take(Math.Min((i + 1) / 2, spell_array.Length)).ToArray());
+            }
+
+            return createSpellsTable(name, guid, table_array);
         }
 
 
@@ -3002,6 +3022,20 @@ namespace CallOfTheWild
                 CommandType.Free, null);
             ability.DeactivateImmediately = true;
             return ability;
+        }
+
+
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellList createSpellList(string name, string guid)
+        {
+            var spell_list = Helpers.Create<Kingmaker.Blueprints.Classes.Spells.BlueprintSpellList>();
+            spell_list.name = name;
+            library.AddAsset(spell_list, guid);
+            spell_list.SpellsByLevel = new SpellLevelList[10];
+            for (int i = 0; i < spell_list.SpellsByLevel.Length; i++)
+            {
+                spell_list.SpellsByLevel[i] = new SpellLevelList(i);
+            }
+            return spell_list;
         }
 
 

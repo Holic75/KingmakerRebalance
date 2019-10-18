@@ -46,20 +46,20 @@ namespace CallOfTheWild
 {
     partial class Shaman
     {
-        public class WindSpirit
+        internal class WindSpirit
         {
-            public static BlueprintFeature spirit_ability;
-            public static BlueprintFeature greater_spirit_ability;
-            public static BlueprintFeature true_spirit_ability;
-            public static BlueprintFeature manifestation;
-            public static BlueprintFeature air_barrier;
-            public static BlueprintFeature vortex_spells;
-            public static BlueprintFeature sparkling_aura;
-            public static BlueprintFeature wind_ward;
-            public static BlueprintAbility[] spells;
-            public static BlueprintFeature[] hexes;
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeature air_barrier;
+            internal static BlueprintFeature vortex_spells;
+            internal static BlueprintFeature sparkling_aura;
+            internal static BlueprintFeature wind_ward;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
 
-            public static void create()
+            internal static Spirit create()
             {
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -105,6 +105,19 @@ namespace CallOfTheWild
                     vortex_spells,
                     wind_ward
                 };
+
+
+                return new Spirit("Wind",
+                                  "Wind",
+                                  "A shaman who selects the wind spirit appears windswept, and her movements seem lithe and carefree.",
+                                  library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon,//sirocco
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
             }
 
 
@@ -203,6 +216,7 @@ namespace CallOfTheWild
                 resource.SetFixedResource(1);
 
                 var wildshape_air_elemental_whirlwind_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e", "ShamanWindElementalFormWhirlwindArea", "");
+
                 wildshape_air_elemental_whirlwind_area.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
 
                 var whirlwind_ability_buff = library.CopyAndAdd<BlueprintBuff>("788662b4625f74c43b0dfb0308fb155e", "ShamanWindElementalFormWhirlwindBuff", "");
@@ -235,7 +249,7 @@ namespace CallOfTheWild
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a spirit of flame. The shaman gains electricity resistance 30. She can also apply any one of the following feats to any electricity spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
-                                                      library.Get<BlueprintAbility>("139558a1389f7034e88dca5bfa6d4d3b").Icon, //electric wall
+                                                      library.Get<BlueprintProgression>("cd788df497c6f10439c7025e87864ee4").Icon, //electric wall
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Electricity));
 

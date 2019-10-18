@@ -44,20 +44,20 @@ namespace CallOfTheWild
 {
     partial class Shaman
     {
-        public class BonesSpirit
+        internal class BonesSpirit
         {
-            public static BlueprintFeature spirit_ability;
-            public static BlueprintFeature greater_spirit_ability;
-            public static BlueprintFeature true_spirit_ability;
-            public static BlueprintFeature manifestation;
-            public static BlueprintFeature bone_lock_hex;
-            public static BlueprintFeature bone_ward_hex;
-            public static BlueprintFeature deathly_being_hex;
-            public static BlueprintFeature fearful_gaze_hex;
-            public static BlueprintAbility[] spells;
-            public static BlueprintFeature[] hexes;
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeature bone_lock_hex;
+            internal static BlueprintFeature bone_ward_hex;
+            internal static BlueprintFeature deathly_being_hex;
+            internal static BlueprintFeature fearful_gaze_hex;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
 
-            public static void create()
+            internal static Spirit create()
             {
                 createDeathlyBeingHex();
 
@@ -100,10 +100,23 @@ namespace CallOfTheWild
                     fearful_gaze_hex,
                     deathly_being_hex,
                 };
+
+
+                return new Spirit("Bones",
+                                  "Bones",
+                                  "A shaman who selects the bones spirit is cadaverously thin, with sunken eye sockets and dead eyes that stare off into the distance. Her body has a faint smell of the grave. When she calls upon one of this spirit’s abilities, a ghostly wind whips her hair and clothes about, and the unpleasant stench becomes more prominent.",
+                                  manifestation.Icon,
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
             }
 
 
-            static public void createDeathlyBeingHex()
+            static internal void createDeathlyBeingHex()
             {
                 var icon = library.Get<BlueprintFeature>("b0acce833384b9b428f32517163c9117").Icon; //deaths_embrace
 

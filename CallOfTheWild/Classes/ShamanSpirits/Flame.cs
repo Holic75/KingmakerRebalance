@@ -45,20 +45,20 @@ namespace CallOfTheWild
 {
     partial class Shaman
     {
-        public class FlameSpirit
+        internal class FlameSpirit
         {
-            public static BlueprintFeature spirit_ability;
-            public static BlueprintFeature greater_spirit_ability;
-            public static BlueprintFeature true_spirit_ability;
-            public static BlueprintFeature manifestation;
-            public static BlueprintFeature cinder_dance;
-            public static BlueprintFeature fire_nimbus;
-            public static BlueprintFeature flame_curse;
-            public static BlueprintFeature ward_of_flames;
-            public static BlueprintAbility[] spells;
-            public static BlueprintFeature[] hexes;
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeature cinder_dance;
+            internal static BlueprintFeature fire_nimbus;
+            internal static BlueprintFeature flame_curse;
+            internal static BlueprintFeature ward_of_flames;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
 
-            public static void create()
+            internal static Spirit create()
             {
                 createCinderDanceHex();
 
@@ -85,13 +85,13 @@ namespace CallOfTheWild
                                                             "The shaman causes a creature within 30 feet to gain a nimbus of fire. Though this doesn’t harm the creature, it does cause the creature to emit light like a torch, preventing it from gaining any benefit from concealment or invisibility. The target also takes a –2 penalty on saving throws against spells or effects that deal fire damage. The fire nimbus lasts for a number of rounds equal to the shaman’s level. A successful Will saving throw negates this effect. Whether or not the save is successful, the creature cannot be the target of this hex again for 24 hours."
                                                             );
 
-                flame_curse = hex_engine.createBoneWard("ShamanFlameCurse",
+                flame_curse = hex_engine.createFlameCurse("ShamanFlameCurse",
                                                         "Flame Curse",
                                                         "The shaman causes a creature within 30 feet to become vulnerable to fire until the end of the shaman’s next turn. If the creature is already vulnerable to fire, this hex has no effect. Fire immunity and resistances apply as normal, and any saving throw allowed by the effect that caused the damage reduces it as normal. At 8th and 16th levels, the duration of this hex is extended by 1 round. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                         );
 
-                ward_of_flames = hex_engine.createFearfulGaze("ShamanFearfulGaze",
-                                                                "Fearful Gaze",
+                ward_of_flames = hex_engine.createFlameWardHex("ShamanFlameWard",
+                                                                "Flame Ward",
                                                                 "The shaman touches a willing creature (including herself ) and grants a ward of flames. The next time the warded creature is struck with a melee attack, the creature making the attack takes 1d6 points of fire damage + 1 point of fire damage for every 2 shaman levels she possesses. This ward lasts for 1 minute, after which it fades away if not already expended. At 8th and 16th levels, the ward lasts for one additional attack. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                                );
                 hexes = new BlueprintFeature[]
@@ -101,10 +101,23 @@ namespace CallOfTheWild
                     flame_curse,
                     ward_of_flames,
                 };
+
+
+                return new Spirit("Flame",
+                                  "Flame",
+                                  "A shaman who selects the flame spirit has a radiant light behind her eyes and the faint smell of smoke about her. When she calls upon one of this spirit’s abilities, a hungry spectral flame dances around her body.",
+                                  library.Get<BlueprintAbility>("19309b5551a28d74288f4b6f7d8d838d").Icon, //wall of fire
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
             }
 
 
-            static public void createCinderDanceHex()
+            static internal void createCinderDanceHex()
             {
                 var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/CinderDance.png");
                 var woodland_stride = library.CopyAndAdd<BlueprintFeature>("11f4072ea766a5840a46e6660894527d", "ShamanCinderDanceHex2Feature", "");
@@ -168,7 +181,7 @@ namespace CallOfTheWild
 
             static void createGreaterSpiritAbility()
             {
-                var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FierySould.png");
+                var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FierySoul.png");
 
                 var resource = Helpers.CreateAbilityResource("ShamanFierySoulResource", "", "", "", null);
                 resource.SetFixedResource(3);
@@ -188,7 +201,7 @@ namespace CallOfTheWild
                 fiery_soul.AddComponents(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                          Helpers.CreateResourceLogic(resource)
                                         );
-                fiery_soul.SetNameDescriptionIcon(cooldown_buff.Name, cooldown_buff.Description, cooldown_buff.Icon);
+                fiery_soul.SetNameDescriptionIcon("Fiery Soul", cooldown_buff.Description, cooldown_buff.Icon);
                 greater_spirit_ability = Helpers.CreateFeature("ShamanFierySoulFeature",
                                                                fiery_soul.Name,
                                                                "The shaman gains fire resistance 10. In addition, as a standard action she can unleash a 15-foot cone of flame from her mouth, dealing 1d4 points of fire damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
@@ -210,7 +223,7 @@ namespace CallOfTheWild
                 var wildshape_fire_elemental_burn = library.CopyAndAdd<BlueprintFeature>("9320bbafe4e535b4eb37ff5c6eaff0ed", "ShamanFlamesElementalFormBurnFeature", "");
                 wildshape_fire_elemental_burn.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
 
-                var buff = library.CopyAndAdd<BlueprintBuff>("90aa5552c8db06045b1303de6ec7b627", "ShamanFlamesElementalFormBuff", "");
+                var buff = library.CopyAndAdd<BlueprintBuff>("e85abd773dbce30498efa8da745d7ca7", "ShamanFlamesElementalFormBuff", "");
                 buff.SetName("Elemental Form (Huge Fire Elemental)");
                 buff.ReplaceComponent<Polymorph>(p => p.Facts = new BlueprintUnitFact[] { p.Facts[0], wildshape_fire_elemental_burn });
 
@@ -235,7 +248,7 @@ namespace CallOfTheWild
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a spirit of flame. The shaman gains fire resistance 30. She can also apply any one of the following feats to any fire spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
-                                                      library.Get<BlueprintAbility>("19309b5551a28d74288f4b6f7d8d838d").Icon,
+                                                      library.Get<BlueprintProgression>("17cc794d47408bc4986c55265475c06f").Icon,
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Fire));
 

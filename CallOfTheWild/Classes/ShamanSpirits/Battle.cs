@@ -42,20 +42,20 @@ namespace CallOfTheWild
 {
     partial class Shaman
     {
-        public class BattleSpirit
+        internal class BattleSpirit
         {
-            public static BlueprintFeature spirit_ability;
-            public static BlueprintFeature greater_spirit_ability;
-            public static BlueprintFeature true_spirit_ability;
-            public static BlueprintFeature manifestation;
-            public static BlueprintFeatureSelection battle_master_hex;
-            public static BlueprintFeature battle_ward_hex;
-            public static BlueprintFeature curse_of_suffering_hex;
-            public static BlueprintFeature hampering_hex;
-            public static BlueprintAbility[] spells;
-            public static BlueprintFeature[] hexes;
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeatureSelection battle_master_hex;
+            internal static BlueprintFeature battle_ward_hex;
+            internal static BlueprintFeature curse_of_suffering_hex;
+            internal static BlueprintFeature hampering_hex;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
 
-            public static void create()
+            internal static Spirit create()
             {
                 createBattleMasterHex();
 
@@ -98,10 +98,22 @@ namespace CallOfTheWild
                     curse_of_suffering_hex,
                     hampering_hex,
                 };
+
+                return new Spirit("Battle",
+                                  "Battle",
+                                  "A shaman who selects the battle spirit gains scars from every wound she takes, and the grit of battle always seems to cling on her body. When she calls upon one of this spirit’s abilities, she grows in stature—becoming taller and more muscular, with a grimace of rage stretching across her face.",
+                                  manifestation.Icon,
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
             }
 
 
-            static public void createBattleMasterHex()
+            static void createBattleMasterHex()
             {
                 battle_master_hex = Helpers.CreateFeatureSelection("ShamanBattleMasterHex",
                                                                    "Battle Master",

@@ -45,20 +45,20 @@ namespace CallOfTheWild
 {
     partial class Shaman
     {
-        public class StoneSpirit
+        internal class StoneSpirit
         {
-            public static BlueprintFeature spirit_ability;
-            public static BlueprintFeature greater_spirit_ability;
-            public static BlueprintFeature true_spirit_ability;
-            public static BlueprintFeature manifestation;
-            public static BlueprintFeature stone_stability;
-            public static BlueprintFeature loadstone;
-            public static BlueprintFeature metal_curse;
-            public static BlueprintFeature ward_of_stone;
-            public static BlueprintAbility[] spells;
-            public static BlueprintFeature[] hexes;
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeature stone_stability;
+            internal static BlueprintFeature loadstone;
+            internal static BlueprintFeature metal_curse;
+            internal static BlueprintFeature ward_of_stone;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
 
-            public static void create()
+            internal static Spirit create()
             {
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -103,6 +103,18 @@ namespace CallOfTheWild
                     metal_curse,
                     ward_of_stone,
                 };
+
+                return new Spirit("Stone",
+                                  "Stone",
+                                  "The skin of a shaman who selects the stone spirit takes on a rough, stony appearance. When the shaman calls upon one of this spirit’s abilities, tiny gemstones underneath her flesh pulse with a bright glow, like phosphorescent geodes glittering in a dark cave.",
+                                  library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6").Icon,//clashing rocks
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
             }
 
 
@@ -229,7 +241,7 @@ namespace CallOfTheWild
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a being of acid and earth. The shaman gains acid resistance 30. She can also apply any one of the following feats to any acid or earth spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
-                                                      library.Get<BlueprintAbility>("1e418794638cf95409f6e33c8c3dbe1a").Icon, //wall of acid
+                                                      library.Get<BlueprintProgression>("32393034410fb2f4d9c8beaa5c8c8ab7").Icon, //wall of acid
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Acid));
 

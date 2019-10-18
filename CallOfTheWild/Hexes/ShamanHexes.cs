@@ -40,7 +40,7 @@ namespace CallOfTheWild
         //wings - attack at lvl1, normal wings at lvl 8 - done
 
 
-        BlueprintFeature CreateWingsAttackHex(string name_prefix, string display_name, string description)
+        public BlueprintFeature CreateWingsAttackHex(string name_prefix, string display_name, string description)
         {
             var wing_weapon = library.Get<BlueprintItemWeapon>("864e29d3e07ad4a4f96d576b366b4a86");//wing 1d4
 
@@ -69,7 +69,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature CreateWingsHex(string name_prefix, string display_name, string description)
+        public BlueprintFeature CreateWingsHex(string name_prefix, string display_name, string description)
         {
             var ability = library.Get<BlueprintActivatableAbility>("7679910a16368cc43b496cef2babe1cb"); //silver dragon wings
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
@@ -84,7 +84,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeatureSelection createSecret(string name_prefix, string display_name, string description)
+        public BlueprintFeatureSelection createSecret(string name_prefix, string display_name, string description)
         {
             var metamagic_feats = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null));
 
@@ -94,6 +94,7 @@ namespace CallOfTheWild
                                       "",
                                       null,
                                       FeatureGroup.None);
+            feature.IgnorePrerequisites = true;
             feature.Ranks = 1;
             feature.AddComponent(Helpers.PrerequisiteNoFeature(feature));
             feature.AllFeatures = metamagic_feats.ToArray();
@@ -102,9 +103,9 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeatureSelection createIntimidatingDisplay(string name_prefix, string display_name, string description)
+        public BlueprintFeatureSelection createIntimidatingDisplay(string name_prefix, string display_name, string description)
         {
-            var dazzling_display_feature = library.Get<BlueprintAbility>("bcbd674ec70ff6f4894bb5f07b6f4095");
+            var dazzling_display_feature = library.Get<BlueprintFeature>("bcbd674ec70ff6f4894bb5f07b6f4095");
             var feature = Helpers.CreateFeatureSelection(name_prefix + "HexFeature",
                           display_name,
                           description,
@@ -122,7 +123,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createShapeshiftHex(string name_prefix, string display_name, string description)
+        public BlueprintFeature createShapeshiftHex(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
             resource.SetIncreasedByLevel(0, 1, hex_classes);
@@ -157,7 +158,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createDraconicResilence(string name_prefix, string display_name, string description)
+        public BlueprintFeature createDraconicResilence(string name_prefix, string display_name, string description)
         {
             var icon = library.Get<BlueprintAbility>("f767399367df54645ac620ef7b2062bb").Icon; //form of the dragon
 
@@ -216,7 +217,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createFury(string name_prefix, string display_name, string description)
+        public BlueprintFeature createFury(string name_prefix, string display_name, string description)
         {
             var icon = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2").Icon; //rage
 

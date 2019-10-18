@@ -181,6 +181,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
+                    CallOfTheWild.Shaman.createShamanClass();
 
 
                     CallOfTheWild.SharedSpells.load();

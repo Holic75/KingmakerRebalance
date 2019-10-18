@@ -231,14 +231,17 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("WindsOfVengeanceBuff",
                                           "Winds of Vengeance",
-                                          "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you a fly speed of 60 feet with perfect maneuverability. Neither your armor nor your load affects this fly speed. The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
+                                          "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you to fly granting immunity to ground-based effects and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
                                           + "Ranged weapons(including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you.Gases and most gaseous breath weapons cannot pass though the winds.\n"
                                           + "In addition, once per round, when a creature hits you with a melee attack, winds lash out at that creature. The creature must make a Fortitude Saving Throw or take 5d8 points of bludgeoning damage and be knocked prone.\n"
                                           + "On a successful save, the damage is halved and the creature is not knocked prone.",
                                           "",
                                           icon,
-                                          Common.createPrefabLink("49b41743d5eb52e4b8f6dd9ecf07451b"),//"ed6e3fc094d7e9846a19d010b5eb56d1"),//"40c31beb53bffb845b095542133ac9bc"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
-                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.BreathWeapon | SpellDescriptor.Poison),
+                                          Common.createPrefabLink("40c31beb53bffb845b095542133ac9bc"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.BreathWeapon | SpellDescriptor.Poison | SpellDescriptor.Ground),
+                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Ground),
+                                          Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                                          Helpers.CreateAddStatBonus(StatType.Speed, 30, ModifierDescriptor.UntypedStackable),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch }),
                                           on_hit
                                           );

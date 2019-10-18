@@ -806,7 +806,6 @@ namespace CallOfTheWild
         {
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             var witch_spellbook = Helpers.Create<BlueprintSpellbook>();
-            witch_spellbook.Name = witch_class.LocalizedName;
             witch_spellbook.name = "WitchSpellbook";
             library.AddAsset(witch_spellbook, "be5817bb59c14526a99877f8a7f15d31");
             witch_spellbook.Name = witch_class.LocalizedName;
@@ -982,7 +981,6 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "1f173a16120359e41a20fc75bb53d449", 9), //cure critical wounds mass
                 new Common.SpellId( "3c17035ec4717674cae2e841a190e757", 9), //dominate monster
-                new Common.SpellId( "1f01a098d737ec6419aedc4e7ad61fdd", 9), //foresight
                 new Common.SpellId( "43740dab07286fe4aa00a6ee104ce7c1", 9), //heroic invocation
                 new Common.SpellId( "0340fe43f35e7a448981b646c638c83d", 9), //elemental swarm
                 new Common.SpellId( "5ee395a2423808c4baf342a4f8395b19", 9), //inflict critical wounds mass

@@ -3680,5 +3680,41 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class LearnSpellListToSpecifiedSpellbook : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler, IGlobalSubscriber
+        {
+            public BlueprintSpellbook spellbook;
+            public BlueprintSpellList SpellList;
+
+            public override void OnTurnOn()
+            {
+                this.LearnList();
+            }
+
+            public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+            {
+                this.LearnList();
+            }
+
+            public void LearnList()
+            {
+                Spellbook spellbook = this.Owner.DemandSpellbook(this.spellbook);
+                foreach (SpellLevelList spellLevelList in this.SpellList.SpellsByLevel)
+                {
+                    if (spellbook.MaxSpellLevel >= spellLevelList.SpellLevel)
+                    {
+                        foreach (BlueprintAbility blueprintAbility in spellLevelList.SpellsFiltered)
+                        {
+                            BlueprintAbility spell = blueprintAbility;
+                            if (spellbook.GetKnownSpells(spellLevelList.SpellLevel).All<AbilityData>((Func<AbilityData, bool>)(spellFromSpellbook => (UnityEngine.Object)spellFromSpellbook.Blueprint != (UnityEngine.Object)spell)))
+                                spellbook.AddKnown(spellLevelList.SpellLevel, spell, false);
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }

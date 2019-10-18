@@ -141,7 +141,7 @@ namespace CallOfTheWild
             createPlantShapeIII();
 
             fixLegendaryProportions();
-            fixAirElementalDC();
+            //fixAirElementalDC();
             createGiantFormI();
             createGiantFormII();
             createShapechange();
