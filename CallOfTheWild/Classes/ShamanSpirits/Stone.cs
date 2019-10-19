@@ -75,16 +75,16 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("989d3ed13d27d054ea2d26ab4956d075"), //summon elemental huge earth
                     library.Get<BlueprintAbility>("facdc8851a0b3f44a8bed50f0199b83c"), //elemental body IV earth
                     library.Get<BlueprintAbility>("65254c7a2cf18944287207e1de3e44e8"), //summon elemental elder earth
-                    library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39"), //clashing rocks
+                    library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6"), //clashing rocks
                 };
 
-                stone_stability = hex_engine.createFireNimbus("ShamanStoneStability",
+                stone_stability = hex_engine.createStoneStability("ShamanStoneStability",
                                                              "Stone Stability",
                                                              "The shaman receives a +4 bonus to her CMD when resisting bull rush or trip attempts as long as she is standing on the ground. At 5th level, the shaman receives Improved Trip as a bonus feat. At 10th level, the shaman receives Greater Trip as a bonus feat. The shaman does not need to meet the prerequisites of these feats."
                                                              );
 
                 loadstone = hex_engine.createLoadStone("ShamanLoadstone",
-                                                        "Laodstone",
+                                                        "Loadstone",
                                                         "The shaman causes one creature within 30 feet to become heavy and lethargic. The creature is treated as if it suffered effect of slow spell. The effect lasts for a number of rounds equal to the shaman’s level. A successful Will saving throw negates this effect. Whether or not the save is successful, the creature cannot be the target of this hex again for 24 hours."
                                                         );
 
@@ -126,15 +126,17 @@ namespace CallOfTheWild
                 var touch_of_acid = library.CopyAndAdd<BlueprintAbility>("3ff40918d33219942929f0dbfe5d1dee", "ShamanTouchOfAcidAbility", ""); //earth domain acid dart
                 touch_of_acid.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Acid));
                 touch_of_acid.RemoveComponents<SpellComponent>();
-                touch_of_acid.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+                touch_of_acid.RemoveComponents<AbilityResourceLogic>();
                 touch_of_acid.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateDeliverTouch());
                 touch_of_acid.setMiscAbilityParametersTouchHarmful();
                 touch_of_acid.Type = AbilityType.Supernatural;
+                touch_of_acid.Range = AbilityRange.Touch;
                 touch_of_acid.SpellResistance = false;
                 touch_of_acid.SetNameDescriptionIcon("Touch of Acid",
                                                        "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of acid damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 touch_of_acid.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                var touch_of_acid_sticky = Helpers.CreateTouchSpellCast(touch_of_acid, resource);
                 var corrosive = library.Get<BlueprintWeaponEnchantment>("633b38ff1d11de64a91d490c683ab1c8");
 
                 var corrosive_weapon_feature = Helpers.CreateFeature("ShamanTouchOfAcidCorrosiveWeaponFeature",
@@ -154,7 +156,7 @@ namespace CallOfTheWild
                                                        "",
                                                        touch_of_acid.Icon,
                                                        FeatureGroup.None,
-                                                       Helpers.CreateAddFact(touch_of_acid),
+                                                       Helpers.CreateAddFact(touch_of_acid_sticky),
                                                        Helpers.CreateAddAbilityResource(resource),
                                                        Helpers.CreateAddFeatureOnClassLevel(corrosive_weapon_feature, 11, getShamanArray())
                                                        );
@@ -175,11 +177,13 @@ namespace CallOfTheWild
                                                        icon,
                                                        null);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
-                var effect = Helpers.CreateConditional(Common.createContextConditionIsCaster(),
-                                                      apply_cooldown,
-                                                      Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing,
+                var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing,
                                                                                      Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)),
-                                                                                     isAoE: true, halfIfSaved: false)
+                                                                                     isAoE: true, halfIfSaved: true);
+
+                var effect = Helpers.CreateConditional(Common.createContextConditionIsCaster(),
+                                                      null,
+                                                      Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg))
                                                       );
 
                 var body_of_Earth_ability = Helpers.CreateAbility("ShamanBodyOfEarthAbility",
@@ -192,12 +196,15 @@ namespace CallOfTheWild
                                                                AbilityRange.Personal,
                                                                "",
                                                                Helpers.reflexHalfDamage,
-                                                               Helpers.CreateRunActions(SavingThrowType.Reflex, effect),
+                                                               Helpers.CreateRunActions(effect),
                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
                                                                                                classes: getShamanArray()),
                                                                Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any),
-                                                               Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Charisma),
-                                                               Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster)
+                                                               Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster),
+                                                               Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                               Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
+                                                               Common.createAbilityCasterHasNoFacts(cooldown_buff),
+                                                               Helpers.CreateResourceLogic(resource)
                                                                );
                 body_of_Earth_ability.setMiscAbilityParametersSelfOnly();
                 body_of_Earth_ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff));
@@ -205,7 +212,7 @@ namespace CallOfTheWild
                 greater_spirit_ability = Common.AbilityToFeature(body_of_Earth_ability, false);
                 greater_spirit_ability.AddComponents(Common.createMaterialDR(Helpers.CreateContextValue(AbilityRankType.Default), PhysicalDamageMaterial.Adamantite),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.DivStep,
-                                                                                     classes: getShamanArray(), startLevel: 4),
+                                                                                     classes: getShamanArray(), stepLevel: 4),
                                                      Helpers.CreateAddAbilityResource(resource)
                                                     );
                 greater_spirit_ability.SetDescription("The shaman gains DR 2/adamantine. This DR increases by 1 for every 4 levels beyond 8th the shaman possesses. In addition, as a standard action, she can cause jagged pieces of stone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage per 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.");

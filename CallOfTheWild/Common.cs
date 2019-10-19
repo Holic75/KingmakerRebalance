@@ -543,7 +543,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < 21; i++)
             {
-                table_array[i] = Common.createSpellsLevelEntry(spell_array.Take(Math.Min((i + 1) / 2, spell_array.Length)).ToArray());
+                table_array[i] = Common.createSpellsLevelEntry(spell_array.Take(Math.Min((i + 3) / 2, spell_array.Length)).ToArray());
             }
 
             return createSpellsTable(name, guid, table_array);

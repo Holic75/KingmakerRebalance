@@ -3066,7 +3066,7 @@ namespace CallOfTheWild
 
 
 
-        public class ActionOnSpellDamage : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        public class ActionOnSpellDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
         {
             public ActionList action;
             public int min_dmg = 1;
@@ -3085,19 +3085,25 @@ namespace CallOfTheWild
                 {
                     return;
                 }
+                //Main.logger.Log("Checking " + evt.Target.CharacterName);
                 var context = Helpers.GetMechanicsContext();
                 var spellContext = context?.SourceAbilityContext;
-                var target = Helpers.GetTargetWrapper()?.Unit;
+                var target = evt.Target;
+                if (spellContext == null || target == null)
+                {
+                    return;
+                }
                 var spellbook = spellContext.Ability.Spellbook;
+                if (spellbook == null)
+                {
+                    return;
+                }
 
                 if (descriptor.Value != SpellDescriptor.None && !descriptor.HasAnyFlag(spellContext.SpellDescriptor))
                 {
                     return;
                 }
-                if (spellContext == null || target == null || spellbook == null)
-                {
-                    return;
-                }
+
 
 
                 if (evt.Damage <= min_dmg)
@@ -3547,6 +3553,10 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
+                if (evt.Spellbook == null)
+                {
+                    return;
+                }
                 bool flag = false;
                 foreach (SpellDescriptorComponent component in evt.Spell.GetComponents<SpellDescriptorComponent>())
                     flag = component.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);

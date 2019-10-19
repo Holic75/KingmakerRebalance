@@ -209,24 +209,31 @@ namespace CallOfTheWild
             {
                 var resource = Helpers.CreateAbilityResource("TouchOfTheGraveResource", "", "", "", null);
                 resource.SetIncreasedByStat(3, StatType.Charisma);
-                var inflict_light_wounds = library.Get<BlueprintAbility>("e5af3674bb241f14b9a9f6b0c7dc3d27");
-                var touch_of_the_grave_ability =  Common.replaceCureInflictSpellParameters(inflict_light_wounds,
-                                                                                            "TouchOfTheGraveAbility",
-                                                                                            "Touch of the Grave",
-                                                                                            "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier",
-                                                                                            AbilityType.Supernatural,
-                                                                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
-                                                                                                                            classes: getShamanArray()),
-                                                                                            Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)),
-                                                                                            false,
-                                                                                            "",
-                                                                                            "",
-                                                                                            "",
-                                                                                            ""
-                                                                                            );
-                touch_of_the_grave_ability.RemoveComponents<SpellComponent>();
-                touch_of_the_grave_ability.RemoveComponents<SpellListComponent>();
-                touch_of_the_grave_ability.AddComponent(Helpers.CreateResourceLogic(resource));
+                var inflict_light_wounds = library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
+
+                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)));
+                var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)));
+
+                var effect = Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(), heal, dmg);
+
+                var touch_of_the_grave_ability = Helpers.CreateAbility("TouchOfGraveAbility",
+                                                                       "Touch of the Grave",
+                                                                       "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier",
+                                                                       "",
+                                                                       inflict_light_wounds.Icon,
+                                                                       AbilityType.Supernatural,
+                                                                       CommandType.Standard,
+                                                                       AbilityRange.Touch,
+                                                                       "",
+                                                                       Helpers.savingThrowNone,
+                                                                       Helpers.CreateRunActions(effect),
+                                                                       inflict_light_wounds.GetComponent<AbilityTargetHasFact>(),
+                                                                       inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
+                                                                       inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
+                                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(),
+                                                                                                       progression: ContextRankProgression.Div2)
+                                                                      );
+                var touch_of_the_grave_ability_sticky = Helpers.CreateTouchSpellCast(touch_of_the_grave_ability, resource);
 
                 var unholy = library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453");
 
@@ -241,7 +248,7 @@ namespace CallOfTheWild
 
                 unholy_weapon_feature.HideInCharacterSheetAndLevelUp = true;
 
-                spirit_ability = Common.AbilityToFeature(touch_of_the_grave_ability, false);
+                spirit_ability = Common.AbilityToFeature(touch_of_the_grave_ability_sticky, false);
                 spirit_ability.SetDescription("As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon that the shaman wields is treated as an unholy weapon.");
                 spirit_ability.AddComponents(Helpers.CreateAddFeatureOnClassLevel(unholy_weapon_feature, 11, getShamanArray()),
                                              Helpers.CreateAddAbilityResource(resource));
@@ -261,12 +268,13 @@ namespace CallOfTheWild
                                                        "",
                                                        icon,
                                                        null);
+                var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing,
+                                                                                     Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                     isAoE: true, halfIfSaved: true);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
                 var effect = Helpers.CreateConditional(Common.createContextConditionIsCaster(),
-                                                      apply_cooldown,
-                                                      Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing, 
-                                                                                     Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), 
-                                                                                     isAoE: true, halfIfSaved: false)
+                                                      null,
+                                                      Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg))
                                                       );
 
                 var shard_soul_ability = Helpers.CreateAbility("ShamanShardSoulAbility",
@@ -279,12 +287,15 @@ namespace CallOfTheWild
                                                                AbilityRange.Personal,
                                                                "",
                                                                Helpers.reflexHalfDamage,
-                                                               Helpers.CreateRunActions(SavingThrowType.Reflex, effect),
+                                                               Helpers.CreateRunActions(effect),
                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
                                                                                                classes: getShamanArray()),
                                                                Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any),
-                                                               Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Charisma),
-                                                               Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster)
+                                                               Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster),
+                                                               Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                               Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
+                                                               Common.createAbilityCasterHasNoFacts(cooldown_buff),
+                                                               Helpers.CreateResourceLogic(resource)
                                                                );
                 shard_soul_ability.setMiscAbilityParametersSelfOnly();
                 shard_soul_ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff));
@@ -292,7 +303,7 @@ namespace CallOfTheWild
                 greater_spirit_ability = Common.AbilityToFeature(shard_soul_ability, false);
                 greater_spirit_ability.AddComponents(Common.createMagicDR(Helpers.CreateContextValue(AbilityRankType.Default)),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
-                                                                                     classes: getShamanArray(), startLevel: 4),
+                                                                                     classes: getShamanArray(), stepLevel: 4),
                                                      Helpers.CreateAddAbilityResource(resource)
                                                     );
                 greater_spirit_ability.SetDescription("The shaman gains DR 3/magic. This DR increases by 1 for every 4 shaman levels she possesses beyond 8th. In addition, as a standard action she can cause jagged pieces of bone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage for every 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.");

@@ -30,14 +30,6 @@ namespace CallOfTheWild
     public partial class HexEngine
     {
         //general hexes:
-        //chant = cackle
-        //draconic resilence - done
-        //evil eye, fortune, misfirtune, ward, healing - same; + witch hex
-        //fury - done
-        //intimidating display - give feat - done
-        //secret - give metamagic feat - done
-        //shapeshift  - give spells in 1 minute increments - done
-        //wings - attack at lvl1, normal wings at lvl 8 - done
 
 
         public BlueprintFeature CreateWingsAttackHex(string name_prefix, string display_name, string description)
@@ -56,6 +48,7 @@ namespace CallOfTheWild
                                           );
 
             ability.Buff = buff;
+            ability.SetNameDescription(display_name, description);
 
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
@@ -103,21 +96,22 @@ namespace CallOfTheWild
         }
 
 
-        public BlueprintFeatureSelection createIntimidatingDisplay(string name_prefix, string display_name, string description)
+        public BlueprintFeature createIntimidatingDisplay(string name_prefix, string display_name, string description)
         {
             var dazzling_display_feature = library.Get<BlueprintFeature>("bcbd674ec70ff6f4894bb5f07b6f4095");
-            var feature = Helpers.CreateFeatureSelection(name_prefix + "HexFeature",
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                           display_name,
                           description,
                           "",
-                          null,
+                          dazzling_display_feature.Icon,
                           FeatureGroup.None,
-                          Helpers.CreateAddFact(dazzling_display_feature));
+                          Helpers.CreateAddFact(dazzling_display_feature),
+                          Helpers.PrerequisiteNoFeature(dazzling_display_feature));
             feature.Ranks = 1;
 
             
             var dazzling_display = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb");
-            dazzling_display.GetComponent<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>().alternative = feature; 
+            dazzling_display.GetComponent<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>().alternative = feature;
 
             return feature;
         }
@@ -152,6 +146,11 @@ namespace CallOfTheWild
                 var feature_i = Common.AbilityToFeature(ability_i);
 
                 feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature_i, levels[i], hex_classes));
+            }
+
+            foreach (var c in hex_classes)
+            {
+                feature.AddComponent(Helpers.PrerequisiteClassLevel(c, 8, any: true));
             }
 
             return feature;
@@ -200,10 +199,10 @@ namespace CallOfTheWild
                                                                            type: AbilityRankType.StatBonus, stepLevel: 7, min: 1, max: 2, classes: hex_classes),
                                                 Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                );
-            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            ability.setMiscAbilityParametersSingleTargetRangedFriendly(true);
             addWitchHexCooldownScaling(ability, "");
 
-            addToAmplifyHex(ability);
+            //addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
@@ -227,7 +226,8 @@ namespace CallOfTheWild
                                            "",
                                            icon,
                                            null,
-                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
+
+                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                            Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
                                            Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
                                            Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance, rankType: AbilityRankType.StatBonus),
@@ -253,10 +253,10 @@ namespace CallOfTheWild
                                                 Common.createAbilitySpawnFx("97b991256e43bb140b263c326f690ce2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                );
 
-            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            ability.setMiscAbilityParametersSingleTargetRangedFriendly(true);
             addWitchHexCooldownScaling(ability, "");
 
-            addToAmplifyHex(ability);
+            //addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
@@ -422,7 +422,7 @@ namespace CallOfTheWild
 
             addWitchHexCooldownScaling(ability, "");
 
-            addToAmplifyHex(ability);
+            //addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
             var curse_of_suffering = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
@@ -619,7 +619,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < dmg_buffs.Length; i++)
             {
-                var on_attack_action = i == 0 ? Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>())
+                var on_attack_action = i == 0 ? Helpers.CreateActionList(Helpers.Create<ContextActionRemoveBuff>(c => c.Buff = buff))
                                               : Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>(), actions[i - 1].Actions[0]);
                 dmg_buffs[i] = Helpers.CreateBuff(name_prefix + $"{i + 1}Buff",
                                                 display_name,
@@ -748,7 +748,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
 
-            addToAmplifyHex(ability);
+            //addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
             var flame_curse = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
@@ -772,7 +772,7 @@ namespace CallOfTheWild
             caster_level_increase.Descriptor = SpellDescriptor.Cold;
             var caster_level_increase_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                progression: ContextRankProgression.OnePlusDivStep,
-                                                                               startLevel: 8, max: 2, classes: hex_classes);
+                                                                               stepLevel: 8, max: 2, classes: hex_classes);
 
             var on_dmg_action = Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>());
             var crashing_waves1 = Helpers.CreateFeature(name_prefix + "1HexFeature",
@@ -824,15 +824,18 @@ namespace CallOfTheWild
 
         public  BlueprintFeature createBeckoningChill(string name_prefix, string display_name, string description)
         {
-            var icy_prison_entangle = library.Get<BlueprintBuff>("c53b286bb06a0544c85ca0f8bcc86950");
-            icy_prison_entangle.Stacking = StackingType.Prolong;
-            var apply_entangle = Common.createContextActionApplyBuff(icy_prison_entangle, Helpers.CreateContextDuration(1));
+            var icon = library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931").Icon;
+            var entangle = library.CopyAndAdd<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38", "BeckoningChillEntangle", "");
+
+            entangle.Stacking = StackingType.Prolong;
+            entangle.FxOnStart = Common.createPrefabLink("21b65d177b9db1d4ca4961de15645d95");
+            var apply_entangle = Common.createContextActionApplyBuff(entangle, Helpers.CreateContextDuration(1));
             
             var buff = Helpers.CreateBuff(name_prefix + "Buff",
                                           display_name,
                                           description,
                                           "",
-                                          icy_prison_entangle.Icon,
+                                          icon,
                                           Common.createPrefabLink("f00bbb092bd65a4468e72869b99f1d66"),
                                           Helpers.Create<NewMechanics.AddIncomingDamageTriggerOnAttacker>(a =>
                                                                                                           {
@@ -843,7 +846,7 @@ namespace CallOfTheWild
                                                                                                           })
                                           );
 
-            var apply_buff = Common.createContextActionApplyBuff(icy_prison_entangle, Helpers.CreateContextDuration(1, DurationRate.Minutes));
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes));
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
                                                 description,
@@ -893,7 +896,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < concealement_buffs.Length; i++)
             {
-                var on_attack_action = i == 0 ? Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>())
+                var on_attack_action = i == 0 ? Helpers.CreateActionList(Helpers.Create<ContextActionRemoveBuff>(c => c.Buff = buff))
                                               : Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>(), actions[i - 1].Actions[0]);
                 concealement_buffs[i] = Helpers.CreateBuff(name_prefix + $"{i + 1}Buff",
                                                 display_name,
@@ -901,6 +904,7 @@ namespace CallOfTheWild
                                                 "",
                                                 blur_buff.Icon,
                                                 null,
+                                                blur_buff.GetComponent<AddConcealment>(),
                                                 Helpers.Create<NewMechanics.AddTargetConcealmentRollTrigger>(a => { a.only_on_miss = true; a.actions = on_attack_action; })
                                                 );
                 concealement_buffs[i].SetBuffFlags(BuffFlags.HiddenInUi);
@@ -1143,7 +1147,7 @@ namespace CallOfTheWild
                                               "",
                                               magnetic_infusion.Icon,
                                               magnetic_infusion.FxOnStart,
-                                              Helpers.Create<ACBonusAgainstWeaponSubcategory>(a => { a.ArmorClassBonus = -(i * 2); a.SubCategory = WeaponSubCategory.Metal; })
+                                              Helpers.Create<ACBonusAgainstWeaponSubcategory>(a => { a.ArmorClassBonus = -((i+1) * 2); a.SubCategory = WeaponSubCategory.Metal; })
                                               );
                 actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(i + 1), dispellable: false));
             }
@@ -1167,7 +1171,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
 
-            addToAmplifyHex(ability);
+            //addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
@@ -1201,7 +1205,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < dr_buffs.Length; i++)
             {
-                var on_attack_action = i == 0 ? Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>())
+                var on_attack_action = i == 0 ? Helpers.CreateActionList(Helpers.Create<ContextActionRemoveBuff>(c => c.Buff = buff))
                                               : Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>(), actions[i - 1].Actions[0]);
                 dr_buffs[i] = Helpers.CreateBuff(name_prefix + $"{i + 1}Buff",
                                                 display_name,
@@ -1257,15 +1261,16 @@ namespace CallOfTheWild
         //loadstone replace with slow effect
        public  BlueprintFeature createLoadStone(string name_prefix, string display_name, string description)
         {
-            var load_stone = library.CopyAndAdd<BlueprintAbility>("f492622e473d34747806bdb39356eb89", name_prefix + "HexAbility", "");
+            var load_stone = library.CopyAndAdd<BlueprintAbility>("f492622e473d34747806bdb39356eb89", name_prefix + "HexAbility", "");//slow
 
             load_stone.RemoveComponents<SpellListComponent>();
             load_stone.RemoveComponents<SpellComponent>();
             load_stone.RemoveComponents<AbilityTargetsAround>();
-            load_stone.setMiscAbilityParametersSingleTargetRangedHarmful();
+            load_stone.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             load_stone.AvailableMetamagic = 0;
             load_stone.SpellResistance = false;
             load_stone.SetNameDescription(display_name, description);
+            load_stone.Range = AbilityRange.Close;
             addWitchHexCooldownScaling(load_stone, "");
 
 
@@ -1295,7 +1300,7 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Armor, rankType: AbilityRankType.Default, multiplier: 2),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                          classes: hex_classes, stepLevel: 4, startLevel: -5, min: 2)
+                                                                          classes: hex_classes, stepLevel: 4, startLevel: -1, min: 2)
                                          );
             var buff2 = Helpers.CreateBuff(name_prefix + "Hex2Buff",
                               display_name,
@@ -1406,7 +1411,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
 
-            addToAmplifyHex(ability);
+            //addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,

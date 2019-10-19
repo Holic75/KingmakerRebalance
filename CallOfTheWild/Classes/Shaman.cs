@@ -82,6 +82,8 @@ namespace CallOfTheWild
         static public BlueprintFeature ameliorating;
         static public BlueprintFeature summer_heat;
 
+        static public BlueprintFeature extra_hex;
+
 
         public class Spirit
         {
@@ -108,7 +110,7 @@ namespace CallOfTheWild
 
 
                 spirit_magic_spells = Helpers.CreateFeature(name + "SpiritSpellsFeature",
-                                                            "",
+                                                            display_name + " Spirit Magic",
                                                             "",
                                                             "",
                                                             null,
@@ -117,6 +119,7 @@ namespace CallOfTheWild
                                                                                                                                    l.SpellList = spirit_magic_spell_list;})
                                                             );
                 spirit_magic_spells.HideInCharacterSheetAndLevelUp = true;
+                spirit_magic_spells.HideInUI = true;
 
                 var entries = new LevelEntry[] { Helpers.LevelEntry(1, spirit_ability, spirit_magic_spells),
                                                  Helpers.LevelEntry(8, greater_spirit_ability),
@@ -234,9 +237,21 @@ namespace CallOfTheWild
             //createOverseer();
             shaman_class.Archetypes = new BlueprintArchetype[] {};
             Helpers.RegisterClass(shaman_class);
-            //createExtraHexFeats();
+            createExtraHexFeat();
 
            // addToPrestigeClasses()
+        }
+
+
+        static void createExtraHexFeat()
+        {
+            extra_hex = library.CopyAndAdd<BlueprintFeature>(hex_selection.AssetGuid, "ShamanExtraHexFeat", "");
+            extra_hex.SetNameDescriptionIcon("Extra Shaman Hex", 
+                                             "You gain one additional hex. It must be a general hex or a hex granted by your spirit rather than one from a wandering spirit.",
+                                             Witch.extra_hex_feat.Icon);
+            extra_hex.AddComponent(Helpers.PrerequisiteClassLevel(shaman_class, 2));
+            extra_hex.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+            library.AddFeats(extra_hex);
         }
 
 
@@ -486,8 +501,6 @@ namespace CallOfTheWild
 
         static void createSpirits()
         {
-            hex_engine = new HexEngine(getShamanArray(), StatType.Wisdom);
-
             spirits.Add("Battle", BattleSpirit.create());
             spirits.Add("Bones", BonesSpirit.create());
             spirits.Add("Flame", FlameSpirit.create());
@@ -722,8 +735,9 @@ namespace CallOfTheWild
             for (int i = 0; i < spirit_magic_spellbook.SpellList.SpellsByLevel.Length; i++)
             {
                 spirit_magic_spellbook.SpellList.SpellsByLevel[i] = new SpellLevelList(i);
-
             }
+
+            spirit_magic_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.NoSpellsPerDaySacaling>());
 
             var add_spellbook_level = library.CopyAndAdd<BlueprintFeature>("64bbf0ac60b78f24eb631a9c46e50e21", "SpiritMagicSpellLevelIncrease", "");
             add_spellbook_level.ReplaceComponent<AddSpellbookLevel>(a => a.Spellbook = spirit_magic_spellbook);

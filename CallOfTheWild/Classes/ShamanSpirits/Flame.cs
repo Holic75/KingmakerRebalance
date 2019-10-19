@@ -126,7 +126,7 @@ namespace CallOfTheWild
 
                 cinder_dance = Helpers.CreateFeature("ShamanCinderDanceHexFeature",
                                                      "Cinder Dance",
-                                                     "Your base speed increases by 10 feet.At 10th level, you can ignore difficult terrain when moving.",
+                                                     "Your base speed increases by 10 feet. At 10th level, you can ignore difficult terrain when moving.",
                                                      "",
                                                      icon,
                                                      FeatureGroup.None,
@@ -144,15 +144,17 @@ namespace CallOfTheWild
                 var touch_of_flames = library.CopyAndAdd<BlueprintAbility>("4ecdf240d81533f47a5279f5075296b9", "ShamanTouchOfFlamesAbility", ""); //fire domain fire bolt 
                 touch_of_flames.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
                 touch_of_flames.RemoveComponents<SpellComponent>();
-                touch_of_flames.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+                touch_of_flames.RemoveComponents<AbilityResourceLogic>();
                 touch_of_flames.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateDeliverTouch());
                 touch_of_flames.setMiscAbilityParametersTouchHarmful();
+                touch_of_flames.Range = AbilityRange.Touch;
                 touch_of_flames.Type = AbilityType.Supernatural;
                 touch_of_flames.SpellResistance = false;
                 touch_of_flames.SetNameDescriptionIcon("Touch of Flames",
                                                        "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of fire damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 touch_of_flames.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                var touch_of_flames_sticky = Helpers.CreateTouchSpellCast(touch_of_flames, resource);
                 var flaming = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
 
                 var flaming_weapon_feature = Helpers.CreateFeature("ShamanTouchOfFlamesFlamingWeaponFeature",
@@ -172,7 +174,7 @@ namespace CallOfTheWild
                                                        "",
                                                        touch_of_flames.Icon,
                                                        FeatureGroup.None,
-                                                       Helpers.CreateAddFact(touch_of_flames),
+                                                       Helpers.CreateAddFact(touch_of_flames_sticky),
                                                        Helpers.CreateAddAbilityResource(resource),
                                                        Helpers.CreateAddFeatureOnClassLevel(flaming_weapon_feature, 11, getShamanArray())
                                                        );
@@ -199,7 +201,9 @@ namespace CallOfTheWild
                 fiery_soul.RemoveComponents<SpellListComponent>();
                 fiery_soul.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray()));
                 fiery_soul.AddComponents(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
-                                         Helpers.CreateResourceLogic(resource)
+                                         Helpers.CreateResourceLogic(resource),
+                                         Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                         Common.createAbilityCasterHasNoFacts(cooldown_buff)
                                         );
                 fiery_soul.SetNameDescriptionIcon("Fiery Soul", cooldown_buff.Description, cooldown_buff.Icon);
                 greater_spirit_ability = Helpers.CreateFeature("ShamanFierySoulFeature",

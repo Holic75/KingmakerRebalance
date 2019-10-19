@@ -905,16 +905,16 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         private void checkWeapons()
         {
             deactivateEnchants();
-            var primary_hand_weapon = this.Owner.Body.PrimaryHand.MaybeWeapon;
-            var secondary_hand_weapon = this.Owner.Body.SecondaryHand.MaybeWeapon;
+            var primary_hand_weapon = this.Owner?.Body?.PrimaryHand?.MaybeWeapon;
+            var secondary_hand_weapon = this.Owner?.Body?.SecondaryHand?.MaybeWeapon;
 
-            if (primary_hand && primary_hand_weapon != null && primary_hand_weapon.Enchantments.HasFact(enchant))
+            if (primary_hand && primary_hand_weapon != null && !primary_hand_weapon.Enchantments.HasFact(enchant))
             {
                 m_PrimaryHandEnchantment = primary_hand_weapon.AddEnchantment(enchant, this.Fact.MaybeContext, new Rounds?());
                 m_PrimaryHandEnchantment.RemoveOnUnequipItem = true;
                 m_PriamryHandWeapon = primary_hand_weapon;
             }
-            if (secondary_hand && secondary_hand_weapon != null && secondary_hand_weapon.Enchantments.HasFact(enchant))
+            if (secondary_hand && secondary_hand_weapon != null && !secondary_hand_weapon.Enchantments.HasFact(enchant))
             {
                 m_SecondaryHandEnchantment = secondary_hand_weapon.AddEnchantment(enchant, this.Fact.MaybeContext, new Rounds?());
                 m_SecondaryHandEnchantment.RemoveOnUnequipItem = true;

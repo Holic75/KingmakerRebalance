@@ -141,7 +141,7 @@ namespace CallOfTheWild
             createPlantShapeIII();
 
             fixLegendaryProportions();
-            //fixAirElementalDC();
+            fixAirElementalDC();
             createGiantFormI();
             createGiantFormII();
             createShapechange();
@@ -307,9 +307,29 @@ namespace CallOfTheWild
                                                   library.Get<BlueprintAbilityAreaEffect>("c73f9a028b78f6e4d8a709b62f6344e0"),
                                                   library.Get<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e")
                                                  };
+
+            var dc2 = Helpers.Create<ContextCalculateAbilityParams>();
+            dc2.StatType = StatType.Constitution;
+            var features = new BlueprintBuff[] {
+                                                library.Get<BlueprintBuff>("335dbee275613e946a4de1aaf574d7d9"),
+                                                library.Get<BlueprintBuff>("23fafce3910c9df41b64343a2b3acbd1"),
+                                                library.Get<BlueprintBuff>("f1f1d30e0e3e0f94cb5216a693da3934"),
+                                                library.Get<BlueprintBuff>("f84809d94da65cd41a161c2ee7f4d569"),
+
+                                               // library.Get<BlueprintBuff>("84a0966e2cded1e4cafeadc82cfe7027"),
+                                                //library.Get<BlueprintBuff>("d2ac546636e4f5740ad06025c7df088d"),
+                                                //library.Get<BlueprintBuff>("280943949a73d794a9137406f7c0ad0d"),
+                                                library.Get<BlueprintBuff>("2dd5485ae456fc942b48b90a292b3d8a"),
+                                            };
             foreach (var e in effects)
             {    //dc is only computed based on druid class, changed to be based on character level
                 e.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(dc);
+            }
+
+            foreach (var f in features)
+            {    //dc is only computed based on druid class, changed to be based on character level
+                f.RemoveComponents<ContextCalculateAbilityParamsBasedOnClass>();
+                f.AddComponent(dc2);
             }
         }
 

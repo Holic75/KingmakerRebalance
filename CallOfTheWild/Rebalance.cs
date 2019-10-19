@@ -29,12 +29,21 @@ using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Utility;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Blueprints.Classes.Spells;
 
 namespace CallOfTheWild
 {
     public class Rebalance
     {
         static LibraryScriptableObject library => Main.library;
+
+
+
+        internal static void fixSpellDescriptors()
+        {
+            library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
+        }
+
         internal static void fixAnimalCompanion()
         {
             //animal companion rebalance

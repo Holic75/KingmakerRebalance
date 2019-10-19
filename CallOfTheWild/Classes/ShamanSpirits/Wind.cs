@@ -84,17 +84,17 @@ namespace CallOfTheWild
                                                             "The shaman creates an invisible shell of air that grants her a +4 armor bonus to AC. At 7th level and every 4 levels thereafter, this bonus increases by 2. At 13th level, this barrier causes incoming arrows, rays, and other ranged attacks requiring an attack roll against her to suffer a 50% miss chance. The shaman can use this barrier for 1 hour per shaman level. This duration does not need to be consecutive, but it must be spent in 1-hour increments."
                                                             );
 
-                sparkling_aura = hex_engine.createBoneWard("ShamanSparklingAura",
+                sparkling_aura = hex_engine.createSparklingAura("ShamanSparklingAura",
                                                         "Sparkling Aura",
                                                         "The shaman causes a creature within 30 feet to spark and shimmer with electrical energy. Though this does not harm the creature, it does cause the creature to emit light like a torch, preventing it from gaining any benefit from concealment or invisibility. Furthermore, while the aura lasts, whenever the target is hit with a metal melee weapon, it also takes an amount of electricity damage equal to the shaman’s Charisma modifier. The sparking aura lasts a 1 round for every 2 shaman levels the shaman possesses. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                         );
 
-                vortex_spells = hex_engine.createFearfulGaze("ShamanVortexSpells",
+                vortex_spells = hex_engine.createVortexSpells("ShamanVortexSpells",
                                                                 "Vortex Spells",
                                                                 "Whenever the shaman confirms a critical hit against an opponent with a spell, the target is staggered for 1 round. At 11th level, the duration increases to 1d4 rounds."
                                                                );
 
-                wind_ward = hex_engine.createFearfulGaze("ShamanWindWard",
+                wind_ward = hex_engine.createWindWard("ShamanWindWard",
                                                 "Wind Ward",
                                                 "The shaman can touch a willing creature (including herself ) and grants a ward of wind. This ward lasts for a number of rounds equal to the shaman’s level. When a warded creature is attacked with an arrow, ray, or other ranged attack that requires an attack roll, that attack suffers a 20% miss chance. At 8th level, the ward lasts for 1 minute for every level the shaman possesses. At 16th level, the miss chance increases to 50%. Once affected, the creature cannot be the target of this hex again for 24 hours."
                                                );
@@ -129,15 +129,17 @@ namespace CallOfTheWild
                 var shocking_touch = library.CopyAndAdd<BlueprintAbility>("b3494639791901e4db3eda6117ad878f", "ShamanShockingTouchAbility", ""); //air domain arck of lightning 
                 shocking_touch.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity));
                 shocking_touch.RemoveComponents<SpellComponent>();
-                shocking_touch.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+                shocking_touch.RemoveComponents<AbilityResourceLogic>();
                 shocking_touch.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateDeliverTouch());
                 shocking_touch.setMiscAbilityParametersTouchHarmful();
                 shocking_touch.Type = AbilityType.Supernatural;
+                shocking_touch.Range = AbilityRange.Touch;
                 shocking_touch.SpellResistance = false;
                 shocking_touch.SetNameDescriptionIcon("Shocking Touch",
                                                        "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 shocking_touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                var shocking_touch_sticky = Helpers.CreateTouchSpellCast(shocking_touch, resource);
                 var shocking = library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658");
 
                 var shocking_weapon_feature = Helpers.CreateFeature("ShamanShockingTouchShockingWeaponFeature",
@@ -157,7 +159,7 @@ namespace CallOfTheWild
                                                        "",
                                                        shocking_touch.Icon,
                                                        FeatureGroup.None,
-                                                       Helpers.CreateAddFact(shocking_touch),
+                                                       Helpers.CreateAddFact(shocking_touch_sticky),
                                                        Helpers.CreateAddAbilityResource(resource),
                                                        Helpers.CreateAddFeatureOnClassLevel(shocking_weapon_feature, 11, getShamanArray())
                                                        );
@@ -182,21 +184,24 @@ namespace CallOfTheWild
                                                          isAoE: true, halfIfSaved: true);
                 var sparkling_soul = Helpers.CreateAbility("ShamanSparklingSoulAbility",
                                                            "Sparkling Soul",
-                                                           cooldown_buff.Name,
+                                                           cooldown_buff.Description,
                                                            "",
                                                            icon,
                                                            AbilityType.Supernatural,
                                                            CommandType.Standard,
-                                                           AbilityRange.Projectile,
+                                                           AbilityRange.Close,
                                                            "",
                                                            Helpers.reflexHalfDamage,
                                                            Helpers.CreateRunActions(SavingThrowType.Reflex, dmg),
                                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray()),
                                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                                            Helpers.CreateResourceLogic(resource),
-                                                           library.Get<BlueprintAbility>("c073af2846b8e054fb28e6f72bc02749").GetComponent<AbilityDeliverProjectile>()//kinetic thunderstorm torrent
+                                                           library.Get<BlueprintAbility>("c073af2846b8e054fb28e6f72bc02749").GetComponent<AbilityDeliverProjectile>(),//kinetic thunderstorm torrent,
+                                                           Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                           Common.createAbilityCasterHasNoFacts(cooldown_buff),
+                                                           Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown)))
                                                            );
-                                                      
+                sparkling_soul.setMiscAbilityParametersRangedDirectional();
                 greater_spirit_ability = Helpers.CreateFeature("ShamanSparklingSoulFeature",
                                                                sparkling_soul.Name,
                                                                "The shaman gains electricity resistance 10. In addition, as a standard action she can unleash a 20-foot line of sparks from her fingertips, dealing 1d4 points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
@@ -215,18 +220,18 @@ namespace CallOfTheWild
                 var resource = Helpers.CreateAbilityResource("ShamanWindElementalFormResource", "", "", "", null);
                 resource.SetFixedResource(1);
 
-                var wildshape_air_elemental_whirlwind_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e", "ShamanWindElementalFormWhirlwindArea", "");
+                //var wildshape_air_elemental_whirlwind_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e", "ShamanWindElementalFormWhirlwindArea", "");
 
-                wildshape_air_elemental_whirlwind_area.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
+                //wildshape_air_elemental_whirlwind_area.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
 
-                var whirlwind_ability_buff = library.CopyAndAdd<BlueprintBuff>("788662b4625f74c43b0dfb0308fb155e", "ShamanWindElementalFormWhirlwindBuff", "");
-                whirlwind_ability_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = wildshape_air_elemental_whirlwind_area);
-                var whirlwind_ability = library.CopyAndAdd<BlueprintActivatableAbility>("524954358fc39c14fb0417fceb1322c6", "ShamanWindElementalFormWhirlwindActivatableAbility", "");
-                whirlwind_ability.Buff = whirlwind_ability_buff;
+                //var whirlwind_ability_buff = library.CopyAndAdd<BlueprintBuff>("788662b4625f74c43b0dfb0308fb155e", "ShamanWindElementalFormWhirlwindBuff", "");
+                //whirlwind_ability_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = wildshape_air_elemental_whirlwind_area);
+                //var whirlwind_ability = library.CopyAndAdd<BlueprintActivatableAbility>("524954358fc39c14fb0417fceb1322c6", "ShamanWindElementalFormWhirlwindActivatableAbility", "");
+                //whirlwind_ability.Buff = whirlwind_ability_buff;
 
                 var buff = library.CopyAndAdd<BlueprintBuff>("eb52d24d6f60fc742b32fe943b919180", "ShamanWindElementalFormBuff", "");
                 buff.SetName("Elemental Form (Huge Air Elemental)");
-                buff.ReplaceComponent<Polymorph>(p => p.Facts = new BlueprintUnitFact[] { p.Facts[1], whirlwind_ability });
+               // buff.ReplaceComponent<Polymorph>(p => p.Facts = new BlueprintUnitFact[] { p.Facts[1], whirlwind_ability });
 
                 var ability = library.CopyAndAdd<BlueprintAbility>("e3ee03c3a959ca046a39827508ab8943", "ShamanWindElementalFormAbility", "");
                 ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
@@ -253,9 +258,9 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Electricity));
 
-                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Fire, "", "");
+                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "");
                 extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Fire, "", "");
+                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "");
                 reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
                 manifestation.AddComponent(Helpers.CreateAddFacts(extend, reach));
             }

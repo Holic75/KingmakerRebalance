@@ -77,7 +77,17 @@ namespace CallOfTheWild
             foreach (var c in hex_classes)
             {
                 amplified_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
-                amplified_hex_feat.AddComponent(Common.createSpontaneousSpellConversion(c, amplified_hex_sacrifice_spells));
+                var conversion_feature = Helpers.CreateFeature(c.name + "AmblifiedHexSpontaneousConversion",
+                                                               "",
+                                                               "",
+                                                               Helpers.MergeIds(c.AssetGuid, "51659a7c9b3d4712b2e8145bf6fc31bb"),
+                                                               null,
+                                                               FeatureGroup.None,
+                                                               Common.createSpontaneousSpellConversion(c, amplified_hex_sacrifice_spells)
+                                                               );
+                conversion_feature.HideInCharacterSheetAndLevelUp = true;
+
+                amplified_hex_feat.AddComponent(Helpers.CreateAddFeatureOnClassLevel(conversion_feature, 1, new BlueprintCharacterClass[] { c }));
                 accursed_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
 
             }

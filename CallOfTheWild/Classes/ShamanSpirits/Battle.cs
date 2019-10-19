@@ -217,7 +217,8 @@ namespace CallOfTheWild
                                                     AbilityRange.Personal,
                                                     Helpers.oneMinuteDuration,
                                                     "",
-                                                    Helpers.CreateRunActions(apply_buff)
+                                                    Helpers.CreateRunActions(apply_buff),
+                                                    Helpers.CreateResourceLogic(resource)
                                                     );
                 ability.setMiscAbilityParametersSelfOnly(animation: Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
                 ability.NeedEquipWeapons = true;
@@ -246,7 +247,8 @@ namespace CallOfTheWild
                                                     Helpers.oneMinuteDuration,
                                                     "",
                                                     Helpers.CreateRunActions(apply_enlarge, apply_dj),
-                                                    Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                    Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.CreateResourceLogic(resource)
                                                     );
                 ability.setMiscAbilityParametersSelfOnly();
 

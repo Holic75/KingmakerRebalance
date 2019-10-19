@@ -83,12 +83,12 @@ namespace CallOfTheWild
 
                 beckoning_chill = hex_engine.createBeckoningChill("ShamanBeckoningChill",
                                                                   "Beckoning Chill ",
-                                                                  "The shaman causes one creature within 30 feet to become more susceptible to the sapping powers of cold for 1 minute. When a creature takes cold damage while under this effect, it is entangled for 1 round. If the creature takes cold damage while already entangled by beckoning chill, the duration of the entangled condition increases by 1 round. Once affected, the creature cannot be the target of this hex again for 24 hours."
+                                                                  "The shaman causes one creature within 30 feet to become more susceptible to the sapping powers of cold for 1 minute. When a creature takes cold damage while under this effect, it is entangled for 1 round. Once affected, the creature cannot be the target of this hex again for 24 hours."
                                                                   );
 
                 crashing_waves = hex_engine.createCrashingWaves("ShamanCrashingWaves",
                                                                 "Crashing Waves",
-                                                                "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the water descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts water spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
+                                                                "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the cold descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts water spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
                                                                 );
 
                 mists_shroud = hex_engine.createMistsShroud("ShamanMistsShroud",
@@ -107,7 +107,7 @@ namespace CallOfTheWild
                 return new Spirit("Waves",
                                   "Waves",
                                   "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
-                                  library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac").Icon,//tsunami
+                                  library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon,//charged blast
                                   "",
                                   spirit_ability,
                                   greater_spirit_ability,
@@ -124,7 +124,7 @@ namespace CallOfTheWild
                                                     "Fluid Magic",
                                                     "The shaman’s magic is not constrained by the reservoirs of magic that hold others back. She is able to prepare her spirit magic spells in her regular spell slots.",
                                                     "",
-                                                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac").Icon,
+                                                    library.Get<BlueprintAbility>("e3f41966c2d662a4e9582a0497621c46").Icon,
                                                     FeatureGroup.None);
             }
 
@@ -198,8 +198,11 @@ namespace CallOfTheWild
                                                          Common.createAbilitySpawnFx("b1e9a6f1066c22d45adc8ad0701b5b70", anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                          Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
-                                                         Helpers.CreateResourceLogic(resource)
+                                                         Helpers.CreateResourceLogic(resource),
+                                                         Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                         Common.createAbilityCasterHasNoFacts(cooldown_buff)
                                                          );
+                frigid_blast.setMiscAbilityParametersRangedDirectional();
 
                 greater_spirit_ability = Helpers.CreateFeature("ShamanFrigidBlastFeature",
                                                                frigid_blast.Name,
