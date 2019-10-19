@@ -233,6 +233,8 @@ namespace CallOfTheWild
                                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(),
                                                                                                        progression: ContextRankProgression.Div2)
                                                                       );
+                touch_of_the_grave_ability.setMiscAbilityParametersTouchHarmful(true);
+
                 var touch_of_the_grave_ability_sticky = Helpers.CreateTouchSpellCast(touch_of_the_grave_ability, resource);
 
                 var unholy = library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453");

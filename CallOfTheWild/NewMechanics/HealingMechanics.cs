@@ -22,13 +22,21 @@ namespace CallOfTheWild.HealingMechanics
 {
 
     [AllowedOn(typeof(BlueprintUnitFact))]
-    public class IncomingHealingModifier : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookSubscriber, IRulebookHandler<RuleHealDamage>
+    public class IncomingHealingModifier : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookSubscriber, ITargetRulebookHandler<RuleHealDamage>
     {
         public ContextValue ModifierPercents;
 
         public void OnEventAboutToTrigger(RuleHealDamage evt)
         {
-            evt.Modifier = new float?((float)this.ModifierPercents.Calculate(this.Fact.MaybeContext) / 100f);
+            float val = (float)this.ModifierPercents.Calculate(this.Fact.MaybeContext) / 100.0f;
+            if (evt.Modifier.HasValue)
+            {
+                evt.Modifier = new float?(evt.Modifier.Value * val);
+            }
+            else
+            {
+                evt.Modifier = new float?(val);
+            }
         }
 
         public void OnEventDidTrigger(RuleHealDamage evt)

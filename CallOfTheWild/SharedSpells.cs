@@ -132,8 +132,13 @@ namespace CallOfTheWild
         static void fixSpells()
         {
             var mirror_image = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564");
-
             (mirror_image.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).ToCaster = false;
+
+            //fix anchors
+            //shield
+            library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4").GetComponent<AbilitySpawnFx>().Anchor = AbilitySpawnFxAnchor.SelectedTarget;
+            //bless
+            library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638").GetComponent<AbilitySpawnFx>().Anchor = AbilitySpawnFxAnchor.ClickedTarget;
         }
 
         private static void createCanOnlyTargetSelfBuff()

@@ -82,12 +82,12 @@ namespace CallOfTheWild
                                                                  "The shaman touches a willing creature (including herself ) and grants a battle ward. The next time a foe makes an attack roll against the target, the ward activates and grants a +3 deflection bonus to the warded creature’s AC. Each subsequent time she’s attacked, the defection bonus reduces by 1 (to +2 for the second time she’s attacked and +1 for the third). The ward fades when the bonus is reduced to +0 or after 24 hours, whichever comes first. At 8th level, the ward’s starting bonus increases to +4. At 16th level, it increases to +5. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                                  );
 
-                curse_of_suffering_hex = hex_engine.createBattleWardHex("ShamanCurseOfSuffering",
+                curse_of_suffering_hex = hex_engine.createCurseOfSuffering("ShamanCurseOfSuffering",
                                                                         "Curse of Suffering",
                                                                         "The shaman causes a creature within 30 feet to take more damage from bleed effects and causes its wounds to heal at a slower rate. When the cursed creature takes bleed damage, it takes 1 additional point of bleed damage (even if the bleed is ability damage). Furthermore, when the target is subject to an effect that would restore its hit points, that effect restores only half the normal amount of hit points. This curse lasts for a number of rounds equal to the shaman’s level. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                                        );
 
-                hampering_hex = hex_engine.createBattleWardHex("ShamanHamperingHex",
+                hampering_hex = hex_engine.createHamperingHex("ShamanHamperingHex",
                                                                 "Hampering Hex",
                                                                 "The shaman causes a creature within 30 feet to take a –2 penalty to AC and CMD for a number of rounds equal to the shaman’s level. A successful Will saving throw reduces this to just 1 round. At 8th level, the penalty becomes –4. Whether or not the save is successful, a creature affected by a hampering hex cannot be the target of this hex again for 24 hours."
                                                                );
@@ -154,7 +154,8 @@ namespace CallOfTheWild
                                                         FeatureGroup.None,
                                                         Helpers.CreateAddStatBonus(StatType.AttackOfOpportunityCount, 1, ModifierDescriptor.UntypedStackable),
                                                         Helpers.CreateAddFeatureOnClassLevel(ws_feature, 8, getShamanArray()),
-                                                        Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, getShamanArray())
+                                                        Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, getShamanArray()),
+                                                        Helpers.Create<PrerequisiteProficiency>(p => p.WeaponProficiencies = new WeaponCategory[] {category})
                                                         );
                     battle_master_hex.AllFeatures = battle_master_hex.AllFeatures.AddToArray(feature);
                 }
@@ -174,9 +175,9 @@ namespace CallOfTheWild
                                               rage.Icon,
                                               rage.FxOnStart,
                                               Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
-                                              Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
-                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                              classes: getShamanArray(), startLevel: -8, stepLevel: 8)
+                                              Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
+                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                              classes: getShamanArray(), stepLevel: 8, type: AbilityRankType.StatBonus)
                                              );
 
                 var ability = Common.convertPerformance(library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70"), buff, "ShamanBattleSpirit");

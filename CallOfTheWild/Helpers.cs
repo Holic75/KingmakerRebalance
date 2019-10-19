@@ -464,7 +464,7 @@ namespace CallOfTheWild
         {
             ability.CanTargetFriends = works_on_allies;
             ability.CanTargetEnemies = true;
-            ability.CanTargetSelf = false;
+            ability.CanTargetSelf = works_on_allies;
             ability.CanTargetPoint = false;
             ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             ability.EffectOnAlly = works_on_allies ? AbilityEffectOnUnit.Harmful : AbilityEffectOnUnit.None;

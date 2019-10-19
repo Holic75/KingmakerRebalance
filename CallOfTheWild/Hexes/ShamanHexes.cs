@@ -295,6 +295,7 @@ namespace CallOfTheWild
                                                     a.ActionOnSelf = on_attack_action;
                                                 })                                                    
                                                 );
+                ac_buffs[i].SetBuffFlags(BuffFlags.RemoveOnRest);
                 actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(ac_buffs[i], Helpers.CreateContextDuration(), dispellable: false, is_permanent: true));
             }
 
@@ -310,6 +311,8 @@ namespace CallOfTheWild
             hex_ability.SetIcon(shield_spell.Icon);
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
+            hex_ability.setMiscAbilityParametersTouchFriendly();
+            hex_ability.Range = AbilityRange.Touch;
             addWitchHexCooldownScaling(hex_ability, "");
 
             var battle_ward = Helpers.CreateFeature(name_prefix + "HexFeature",
@@ -324,7 +327,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createHamperingHex(string name_prefix, string display_name, string description)
+        public BlueprintFeature createHamperingHex(string name_prefix, string display_name, string description)
         {
             var haze_of_dreams = library.Get<BlueprintAbility>("40ec382849b60504d88946df46a10f2d");
 
@@ -375,7 +378,7 @@ namespace CallOfTheWild
         }
 
               //also a life hex
-        BlueprintFeature createCurseOfSuffering(string name_prefix, string display_name, string description)
+        public BlueprintFeature createCurseOfSuffering(string name_prefix, string display_name, string description)
         {
             var forced_repentance = library.Get<BlueprintAbility>("cc0aeb74b35cb7147bff6c53538bbc76");
 
@@ -439,6 +442,7 @@ namespace CallOfTheWild
         public BlueprintFeature createBoneWard(string name_prefix, string display_name, string description)
         {
             var shield_spell = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4"); //shield spell
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/BoneWard.png");
 
             var ac_buffs = new BlueprintBuff[3];
 
@@ -448,9 +452,9 @@ namespace CallOfTheWild
                                                 display_name,
                                                 description + $" (+{2 + i})",
                                                 "",
-                                                shield_spell.Icon,
+                                                icon,
                                                 null,
-                                                Helpers.CreateAddStatBonus(StatType.AC, (i + 1), ModifierDescriptor.Deflection)
+                                                Helpers.CreateAddStatBonus(StatType.AC, (i + 2), ModifierDescriptor.Deflection)
                                                 );
             }
 
@@ -463,7 +467,7 @@ namespace CallOfTheWild
             hex_ability.RemoveComponents<SpellComponent>();
             hex_ability.Type = AbilityType.Supernatural;
             hex_ability.setMiscAbilityParametersTouchFriendly();
-
+            hex_ability.Range = AbilityRange.Touch;
 
             var effect = Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus),
                                                                         Helpers.CreateActionList(action1),
@@ -473,7 +477,7 @@ namespace CallOfTheWild
             hex_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(effect));
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                                      type: AbilityRankType.StatBonus, startLevel: 0, stepLevel: 8, classes: hex_classes));
-            hex_ability.SetIcon(shield_spell.Icon);
+            hex_ability.SetIcon(icon);
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             addWitchHexCooldownScaling(hex_ability, "");
