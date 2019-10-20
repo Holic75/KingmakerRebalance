@@ -96,7 +96,17 @@ namespace CallOfTheWild
 
 
             internal Spirit(string name, string display_name, string description, UnityEngine.Sprite icon, string guid,
-                    BlueprintFeature spirit_ability, BlueprintFeature greater_spirit_ability, BlueprintFeature true_spirit_ability, BlueprintFeature manifestation, 
+                BlueprintFeature spirit_ability, BlueprintFeature greater_spirit_ability, BlueprintFeature true_spirit_ability, BlueprintFeature manifestation,
+                BlueprintFeature[] hexes, BlueprintAbility[] spells)
+                : this(name, display_name, description, icon, guid, new BlueprintFeature[] {spirit_ability, spirit_ability}, new BlueprintFeature[] { greater_spirit_ability, greater_spirit_ability },
+                      new BlueprintFeature[] { true_spirit_ability, true_spirit_ability }, manifestation, hexes, spells)
+            {
+
+            }
+
+
+            internal Spirit(string name, string display_name, string description, UnityEngine.Sprite icon, string guid,
+                    BlueprintFeature[] spirit_ability, BlueprintFeature[] greater_spirit_ability, BlueprintFeature[] true_spirit_ability, BlueprintFeature manifestation, 
                     BlueprintFeature[] hexes, BlueprintAbility[] spells)
             {
                 string spells_description = display_name + " spirit grants shaman the following spells: ";
@@ -121,15 +131,15 @@ namespace CallOfTheWild
                 spirit_magic_spells.HideInCharacterSheetAndLevelUp = true;
                 spirit_magic_spells.HideInUI = true;
 
-                var entries = new LevelEntry[] { Helpers.LevelEntry(1, spirit_ability, spirit_magic_spells),
-                                                 Helpers.LevelEntry(8, greater_spirit_ability),
-                                                 Helpers.LevelEntry(16, true_spirit_ability),
+                var entries = new LevelEntry[] { Helpers.LevelEntry(1, spirit_ability[0], spirit_magic_spells),
+                                                 Helpers.LevelEntry(8, greater_spirit_ability[0]),
+                                                 Helpers.LevelEntry(16, true_spirit_ability[0]),
                                                  Helpers.LevelEntry(20, manifestation)
                                                };
 
-                var wandering_entries = new LevelEntry[] { Helpers.LevelEntry(4, spirit_ability, spirit_magic_spells),
-                                                 Helpers.LevelEntry(12, greater_spirit_ability),
-                                                 Helpers.LevelEntry(20, true_spirit_ability)
+                var wandering_entries = new LevelEntry[] { Helpers.LevelEntry(4, spirit_ability[1], spirit_magic_spells),
+                                                 Helpers.LevelEntry(12, greater_spirit_ability[1]),
+                                                 Helpers.LevelEntry(20, true_spirit_ability[1])
                                                };
 
                 progression = Helpers.CreateProgression(name + "SpiritProgression",
@@ -139,7 +149,7 @@ namespace CallOfTheWild
                                                         icon,
                                                         FeatureGroup.None);
                 progression.LevelEntries = entries.ToArray();
-                progression.UIGroups = Helpers.CreateUIGroups(spirit_ability, greater_spirit_ability, true_spirit_ability, manifestation);
+                progression.UIGroups = Helpers.CreateUIGroups(spirit_ability[0], greater_spirit_ability[0], true_spirit_ability[0], manifestation);
 
 
                 wandering_progression = Helpers.CreateProgression(name + "WanderingSpiritProgression",
@@ -150,7 +160,7 @@ namespace CallOfTheWild
                                                                 FeatureGroup.None,
                                                                 Helpers.PrerequisiteNoFeature(progression));
                 wandering_progression.LevelEntries = wandering_entries.ToArray();
-                wandering_progression.UIGroups = Helpers.CreateUIGroups(spirit_ability, greater_spirit_ability, true_spirit_ability);
+                wandering_progression.UIGroups = Helpers.CreateUIGroups(spirit_ability[1], greater_spirit_ability[1], true_spirit_ability[1]);
 
 
 
@@ -191,6 +201,7 @@ namespace CallOfTheWild
 
         internal static void createShamanClass()
         {
+            Main.logger.Log("Shaman class test mode: " + test_mode.ToString());
             var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
 
             shaman_class = Helpers.Create<BlueprintCharacterClass>();

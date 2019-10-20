@@ -128,6 +128,7 @@
     <Compile Include="Classes\ShamanSpirits\Battle.cs" />
     <Compile Include="Classes\ShamanSpirits\Bones.cs" />
     <Compile Include="Classes\ShamanSpirits\Flame.cs" />
+    <Compile Include="Classes\ShamanSpirits\Nature.cs" />
     <Compile Include="Classes\ShamanSpirits\Stone.cs" />
     <Compile Include="Classes\ShamanSpirits\Waves.cs" />
     <Compile Include="Classes\ShamanSpirits\Wind.cs" />
@@ -158,12 +159,15 @@
     <Compile Include="NewMechanics\MonsterLore.cs" />
     <Compile Include="NewMechanics\NewMechanics.cs" />
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
+    <Compile Include="NewMechanics\OutgoingConcealementMechanics.cs" />
+    <Compile Include="NewMechanics\ResourceMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />
     <Compile Include="NewMechanics\SharedHandItems.cs" />
     <Compile Include="NewMechanics\SpellbookMechanics.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />
+    <Compile Include="NewMechanics\WeatherMechanics.cs" />
     <Compile Include="NewMechanics\WildArmor.cs" />
     <Compile Include="NewRagePowers.cs" />
     <Compile Include="NewSpells.cs" />

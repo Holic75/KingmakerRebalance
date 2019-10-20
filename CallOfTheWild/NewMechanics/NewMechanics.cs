@@ -250,7 +250,6 @@ namespace CallOfTheWild
 
 
         [AllowMultipleComponents]
-        [ComponentName("Predicates/Target has fact unless alternative")]
         [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityTargetHasNoFactUnlessBuffsFromCaster : BlueprintComponent, IAbilityTargetChecker
         {
@@ -291,6 +290,36 @@ namespace CallOfTheWild
                     return flag2;
                 }
                 return true;
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetHasBuffFromCaster : BlueprintComponent, IAbilityTargetChecker
+        {
+            public BlueprintBuff[] Buffs;
+            public bool not = false;
+
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                foreach (var cb in this.Buffs)
+                {
+                    foreach (var b in unit.Descriptor.Buffs)
+                    {
+                        if (cb == b.Blueprint && (b.MaybeContext?.MaybeCaster == caster))
+                        {
+                            return !not ? true : false;
+                        }
+                    }
+                }
+
+                return not ? true : false;
             }
         }
 
@@ -3724,6 +3753,36 @@ namespace CallOfTheWild
                     }
                 }
             }
+        }
+
+
+        public class ContextConditionCompareTargetHPPercent : ContextCondition
+        {
+            public int Value;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Target's HP% is less then {0}", (object)this.Value);
+            }
+
+            protected override bool CheckCondition()
+            {
+                if (this.Target.Unit == null)
+                {
+                    UberDebug.LogError((object)"Target unit is missing", (object[])Array.Empty<object>());
+                    return false;
+                }
+                float part = (float)Value / 100.0f;
+                return   ((float)this.Target.Unit.HPLeft / (float)this.Target.Unit.MaxHP) < part;
+            }
+        }
+
+
+        public class ContextConditionHasDamage : ContextCondition
+        {
+            protected override bool CheckCondition() => Target.Unit?.Damage > 0;
+
+            protected override string GetConditionCaption() => "Whether the target is damaged";
         }
 
     }

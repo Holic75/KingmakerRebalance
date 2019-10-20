@@ -323,9 +323,14 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.TargetIsInvisible; a.Concealment = Concealment.Partial; }),
-                                          Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.TargetIsInvisible; a.Concealment = Concealment.Total; })
+                                          Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
+                                          Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; })
                                           );
+
+            foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
+            {
+                buff.AddComponent(Common.createOutgoingConcelement(c));
+            }
 
             area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
 
@@ -796,7 +801,8 @@ namespace CallOfTheWild
 
                 frost_bite_enchantments[i] = Common.createWeaponEnchantment($"FrostBite{i}Enchantment",
                                                                              "Frostbite",
-                                                                             "Your melee touch attack deals 1d6 points of cold damage + 1 point per level (maximum + 10), and the target is fatigued for 1 minute. This spell cannot make a creature exhausted even if it is already fatigued. Each attack you make reduces the remaining duration of the spell by 1 minute.",
+                                                                             "Your melee touch attack deals 1d6 points of cold damage + 1 point per level (maximum + 10), and the target is fatigued for 1 minute. This spell cannot make a creature exhausted even if it is already fatigued. Each attack you make reduces the remaining duration of the spell by 1 minute.\n"
+                                                                             + "Your primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -916,7 +922,8 @@ namespace CallOfTheWild
                 chill_touch_echantments[i] = Common.createWeaponEnchantment($"ChillTouch{i}Enchantment",
                                                                              "Chill Touch",
                                                                              "A touch from your hand, which glows with blue energy, disrupts the life force of living creatures. Each touch channels negative energy that deals 1d6 points of damage. The touched creature also takes 1 point of Strength damage unless it makes a successful Fortitude saving throw.  Each attack you make reduces the remaining duration of the spell by 1 minute.\n"
-                                                                             + "An undead creature you touch takes no damage of either sort, but it must make a successful Will saving throw or flee as if panicked for 1d4 rounds + 1 round per caster level (max + 10).",
+                                                                             + "An undead creature you touch takes no damage of either sort, but it must make a successful Will saving throw or flee as if panicked for 1d4 rounds + 1 round per caster level (max + 10)\n."
+                                                                             + "Your primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",
                                                                              "",
@@ -1058,6 +1065,8 @@ namespace CallOfTheWild
             concleament_buff.SetName("Blood Mist Concleament");
             concleament_buff.SetDescription(buff.Description);
             concleament_buff.FxOnStart = null;
+            concleament_buff.ReplaceComponent<AddConcealment>(a => a.Descriptor = ConcealmentDescriptor.Fog);
+            concleament_buff.AddComponent(Common.createOutgoingConcelement(concleament_buff.GetComponent<AddConcealment>()));
 
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");

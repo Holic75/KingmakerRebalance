@@ -36,13 +36,25 @@ namespace CallOfTheWild.NewMechanics
                 codes = instructions.ToList();
                 var check_cooldown_idx = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("HasCooldownForCommand"));
                 codes[check_cooldown_idx - 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<Kingmaker.Controllers.Combat.UnitCombatState, bool>(cannotChangeEquipment).Method);
-                codes.RemoveAt(check_cooldown_idx);
+                codes[check_cooldown_idx] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop); //to keep same length
+                //codes.RemoveAt(check_cooldown_idx);
                 //codes[check_cooldown_idx - 1].opcode = System.Reflection.Emit.OpCodes.Ldc_I4_3; //replace with move action
 
                 var set_cooldown_idx = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("set_StandardAction"));
                 codes[set_cooldown_idx - 2] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Action<Kingmaker.Controllers.Combat.UnitCombatState>(consumeMoveAction).Method);
-                codes.RemoveAt(set_cooldown_idx);
-                codes.RemoveAt(set_cooldown_idx - 1);
+                codes[set_cooldown_idx - 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop);
+                codes[set_cooldown_idx] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop);
+                codes.InsertRange(set_cooldown_idx, new Harmony12.CodeInstruction[]{
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop),
+                                                                                       new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Nop)
+                                                                                   }); // to keep the same size
+
                 //codes[set_cooldown_idx].operand = typeof(Kingmaker.Controllers.Combat.UnitCombatState.Cooldowns).GetMethod("set_MoveAction");
                 //codes[set_cooldown_idx - 1].operand = 3.0f;
             }

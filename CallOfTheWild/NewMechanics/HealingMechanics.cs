@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Enums.Damage;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Damage;
@@ -8,6 +9,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Buffs.Actions;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.Utility;
@@ -95,6 +97,53 @@ namespace CallOfTheWild.HealingMechanics
     }
 
 
+
+    public class UnitPartExtendHpBonusToCasterLevel : AdditiveUnitPart
+    {
+        public bool active(BlueprintAbility spell)
+        {
+            foreach (var b in buffs)
+            {
+                var comp = b.Blueprint.GetComponent<ExtendHpBonusToCasterLevel>();
+                if (comp == null)
+                {
+                    continue;
+                }
+                if (comp.worksOn(spell))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ExtendHpBonusToCasterLevel : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public BlueprintAbility[] spells;
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartExtendHpBonusToCasterLevel>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartExtendHpBonusToCasterLevel>().removeBuff(this.Fact);
+        }
+
+        public bool worksOn(BlueprintAbility spell)
+        {
+            return spells.Contains(spell);
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class SelfHealingMetamagic : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {
@@ -160,10 +209,30 @@ namespace CallOfTheWild.HealingMechanics
             else
             {
                 int bonus = __instance.Value.Calculate(context);
+                var bonus_to_dice = __instance.Value.BonusValue.Calculate(context);
+
+                var hp_bonus_to_caster_level = target.Get<UnitPartExtendHpBonusToCasterLevel>();
+                if (hp_bonus_to_caster_level != null && hp_bonus_to_caster_level.active(context.SourceAbility) && context.Params != null)
+                {
+                    var additional_hp = context.Params.CasterLevel - bonus_to_dice;
+                    if (additional_hp < 0)
+                    {
+                        additional_hp = 0;
+                    }
+
+                    if (context.HasMetamagic(Metamagic.Empower))
+                    {
+                        additional_hp += additional_hp / 2;
+                    }
+
+                    bonus_to_dice += additional_hp;
+                    bonus += additional_hp;
+                }
+
                 if (!context.HasMetamagic(Metamagic.Maximize) && target.Ensure<UnitPartSelfHealingMetamagic>().hasMaximize(context.SourceAbility) && target == context.MaybeCaster)
                 {
-                    Main.logger.Log("Maximize Found");
-                    bonus = (int)__instance.Value.DiceType * __instance.Value.DiceCountValue.Calculate(context) + __instance.Value.BonusValue.Calculate(context);
+                    
+                    bonus = (int)__instance.Value.DiceType * __instance.Value.DiceCountValue.Calculate(context) + bonus_to_dice;
 
                     if (context.HasMetamagic(Metamagic.Empower))
                     {
@@ -173,7 +242,7 @@ namespace CallOfTheWild.HealingMechanics
 
                 if (!context.HasMetamagic(Metamagic.Empower) && target.Ensure<UnitPartSelfHealingMetamagic>().hasEmpower(context.SourceAbility) && target == context.MaybeCaster)
                 {
-                    bonus = bonus = (int)(bonus * 1.5f);
+                    bonus = (int)(bonus * 1.5f);
                 }
 
                 context.TriggerRule<RuleHealDamage>(new RuleHealDamage(context.MaybeCaster, target, DiceFormula.Zero, bonus));
@@ -182,7 +251,7 @@ namespace CallOfTheWild.HealingMechanics
                 {
                     int dice_count = __instance.Value.DiceCountValue.Calculate(context);
                     var dice = __instance.Value.DiceType;
-                    if (dice_count == 0 || dice == DiceType.Zero)
+                    if (dice_count == 0 || dice == DiceType.Zero || context.Params == null)
                     {
                         return false;
                     }
@@ -192,6 +261,37 @@ namespace CallOfTheWild.HealingMechanics
             }
 
             return false;
+        }
+    }
+
+
+
+    public class ContextActionTransferDamageToCaster : BuffAction
+    {
+        public ContextValue Value;
+
+        public override string GetCaption() => $"Transfer {Value} of hit point damage to caster.";
+
+        public override void RunAction()
+        {
+            int value = Value.Calculate(Context);
+            var caster = Context.MaybeCaster;
+            // Prevent the damage transfer from killing the caster, and automatically end the Life Link.
+            // (Makes it easier to manage, since this is a CRPG.)
+            if (caster.HPLeft < value)
+            {
+               // Log.Write($"Can't transfer {value} damage, caster only has {caster.HPLeft} HP.");
+                Buff.RemoveAfterDelay();
+                return;
+            }
+            var target = Buff.Owner.Unit;
+            var rule = Context.TriggerRule(new RuleHealDamage(caster, target, DiceFormula.Zero, value));
+            if (rule.Value > 0)
+            {
+                Context.TriggerRule(new RuleDealDamage(caster, caster, new DamageBundle(
+                    new EnergyDamage(new DiceFormula(rule.Value, DiceType.One), DamageEnergyType.Holy))));
+            }
+            //Log.Write($"Transfer {rule.Value} damage from {target.CharacterName} to {caster.CharacterName}");
         }
     }
 }

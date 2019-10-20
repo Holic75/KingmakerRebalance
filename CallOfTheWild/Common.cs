@@ -3039,5 +3039,19 @@ namespace CallOfTheWild
         }
 
 
+        static public OutgoingConcealementMechanics.AddOutgoingConcealment createOutgoingConcelement(AddConcealment self_concealement)
+        {
+            var o = Helpers.Create<OutgoingConcealementMechanics.AddOutgoingConcealment>();
+            o.Descriptor = self_concealement.Descriptor;
+            o.Concealment = self_concealement.Concealment;
+            o.CheckDistance = self_concealement.CheckDistance;
+            o.CheckWeaponRangeType = self_concealement.CheckWeaponRangeType;
+            o.DistanceGreater = self_concealement.DistanceGreater;
+            o.OnlyForAttacks = self_concealement.OnlyForAttacks;
+            o.RangeType = self_concealement.RangeType;
+            return o;
+        }
+
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.NewMechanics;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
@@ -11,13 +12,17 @@ using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -953,12 +958,139 @@ namespace CallOfTheWild
 
         //life spirit hexes
         //curse of suffering from battle spirit
-        //will need to add enhanced cures, life link and life sight
+        public BlueprintFeature createEnchancedCures(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("0d657aa811b310e4bbd8586e60156a2d").Icon;
+
+            var healing_spells = new BlueprintAbility[]
+            {   //cure
+                library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f"),
+                library.Get<BlueprintAbility>("1c1ebf5370939a9418da93176cc44cd9"),
+                library.Get<BlueprintAbility>("6e81a6679a0889a429dec9cedcf3729c"),
+                library.Get<BlueprintAbility>("0d657aa811b310e4bbd8586e60156a2d"),
+                library.Get<BlueprintAbility>("5d3d689392e4ff740a761ef346815074"),
+                library.Get<BlueprintAbility>("571221cc141bc21449ae96b3944652aa"),
+                library.Get<BlueprintAbility>("0cea35de4d553cc439ae80b3a8724397"),
+                library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449")
+            };
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  display_name,
+                                                  description,
+                                                  "",
+                                                  icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<HealingMechanics.ExtendHpBonusToCasterLevel>(e => e.spells = healing_spells));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        public BlueprintFeature createLifeSight(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("b3da3fbee6a751d4197e446c7e852bcb").Icon; //true seeing
+            var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, hex_classes);
+
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
+                                         display_name,
+                                         description,
+                                         "",
+                                         icon,
+                                         null,
+                                         Common.createBlindsense(30)
+                                         );
+
+            var ability = Helpers.CreateActivatableAbility(name_prefix + "HexActivatableAbility",
+                                                           display_name,
+                                                           description,
+                                                           "",
+                                                           icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
+                                                           );
+
+            var feature = Common.ActivatableAbilityToFeature(ability, hide: false);
+            feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        public BlueprintFeature createLifeLink(string name_prefix, string display_name, string description)
+        {
+            var clw = library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f");
+            var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, hex_classes);
+
+            var spawn_fx = Helpers.Create<ContextActionSpawnFx>(c => c.PrefabLink = clw.GetComponent<AbilitySpawnFx>().PrefabLink);
+            var transfer_damage = Helpers.Create<HealingMechanics.ContextActionTransferDamageToCaster>(c => c.Value = 5);
+            var new_round_action = Helpers.CreateConditional(Helpers.Create<ContextConditionDistanceToTarget>(c => c.DistanceGreater = 40.Feet()),
+                                                                                                              Helpers.Create<ContextActionRemoveSelf>(),
+                                                                                                              Helpers.CreateConditional(Helpers.Create<ContextConditionHasDamage>(),
+                                                                                                                                        new GameAction[] { spawn_fx, transfer_damage }
+                                                                                                                                        )
+                                                            );
+
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          clw.Icon,
+                                          null,
+                                          Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource),
+                                                                              newRound: new_round_action)
+                                         );
+
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            var ability = Helpers.CreateAbility(name_prefix + "HexActivatableAbility",
+                                                           display_name,
+                                                           description,
+                                                           "",
+                                                           buff.Icon,
+                                                           AbilityType.Supernatural,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                           AbilityRange.Close,
+                                                           "Permanent",
+                                                           "",
+                                                           Helpers.CreateRunActions(apply_buff),
+                                                           Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => { a.Buffs = new BlueprintBuff[] { buff }; a.not = true; })
+                                                           );
+            ability.setMiscAbilityParametersSingleTargetRangedFriendly();
+            var dismiss = Helpers.CreateAbility(name_prefix + "HexActivatableAbility",
+                                                           display_name,
+                                                           description,
+                                                           "",
+                                                           buff.Icon,
+                                                           AbilityType.Supernatural,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           AbilityRange.Medium,
+                                                           "Instant",
+                                                           "",
+                                                           Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(buff)),
+                                                           Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] {buff})
+                                                           );
+
+            var feature = Common.AbilityToFeature(ability, hide: false);
+            feature.AddComponent(Helpers.CreateAddFact(dismiss));
+            feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+
+
+
+
 
         //lore spirit hexes
-        //will need to add benefit of wisdom, mental acuity (+1 int per 5 levels)
-        //brain drain, confusion curse
-        BlueprintFeature createBrainDrain(string name_prefix, string display_name, string description)
+        //will need to add benefit of wisdom, mental acuity (+1 int per 5 levels ?)
+        public BlueprintFeature createBrainDrain(string name_prefix, string display_name, string description)
         {
             var mind_blank = library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf");
 
@@ -998,7 +1130,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createConfusionCurse(string name_prefix, string display_name, string description)
+        public BlueprintFeature createConfusionCurse(string name_prefix, string display_name, string description)
         {
             var confused = library.Get<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df");
 
@@ -1037,8 +1169,7 @@ namespace CallOfTheWild
 
 
         //nature spirit
-        //will need to add friend to animals and wilderness stride
-        BlueprintFeature createEntanglingCurse(string name_prefix, string display_name, string description)
+        public BlueprintFeature createEntanglingCurse(string name_prefix, string display_name, string description)
         {
             var entangle = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
 
@@ -1076,7 +1207,85 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createErosionCurse(string name_prefix, string display_name, string description)
+        public BlueprintFeature createStormWalker(string name_prefix, string display_name, string description)
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormStep.png");
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  display_name,
+                                                  description,
+                                                  "",
+                                                  icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<WeatherMechanics.IgnoreWhetherMovementEffects>());
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        public BlueprintFeature createFriendToAnimals(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("c6147854641924442a3bb736080cfeb6").Icon; //change shape beast
+            var spontnaeous_summon = library.Get<BlueprintFeature>("b296531ffe013c8499ad712f8ae97f6b");
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                      display_name,
+                                      description,
+                                      "",
+                                      icon,
+                                      FeatureGroup.None);
+            feature.Ranks = 1;
+
+            var buff = Helpers.CreateBuff(name_prefix + "HexBuff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Sacred),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Sacred),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Sacred),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma,
+                                                                          min: 0)
+                                         );
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", name_prefix + "HexArea", "");
+            area.Size = 30.Feet();
+            var animal = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFact(animal)); });
+
+            var aura_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", name_prefix + "HexAuraBuff", "");
+            aura_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
+            feature.AddComponent(Common.createAuraFeatureComponent(aura_buff));
+
+            foreach (var c in hex_classes)
+            {
+                var conversion_feature = Helpers.CreateFeature(name_prefix + c.name + "HexSpontaneousConversionFeature",
+                                                               "",
+                                                               "",
+                                                               Helpers.MergeIds(c.AssetGuid, "c897bdad78a7475e9d789f40cb9c2941"),
+                                                               null,
+                                                               FeatureGroup.None
+                                                               );
+                foreach (var sc in spontnaeous_summon.GetComponents<SpontaneousSpellConversion>())
+                {
+                    conversion_feature.AddComponent(Common.createSpontaneousSpellConversion(c, sc.SpellsByLevel));
+                }
+                conversion_feature.HideInCharacterSheetAndLevelUp = true;
+
+                feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(conversion_feature, 1, new BlueprintCharacterClass[] { c }));
+            }
+
+
+
+            return feature;
+        }
+
+
+
+
+
+        public BlueprintFeature createErosionCurse(string name_prefix, string display_name, string description)
         {
             var touch_of_slime = library.Get<BlueprintAbility>("1e481e03d9cf1564bae6b4f63aed2d1a");
 
@@ -1099,7 +1308,7 @@ namespace CallOfTheWild
                                                 Common.createAbilitySpawnFx("524f5d0fecac019469b9e58ce1b8402d", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
                                                                                 type: AbilityRankType.DamageBonus, min: 1, classes: hex_classes),
-                                                Common.createAbilityTargetHasFact(true, library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"))
+                                                Common.createAbilityTargetHasFact(true, library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"))//construct
                                                );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
