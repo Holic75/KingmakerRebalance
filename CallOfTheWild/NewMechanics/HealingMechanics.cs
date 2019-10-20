@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums.Damage;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
@@ -191,9 +192,9 @@ namespace CallOfTheWild.HealingMechanics
 
     [Harmony12.HarmonyPatch(typeof(ContextActionHealTarget))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
-    class Patch_ContextActionHealTarget_RunAction_Postfix
+    [Harmony12.HarmonyPriority(100)]
+    class Patch_ContextActionHealTarget_RunAction_Prefix
     {
-
         static public bool Prefix(ContextActionHealTarget __instance)
         {
             var tr = Harmony12.Traverse.Create(__instance);
@@ -264,6 +265,42 @@ namespace CallOfTheWild.HealingMechanics
         }
     }
 
+
+    [Harmony12.HarmonyPatch(typeof(ContextActionBreathOfLife))]
+    [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPriority(100)]
+    class Patch_ContextActionBreathOfLife_RunAction_Prefix
+    {
+        static public void Postfix(ContextActionBreathOfLife __instance)
+        {
+            var tr = Harmony12.Traverse.Create(__instance);
+            var context = tr.Property("Context").GetValue<MechanicsContext>();
+            var target = tr.Property("Target").GetValue<TargetWrapper>().Unit;
+
+            bool was_dead = false;
+            if (target.HPLeft <= -(int)((ModifiableValue)target.Stats.Constitution))
+            {
+                was_dead = true;
+            }
+
+            if (target.Descriptor.Ensure<UnitPartReceiveBonusCasterLevelHealing>().active() && context.SourceAbility != null && __instance.Value != null)
+            {
+                int dice_count = __instance.Value.DiceCountValue.Calculate(context);
+                var dice = __instance.Value.DiceType;
+                if (dice_count == 0 || dice == DiceType.Zero || context.Params == null)
+                {
+                    return;
+                }
+                int bonus_hp = context.Params.CasterLevel;
+                context.TriggerRule<RuleHealDamage>(new RuleHealDamage(target, target, DiceFormula.Zero, bonus_hp));
+            }
+
+            if (target.HPLeft > -(int)((ModifiableValue)target.Stats.Constitution) && was_dead)
+            {
+                target.Descriptor.Resurrect(0.0f, false);
+            }
+        }
+    }
 
 
     public class ContextActionTransferDamageToCaster : BuffAction
