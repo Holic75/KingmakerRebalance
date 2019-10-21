@@ -128,6 +128,7 @@
     <Compile Include="Classes\ShamanSpirits\Battle.cs" />
     <Compile Include="Classes\ShamanSpirits\Bones.cs" />
     <Compile Include="Classes\ShamanSpirits\Flame.cs" />
+    <Compile Include="Classes\ShamanSpirits\Life.cs" />
     <Compile Include="Classes\ShamanSpirits\Nature.cs" />
     <Compile Include="Classes\ShamanSpirits\Stone.cs" />
     <Compile Include="Classes\ShamanSpirits\Waves.cs" />

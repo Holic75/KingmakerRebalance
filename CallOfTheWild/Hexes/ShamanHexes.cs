@@ -998,7 +998,7 @@ namespace CallOfTheWild
                                          "",
                                          icon,
                                          null,
-                                         Common.createBlindsense(30)
+                                         Common.createBlindsight(30)
                                          );
 
             var ability = Helpers.CreateActivatableAbility(name_prefix + "HexActivatableAbility",
@@ -1013,8 +1013,14 @@ namespace CallOfTheWild
                                                            Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
                                                            );
 
+
             var feature = Common.ActivatableAbilityToFeature(ability, hide: false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
+            foreach (var c in hex_classes)
+            {
+                feature.AddComponent(Helpers.PrerequisiteClassLevel(c, 12, any: true));
+            }
             feature.Ranks = 1;
             return feature;
         }
@@ -1047,7 +1053,7 @@ namespace CallOfTheWild
 
             buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
-            var ability = Helpers.CreateAbility(name_prefix + "HexActivatableAbility",
+            var ability = Helpers.CreateAbility(name_prefix + "Hexbility",
                                                            display_name,
                                                            description,
                                                            "",
@@ -1058,11 +1064,12 @@ namespace CallOfTheWild
                                                            "Permanent",
                                                            "",
                                                            Helpers.CreateRunActions(apply_buff),
-                                                           Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => { a.Buffs = new BlueprintBuff[] { buff }; a.not = true; })
+                                                           Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => { a.Buffs = new BlueprintBuff[] { buff }; a.not = true; }),
+                                                           Helpers.CreateResourceLogic(resource)
                                                            );
             ability.setMiscAbilityParametersSingleTargetRangedFriendly();
-            var dismiss = Helpers.CreateAbility(name_prefix + "HexActivatableAbility",
-                                                           display_name,
+            var dismiss = Helpers.CreateAbility(name_prefix + "DismissHexAbility",
+                                                           "Dismiss: " + display_name,
                                                            description,
                                                            "",
                                                            buff.Icon,
@@ -1074,7 +1081,7 @@ namespace CallOfTheWild
                                                            Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(buff)),
                                                            Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] {buff})
                                                            );
-
+            dismiss.setMiscAbilityParametersSingleTargetRangedFriendly();
             var feature = Common.AbilityToFeature(ability, hide: false);
             feature.AddComponent(Helpers.CreateAddFact(dismiss));
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
@@ -1186,7 +1193,6 @@ namespace CallOfTheWild
                                                 "",
                                                 "Reflex Negates",
                                                 Helpers.CreateRunActions(action),
-                                                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, progression: ContextRankProgression.AsIs,
                                                                                 type: AbilityRankType.StatBonus, min: 1, stat: StatType.Charisma)
                                                );
@@ -1240,7 +1246,7 @@ namespace CallOfTheWild
                                           display_name,
                                           description,
                                           "",
-                                          null,
+                                          icon,
                                           null,
                                           Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Sacred),
                                           Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Sacred),
@@ -1308,7 +1314,7 @@ namespace CallOfTheWild
                                                 Common.createAbilitySpawnFx("524f5d0fecac019469b9e58ce1b8402d", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
                                                                                 type: AbilityRankType.DamageBonus, min: 1, classes: hex_classes),
-                                                Common.createAbilityTargetHasFact(true, library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"))//construct
+                                                Common.createAbilityTargetHasFact(inverted: false, library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"))//construct
                                                );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");

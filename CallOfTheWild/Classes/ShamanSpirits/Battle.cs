@@ -264,7 +264,7 @@ namespace CallOfTheWild
                 var icon = library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038").Icon;
                 manifestation = Helpers.CreateFeature("BattleSpiritManifestationFeature",
                                                       "Manifestation",
-                                                      "Upon reaching 20th level, the shaman becomes a spirit of battle. He gains pounce ability and Diehard Feat. Whenever she scores a critical hit, the attack ignores damage reduction. She gains a +4 insight bonus to AC for the purposes of confirming critical hits against her.",
+                                                      "Upon reaching 20th level, the shaman becomes a spirit of battle. He gains pounce ability and diehard Feat. Whenever she scores a critical hit, the attack ignores damage reduction. She gains a +4 insight bonus to AC for the purposes of confirming critical hits against her.",
                                                       "",
                                                       icon,
                                                       FeatureGroup.None,

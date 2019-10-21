@@ -2,9 +2,11 @@
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
@@ -103,6 +105,7 @@ namespace CallOfTheWild.HealingMechanics
     {
         public bool active(BlueprintAbility spell)
         {
+            //Main.logger.Log("Checking UnitPartExtendHpBonusToCasterLevel " + spell.AssetGuid + " " + spell.name);
             foreach (var b in buffs)
             {
                 var comp = b.Blueprint.GetComponent<ExtendHpBonusToCasterLevel>();
@@ -127,13 +130,13 @@ namespace CallOfTheWild.HealingMechanics
     {
         public BlueprintAbility[] spells;
 
-        public override void OnTurnOff()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartExtendHpBonusToCasterLevel>().addBuff(this.Fact);
         }
 
 
-        public override void OnTurnOn()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartExtendHpBonusToCasterLevel>().removeBuff(this.Fact);
         }
@@ -152,13 +155,13 @@ namespace CallOfTheWild.HealingMechanics
         public bool empower = false;
         public bool maximize = false;
 
-        public override void OnTurnOff()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartSelfHealingMetamagic>().addBuff(this.Fact);
         }
 
 
-        public override void OnTurnOn()
+        public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartSelfHealingMetamagic>().removeBuff(this.Fact);
         }
@@ -214,8 +217,9 @@ namespace CallOfTheWild.HealingMechanics
 
                 var hp_bonus_to_caster_level = target.Get<UnitPartExtendHpBonusToCasterLevel>();
                 if (hp_bonus_to_caster_level != null && hp_bonus_to_caster_level.active(context.SourceAbility) && context.Params != null)
-                {
+                {                    
                     var additional_hp = context.Params.CasterLevel - bonus_to_dice;
+                    //Main.logger.Log("Additional Hp: " + additional_hp.ToString());
                     if (additional_hp < 0)
                     {
                         additional_hp = 0;
@@ -329,6 +333,56 @@ namespace CallOfTheWild.HealingMechanics
                     new EnergyDamage(new DiceFormula(rule.Value, DiceType.One), DamageEnergyType.Holy))));
             }
             //Log.Write($"Transfer {rule.Value} damage from {target.CharacterName} to {caster.CharacterName}");
+        }
+    }
+
+
+
+    public class HealSkillBonus : RuleInitiatorLogicComponent<RuleDispelMagic>
+    {
+        public ContextValue value;
+        public override void OnEventAboutToTrigger(RuleDispelMagic evt)
+        {
+            var bonus = value.Calculate(this.Fact.MaybeContext);
+            if (evt.Check == RuleDispelMagic.CheckType.SkillDC && evt.Skill == StatType.SkillLoreReligion)
+            {
+                evt.AddTemporaryModifier(Owner.Stats.SkillLoreReligion.AddModifier(bonus, this, ModifierDescriptor.UntypedStackable));
+            }
+        }
+
+        public override void OnEventDidTrigger(RuleDispelMagic evt)
+        {
+
+        }
+    }
+
+
+    public class StatsCannotBeReducedBelow1 : RuleTargetLogicComponent<RuleDealStatDamage>
+    {
+        bool wasMarkedForDeath;
+
+        public override void OnEventAboutToTrigger(RuleDealStatDamage evt)
+        {
+            wasMarkedForDeath = evt.Target.Descriptor.State.MarkedForDeath;
+        }
+
+        public override void OnEventDidTrigger(RuleDealStatDamage evt)
+        {
+            var stat = evt.Stat;
+            var value = stat.ModifiedValueRaw;
+            if (value < 1)
+            {
+                evt.Target.Descriptor.State.MarkedForDeath = wasMarkedForDeath;
+                var adjust = 1 - value; // bring the value back to 1.
+                if (evt.IsDrain)
+                {
+                    stat.Drain -= adjust;
+                }
+                else
+                {
+                    stat.Damage -= adjust;
+                }
+            }
         }
     }
 }

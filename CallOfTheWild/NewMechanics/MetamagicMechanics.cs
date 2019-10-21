@@ -353,6 +353,93 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class MetamagicOnSpellList : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintAbility[] spell_list;
+            public BlueprintAbilityResource resource = null;
+            public int amount;
+            public BlueprintUnitFact[] cost_reducing_facts;
+            private int cost_to_pay;
+
+
+
+            private int calculate_cost(UnitEntityData caster)
+            {
+                var cost = amount;
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (caster.Buffs.HasFact(f))
+                    {
+                        cost--;
+                    }
+                }
+                return cost < 0 ? 0 : cost;
+            }
+
+
+            public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
+            {
+                bool is_metamagic_not_available = ability == null || data?.Spellbook == null || ability.Type != AbilityType.Spell
+                                              || ((ability.AvailableMetamagic & Metamagic) == 0);
+
+                if (is_metamagic_not_available)
+                {
+                    return false;
+                }
+
+                if (!spell_list.Contains(ability))
+                {
+                    return false;
+                }
+
+                int cost = calculate_cost(this.Owner.Unit);
+                if (resource != null && this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                cost_to_pay = 0;
+                if (!CanBeUsedOn(evt.Spell, evt.AbilityData))
+                {
+                    return;
+                }
+                cost_to_pay = calculate_cost(this.Owner.Unit);
+                evt.AddMetamagic(Metamagic);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+                if (cost_to_pay == 0 || evt.Spell.SourceItem != null)
+                {
+                    cost_to_pay = 0;
+                    return;
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCastSpell evt)
+            {
+
+                if (cost_to_pay == 0)
+                {
+                    return;
+                }
+                this.Owner.Resources.Spend(resource, cost_to_pay);
+                cost_to_pay = 0;
+            }
+        }
+
+
         public class AutoMetamagicExtender : AutoMetamagic
         {
             protected static BlueprintAbility ExtractBlueprint(BlueprintAbility ability, [CanBeNull] AbilityData data)

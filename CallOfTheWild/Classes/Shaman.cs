@@ -518,6 +518,8 @@ namespace CallOfTheWild
             spirits.Add("Stone", StoneSpirit.create());
             spirits.Add("Waves", WavesSpirit.create());
             spirits.Add("Wind", WindSpirit.create());
+            spirits.Add("Nature", NatureSpirit.create());
+            spirits.Add("Life", LifeSpirit.create());
 
 
             foreach (var s in spirits)

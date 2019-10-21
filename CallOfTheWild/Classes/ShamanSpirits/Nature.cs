@@ -23,10 +23,12 @@ using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -58,31 +60,14 @@ namespace CallOfTheWild
 
             internal static Spirit create()
             {
-                createSpiritAbility();
-                createGreaterSpiritAbility();
-                createTrueSpiritAbility();
-                createManifestation();
-
-                spells = new BlueprintAbility[9]
-                {
-                    library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33"), //Magic Fang
-                    library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553"), //barkskin
-                    library.Get<BlueprintAbility>("754c478a2aa9bb54d809e648c3f7ac0e"), //dominate animal
-                    library.Get<BlueprintAbility>("56923211d2ac95e43b8ac5031bab74d8"), //animal growth
-                    library.Get<BlueprintAbility>("6d1d48a939ce475409f06e1b376bc386"), //vinetrap
-                    library.Get<BlueprintAbility>("7c5d556b9a5883048bf030e20daebe31"), //stone skin communal
-                    library.Get<BlueprintAbility>("b974af13e45639a41a04843ce1c9aa12"), //creeping doom
-                    library.Get<BlueprintAbility>("7cfbefe0931257344b2cb7ddc4cdff6f"), //stormbolts
-                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
-                };
 
                 entangling_curse = hex_engine.createEntanglingCurse("ShamanEntanglingCurse",
-                                                                 "Entangling Curse",
-                                                                 "The shaman entangles a creature within 30 feet for a number of rounds equal to the shaman’s Charisma modifier (minimum 1). A successful Reflex saving throw negates this effect. Whether or not the save is successful, the creature cannot be the target of this hex again for 24 hours."
-                                                                 );
+                                                 "Entangling Curse",
+                                                 "The shaman entangles a creature within 30 feet for a number of rounds equal to the shaman’s Charisma modifier (minimum 1). A successful Reflex saving throw negates this effect. Whether or not the save is successful, the creature cannot be the target of this hex again for 24 hours."
+                                                 );
 
                 erosion_curse = hex_engine.createErosionCurse("ShamanErosionCurse",
-                                                                  "Erosion Curse ",
+                                                                  "Erosion Curse",
                                                                   "The shaman summons the powers of nature to erode a construct or object within 30 feet. This erosion deals 1d6 points of damage per 2 shaman levels, ignoring hardness and damage reduction. If used against a construct or an object in another creature’s possession, the construct or the creature possessing the object can attempt a Reflex saving throw to halve the damage. Once an object or a construct is damaged by this erosion, it cannot be the target of this hex again for 24 hours."
                                                                   );
 
@@ -94,6 +79,26 @@ namespace CallOfTheWild
                                                             "Stormwalker",
                                                             "The shaman can move through non-magical fog, rain, mist, snow, and other environmental effects without penalty. She is never slowed by such effects. "
                                                            );
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+                createManifestation();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33"), //Magic Fang
+                    library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553"), //barkskin
+                    library.Get<BlueprintAbility>("754c478a2aa9bb54d809e648c3f7ac0e"), //dominate animal
+                    library.CopyAndAdd<BlueprintAbility>("56923211d2ac95e43b8ac5031bab74d8", "ShamanNatureSpiritAnimalGrowth", ""), //animal growth
+                    library.Get<BlueprintAbility>("6d1d48a939ce475409f06e1b376bc386"), //vinetrap
+                    library.Get<BlueprintAbility>("7c5d556b9a5883048bf030e20daebe31"), //stone skin communal
+                    library.Get<BlueprintAbility>("b974af13e45639a41a04843ce1c9aa12"), //creeping doom
+                    library.Get<BlueprintAbility>("7cfbefe0931257344b2cb7ddc4cdff6f"), //stormbolts
+                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
+                };
+
+
 
                 hexes = new BlueprintFeature[]
                 {
@@ -150,7 +155,7 @@ namespace CallOfTheWild
 
                 var thundering = library.Get<BlueprintWeaponEnchantment>("690e762f7704e1f4aa1ac69ef0ce6a96");
 
-                var thundering_weapon_feature = Helpers.CreateFeature("ShamanTouchOfFlamesFlamingWeaponFeature",
+                var thundering_weapon_feature = Helpers.CreateFeature("ShamanStormBurstThunderingWeaponFeature",
                                                               "",
                                                               "",
                                                               "",
@@ -161,7 +166,7 @@ namespace CallOfTheWild
 
                 thundering_weapon_feature.HideInCharacterSheetAndLevelUp = true;
 
-                spirit_ability = Helpers.CreateFeature("ShamanTouchOfFlameFeature",
+                spirit_ability = Helpers.CreateFeature("ShamanStormBurstFeature",
                                                        ability.Name,
                                                        "As a standard action, the shaman causes a small storm of swirling wind and rain to form around one creature within 30 feet. This storm causes the target to treat all foes as if they had concealment, suffering a 20% miss chance for 1 round plus 1 round for every 4 shaman levels she possesses. The shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a thundering weapon.",
                                                        "",
@@ -185,7 +190,7 @@ namespace CallOfTheWild
                                               null,
                                               Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.Default)),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Custom,
-                                                                              classes: getShamanArray(), customProgression: new (int, int)[] { (1, 14), (3, 20) })
+                                                                              classes: getShamanArray(), customProgression: new (int, int)[] { (14, 1), (20, 3) })
                                              );
 
                 var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
@@ -199,8 +204,8 @@ namespace CallOfTheWild
                                                                "",
                                                                icon,
                                                                FeatureGroup.None,
-                                                               Common.createIncomingDamageTrigger(apply_buff),
-                                                               Helpers.CreateAddFactContextActions(newRound: effect)
+                                                               Common.createIncomingDamageTrigger(effect)
+                                                               //Helpers.CreateAddFactContextActions(newRound: effect)
                                                                );
             }
 
@@ -223,6 +228,7 @@ namespace CallOfTheWild
                 };
                 animal_companion_progression.HideInUI = true;
                 true_spirit_ability = library.CopyAndAdd<BlueprintFeature>("571f8434d98560c43935e132df65fe76", "ShamanAnimalCompanionFeature", "");
+                true_spirit_ability.SetDescription("The shaman acquires an animal companion of her choice, using her shaman level as her effective druid level");
                 var add_rank = Helpers.Create<AddFeatureOnApply>(a => a.Feature = animal_companion_rank);
                 true_spirit_ability.ComponentsArray = Enumerable.Repeat(add_rank, 16).ToArray();
                 true_spirit_ability.AddComponent(Helpers.Create<AddFeatureOnApply>(a => a.Feature = animal_companion_progression));
@@ -236,17 +242,21 @@ namespace CallOfTheWild
             {
                 var resource = Helpers.CreateAbilityResource("ShamanNatureManifestationResource", "", "", "", null);
                 resource.SetFixedResource(1);
+                var friend_to_animals_buff = friend_to_animals.GetComponent<AuraFeatureComponent>().Buff.GetComponent<AddAreaEffect>().AreaEffect.GetComponent<AbilityAreaEffectBuff>().Buff;
+                var apply_friend_to_animals = Common.createContextActionApplyBuff(friend_to_animals_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
 
                 var animal_fact = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
                 var plant_fact = library.Get<BlueprintFeature>("706e61781d692a042b35941f14bc41c5");
 
                 var animal_buff = Helpers.CreateBuff("ShamanNatureManifestationAnimalBuff",
                                                      "Manifestation: Animal",
-                                                     "Upon reaching 20th level, the shaman becomes a spirit of nature. Once per day, she can change her type to plant, animal, or humanoid, and having gained superficial physical characteristics of the chosen type as appropriate. She must choose a type that is different from her current type. This effect change doesn’t alter her Hit Dice, hit points, saving throws, skill ranks, class skills, or proficiencies.",
+                                                     "Upon reaching 20th level, the shaman becomes a spirit of nature. Once per day, she can change her type to plant, animal, or humanoid, and gain superficial physical characteristics of the chosen type as appropriate. She must choose a type that is different from her current type. This change doesn’t alter her Hit Dice, hit points, saving throws, skill ranks, class skills, or proficiencies.",
                                                      "",
                                                      library.Get<BlueprintAbility>("de7a025d48ad5da4991e7d3c682cf69d").Icon, //cat's grace
                                                      null,
-                                                     Helpers.CreateAddFact(animal_fact)
+                                                     Helpers.CreateAddFact(animal_fact),
+                                                     Helpers.CreateAddFactContextActions(Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(friend_to_animals), apply_friend_to_animals),
+                                                                                         Common.createContextActionRemoveBuff(friend_to_animals_buff))
                                                      );
                 var apply_animal = Common.createContextActionApplyBuff(animal_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
                 var plant_buff = Helpers.CreateBuff("ShamanNatureManifestationPlantBuff",
@@ -259,6 +269,7 @@ namespace CallOfTheWild
                                                      );
                 var apply_plant = Common.createContextActionApplyBuff(plant_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
                 var precast_actions = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(animal_buff), Common.createContextActionRemoveBuff(plant_buff));
+
 
                 var manifestation_animal = Helpers.CreateAbility("ShamanNatureManifestationAnimalAbility",
                                                                 animal_buff.Name,
@@ -313,14 +324,16 @@ namespace CallOfTheWild
 
                 var wrapper = Common.createVariantWrapper("ShamanNatureManifestationAbility", "", manifestation_animal, manifestation_humanoid, manifestation_plant);
                 wrapper.SetName("Manifestation");
+                wrapper.SetIcon(manifestation_plant.Icon);
 
                 manifestation = Helpers.CreateFeature("ShamanManifestationFeature",
-                                                      plant_buff.Name,
-                                                      plant_buff.Description,
+                                                      wrapper.Name,
+                                                      wrapper.Description,
                                                       "",
                                                       wrapper.Icon,
                                                       FeatureGroup.None,
-                                                      Helpers.CreateAddFact(wrapper)
+                                                      Helpers.CreateAddFact(wrapper),
+                                                      Helpers.CreateAddAbilityResource(resource)
                                                       );
             }
 

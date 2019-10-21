@@ -92,6 +92,7 @@ namespace CallOfTheWild
             PositiveHarm = Positive | Harm,
             NegativeHeal = Negative | Heal,
             NegativeHarm = Negative | Harm,
+            SwiftPositiveChannel = 1024,
             All = ~None
         }
 
@@ -182,6 +183,8 @@ namespace CallOfTheWild
 
         static BlueprintFeature[] channel_resistances = new BlueprintFeature[] { library.Get<BlueprintFeature>("a9ac84c6f48b491438f91bb237bc9212") };
 
+        static public BlueprintFeature swift_positive_channel;
+        static public BlueprintAbilityResource swift_positve_channel_resource;
 
         internal static void init()
         {
@@ -828,6 +831,7 @@ namespace CallOfTheWild
             if (!channel_type.isOf(ChannelType.Form))
             { //form channel will be created from quick and not vice versa
                 addToQuickChannel(entry);
+                addToSwiftPositiveChannel(entry);
             }
             addToVersatileChannel(entry);
 
@@ -1058,8 +1062,10 @@ namespace CallOfTheWild
             {
                 return;
             }
+
+
             var prereq = improved_channel.GetComponent<PrerequisiteFeaturesFromList>();
-            if (!prereq.Features.Contains(c.parent_feature))
+            if (!prereq.Features.Contains(c.parent_feature) && !c.channel_type.isOf(ChannelType.BackToTheGrave))
             {
                 prereq.Features = prereq.Features.AddToArray(c.parent_feature);
             }
@@ -1208,6 +1214,70 @@ namespace CallOfTheWild
             }
 
             library.AddFeats(quick_channel);
+        }
+
+
+        public static void createSwiftPositiveChannel()
+        {
+            swift_positve_channel_resource = Helpers.CreateAbilityResource("SwiftPositveChannelResource", "", "", "", null);
+            swift_positve_channel_resource.SetIncreasedByStat(0, Kingmaker.EntitySystem.Stats.StatType.Charisma);
+            swift_positive_channel = Helpers.CreateFeature("SwiftPositiveChannelFeature",
+                                                  "Swift Channel",
+                                                  "",
+                                                  "",
+                                                  LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Channel_Quick.png"),
+                                                  FeatureGroup.Feat);
+            swift_positive_channel.HideInCharacterSheetAndLevelUp = true;
+
+            foreach (var c in channel_entires.ToArray())
+            {
+                addToSwiftPositiveChannel(c);
+            }
+        }
+
+
+        static void addToSwiftPositiveChannel(ChannelEntry entry)
+        {
+            if (swift_positive_channel == null)
+            {
+                return;
+            }
+
+            if (entry.ability.ActionType != Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard)
+            {
+                return;
+            }
+
+            if (entry.channel_type.isOf(ChannelType.HolyVindicatorShield | ChannelType.Negative))
+            {// no swift for vindicator shield and negative energy
+                return;
+            }
+
+            var quicken_ability = library.CopyAndAdd<BlueprintAbility>(entry.ability.AssetGuid, "Swift" + entry.ability.name, entry.ability.AssetGuid, "5d0149c1d031437c846f3930ecc923c0");
+            quicken_ability.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift;
+            quicken_ability.SetName(quicken_ability.Name + $" ({swift_positive_channel.Name})");
+            var spend_resource = Helpers.Create<ContextActionOnContextCaster>(c => c.Actions = Helpers.CreateActionList(Common.createContextActionSpendResource(swift_positve_channel_resource, 1)));
+            quicken_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(spend_resource)));
+            quicken_ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterHasResource>(c =>
+                                                                                                {
+                                                                                                    c.resource = swift_positve_channel_resource;
+                                                                                                    c.amount = 1;
+                                                                                                }
+                                                                                               )
+                                        );
+            quicken_ability.AddComponent(Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(swift_positive_channel)));
+
+            entry.base_ability.addToAbilityVariants(quicken_ability);
+
+            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
+            if (caster_alignment != null)
+            {
+                quicken_ability.AddComponent(caster_alignment);
+            }
+
+            updateItemsForChannelDerivative(entry.ability, quicken_ability);
+
+            storeChannel(quicken_ability, entry.parent_feature, entry.channel_type | ChannelType.SwiftPositiveChannel, entry.properties);
         }
 
 
