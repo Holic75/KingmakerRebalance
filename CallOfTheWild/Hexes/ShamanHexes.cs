@@ -1096,10 +1096,9 @@ namespace CallOfTheWild
 
 
         //lore spirit hexes
-        //will need to add benefit of wisdom, mental acuity (+1 int per 5 levels ?)
         public BlueprintFeature createBrainDrain(string name_prefix, string display_name, string description)
         {
-            var mind_blank = library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf");
+            var mind_blank = library.Get<BlueprintAbility>("eabf94e4edc6e714cabd96aa69f8b207");
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             dmg.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
@@ -1173,6 +1172,49 @@ namespace CallOfTheWild
             feature.Ranks = 1;
             return feature;
         }
+
+
+        public BlueprintFeature createMentalAcuity(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("ae4d3ad6a8fda1542acf2e9bbc13d113").Icon; //foxs cunning
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddContextStatBonus(StatType.Intelligence, ModifierDescriptor.Inherent),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                stepLevel: 5, classes: hex_classes)
+                                               );
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        public BlueprintFeature createBenefitOfWisdom(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("f0455c9295b53904f9e02fc571dd2ce1").Icon; //owls wisdom
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Wisdom; }),
+                                                Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Wisdom; }),
+                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                               );
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+
+
+
+
 
 
         //nature spirit

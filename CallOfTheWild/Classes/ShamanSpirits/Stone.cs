@@ -237,7 +237,7 @@ namespace CallOfTheWild
                                                                 );
                 ability.SetName("Elemental Form (Huge Earth Elemental)");
                 true_spirit_ability = Common.AbilityToFeature(ability, false);
-                true_spirit_ability.SetDescription("As a standard action, the shaman assumes the form of a Huge (or smaller) earth elemental, as elemental body IV with a duration of 1 hour per level. The shaman can use this ability once per day.");
+                true_spirit_ability.SetDescription(Helpers.CreateString(true_spirit_ability.name + "2.Description", "As a standard action, the shaman assumes the form of a Huge (or smaller) earth elemental, as elemental body IV with a duration of 1 hour per level. The shaman can use this ability once per day."));
                 true_spirit_ability.AddComponent(Helpers.CreateAddAbilityResource(resource));
             }
 

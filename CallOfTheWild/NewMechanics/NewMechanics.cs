@@ -3785,5 +3785,38 @@ namespace CallOfTheWild
             protected override string GetConditionCaption() => "Whether the target is damaged";
         }
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SkillStatReplacement : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public StatType ReplacementStat;
+            public StatType Skill;
+            public ModifierDescriptor Descriptor = ModifierDescriptor.UntypedStackable;
+
+            private ModifiableValue.Modifier m_Modifier;
+
+            public override void OnTurnOn()
+            {
+                ModifiableValueSkill owner_skill = this.Owner.Stats.GetStat(Skill) as ModifiableValueSkill;
+                ModifiableValueAttributeStat skill_stat = owner_skill.BaseStat;
+                ModifiableValueAttributeStat replacement_stat = this.Owner.Stats.GetStat(ReplacementStat) as ModifiableValueAttributeStat;
+
+                Main.logger.Log(skill_stat.Bonus.ToString() + " : " + replacement_stat.Bonus.ToString());
+                int bonus = replacement_stat.Bonus - skill_stat.Bonus;
+                if (bonus <= 0)
+                {
+                    return;
+                }
+                this.m_Modifier = owner_skill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor);
+            }
+
+            public override void OnTurnOff()
+            {
+                if (this.m_Modifier != null)
+                    this.m_Modifier.Remove();
+                this.m_Modifier = (ModifiableValue.Modifier)null;
+            }
+        }
+
     }
 }

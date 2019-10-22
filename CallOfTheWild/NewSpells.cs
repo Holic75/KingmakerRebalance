@@ -22,6 +22,7 @@ using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
@@ -30,6 +31,7 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -2526,6 +2528,115 @@ namespace CallOfTheWild
                 tr.Field("m_SpellsFiltered").SetValue(null).GetValue();
                 return true;
             }
+        }
+
+
+        static public BlueprintAbility[] createWishSpellLevelVariants(string name_prefix, string display_name, string description,  UnityEngine.Sprite icon, BlueprintSpellbook primary_spellbook,
+                                             UnitCommand.CommandType command_type, AbilityType ability_type = AbilityType.Spell, BlueprintComponent[] additional_components = null,
+                                             bool allow_metamagic = true, bool allow_spells_with_material_components = true, 
+                                             bool full_round =  true, int primary_spellbook_level = 8, int secondary_sepllbook_level = 7, BlueprintAbilityResource resource = null)
+        {
+            if (secondary_sepllbook_level > primary_spellbook_level)
+            {
+                throw Main.Error($"primary_spellbook_level < secondary_sepllbook_level");
+            }
+            var spellbooks = library.GetAllBlueprints().OfType<BlueprintSpellbook>();
+            //create spell lsit of all concerned spells and pick their lowest levels
+            Dictionary<string, int> spell_guid_level_map = new Dictionary<string, int>();
+
+            foreach (var spellbook in spellbooks)
+            {
+                int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_sepllbook_level;
+                max_level = Math.Min(max_level, (int)spellbook.SpellList?.SpellsByLevel?.Length - 1);
+                for (int i = 1; i <= max_level; i++)
+                {
+                    foreach (var spell in spellbook.SpellList.SpellsByLevel[i].Spells)
+                    {
+                        if (!spell_guid_level_map.ContainsKey(spell.AssetGuid))
+                        {
+                            spell_guid_level_map.Add(spell.AssetGuid, i);
+                        }
+                        else if (spell_guid_level_map[spell.AssetGuid] > i)
+                        {
+                            spell_guid_level_map[spell.AssetGuid] = i;
+                        }
+                    }
+                }
+            }
+
+
+            List<BlueprintAbility>[] spells_per_level = new List<BlueprintAbility>[primary_spellbook_level];
+            for (int i = 0; i < spells_per_level.Length; i++)
+            {
+                spells_per_level[i] = new List<BlueprintAbility>();
+            }
+            List<BlueprintAbility> wish_variants = new List<BlueprintAbility>();
+            Main.logger.Log(spell_guid_level_map.Count().ToString());
+            foreach (var entry in spell_guid_level_map)
+            {
+                var spell = library.Get<BlueprintAbility>(entry.Key);
+                if (spell.MaterialComponent.Item == null || allow_spells_with_material_components)
+                {
+                    spells_per_level[entry.Value - 1].Add(library.Get<BlueprintAbility>(entry.Key));
+                }
+            }
+
+            for (int i = 0; i < spells_per_level.Length; i++)
+            {
+                if (spells_per_level[i].Empty())
+                {
+                    continue;
+                }
+
+                var wish_variant = Helpers.CreateAbility(name_prefix + (i + 1).ToString() + "Ability",
+                                                         display_name + $" ({Common.roman_id[i + 1]})",
+                                                         description,
+                                                         "",
+                                                         icon,
+                                                         ability_type,
+                                                         command_type,
+                                                         AbilityRange.Personal,
+                                                         "",
+                                                         "");
+                Helpers.SetField(wish_variant, "m_IsFullRoundAction", full_round);
+                if (resource != null)
+                {
+                    wish_variant.AddComponent(Helpers.CreateResourceLogic(resource));
+                }
+
+                var variant_spells = Common.CreateAbilityVariantsReplace(wish_variant, name_prefix + (i + 1).ToString(),
+                                                                                    s => {
+                                                                                        s.Type = ability_type;
+                                                                                        s.ActionType = command_type;
+                                                                                        if (full_round)
+                                                                                        {
+                                                                                            Helpers.SetField(s, "m_IsFullRoundAction", true);
+                                                                                        }
+                                                                                        if (resource != null)
+                                                                                        {
+                                                                                            s.AddComponent(Helpers.CreateResourceLogic(resource));
+                                                                                        }
+                                                                                        if (additional_components != null)
+                                                                                        {
+                                                                                            s.AddComponents(additional_components);
+                                                                                        }
+                                                                                    },
+                                                                                  spells_per_level[i].ToArray()
+                                                                                  );
+                wish_variant.AddComponent(Helpers.CreateAbilityVariants(wish_variant, variant_spells));
+                wish_variants.Add(wish_variant);
+                if (!allow_metamagic)
+                {
+                    continue;
+                }
+
+                foreach (var s in variant_spells)
+                {
+                    wish_variant.AvailableMetamagic = wish_variant.AvailableMetamagic | s.AvailableMetamagic;
+                }
+            }
+
+            return wish_variants.ToArray();
         }
     }
 }

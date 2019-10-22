@@ -17,6 +17,28 @@ namespace CallOfTheWild.SpellbookMechanics
 
     }
 
+
+    [AllowedOn(typeof(BlueprintSpellbook))]
+    public class CompanionSpellbook : BlueprintComponent
+    {
+        public BlueprintSpellbook spellbook;
+    }
+
+
+    //add automatic update of companion spellbooks
+    [Harmony12.HarmonyPatch(typeof(Spellbook))]
+    [Harmony12.HarmonyPatch("AddCasterLevel", Harmony12.MethodType.Normal)]
+    class Spellbook__AddCasterLevel__Patch
+    {
+        static void Postfix(Spellbook __instance)
+        {
+            foreach (var cs in __instance.Blueprint.GetComponents<CompanionSpellbook>())
+            {
+                __instance.Owner.DemandSpellbook(cs.spellbook).AddCasterLevel();
+            }
+        }
+    }
+
     //fix for spellbooks with fixed number of spells per day iindependent of casting stat
     [Harmony12.HarmonyPatch(typeof(Spellbook))]
     [Harmony12.HarmonyPatch("GetSpellsPerDay", Harmony12.MethodType.Normal)]

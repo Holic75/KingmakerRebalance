@@ -90,7 +90,7 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33"), //Magic Fang
                     library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553"), //barkskin
                     library.Get<BlueprintAbility>("754c478a2aa9bb54d809e648c3f7ac0e"), //dominate animal
-                    library.CopyAndAdd<BlueprintAbility>("56923211d2ac95e43b8ac5031bab74d8", "ShamanNatureSpiritAnimalGrowth", ""), //animal growth
+                    library.Get<BlueprintAbility>("e418c20c8ce362943a8025d82c865c1c"), //cape of wasps
                     library.Get<BlueprintAbility>("6d1d48a939ce475409f06e1b376bc386"), //vinetrap
                     library.Get<BlueprintAbility>("7c5d556b9a5883048bf030e20daebe31"), //stone skin communal
                     library.Get<BlueprintAbility>("b974af13e45639a41a04843ce1c9aa12"), //creeping doom

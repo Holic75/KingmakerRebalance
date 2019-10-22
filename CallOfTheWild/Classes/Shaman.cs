@@ -55,7 +55,7 @@ namespace CallOfTheWild
         static public BlueprintFeature shaman_orisons;
         static public BlueprintFeature shaman_proficiencies;
         static public BlueprintSpellbook spirit_magic_spellbook;
-        static public BlueprintProgression spirit_magic;
+        static public BlueprintFeature spirit_magic;
 
         static public Dictionary<string, Spirit> spirits = new Dictionary<string, Spirit>();
 
@@ -250,7 +250,8 @@ namespace CallOfTheWild
             Helpers.RegisterClass(shaman_class);
             createExtraHexFeat();
 
-           // addToPrestigeClasses()
+            Common.addMTDivineSpellbookProgression(shaman_class, shaman_class.Spellbook, "MysticTheurgeShaman",
+                                                     Common.createPrerequisiteClassSpellLevel(shaman_class, 2));
         }
 
 
@@ -520,6 +521,7 @@ namespace CallOfTheWild
             spirits.Add("Wind", WindSpirit.create());
             spirits.Add("Nature", NatureSpirit.create());
             spirits.Add("Life", LifeSpirit.create());
+            spirits.Add("Lore", LoreSpirit.create());
 
 
             foreach (var s in spirits)
@@ -751,8 +753,16 @@ namespace CallOfTheWild
             }
 
             spirit_magic_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.NoSpellsPerDaySacaling>());
+            shaman_class.Spellbook.AddComponent(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = spirit_magic_spellbook));
+            spirit_magic = Helpers.CreateFeature("SpiritMagicFeature",
+                                                 "Spirit Magic",
+                                                 "A shaman can spontaneously cast a limited number of spells per day beyond those she prepared ahead of time. She has one spell slot per day of each shaman spell level she can cast, not including orisons. She can choose these spells from the list of spells granted by her spirits (see the spirit class feature and the wandering spirit class feature) at the time she casts them. She can enhance these spells using any metamagic feat that she knows, using up a higher-level spell slot as required by the feat and increasing the time to cast the spell (see Spontaneous Casting and Metamagic Feats).",
+                                                 "",
+                                                 null,
+                                                 FeatureGroup.None
+                                                 );
 
-            var add_spellbook_level = library.CopyAndAdd<BlueprintFeature>("64bbf0ac60b78f24eb631a9c46e50e21", "SpiritMagicSpellLevelIncrease", "");
+            /*var add_spellbook_level = library.CopyAndAdd<BlueprintFeature>("64bbf0ac60b78f24eb631a9c46e50e21", "SpiritMagicSpellLevelIncrease", "");
             add_spellbook_level.ReplaceComponent<AddSpellbookLevel>(a => a.Spellbook = spirit_magic_spellbook);
             add_spellbook_level.Ranks = 30;
             add_spellbook_level.HideInCharacterSheetAndLevelUp = true;
@@ -772,7 +782,7 @@ namespace CallOfTheWild
             {
                 entries.Add(Helpers.LevelEntry(i, add_spellbook_level));
             }
-            spirit_magic.LevelEntries = entries.ToArray();
+            spirit_magic.LevelEntries = entries.ToArray();*/
         }
     }
 }
