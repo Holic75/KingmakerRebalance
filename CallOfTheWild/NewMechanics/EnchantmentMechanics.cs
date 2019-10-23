@@ -62,6 +62,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Designers.EventConditionActionSystem.ContextData;
 using Kingmaker.View.Equipment;
 using Kingmaker.Items.Slots;
+using Kingmaker.Blueprints.Items.Equipment;
 
 namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 {
@@ -962,7 +963,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             }
 
 
-            if (isSummoned(slot.MaybeWeapon) || isSummoned(previousItem)
+            if (Helpers.isSummoned(slot.MaybeWeapon) || Helpers.isSummoned(previousItem)
                  && __instance.InCombat && (__instance.Owner.Descriptor.State.CanAct || __instance.IsDollRoom) && slot.Active)
             {
                 tr.Method("ChangeEquipmentWithoutAnimation").GetValue();
@@ -972,8 +973,33 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             return true;
         }
 
+    }
 
-        static bool isSummoned(ItemEntity item)
+
+    //allow summoned weapons to be equippable without proficiency
+    [Harmony12.HarmonyPatch(typeof(ItemEntityWeapon))]
+    [Harmony12.HarmonyPatch("CanBeEquippedInternal", Harmony12.MethodType.Normal)]
+    class ItemEntityWeapon_CanBeEquippedInternal_Patch
+    {
+        static void Postfix(ItemEntityWeapon __instance, UnitDescriptor owner, ref bool __result)
+        {
+            if (__result)
+            {
+                return;
+            }
+
+            bool? nullable = (__instance.Blueprint as BlueprintItemEquipment)?.CanBeEquippedBy(owner);
+            if (nullable.HasValue && nullable.Value)
+            {
+                __result = Helpers.isSummoned(__instance);
+            }
+        }
+
+    }
+
+    static public class Helpers
+    {
+        static public bool isSummoned(ItemEntity item)
         {
             if (item?.EnchantmentsCollection == null)
             {
@@ -983,6 +1009,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             return item.EnchantmentsCollection.HasFact(WeaponEnchantments.summoned_weapon_enchant);
         }
     }
+
 
 
 }

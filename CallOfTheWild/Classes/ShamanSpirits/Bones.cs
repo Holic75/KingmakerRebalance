@@ -357,7 +357,7 @@ namespace CallOfTheWild
                                                                    );
                 power_word_kill.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
                 var resource = Helpers.CreateAbilityResource("ShamanBonesManifestationResource", "", "", "", null);
-                resource.SetIncreasedByLevel(0, 1, getShamanArray());
+                resource.SetFixedResource(1);
                 power_word_kill.AddComponent(Helpers.CreateResourceLogic(resource));
 
                 manifestation = Helpers.CreateFeature("ShamanBonesManifestationFeature",

@@ -155,6 +155,7 @@ namespace CallOfTheWild
 
         internal static void allowToUseArmorInWildshape()
         {
+            Main.logger.Log("Enabling Wild Armor.");
             first_wildshape_form.AddComponent(Helpers.CreateAddFact(wild_armor_feature));
         }
 
@@ -1180,6 +1181,74 @@ namespace CallOfTheWild
             ability.ReplaceComponent<AbilityEffectRunAction>(action);
 
             return ability;
+        }
+
+
+        static public void allowElementalsToCast()
+        {
+            Main.logger.Log("Enabling casting in elemntal shape.");
+            var  spellIds = new string[] {
+                "690c90a82bf2e58449c6b541cb8ea004", // elemental body i, ii, iii, iv
+                "6d437be73b459594ab103acdcae5b9e2",
+                "459e6d5aab080a14499e13b407eb3b85",
+                "376db0590f3ca4945a8b6dc16ed14975"
+            };
+            foreach (var spellId in spellIds)
+            {
+                var baseSpell = library.Get<BlueprintAbility>(spellId);
+                foreach (var spell in baseSpell.Variants)
+                {
+                    var buff = spell.GetComponent<AbilityEffectRunAction>().Actions.Actions
+                            .OfType<ContextActionApplyBuff>().First().Buff;
+                    buff.AddComponent(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell.CreateAddMechanics());
+                }
+            }
+
+            var forms_ids = new string[]
+            {
+                //transmuter air
+                "3689b69a30d6d7c48b90e28228fb7b7c",
+                "2b2060036a20108448299f3ee2b14015",
+
+                //transmuter fire
+                "51107ed2162aa8542834362c3a10c74c",
+                "8c026422d0be0684fa2ba0986fa901db",
+
+                //transmuter earth
+                "073918bcdc83a82418af6816d719ca7c",
+                "66906f2ff64be8e4eb8f87b04501b7c4",
+
+                //transmuter water
+                "a543c3c5e909af8479044c34d0f3f33b",
+                "872961d85b9cd9444b57560aeeb6e383",
+                //druid
+                //air
+                "eb52d24d6f60fc742b32fe943b919180",
+                "814bc75e74f969641bf110addf076ff9",
+                "65fdf187fea97c94b9cf4ff6746901a6",
+                "dc1ef6f6d52b9fd49bc0696ab1a4f18b",
+                //earth
+                "f0826c3794c158c4cbbe9ceb4210d6d6",
+                "bf145574939845d43b68e3f4335986b4",
+                "e76500bc1f1f269499bf027a5aeb1471",
+                "add5378a75feeaf4384766da10ddc40d",
+                //fire
+                "e85abd773dbce30498efa8da745d7ca7",
+                "7f30b0f7f3c4b6748a2819611fb236f8",
+                "3e3f33fb3e581ab4e8923a5eabd15923",
+                "9e6b7b058bc74fc45903679adcab8553",
+                //water
+                "ea2cd08bdf2ca1c4f8a8870804790cd7",
+                "5993b78c793667e45bf0380e9275fab7",
+                "c5925e7b9e7fc2e478526b4cfc8c6427",
+                "9c58cfcad11f7fd4cb85e22187fddac7"
+            };
+
+            foreach (var form_id in forms_ids)
+            {
+                var buff = library.Get<BlueprintBuff>(form_id);
+                buff.AddComponent(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell.CreateAddMechanics());
+            }
         }
     }
 }

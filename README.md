@@ -8,6 +8,7 @@ It introduces new classes:
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
+- Shaman.
 - Hinterlander and Holy Vindicator prestige classes,
 - Vindictive Bastard Paladin Archetype (implemented as a separate class).
 
@@ -105,13 +106,15 @@ New spells:
 - Aura of Doom,
 - Explosion of Rot,
 - Fire Shield,
+- River of Wind,
 - Virtuoso Performance,
 - Contingency,
 - Poison Breath,
 - Plant Shape I, II and III,
 - Giant Form I and II,
 - Blood Mist,
-- Shapechange.  
+- Shapechange,
+- Winds of Vengeance.  
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  
@@ -137,7 +140,8 @@ enchanced attacks (optional),
 - all flying creatures are immune to difficult terrain and ground based buff effects,
 - flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties (optional),
 - medium range for spells was increased to 60 ft, long range to 100 ft,
-- weapon swap consumes move action instead of standard.
+- weapon swap consumes move action instead of standard,
+- spell casting is not forbidden while in elemental form (optional).
 
 
 Original game bug fixes:

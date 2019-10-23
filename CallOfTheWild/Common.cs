@@ -1983,13 +1983,9 @@ namespace CallOfTheWild
 
             foreach (var v in clear_variants)
             {
-                var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
-                var variants_comp = processed_spell.GetComponent<AbilityVariants>();
+                
+                var variants_comp = v.GetComponent<AbilityVariants>();
 
-                if (action != null)
-                {
-                    action(processed_spell);
-                }
                 if (variants_comp != null)
                 {
                     var variant_spells = CreateAbilityVariantsReplace(parent, prefix, action, variants_comp.Variants);
@@ -1997,6 +1993,11 @@ namespace CallOfTheWild
                 }
                 else
                 {
+                    var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
+                    if (action != null)
+                    {
+                        action(processed_spell);
+                    }
                     processed_spell.Parent = parent;
                     processed_spell.RemoveComponents<SpellListComponent>();
                     processed_spells.Add(processed_spell);

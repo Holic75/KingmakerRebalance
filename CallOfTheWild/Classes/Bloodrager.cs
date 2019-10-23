@@ -408,7 +408,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
-                new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampiric touch
+                new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampiric touch
 
                 new Common.SpellId( "5d4028eb28a106d4691ed1b92bbb1915", 4), //beast shape 2
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 4), //bestow curse
@@ -1519,7 +1519,7 @@ namespace CallOfTheWild
 
                 var ray_of_enfeeblement = library.Get<BlueprintAbility>("450af0402422b0b4980d9c2175869612");
                 var false_life = library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762");
-                var vampiric_touch = library.Get<BlueprintAbility>("6cbb040023868574b992677885390f92");
+                var vampiric_touch = library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1");
                 var enervation = library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f");
 
                 var endurance = library.Get<BlueprintFeature>("54ee847996c25cd4ba8773d7b8555174");

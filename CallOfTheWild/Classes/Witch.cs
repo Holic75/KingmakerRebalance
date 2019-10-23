@@ -901,7 +901,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 3), //spit venom
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
-                new Common.SpellId( "6cbb040023868574b992677885390f92", 3), //vampyric touch
+                new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
 
                 new Common.SpellId( "e418c20c8ce362943a8025d82c865c1c", 4), //cape of vasps
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion

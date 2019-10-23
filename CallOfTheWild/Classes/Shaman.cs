@@ -137,7 +137,7 @@ namespace CallOfTheWild
                                                  Helpers.LevelEntry(20, manifestation)
                                                };
 
-                var wandering_entries = new LevelEntry[] { Helpers.LevelEntry(4, spirit_ability[1], spirit_magic_spells),
+                var wandering_entries = new LevelEntry[] { Helpers.LevelEntry(4, spirit_ability[1]),
                                                  Helpers.LevelEntry(12, greater_spirit_ability[1]),
                                                  Helpers.LevelEntry(20, true_spirit_ability[1])
                                                };
@@ -147,7 +147,9 @@ namespace CallOfTheWild
                                                         description + $"\n{spells_description}",
                                                         "",
                                                         icon,
-                                                        FeatureGroup.None);
+                                                        FeatureGroup.None,
+                                                        Common.createAddFeatureIfHasFact(spirit_magic, spirit_magic_spells)
+                                                        );
                 progression.LevelEntries = entries.ToArray();
                 progression.UIGroups = Helpers.CreateUIGroups(spirit_ability[0], greater_spirit_ability[0], true_spirit_ability[0], manifestation);
 
@@ -158,7 +160,8 @@ namespace CallOfTheWild
                                                                 "",
                                                                 icon,
                                                                 FeatureGroup.None,
-                                                                Helpers.PrerequisiteNoFeature(progression));
+                                                                Helpers.PrerequisiteNoFeature(progression),
+                                                                Helpers.CreateAddFact(spirit_magic_spells));
                 wandering_progression.LevelEntries = wandering_entries.ToArray();
                 wandering_progression.UIGroups = Helpers.CreateUIGroups(spirit_ability[1], greater_spirit_ability[1], true_spirit_ability[1]);
 
@@ -534,14 +537,9 @@ namespace CallOfTheWild
                                                     FeatureGroup.None,
                                                     Helpers.Create<LearnSpellList>(l => { l.CharacterClass = shaman_class; l.SpellList = s.Value.spirit_magic_spell_list; })
                                                     );
+                feature.HideInCharacterSheetAndLevelUp = true;
 
-                WavesSpirit.fluid_magic.AddComponent(Helpers.Create<NewMechanics.AddFeatureIfHasFactsFromList>(a =>
-                                                                                                                {
-                                                                                                                    a.CheckedFacts = new BlueprintUnitFact[] { s.Value.progression, s.Value.wandering_progression };
-                                                                                                                    a.Feature = feature;
-                                                                                                                }
-                                                                                                               )
-                                                    );
+                WavesSpirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(s.Value.spirit_magic_spells, feature));
             }
 
 

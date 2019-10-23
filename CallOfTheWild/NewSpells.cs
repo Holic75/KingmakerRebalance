@@ -1421,11 +1421,19 @@ namespace CallOfTheWild
             }
 
 
-            var on_dmg = Helpers.Create<NewMechanics.AddIncomingDamageTriggerOnAttacker>(a => { a.on_self = true; a.min_dmg = 5; a.Actions = Helpers.CreateActionList(conditional); });
+            var on_dmg = Helpers.Create<NewMechanics.AddIncomingDamageTriggerOnAttacker>(a =>
+                                                                                        {
+                                                                                            a.on_self = true;
+                                                                                            a.min_dmg = 5;
+                                                                                            a.consider_damage_type = true;
+                                                                                            a.Actions = Helpers.CreateActionList(conditional);
+                                                                                            a.physical_types = new PhysicalDamageForm[] { PhysicalDamageForm.Piercing, PhysicalDamageForm.Slashing };
+                                                                                        }
+                                                                                        );
 
             var buff = Helpers.CreateBuff("BloodArmorBuff",
                                           "Blood Armor",
-                                          "Your blood becomes as hard as iron upon contact with air. Each time you take at least 5 points of damage, your armor gains a +1 enhancement bonus to your AC. An outfit of regular clothing counts as armor that grants no AC bonus for the purpose of this spell. This enhancement bonus stacks with itself, but not with an existing enhancement bonus, to a maximum enhancement bonus of +5. This spell has no effect while underwater or in environments that lack air.",
+                                          "Your blood becomes as hard as iron upon contact with air. Each time you take at least 5 points of piercing or slashing damage, your armor gains a +1 enhancement bonus to your AC. An outfit of regular clothing counts as armor that grants no AC bonus for the purpose of this spell. This enhancement bonus stacks with itself, but not with an existing enhancement bonus, to a maximum enhancement bonus of +5. This spell has no effect while underwater or in environments that lack air.",
                                           "",
                                           icon,
                                           null,
@@ -2571,7 +2579,6 @@ namespace CallOfTheWild
                 spells_per_level[i] = new List<BlueprintAbility>();
             }
             List<BlueprintAbility> wish_variants = new List<BlueprintAbility>();
-            Main.logger.Log(spell_guid_level_map.Count().ToString());
             foreach (var entry in spell_guid_level_map)
             {
                 var spell = library.Get<BlueprintAbility>(entry.Key);

@@ -28,6 +28,7 @@ namespace CallOfTheWild
             internal bool use_armor_in_wildshape { get; }
             internal bool x3_crit_multiplier_for_flails { get; }
             internal bool swap_weapon_sets_as_move_action { get; }
+            internal bool allow_spellcasting_in_elemental_form { get; }
 
             internal Settings()
             {
@@ -43,6 +44,7 @@ namespace CallOfTheWild
                     use_armor_in_wildshape = (bool)jo["use_armor_in_wildshape"];
                     x3_crit_multiplier_for_flails = (bool)jo["x3_crit_multiplier_for_flails"];
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
+                    allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
                 }
             }
         }
@@ -153,6 +155,10 @@ namespace CallOfTheWild
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                     CallOfTheWild.ChannelEnergyEngine.init();
+                    if (settings.allow_spellcasting_in_elemental_form)
+                    {
+                        CallOfTheWild.Wildshape.allowElementalsToCast();
+                    }
                     CallOfTheWild.Wildshape.load();
                     if (settings.use_armor_in_wildshape)
                     {

@@ -302,12 +302,19 @@ namespace CallOfTheWild
                 var c = library.Get<BlueprintAbility>(c_guid);
                 var new_actions = Common.changeAction<Conditional>(c.GetComponent<AbilityEffectRunAction>().Actions.Actions,
                                                  a =>
-                                                 {
-                                                     var condition = a.ConditionsChecker.Conditions.Length > 0 ? a.ConditionsChecker.Conditions[0] as ContextConditionHasFact : null;
-                                                     if (condition != null && condition.Fact == undead)
+                                                 {    
+                                                     var checker = Helpers.CreateConditionsCheckerOr(a.ConditionsChecker.Conditions);
+                                                     checker.Operation = a.ConditionsChecker.Operation;
+
+                                                     for (int i = 0; i < checker.Conditions.Length; i++)
                                                      {
-                                                         a.ConditionsChecker = Helpers.CreateConditionsCheckerOr(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(e => e.Not = condition.Not));
+                                                         var has_fact = checker.Conditions[i] as ContextConditionHasFact;
+                                                         if (has_fact != null && has_fact.Fact == undead)
+                                                         {
+                                                             checker.Conditions[i] = Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(e => e.Not = has_fact.Not);
+                                                         }
                                                      }
+                                                     a.ConditionsChecker = checker;
                                                  }
                                                  );
                 c.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));

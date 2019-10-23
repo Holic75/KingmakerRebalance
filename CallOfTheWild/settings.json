@@ -5,5 +5,6 @@
     "sacred_huntsmaster_animal_focus": true,
     "use_armor_in_wildshape": true,
     "x3_crit_multiplier_for_flails": true,
-    "swap_weapon_sets_as_move_action":  true
+    "swap_weapon_sets_as_move_action": true,
+    "allow_spellcasting_in_elemental_form":  true
 }
