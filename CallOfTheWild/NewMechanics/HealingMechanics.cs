@@ -195,7 +195,7 @@ namespace CallOfTheWild.HealingMechanics
 
     [Harmony12.HarmonyPatch(typeof(ContextActionHealTarget))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
-    [Harmony12.HarmonyPriority(100)]
+    [Harmony12.HarmonyPriority(Harmony12.Priority.Last)]
     class Patch_ContextActionHealTarget_RunAction_Prefix
     {
         static public bool Prefix(ContextActionHealTarget __instance)

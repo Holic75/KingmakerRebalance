@@ -71,13 +71,13 @@ namespace CallOfTheWild
                 {
                     library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140"), //remove sickness
                     library.Get<BlueprintAbility>("e84fc922ccf952943b5240293669b171"), //lesser restoration
-                    library.CopyAndAdd<BlueprintAbility>("e7240516af4241b42b2cd819929ea9da", "ShamanLifeSpiritNeutralizePoison", ""), //neutralzie poison
+                    SpellDuplicates.addDuplicateSpell("e7240516af4241b42b2cd819929ea9da", "ShamanLifeSpiritNeutralizePoison", ""), //neutralzie poison
                     library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830"), //restoration
                     library.Get<BlueprintAbility>("d5847cad0b0e54c4d82d6c59a3cda6b0"), //breath of life
-                    library.CopyAndAdd<BlueprintAbility>("5da172c4c89f9eb4cbb614f3a67357d3", "ShamanLifeSpiritHeal", ""), //heal
+                    SpellDuplicates.addDuplicateSpell("5da172c4c89f9eb4cbb614f3a67357d3", "ShamanLifeSpiritHeal", ""), //heal
                     library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //greater restoration
-                    library.CopyAndAdd<BlueprintAbility>("867524328b54f25488d371214eea0d90", "shamanLifeSpiritMassHeal", ""), //mass heal
-                    library.CopyAndAdd<BlueprintAbility>("80a1a388ee938aa4e90d427ce9a7a3e9", "shamanLifeSpiritResurrection", ""), //resurrection
+                    SpellDuplicates.addDuplicateSpell("867524328b54f25488d371214eea0d90", "shamanLifeSpiritMassHeal", ""), //mass heal
+                    SpellDuplicates.addDuplicateSpell("80a1a388ee938aa4e90d427ce9a7a3e9", "shamanLifeSpiritResurrection", ""), //resurrection
                 };
 
                 curse_of_suffereing = BattleSpirit.curse_of_suffering_hex;

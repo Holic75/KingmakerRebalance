@@ -672,7 +672,7 @@ namespace CallOfTheWild
                                          "be2062d6d85f4634ea4f26e9e858c3b8", //cleanse
                                          "788d72e7713cf90418ee1f38449416dc", //inspiring recovery
                                          "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
-                                         library.CopyAndAdd<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449", "WitchHealingPatronCureCriticalWoundsMassAbility", "").AssetGuid, 
+                                         SpellDuplicates.addDuplicateSpell("1f173a16120359e41a20fc75bb53d449", "WitchHealingPatronCureCriticalWoundsMassAbility", "").AssetGuid, 
                                          //cure critical wounds mass
                                          "867524328b54f25488d371214eea0d90" // heal mass
                                          ),
@@ -737,7 +737,7 @@ namespace CallOfTheWild
                                          "d219494150ac1f24f9ce14a3d4f66d26", //feather step mass
                                          "a5e23522eda32dc45801e32c05dc9f96", //good hope
                                          "3fce8e988a51a2a4ea366324d6153001", //constricting coils
-                                         library.CopyAndAdd<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58", "WitchSpringPatronChainLightningAbility", "").AssetGuid, //chain lightning
+                                         SpellDuplicates.addDuplicateSpell("645558d63604747428d55f0dd3a4cb58", "WitchSpringPatronChainLightningAbility", "").AssetGuid, //chain lightning
                                          "26be70c4664d07446bdfe83504c1d757", //change staff
                                          "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
                                          "d8144161e352ca846a73cf90e85bf9ac" //tsunami
@@ -778,9 +778,9 @@ namespace CallOfTheWild
                 createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
                                          "9f10909f0be1f5141bf1c102041f93d9", //snowball
                                          "c83447189aabc72489164dfc246f3a36", //frigid touch
-                                         library.CopyAndAdd<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9", "WitchWinterPatronIceStormAbility", "").AssetGuid, //ice storm
+                                         SpellDuplicates.addDuplicateSpell("fcb028205a71ee64d98175ff39a0abf9", "WitchWinterPatronIceStormAbility", "").AssetGuid, //ice storm
                                          "65e8d23aef5e7784dbeb27b1fca40931", //icy prison
-                                         library.CopyAndAdd<BlueprintAbility>("e7c530f8137630f4d9d7ee1aa7b1edc0", "WinterPatronConeOfColdABility","").AssetGuid, //cone of cold
+                                         SpellDuplicates.addDuplicateSpell("e7c530f8137630f4d9d7ee1aa7b1edc0", "WinterPatronConeOfColdABility","").AssetGuid, //cone of cold
                                          "5ef85d426783a5347b420546f91a677b", //cold ice strike
                                          "3e4d3b9a5bd03734d9b053b9067c2f38", //waves of exhaustion
                                          "17696c144a0194c478cbe402b496cb23", //polar ray

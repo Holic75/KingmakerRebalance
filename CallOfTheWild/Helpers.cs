@@ -2363,6 +2363,8 @@ namespace CallOfTheWild
             //add to all parametrized features
             BlueprintFeature[] spell_specializations = Main.library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures;
             spell_specializations = spell_specializations.AddToArray(Main.library.Get<BlueprintParametrizedFeature>("f327a765a4353d04f872482ef3e48c35"), //spell specialization first
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("4a2e8388c2f0dd3478811d9c947bebfb"), //arcane bloodline 
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("c66e61dea38f3d8479a54eabec20ac99"), //arcane bloodline magus
                                                                      Main.library.Get<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("4869109802e135e45af20741f9056fd5"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("e3a9ed781f9093341ac1073f59018e3f"),
@@ -2470,6 +2472,11 @@ namespace CallOfTheWild
             });
             progressionRoot.CharacterClasses = classes.ToArray();
             Helpers.classes.Add(class_to_register);
+        }
+
+        internal static Condition CreateConditionHasFact(object undeadType)
+        {
+            throw new NotImplementedException();
         }
 
         static readonly int[] fullCasterCost = new int[] { 13, 25, 150, 375, 700, 1125, 1650, 2275, 3000, 3825 };

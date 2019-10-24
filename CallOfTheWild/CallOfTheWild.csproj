@@ -124,6 +124,8 @@
   <ItemGroup>
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
+    <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
+    <Compile Include="Classes\Mysteries\Time.cs" />
     <Compile Include="Classes\Shaman.cs" />
     <Compile Include="Classes\ShamanSpirits\Battle.cs" />
     <Compile Include="Classes\ShamanSpirits\Bones.cs" />
@@ -156,6 +158,7 @@
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\HealingMechanics.cs" />
+    <Compile Include="NewMechanics\InitiativeMechanics.cs" />
     <Compile Include="NewMechanics\MetamagicMechanics.cs" />
     <Compile Include="NewFeats.cs" />
     <Compile Include="NewMechanics\MonsterLore.cs" />
@@ -166,6 +169,7 @@
     <Compile Include="NewMechanics\Sanctuary.cs" />
     <Compile Include="NewMechanics\SharedHandItems.cs" />
     <Compile Include="NewMechanics\SpellbookMechanics.cs" />
+    <Compile Include="NewMechanics\SpellDuplicates.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />
