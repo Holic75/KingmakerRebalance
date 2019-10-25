@@ -841,6 +841,7 @@ namespace CallOfTheWild
                                                                                             s.AddComponent(Helpers.CreateResourceLogic(resource));
                                                                                         }
                                                                                     },
+                                                                                    true,
                                                                                   c.Item1.Spellbook.SpellList.SpellsByLevel[i].Spells.ToArray()
                                                                                   );
 

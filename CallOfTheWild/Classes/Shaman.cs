@@ -222,8 +222,8 @@ namespace CallOfTheWild
             shaman_class.SkillPoints = druid_class.SkillPoints;
             shaman_class.HitDie = DiceType.D8;
             shaman_class.BaseAttackBonus = druid_class.BaseAttackBonus;
-            shaman_class.FortitudeSave = druid_class.FortitudeSave;
-            shaman_class.ReflexSave = druid_class.FortitudeSave;
+            shaman_class.FortitudeSave = druid_class.ReflexSave;
+            shaman_class.ReflexSave = druid_class.ReflexSave;
             shaman_class.WillSave = druid_class.WillSave;
             shaman_class.Spellbook = createShamanSpellbook();
             shaman_class.ClassSkills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillPersuasion};

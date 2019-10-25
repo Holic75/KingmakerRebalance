@@ -124,6 +124,7 @@
   <ItemGroup>
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
+    <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
     <Compile Include="Classes\Mysteries\Time.cs" />
     <Compile Include="Classes\Shaman.cs" />

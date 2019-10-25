@@ -3818,5 +3818,44 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class CasterLevelCheckBonus : RuleInitiatorLogicComponent<RuleSpellResistanceCheck>, IInitiatorRulebookHandler<RuleDispelMagic>
+        {
+            public ContextValue Value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public void OnEventAboutToTrigger(RuleDispelMagic evt)
+            {
+                int num = this.Value.Calculate(this.Context);
+                evt.Bonus += num;
+            }
+
+            public override void OnEventAboutToTrigger(RuleSpellResistanceCheck evt)
+            {
+                int num = this.Value.Calculate(this.Context);
+                evt.AdditionalSpellPenetration += num;
+            }
+
+            public void OnEventDidTrigger(RuleDispelMagic evt)
+            {
+            }
+
+            public override void OnEventDidTrigger(RuleSpellResistanceCheck evt)
+            {
+
+            }
+        }
+
     }
 }

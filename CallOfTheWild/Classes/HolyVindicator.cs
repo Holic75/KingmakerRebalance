@@ -312,12 +312,12 @@ namespace CallOfTheWild
                                                     );
                 buffs.Add(saves_buff);
                 var spell_penetration_buff = Helpers.CreateBuff(bonus_descriptor.ToString() + "Stigmata" + "SpellPenetrationBuff",
-                                    $"{bonus_descriptor.ToString()} Stigmata: Spell Penetration Bonus",
+                                    $"{bonus_descriptor.ToString()} Stigmata: Caster Level Check Bonus",
                                     buffs[0].Description,
                                     "",
                                     icon,
                                     null,
-                                    Helpers.Create<SpellPenetrationBonus>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                    Helpers.Create<NewMechanics.CasterLevelCheckBonus>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
                                     context_rank_config
                                     );
                 buffs.Add(spell_penetration_buff);

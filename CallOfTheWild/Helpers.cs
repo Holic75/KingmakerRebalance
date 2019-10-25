@@ -235,6 +235,19 @@ namespace CallOfTheWild
             }
         }
 
+
+        public static void RemoveComponents<T>(this BlueprintScriptableObject obj, Predicate<T> predicate) where T : BlueprintComponent
+        {
+            var compnents_to_remove = obj.GetComponents<T>().ToArray();
+            foreach (var c in compnents_to_remove)
+            {
+                if (predicate(c))
+                {
+                    obj.SetComponents(obj.ComponentsArray.RemoveFromArray(c));
+                }
+            }
+        }
+
         public static void AddComponents(this BlueprintScriptableObject obj, IEnumerable<BlueprintComponent> components) => AddComponents(obj, components.ToArray());
 
         public static void AddComponents(this BlueprintScriptableObject obj, params BlueprintComponent[] components)
@@ -2365,6 +2378,7 @@ namespace CallOfTheWild
             spell_specializations = spell_specializations.AddToArray(Main.library.Get<BlueprintParametrizedFeature>("f327a765a4353d04f872482ef3e48c35"), //spell specialization first
                                                                      Main.library.Get<BlueprintParametrizedFeature>("4a2e8388c2f0dd3478811d9c947bebfb"), //arcane bloodline 
                                                                      Main.library.Get<BlueprintParametrizedFeature>("c66e61dea38f3d8479a54eabec20ac99"), //arcane bloodline magus
+                                                                     Main.library.Get<BlueprintParametrizedFeature>("ea0ce0aeef8c9e04eadc1ed766455178"), //feyspeaker bonus spells 
                                                                      Main.library.Get<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("4869109802e135e45af20741f9056fd5"),
                                                                      Main.library.Get<BlueprintParametrizedFeature>("e3a9ed781f9093341ac1073f59018e3f"),

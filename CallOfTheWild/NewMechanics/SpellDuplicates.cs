@@ -26,23 +26,23 @@ namespace CallOfTheWild
             BlueprintAbility new_spell = library.CopyAndAdd<BlueprintAbility>(prototype, name, guid);
             if (!duplicate_spells.ContainsKey(prototype.AssetGuid))
             {
-                duplicate_spells[prototype.AssetGuid] = new BlueprintAbility[] { prototype }.ToList();
+                duplicate_spells.Add(prototype.AssetGuid, new BlueprintAbility[] { prototype }.ToList());
             }
             var list = duplicate_spells[prototype.AssetGuid];
             list.Add(new_spell);
 
-            for (int i = 1; i < list.Count; i++)
+            for (int i = 1; i < list.Count - 1; i++)
             {
                 duplicate_spells[list[i].AssetGuid].Add(new_spell);
             }
-            
+
             var new_list = new List<BlueprintAbility>();
             new_list.Add(new_spell);
             for (int i = 0; i < list.Count - 1; i++)
             {
                 new_list.Add(list[i]);
             }
-            duplicate_spells[new_spell.AssetGuid].AddRange(list.Take(list.Count - 1));
+            duplicate_spells.Add(new_spell.AssetGuid, new_list);
 
             return new_spell;
         }

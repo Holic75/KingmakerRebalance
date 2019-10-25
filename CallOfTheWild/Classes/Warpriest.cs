@@ -1677,6 +1677,7 @@ namespace CallOfTheWild
                                                                                                                       v.RemoveComponents<SpellComponent>();
                                                                                                                       v.AddComponent(dc_replace);
                                                                                                                   },
+                                                                                                                  false,
                                                                                                                   a.Variants));
             var clock_of_dreams_buff = library.Get<BlueprintBuff>("2e4b85213927f0a4ea2198e0f2a6028b");
             var major_buff = Helpers.CreateBuff("WarpriestCharmMajorBlessingBuff",

@@ -2628,6 +2628,7 @@ namespace CallOfTheWild
                                                                                             s.AddComponents(additional_components);
                                                                                         }
                                                                                     },
+                                                                                    ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
                                                                                   spells_per_level[i].ToArray()
                                                                                   );
                 wish_variant.AddComponent(Helpers.CreateAbilityVariants(wish_variant, variant_spells));

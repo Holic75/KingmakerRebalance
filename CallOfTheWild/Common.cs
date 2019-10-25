@@ -1976,7 +1976,8 @@ namespace CallOfTheWild
         }
 
 
-        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action = null, params BlueprintAbility[] variants)
+        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action, bool as_duplicates, 
+                                                                      params BlueprintAbility[] variants)
         {
             var clear_variants = variants.Distinct().ToArray();
             List<BlueprintAbility> processed_spells = new List<BlueprintAbility>();
@@ -1988,12 +1989,20 @@ namespace CallOfTheWild
 
                 if (variants_comp != null)
                 {
-                    var variant_spells = CreateAbilityVariantsReplace(parent, prefix, action, variants_comp.Variants);
+                    var variant_spells = CreateAbilityVariantsReplace(parent, prefix, action, as_duplicates, variants_comp.Variants);
                     processed_spells = processed_spells.Concat(variant_spells).ToList();
                 }
                 else
                 {
-                    var processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
+                    BlueprintAbility processed_spell = null;
+                    if (!as_duplicates)
+                    {
+                        processed_spell = library.CopyAndAdd<BlueprintAbility>(v.AssetGuid, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
+                    }
+                    else
+                    {
+                        processed_spell = SpellDuplicates.addDuplicateSpell(v, prefix + v.name, Helpers.MergeIds(parent.AssetGuid, v.AssetGuid));
+                    }
                     if (action != null)
                     {
                         action(processed_spell);

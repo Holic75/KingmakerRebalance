@@ -4,7 +4,9 @@ using Kingmaker.Enums;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
@@ -175,6 +177,34 @@ namespace CallOfTheWild.CombatManeuverMechanics
                 return;
             };
             caster.Ensure<UnitPartSwallowWhole>().SpitOut(true);
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class CombatManeuverBonus : RuleInitiatorLogicComponent<RuleCalculateCMB>
+    {
+        public ContextValue Value;
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                MechanicsContext context = (this.Fact as Buff)?.Context;
+                if (context != null)
+                    return context;
+                return (this.Fact as Feature)?.Context;
+            }
+        }
+
+        public override void OnEventAboutToTrigger(RuleCalculateCMB evt)
+        {
+            evt.AddBonus(this.Value.Calculate(this.Context), this.Fact);
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateCMB evt)
+        {
         }
     }
 }
