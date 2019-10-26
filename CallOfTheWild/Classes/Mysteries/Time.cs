@@ -115,7 +115,6 @@ namespace CallOfTheWild
             var displacement = library.Get<BlueprintBuff>("00402bae4442a854081264e498e7a833");
 
             var apply_blur = Common.createContextActionApplyBuff(blur, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
-            var apply_dispalcement = Common.createContextActionApplyBuff(displacement, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
 
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
@@ -127,18 +126,28 @@ namespace CallOfTheWild
                                                 AbilityRange.Personal,
                                                 Helpers.oneMinuteDuration,
                                                 "",
-                                                Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.Default),
-                                                                                                                        Helpers.CreateActionList(apply_blur),
-                                                                                                                        Helpers.CreateActionList(apply_dispalcement))
-                                                                        ),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Custom,
-                                                                                classes: classes, customProgression: new (int, int)[] { (6, 1), (20, 2) }),
+                                                Helpers.CreateRunActions(apply_blur),                     
                                                 Helpers.CreateResourceLogic(resource)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
 
+            var ability2 = Helpers.CreateActivatableAbility(name_prefix + "ActivatableAbility",
+                                    display_name + ": Blur",
+                                    description,
+                                    "",
+                                    blur.Icon,
+                                    displacement,
+                                    Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                    CommandType.Standard,
+                                    null,
+                                    Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
+                                    );
+
             var feature = Common.AbilityToFeature(ability, hide: false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
+            var feature2 = Common.ActivatableAbilityToFeature(ability2);
+            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature2, 7, classes));
             foreach (var c in classes)
             {
                 feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 3, any: true));
@@ -206,11 +215,13 @@ namespace CallOfTheWild
             dimension_door.RemoveComponents<SpellComponent>();
             dimension_door.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
             dimension_door.AddComponent(Helpers.CreateResourceLogic(resource, amount: 2));
+            dimension_door.ActionType = CommandType.Move;
             var dimension_door_caster = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", name_prefix + "CasterAbility", "");
             dimension_door_caster.Type = AbilityType.Supernatural;
             dimension_door_caster.RemoveComponents<SpellComponent>();
             dimension_door_caster.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
             dimension_door_caster.AddComponent(Helpers.CreateResourceLogic(resource, amount: 1));
+            dimension_door_caster.ActionType = CommandType.Move;
 
             dimension_door.SetName(display_name + " - Mass");
             var wrapper = Common.createVariantWrapper(name_prefix + "Ability", "", dimension_door_caster, dimension_door);

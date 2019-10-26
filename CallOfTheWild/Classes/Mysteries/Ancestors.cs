@@ -87,12 +87,15 @@ namespace CallOfTheWild
             resource.SetIncreasedByStat(3, StatType.Wisdom);
 
             var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+            var frightened = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
 
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
 
-            var apply_buff = Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.SpeedBonus)), dispellable: false);
+            var apply_shaken = Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.SpeedBonus)), dispellable: false);
+            var apply_frightened = Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.SpeedBonus)), dispellable: false);
 
+            var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(shaken), apply_frightened, apply_shaken);
 
             var ability = Helpers.CreateAbility($"{name_prefix}Ability",
                                                  display_name,
@@ -107,7 +110,7 @@ namespace CallOfTheWild
                                                  Helpers.CreateDeliverTouch(),
                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2, 
                                                                                  AbilityRankType.SpeedBonus, min: 1, classes: classes),
-                                                 Helpers.CreateRunActions(apply_buff),
+                                                 Helpers.CreateRunActions(effect),
                                                  Common.createAbilityTargetHasFact(true, undead),
                                                  Common.createAbilityTargetHasFact(true, construct),
                                                  shaken.GetComponent<SpellDescriptorComponent>()
@@ -276,7 +279,8 @@ namespace CallOfTheWild
                                                  Helpers.CreateAbilityTargetsAround(20.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
 
                                                  Common.createAbilityTargetHasFact(true, undead),
-                                                 Common.createAbilitySpawnFx("bbd6decdae32bce41ae8f06c6c5eb893", anchor: AbilitySpawnFxAnchor.ClickedTarget)
+                                                 Common.createAbilitySpawnFx("bbd6decdae32bce41ae8f06c6c5eb893", anchor: AbilitySpawnFxAnchor.ClickedTarget),
+                                                 Helpers.CreateResourceLogic(resource)
 
                                                 );
             ability.setMiscAbilityParametersRangedDirectional();
@@ -288,7 +292,7 @@ namespace CallOfTheWild
                                              ability.Icon,
                                              FeatureGroup.None,
                                              resource.CreateAddAbilityResource(),
-                                             ability.CreateTouchSpellCast(resource).CreateAddFact()
+                                             Helpers.CreateAddFact(ability)
                                              );
             foreach (var c in classes)
             {

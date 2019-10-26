@@ -150,8 +150,11 @@ namespace CallOfTheWild
                 }
                 foreach (var s in spells)
                 {
-                    var spell = library.Get<BlueprintAbility>(s.guid);
-                    spell.AddToSpellList(spell_list, s.level);
+                    if (!s.guid.Empty())
+                    {
+                        var spell = library.Get<BlueprintAbility>(s.guid);
+                        spell.AddToSpellList(spell_list, s.level);
+                    }
                 }
                 return spell_list;
             }

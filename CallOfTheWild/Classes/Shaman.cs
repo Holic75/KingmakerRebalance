@@ -84,6 +84,20 @@ namespace CallOfTheWild
 
         static public BlueprintFeature extra_hex;
 
+        static public BlueprintArchetype overseer_archetype;
+        static public BlueprintFeature controlling_magic;
+        static public BlueprintSpellList controlling_magic_spell_list;
+
+        static public BlueprintArchetype speaker_for_the_past_archetype;
+        static public MysteryEngine mystery_engine;
+        static public BlueprintFeatureSelection revelation_selection;
+        static public BlueprintFeature mysteries_of_the_past;
+
+
+        static public BlueprintArchetype witch_doctor_archetype;
+        static public BlueprintFeature channel_energy;
+        static public BlueprintFeature counter_curse;
+
 
         public class Spirit
         {
@@ -246,15 +260,297 @@ namespace CallOfTheWild
                                                                                        };
             createShamanProgression();
             shaman_class.Progression = shaman_progression;
-            //createPossessedShaman();
-            //createWitchDoctor();
-            //createOverseer();
-            shaman_class.Archetypes = new BlueprintArchetype[] {};
+            createSpeakerForThePast();
+            createWitchDoctor();
+            createOverseer();
+            shaman_class.Archetypes = new BlueprintArchetype[] {speaker_for_the_past_archetype, overseer_archetype, witch_doctor_archetype };
             Helpers.RegisterClass(shaman_class);
             createExtraHexFeat();
 
             Common.addMTDivineSpellbookProgression(shaman_class, shaman_class.Spellbook, "MysticTheurgeShaman",
                                                      Common.createPrerequisiteClassSpellLevel(shaman_class, 2));
+        }
+
+
+        static void createWitchDoctor()
+        {
+            createWitchDoctorChannel();
+            createCounterCurse();
+
+            witch_doctor_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "WitchDoctorArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Witch Doctor");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The witch doctor is a healer who specializes in afflictions of the soul. Often misunderstood, she protects her tribe with healing powers, powerful defensive magic, and her own divine “witchcraft.”");
+            });
+            Helpers.SetField(witch_doctor_archetype, "m_ParentClass", shaman_class);
+            library.AddAsset(witch_doctor_archetype, "");
+            witch_doctor_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(4, hex_selection),
+                                                                              Helpers.LevelEntry(8, hex_selection),
+                                                                              Helpers.LevelEntry(10, hex_selection),
+                                                                              Helpers.LevelEntry(12, hex_selection),
+                                                                             };
+
+            witch_doctor_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(4, channel_energy),
+                                                                   Helpers.LevelEntry(8, counter_curse)
+                                                                  };
+
+            shaman_progression.UIGroups = shaman_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(channel_energy, counter_curse));
+        }
+
+
+        static void createWitchDoctorChannel()
+        {
+            var resource = Helpers.CreateAbilityResource("WitchDoctorChannelResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                                  type: AbilityRankType.Default, classes: getShamanArray(), startLevel: 4, stepLevel: 2);
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getShamanArray(), StatType.Charisma);
+            channel_energy = Helpers.CreateFeature("ShamanWitchDoctorChannelPositiveEnergyFeature",
+                                                   "Channel Positive Energy",
+                                                   "At 4th level, the witch doctor can draw transcendental energies to her location, flooding it with positive energy as the cleric class feature. The witch doctor uses her shaman level – 3 as her effective cleric level, and can channel energy a number of times per day equal to 3 + her Charisma modifier. This is a separate pool of channel energy that does not stack with the life spirit’s channel spirit ability.",
+                                                   "",
+                                                   positive_energy_feature.Icon,
+                                                   FeatureGroup.None);
+
+            var heal_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
+                                                                      "ShamanWitchDoctorChannelEnergyHealLiving",
+                                                                      "",
+                                                                      "Channeling positive energy causes a burst that heals all living creatures in a 30 - foot radius centered on the shaman. The amount of damage healed is equal to 1d6 plus 1d6 for every two shaman levels beyond fourth.",
+                                                                      "",
+                                                                      context_rank_config,
+                                                                      dc_scaling,
+                                                                      Helpers.CreateResourceLogic(resource));
+            var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                                          "ShamanWitchDoctorChannelEnergyHarmUndead",
+                                                          "",
+                                                          "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d6 plus 1d6 for every two shaman levels beyond fourth. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1 / 2 the shaman's level + the shaman's Charisma modifier.",
+                                                          "",
+                                                          context_rank_config,
+                                                          dc_scaling,
+                                                          Helpers.CreateResourceLogic(resource));
+
+            var heal_living_base = Common.createVariantWrapper("ShamanWitchDoctorPositiveHealBase", "", heal_living);
+            var harm_undead_base = Common.createVariantWrapper("ShamanWitchDoctorPositiveHarmBase", "", harm_undead);
+
+            ChannelEnergyEngine.storeChannel(heal_living, channel_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(harm_undead, channel_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+
+            channel_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
+            channel_energy.AddComponent(Helpers.CreateAddAbilityResource(resource));
+            var extra_channel = ChannelEnergyEngine.createExtraChannelFeat(heal_living, channel_energy, "ExtraChannelShamanWitchDoctor", "Extra Channel (Witch Doctor)", "");
+        }
+
+
+        static void createCounterCurse()
+        {
+            var remove_curse = library.Get<BlueprintAbility>("b48674cef2bff5e478a007cf57d8345b");
+            var dispel_magic = library.Get<BlueprintAbility>("143775c49ae6b7446b805d3b2e702298");
+
+            var dispels = new Common.SpellId[7];
+            var removes = new Common.SpellId[7];
+
+            var description = "At 8th level, the witch doctor can choose to lose any prepared spirit magic spell that is 3rd level or higher in order to spontaneously cast dispel magic or remove curse.This ability can only target a spell effect that is on an ally(including herself).If she forfeits a spirit magic spell higher than 3rd level, she gains a +2 sacred bonus on her caster level check to dispel the spell or to remove the curse for every spell level higher than 3rd that she sacrifices.";
+
+
+            for (int i = 0; i < dispels.Length; i++)
+            {
+                var buff = Helpers.CreateBuff($"CounterCurse{i + 1}Buff",
+                                              "",
+                                              "",
+                                              "",
+                                              null,
+                                              null,
+                                              Helpers.Create<DispelCasterLevelCheckBonus>(d => d.Value = i * 2)
+                                              );
+                buff.SetBuffFlags(BuffFlags.HiddenInUi);
+                var apply_buff =  Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false));
+                var remove_buff = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff));
+                var dispel = library.CopyAndAdd<BlueprintAbility>(dispel_magic, $"CounterCurseDispel{i + 1}Ability", "");
+                dispel.SetName("Counter Curse: Dispel" + (i == 0 ? "" : $" (+{2 * i})"));
+                dispel.SetDescription(description);
+                dispel.Parent = null;
+                dispel.CanTargetEnemies = false;
+                dispel.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new ContextAction[] { apply_buff }.AddToArray(a.Actions.Actions.AddToArray(remove_buff))));
+                dispels[i] = new Common.SpellId(dispel.AssetGuid, 3 + i);
+
+                var remove = library.CopyAndAdd<BlueprintAbility>(remove_curse, $"CounterCurseRemoveCurse{i + 1}Ability", "");
+                remove.RemoveComponents<SpellListComponent>();
+                remove.SetName("Counter Curse: Remove Curse" + (i == 0 ? "" : $" (+{2 * i})"));
+                remove.SetDescription(description);
+                remove.CanTargetEnemies = false;
+                remove.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new ContextAction[] { apply_buff }.AddToArray(a.Actions.Actions.AddToArray(remove_buff))));
+                removes[i] = new Common.SpellId(remove.AssetGuid, 3 + i);
+            }
+
+            var dispel_spell_list = new Common.ExtraSpellList(dispels).createSpellList("CountercurseDispelSpellList", "");
+            var removes_spell_list = new Common.ExtraSpellList(removes).createSpellList("CountercurseRemoveCurseSpellList", "");
+            counter_curse = Helpers.CreateFeature("CounterCurseFeature",
+                                                  "Counter Curse",
+                                                  description,
+                                                  "",
+                                                  dispel_magic.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<NewMechanics.LearnSpellListToSpecifiedSpellbook>(l => {
+                                                                                                                        l.spellbook = spirit_magic_spellbook;
+                                                                                                                        l.SpellList = dispel_spell_list;
+                                                                                                                       }
+                                                                                                                  ),
+                                                  Helpers.Create<NewMechanics.LearnSpellListToSpecifiedSpellbook>(l => {
+                                                                                                                        l.spellbook = spirit_magic_spellbook;
+                                                                                                                        l.SpellList = removes_spell_list;
+                                                                                                                       }
+                                                                                                                  )
+                                                 );
+        }
+
+
+        static void createOverseer()
+        {
+            var spells = new Common.ExtraSpellList("88367310478c10b47903463c5d0152b0", //hypnotism
+                                                   "fd4d9fd7f87575d47aafe2a64a6e2d8d", //hideous laughter
+                                                   SpellDuplicates.addDuplicateSpell("c7104f7526c4c524f91474614054547e", "OverseerHoldPersonAbility").AssetGuid, //hold person
+                                                   "4baf4109145de4345861fe0f2209d903", //crushing despair
+                                                   "444eed6e26f773a40ab6e4d160c67faa", //feeblemind
+                                                   "d316d3d94d20c674db2c24d7de96f6a7", //serenity
+                                                   "261e1788bfc5ac1419eec68b1d485dbc", //power word blind
+                                                   "f958ef62eea5050418fb92dfa944c631", //power word stun
+                                                   "3c17035ec4717674cae2e841a190e757"//domiante monster
+                                                   );
+            controlling_magic_spell_list = spells.createSpellList("ControllingMagicOverseerSpelllist", "");
+            controlling_magic = Helpers.CreateFeature("ControllingMagicFeature",
+                                                      "Controlling Magic",
+                                                      "The overseer adds the following spells to the list of spells she can cast using spirit magic: hypnotism (1st), hideous laughter (2nd), hold person (3rd), crushing despair (4th), feeblemind (5th), serenity (6th), power word blind (7th), power word stun (8th), and dominate monster (9th). This ability replaces the spirit magic spells gained from the shaman’s spirit.",
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<NewMechanics.LearnSpellListToSpecifiedSpellbook>(l => {
+                                                                                                                      l.spellbook = spirit_magic_spellbook;
+                                                                                                                      l.SpellList = controlling_magic_spell_list;
+                                                                                                                     })
+                                                     );
+            var feature = Helpers.CreateFeature("ControllingMagicFluidMagicFeature",
+                                    "",
+                                    "",
+                                    "",
+                                    null,
+                                    FeatureGroup.None,
+                                    Helpers.Create<LearnSpellList>(l => { l.CharacterClass = shaman_class; l.SpellList = controlling_magic_spell_list; })
+                                    );
+            feature.HideInCharacterSheetAndLevelUp = true;
+            WavesSpirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(controlling_magic, feature));
+
+            overseer_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "OverseerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Overseer");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While all shamans use their connection to the spirits of the world to draw upon otherworldly magic powers, some shamans have a tradition in which they use the power of patron spirits to directly control their enemies. Such overseers may assume roles as religious leaders and protectors of their tribes, turning foes into short-term allies for the tribe’s greater good. Other overseers become tyrants who enforce their will upon the weak for personal gain. In combat, an overseer manages the battlefield by debilitating foes using her hexes and specialized spells.");
+            });
+            Helpers.SetField(overseer_archetype, "m_ParentClass", shaman_class);
+            library.AddAsset(overseer_archetype, "");
+            overseer_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, spirit_magic)};
+
+            overseer_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, controlling_magic)};
+        }
+
+        
+        static void createSpeakerForThePast()
+        {
+            mystery_engine = new MysteryEngine(getShamanArray(), StatType.Wisdom);
+
+            var aging_touch = mystery_engine.createAgingTouch("AgingTouchShamanRevelation",
+                                                              "Aging Touch",
+                                                              "Your touch ages living creatures and objects. As a melee touch attack, you can deal 1 point of Strength damage for every two shaman levels you possess to living creatures. Against constructs, you can deal 1d6 points of damage per shaman level. You can use this ability once per day, plus one additional time per day for every five shaman levels you possess.");
+            var blood_of_heroes = mystery_engine.createBloodOfHeroes("BloodOfHeroesShamanRevelation",
+                                                                     "Blood of Heroes",
+                                                                     "As a move action, you can call upon your ancestors to grant you extra bravery in battle. You gain a +1 morale bonus on attack rolls, damage rolls, and Will saves against fear for a number of rounds equal to your Wisdom bonus. At 7th level, this bonus increases to +2, and at 14th level this bonus increases to +3. You can use this ability once per day, plus one additional time per day at 5th level, and every five levels thereafter.");
+            var phantom_touch = mystery_engine.createPhantomTouch("PhantomTouchShamanRevelation",
+                                                                  "Phantom Touch",
+                                                                  "As a standard action, you can perform a melee touch attack that causes a living creature to become shaken. This ability lasts for a number of rounds equal to 1/2 your shaman level (minimum 1 round). You can use this ability a number of times per day equal to 3 + your Wisdom modifier.");
+            var sacred_council = mystery_engine.createSacredCouncil("SacredCouncilShamanRevelation",
+                                                                    "Sacred Council",
+                                                                     "As a move action, you can call upon your ancestors to provide council. This advice grants you a +2 bonus on any one kind of d20 rolls. This effect lasts for 1 round. You can use this ability a number of times per day equal to your Wisdom bonus.");
+            var spirit_of_the_warrior = mystery_engine.createSpiritOfTheWarrior("SpiritOfTheWarriorShamanRevelation",
+                                                                                "Spirit of the Warrior",
+                                                                                "You can summon the spirit of a great warrior ancestor and allow it to possess you, becoming a mighty warrior yourself. You gain a +4 enhancement bonus to Strength, Dexterity, and Constitution, and a +4 natural armor bonus to AC. Your base attack bonus while possessed equals your shaman level (which may give you additional attacks), all weapons you are holding receive keen enchantment. You can use this ability for 1 round for every 2 shaman levels you possess. This duration does not need to be consecutive, but it must be spent in 1-round increments. You must be at least 11th level to select this revelation.");
+            var speed_or_slow_time = mystery_engine.createSpeedOrSlowTime("SpeedOrSlowTimeShamanRevelation",
+                                                                          "Speed or Slow Time",
+                                                                          "As a standard action, you can speed up or slow down time, as either the haste or slow spell. You can use this ability once per day, plus one additional time per day at 12th level and 17th level. You must be at least 7th level before selecting this revelation.");
+            var spirit_shield = hex_engine.createAirBarrier("SpiritShieldShamanRevelation",
+                                                            "Spirit Shield",
+                                                            "You can call upon the spirits of your ancestors to form a shield around you that blocks incoming attacks and grants you a +4 armor bonus. At 7th level, and every four levels thereafter, this bonus increases by +2. At 13th level, this shield causes arrows, rays, and other ranged attacks requiring an attack roll against you to have a 50% miss chance. You can use this shield for 1 hour per day per shaman level. This duration does not need to be consecutive, but it must be spent in 1-hour increments.");
+            var storm_of_souls = mystery_engine.createStormOfSouls("StormOfSoulsShamanRevelation",
+                                                                   "Storm of Souls",
+                                                                   "You can summon the spirits of your ancestors to attack in a ghostly barrage—their fury creates physical wounds on creatures in the area. The storm has a range of 100 feet and is a 20-foot-radius burst. Objects and creatures in the area take 1d8 hit points of damage for every two shaman levels you possess. Undead creatures in the area take 1d8 points of damage for every shaman level you possess. A successful Fortitude save reduces the damage to half. You must be at least 7th level to select this revelation. You can use this ability once per day, plus one additional time per day at 11th level and every four levels thereafter.");
+            var temporal_celerity = mystery_engine.createTemporalCelerity("TemporalCelerityShamanRevelation",
+                                                                      "Temporal Celerity",
+                                                                      "Whenever you roll for initiative, you can roll twice and take either result. At 7th level, you can always act in the surprise round, but if you fail to notice the ambush, you act last, regardless of your initiative result (you act in the normal order in following rounds). At 11th level, you can roll for initiative three times and take any one of the results.");
+            var time_flicker = mystery_engine.createTimeFlicker("TimeFlickerShamanRevelation",
+                                                                "Time Flicker",
+                                                                "As a standard action, you can flicker in and out of time, gaining concealment (as the blur spell). You can use this ability for 1 minute per shaman level that you possess per day. This duration does not need to be consecutive, but it must be spent in 1-minute increments. At 7th level, each time you activate this ability, you can treat it as the displacement spell, though each round spent this way counts as 1 minute of your normal time flicker duration. You must be at least 3rd level to select this revelation.");
+            var time_hop = mystery_engine.createTimeHop("TimeHopShamanRevelation",
+                                                        "Time Hop",
+                                                        "As a move action, you can teleport up to 50 feet per 3 shaman levels, as the dimension door spell. This movement does not provoke attacks of opportunity. You must have line of sight to your destination to use this ability. You can bring other willing creatures with you, but you must expend 2 uses of this ability. You must be at least 7th level before selecting this revelation.");
+            var time_sight = mystery_engine.createTimeSight("TimeSightShamanRevelation",
+                                                        "Time Sight",
+                                                        "You can peer through the mists of time to see things as they truly are, as if using the true seeing spell.\n" +
+                                                        "At 18th level, this functions like foresight. You can use this ability for a number of minutes per day equal to your oracle level, but these minutes do not need to be consecutive. You must be at least 11th level to select this revelation.");
+
+            revelation_selection = Helpers.CreateFeatureSelection("RevelationPastSelection",
+                                                                      "Revelations of the Past",
+                                                                      "At 4th, 6th, 12th, 14th, and 20th levels, the speaker for the past can select a revelation from the ancestor or time mysteries. She uses her shaman level as her oracle level for these revelations, and uses her Wisdom modifier in place of her Charisma modifier for the purposes of the revelation.",
+                                                                      "",
+                                                                      null,
+                                                                      FeatureGroup.None);
+            revelation_selection.AllFeatures = new BlueprintFeature[] {aging_touch, blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior, speed_or_slow_time,
+                                                                       spirit_shield, storm_of_souls, temporal_celerity, time_flicker, time_hop, time_sight};
+
+            var spells = new Common.ExtraSpellList("2c38da66e5a599347ac95b3294acbe00", //true strike
+                                               NewSpells.force_sword.AssetGuid, //force sword,
+                                               "5ab0d42fb68c9e34abae4921822b9d63", //heroism
+                                               "6717dbaef00c0eb4897a1c908a75dfe5", //phantasmal killer
+                                               "90810e5cf53bf854293cbd5ea1066252", //righteous might
+                                               NewSpells.contingency.AssetGuid,
+                                               "4aa7942c3e62a164387a73184bca3fc1", //disintegrate
+                                               "0e67fa8f011662c43934d486acc50253", //predicition of failure
+                                               "43740dab07286fe4aa00a6ee104ce7c1" //heroic invocation
+                                               );
+            mysteries_of_the_past = Helpers.CreateFeature("MysteriesOfThePastSpeakerForThePastFeature",
+                                                          "Mysteries of the past",
+                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Force Sword (2nd), Heroism (3rd), Phantasmal Killer (4th), Righteous Might (5th), Contingency (6th), Disintegrate (7th), Prediction of Failure (8th), Heroic Invocation (9th).",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          spells.createLearnSpellList("MysteriesOfThePastSpellList", "", shaman_class)
+                                                          );
+            speaker_for_the_past_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SpeakerForThePastArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Speaker For The Past");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A speaker for the past is a shaman who specifically serves as the voice for spirits from her people’s history. A speaker for the past is often an advocate of the ancestors of a specific group, the voice of experience, and a powerful resource that allows the past to aid the present.");
+            });
+            Helpers.SetField(speaker_for_the_past_archetype, "m_ParentClass", shaman_class);
+            library.AddAsset(speaker_for_the_past_archetype, "");
+            speaker_for_the_past_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, shaman_familiar),
+                                                                              Helpers.LevelEntry(4, wandering_shaman_spirits),
+                                                                              Helpers.LevelEntry(6, wandering_hex_selection),
+                                                                              Helpers.LevelEntry(14, wandering_hex_selection),
+                                                                             };
+
+            speaker_for_the_past_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, mysteries_of_the_past),
+                                                                           Helpers.LevelEntry(4, revelation_selection),
+                                                                           Helpers.LevelEntry(6, revelation_selection),
+                                                                           Helpers.LevelEntry(12, revelation_selection),
+                                                                           Helpers.LevelEntry(14, revelation_selection),
+                                                                           Helpers.LevelEntry(20, revelation_selection),
+                                                                         };
+
+            shaman_progression.UIGroups = shaman_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(mysteries_of_the_past, revelation_selection, revelation_selection, revelation_selection, revelation_selection, revelation_selection));
+
+            speaker_for_the_past_archetype.ReplaceClassSkills = true;
+            speaker_for_the_past_archetype.ClassSkills = shaman_class.ClassSkills.AddToArray(StatType.SkillKnowledgeWorld, StatType.SkillPerception, StatType.SkillUseMagicDevice);
         }
 
 
@@ -759,28 +1055,6 @@ namespace CallOfTheWild
                                                  null,
                                                  FeatureGroup.None
                                                  );
-
-            /*var add_spellbook_level = library.CopyAndAdd<BlueprintFeature>("64bbf0ac60b78f24eb631a9c46e50e21", "SpiritMagicSpellLevelIncrease", "");
-            add_spellbook_level.ReplaceComponent<AddSpellbookLevel>(a => a.Spellbook = spirit_magic_spellbook);
-            add_spellbook_level.Ranks = 30;
-            add_spellbook_level.HideInCharacterSheetAndLevelUp = true;
-
-            spirit_magic = Helpers.CreateProgression("SpiritMagicProgression",
-                                                     "Spirit Magic",
-                                                     "A shaman can spontaneously cast a limited number of spells per day beyond those she prepared ahead of time. She has one spell slot per day of each shaman spell level she can cast, not including orisons. She can choose these spells from the list of spells granted by her spirits (see the spirit class feature and the wandering spirit class feature) at the time she casts them. She can enhance these spells using any metamagic feat that she knows, using up a higher-level spell slot as required by the feat and increasing the time to cast the spell (see Spontaneous Casting and Metamagic Feats).",
-                                                     "",
-                                                     null,
-                                                     FeatureGroup.None
-                                                     );
-
-            spirit_magic.Classes = getShamanArray();
-
-            var entries = new List<LevelEntry>();
-            for (int i = 1; i <= 20; i++)
-            {
-                entries.Add(Helpers.LevelEntry(i, add_spellbook_level));
-            }
-            spirit_magic.LevelEntries = entries.ToArray();*/
         }
     }
 }
