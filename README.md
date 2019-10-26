@@ -8,7 +8,7 @@ It introduces new classes:
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
-- Shaman.
+- Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Hinterlander and Holy Vindicator prestige classes,
 - Vindictive Bastard Paladin Archetype (implemented as a separate class).
 
@@ -82,7 +82,9 @@ New spells:
 - Obscuring Mist,
 - Produce Flame,
 - Sanctuary,
+- Sense Spirit Magic,
 - Shillelagh,
+- Spirit Call,
 - Blood Armor,
 - Bone Fists,
 - Burst of Radiance,
@@ -100,6 +102,7 @@ New spells:
 - Deadly Juggernaut,
 - Earth Tremor,
 - Flame Arrow,
+- Font of Spirit Magic,
 - Keen Edge,
 - Sheet Lightning,
 - Archon's Trumpet,
@@ -128,7 +131,7 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 In addition mod also makes some changes to existing features to make them closer to pnp:
 - nerfs animal compnions to make them closer to pnp : reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
 enchanced attacks (optional),
-- sets base skill points of every classes to 1/2 of pnp value, since most skills in the game correspond to 2 skills in pnp (optional),
+- sets base skill points of every classes to 1/2 of pnp value, and gives bonus skill points to humans and half-orcs only at even levels, since most skills in the game correspond to 2 skills in pnp (optional),
 - replaces favored enemy for Sacred Huntsmaster with animal focus as per pnp (optional),
 - fixes Magic Vestment spell to work as per pnp rules,  
 - Rangers now should get improvement of their favored terrain bonuses,

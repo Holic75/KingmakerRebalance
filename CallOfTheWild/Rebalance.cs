@@ -146,6 +146,15 @@ namespace CallOfTheWild
                 var current_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>(class_skill.Key);
                 current_class.SkillPoints = class_skill.Value;
             }
+
+
+            var skilled_human = library.Get<BlueprintFeature>("3adf9274a210b164cb68f472dc1e4544");
+            var skilled_half_orc = library.Get<BlueprintFeature>("4e8fe10f42f314e4fa7c7918bcfadbd5");
+            skilled_human.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnEvenLevels>());
+            skilled_human.SetDescription("Humans gain an additional skill rank at every even level.");
+
+            skilled_half_orc.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnEvenLevels>());
+            skilled_half_orc.SetDescription("Half-orcs gain an additional skill rank at every even level.");
         }
 
         internal static void fixCompanions()
@@ -347,6 +356,8 @@ namespace CallOfTheWild
                                                                                    progression: ContextRankProgression.DivStep, startLevel: 4, min:1, stepLevel: 4, max: 5, type: AbilityRankType.StatBonus)
                                                                                   };
             magic_vestement_armor_buff.Stacking = StackingType.Replace;
+
+            library.Get<BlueprintAbility>("956309af83352714aa7ee89fb4ecf201").AddComponent(Helpers.Create<NewMechanics.AbilitTargetHasArmor>());
         }
 
 
@@ -362,6 +373,7 @@ namespace CallOfTheWild
                                                                                    progression: ContextRankProgression.DivStep, startLevel: 4, min:1, stepLevel: 4, max: 5, type: AbilityRankType.StatBonus)
                                                                                   };
             magic_vestement_shield_buff.Stacking = StackingType.Replace;
+            library.Get<BlueprintAbility>("adcda176d1756eb45bd5ec9592073b09").AddComponent(Helpers.Create<NewMechanics.AbilitTargetHasShield>());
         }
 
         internal static BlueprintFeatureSelection dd_feat_subselection;

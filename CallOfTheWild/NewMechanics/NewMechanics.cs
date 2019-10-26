@@ -371,6 +371,48 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilitTargetHasShield : BlueprintComponent, IAbilityTargetChecker
+        {
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                return unit.Body.SecondaryHand.HasShield;
+            }
+
+            public string GetReason()
+            {
+                return "Shield Required";
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilitTargetHasArmor : BlueprintComponent, IAbilityTargetChecker
+        {
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                return unit.Body.Armor.HasArmor;
+            }
+
+            public string GetReason()
+            {
+                return "Armor Required";
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class SavingThrowBonusAgainstSpecificSpells : RuleInitiatorLogicComponent<RuleSavingThrow>
         {
@@ -3854,6 +3896,22 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleSpellResistanceCheck evt)
             {
 
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddSkillPointOnEvenLevels : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpSelectClassHandler, IGlobalSubscriber
+        {
+            public void HandleSelectClass(UnitDescriptor unit, LevelUpState state)
+            {
+                if (this.Owner != unit)
+                    return;
+
+                if ((state.NextLevel % 2) == 0)
+                {
+                    ++state.ExtraSkillPoints;
+                }
             }
         }
 

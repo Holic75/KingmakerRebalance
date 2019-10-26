@@ -1455,6 +1455,7 @@ namespace CallOfTheWild
             blood_armor.RemoveComponents<RecommendationNoFeatFromGroup>();
             blood_armor.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Transmutation);
             blood_armor.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff));
+            blood_armor.AddComponent(Helpers.Create<NewMechanics.AbilitTargetHasArmor>());
 
             blood_armor.AddToSpellList(Helpers.alchemistSpellList, 2);
             blood_armor.AddToSpellList(Helpers.wizardSpellList, 2);
