@@ -2765,13 +2765,14 @@ namespace CallOfTheWild
                 {
                     actions.AddRange(actions_to_add);
                 }
-                else if (actions[i] is Conditional)
+
+                if (actions[i] is Conditional)
                 {
                     actions[i] = actions[i].CreateCopy();
                     (actions[i] as Conditional).IfTrue = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as Conditional).IfTrue.Actions, actions_to_add));
                     (actions[i] as Conditional).IfFalse = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as Conditional).IfFalse.Actions, actions_to_add));
                 }
-                else if (actions[i] is Conditional)
+                else if (actions[i] is ContextActionConditionalSaved)
                 {
                     actions[i] = actions[i].CreateCopy();
                     (actions[i] as ContextActionConditionalSaved).Succeed = Helpers.CreateActionList(addMatchingAction<T>((actions[i] as ContextActionConditionalSaved).Succeed.Actions, actions_to_add));
@@ -2804,13 +2805,14 @@ namespace CallOfTheWild
                     actions[i] = actions[i].CreateCopy();
                     change(actions[i] as T);
                 }
-                else if (actions[i] is Conditional)
+
+                if (actions[i] is Conditional)
                 {
                     actions[i] = actions[i].CreateCopy();
                     (actions[i] as Conditional).IfTrue = Helpers.CreateActionList(changeAction<T>((actions[i] as Conditional).IfTrue.Actions, change));
                     (actions[i] as Conditional).IfFalse = Helpers.CreateActionList(changeAction<T>((actions[i] as Conditional).IfFalse.Actions, change));
                 }
-                else if (actions[i] is Conditional)
+                else if (actions[i] is ContextActionConditionalSaved)
                 {
                     actions[i] = actions[i].CreateCopy();
                     (actions[i] as ContextActionConditionalSaved).Succeed = Helpers.CreateActionList(changeAction<T>((actions[i] as ContextActionConditionalSaved).Succeed.Actions, change));
@@ -3063,6 +3065,18 @@ namespace CallOfTheWild
             o.OnlyForAttacks = self_concealement.OnlyForAttacks;
             o.RangeType = self_concealement.RangeType;
             return o;
+        }
+
+
+        static public BlueprintAbility[] getSpellsFromSpellList(BlueprintSpellList spell_list)
+        {
+            List<BlueprintAbility> list = new List<BlueprintAbility>();
+            foreach (var sl in spell_list.SpellsByLevel)
+            {
+                list.AddRange(sl.Spells);
+            }
+
+            return list.ToArray();
         }
 
 

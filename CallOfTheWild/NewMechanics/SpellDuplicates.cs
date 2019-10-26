@@ -1,8 +1,13 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.Enums;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Mechanics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +63,199 @@ namespace CallOfTheWild
                    || (duplicate_spells.ContainsKey(original.AssetGuid) && duplicate_spells[original.AssetGuid].Contains(duplicate));
         }
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SavingThrowBonusAgainstSpecificSpellsOrDuplicates : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public BlueprintAbility[] Spells;
+            public ModifierDescriptor ModifierDescriptor;
+            public ContextValue Value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                BlueprintAbility sourceAbility = evt.Reason.Context?.SourceAbility;
+
+                int bonus = this.Value.Calculate(this.Context);
+                foreach (var s in Spells)
+                {
+                    if (SpellDuplicates.isDuplicate(s, evt.Reason.Context?.SourceAbility))
+                    {
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                        return;
+                    }
+                }
+
+
+            }
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ConcentrationBonusForSpellsOrDuplicates : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>, IConcentrationBonusProvider
+        {
+            public BlueprintAbility[] Spells;
+            public ContextValue Value;
+
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public int GetStaticConcentrationBonus()
+            {
+                return 0;
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                int bonus = this.Value.Calculate(this.Context);
+                foreach (var s in Spells)
+                {
+                    if (SpellDuplicates.isDuplicate(s, evt.Spell))
+                    {
+                        evt.AddBonusConcentration(bonus);
+                        return;
+                    }
+                }
+
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddCasterLevelForSpellsOrDuplicates : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public BlueprintAbility[] Spells;
+            public ContextValue Value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                int bonus = this.Value.Calculate(this.Context);
+                foreach (var s in Spells)
+                {
+                    if (SpellDuplicates.isDuplicate(s, evt.Spell))
+                    {
+                        evt.AddBonusCasterLevel(bonus);
+                        return;
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SpellPenetrationBonusForSpellsOrDuplicates : RuleInitiatorLogicComponent<RuleSpellResistanceCheck>
+        {
+            public ContextValue Value;
+            public BlueprintAbility[] Spells;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleSpellResistanceCheck evt)
+            {
+                int bonus = this.Value.Calculate(this.Context);
+                foreach (var s in Spells)
+                {
+                    if (SpellDuplicates.isDuplicate(s, evt.Ability))
+                    {
+                        evt.AdditionalSpellPenetration += bonus;
+                        return;
+                    }
+                }
+                
+            }
+
+            public override void OnEventDidTrigger(RuleSpellResistanceCheck evt)
+            {
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseDCForSpellsOrDuplicates : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public BlueprintAbility[] Spells;
+            public ContextValue Value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                int bonus = this.Value.Calculate(this.Context);
+                foreach (var s in Spells)
+                {
+                    if (SpellDuplicates.isDuplicate(s, evt.Spell))
+                    {
+                        evt.AddBonusDC(bonus);
+                        return;
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
     }
 
 
@@ -77,6 +275,10 @@ namespace CallOfTheWild
             return false;
         }
     }
+
+
+
+
 
 
 

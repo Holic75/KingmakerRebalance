@@ -9,6 +9,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -23,6 +24,7 @@ using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
@@ -97,6 +99,11 @@ namespace CallOfTheWild
         static public BlueprintArchetype witch_doctor_archetype;
         static public BlueprintFeature channel_energy;
         static public BlueprintFeature counter_curse;
+
+
+        static public BlueprintAbility sense_spirit_magic; //+2 circumstance saves against spells from spirit/wandering spirit spell list for 24h hours
+        static public BlueprintAbility spirit_call; //+4 concentration checks and +1 cl for spells from primary spirit or druid domain 1minute/level for everyone around shaman
+        static public BlueprintAbility font_of_spirit_magic; //+2 spell penetartion and dc of spells from spirit/wandering spirit to all allies for 1 round/level (for diamond dust)
 
 
         public class Spirit
@@ -269,6 +276,225 @@ namespace CallOfTheWild
 
             Common.addMTDivineSpellbookProgression(shaman_class, shaman_class.Spellbook, "MysticTheurgeShaman",
                                                      Common.createPrerequisiteClassSpellLevel(shaman_class, 2));
+
+            createSenseSpiritMagic();
+            createSpiritCall();
+            createFontOfSpiritMagic();
+        }
+
+
+        static void createSenseSpiritMagic()
+        {
+            var icon = library.Get<BlueprintAbility>("b3da3fbee6a751d4197e446c7e852bcb").Icon; //true seeing
+            List<GameAction> actions = new List<GameAction>();
+            var description = "You gain greater sensitivity to magic associated with your primary spirit and wandering spirits (any spells on the spirit magic spell lists for these spirits, as well as spell-like abilities that duplicate the effects of those spells). You gain a +2 circumstance bonus on saving throws to resist the effects of such spells.";
+            foreach (var s in spirits)
+            {
+                var buff = Helpers.CreateBuff("SenseSpiritMagic" + s.Key + "Buff",
+                                              "Sense Spirit Magic " + $"({s.Value.spirit_magic_spells.Name})",
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<SpellDuplicates.SavingThrowBonusAgainstSpecificSpellsOrDuplicates>(b =>
+                                                                                                                                 {
+                                                                                                                                     b.Value = 2;
+                                                                                                                                     b.ModifierDescriptor = ModifierDescriptor.Circumstance;
+                                                                                                                                     b.Spells = Common.getSpellsFromSpellList(s.Value.spirit_magic_spell_list);
+                                                                                                                                 }
+                                                                                                                                )
+                                             );
+                var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionCasterHasFact(s.Value.progression), Common.createContextConditionCasterHasFact(s.Value.wandering_progression)),
+                                                       Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Days))
+                                                      );
+                actions.Add(action);
+            }
+
+            var ability = Helpers.CreateAbility("SenseSpiritMagicAbility", 
+                                                "Sense Spirit Magic",
+                                                description,
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "24 hours",
+                                                "",
+                                                Helpers.CreateRunActions(actions.ToArray()),
+                                                Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                Helpers.CreateSpellComponent(SpellSchool.Divination)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
+            ability.AddToSpellList(shaman_class.Spellbook.SpellList, 1);
+            ability.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531");
+        }
+
+
+        static void createSpiritCall()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritCall.png");
+            List<GameAction> actions = new List<GameAction>();
+            var description = "You call out to nature spirits associated with your spirit (not your wandering spirit) if you are a shaman, or your domain if you are a druid, beckoning them forth to pay attention to your current location. For the duration of the spell, all spells from your spirit magic list or domain list that are cast within 60 ft of you have their caster level increased by 1, and all spellcasters casting such spells receive a +4 bonus on their concentration checks for those spells only.";
+
+            List<(BlueprintFeature, BlueprintSpellList)> feature_spell_list_map = new List<(BlueprintFeature, BlueprintSpellList)>();
+
+            foreach (var s in spirits)
+            {
+                feature_spell_list_map.Add((s.Value.progression, s.Value.spirit_magic_spell_list));
+            }
+            var blight_bond = library.Get<BlueprintFeatureSelection>("096fc02f6cc817a43991c4b437e12b8e");
+
+            foreach (var d in blight_bond.AllFeatures)
+            {
+                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent< AddSpecialSpellList>().SpellList));
+            }
+
+            foreach (var fsl in feature_spell_list_map)
+            {
+                var eff_buff = Helpers.CreateBuff("SpiritCall" + fsl.Item1.name + "EffectBuff",
+                                              "Spirit Call " + $"({fsl.Item1.Name})",
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<SpellDuplicates.AddCasterLevelForSpellsOrDuplicates>(b =>
+                                                                                                                  {
+                                                                                                                      b.Value = 1;
+                                                                                                                      b.Spells = Common.getSpellsFromSpellList(fsl.Item2);
+                                                                                                                  }
+                                                                                                                  ),
+                                              Helpers.Create<SpellDuplicates.ConcentrationBonusForSpellsOrDuplicates>(b =>
+                                                                                                                      {
+                                                                                                                          b.Value = 4;
+                                                                                                                          b.Spells = Common.getSpellsFromSpellList(fsl.Item2);
+                                                                                                                      }
+                                                                                                                     )
+                                             );
+
+                var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "SpiritCall" + fsl.Item1.name + "Area", "");
+                area.AggroEnemies = false;
+                area.SpellResistance = false;
+                area.Size = 60.Feet();
+                AbilityAreaEffectBuff area_effect = Helpers.Create<AbilityAreaEffectBuff>(a => { a.Condition = Helpers.CreateConditionsCheckerOr(); a.Buff = eff_buff; });
+                area.ComponentsArray = new BlueprintComponent[] {area_effect};
+
+                var buff = library.CopyAndAdd<BlueprintBuff>(eff_buff.AssetGuid, "SpiritCall" + fsl.Item1.name + "Buff", "");
+                buff.ComponentsArray = new BlueprintComponent[] {Common.createAddAreaEffect(area) };
+                buff.SetName("Spirit Call");
+                var action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(fsl.Item1),
+                                                       Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))
+                                                      );
+                actions.Add(action);
+            }
+
+            var ability = Helpers.CreateAbility("SpiritCallAbility",
+                                    "Spirit Call",
+                                    description,
+                                    "",
+                                    icon,
+                                    AbilityType.Spell,
+                                    CommandType.Standard,
+                                    AbilityRange.Personal,
+                                    Helpers.minutesPerLevelDuration,
+                                    "",
+                                    Helpers.CreateRunActions(actions.ToArray()),
+                                    Common.createAbilitySpawnFx("44295e9774b2864488f4a3790b8b0bcf", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                    Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                    Helpers.CreateContextRankConfig()
+                                    );
+            ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
+            Common.setAsFullRoundAction(ability);
+            ability.setMiscAbilityParametersSelfOnly();
+            ability.AddToSpellList(shaman_class.Spellbook.SpellList, 1);
+            ability.AddToSpellList(Helpers.druidSpellList, 1);
+            ability.AddSpellAndScroll("4e78560ea01fe2541b663c96e87b6057");
+        }
+
+
+        static void createFontOfSpiritMagic()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FontOfSpiritMagic.png");
+            List<GameAction> actions = new List<GameAction>();
+            var description = "You amplify the effect of magic associated with your spirit and wandering spirit (any spells on the spirit magic spell lists for these spirits). When allies within 30 ft around you cast these spells, they gain a +2 bonus on caster level checks and concentration checks, as well as to spell DCs.";
+
+            foreach (var s in spirits)
+            {
+                var eff_buff = Helpers.CreateBuff("FontOfSpiritMagic" + s.Value.progression.name + "EffectBuff",
+                                              "Font of Spirit Magic " + $"({s.Value.progression.Name})",
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<SpellDuplicates.SpellPenetrationBonusForSpellsOrDuplicates>(b =>
+                                                                                                                  {
+                                                                                                                      b.Value = 2;
+                                                                                                                      b.Spells = Common.getSpellsFromSpellList(s.Value.spirit_magic_spell_list);
+                                                                                                                  }
+                                                                                                                  ),
+                                              Helpers.Create<SpellDuplicates.ConcentrationBonusForSpellsOrDuplicates>(b =>
+                                                                                                                      {
+                                                                                                                          b.Value = 2;
+                                                                                                                          b.Spells = Common.getSpellsFromSpellList(s.Value.spirit_magic_spell_list);
+                                                                                                                      }
+                                                                                                                     ),
+                                              Helpers.Create<SpellDuplicates.IncreaseDCForSpellsOrDuplicates>(b =>
+                                                                                                              {
+                                                                                                                  b.Value = 2;
+                                                                                                                  b.Spells = Common.getSpellsFromSpellList(s.Value.spirit_magic_spell_list);
+                                                                                                              }
+                                                                                                             )
+                                             );
+
+                var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "FontOfSpiritMagic" + s.Value.progression.name + "Area", "");
+                area.AggroEnemies = false;
+                area.SpellResistance = false;
+                area.Size = 30.Feet();
+                AbilityAreaEffectBuff area_effect = Helpers.Create<AbilityAreaEffectBuff>(a => { a.Condition = Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsAlly>());
+                                                                                                 a.Buff = eff_buff; });
+                area.ComponentsArray = new BlueprintComponent[] { area_effect };
+
+                var buff = library.CopyAndAdd<BlueprintBuff>(eff_buff.AssetGuid, "FontOfSpiritMagic" + s.Value.progression.name + "Buff", "");
+                buff.ComponentsArray = new BlueprintComponent[] { Common.createAddAreaEffect(area) };
+                buff.SetName("Font of Sprit Magic");
+                buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+                var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionCasterHasFact(s.Value.progression), Common.createContextConditionCasterHasFact(s.Value.wandering_progression)),
+                                                       Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), is_child: true, is_permanent: true, dispellable: false)
+                                                      );
+                actions.Add(action);
+            }
+
+            var primary_buff = Helpers.CreateBuff("FontOfSpiritMagicPrimaryBuff",
+                                                  "Font of Spirit Magic",
+                                                  description,
+                                                  "",
+                                                  icon,
+                                                  null,
+                                                  Helpers.CreateAddFactContextActions(actions.ToArray())
+                                                  );
+            var apply_primary_buff = Common.createContextActionApplyBuff(primary_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds));
+
+            var ability = Helpers.CreateAbility("FontOfSpiritMagicAbility",
+                                    primary_buff.Name,
+                                    description,
+                                    "",
+                                    icon,
+                                    AbilityType.Spell,
+                                    CommandType.Standard,
+                                    AbilityRange.Personal,
+                                    Helpers.roundsPerLevelDuration,
+                                    "",
+                                    Helpers.CreateRunActions(apply_primary_buff),
+                                    Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                    Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                    Helpers.CreateContextRankConfig()
+                                    );
+            ability.MaterialComponent = new BlueprintAbility.MaterialComponentData() { Item = library.Get<BlueprintItem>("92752bbbf04dfa1439af186f48aee0e9"), Count = 1 };
+            ability.setMiscAbilityParametersSelfOnly();
+            ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
+            ability.AddToSpellList(shaman_class.Spellbook.SpellList, 3);
+            ability.AddSpellAndScroll("c5d17bfbbd02f86408cbabe8649a4497");
         }
 
 

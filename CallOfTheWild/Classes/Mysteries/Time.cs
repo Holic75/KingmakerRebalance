@@ -54,7 +54,8 @@ namespace CallOfTheWild
                                                     AbilityRankType.DamageDice, classes: classes),
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2, min: 1, classes: classes), // configure strength damage (1 per two oracle levels).
                                                 Helpers.CreateRunActions(effect),
-                                                Common.createAbilitySpawnFx("9a38d742801be084d89bd34318c600e8", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                Common.createAbilitySpawnFx("9a38d742801be084d89bd34318c600e8", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
                                                 );
             ability.setMiscAbilityParametersTouchHarmful();
 
