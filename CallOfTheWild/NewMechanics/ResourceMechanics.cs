@@ -2,6 +2,7 @@
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using System;
 using System.Collections.Generic;
@@ -14,18 +15,29 @@ namespace CallOfTheWild.ResourceMechanics
     public class ContextRestoreResource : ContextAction
     {
         public BlueprintAbilityResource Resource;
+        public bool full = false;
+        public ContextValue amount = 1;
 
         public override string GetCaption() => "Restore resourse";
 
         public override void RunAction()
         {
-            var caster = Context.MaybeCaster;
-            if (caster == null)
+            var unit = this.Target?.Unit;
+            if (unit == null)
             {
-                UberDebug.LogError("Caster is missing");
+                UberDebug.LogError("Target is missing");
                 return;
             }
-            caster.Descriptor.Resources.Restore(Resource, 1);
+
+            if (!full)
+            {
+                unit.Descriptor.Resources.Restore(Resource, amount.Calculate(this.Context));
+            }
+            else
+            {
+                unit.Descriptor.Resources.Restore(Resource, unit.Descriptor.Resources.GetResourceAmount(Resource));
+            }
+
         }
     }
 
@@ -53,4 +65,5 @@ namespace CallOfTheWild.ResourceMechanics
 
         public string GetReason() => $"{Resource.Name} is not active on any targets.";
     }
+
 }

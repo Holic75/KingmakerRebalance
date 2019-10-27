@@ -74,8 +74,8 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3"), //fireball
                     library.Get<BlueprintAbility>("f72f8f03bf0136c4180cd1d70eb773a5"), //controlled fireball
                     library.Get<BlueprintAbility>("b3a203742191449458d2544b3f442194"), //summon elemental large fire
-                    library.Get<BlueprintAbility>("4814f8645d1d77447a70479c0be51c72"), //summon elemental huge fire
-                    library.Get<BlueprintAbility>("c281eeecc554b72449fef43924e522ce"), //elemental body IV fire
+                    NewSpells.fire_seeds,
+                    SpellDuplicates.addDuplicateSpell("e3d0dfe1c8527934294f241e0ae96a8d", "FireStormShamanFlameSpiritAbility"),
                     library.Get<BlueprintAbility>("e4926aa766a1cc048835237b3a97597d"), //summon elemental elder fire
                     library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39"), //fiery body
                 };

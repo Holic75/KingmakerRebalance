@@ -127,6 +127,7 @@ namespace CallOfTheWild
 
         static internal void load()
         {
+            fixFormOfTheDragonIWeapons();
             createToss();
             createEngulf();
             fixBeastShape1();
@@ -150,6 +151,31 @@ namespace CallOfTheWild
             fixDruid();
             createWildArmor();
             fixTransmuter();
+        }
+
+
+        static void fixFormOfTheDragonIWeapons()
+        {
+            var buff_ids = new string[]
+            {
+                "268fafac0a5b78c42a58bd9c1ae78bcf",
+                "b117bc8b41735924dba3fb23318f39ff",
+                "17d330af03f5b3042a4417ab1d45e484",
+                "1032d4ffb1c56444ca5bfce2c778614d",
+                "a4cc7169fb7e64a4a8f53bdc774341b1",
+                "89669cfba3d9c15448c23b79dd604c41",
+                "02611a12f38bed340920d1d427865917",
+                "294cbb3e1d547f341a5d7ec8500ffa44",
+                "feb2ab7613e563e45bcf9f7ffe4e05c6",
+                "a6acd3ad1e9fa6c45998d43fd5dcd86d",
+            };
+
+
+            foreach (var id in buff_ids)
+            {
+                var buff = library.Get<BlueprintBuff>(id);
+                buff.ReplaceComponent<Polymorph>(p => { p.MainHand = p.AdditionalLimbs[0]; p.OffHand = p.AdditionalLimbs[1]; p.AdditionalLimbs = p.AdditionalLimbs.Skip(2).ToArray(); });
+            }
         }
 
 

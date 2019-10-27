@@ -116,6 +116,7 @@ New spells:
 - River of Wind,
 - Virtuoso Performance,
 - Contingency,
+- Fire Seeds,
 - Poison Breath,
 - Plant Shape I, II and III,
 - Ice Body,
@@ -156,7 +157,8 @@ Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
 - Singing Steel works properly,
 - Archaelogist luck works with Lingering Performance and Singing Steel,
-- Lingering Performance no longer allows to overlap different bardic performances.
+- Lingering Performance no longer allows to overlap different bardic performances,
+- Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training)
 
 
 Mod also changes stats of some npcs (optional)

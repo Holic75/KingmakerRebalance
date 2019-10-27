@@ -933,6 +933,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "571221cc141bc21449ae96b3944652aa", 6), //cure moderate wounds mass              
                 new Common.SpellId( "f0f761b808dc4b149b08eaf44b99f633", 6), //dispel magic greater
                 new Common.SpellId( "2caa607eadda4ab44934c5c9875e01bc", 6), //eagle's splendor mass
+                new Common.SpellId( NewSpells.fire_seeds.AssetGuid, 6),
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 6), //inflict moderate wounds mass
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owl's wisdom mass
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead

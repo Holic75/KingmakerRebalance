@@ -1047,7 +1047,7 @@ namespace CallOfTheWild
                                           "",
                                           clw.Icon,
                                           null,
-                                          Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource),
+                                          Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource)),
                                                                               newRound: new_round_action)
                                          );
 

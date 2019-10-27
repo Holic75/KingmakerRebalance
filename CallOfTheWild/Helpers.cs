@@ -1779,6 +1779,15 @@ namespace CallOfTheWild
             return a;
         }
 
+
+        public static AddAbilityResources CreateAddAbilityResourceNoRestore(this BlueprintAbilityResource resource)
+        {
+            var a = Create<AddAbilityResources>();
+            a.Resource = resource;
+            a.RestoreAmount = false;
+            return a;
+        }
+
         public static AbilityResourceLogic ReplaceResourceLogic(this BlueprintAbility ability, BlueprintAbilityResource resource)
         {
             var original = ability.GetComponent<AbilityResourceLogic>();

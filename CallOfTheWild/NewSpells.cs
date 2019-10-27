@@ -107,6 +107,8 @@ namespace CallOfTheWild
         //static public BlueprintAbility touch_of_blood_letting; - ? to powerful due to ai and a bit complicated to implement
         static public BlueprintAbility ice_body;
 
+        static public BlueprintAbility fire_seeds;
+
         static public void load()
         {
             createShillelagh();
@@ -158,6 +160,106 @@ namespace CallOfTheWild
             createFlashfire();
             createRigorMortis();
             createIceBody();
+
+            createFireSeeds();
+        }
+
+
+        static void createFireSeeds()
+        {
+            var icon = library.Get<BlueprintAbility>("f72f8f03bf0136c4180cd1d70eb773a5").Icon;
+            List<BlueprintAbility> abilities = new List<BlueprintAbility>();
+            var resource = Helpers.CreateAbilityResource("FireSeedsResource", "", "", "", null);
+            resource.SetFixedResource(30);
+
+            var alchemist_bomb = library.Get<BlueprintAbility>("5fa0111ac60ed194db82d3110a9d0352");
+            var description = "Acorns turn into special thrown splash weapons. An acorn grenade has a range of 25 feet. A ranged touch attack roll is required to strike the intended target. Together, the acorns are capable of dealing 1d4 points of fire damage per caster level (maximum 20d4) divided among the acorns as you wish. No acorn can deal more than 10d4 points of damage.\n"
+                              + "Each acorn grenade explodes upon striking any hard surface. In addition to its regular fire damage, all creatures adjacent to the explosion take 1 point of fire damage per die of the explosion.This explosion of fire ignites any combustible materials adjacent to the target.";
+
+            for (int i = 1; i <= 10; i++)
+            {
+                var primary_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D4, i));
+                var secondary_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.Zero, 0, i));
+
+                var conditional = Helpers.CreateConditional(Helpers.Create<ContextConditionIsMainTarget>(), new GameAction[] { primary_damage, secondary_damage }, new GameAction[] { secondary_damage });
+
+                var ability = Helpers.CreateAbility($"FireSeeds{i}Ability",
+                                                    $"Fire Seeds ({i}d4)",
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Special,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Close,
+                                                    "",
+                                                    Helpers.savingThrowNone,
+                                                    Helpers.CreateResourceLogic(resource, amount: i),
+                                                    alchemist_bomb.GetComponent<AbilityDeliverProjectile>(),
+                                                    Helpers.CreateRunActions(conditional),
+                                                    alchemist_bomb.GetComponent<AbilityTargetsAround>(),
+                                                    Helpers.Create<AbilityEffectMiss>(a => { a.MissAction = Helpers.CreateActionList(secondary_damage); a.UseTargetSelector = true; }),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Bomb),
+                                                    Helpers.Create<AbilityCasterNotPolymorphed>()
+                                                    );
+                ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize;
+                ability.setMiscAbilityParametersSingleTargetRangedHarmful(true, animation: Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Thrown);
+                abilities.Add(ability);
+            }
+
+            var wrapper = Common.createVariantWrapper("FireSeedsAbility", "", abilities.ToArray());
+            wrapper.SetName("Fire Seeds");
+
+            var buff = Helpers.CreateBuff("FireSeedsBuff",
+                                          wrapper.Name,
+                                          wrapper.Description,
+                                          "",
+                                          wrapper.Icon,
+                                          null,
+                                          Helpers.CreateAddAbilityResourceNoRestore(resource),
+                                          Helpers.CreateAddFact(wrapper)
+                                          //Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = wrapper)
+                                         );
+            foreach (var a in abilities)
+            {
+                buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = a));
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes));
+
+            fire_seeds = Helpers.CreateAbility("FireSeedsCastAbility",
+                                               buff.Name,
+                                               buff.Description,
+                                               "",
+                                               icon,
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Standard,
+                                               AbilityRange.Touch,
+                                               Helpers.tenMinPerLevelDuration,
+                                               Helpers.savingThrowNone,
+                                               Helpers.CreateRunActions(apply_buff,
+                                                                        Helpers.Create<ResourceMechanics.ContextRestoreResource>(c =>
+                                                                        {
+                                                                            c.amount = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                            c.Resource = resource;
+                                                                        })
+                                                                        ),
+                                               Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                               Helpers.CreateContextRankConfig(),
+                                               Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                               );
+
+            fire_seeds.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            fire_seeds.setMiscAbilityParametersTouchFriendly();
+
+            fire_seeds.AddToSpellList(Helpers.druidSpellList, 6);
+            fire_seeds.AddSpellAndScroll("4b0ff254dca06894cba7eace7eef6bfe");
+
+            //replace 6th level spell in fire domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), fire_seeds, 6);
+            //replace 6th level spell in sun domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc"), fire_seeds, 6);
+
         }
 
 
