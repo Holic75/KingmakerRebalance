@@ -476,6 +476,7 @@ namespace CallOfTheWild
             fervor_positive_ability_self.CanTargetFriends = false;
             fervor_positive_ability_self.CanTargetEnemies = false;
             fervor_positive_ability_self.ActionType = CommandType.Swift;
+            fervor_positive_ability_self.AddComponent(Helpers.CreateResourceLogic(warpriest_fervor_resource));
 
 
             fervor_positive = Helpers.CreateFeature("WarpriestFervorPositive",
@@ -526,7 +527,7 @@ namespace CallOfTheWild
             fervor_negative_ability_self.CanTargetFriends = false;
             fervor_negative_ability_self.CanTargetEnemies = false;
             fervor_negative_ability_self.ActionType = CommandType.Swift;
-
+            fervor_negative_ability_self.AddComponent(Helpers.CreateResourceLogic(warpriest_fervor_resource));
 
             fervor_negative = Helpers.CreateFeature("WarpriestFervorNegative",
                                                     "Fervor (Negative Energy)",

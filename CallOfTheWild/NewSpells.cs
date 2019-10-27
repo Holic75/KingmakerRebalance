@@ -100,6 +100,13 @@ namespace CallOfTheWild
         static public BlueprintAbility river_of_wind;
         static public BlueprintAbility winds_of_vengeance;
 
+        static public BlueprintAbility blistering_invective;
+        static public BlueprintAbility flashfire;
+        static public BlueprintAbility stricken_heart;
+        static public BlueprintAbility rigor_mortis;
+        //static public BlueprintAbility touch_of_blood_letting; - ? to powerful due to ai and a bit complicated to implement
+        static public BlueprintAbility ice_body;
+
         static public void load()
         {
             createShillelagh();
@@ -145,6 +152,252 @@ namespace CallOfTheWild
             createBurstOfRadiance();
             createRiverOfWind();
             createWindsOfVengeance();
+
+            createBlisteringInvective();
+            createStrickenHeart();
+            createFlashfire();
+            createRigorMortis();
+            createIceBody();
+        }
+
+
+        static void createIceBody()
+        {
+            var icon = library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931").Icon; //ice prison
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("f60c5a820b69fb243a4cce5d1d07d06e", "IceBodyFist", "");
+            var frost_enchantment = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
+
+            var enchantment = Common.createWeaponEnchantment("IceBodyWeaponEcnchantment",
+                                                             "Ice Body",
+                                                             "This weapon 1 an additional point of cold damage.",
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             0,
+                                                             frost_enchantment.WeaponFxPrefab,
+                                                             Common.weaponEnergyDamageDice(DamageEnergyType.Cold, new DiceFormula(1, DiceType.One))
+                                                             );
+            weapon.Enchantments.Add(enchantment);
+
+            var buff = Helpers.CreateBuff("IceBodyBuff",
+                                          "Ice Body",
+                                          "Your form transmutes into living ice, granting you several abilities. You gain the cold subtype and damage reduction 5/magic. You are immune to ability score damage, blindness, critical hits, deafness, disease, drowning, electricity, poison, stunning, and all spells or attacks that affect your physiology or respiration, because you have no physiology or respiration while this spell is in effect.\n"
+                                          + "Your unarmed attack deals damage equal to a club sized for you (1d4 for Small characters or 1d6 for Medium characters) plus 1 point of cold damage, and you are considered armed when making unarmed attacks.",
+                                          "",
+                                          icon,
+                                          Common.createPrefabLink("d7f055790fceee34e87c4902877c894f"),
+                                          Common.createAddEnergyDamageImmunity(DamageEnergyType.Cold),
+                                          Common.createAddEnergyDamageImmunity(DamageEnergyType.Electricity),
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Electricity | SpellDescriptor.Cold | SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison),
+                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Electricity | SpellDescriptor.Cold | SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison),
+                                          Common.createMagicDR(5),
+                                          Helpers.Create<AddImmunityToAbilityScoreDamage>(),
+                                          Helpers.Create<AddImmunityToCriticalHits>(),
+                                          Common.createEmptyHandWeaponOverride(weapon),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Cold)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            ice_body = Helpers.CreateAbility("IceBodyAbility",
+                                             buff.Name,
+                                             buff.Description,
+                                             "",
+                                             buff.Icon,
+                                             AbilityType.Spell,
+                                             UnitCommand.CommandType.Standard,
+                                             AbilityRange.Personal,
+                                             Helpers.minutesPerLevelDuration,
+                                             "",
+                                             Helpers.CreateRunActions(apply_buff),
+                                             Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Cold)
+                                             );
+            ice_body.setMiscAbilityParametersSelfOnly();
+            ice_body.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            ice_body.AddToSpellList(Helpers.wizardSpellList, 7);
+            ice_body.AddSpellAndScroll("de05d46f44c8439488a8bbcc0059c09f"); //icy prison
+        }
+
+
+        static void createRigorMortis()
+        {
+            var icon = library.Get<BlueprintAbility>("cc0aeb74b35cb7147bff6c53538bbc76").Icon; //forced repentance
+            var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+            var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
+            var elemental = library.Get<BlueprintFeature>("198fd8924dabcb5478d0f78bd453c586");
+
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                     halfIfSaved: true);
+            dmg.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
+
+            var buff = Helpers.CreateBuff("RigorMortisBuff",
+                                          "Rigor Mortis",
+                                          "The joints of a creature affected by this spell stiffen and swell, making movement painful and slow. The target takes 1d6 points of damage per caster level. Additionally, the target takes a –4 penalty to Dexterity and its movement speed decreases by 10 feet; these additional effects last for 1 minute per caster level. A successful save halves the damage and negates the penalty to Dexterity and movement.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.Speed, -10, ModifierDescriptor.UntypedStackable)
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_buff)));
+
+            rigor_mortis = Helpers.CreateAbility("RigorMortisAbility",
+                                                 buff.Name,
+                                                 buff.Description,
+                                                 "",
+                                                 buff.Icon,
+                                                 AbilityType.Spell,
+                                                 UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Medium,
+                                                 Helpers.minutesPerLevelDuration,
+                                                 "Fortitude partial",
+                                                 Helpers.CreateRunActions(effect),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                 Common.createAbilityTargetHasFact(true, undead),
+                                                 Common.createAbilityTargetHasFact(true, construct),
+                                                 Common.createAbilityTargetHasFact(true, elemental),
+                                                 Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                 Helpers.CreateContextRankConfig()
+                                                 );
+            rigor_mortis.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            rigor_mortis.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+
+            rigor_mortis.AddToSpellList(Helpers.clericSpellList, 4);
+            rigor_mortis.AddToSpellList(Helpers.magusSpellList, 4);
+            rigor_mortis.AddToSpellList(Helpers.wizardSpellList, 4);
+
+            rigor_mortis.AddSpellAndScroll("a9a0d65ec202e25478bcae4a87e844f9");
+        }   
+
+        static void createFlashfire()
+        {
+            var icon = library.Get<BlueprintAbility>("19309b5551a28d74288f4b6f7d8d838d").Icon;
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("edb2896d49015434bbbe401ee27338c3", "FlashfireArea", "");
+            area.Fx = Common.createPrefabLink("42eec2a08ed8721448fac9b8a51e5912"); //wall of fire 30 ft
+            area.Size = 30.Feet();
+
+            var burn1d6 = library.Get<BlueprintBuff>("e92ecaa76b5db674fa5b0aaff5b21bc9");
+            var apply_burn = Common.createContextActionApplyBuff(burn1d6, Helpers.CreateContextDuration(), is_permanent: true);
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)), isAoE: true);
+            var saved_dmg = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(new GameAction[0], 
+                                                                                                                                                  new GameAction[] { dmg, apply_burn })));
+
+            var area_run_action = Helpers.CreateAreaEffectRunAction(saved_dmg, null, null, saved_dmg);
+
+            area.ComponentsArray = new BlueprintComponent[] { area_run_action,
+                                                              Helpers.CreateContextRankConfig(progression: ContextRankProgression.StartPlusDivStep, 
+                                                                                              startLevel: 3, stepLevel: 3, max: 5, type: AbilityRankType.DamageDice),
+                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)};
+
+            area.SpellResistance = true;
+            flashfire = Helpers.CreateAbility("FlashfireAbility",
+                                                "Flashfire",
+                                                "You cause flames to spring up in a 30-ft line, hese flames deal 1d6 points of fire damage for every 3 caster levels you have (maximum 5d6) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire",
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Medium,
+                                                Helpers.roundsPerLevelDuration,
+                                                "Reflex negates",
+                                                Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                        ),
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                                );
+            flashfire.setMiscAbilityParametersRangedDirectional();
+            flashfire.SpellResistance = true;
+            flashfire.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+            flashfire.AddToSpellList(Helpers.druidSpellList, 3);
+            flashfire.AddSpellAndScroll("d8f2bcc130113194998810b7ae3e07f5"); //blessing of salamander
+        }
+
+        static void createBlisteringInvective()
+        {
+            var icon = library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949").Icon; //confusion
+
+            var burn1d6 = library.Get<BlueprintBuff>("e92ecaa76b5db674fa5b0aaff5b21bc9");
+            var dazzling_display = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb");
+
+            var demoralize = (dazzling_display.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as Demoralize);
+
+
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D10, 1, 0));
+            var apply_burn = Common.createContextActionApplyBuff(burn1d6, Helpers.CreateContextDuration(), is_permanent: true);
+
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_burn)));
+
+            var effect_on_demoralzie = Helpers.Create<NewMechanics.ActionOnDemoralize>(a =>
+                                                                                        {
+                                                                                            a.Buff = demoralize.Buff; a.GreaterBuff = demoralize.GreaterBuff;
+                                                                                            a.actions = Helpers.CreateActionList(effect);
+                                                                                        }
+                                                                                      );
+
+            blistering_invective = Helpers.CreateAbility("BlisteringInvectiveAbility",
+                                                         "Blistering Invective",
+                                                         "You unleash an insulting tirade so vicious and spiteful that enemies who hear it are physically scorched by your fury. When you cast this spell, make an Intimidate check to demoralize each enemy within 30 feet of you. Enemies that are demoralized this way take 1d10 points of fire damage and must succeed at a Reflex save or catch fire.",
+                                                         "",
+                                                         icon,
+                                                         AbilityType.Spell,
+                                                         UnitCommand.CommandType.Standard,
+                                                         AbilityRange.Personal,
+                                                         "",
+                                                         "Reflex partial",
+                                                         Helpers.CreateRunActions(effect_on_demoralzie),
+                                                         dazzling_display.GetComponent<AbilityTargetsAround>(),
+                                                         dazzling_display.GetComponent<AbilitySpawnFx>(),
+                                                         Helpers.Create<SharedSpells.CannotBeShared>(),
+                                                         Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                                         );
+
+            blistering_invective.setMiscAbilityParametersSelfOnly();
+            blistering_invective.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize;
+
+            blistering_invective.AddToSpellList(Helpers.alchemistSpellList, 2);
+            blistering_invective.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            blistering_invective.AddToSpellList(Helpers.bardSpellList, 2);
+
+            blistering_invective.AddSpellAndScroll("1db86aaa479be6944abe90eaddb4afa2");
+        }
+
+
+        static void createStrickenHeart()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/StrickenHeart.png");
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 2, 0));
+
+            var frigid_touch = library.Get<BlueprintAbility>("c83447189aabc72489164dfc246f3a36");
+            var ability = Helpers.CreateAbility("StrickenHeartAbility",
+                                               "Stricken Heart",
+                                               "This spell covers your hand with a writhing black aura. As part of casting the spell, you can make a melee touch attack that deals 2d6 points of negative energy damage and causes the target to be staggered for 1 round. If the attack is a critical hit, the target is staggered for 1 minute instead. Creatures immune to precision damage are immune to the staggered effect.",
+                                               "",
+                                               icon,
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Standard,
+                                               AbilityRange.Touch,
+                                               "",
+                                               Helpers.savingThrowNone,
+                                               Helpers.CreateRunActions(new GameAction[] { dmg }.AddToArray(frigid_touch.GetComponent<AbilityEffectRunAction>().Actions.Actions.Skip(1))),
+                                               Helpers.CreateDeliverTouch(),
+                                               Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                               frigid_touch.GetComponent<AbilitySpawnFx>()
+                                               );
+            ability.setMiscAbilityParametersTouchHarmful();
+            ability.SpellResistance = true;
+            ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            stricken_heart = Helpers.CreateTouchSpellCast(ability);
+
+            stricken_heart.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            stricken_heart.AddToSpellList(Helpers.wizardSpellList, 2);
+            stricken_heart.AddSpellAndScroll("2fff640003e17ca459f65e787d2d65de");//unbreakable heart
         }
 
 
@@ -152,7 +405,7 @@ namespace CallOfTheWild
         {
             var air_subtype = library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775");
 
-            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 6), true, true);
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 4), true, true);
             var dmg2 = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2), true, true);
             var saved = Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKnockdownTarget>());
             var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(air_subtype),
@@ -166,12 +419,12 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintFeature>("2aad85320d0751340a0786de073ee3d5").Icon;//torrent infusion
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2a90aa7f771677b4e9624fa77697fdc6", "RiverOfWindArea", "");
-            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(effect);
-                                                                                                                                           a.Round = Helpers.CreateActionList(effect2); }) };
+            area.ComponentsArray = new BlueprintComponent[] {Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(effect, dmg2);
+                                                                                                                                          a.Round = Helpers.CreateActionList(effect2); }) };
             area.SpellResistance = true;
             river_of_wind = Helpers.CreateAbility("RiverOfWindAbility",
                                                   "River of Wind",
-                                                  "Summoning up the power of the tempest, you direct a current of forceful winds where you please. This spell creates a 5-foot-diameter 60-foot length line of wind where you designate, it remains constant in that direction for the spell duration. Creatures caught in a river of wind take 6d6 bludgeoning damage and are knocked prone. A successful Fortitude save halves the damage and prevents being knocked prone.\n"
+                                                  "Summoning up the power of the tempest, you direct a current of forceful winds where you please. This spell creates a 5-foot-diameter 60-foot length line of wind where you designate, it remains constant in that direction for the spell duration. Creatures caught in a river of wind take 4d6 bludgeoning damage and are knocked prone. A successful Fortitude save halves the damage and prevents being knocked prone.\n"
                                                   + "On every next round a creature that is wholly or partially within a river of wind must make a Fortitude save or take 2d6 bludgeoning damage, and be knocked prone - a successful Fortitude save means the creature merely takes 1d6 bludgeoning damage. Creatures under the effect of freedom of movement and creatures with the air subtype are unaffected by a river of wind.",
                                                   "",
                                                   icon,
@@ -368,6 +621,7 @@ namespace CallOfTheWild
 
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
+            var elemental = library.Get<BlueprintFeature>("198fd8924dabcb5478d0f78bd453c586");
 
             var apply_fatigued = Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
             var apply_exhausted = Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
@@ -377,7 +631,8 @@ namespace CallOfTheWild
 
             var conditional_saved = Helpers.CreateConditionalSaved(fatigued_guard, exhausted_guard);
 
-            var effect = Helpers.CreateConditional(new Condition[] { Common.createContextConditionHasFact(undead, false), Common.createContextConditionHasFact(construct, false) },
+            var effect = Helpers.CreateConditional(new Condition[] { Common.createContextConditionHasFact(undead, false), Common.createContextConditionHasFact(construct, false),
+                                                                     Common.createContextConditionHasFact(elemental, false)},
                                                     conditional_saved);
             var deliver = library.Get<BlueprintAbility>("450af0402422b0b4980d9c2175869612").GetComponent<AbilityDeliverProjectile>().CreateCopy(); //ray of enfeeblement
             deliver.Projectiles = new BlueprintProjectile[] { library.Get<BlueprintProjectile>("8e38d2cfc358e124e93c792dea56ff9a") }; //ray of exhaustion ?
@@ -628,7 +883,8 @@ namespace CallOfTheWild
                                                Helpers.CreateRunActions(apply_buff),
                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),//necromancy buff
                                                Helpers.CreateSpellComponent(SpellSchool.Necromancy),
-                                               Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally)
+                                               Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally),
+                                               Helpers.Create<SharedSpells.CannotBeShared>()
                                                );
             bone_fists.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
             bone_fists.setMiscAbilityParametersSelfOnly();

@@ -152,7 +152,7 @@ namespace CallOfTheWild
                 spirit_magic_spells.HideInCharacterSheetAndLevelUp = true;
                 spirit_magic_spells.HideInUI = true;
 
-                var entries = new LevelEntry[] { Helpers.LevelEntry(1, spirit_ability[0], spirit_magic_spells),
+                var entries = new LevelEntry[] { Helpers.LevelEntry(1, spirit_ability[0]),
                                                  Helpers.LevelEntry(8, greater_spirit_ability[0]),
                                                  Helpers.LevelEntry(16, true_spirit_ability[0]),
                                                  Helpers.LevelEntry(20, manifestation)
@@ -401,7 +401,8 @@ namespace CallOfTheWild
                                     Helpers.CreateRunActions(actions.ToArray()),
                                     Common.createAbilitySpawnFx("44295e9774b2864488f4a3790b8b0bcf", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                     Helpers.CreateSpellComponent(SpellSchool.Enchantment),
-                                    Helpers.CreateContextRankConfig()
+                                    Helpers.CreateContextRankConfig(),
+                                    Helpers.Create<SharedSpells.CannotBeShared>()
                                     );
             ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
             Common.setAsFullRoundAction(ability);
@@ -488,7 +489,8 @@ namespace CallOfTheWild
                                     Helpers.CreateRunActions(apply_primary_buff),
                                     Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                     Helpers.CreateSpellComponent(SpellSchool.Enchantment),
-                                    Helpers.CreateContextRankConfig()
+                                    Helpers.CreateContextRankConfig(),
+                                    Helpers.Create<SharedSpells.CannotBeShared>()
                                     );
             ability.MaterialComponent = new BlueprintAbility.MaterialComponentData() { Item = library.Get<BlueprintItem>("92752bbbf04dfa1439af186f48aee0e9"), Count = 1 };
             ability.setMiscAbilityParametersSelfOnly();
@@ -882,6 +884,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "754c478a2aa9bb54d809e648c3f7ac0e", 3), //dominate animal
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
+                new Common.SpellId( NewSpells.flashfire.AssetGuid, 3),
                 new Common.SpellId( "bd5da98859cf2b3418f6d68ea66cabbe", 3), //inflict serious wounds
                 new Common.SpellId( "2d4263d80f5136b4296d6eb43a221d7d", 3), //magic vestment
                 new Common.SpellId( "c927a8b0cd3f5174f8c0b67cdbfde539", 3), //remove blindness
@@ -889,6 +892,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4093d5a0eb5cae94e909eb1e0e1a6b36", 3), //remove disease
                 new Common.SpellId( "1a36c8b9ed655c249a9f9e8d4731f001", 3), //soothing mud
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
+                new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 3),
                 new Common.SpellId( "fdcf7e57ec44f704591f11b45f4acf61", 3), //summon nature ally III
 
                 new Common.SpellId( "41c9016596fe1de4faf67425ed691203", 4), //cure critical wounds
@@ -901,6 +905,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison
                 new Common.SpellId( "d797007a142a6c0409a74b064065a15e", 4), //poison
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration
+                new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 4), //spit venom           
@@ -940,6 +945,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "0cea35de4d553cc439ae80b3a8724397", 7), //cure serious wounds mass
                 new Common.SpellId( "137af566f68fd9b428e2e12da43c1482", 7), //harm
                 new Common.SpellId( "ff8f1534f66559c478448723e16b6624", 7), //heal              
+                new Common.SpellId( NewSpells.ice_body.AssetGuid, 7),
                 new Common.SpellId( "820170444d4d2a14abc480fcbdb49535", 7), //inflict serious wounds mass
                 new Common.SpellId( "da1b292d91ba37948893cdbe9ea89e28", 7), //legendary proportions
                 new Common.SpellId( "76a11b460be25e44ca85904d6806e5a3", 7), //create undead

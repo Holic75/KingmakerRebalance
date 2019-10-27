@@ -139,6 +139,9 @@ namespace CallOfTheWild
             library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4").GetComponent<AbilitySpawnFx>().Anchor = AbilitySpawnFxAnchor.SelectedTarget;
             //bless
             library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638").GetComponent<AbilitySpawnFx>().Anchor = AbilitySpawnFxAnchor.ClickedTarget;
+
+            //make spells unsharaeable
+            library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67").AddComponent(Helpers.Create<SharedSpells.CannotBeShared>()); //acid maw
         }
 
         private static void createCanOnlyTargetSelfBuff()
@@ -228,6 +231,10 @@ namespace CallOfTheWild
 
         public static bool canShareSpell(AbilityData ability_data)
         {
+            if (ability_data.Blueprint.GetComponent<BlueprintComponent>() != null)
+            {
+                return false;
+            }
             return (ability_data.Caster.HasFact(ac_share_spell) || ability_data.Caster.HasFact(share_spells_feat))
                     && ability_data.Spellbook != null;
         }
@@ -238,6 +245,15 @@ namespace CallOfTheWild
             return caster.Pet == target
                    || caster.Unit == target
                    || caster.HasFact(share_spells_feat) && target.Descriptor.HasFact(bonded_mind_feat);
+        }
+
+
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class CannotBeShared : BlueprintComponent
+        {
+
         }
 
     }

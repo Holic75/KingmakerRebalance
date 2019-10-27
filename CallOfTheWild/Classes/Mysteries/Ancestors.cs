@@ -277,8 +277,6 @@ namespace CallOfTheWild
                                                                                  AbilityRankType.DamageDiceAlternative, classes: classes),
                                                  Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
                                                  Helpers.CreateAbilityTargetsAround(20.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
-
-                                                 Common.createAbilityTargetHasFact(true, undead),
                                                  Common.createAbilitySpawnFx("bbd6decdae32bce41ae8f06c6c5eb893", anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                                  Helpers.CreateResourceLogic(resource),
                                                  Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)

@@ -124,8 +124,8 @@ namespace CallOfTheWild
                 resource.SetIncreasedByStat(1, StatType.Charisma);
 
                 var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
-                var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2,
-                                                                                      type: AbilityRankType.Default, classes: getShamanArray());
+                var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                                      type: AbilityRankType.Default, classes: getShamanArray(), startLevel: 1, stepLevel: 2);
                 var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getShamanArray(), StatType.Charisma);
                 spirit_ability = Helpers.CreateFeature("ShamanLifeSpiritChannelPositiveEnergyFeature",
                                                        "Channel Positive Energy",

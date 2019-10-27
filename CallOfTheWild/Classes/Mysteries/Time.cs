@@ -133,16 +133,16 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSelfOnly();
 
             var ability2 = Helpers.CreateActivatableAbility(name_prefix + "ActivatableAbility",
-                                    display_name + ": Blur",
-                                    description,
-                                    "",
-                                    blur.Icon,
-                                    displacement,
-                                    Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
-                                    CommandType.Standard,
-                                    null,
-                                    Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
-                                    );
+                                                            display_name + ": Displacement",
+                                                            description,
+                                                            "",
+                                                            blur.Icon,
+                                                            displacement,
+                                                            Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                            CommandType.Standard,
+                                                            null,
+                                                            Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
+                                                            );
 
             var feature = Common.AbilityToFeature(ability, hide: false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));

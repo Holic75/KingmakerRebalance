@@ -1586,6 +1586,10 @@ namespace CallOfTheWild
 
             var schoolComponent = spell.GetComponent<SpellComponent>();
             if (schoolComponent != null) components.Add(schoolComponent);
+
+            var descriptorComponent = spell.GetComponent<SpellDescriptorComponent>();
+            if (descriptorComponent != null) components.Add(descriptorComponent);
+
             if (resource != null) components.Add(resource.CreateResourceLogic());
 
             if (spell.GetComponent<AbilityResourceLogic>() != null)

@@ -3915,5 +3915,52 @@ namespace CallOfTheWild
             }
         }
 
+
+
+        public class ActionOnDemoralize : ContextAction
+        {
+            public BlueprintBuff Buff;
+            public BlueprintBuff GreaterBuff;
+            public ActionList actions;
+
+
+            public override string GetCaption()
+            {
+                return "Demoralize target with action";
+            }
+
+            public override void RunAction()
+            {
+                MechanicsContext context = ElementsContext.GetData<MechanicsContext.Data>()?.Context;
+                UnitEntityData maybeCaster = context?.MaybeCaster;
+                if (maybeCaster == null || !this.Target.IsUnit)
+                {
+                    UberDebug.LogError((UnityEngine.Object)this, (object)"Unable to apply buff: no context found", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    int dc = 10 + this.Target.Unit.Descriptor.Progression.CharacterLevel + this.Target.Unit.Stats.Wisdom.Bonus;
+                    try
+                    {
+                        RuleSkillCheck ruleSkillCheck = context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(maybeCaster, StatType.CheckIntimidate, dc));
+                        if (!ruleSkillCheck.IsPassed)
+                            return;
+                        int num1 = 1 + (ruleSkillCheck.RollResult - dc) / 5 + (!(bool)maybeCaster.Descriptor.State.Features.FrighteningThug ? 0 : 1);
+                        if ((bool)maybeCaster.Descriptor.State.Features.FrighteningThug && num1 >= 4)
+                            this.Target.Unit.Descriptor.AddBuff(this.GreaterBuff, context, new TimeSpan?(1.Rounds().Seconds));
+                        Kingmaker.UnitLogic.Buffs.Buff buff1 = this.Target.Unit.Descriptor.AddBuff(this.Buff, context, new TimeSpan?(num1.Rounds().Seconds));
+
+                        if (this.actions != null)
+                        {
+                            this.actions.Run();
+                        }
+                    }
+                    finally
+                    {
+                    }
+                }
+            }
+        }
+
     }
 }

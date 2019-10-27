@@ -880,6 +880,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "bc153808ef4884a4594bc9bec2299b69", 2), //pox postules
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
+                new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 2),
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( "134cb6d492269aa4f8662700ef57449f", 2), //web
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
@@ -917,6 +918,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "d797007a142a6c0409a74b064065a15e", 4), //poison
+                new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
@@ -957,6 +959,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "571221cc141bc21449ae96b3944652aa", 7), //cure moderate wounds mass
                 new Common.SpellId( "137af566f68fd9b428e2e12da43c1482", 7), //harm
                 new Common.SpellId( "ff8f1534f66559c478448723e16b6624", 7), //heal
+                new Common.SpellId( NewSpells.ice_body.AssetGuid, 7),
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 7), //inflict moderate wounds mass
                 new Common.SpellId( "2b044152b3620c841badb090e01ed9de", 7), //insanity
                 new Common.SpellId( "da1b292d91ba37948893cdbe9ea89e28", 7), //legendary proportions
