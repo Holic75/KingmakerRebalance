@@ -4,6 +4,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,6 +65,28 @@ namespace CallOfTheWild.ResourceMechanics
         }
 
         public string GetReason() => $"{Resource.Name} is not active on any targets.";
+    }
+
+
+    public class ContextConditionTargetHasEnoughResource : ContextCondition
+    {
+        public BlueprintAbilityResource resource;
+        public int amount = 1;
+
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
+
+        protected override bool CheckCondition()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                return false;
+            }
+            return unit.Descriptor.Resources.HasEnoughResource(resource, amount);
+        }
     }
 
 }

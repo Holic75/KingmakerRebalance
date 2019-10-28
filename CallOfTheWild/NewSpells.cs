@@ -216,7 +216,12 @@ namespace CallOfTheWild
                                           wrapper.Icon,
                                           null,
                                           Helpers.CreateAddAbilityResourceNoRestore(resource),
-                                          Helpers.CreateAddFact(wrapper)
+                                          Helpers.CreateAddFact(wrapper),
+                                          Helpers.CreateAddFactContextActions(newRound: Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),
+                                                                                                                  null,
+                                                                                                                  Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                  )
+                                                                             )
                                           //Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = wrapper)
                                          );
             foreach (var a in abilities)

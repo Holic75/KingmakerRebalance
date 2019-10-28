@@ -113,7 +113,9 @@ namespace CallOfTheWild
                                                                                    library.Get<BlueprintFeatureSelection>("738b59d0b58187f4d846b0caaf0f80d7"), //maddog
                                                                                    library.Get<BlueprintFeatureSelection>("ee63330662126374e8785cc901941ac7"), //ranger
                                                                                    library.Get<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67"), //sacred huntsmaster
-                                                                                   library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c") //sylvan sorcerer
+                                                                                   library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c"), //sylvan sorcerer
+                                                                                   Shaman.NatureSpirit.true_spirit_ability as BlueprintFeatureSelection,
+                                                                                   Shaman.NatureSpirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
                                                                                    };
         public static BlueprintFeatureSelection familiar_selection = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183"); //rogue familiar
                                                                                                      
@@ -231,7 +233,7 @@ namespace CallOfTheWild
 
         public static bool canShareSpell(AbilityData ability_data)
         {
-            if (ability_data.Blueprint.GetComponent<BlueprintComponent>() != null)
+            if (ability_data.Blueprint.GetComponent<CannotBeShared>() != null)
             {
                 return false;
             }
