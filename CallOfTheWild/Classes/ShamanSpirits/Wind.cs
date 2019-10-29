@@ -252,7 +252,7 @@ namespace CallOfTheWild
             {
                 manifestation = Helpers.CreateFeature("ShamanWindManifestationFeature",
                                                       "Manifestation",
-                                                      "Upon reaching 20th level, the shaman becomes a spirit of flame. The shaman gains electricity resistance 30. She can also apply any one of the following feats to any electricity spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
+                                                      "Upon reaching 20th level, the shaman becomes a spirit of air. The shaman gains electricity resistance 30. She can also apply any one of the following feats to any electricity spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
                                                       library.Get<BlueprintProgression>("cd788df497c6f10439c7025e87864ee4").Icon, //electric wall
                                                       FeatureGroup.None,

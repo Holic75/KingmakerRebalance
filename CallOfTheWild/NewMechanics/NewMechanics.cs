@@ -3609,7 +3609,7 @@ namespace CallOfTheWild
 
             private bool CheckConditions(RuleAttackWithWeapon evt)
             {
-                return evt.AttackRoll.IsHit && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyMelee || evt.Weapon != null && evt.Weapon.Blueprint.IsMelee) && (!this.NotReach || evt.Weapon != null && !(evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange))) && ( evt.Weapon != null && (evt.Weapon.Blueprint.Type.Category.HasSubCategory(SubCategory)));
+                return evt.AttackRoll.IsHit && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyMelee || evt.Weapon != null && evt.Weapon.Blueprint.IsMelee) && (!this.NotReach || evt.Weapon != null && !(evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange))) && (evt.Weapon != null && (evt.Weapon.Blueprint.Type.Category.HasSubCategory(SubCategory)));
             }
         }
 
@@ -3815,7 +3815,7 @@ namespace CallOfTheWild
                     return false;
                 }
                 float part = (float)Value / 100.0f;
-                return   ((float)this.Target.Unit.HPLeft / (float)this.Target.Unit.MaxHP) < part;
+                return ((float)this.Target.Unit.HPLeft / (float)this.Target.Unit.MaxHP) < part;
             }
         }
 
@@ -3962,5 +3962,59 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class ConsumeMoveAction : ContextAction
+        {
+            public override string GetCaption()
+            {
+                return "Consume move action";
+            }
+
+
+            public override void RunAction()
+            {
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return;
+                }
+
+                unit.CombatState.Cooldown.MoveAction += Math.Min(6f - unit.CombatState.Cooldown.MoveAction, 3f);
+            }
+        }
+
+
+        public class ReduceHpToValue : ContextAction
+        {
+            public int value;
+            bool remove_temporary_hp = true;
+
+            public override string GetCaption()
+            {
+                return "Reduce HP to 0";
+            }
+
+
+            public override void RunAction()
+            {
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return;
+                }
+                if (remove_temporary_hp)
+                {
+                    unit.Descriptor.Stats.TemporaryHitPoints.RemoveAllModifiers();
+                }
+
+                var dmg = unit.HPLeft - value;
+                var base_dmg = (BaseDamage)new EnergyDamage(new DiceFormula(dmg, DiceType.One), Kingmaker.Enums.Damage.DamageEnergyType.Unholy);
+                base_dmg.IgnoreReduction = true;
+
+                RuleDealDamage evt_dmg = new RuleDealDamage(this.Context.MaybeCaster, unit, new DamageBundle(new BaseDamage[1] { base_dmg }));
+                evt_dmg.SourceAbility = Context?.SourceAbility;
+                Rulebook.Trigger<RuleDealDamage>(evt_dmg);
+            }
+        }
     }
 }

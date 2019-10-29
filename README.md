@@ -115,14 +115,17 @@ New spells:
 - Rigor Mortis,
 - River of Wind,
 - Virtuoso Performance,
+- Suffocater,
 - Contingency,
 - Fire Seeds,
+- Fluid Form,
 - Poison Breath,
 - Plant Shape I, II and III,
 - Ice Body,
 - Giant Form I and II,
 - Blood Mist,
 - Shapechange,
+- Suffocate Mass,
 - Winds of Vengeance.  
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:

@@ -933,6 +933,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 5), //inflict critical wounds
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
+                new Common.SpellId( NewSpells.suffocation.AssetGuid, 5), //waves of fatigue
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
 
@@ -991,6 +992,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "87a29febd010993419f2a4a9bee11cfc", 9), //mind blank communal
                 new Common.SpellId( "ba48abb52b142164eba309fd09898856", 9), //polar midnight
                 new Common.SpellId( "2f8a67c483dfa0f439b293e094ca9e3c", 9), //power word kill
+                new Common.SpellId( NewSpells.mass_suffocation.AssetGuid, 9), //waves of fatigue
                 new Common.SpellId( "52b5df2a97df18242aec67610616ded0", 9), //summon monster 9
                 new Common.SpellId( "b24583190f36a8442b212e45226c54fc", 9) //wail of banshee
             };

@@ -75,8 +75,8 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826"), //stinking cloud
                     library.Get<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9"), //ice storm
                     library.Get<BlueprintAbility>("9374c81817be79f4e92b48a4aa5ded6e"), //summon elemental large water
-                    library.Get<BlueprintAbility>("e7c530f8137630f4d9d7ee1aa7b1edc0"), //cone of cold
-                    library.Get<BlueprintAbility>("96d2ab91f2d2329459a8dab496c5bede"), //elemental body IV water
+                    NewSpells.fluid_form, 
+                    NewSpells.ice_body, 
                     library.Get<BlueprintAbility>("7ef49f184922063499b8f1346fb7f521"), //seamantle
                     library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
                 };
@@ -248,7 +248,7 @@ namespace CallOfTheWild
             {
                 manifestation = Helpers.CreateFeature("ShamanWavesManifestationFeature",
                                                       "Manifestation",
-                                                      "Upon reaching 20th level, the shaman becomes a spirit of flame. The shaman gains cold resistance 30. She can also apply any one of the following feats to any cold spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
+                                                      "Upon reaching 20th level, the shaman becomes a spirit of water. The shaman gains cold resistance 30. She can also apply any one of the following feats to any cold spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
                                                       library.Get<BlueprintProgression>("7c692e90592257a4e901d12ae6ec1e41").Icon, //cold wall
                                                       FeatureGroup.None,

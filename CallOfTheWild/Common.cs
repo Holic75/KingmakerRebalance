@@ -951,6 +951,16 @@ namespace CallOfTheWild
         }
 
 
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextFormDR(ContextValue value, PhysicalDamageForm form)
+        {
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
+            feat.BypassedByForm = true;
+            feat.Form = form;
+            feat.Value = value;
+            return feat;
+        }
+
+
         public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMaterialDR(ContextValue value, PhysicalDamageMaterial material)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();

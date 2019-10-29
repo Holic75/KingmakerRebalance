@@ -22,6 +22,7 @@ using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Buffs.Conditions;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -109,6 +110,10 @@ namespace CallOfTheWild
 
         static public BlueprintAbility fire_seeds;
 
+        static public BlueprintAbility suffocation, mass_suffocation;
+        static public BlueprintBuff suffocation_buff;
+        static public BlueprintAbility fluid_form;
+
         static public void load()
         {
             createShillelagh();
@@ -159,9 +164,160 @@ namespace CallOfTheWild
             createStrickenHeart();
             createFlashfire();
             createRigorMortis();
+            createSuffocation();
             createIceBody();
 
             createFireSeeds();
+            createFluidForm();
+        }
+
+
+        static void createFluidForm()
+        {
+            var icon = library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon;//charged water blast
+
+            var buff = Helpers.CreateBuff("FluidFormBuff",
+                                            "Fluid Form",
+                                            "When you cast this spell, your body takes on a slick, oily appearance.For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment.You gain DR 10 / slashing and your reach increases by 10 feet.",
+                                            "",
+                                            icon,
+                                            Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
+                                            Common.createContextFormDR(10, PhysicalDamageForm.Slashing),
+                                            Helpers.CreateAddStatBonus(StatType.Reach, 10, ModifierDescriptor.UntypedStackable)
+                                            );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            fluid_form = Helpers.CreateAbility("FluidFormAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                );
+            fluid_form.setMiscAbilityParametersSelfOnly();
+            fluid_form.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            fluid_form.AddToSpellList(Helpers.wizardSpellList, 6);
+            fluid_form.AddToSpellList(Helpers.alchemistSpellList, 4);
+            fluid_form.AddSpellAndScroll("de05d46f44c8439488a8bbcc0059c09f"); //icy prison
+        }
+
+
+        static void createSuffocation()
+        {
+            var icon = library.Get<BlueprintAbility>("cc0aeb74b35cb7147bff6c53538bbc76").Icon; //foreced repentance
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var apply_staggered = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(), true, true, true, false);
+
+            BlueprintBuff[] marker_buffs = new BlueprintBuff[2]; //0 hp, -1 hp
+            GameAction[] apply_marker_buff = new GameAction[2];
+            for (int i = 0; i < marker_buffs.Length; i++)
+            {
+                marker_buffs[i] = Helpers.CreateBuff($"SuffocationMarkerBuff{i + 1}Buff",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     null);
+                marker_buffs[i].SetBuffFlags(BuffFlags.HiddenInUi);
+                apply_marker_buff[i] = Common.createContextActionApplyBuff(marker_buffs[i], Helpers.CreateContextDuration(), true, true, true, false);
+            }
+
+            var new_round = Helpers.CreateConditional(Helpers.CreateConditionHasFact(marker_buffs[1]), Helpers.Create<ContextActionKillTarget>(),
+                                                   Helpers.CreateConditional(Helpers.CreateConditionHasFact(marker_buffs[0]),
+                                                                                                            new GameAction[] { apply_marker_buff[1],
+                                                                                                                               Common.createContextActionRemoveBuff(marker_buffs[0]),
+                                                                                                                               Helpers.Create<NewMechanics.ReduceHpToValue>(r => r.value = -1)
+                                                                                                                             },
+                                                                                                            new GameAction[] { apply_marker_buff[0],
+                                                                                                                               Helpers.Create<NewMechanics.ReduceHpToValue>(r => r.value = 0)
+                                                                                                                             }
+                                                                            )
+                                                   );         
+            var new_round_saved = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, new_round)));
+            var new_round_after = Helpers.CreateConditional(Helpers.Create<BuffConditionCheckRoundNumber>(b => b.RoundNumber = 0), null, new_round_saved);
+
+            suffocation_buff = Helpers.CreateBuff("SuffocationBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddFactContextActions(activated: apply_staggered, newRound: new_round_after),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
+                                          );
+
+            var effect = Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1, DurationRate.Rounds)),
+                                                        Common.createContextActionApplyBuff(suffocation_buff, Helpers.CreateContextDuration(3, DurationRate.Rounds)));
+
+            var effect_mass = Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1, DurationRate.Rounds)),
+                                            Common.createContextActionApplyBuff(suffocation_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds)));
+
+            var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+            var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
+            var elemental = library.Get<BlueprintFeature>("198fd8924dabcb5478d0f78bd453c586");
+
+            suffocation = Helpers.CreateAbility("SuffocationAbility",
+                                                "Suffocation",
+                                                "This spell extracts the air from the target’s lungs, causing swift suffocation.\n"
+                                                + "The target can attempt to resist this spell’s effects with a Fortitude save -if he succeeds, he is merely staggered for 1 round as he gasps for breath.If the target fails, he immediately begins to suffocate.On the target’s next turn, he falls unconscious and is reduced to 0 hit points. One round later, the target drops to - 1 hit points and is dying. One round after that, the target dies. Each round, the target can delay that round’s effects from occurring by making a successful Fortitude save, but the spell continues for 3 rounds, and each time a target fails his Fortitude save, he moves one step further along the track to suffocation.This spell only affects living creatures that must breathe.It is impossible to defeat the effects of this spell by simply holding one’s breath -if the victim fails the initial Saving Throw, the air in his lungs is extracted.",
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "3 rounds",
+                                                Helpers.fortNegates,
+                                                Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
+                                                Common.createAbilityTargetHasFact(true, undead),
+                                                Common.createAbilityTargetHasFact(true, construct),
+                                                Common.createAbilityTargetHasFact(true, elemental),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                                Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                );
+            suffocation.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            suffocation.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten;
+            suffocation.SpellResistance = true;
+
+
+            mass_suffocation = Helpers.CreateAbility("SuffocationMassAbility",
+                                    "Suffocation, Mass",
+                                    "This spell functions as suffocation. Note that the duration of this spell is much longer, forcing those suffering from the effect to make far more Fortitude saves to stave off eventual suffocation.\n"
+                                    + suffocation.Description,
+                                    "",
+                                    icon,
+                                    AbilityType.Spell,
+                                    UnitCommand.CommandType.Standard,
+                                    AbilityRange.Close,
+                                    Helpers.roundsPerLevelDuration,
+                                    Helpers.fortNegates,
+                                    Helpers.CreateRunActions(SavingThrowType.Fortitude, effect_mass),
+                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                    Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                    Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                    Helpers.CreateContextRankConfig(),
+                                    Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy)
+                                    );
+            mass_suffocation.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            mass_suffocation.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten;
+
+            suffocation.AddToSpellList(Helpers.wizardSpellList, 5);
+            suffocation.AddSpellAndScroll("a9a0d65ec202e25478bcae4a87e844f9"); //force repentance
+
+
+            mass_suffocation.AddToSpellList(Helpers.wizardSpellList, 9);
+            mass_suffocation.AddSpellAndScroll("a9a0d65ec202e25478bcae4a87e844f9"); //force repentance
+            mass_suffocation.SpellResistance = true;
         }
 
 
@@ -302,7 +458,8 @@ namespace CallOfTheWild
                                           Helpers.Create<AddImmunityToAbilityScoreDamage>(),
                                           Helpers.Create<AddImmunityToCriticalHits>(),
                                           Common.createEmptyHandWeaponOverride(weapon),
-                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Cold)
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                          Common.createSpecificBuffImmunity(suffocation_buff)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
