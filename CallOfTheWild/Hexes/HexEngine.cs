@@ -24,6 +24,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
@@ -1510,9 +1511,10 @@ namespace CallOfTheWild
                                                               dirge_of_doom.FxOnStart,
                                                               Common.createAddAreaEffect(area_effect),
                                                               Common.createAddCondition(UnitCondition.Staggered)
+                                                              //Helpers.CreateAddFactContextActions(newRound: Helpers.Create<NewMechanics.ConsumeMoveAction>())
                                                               );
 
-
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
             var cackle_activatable_ability = Helpers.CreateActivatableAbility(toggle_ability_name,
                                                             cackle_buff.Name,
                                                             cackle_buff.Description,
@@ -1520,8 +1522,9 @@ namespace CallOfTheWild
                                                             energy_drain.Icon,
                                                             cackle_buff,
                                                             AbilityActivationType.Immediately,
-                                                            CommandType.Free,
-                                                            null);
+                                                            CommandType.Free,                                                        
+                                                            null,
+                                                            Helpers.Create<RestrictionHasFact>(r => { r.Feature = staggered; r.Not = true; }));
 
             var bane = library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734");
             var cackle_ability = Helpers.CreateAbility(name_prefix+ "Ability",
