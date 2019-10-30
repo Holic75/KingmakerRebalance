@@ -966,6 +966,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 7), //inflict moderate wounds mass
                 new Common.SpellId( "2b044152b3620c841badb090e01ed9de", 7), //insanity
                 new Common.SpellId( "da1b292d91ba37948893cdbe9ea89e28", 7), //legendary proportions
+                new Common.SpellId( NewSpells.particulate_form.AssetGuid, 7),
                 new Common.SpellId( NewSpells.poison_breath.AssetGuid, 7), 
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 7), //primal regression
@@ -979,6 +980,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "e788b02f8d21014488067bdd3ba7b325", 8), //frightfull aspect
                 new Common.SpellId( "08323922485f7e246acb3d2276515526", 8), //horrid wilting
                 new Common.SpellId( "820170444d4d2a14abc480fcbdb49535", 8), //inflict serious wounds mass
+                new Common.SpellId( NewSpells.irresistible_dance.AssetGuid, 8),
                 new Common.SpellId( "f958ef62eea5050418fb92dfa944c631", 8), //power word stun
                 new Common.SpellId( "0e67fa8f011662c43934d486acc50253", 8), //prediction of failure
                 new Common.SpellId( "80a1a388ee938aa4e90d427ce9a7a3e9", 8), //ressurection
@@ -992,10 +994,11 @@ namespace CallOfTheWild
                 new Common.SpellId( "0340fe43f35e7a448981b646c638c83d", 9), //elemental swarm
                 new Common.SpellId( "5ee395a2423808c4baf342a4f8395b19", 9), //inflict critical wounds mass
                 new Common.SpellId( "1f01a098d737ec6419aedc4e7ad61fdd", 9), //foresight
+                new Common.SpellId( NewSpells.hold_monster_mass.AssetGuid, 9),
                 new Common.SpellId( "87a29febd010993419f2a4a9bee11cfc", 9), //mind blank communal
                 new Common.SpellId( "ba48abb52b142164eba309fd09898856", 9), //polar midnight
                 new Common.SpellId( "2f8a67c483dfa0f439b293e094ca9e3c", 9), //power word kill
-                new Common.SpellId( NewSpells.mass_suffocation.AssetGuid, 9), //waves of fatigue
+                new Common.SpellId( NewSpells.mass_suffocation.AssetGuid, 9),
                 new Common.SpellId( "52b5df2a97df18242aec67610616ded0", 9), //summon monster 9
                 new Common.SpellId( "b24583190f36a8442b212e45226c54fc", 9) //wail of banshee
             };

@@ -644,13 +644,13 @@ namespace CallOfTheWild
                                                    "444eed6e26f773a40ab6e4d160c67faa", //feeblemind
                                                    "d316d3d94d20c674db2c24d7de96f6a7", //serenity
                                                    "261e1788bfc5ac1419eec68b1d485dbc", //power word blind
-                                                   "f958ef62eea5050418fb92dfa944c631", //power word stun
-                                                   "3c17035ec4717674cae2e841a190e757"//domiante monster
+                                                   NewSpells.irresistible_dance.AssetGuid, 
+                                                   "3c17035ec4717674cae2e841a190e757"//dominate monster
                                                    );
             controlling_magic_spell_list = spells.createSpellList("ControllingMagicOverseerSpelllist", "");
             controlling_magic = Helpers.CreateFeature("ControllingMagicFeature",
                                                       "Controlling Magic",
-                                                      "The overseer adds the following spells to the list of spells she can cast using spirit magic: hypnotism (1st), hideous laughter (2nd), hold person (3rd), crushing despair (4th), feeblemind (5th), serenity (6th), power word blind (7th), power word stun (8th), and dominate monster (9th). This ability replaces the spirit magic spells gained from the shaman’s spirit.",
+                                                      "The overseer adds the following spells to the list of spells she can cast using spirit magic: hypnotism (1st), hideous laughter (2nd), hold person (3rd), crushing despair (4th), feeblemind (5th), serenity (6th), power word blind (7th), irresistible dance (8th), and dominate monster (9th). This ability replaces the spirit magic spells gained from the shaman’s spirit.",
                                                       "",
                                                       null,
                                                       FeatureGroup.None,
@@ -962,6 +962,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "3b646e1db3403b940bf620e01d2ce0c7", 8), //destruction
                 new Common.SpellId( "e3d0dfe1c8527934294f241e0ae96a8d", 8), //firestorm
                 new Common.SpellId( "08323922485f7e246acb3d2276515526", 8), //horrid wilting
+                new Common.SpellId( NewSpells.irresistible_dance.AssetGuid, 8),
                 new Common.SpellId( "5ee395a2423808c4baf342a4f8395b19", 8), //inflict critical wounds mass
                 new Common.SpellId( "80a1a388ee938aa4e90d427ce9a7a3e9", 8), //ressurection
                 new Common.SpellId( "7cfbefe0931257344b2cb7ddc4cdff6f", 8), //stormbolts

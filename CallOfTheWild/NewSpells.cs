@@ -119,6 +119,7 @@ namespace CallOfTheWild
         static public BlueprintAbility irresistible_dance;
         static public BlueprintAbility particulate_form;
         static public BlueprintAbility curse_major;
+        static public BlueprintAbility hold_monster_mass;
 
         static public void load()
         {
@@ -178,6 +179,145 @@ namespace CallOfTheWild
 
             createCurseMajor();
             createHoldPersonMass();
+            createParticulateForm();
+            createIrresistibleDance();
+            createHoldMonsterMass();
+        }
+
+
+        static void createHoldMonsterMass()
+        {
+            var hold_monster = library.Get<BlueprintAbility>("41e8a952da7a5c247b3ec1c2dbb73018");
+
+            var checker_fact = hold_monster.GetComponent<AbilityTargetHasNoFactUnless>();
+            var does_not_work = hold_monster.GetComponent<AbilityTargetHasFact>();
+
+            hold_monster_mass = library.CopyAndAdd<BlueprintAbility>("c7104f7526c4c524f91474614054547e", "HoldMonsterMassAbility", "");
+            hold_monster_mass.RemoveComponents<SpellListComponent>();
+            hold_monster_mass.RemoveComponents<AbilityTargetHasNoFactUnless>();
+            hold_monster_mass.RemoveComponents<AbilityTargetHasFact>();
+            hold_monster_mass.RemoveComponents<RecommendationNoFeatFromGroup>();
+            hold_monster_mass.setMiscAbilityParametersRangedDirectional();
+            hold_monster_mass.AddComponent(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy));
+
+            hold_monster_mass.SetName("Hold Monster, Mass");
+            hold_monster_mass.SetDescription("This spell functions like hold monster, except as noted above.\n" + hold_monster.Description);
+
+            var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact.CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact.UnlessFact, has: false)),
+                                                    null,
+                                                    Helpers.CreateConditional(Common.createContextConditionHasFacts(false, does_not_work.CheckedFacts),
+                                                                            null,
+                                                                            hold_monster.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]
+                                                                            )
+
+                                                    );
+
+            hold_monster_mass.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+            hold_monster_mass.setMiscAbilityParametersRangedDirectional();
+            hold_monster_mass.AddToSpellList(Helpers.wizardSpellList, 9);
+            hold_monster_mass.AddSpellAndScroll("d8c52df98e5815d4aa9d2bd2b73b88c9");
+        }
+
+        static void createIrresistibleDance()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/IrresistibleDance.png");
+            var buff = Helpers.CreateBuff("IrresisitbleDanceBuff",
+                                          "Irresistible Dance",
+                                          "The subject feels an undeniable urge to dance and begins doing so, complete with foot shuffling and tapping. The spell effect makes it impossible for the subject to do anything other than caper and prance in place. The effect imposes a -4 penalty to Armor Class and a -10 penalty on Reflex saves, and it negates any Armor Class bonus granted by a shield the target holds. The dancing subject provokes attacks of opportunity each round on its turn. A successful Will save reduces the duration of this effect to 1 round.",
+                                          "",
+                                          icon,
+                                          Common.createPrefabLink("602fa850c4a94d84eb8aa1bcc0d008c7"),
+                                          Helpers.CreateAddStatBonus(StatType.SaveReflex, -10, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.AC, -4, ModifierDescriptor.UntypedStackable),
+                                          Common.createBuffStatusCondition(Kingmaker.UnitLogic.UnitCondition.Confusion),
+                                          Helpers.Create<ConfusionControl.ControlConfusionBuff>(a => a.allowed_states = new Kingmaker.UnitLogic.Parts.ConfusionState[] {Kingmaker.UnitLogic.Parts.ConfusionState.DoNothing}),
+                                          Helpers.Create<NewMechanics.RemoveShieldACBonus>(),
+                                          Helpers.CreateAddFactContextActions(newRound: Helpers.Create<ContextActionProvokeAttackOfOpportunity>()),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                          );
+
+            var effect_saved = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1));
+            var effect = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, diceType: DiceType.D4, diceCount: 1));
+
+            var ability = Helpers.CreateAbility("IrresistibleDanceAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "1d4 + 1 rounds",
+                                                "Will partial",
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                                Helpers.CreateDeliverTouch(),
+                                                Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(effect_saved, effect))
+                                                );
+            ability.setMiscAbilityParametersTouchHarmful();
+            ability.SpellResistance = true;
+            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | Metamagic.Maximize;
+            irresistible_dance = Helpers.CreateTouchSpellCast(ability);
+
+            irresistible_dance.AddToSpellList(Helpers.bardSpellList, 6);
+            irresistible_dance.AddToSpellList(Helpers.wizardSpellList, 8);
+
+            irresistible_dance.AddSpellAndScroll("aed1e536ad8851947a3d37644fa87c03");
+        }
+
+        static void createParticulateForm()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ParticulateForm.png");
+
+            var buff = Helpers.CreateBuff("ParticulateFormBuff",
+                                          "Particulate Form",
+                                          "The targets’ physical forms undergo a bizarre transformation. They look and function normally, but are composed of countless particles that separate and reconnect to remain whole. Each target gains fast healing 1 and is immune to bleed damage, critical hits, sneak attacks, and other forms of precision damage. The value of this fast healing increases by 1 at caster levels 10th, 15th, and 20th. Any target can end the spell effect on itself as a swift action; the target then regains 5d6 hit points.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                          Helpers.Create<AddImmunityToPrecisionDamage>(),
+                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Bleed),
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Bleed),
+                                          Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus, progression: ContextRankProgression.StartPlusDivStep, startLevel: 5, stepLevel: 5)
+                                          );
+
+            var particualte_form_swift = Helpers.CreateAbility("ParticulateFormSwiftAction",
+                                                               "Particualte Form: Dismiss",
+                                                               buff.Description,
+                                                               "",
+                                                               icon,
+                                                               AbilityType.Special,
+                                                               UnitCommand.CommandType.Swift,
+                                                               AbilityRange.Personal,
+                                                               "",
+                                                               "",
+                                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D6, 5)),
+                                                                                        Common.createContextActionRemoveBuff(buff)
+                                                                                        )
+                                                               );
+            buff.AddComponent(Helpers.CreateAddFact(particualte_form_swift));
+            particulate_form = Helpers.CreateAbility("ParticulateFormAbility",
+                                                      buff.Name,
+                                                      buff.Description,
+                                                      "",
+                                                      buff.Icon,
+                                                      AbilityType.Spell,
+                                                      UnitCommand.CommandType.Standard,
+                                                      AbilityRange.Close,
+                                                      Helpers.roundsPerLevelDuration,
+                                                      "",
+                                                      Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                      Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                      Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
+                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                      Helpers.CreateContextRankConfig()
+                                                      );
+            particulate_form.setMiscAbilityParametersRangedDirectional();
+            particulate_form.AvailableMetamagic = Metamagic.Reach | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+            particulate_form.AddToSpellList(Helpers.clericSpellList, 7);
+            particulate_form.AddToSpellList(Helpers.wizardSpellList, 7);
+            particulate_form.AddSpellAndScroll("f157e6a94573ff94694f114b119229da");
         }
 
 
@@ -211,6 +351,7 @@ namespace CallOfTheWild
                                                     );
 
             hold_person_mass.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+            hold_person_mass.setMiscAbilityParametersRangedDirectional();
             hold_person_mass.AddToSpellList(Helpers.wizardSpellList, 7);
             hold_person_mass.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd");
         }
@@ -245,7 +386,7 @@ namespace CallOfTheWild
                 var remove_buff = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(cl_bonus));
 
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff.AddToArray(a.Actions.Actions).AddToArray(remove_buff)));
-
+                ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
                 variants.Add(ability);
             }
 

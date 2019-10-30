@@ -4016,5 +4016,35 @@ namespace CallOfTheWild
                 Rulebook.Trigger<RuleDealDamage>(evt_dmg);
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class RemoveShieldACBonus : RuleTargetLogicComponent<RuleCalculateAC>
+        {
+            public override void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                if (!this.Owner.Body.SecondaryHand.HasShield)
+                    return;
+
+                var mods = evt.Target.Stats.AC.Modifiers.Where(m => m.ModDescriptor == ModifierDescriptor.Shield || m.ModDescriptor == ModifierDescriptor.ShieldFocus || m.ModDescriptor == ModifierDescriptor.ShieldEnhancement).ToArray();
+                var bonus = 0;
+
+                foreach (var m in mods)
+                {
+                    bonus += m.ModValue;
+                }
+                if (bonus == 0)
+                {
+                    return;
+                }
+
+                evt.AddBonus(-bonus, this.Fact);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAC evt)
+            {
+            }
+        }
     }
 }
