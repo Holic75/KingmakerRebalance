@@ -919,6 +919,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d5a36a7ee8177be4f848b953d1c53c84", 5), //call lightning storm
                 new Common.SpellId( "bacba2ff48d498b46b86384053945e83", 5), //cave fangs
                 new Common.SpellId( "5d3d689392e4ff740a761ef346815074", 5), //cure light wounds mass
+                new Common.SpellId( NewSpells.curse_major.AssetGuid, 5), 
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "f9910c76efc34af41b6e43d5d8752f0f", 5), //flamestrike
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflict light wounds mass
@@ -936,6 +937,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.fire_seeds.AssetGuid, 6),
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 6), //inflict moderate wounds mass
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owl's wisdom mass
+                new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead
                 new Common.SpellId( "a6e59e74cba46a44093babf6aec250fc", 6), //slay living
                 new Common.SpellId( "051b979e7d7f8ec41b9fa35d04746b33", 6), //summon nature ally VI

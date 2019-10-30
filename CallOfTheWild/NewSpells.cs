@@ -114,6 +114,12 @@ namespace CallOfTheWild
         static public BlueprintBuff suffocation_buff;
         static public BlueprintAbility fluid_form;
 
+
+        static public BlueprintAbility hold_person_mass;
+        static public BlueprintAbility irresistible_dance;
+        static public BlueprintAbility particulate_form;
+        static public BlueprintAbility curse_major;
+
         static public void load()
         {
             createShillelagh();
@@ -169,6 +175,92 @@ namespace CallOfTheWild
 
             createFireSeeds();
             createFluidForm();
+
+            createCurseMajor();
+            createHoldPersonMass();
+        }
+
+
+        static void createHoldPersonMass()
+        {
+            var hold_person = library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e");
+
+            var checker_fact = hold_person.GetComponents<AbilityTargetHasNoFactUnless>().ToArray();
+            var does_not_work = hold_person.GetComponent<AbilityTargetHasFact>();
+
+            hold_person_mass = library.CopyAndAdd<BlueprintAbility>("c7104f7526c4c524f91474614054547e", "HoldPersonMassAbility", "");
+            hold_person_mass.RemoveComponents<SpellListComponent>();
+            hold_person_mass.RemoveComponents<AbilityTargetHasNoFactUnless>();
+            hold_person_mass.RemoveComponents<AbilityTargetHasFact>();
+            hold_person_mass.RemoveComponents<RecommendationNoFeatFromGroup>();
+            hold_person_mass.setMiscAbilityParametersRangedDirectional();
+            hold_person_mass.AddComponents(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy));
+
+            hold_person_mass.SetName("Hold Person, Mass");
+            hold_person_mass.SetDescription("This spell functions like hold person, except as noted above.\n" + hold_person.Description);
+
+            var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[0].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[0].UnlessFact, has: false)),
+                                                    null,
+                                                    Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[1].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[1].UnlessFact, has: false)),
+                                                                                null,
+                                                                                Helpers.CreateConditional(Common.createContextConditionHasFacts(false, does_not_work.CheckedFacts),
+                                                                                                        null,
+                                                                                                        hold_person.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]
+                                                                                                        )
+                                                                                )
+                                                    );
+
+            hold_person_mass.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+            hold_person_mass.AddToSpellList(Helpers.wizardSpellList, 7);
+            hold_person_mass.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd");
+        }
+
+        static void createCurseMajor()
+        {
+            var bestow_curse = library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603");
+
+            List<BlueprintAbility> variants = new List<BlueprintAbility>();
+
+            var description = "This spell functions as bestow curse, except the DC to remove the curse is equal to the save DC +5.\n"
+                              + bestow_curse.Description;
+
+
+            var cl_bonus = Helpers.CreateBuff("BestowCurseCLBonusBuff",
+                                              "",
+                                              "",
+                                              "",
+                                              null,
+                                              null,
+                                              Helpers.Create<IncreaseCasterLevel>(i => i.Value = 5)
+                                              );
+
+
+            foreach (var v in bestow_curse.GetComponent<AbilityVariants>().Variants)
+            {
+                var ability = library.CopyAndAdd<BlueprintAbility>(v.StickyTouch.TouchDeliveryAbility, v.StickyTouch.TouchDeliveryAbility.name + "Major", "");
+                ability.RemoveComponents<AbilityDeliverTouch>();
+                ability.Range = AbilityRange.Close;
+
+                var apply_buff = new GameAction[] { Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(cl_bonus, Helpers.CreateContextDuration(1))) };
+                var remove_buff = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(cl_bonus));
+
+                ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff.AddToArray(a.Actions.Actions).AddToArray(remove_buff)));
+
+                variants.Add(ability);
+            }
+
+
+            curse_major = Common.createVariantWrapper("CurseMajorAbility", "", variants.ToArray());
+
+            curse_major.AddComponents(Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Curse)
+                                      );
+            curse_major.SetName("Curse, Major");
+            curse_major.SetDescription(description);
+            curse_major.AddToSpellList(Helpers.clericSpellList, 5);
+            curse_major.AddToSpellList(Helpers.wizardSpellList, 6);
+
+            curse_major.AddSpellAndScroll("b2bd1f6b0505672408eb0ee5714e4640");
         }
 
 

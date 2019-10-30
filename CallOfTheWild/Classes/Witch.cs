@@ -928,6 +928,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "bacba2ff48d498b46b86384053945e83", 5), //cave fangs
                 new Common.SpellId( "548d339ba87ee56459c98e80167bdf10", 5), //cloudkill
                 new Common.SpellId( "41c9016596fe1de4faf67425ed691203", 5), //cure critical wounds
+                new Common.SpellId( NewSpells.curse_major.AssetGuid, 5), 
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "444eed6e26f773a40ab6e4d160c67faa", 5), //feeblemind
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
@@ -960,12 +961,14 @@ namespace CallOfTheWild
                 new Common.SpellId( "571221cc141bc21449ae96b3944652aa", 7), //cure moderate wounds mass
                 new Common.SpellId( "137af566f68fd9b428e2e12da43c1482", 7), //harm
                 new Common.SpellId( "ff8f1534f66559c478448723e16b6624", 7), //heal
+                new Common.SpellId( NewSpells.hold_person_mass.AssetGuid, 7), 
                 new Common.SpellId( NewSpells.ice_body.AssetGuid, 7),
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 7), //inflict moderate wounds mass
                 new Common.SpellId( "2b044152b3620c841badb090e01ed9de", 7), //insanity
                 new Common.SpellId( "da1b292d91ba37948893cdbe9ea89e28", 7), //legendary proportions
-                new Common.SpellId( NewSpells.poison_breath.AssetGuid, 7), //legendary proportions
+                new Common.SpellId( NewSpells.poison_breath.AssetGuid, 7), 
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind
+                new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 7), //primal regression
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 7), //summon monster 7
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 7), //umbral strike
                 new Common.SpellId( "1e2d1489781b10a45a3b70192bba9be3", 7), //waves of Ectasy
