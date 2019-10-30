@@ -1120,7 +1120,7 @@ namespace CallOfTheWild
                                                                                 type: AbilityRankType.DamageBonus, min: 1, classes: hex_classes)
                                                );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
-            addWitchHexCooldownScaling(ability, "");
+            addWitchHexCooldownScaling(ability, "", cooldown_only_on_success: true);
 
             addToAmplifyHex(ability);
             //addToSplitHex(ability, true);
@@ -1158,7 +1158,7 @@ namespace CallOfTheWild
                                                                                 type: AbilityRankType.StatBonus, min: 1, stat: StatType.Charisma)
                                                );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
-            addWitchHexCooldownScaling(ability, "");
+            addWitchHexCooldownScaling(ability, "", cooldown_only_on_success: true);
 
             addToAmplifyHex(ability);
             //addToSplitHex(ability, true);

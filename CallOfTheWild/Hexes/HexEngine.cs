@@ -115,7 +115,7 @@ namespace CallOfTheWild
         }
 
 
-        void addWitchHexCooldownScaling(BlueprintAbility hex_ability, BlueprintBuff hex_cooldown, bool allow_hex_vulnerability = true)
+        void addWitchHexCooldownScaling(BlueprintAbility hex_ability, BlueprintBuff hex_cooldown, bool allow_hex_vulnerability = true, bool cooldown_only_on_success = false)
         {
             var cooldown_action = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
             cooldown_action.Buff = hex_cooldown;
@@ -127,23 +127,25 @@ namespace CallOfTheWild
             duration.Value = 1;
             cooldown_action.DurationValue = Helpers.CreateContextDuration(bonus: duration,
                                                                             rate: DurationRate.Days);
-            cooldown_action.IsNotDispelable = true;
 
             var ability = hex_ability.StickyTouch == null ? hex_ability : hex_ability.StickyTouch.TouchDeliveryAbility;
-            bool has_action = (ability.GetComponents<AbilityEffectRunAction>().Count() != 0);
-            if (!has_action)
-            {
-                Main.logger.Log("Warning: no action on " + ability.name + " while trying to create hex cooldown");
-                var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-                action.addAction(cooldown_action);
-                ability.AddComponent(action);
-            }
-            else
-            {
-                ability.ReplaceComponent<AbilityEffectRunAction>(ability.GetComponent<AbilityEffectRunAction>().CreateCopy());
-                ability.GetComponent<AbilityEffectRunAction>().addAction(cooldown_action);
-            }
 
+            if (!cooldown_only_on_success)
+            {
+                bool has_action = (ability.GetComponents<AbilityEffectRunAction>().Count() != 0);
+                if (!has_action)
+                {
+                    Main.logger.Log("Warning: no action on " + ability.name + " while trying to create hex cooldown");
+                    var action = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+                    action.addAction(cooldown_action);
+                    ability.AddComponent(action);
+                }
+                else
+                {
+                    ability.ReplaceComponent<AbilityEffectRunAction>(ability.GetComponent<AbilityEffectRunAction>().CreateCopy());
+                    ability.GetComponent<AbilityEffectRunAction>().addAction(cooldown_action);
+                }
+            }
 
             if (allow_hex_vulnerability)
             {
@@ -167,7 +169,14 @@ namespace CallOfTheWild
                     if (a is ContextActionSavingThrow)
                     {
                         var new_action = (a as ContextActionSavingThrow).CreateCopy();
-                        new_action.Actions = Helpers.CreateActionList(new_action.Actions.Actions.AddToArray(accursed_hex_conditional));
+                        if (!cooldown_only_on_success)
+                        {
+                            new_action.Actions = Helpers.CreateActionList(new_action.Actions.Actions.AddToArray(accursed_hex_conditional));
+                        }
+                        else
+                        {
+                            new_action.Actions = Helpers.CreateActionList(new_action.Actions.Actions.AddToArray(Helpers.CreateConditionalSaved(null, cooldown_action)));
+                        }
                         run_actions[i] = new_action;
                         found_save = true;
                         break;
@@ -176,7 +185,14 @@ namespace CallOfTheWild
                 
                 if (!found_save && ability.GetComponent<AbilityEffectRunAction>().SavingThrowType != SavingThrowType.Unknown)
                 {
-                    run_actions = run_actions.AddToArray(accursed_hex_conditional);
+                    if (!cooldown_only_on_success)
+                    {
+                        run_actions = run_actions.AddToArray(accursed_hex_conditional);
+                    }
+                    else
+                    {
+                        run_actions = run_actions.AddToArray(Helpers.CreateConditionalSaved(null, cooldown_action));
+                    }
                 }
 
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(run_actions));
@@ -214,7 +230,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid, string name = "", bool allow_hex_vulnerability = true)
+        BlueprintBuff addWitchHexCooldownScaling(BlueprintAbility ability, string buff_guid, string name = "", bool allow_hex_vulnerability = true, bool cooldown_only_on_success = false)
         {
             var hex_cooldown = Helpers.CreateBuff(ability.name + "CooldownBuff",
                                                                      name == "" ? "Cooldown " + ability.Name : name,
@@ -225,7 +241,7 @@ namespace CallOfTheWild
             hex_cooldown.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
             hex_cooldown.Frequency = DurationRate.Rounds;
             hex_cooldown.Stacking = StackingType.Replace;
-            addWitchHexCooldownScaling(ability, hex_cooldown, allow_hex_vulnerability);
+            addWitchHexCooldownScaling(ability, hex_cooldown, allow_hex_vulnerability, cooldown_only_on_success);
             return hex_cooldown;
         }
 
