@@ -684,6 +684,9 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(10, infuriating_mockery),
                                                                 };
             skald_progression.UIDeterminatorsGroup = skald_progression.UIDeterminatorsGroup.AddToArray(urban_skald_proficiencies);
+            var bard_class = library.TryGet<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
+            urban_skald_archetype.ReplaceStartingEquipment = true;
+            urban_skald_archetype.StartingItems = bard_class.StartingItems;
 
             skald_progression.UIGroups[1].Features.Add(back_of_the_crowd);
             skald_progression.UIGroups[2].Features.Add(controlled_rage_feature);

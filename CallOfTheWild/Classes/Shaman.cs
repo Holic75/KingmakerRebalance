@@ -260,8 +260,8 @@ namespace CallOfTheWild
             shaman_class.FemaleEquipmentEntities = druid_class.FemaleEquipmentEntities;
             shaman_class.ComponentsArray = new BlueprintComponent[] { druid_class.ComponentsArray[0] };
             shaman_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
-                                                                                        library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff
-                                                                                        library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("cd635d5720937b044a354dba17abad8d"), //s. cure light wounds
+                                                                                        library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("f28f6031c2908d84d945865a80f67177"), // long spear
+                                                                                        library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("385be51e5706a55418384f70d8341371"), // hide armor
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("cd635d5720937b044a354dba17abad8d"), //s. cure light wounds
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("be452dba5acdd9441841d2189e1ae55a") //s.bless
                                                                                        };

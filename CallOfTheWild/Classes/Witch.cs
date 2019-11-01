@@ -19,6 +19,7 @@ using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
 using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
@@ -92,6 +93,10 @@ namespace CallOfTheWild
         static public BlueprintFeature witch_channel_positive;
         static public BlueprintFeature conduit_surge;
 
+
+        static public BlueprintFeature witch_knife;
+        static public BlueprintAbility ill_omen;
+
         static HexEngine hex_engine;
 
 
@@ -119,6 +124,7 @@ namespace CallOfTheWild
             witch_class.ReflexSave = wizard_class.ReflexSave;
             witch_class.WillSave = wizard_class.WillSave;
             witch_class.Spellbook = createWitchSpellbook();
+            createIllOmen();
             witch_class.ClassSkills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillUseMagicDevice,
                                                       StatType.SkillPersuasion};
             witch_class.IsDivineCaster = false;
@@ -585,6 +591,16 @@ namespace CallOfTheWild
 
         static void createWitchPatrons()
         {
+            witch_knife = Helpers.CreateFeature("WitchKnifeFeature",
+                                                "Witch Knife",
+                                                "You empower your witch spells by incorporating the use of a special ceremonial knife during your castings.\n Add +1 to the DC of all your patron spells.",
+                                                "",
+                                                null,
+                                                FeatureGroup.Feat,
+                                                Helpers.PrerequisiteClassLevel(witch_class, 1)
+                                                );
+            library.AddFeats(witch_knife);
+                                                
             BlueprintFeature[] patrons = new BlueprintFeature[]
             {
                 createWitchPatronFeature("Agility", "f7a4a115c138439c8e5f4ee8adacfca0","9b43dc766cae40b7891c035b8fa43522",
@@ -934,7 +950,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 5), //inflict critical wounds
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
-                new Common.SpellId( NewSpells.suffocation.AssetGuid, 5), //waves of fatigue
+                new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
 
@@ -952,7 +968,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "82a5b848c05e3f342b893dedb1f9b446", 6), //plague storm
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead
                 new Common.SpellId( "a6e59e74cba46a44093babf6aec250fc", 6), //slay living
-                new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flash
+                new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flуsh
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation
                 new Common.SpellId( "b3da3fbee6a751d4197e446c7e852bcb", 6), //true seeing
@@ -983,7 +999,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.irresistible_dance.AssetGuid, 8),
                 new Common.SpellId( "f958ef62eea5050418fb92dfa944c631", 8), //power word stun
                 new Common.SpellId( "0e67fa8f011662c43934d486acc50253", 8), //prediction of failure
-                new Common.SpellId( "80a1a388ee938aa4e90d427ce9a7a3e9", 8), //ressurection
+                new Common.SpellId( "80a1a388ee938aa4e90d427ce9a7a3e9", 8), //resurrection
                 new Common.SpellId( "7cfbefe0931257344b2cb7ddc4cdff6f", 8), //stormbolts
                 new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 8), //summon monster 8
                 new Common.SpellId( "df2a0ba6b6dcecf429cbb80a56fee5cf", 8), //mind blank
@@ -1010,7 +1026,71 @@ namespace CallOfTheWild
             }
 
             HexEngine.hex_vulnerability_spell.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd"); //hold person
+
             return witch_spellbook;
+        }
+
+
+        static void createIllOmen()
+        {
+            var buff0 = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "IllOmen1Buff", "");
+            buff0.SetName("Ill Omen");
+            buff0.SetDescription("You afflict the target with bad luck. On the next d20 roll the target makes, it must roll twice and take the less favorable result. For every five caster levels you have, the target must roll twice on an additional d20 roll (to a maximum of five rolls at 20th level).");
+            buff0.ReplaceComponent<ModifyD20>(m => m.DispellOnRerollFinished = true);
+            buff0.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            BlueprintBuff[] buffs = new BlueprintBuff[5];
+            ActionList[] actions = new ActionList[5];
+            GameAction[] removes = new GameAction[5];
+            buffs[0] = buff0;
+            actions[0] = Helpers.CreateActionList(Common.createContextActionApplyBuff(buffs[0], Helpers.CreateContextDuration(), is_child: false, is_permanent: true, dispellable: false));
+            removes[0] = Common.createContextActionRemoveBuffFromCaster(buff0);
+
+            for (int i = 1; i < 5; i++)
+            {
+                buffs[i] = library.CopyAndAdd<BlueprintBuff>(buff0.AssetGuid, $"IllOmen{i + 1}Buff", "");
+                
+                buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: actions[i - 1].Actions[0]));
+                actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(buffs[i], Helpers.CreateContextDuration(), is_child: false, is_permanent: true, dispellable: false));
+                removes[i] = Common.createContextActionRemoveBuffFromCaster(buffs[i]);
+            }
+
+            var buff = Helpers.CreateBuff("IllOmenBuff",
+                                          buff0.Name,
+                                          buff0.Description,
+                                          "",
+                                          buff0.Icon,
+                                          null,
+                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] { Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus), actions) },
+                                                                              deactivated: removes),
+                                          Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 5, type: AbilityRankType.StatBonus)
+                                          );
+            buff0.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffFromCaster(buff)));
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+
+            ill_omen = Helpers.CreateAbility("IllOmenAbility",
+                                             buff.Name,
+                                             buff.Description,
+                                             "",
+                                             buff.Icon,
+                                             AbilityType.Spell,
+                                             UnitCommand.CommandType.Standard,
+                                             AbilityRange.Close,
+                                             Helpers.roundsPerLevelDuration,
+                                             Helpers.savingThrowNone,
+                                             Helpers.CreateRunActions(apply_buff),
+                                             Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Curse | SpellDescriptor.MindAffecting),
+                                             Helpers.CreateContextRankConfig()
+                                             );
+
+            ill_omen.SpellResistance = true;
+            ill_omen.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            ill_omen.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+
+            ill_omen.AddToSpellList(witch_class.Spellbook.SpellList, 1);
+            ill_omen.AddSpellAndScroll("3bbf0e0edd3e78f42a42b0dd85c3a53a"); //doom
         }
 
 
@@ -1025,13 +1105,31 @@ namespace CallOfTheWild
             }
             description += ".";
 
-            return Helpers.CreateFeature("Witch" + name + "PatronFeature",
+            var patron =  Helpers.CreateFeature("Witch" + name + "PatronFeature",
                                   name + " Patron",
                                   description,
                                   feature_guid,
                                   null,
                                   FeatureGroup.None,
                                   learn_spell_list);
+
+            var witch_knife_bonus = Helpers.CreateFeature("WitchKnife" + patron.name,
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.None,
+                                                           Helpers.Create<SpellDuplicates.IncreaseDCForSpellsOrDuplicates>(s =>
+                                                                                                                             {
+                                                                                                                                 s.Value = 1;
+                                                                                                                                 s.Spells = Common.getSpellsFromSpellList(learn_spell_list.SpellList);
+                                                                                                                             }
+                                                                                                                           )
+                                                           );
+            witch_knife_bonus.HideInCharacterSheetAndLevelUp = true;
+            witch_knife.AddComponent(Common.createAddFeatureIfHasFact(patron, witch_knife_bonus));
+
+            return patron;
         }
 
         static BlueprintCharacterClass[] getWitchArray()

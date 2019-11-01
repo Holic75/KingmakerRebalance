@@ -336,6 +336,7 @@ namespace CallOfTheWild
             apply_buff.IsNotDispelable = !dispellable;
             apply_buff.UseDurationSeconds = duration_seconds > 0;
             apply_buff.DurationSeconds = duration_seconds;
+            apply_buff.AsChild = is_child;
             return apply_buff;
         }
 
