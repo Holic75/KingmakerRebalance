@@ -647,6 +647,17 @@ namespace CallOfTheWild
                                          "08323922485f7e246acb3d2276515526", //horrid witling
                                          "b24583190f36a8442b212e45226c54fc" //wail of banshee
                                         ),
+                createWitchPatronFeature("Death", "0418c666165047f2bdb72e0168bb51eb", "8af4300894f04995b534531c832d8f3d",
+                                         "450af0402422b0b4980d9c2175869612", //ray of enfeeblement
+                                         "c36c1d11771b0584f8e100b92ee5475b", //blessing of life and courage
+                                         "4b76d32feb089ad4499c3a1ce8e1ac27", //animate dead
+                                         "0413915f355a38146bc6ad40cdf27b3f", //death ward
+                                         NewSpells.suffocation.AssetGuid,
+                                         "a89dcbbab8f40e44e920cc60636097cf", //circle of death
+                                         "6f1dcf6cfa92d1948a740195707c0dbe", //finger of death
+                                         "c3d2294a6740bc147870fff652f3ced5", //death_clutch,
+                                         "2f8a67c483dfa0f439b293e094ca9e3c" //power word kill
+                                        ),
                 createWitchPatronFeature("Devotion", "faa76cf5cacd447caa2c18965ca9c3cb", "89bd5b848cfc4d6eacb51cf8e018e8d4",
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
                                          "042aaa117e89c4d4b8cb41478dd3fca3", //grace
@@ -660,14 +671,14 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22",
                                          "ab395d2335d3f384e99dddee8562978f", //shocking grasp
-                                         "cdb106d53c65bbc4086183d54c3b97c7", //scorching ray
+                                         NewSpells.flurry_of_snowballs.AssetGuid,
                                          "2d81362af43aeac4387a3d4fced489c3", //fireball
-                                         "690c90a82bf2e58449c6b541cb8ea004", //elemental body 1
+                                         NewSpells.river_of_wind.AssetGuid,
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flamestrike
-                                         "6303b404df12b0f4793fa0763b21dd2c", //elemental assesor
+                                         "e7c530f8137630f4d9d7ee1aa7b1edc0", //cone of cold
                                          "8eb769e3b583f594faabe1cfdb0bb696", //summon greater elemental
                                          "e3d0dfe1c8527934294f241e0ae96a8d", //firestorm
-                                         "d8144161e352ca846a73cf90e85bf9ac" //tsunami
+                                         "01300baad090d634cb1a1b2defe068d6" //clashing rocks
                                         ),
                 createWitchPatronFeature("Endurance", "16e0d62dac7947aab226dcded5bc5177", "79301d011ec5490ea32dcd42a8daa366",
                                          "b065231094a21d14dbf1c3832f776871", //fire belly
@@ -688,8 +699,7 @@ namespace CallOfTheWild
                                          "be2062d6d85f4634ea4f26e9e858c3b8", //cleanse
                                          "788d72e7713cf90418ee1f38449416dc", //inspiring recovery
                                          "fafd77c6bfa85c04ba31fdc1c962c914", //restoration greater
-                                         SpellDuplicates.addDuplicateSpell("1f173a16120359e41a20fc75bb53d449", "WitchHealingPatronCureCriticalWoundsMassAbility", "").AssetGuid, 
-                                         //cure critical wounds mass
+                                         SpellDuplicates.addDuplicateSpell("1f173a16120359e41a20fc75bb53d449", "WitchHealingPatronCureCriticalWoundsMassAbility", "").AssetGuid, //cure critical wounds mass
                                          "867524328b54f25488d371214eea0d90" // heal mass
                                          ),
                 createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b",
@@ -731,8 +741,8 @@ namespace CallOfTheWild
                                          "48e2744846ed04b4580be1a3343a5d3d", //contagion
                                          "4b76d32feb089ad4499c3a1ce8e1ac27", //animate dead
                                          "548d339ba87ee56459c98e80167bdf10", //cloudkill
+                                         "82a5b848c05e3f342b893dedb1f9b446", //plague storm
                                          "76a11b460be25e44ca85904d6806e5a3", //create undead
-                                         "b974af13e45639a41a04843ce1c9aa12", //creeping doom
                                          "08323922485f7e246acb3d2276515526", //horrid witlin
                                          "37302f72b06ced1408bf5bb965766d46" //energy drain
                                         ),
@@ -771,8 +781,8 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4",
                                          "b065231094a21d14dbf1c3832f776871", //firebelly
-                                         "cdb106d53c65bbc4086183d54c3b97c7", //scorching ray
-                                         "bf0accce250381a44b857d4af6c8e10d", //searing light
+                                         "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
+                                         NewSpells.flashfire.AssetGuid,
                                          "f72f8f03bf0136c4180cd1d70eb773a5", //controlled fireball
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flame strike
                                          "093ed1d67a539ad4c939d9d05cfe192c", //sirocco
@@ -793,7 +803,7 @@ namespace CallOfTheWild
                                          ),
                 createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
                                          "9f10909f0be1f5141bf1c102041f93d9", //snowball
-                                         "c83447189aabc72489164dfc246f3a36", //frigid touch
+                                         "5368cecec375e1845ae07f48cdc09dd1", //resist cold
                                          SpellDuplicates.addDuplicateSpell("fcb028205a71ee64d98175ff39a0abf9", "WitchWinterPatronIceStormAbility", "").AssetGuid, //ice storm
                                          "65e8d23aef5e7784dbeb27b1fca40931", //icy prison
                                          SpellDuplicates.addDuplicateSpell("e7c530f8137630f4d9d7ee1aa7b1edc0", "WinterPatronConeOfColdABility","").AssetGuid, //cone of cold

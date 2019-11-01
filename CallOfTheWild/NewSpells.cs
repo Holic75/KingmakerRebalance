@@ -182,7 +182,6 @@ namespace CallOfTheWild
             createParticulateForm();
             createIrresistibleDance();
             createHoldMonsterMass();
-
         }
 
 

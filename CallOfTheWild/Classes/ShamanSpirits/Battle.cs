@@ -72,7 +72,7 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("f72f8f03bf0136c4180cd1d70eb773a5"), //controlled fireball
                     library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252"), //righteous might
                     library.Get<BlueprintAbility>("6a234c6dcde7ae94e94e9c36fd1163a7"), //bulls strength mass
-                    library.Get<BlueprintAbility>("e3d0dfe1c8527934294f241e0ae96a8d"), //fire storm
+                    library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28"), //legendary proportions
                     library.Get<BlueprintAbility>("7cfbefe0931257344b2cb7ddc4cdff6f"), //stormbolts
                     library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6"), //clashing rocks
                 };
