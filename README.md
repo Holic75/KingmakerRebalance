@@ -122,6 +122,7 @@ New spells:
 - Curse, Major,
 - Fire Seeds,
 - Fluid Form,
+- Freezing Sphere,
 - Poison Breath,
 - Plant Shape I, II and III,
 - Ice Body,

@@ -115,6 +115,7 @@ namespace CallOfTheWild
                 {
                 (BaseDamage) new EnergyDamage(new DiceFormula(actual_dc, DiceType.D6), Kingmaker.Enums.Damage.DamageEnergyType.Holy)
                 }));
+                actual_dc = 0;
                 evt_dmg.Reason = (RuleReason)this.Fact;
                 //temporary remove temp hp
                 var temp_hp_modifiers = this.Owner.Stats.TemporaryHitPoints.Modifiers.ToArray();
@@ -193,6 +194,7 @@ namespace CallOfTheWild
                 {
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
                 }
+                caster_level_increase = -1;
             }
         }
 

@@ -83,6 +83,7 @@ namespace CallOfTheWild
         static public BlueprintFeature murksight_hex;
         static public BlueprintFeature ameliorating;
         static public BlueprintFeature summer_heat;
+        static public BlueprintFeature swamps_grasp;
 
         static public BlueprintFeature extra_hex;
 
@@ -779,6 +780,8 @@ namespace CallOfTheWild
 
             speaker_for_the_past_archetype.ReplaceClassSkills = true;
             speaker_for_the_past_archetype.ClassSkills = shaman_class.ClassSkills.AddToArray(StatType.SkillKnowledgeWorld, StatType.SkillPerception, StatType.SkillUseMagicDevice);
+
+            beast_of_ill_omen.AddComponent(Common.prerequisiteNoArchetype(shaman_class, speaker_for_the_past_archetype));
         }
 
 
@@ -1176,6 +1179,8 @@ namespace CallOfTheWild
                                                       Witch.summer_heat.Name,
                                                       Witch.summer_heat.Description,
                                                       "", "", "", "", "");
+
+            swamps_grasp = hex_engine.createSwampsGrasp("ShamanSwampsGrasp", Witch.swamps_grasp.Name, Witch.swamps_grasp.Description);
         }
 
 
@@ -1190,7 +1195,7 @@ namespace CallOfTheWild
             witch_hex_selection.AddComponent(Helpers.PrerequisiteNoFeature(witch_hex_selection));
             witch_hex_selection.HideInCharacterSheetAndLevelUp = true;
 
-            witch_hex_selection.AllFeatures = new BlueprintFeature[] { beast_of_ill_omen, slumber_hex, iceplant_hex, murksight_hex, ameliorating, summer_heat };
+            witch_hex_selection.AllFeatures = new BlueprintFeature[] { beast_of_ill_omen, slumber_hex, iceplant_hex, murksight_hex, ameliorating, summer_heat, swamps_grasp };
 
             hex_selection = Helpers.CreateFeatureSelection("ShamanHexSelection",
                                                            "Hex",

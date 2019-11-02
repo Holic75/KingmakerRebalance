@@ -300,6 +300,7 @@ namespace CallOfTheWild
             //change jaethal
             var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
             var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();
+            jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
             jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
         }
 

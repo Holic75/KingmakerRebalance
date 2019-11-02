@@ -121,6 +121,8 @@ namespace CallOfTheWild
         static public BlueprintAbility curse_major;
         static public BlueprintAbility hold_monster_mass;
 
+        static public BlueprintAbility freezing_sphere;
+
         static public void load()
         {
             createShillelagh();
@@ -182,9 +184,53 @@ namespace CallOfTheWild
             createParticulateForm();
             createIrresistibleDance();
             createHoldMonsterMass();
+            createFreezingSphere();
         }
 
 
+        static void createFreezingSphere()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FreezingSphere.png");
+
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
+            var dmg_water = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
+
+            var stagger_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var apply_staggered = Common.createContextActionApplyBuff(stagger_buff, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1));
+            var water_subtype = library.Get<BlueprintFeature>("bf7ee56ec9e43c14fa17727997e91993");
+            var effect = Helpers.CreateConditional(Common.createContextConditionHasFact(water_subtype), new GameAction[] { dmg_water, apply_staggered}, new GameAction[] { dmg });
+
+            var projectile = library.Get<BlueprintProjectile>("99be5f02870297b48b0342ba44156dc2");
+
+
+            freezing_sphere = Helpers.CreateAbility("FreezingSphereAbility",
+                                                    "Freezing Sphere",
+                                                    "Freezing sphere creates a frigid globe of cold energy that streaks from your fingertips to the location you select, where it explodes in a 40-foot-radius burst, dealing 1d6 points of cold damage per caster level (maximum 15d6) to each creature in the area. A creature of the water subtype instead takes 1d8 points of cold damage per caster level (maximum 15d8) and is staggered for 1d4 rounds.",
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Long,
+                                                    "",
+                                                    Helpers.reflexHalfDamage,
+                                                    Helpers.CreateRunActions(SavingThrowType.Reflex, effect),
+                                                    Common.createAbilityDeliverProjectile(AbilityProjectileType.Simple, projectile, 5.Feet(), 5.Feet()),
+                                                    Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                    Helpers.CreateContextRankConfig(max: 15)
+                                                    );
+            freezing_sphere.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten;
+            freezing_sphere.setMiscAbilityParametersRangedDirectional();
+            freezing_sphere.SpellResistance = true;
+
+            freezing_sphere.AddToSpellList(Helpers.magusSpellList, 6);
+            freezing_sphere.AddToSpellList(Helpers.wizardSpellList, 6);
+
+            freezing_sphere.AddSpellAndScroll("66fc961f9c39ae94fb87a79adc87212e");
+        }
+
+   
 
 
 
@@ -411,7 +457,7 @@ namespace CallOfTheWild
         static void createFluidForm()
         {
             var icon = library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon;//charged water blast
-
+            var water_subtype = library.Get<BlueprintFeature>("bf7ee56ec9e43c14fa17727997e91993");
             var buff = Helpers.CreateBuff("FluidFormBuff",
                                             "Fluid Form",
                                             "When you cast this spell, your body takes on a slick, oily appearance.For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment.You gain DR 10 / slashing and your reach increases by 10 feet.",
@@ -419,7 +465,8 @@ namespace CallOfTheWild
                                             icon,
                                             Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
                                             Common.createContextFormDR(10, PhysicalDamageForm.Slashing),
-                                            Helpers.CreateAddStatBonus(StatType.Reach, 10, ModifierDescriptor.UntypedStackable)
+                                            Helpers.CreateAddStatBonus(StatType.Reach, 10, ModifierDescriptor.UntypedStackable),
+                                            Helpers.CreateAddFact(water_subtype)
                                             );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
@@ -796,7 +843,7 @@ namespace CallOfTheWild
             area.SpellResistance = true;
             flashfire = Helpers.CreateAbility("FlashfireAbility",
                                                 "Flashfire",
-                                                "You cause flames to spring up in a 30-ft line, hese flames deal 1d6 points of fire damage for every 3 caster levels you have (maximum 5d6) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire",
+                                                "You cause flames to spring up in a 30-ft line, these flames deal 1d6 points of fire damage for every 3 caster levels you have (maximum 5d6) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,

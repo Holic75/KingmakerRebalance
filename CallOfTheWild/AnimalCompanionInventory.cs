@@ -46,7 +46,7 @@ namespace CallOfTheWild
         class CharDollBase__SetupInfo__Patch
         {
 
-            static EquipSlotBase.SlotType[] allowed_slots = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist };
+            static EquipSlotBase.SlotType[] allowed_slots = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders };
             static bool Prefix(CharDollBase __instance, UnitEntityData player)
             {
                 var tr = Harmony12.Traverse.Create(__instance);

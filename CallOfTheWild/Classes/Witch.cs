@@ -62,6 +62,7 @@ namespace CallOfTheWild
         static public BlueprintFeature summer_heat;
         static public BlueprintFeature cackle;
         static public BlueprintFeature ward;
+        static public BlueprintFeature swamps_grasp;
         //major hexes
         static public BlueprintFeature major_ameliorating;
         static public BlueprintFeature major_healing;
@@ -214,6 +215,8 @@ namespace CallOfTheWild
             spellbook.SpellsPerLevel = sorcerer_class.Spellbook.SpellsPerLevel;
             spellbook.Name = ley_line_guardian_archetype.LocalizedName;
             ley_line_guardian_archetype.ReplaceSpellbook = spellbook;
+
+            beast_of_ill_omen.AddComponent(Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
         }
 
 
@@ -490,6 +493,7 @@ namespace CallOfTheWild
             createEvilEye();
             createSummerHeat();
             createWard();
+            createSwampsGrasp();
 
             createMajorHealing();
             createMajorAmeliorating();
@@ -516,7 +520,7 @@ namespace CallOfTheWild
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
-            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle, ward,
+            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle, ward, swamps_grasp,
                                                               major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew, retribution,
                                                               animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
@@ -675,7 +679,7 @@ namespace CallOfTheWild
                                          "2d81362af43aeac4387a3d4fced489c3", //fireball
                                          NewSpells.river_of_wind.AssetGuid,
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flamestrike
-                                         "e7c530f8137630f4d9d7ee1aa7b1edc0", //cone of cold
+                                         NewSpells.freezing_sphere.AssetGuid,
                                          "8eb769e3b583f594faabe1cfdb0bb696", //summon greater elemental
                                          "e3d0dfe1c8527934294f241e0ae96a8d", //firestorm
                                          "01300baad090d634cb1a1b2defe068d6" //clashing rocks
@@ -807,7 +811,7 @@ namespace CallOfTheWild
                                          SpellDuplicates.addDuplicateSpell("fcb028205a71ee64d98175ff39a0abf9", "WitchWinterPatronIceStormAbility", "").AssetGuid, //ice storm
                                          "65e8d23aef5e7784dbeb27b1fca40931", //icy prison
                                          SpellDuplicates.addDuplicateSpell("e7c530f8137630f4d9d7ee1aa7b1edc0", "WinterPatronConeOfColdABility","").AssetGuid, //cone of cold
-                                         "5ef85d426783a5347b420546f91a677b", //cold ice strike
+                                         NewSpells.freezing_sphere.AssetGuid,
                                          "3e4d3b9a5bd03734d9b053b9067c2f38", //waves of exhaustion
                                          "17696c144a0194c478cbe402b496cb23", //polar ray
                                          "ba48abb52b142164eba309fd09898856" // polar midnight
@@ -1167,7 +1171,8 @@ namespace CallOfTheWild
             beast_of_ill_omen = hex_engine.createBeastOfIllOmen("BeastOfIllOmen", "Beast of Ill-Omen",
                                                                 "The witch imbues her familiar with strange magic, putting a minor curse upon the next enemy to see it.\n"
                                                                 + "Effect: The target enemy must make a Will save or be affected by bane (caster level equal to the witch’s level).\n"
-                                                                + " Whether or not the target’s save is successful, the creature cannot be the target of the bane effect for 1 day(later uses of this hex ignore that creature when determining who is affected).",
+                                                                + " Whether or not the target’s save is successful, the creature cannot be the target of the bane effect for 1 day (later uses of this hex ignore that creature when determining who is affected).\n"
+                                                                + "Note: using hex is a free action, but you must wait at least one minute between two susequent useses.",
                                                                 "c19d55421e6f436580423fffc78c11bd",
                                                                 "fb3278a3b552414faaecb4189818b32e",
                                                                 "ef6b3d4ad22644628aacfd3eaa4783e9"
@@ -1267,6 +1272,14 @@ namespace CallOfTheWild
         {
             ward = hex_engine.createWardHex("WitchWard", "Ward",
                                              "Effect: The warded creature receives a +2 deflection bonus to AC and a +2 resistance bonus on saving throws. This ward lasts until the warded creature is hit or fails a saving throw. A witch knows when a warded creature is no longer protected. A witch can have only one ward active at a time. If the witch uses this ability again, the previous ward immediately ends. A witch cannot use this ability on herself. At 8th level and 16th level, the bonuses provided by this ward increase by +1."
+                                             );
+        }
+
+
+        static void createSwampsGrasp()
+        {
+            swamps_grasp = hex_engine.createSwampsGrasp("WitchSwampsGrasp", "Swamp's Grasp",
+                                             "Effect: A 20-ft radius burst within medium range becomes difficult terrain for a number of rounds equal to 3 + the witch’s Intelligence modifier. If the witch uses this hex again before the duration of the previous use has expired, the effects of the previous use of this hex end immediately."
                                              );
         }
 

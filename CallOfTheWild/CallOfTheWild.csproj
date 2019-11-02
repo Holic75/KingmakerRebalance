@@ -145,6 +145,7 @@
     <Compile Include="Classes\VindicativeBastard.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="Enchantments\WeaponEnchantments.cs" />
+    <Compile Include="GlobalMap.cs" />
     <Compile Include="Hexes\ShamanHexes.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />

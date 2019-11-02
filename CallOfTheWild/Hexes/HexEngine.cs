@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
@@ -21,6 +22,7 @@ using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
@@ -278,6 +280,18 @@ namespace CallOfTheWild
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             hex_ability.AddComponent(doom_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+            hex_ability.ActionType = CommandType.Free;
+
+            var cooldown_cast = Helpers.CreateBuff(name_prefix + "CooldownCasterBuff",
+                                                   "Use Cooldown: " + display_name,
+                                                   description,
+                                                   "",
+                                                   hex_ability.Icon,
+                                                   null);
+            var apply_cooldown = Common.createContextActionApplyBuff(cooldown_cast, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
+            hex_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))));
+            hex_ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_cast));
+
 
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
             var beast_of_ill_omen = Helpers.CreateFeature(name_prefix + "Feature",
@@ -289,7 +303,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             beast_of_ill_omen.Ranks = 1;
             addToAmplifyHex(hex_ability);
-            addToSplitHex(hex_ability, true);
+            //addToSplitHex(hex_ability, true);
             return beast_of_ill_omen;
         }
 
@@ -927,6 +941,7 @@ namespace CallOfTheWild
             cackle_buffs.Add(hex_buff);
             var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Common.createContextSavedApplyBuff(hex_buff, DurationRate.Rounds, is_dispellable: false)));
 
+            hex_ability.Range = AbilityRange.Medium;
             hex_ability.AddComponent(Helpers.CreateRunActions(action));
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.CanTargetSelf = test_mode;
@@ -978,6 +993,8 @@ namespace CallOfTheWild
             hex_ability.SetName(buff.Name);
             hex_ability.SetDescription(buff.Description);
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
+            hex_ability.Range = AbilityRange.Medium;
+            hex_ability.setMiscAbilityParametersSingleTargetRangedFriendly(true);
 
             var beast_gift = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   hex_ability.Name,
@@ -1151,6 +1168,36 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createSwampsGrasp(string name_prefix, string display_name, string description)
+        {
+            var buff = library.CopyAndAdd<BlueprintBuff>("fe21bf21c3182f743a964de5bcd2033e", name_prefix + "HexBuff", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("1d649d8859b25024888966ba1cc291d1", name_prefix + "HexArea", "");
+            area.Fx = Common.createPrefabLink("284c1ae66a3e8d44085d6567b0c284a1"); //mud
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
+            area.AddComponent(Helpers.Create<UniqueAreaEffect>());
+            area.Size = 20.Feet();
+            var ability = Helpers.CreateAbility(name_prefix + "HexAbility",
+                                                display_name,
+                                                description,
+                                                "",
+                                                library.Get<BlueprintAbility>("1a36c8b9ed655c249a9f9e8d4731f001").Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Medium,
+                                                "Variable",
+                                                Helpers.savingThrowNone,
+                                                Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, progression: ContextRankProgression.BonusValue,
+                                                                                stat: hex_stat, stepLevel: 3),
+                                                library.Get<BlueprintAbility>("1a36c8b9ed655c249a9f9e8d4731f001").GetComponent<AbilityAoERadius>()
+                                               );
+            ability.setMiscAbilityParametersRangedDirectional();
+            var feature = Common.AbilityToFeature(ability, hide: false);
+
+            return feature;
+        }
+
+
         public BlueprintFeature createIceTomb(string name_prefix, string display_name, string description, string ability_guid, string buff_guid,
                                                string feature_guid, string cooldown_guid)
         {
@@ -1158,7 +1205,7 @@ namespace CallOfTheWild
             hex_ability.SetName(display_name);
             hex_ability.SetDescription(description);
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>());
-            hex_ability.Range = AbilityRange.Close;
+            hex_ability.Range = AbilityRange.Medium;
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.CanTargetSelf = test_mode;
             var damage_value = new ContextValue();
@@ -1276,6 +1323,7 @@ namespace CallOfTheWild
             hex_buff.SetDescription(hex_ability.Description);
             hex_buff.SetName(hex_ability.Name);
             hex_buff.SetIcon(hex_ability.Icon);
+            hex_ability.Range = AbilityRange.Medium;
 
             var polymorph_component = hex_buff.GetComponent<Kingmaker.UnitLogic.Buffs.Polymorph>().CreateCopy();
             polymorph_component.Facts = polymorph_component.Facts.RemoveFromArray(Wildshape.turn_back);
@@ -1350,6 +1398,7 @@ namespace CallOfTheWild
 
             hex_ability.CanTargetFriends = test_mode;
             hex_ability.ActionType = CommandType.Standard;
+            hex_ability.Range = AbilityRange.Medium;
             Helpers.SetField(hex_ability, "m_IsFullRoundAction", false);
             var death_curse = Helpers.CreateFeature(name_prefix + "HexFeature",
                               hex_ability.Name,
@@ -1374,7 +1423,7 @@ namespace CallOfTheWild
             hex_ability.CanTargetPoint = false;
             hex_ability.CanTargetSelf = false;
             hex_ability.CanTargetFriends = false;
-            hex_ability.Range = AbilityRange.Close;
+            hex_ability.Range = AbilityRange.Medium;
             hex_ability.MaterialComponent = new BlueprintAbility.MaterialComponentData();
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityTargetsAround>());
             var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
