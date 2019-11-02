@@ -1186,7 +1186,7 @@ namespace CallOfTheWild
             ray_of_exhaustion = Helpers.CreateAbility("RayOfExhaustionAbility",
                                                       "Ray of Exhaustion",
                                                       "A black ray projects from your pointing finger. You must succeed on a ranged touch attack with the ray to strike a target.\n"
-                                                     + "The subject is immediately exhausted for the spell’s duration.A successful Fortitude save means the creature is only fatigued.\n"
+                                                     + "The subject is immediately exhausted for the spell’s duration. A successful Fortitude save means the creature is only fatigued.\n"
                                                      + "A character that is already fatigued instead becomes exhausted.\n"
                                                      + "This spell has no effect on a creature that is already exhausted. Unlike normal exhaustion or fatigue, the effect ends as soon as the spell’s duration expires.",
                                                      "",
