@@ -675,15 +675,26 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22",
                                          "ab395d2335d3f384e99dddee8562978f", //shocking grasp
-                                         NewSpells.flurry_of_snowballs.AssetGuid,
+                                         "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
                                          "2d81362af43aeac4387a3d4fced489c3", //fireball
                                          NewSpells.river_of_wind.AssetGuid,
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flamestrike
                                          NewSpells.freezing_sphere.AssetGuid,
                                          "8eb769e3b583f594faabe1cfdb0bb696", //summon greater elemental
                                          "e3d0dfe1c8527934294f241e0ae96a8d", //firestorm
-                                         "01300baad090d634cb1a1b2defe068d6" //clashing rocks
+                                         "1852a9393a23d5741b650a1ea7078abc" //icy prison mass
                                         ),
+               createWitchPatronFeature("Enchantment", "0677e4fe8b0648a99c8965c7d580ca74", "40eb72aded8c4dbfaf0ce4cf0fa79707",
+                                          NewSpells.command.AssetGuid,
+                                         "fd4d9fd7f87575d47aafe2a64a6e2d8d", //hideous laughter
+                                         "e6048d85fc3294f4c92b21c8d7526b1f", //cacophonus call
+                                         "dd2918e4a77c50044acba1ac93494c36", //overwhelming grief
+                                         "d7cbd2004ce66a042aeab2e95a3c5c61", //domiante person
+                                         "d316d3d94d20c674db2c24d7de96f6a7", //serenity
+                                         "740d943e42b60f64a8de74926ba6ddf7", //euphoric tranquility
+                                         NewSpells.irresistible_dance.AssetGuid, 
+                                         "3c17035ec4717674cae2e841a190e757"  //dominate monster
+                                         ),
                 createWitchPatronFeature("Endurance", "16e0d62dac7947aab226dcded5bc5177", "79301d011ec5490ea32dcd42a8daa366",
                                          "b065231094a21d14dbf1c3832f776871", //fire belly
                                          "a900628aea19aa74aad0ece0e65d091a", //bears endurance
