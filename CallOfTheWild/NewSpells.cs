@@ -663,6 +663,7 @@ namespace CallOfTheWild
                                                                              )
                                           //Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = wrapper)
                                          );
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             foreach (var a in abilities)
             {
                 buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = a));

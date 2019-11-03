@@ -137,7 +137,7 @@ namespace CallOfTheWild
                     //CallOfTheWild.Rebalance.fixDomains();
                     CallOfTheWild.Rebalance.fixBarbarianRageAC();
                     CallOfTheWild.Rebalance.fixInspiredFerocity();
-
+                    CallOfTheWild.Rebalance.fixWebSchool();
                     CallOfTheWild.Rebalance.fixMagicVestment();
                     CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();
                     CallOfTheWild.Rebalance.fixAnimalGrowth();

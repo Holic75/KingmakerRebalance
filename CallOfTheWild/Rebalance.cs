@@ -41,6 +41,7 @@ namespace CallOfTheWild
 
         internal static void fixSpellDescriptors()
         {
+            //fiery body
             library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
         }
 
@@ -276,6 +277,7 @@ namespace CallOfTheWild
             octavia_companion.Intelligence = 16;
             octavia_companion.Constitution = 10;
 
+
             //change regongar
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
@@ -301,9 +303,18 @@ namespace CallOfTheWild
             var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
             var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
-            jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("d76497bfc48516e45a0831628f767a0f");
+            jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
+
         }
 
+        internal static void fixWebSchool()
+        {
+            var web = library.Get<BlueprintAbility>("134cb6d492269aa4f8662700ef57449f");
+            web.GetComponent<SpellComponent>().School = SpellSchool.Conjuration;
+
+            library.Get<BlueprintSpellList>("ac551db78c1baa34eb8edca088be13cb").SpellsByLevel[2].Spells.Add(web); //add to lust
+            library.Get<BlueprintSpellList>("17c0bfe5b7c8ac3449da655cdcaed4e7").SpellsByLevel[2].Spells.Remove(web); //remove from wrath
+        }
 
         internal static void fixDomains()
         {

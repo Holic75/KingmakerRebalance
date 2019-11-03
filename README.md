@@ -169,7 +169,8 @@ Original game bug fixes:
 - Singing Steel works properly,
 - Archaelogist luck works with Lingering Performance and Singing Steel,
 - Lingering Performance no longer allows to overlap different bardic performances,
-- Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training)
+- Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training),
+- Web school is changed to conjuration
 
 
 Mod also changes stats of some npcs (optional)
@@ -177,7 +178,7 @@ Mod also changes stats of some npcs (optional)
 - Harrim class was changed to Warpriest and stats to 16/10/18/10/17/6
 - Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
-- Tristian to 8/16/12/10/18/14 and repalces his primary domain to fire
+- Tristian to 8/16/12/10/18/14 and replaces his primary domain to fire
 - Linzi to 8/18/14/14/10/16
 - Octavia to 10/16/10/18/10/14
 - Regongar to 19/12/12/10/8/16
