@@ -196,18 +196,19 @@ namespace CallOfTheWild
             amiri_class_level.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillAthletics, StatType.SkillMobility };
             //change tristian stats
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
-            tristian_companion.Strength = 8;
-            tristian_companion.Dexterity = 16;
+            tristian_companion.Strength = 10;
+            tristian_companion.Dexterity = 14;
             tristian_companion.Constitution = 12;
             tristian_companion.Intelligence = 10;
-            tristian_companion.Wisdom = 16;
+            tristian_companion.Wisdom = 17;
             tristian_companion.Charisma = 14;
             var tristian_level = tristian_companion.GetComponent<AddClassLevels>();
             tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35");//fire as primary
-           // tristian_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4");//good as secondary
-            tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extra channel
-            tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665");//precise shot instead of extend spell
-            //change harrim stats
+            tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
+            tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
+            tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
+            tristian_level.Selections[6].ParamSpellSchool = SpellSchool.Evocation;
+
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
             harrim_companion.Strength = 16;
             harrim_companion.Constitution = 16;

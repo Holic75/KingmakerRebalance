@@ -178,7 +178,7 @@ Mod also changes stats of some npcs (optional)
 - Harrim class was changed to Warpriest and stats to 16/10/18/10/17/6
 - Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
-- Tristian to 8/16/12/10/18/14 and replaces his primary domain to fire
+- Tristian to 10/14/12/10/19/14 and replaces his primary domain to fire
 - Linzi to 8/18/14/14/10/16
 - Octavia to 10/16/10/18/10/14
 - Regongar to 19/12/12/10/8/16
