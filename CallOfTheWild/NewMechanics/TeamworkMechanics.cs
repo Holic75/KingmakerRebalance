@@ -1,0 +1,141 @@
+﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Facts;
+using Kingmaker.Designers;
+using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Entities;
+using Kingmaker.Enums;
+using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CallOfTheWild.TeamworkMechanics
+{
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class CoordinatedShotAttackBonus : RuleInitiatorLogicComponent<RuleCalculateAttackBonus>
+    {
+        public int AttackBonus = 1;
+        public int AdditionalFlankBonus = 1;
+        public BlueprintUnitFact CoordinatedShotFact;
+
+
+        public override void OnEventAboutToTrigger(RuleCalculateAttackBonus evt)
+        {
+            if (!evt.Weapon.Blueprint.IsRanged)
+                return;
+
+            int bonus = AttackBonus + (evt.Target.CombatState.IsFlanked ? 0 : AdditionalFlankBonus);
+            if (this.Owner.State.Features.SoloTactics)
+            {
+                evt.AddBonus(bonus, this.Fact);
+                return;
+            }
+
+            foreach (UnitEntityData unitEntityData in evt.Target.CombatState.EngagedBy)
+            {
+                if (unitEntityData.Descriptor.HasFact(this.CoordinatedShotFact) && unitEntityData != this.Owner.Unit)
+                {
+                    evt.AddBonus(bonus, this.Fact);
+                    return;
+                }
+            }
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAttackBonus evt)
+        {
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class TeamworkACBonus : RuleTargetLogicComponent<RuleCalculateAC>
+    {
+        public BlueprintUnitFact teamwork_fact;
+        public int Radius;
+        public int value_per_unit = 1;
+        public ModifierDescriptor descriptor;
+
+        public override void OnEventAboutToTrigger(RuleCalculateAC evt)
+        {
+            int bonus = 0;
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, (float)this.Radius, true, false))
+            {
+                if ((unitEntityData.Descriptor.HasFact(this.teamwork_fact) || this.Owner.State.Features.SoloTactics) && unitEntityData != this.Owner.Unit && !unitEntityData.IsEnemy(this.Owner.Unit))
+                {
+                    bonus += value_per_unit;
+                }
+            }
+
+            if (bonus == 0)
+            {
+                return;
+            }
+            evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAC evt)
+        {
+        }
+    }
+
+
+    public class ContextActionOnUnitsWithinRadius : ContextAction
+    {
+        public ActionList actions;
+        public int Radius;
+        public bool include_dead = false;
+
+
+        public override string GetCaption()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RunAction()
+        {
+            if (actions == null || this.Target?.Unit == null)
+            {
+                return;
+            }
+
+
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, (float)this.Radius, true, include_dead))
+            {
+                using (this.Context.GetDataScope((TargetWrapper)unitEntityData))
+                {
+                    this.actions.Run();
+                }
+
+            }
+        }
+    }
+
+
+    public class ContextConditionHasSoloTactics : ContextCondition
+    {
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
+
+        protected override bool CheckCondition()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                return false;
+            }
+
+            //Main.logger.Log($"{(bool)unit.Descriptor.State.Features.SoloTactics} " + unit.CharacterName);
+            return (bool)unit.Descriptor.State.Features.SoloTactics;
+        }
+    }
+
+}

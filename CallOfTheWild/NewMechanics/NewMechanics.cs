@@ -1200,43 +1200,6 @@ namespace CallOfTheWild
         }
 
 
-        [AllowedOn(typeof(BlueprintUnitFact))]
-        [AllowMultipleComponents]
-        public class CoordinatedShotAttackBonus : RuleInitiatorLogicComponent<RuleCalculateAttackBonus>
-        {
-            public int AttackBonus = 1;
-            public int AdditionalFlankBonus = 1;
-            public BlueprintUnitFact CoordinatedShotFact;
-
-
-            public override void OnEventAboutToTrigger(RuleCalculateAttackBonus evt)
-            {
-                if (!evt.Weapon.Blueprint.IsRanged)
-                    return;
-
-                int bonus = AttackBonus + (evt.Target.CombatState.IsFlanked ? 0 : AdditionalFlankBonus);
-                if (this.Owner.State.Features.SoloTactics)
-                {
-                    evt.AddBonus(bonus, this.Fact);
-                    return;
-                }
-
-                foreach (UnitEntityData unitEntityData in evt.Target.CombatState.EngagedBy)
-                {
-                    if (unitEntityData.Descriptor.HasFact(this.CoordinatedShotFact) && unitEntityData != this.Owner.Unit)
-                    {
-                        evt.AddBonus(bonus, this.Fact);
-                        return;
-                    }
-                }
-            }
-
-            public override void OnEventDidTrigger(RuleCalculateAttackBonus evt)
-            {
-            }
-        }
-
-
         [ComponentName("Healing bonus")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class HealingBonusCasterLevel : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookSubscriber, ITargetRulebookHandler<RuleCalculateAbilityParams>, ITargetRulebookHandler<RuleHealDamage>,

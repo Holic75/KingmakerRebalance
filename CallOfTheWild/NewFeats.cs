@@ -23,6 +23,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -59,6 +60,11 @@ namespace CallOfTheWild
         static public BlueprintFeature strike_true;
         static public BlueprintFeature felling_smash;
 
+
+        static public BlueprintFeature target_of_opportunity;
+        static public BlueprintFeature distracting_charge;
+        static public BlueprintFeature swarm_scatter;
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -91,6 +97,90 @@ namespace CallOfTheWild
             createStrikeTrue();
 
             createFellingSmash();
+
+            createDistractingCharge();
+        }
+
+
+        static void createDistractingCharge()
+        {
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraDistractingChargeArea", "");
+
+            area.Size = 100.Feet();
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "AuraDistractingChargeBuff", "");
+            buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
+
+            distracting_charge = library.CopyAndAdd<BlueprintFeature>("e45ab30f49215054e83b4ea12165409f", "DistractingChargeFeature", "");
+            distracting_charge.SetName("Distracting Charge");
+            distracting_charge.SetDescription("When your ally with this feat uses the charge action and hits, you gain a +2 bonus on your next attack roll against the target of that charge. This bonus must be used before your ally’s next turn, or it is lost.");
+            distracting_charge.SetIcon(null);
+            distracting_charge.RemoveComponents<SpellImmunityToSpellDescriptor>();
+            distracting_charge.RemoveComponents<BuffDescriptorImmunity>();
+            distracting_charge.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat };
+            distracting_charge.ReplaceComponent<AuraFeatureComponent>(a => a.Buff = buff);
+
+            var target_buff = Helpers.CreateBuff("DistractingChargeTargetBuff",
+                                             distracting_charge.Name + " Target",
+                                             "",
+                                             "",
+                                             library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066").Icon, //charge
+                                             null
+                                             );
+
+            var apply_target_buff = Common.createContextActionApplyBuff(target_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var ally_buff = Helpers.CreateBuff("DistractingChargeAllyBuff",
+                                             distracting_charge.Name,
+                                             "",
+                                             "",
+                                             library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066").Icon, //charge,
+                                             null,
+                                             Helpers.Create<AttackBonusAgainstFactOwner>(a => { a.AttackBonus = 2; a.CheckedFact = target_buff; })
+                                             );
+            ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_ally_buff = Common.createContextActionApplyBuff(ally_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var effect_on_ally1 = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsAlly>(), Helpers.Create<TeamworkMechanics.ContextConditionHasSoloTactics>(), Helpers.CreateConditionHasFact(distracting_charge) },
+                                                            apply_ally_buff
+                                                          );
+
+            var effect_on_ally2 = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsAlly>(), Helpers.CreateConditionHasFact(distracting_charge) },
+                                                            apply_ally_buff,
+                                                            null
+
+                                              );
+
+            var actions_on_ally1 = Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 100; c.actions = Helpers.CreateActionList(effect_on_ally1); });
+            var actions_on_ally2 = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(distracting_charge),
+                                                             Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 100; c.actions = Helpers.CreateActionList(effect_on_ally2); })
+                                                             );
+
+            var attacker_buff = Helpers.CreateBuff("DistractingChargeAttackerBuff",
+                                                   "DistractingChargeAttackerBuff",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   null,
+                                                   Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => a.Action = Helpers.CreateActionList(apply_target_buff, actions_on_ally1)),
+                                                   Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a =>
+                                                                                                                               {
+                                                                                                                                   a.Action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(ally_buff));
+                                                                                                                                   a.ActionsOnInitiator = true;
+                                                                                                                               })
+                                                   );
+
+            attacker_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = attacker_buff);
+            distracting_charge.AddComponents(Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => {a.Action = Helpers.CreateActionList(actions_on_ally2);
+                                                                                                                           a.ActionsOnInitiator = true;
+                                                                                                                           }),
+                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(ally_buff)),
+                                                                                             only_hit: false, on_initiator: true)
+                                           );
+
+            library.AddCombatFeats(distracting_charge);
+            Common.addTemworkFeats(distracting_charge);
         }
 
 
@@ -880,7 +970,7 @@ namespace CallOfTheWild
                                                      FeatureGroup.Feat,
                                                      Helpers.PrerequisiteFeature(point_blank_shot));
 
-            coordinated_shot.AddComponent(Helpers.Create<NewMechanics.CoordinatedShotAttackBonus>(c =>
+            coordinated_shot.AddComponent(Helpers.Create<TeamworkMechanics.CoordinatedShotAttackBonus>(c =>
                                                                                                  {
                                                                                                      c.AttackBonus = 1;
                                                                                                      c.AdditionalFlankBonus = 1;

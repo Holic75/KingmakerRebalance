@@ -172,6 +172,7 @@
     <Compile Include="NewMechanics\SharedHandItems.cs" />
     <Compile Include="NewMechanics\SpellbookMechanics.cs" />
     <Compile Include="NewMechanics\SpellDuplicates.cs" />
+    <Compile Include="NewMechanics\TeamworkMechanics.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />

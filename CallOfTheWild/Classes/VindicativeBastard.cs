@@ -317,10 +317,13 @@ namespace CallOfTheWild
                                                                         AbilityActivationType.Immediately,
                                                                         CommandType.Free,
                                                                         null,
-                                                                        Common.createActivatableAbilityUnitCommand(CommandType.Swift),
                                                                         Helpers.CreateActivatableResourceLogic(solo_tactics_resource, ResourceSpendType.NewRound)
                                                                         );
-            solo_tactics_ability.DeactivateIfCombatEnded = true;
+            if (!test_mode)
+            {
+                solo_tactics_ability.DeactivateIfCombatEnded = true;
+                solo_tactics_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
+            }
 
             solo_tactics = Common.ActivatableAbilityToFeature(solo_tactics_ability, false);
             solo_tactics.AddComponent(Helpers.CreateAddAbilityResource(solo_tactics_resource));
