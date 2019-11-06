@@ -99,11 +99,146 @@ namespace CallOfTheWild
             createFellingSmash();
 
             createDistractingCharge();
+            createTargetOfOpportunity();
+            createSwarmTactics();
+        }
+
+
+        static void createSwarmTactics()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SwarmScatter.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraSwarmScatterArea", "");
+            area.Size = 5.Feet();
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "AuraSwarmScatterBuff", "");
+            buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
+
+            swarm_scatter = library.CopyAndAdd<BlueprintFeature>("e45ab30f49215054e83b4ea12165409f", "SwarmScatterFeature", "");
+            swarm_scatter.SetName("Swarm Scatter");
+            swarm_scatter.SetDescription("For each ally who has this feat and is adjacent to you, you gain a +1 bonus to AC. As long as you have this bonus, you are immune to the swarm attack and distraction ability of rat swarms.");
+            swarm_scatter.SetIcon(icon);
+            swarm_scatter.RemoveComponents<SpellImmunityToSpellDescriptor>();
+            swarm_scatter.RemoveComponents<BuffDescriptorImmunity>();
+            swarm_scatter.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.TeamworkFeat };
+            swarm_scatter.ReplaceComponent<AuraFeatureComponent>(a => a.Buff = buff);
+            var rat_swarm_immunity = library.Get<BlueprintBuff>("60549b98735cde44e87bf247042604c1");
+
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a =>
+            {
+                a.Buff = rat_swarm_immunity;
+                a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<TeamworkMechanics.ContextConditionAllyOrCasterWithSoloTacticsSurroundedByAllies>(c => c.radius = 5.Feet().Meters),
+                                                                 Helpers.CreateConditionHasFact(swarm_scatter)
+                                                                );
+            }
+                                                         );
+            swarm_scatter.AddComponent(Helpers.Create<TeamworkMechanics.TeamworkACBonus>(t =>
+                                                                                        {
+                                                                                            t.descriptor = ModifierDescriptor.Circumstance;
+                                                                                            t.value_per_unit = 1;
+                                                                                            t.teamwork_fact = swarm_scatter;
+                                                                                            t.Radius = 5.Feet().Meters;
+                                                                                        }
+                                                                                        )
+                                       );
+
+            library.AddFeats(swarm_scatter);
+            Common.addTemworkFeats(swarm_scatter);
+        }
+
+        static void createTargetOfOpportunity()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/TargetOfOpportunity.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraTargetOfOpportunityArea", "");
+
+            area.Size = 30.Feet();
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "AuraTargetOfOpportunityBuff", "");
+            buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
+
+            target_of_opportunity = library.CopyAndAdd<BlueprintFeature>("e45ab30f49215054e83b4ea12165409f", "TargetOfOpportunityFeature", "");
+            target_of_opportunity.SetName("Target of Opportunity");
+            target_of_opportunity.SetDescription("When an ally who also has this feat makes a ranged attack and hits an opponent within 30 feet of you, you can spend an immediate action to make a single ranged attack against that opponent.");
+            target_of_opportunity.SetIcon(icon);
+            target_of_opportunity.RemoveComponents<SpellImmunityToSpellDescriptor>();
+            target_of_opportunity.RemoveComponents<BuffDescriptorImmunity>();
+            target_of_opportunity.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat };
+            target_of_opportunity.ReplaceComponent<AuraFeatureComponent>(a => a.Buff = buff);
+
+            var target_buff = Helpers.CreateBuff("TargetOfOpportunityTargetBuff",
+                                             target_of_opportunity.Name + " Target",
+                                             "",
+                                             "",
+                                             icon,
+                                             null
+                                             );
+
+            var apply_target_buff = Common.createContextActionApplyBuff(target_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var ally_buff = Helpers.CreateBuff("TargetOfOpportunityTargetAllyBuff",
+                                 target_of_opportunity.Name,
+                                 "",
+                                 "",
+                                 icon,
+                                 null
+                                 );
+            //ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var apply_ally_buff = Common.createContextActionApplyBuff(ally_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var attack = Common.createAttackAbility("TargetOfOpportunityAttackAbility", target_of_opportunity.Name, target_of_opportunity.Description, "",
+                                                    icon, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                    Common.createAbilityCasterMainWeaponCheck(Common.getRangedWeaponCategories()),
+                                                    Common.createAbilityTargetHasFact(false, target_buff),
+                                                    Common.createAbilityCasterHasFacts(ally_buff)
+                                                    );
+
+            var effect_on_ally1 = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsAlly>(), Helpers.Create<TeamworkMechanics.ContextConditionHasSoloTactics>(), Helpers.CreateConditionHasFact(target_of_opportunity) },
+                                                            apply_ally_buff
+                                                          );
+
+            var effect_on_ally2 = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsAlly>(), Helpers.CreateConditionHasFact(target_of_opportunity) },
+                                                            apply_ally_buff,
+                                                            null
+
+                                              );
+
+            var actions_on_ally1 = Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 30.Feet(); c.actions = Helpers.CreateActionList(effect_on_ally1); });
+            var actions_on_ally2 = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(target_of_opportunity),
+                                                             Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 30.Feet(); c.actions = Helpers.CreateActionList(effect_on_ally2); })
+                                                             );
+
+            var attacker_buff = Helpers.CreateBuff("TargetOfOpportunityAttackerBuff",
+                                                   "TargetOfOpportunityAttackerBuff",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   null,
+                                                   Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_target_buff, actions_on_ally1), check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                   Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(ally_buff)),
+                                                                                                    only_hit: false,
+                                                                                                    on_initiator: true)
+                                                   );
+
+            attacker_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = attacker_buff);
+            target_of_opportunity.AddComponents(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(actions_on_ally2),
+                                                                                                    check_weapon_range_type: true,
+                                                                                                    range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                               Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(ally_buff)),
+                                                                                             only_hit: false, on_initiator: true),
+                                               Helpers.CreateAddFact(attack),
+                                               Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
+                                               Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"))
+                                           );
+
+            library.AddCombatFeats(target_of_opportunity);
+            Common.addTemworkFeats(target_of_opportunity);
         }
 
 
         static void createDistractingCharge()
         {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/DistractingCharge.png");
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraDistractingChargeArea", "");
 
             area.Size = 100.Feet();
@@ -114,7 +249,7 @@ namespace CallOfTheWild
             distracting_charge = library.CopyAndAdd<BlueprintFeature>("e45ab30f49215054e83b4ea12165409f", "DistractingChargeFeature", "");
             distracting_charge.SetName("Distracting Charge");
             distracting_charge.SetDescription("When your ally with this feat uses the charge action and hits, you gain a +2 bonus on your next attack roll against the target of that charge. This bonus must be used before your ally’s next turn, or it is lost.");
-            distracting_charge.SetIcon(null);
+            distracting_charge.SetIcon(icon);
             distracting_charge.RemoveComponents<SpellImmunityToSpellDescriptor>();
             distracting_charge.RemoveComponents<BuffDescriptorImmunity>();
             distracting_charge.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat };
@@ -124,7 +259,7 @@ namespace CallOfTheWild
                                              distracting_charge.Name + " Target",
                                              "",
                                              "",
-                                             library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066").Icon, //charge
+                                             icon,
                                              null
                                              );
 
@@ -133,11 +268,11 @@ namespace CallOfTheWild
                                              distracting_charge.Name,
                                              "",
                                              "",
-                                             library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066").Icon, //charge,
+                                             icon,
                                              null,
                                              Helpers.Create<AttackBonusAgainstFactOwner>(a => { a.AttackBonus = 2; a.CheckedFact = target_buff; })
                                              );
-            ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            //ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             var apply_ally_buff = Common.createContextActionApplyBuff(ally_buff, Helpers.CreateContextDuration(1), dispellable: false);
 
@@ -151,9 +286,9 @@ namespace CallOfTheWild
 
                                               );
 
-            var actions_on_ally1 = Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 100; c.actions = Helpers.CreateActionList(effect_on_ally1); });
+            var actions_on_ally1 = Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 100.Feet(); c.actions = Helpers.CreateActionList(effect_on_ally1); });
             var actions_on_ally2 = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(distracting_charge),
-                                                             Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 100; c.actions = Helpers.CreateActionList(effect_on_ally2); })
+                                                             Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c => { c.Radius = 100.Feet(); c.actions = Helpers.CreateActionList(effect_on_ally2); })
                                                              );
 
             var attacker_buff = Helpers.CreateBuff("DistractingChargeAttackerBuff",
@@ -172,9 +307,7 @@ namespace CallOfTheWild
 
             attacker_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = attacker_buff);
-            distracting_charge.AddComponents(Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => {a.Action = Helpers.CreateActionList(actions_on_ally2);
-                                                                                                                           a.ActionsOnInitiator = true;
-                                                                                                                           }),
+            distracting_charge.AddComponents(Helpers.Create<NewMechanics.AddInitiatorAttackWithWeaponTriggerOnCharge>(a => a.Action = Helpers.CreateActionList(actions_on_ally2)),
                                              Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(ally_buff)),
                                                                                              only_hit: false, on_initiator: true)
                                            );

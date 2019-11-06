@@ -33,7 +33,6 @@ New feats:
 - Weapon of The Chosen, Improved Weapon of the Chosen, Greater Weapon of the Chosen,
 - Planar Wild Shape,
 - Powerful Shape,
-- Coordinated Shot,
 - Skald's Vigor and Greater Skald's Vigor,
 - Discordant Voice,
 - Stalwart and Improved Stalwart,
@@ -44,6 +43,10 @@ New feats:
 - Deadeye's Blessing,
 - Guided Hand,
 - Planar Focus,
+- Coordinated Shot,
+- Distracting Charge,
+- Target of Opportunity,
+- Swarm Scatter,
 - Bonded Mind and Share Spell.
 
 New rage powers:

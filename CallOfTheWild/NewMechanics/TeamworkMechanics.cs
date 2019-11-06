@@ -58,14 +58,14 @@ namespace CallOfTheWild.TeamworkMechanics
     public class TeamworkACBonus : RuleTargetLogicComponent<RuleCalculateAC>
     {
         public BlueprintUnitFact teamwork_fact;
-        public int Radius;
+        public float Radius;
         public int value_per_unit = 1;
         public ModifierDescriptor descriptor;
 
         public override void OnEventAboutToTrigger(RuleCalculateAC evt)
         {
             int bonus = 0;
-            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, (float)this.Radius, true, false))
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, this.Radius, true, false))
             {
                 if ((unitEntityData.Descriptor.HasFact(this.teamwork_fact) || this.Owner.State.Features.SoloTactics) && unitEntityData != this.Owner.Unit && !unitEntityData.IsEnemy(this.Owner.Unit))
                 {
@@ -77,7 +77,8 @@ namespace CallOfTheWild.TeamworkMechanics
             {
                 return;
             }
-            evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            evt.AddBonus(bonus, this.Fact);
+           // evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
         }
 
         public override void OnEventDidTrigger(RuleCalculateAC evt)
@@ -89,13 +90,12 @@ namespace CallOfTheWild.TeamworkMechanics
     public class ContextActionOnUnitsWithinRadius : ContextAction
     {
         public ActionList actions;
-        public int Radius;
+        public Feet Radius;
         public bool include_dead = false;
-
 
         public override string GetCaption()
         {
-            throw new NotImplementedException();
+            return string.Empty;
         }
 
         public override void RunAction()
@@ -106,7 +106,7 @@ namespace CallOfTheWild.TeamworkMechanics
             }
 
 
-            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, (float)this.Radius, true, include_dead))
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, this.Radius.Meters, true, include_dead))
             {
                 using (this.Context.GetDataScope((TargetWrapper)unitEntityData))
                 {
@@ -135,6 +135,53 @@ namespace CallOfTheWild.TeamworkMechanics
 
             //Main.logger.Log($"{(bool)unit.Descriptor.State.Features.SoloTactics} " + unit.CharacterName);
             return (bool)unit.Descriptor.State.Features.SoloTactics;
+        }
+    }
+
+
+    public class ContextConditionAllyOrCasterWithSoloTacticsSurroundedByAllies : ContextCondition
+    {
+        public float radius;
+
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
+
+        protected override bool CheckCondition()
+        {
+            var target = this.Target?.Unit;
+            var caster = this.Context?.MaybeCaster;
+
+            if (target == null || caster == null)
+            {
+                return false;
+            }
+
+            if (!target.IsAlly(caster))
+            {
+                return false;
+            }
+
+            if (target != caster)
+            {
+                return true;
+            }
+
+            if (!(bool)caster.Descriptor.State.Features.SoloTactics)
+            {
+                return false;
+            }
+
+
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, this.radius, true, false))
+            {
+                if (unitEntityData.IsAlly(this.Context.MaybeCaster) && unitEntityData != caster)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

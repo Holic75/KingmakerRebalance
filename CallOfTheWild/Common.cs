@@ -3090,6 +3090,37 @@ namespace CallOfTheWild
             return list.ToArray();
         }
 
+        public static BlueprintAbility createAttackAbility(string name, string display_name, string description, string guid, UnityEngine.Sprite icon, UnitCommand.CommandType action_type, params BlueprintComponent[] components)
+        {
+
+            var ability = Helpers.CreateAbility(name,
+                                               display_name,
+                                               description,
+                                               guid,
+                                               icon,
+                                               AbilityType.Special,
+                                               action_type,
+                                               AbilityRange.Weapon,
+                                               "",
+                                               "",
+                                               Helpers.CreateRunActions(Common.createContextActionAttack(null, null)),
+                                               Helpers.Create<NewMechanics.AttackAnimation>()
+                                               );
+
+            ability.AddComponents(components);
+            ability.NeedEquipWeapons = true;
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
+
+            return ability;                                   
+        }
+
+
+        public static WeaponCategory[] getRangedWeaponCategories()
+        {
+            return new WeaponCategory[] {WeaponCategory.Longbow, WeaponCategory.Shortbow, WeaponCategory.HandCrossbow, WeaponCategory.HeavyCrossbow, WeaponCategory.LightCrossbow, WeaponCategory.Javelin,
+                                        WeaponCategory.ThrowingAxe, WeaponCategory.Ray, WeaponCategory.Sling, WeaponCategory.SlingStaff};
+        }
+
 
     }
 }
