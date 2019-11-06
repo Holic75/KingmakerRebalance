@@ -43,6 +43,7 @@ New feats:
 - Deadeye's Blessing,
 - Guided Hand,
 - Planar Focus,
+- Weapon Shift, Improved Weapon Shift, Greater Weapon Shift 
 - Coordinated Shot,
 - Distracting Charge,
 - Target of Opportunity,

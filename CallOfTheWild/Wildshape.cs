@@ -42,6 +42,7 @@ using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using static CallOfTheWild.NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph;
 
 namespace CallOfTheWild
 {
@@ -125,6 +126,10 @@ namespace CallOfTheWild
         static public BlueprintBuff[] druid_wild_shapes;
 
 
+        static public BlueprintFeature weapon_shift;
+        static public BlueprintFeature improved_weapon_shift;
+        static public BlueprintFeature greater_weapon_shift;
+
         static internal void load()
         {
             fixFormOfTheDragonIWeapons();
@@ -151,8 +156,146 @@ namespace CallOfTheWild
             fixDruid();
             createWildArmor();
             fixTransmuter();
+
+            createWeaponShift();
         }
 
+
+        static void createWeaponShift()
+        {
+            BlueprintWeaponEnchantment[] enchants1 = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("e5990dc76d2a613409916071c898eee8"), //cold iron 
+                library.Get<BlueprintWeaponEnchantment>("0ae8fc9f2e255584faf4d14835224875"), //mithral
+                library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b"), //adamantine
+            };
+
+            weapon_shift = Helpers.CreateFeature("WeaponShiftFeature",
+                                                 "Weapon Shift",
+                                                 "When you use your wild shape ability, any melee weapons you are wielding and proficient with meld into your new form. While in your new form, your natural attacks gain all your primary weapon's material properties.",
+                                                 "",
+                                                 null,
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteFeature(first_wildshape_form) 
+                                                );
+
+            var buff1 = Helpers.CreateBuff("WeaponShiftBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
+                                                                                                                                           {
+                                                                                                                                               t.transfer_type = TransferType.Only;
+                                                                                                                                               t.enchants = enchants1;
+                                                                                                                                           }
+                                                                                                                                         )
+                                          );
+           buff1.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+
+            BlueprintWeaponEnchantment[] enchants2 = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("c3209eb058d471548928a200d70765e0"), //composite
+                library.Get<BlueprintWeaponEnchantment>("c4d213911e9616949937e1520c80aaf3"), //strength thrown
+                WeaponEnchantments.summoned_weapon_enchant,
+                //temporary enchants
+                library.Get<BlueprintWeaponEnchantment>("d704f90f54f813043a525f304f6c0050"),
+                library.Get<BlueprintWeaponEnchantment>("9e9bab3020ec5f64499e007880b37e52"),
+                library.Get<BlueprintWeaponEnchantment>("d072b841ba0668846adeb007f623bd6c"),
+                library.Get<BlueprintWeaponEnchantment>("6a6a0901d799ceb49b33d4851ff72132"),
+                library.Get<BlueprintWeaponEnchantment>("746ee366e50611146821d61e391edf16"),
+                //permanent enchants
+                library.Get<BlueprintWeaponEnchantment>("d42fc23b92c640846ac137dc26e000d4"),
+                library.Get<BlueprintWeaponEnchantment>("eb2faccc4c9487d43b3575d7e77ff3f5"),
+                library.Get<BlueprintWeaponEnchantment>("80bb8a737579e35498177e1e3c75899b"),
+                library.Get<BlueprintWeaponEnchantment>("783d7d496da6ac44f9511011fc5f1979"),
+                library.Get<BlueprintWeaponEnchantment>("bdba267e951851449af552aa9f9e3992"),
+
+            };
+
+            improved_weapon_shift = Helpers.CreateFeature("ImprovedWeaponShiftFeature",
+                                                 "Improved Weapon Shift",
+                                                 "When you apply a melee weapon’s damage type and properties to your natural attacks using the Weapon Shift feat, your natural attacks also gain the weapon special abilities of the weapon, such as the flaming special ability.\n"
+                                                 + "Improved Weapon Shift does not apply the weapon’s enhancement bonuses to your attacks.",
+                                                 "",
+                                                 null,
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteFeature(first_wildshape_form),
+                                                 Helpers.PrerequisiteFeature(weapon_shift),
+                                                 Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
+                                                );
+
+            var buff2 = Helpers.CreateBuff("ImprovedWeaponShiftBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
+                                                                                                                                          {
+                                                                                                                                              t.transfer_type = TransferType.Except;
+                                                                                                                                              t.enchants = enchants2;
+                                                                                                                                          }
+                                                                                                                                         )
+                                          );
+            buff2.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            BlueprintWeaponEnchantment[] enchants3 = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("c3209eb058d471548928a200d70765e0"), //composite
+                library.Get<BlueprintWeaponEnchantment>("c4d213911e9616949937e1520c80aaf3"), //strength thrown
+                WeaponEnchantments.summoned_weapon_enchant
+            };
+
+            greater_weapon_shift = Helpers.CreateFeature("GreaterWeaponShiftFeature",
+                                                 "Greater Weapon Shift",
+                                                 "When you apply a melee weapon’s damage type and properties to your natural attacks using the Weapon Shift feat, your natural attacks also gain an enhancement bonus on attack and damage rolls equal to the enhancement bonus (if any) of the weapon.",
+                                                 "",
+                                                 null,
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteFeature(first_wildshape_form),
+                                                 Helpers.PrerequisiteFeature(weapon_shift),
+                                                 Helpers.PrerequisiteFeature(improved_weapon_shift),
+                                                 Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 8)
+                                                );
+
+            var buff3 = Helpers.CreateBuff("GreaterWeaponShiftBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
+                                                                                                                                          {
+                                                                                                                                              t.transfer_type = TransferType.Except;
+                                                                                                                                              t.enchants = enchants3;
+                                                                                                                                          }
+                                                                                                                                         )
+                                          );
+            buff3.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            foreach (var shape in druid_wild_shapes)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff3, greater_weapon_shift);
+                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(shape, Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionCasterHasFact(improved_weapon_shift),
+                                                                                                                                                      Common.createContextConditionCasterHasFact(greater_weapon_shift, false)),
+                                                                                                                  Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true)
+                                                                                                                  )
+                                                                                  );
+                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(shape, Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionCasterHasFact(weapon_shift),
+                                                                                                                                      Common.createContextConditionCasterHasFact(greater_weapon_shift, false),
+                                                                                                                                      Common.createContextConditionCasterHasFact(improved_weapon_shift, false)),
+                                                                                                  Common.createContextActionApplyBuff(buff1, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true)
+                                                                                                  )
+                                                                  );
+            }
+            library.AddFeats(weapon_shift, improved_weapon_shift, greater_weapon_shift);
+        }
 
         static void fixFormOfTheDragonIWeapons()
         {
