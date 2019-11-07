@@ -125,10 +125,10 @@ namespace CallOfTheWild
         static BlueprintBuff allow_wild_armor_buff;
         static public BlueprintBuff[] druid_wild_shapes;
 
-
         static public BlueprintFeature weapon_shift;
         static public BlueprintFeature improved_weapon_shift;
         static public BlueprintFeature greater_weapon_shift;
+        static public BlueprintFeature mutated_shape;
 
         static internal void load()
         {
@@ -152,12 +152,42 @@ namespace CallOfTheWild
             createGiantFormII();
             createShapechange();
 
-
             fixDruid();
             createWildArmor();
             fixTransmuter();
 
             createWeaponShift();
+            createMutatedShape();
+        }
+
+        static void createMutatedShape()
+        {
+            mutated_shape = Helpers.CreateFeature("MutatedShapeFeature",
+                                                  "Mutated Shape",
+                                                  "When you use wild shape, you grow an additional appendage that allows you to make one more attack per round.",
+                                                  "",
+                                                  null,
+                                                  FeatureGroup.Feat,
+                                                  Helpers.PrerequisiteFeature(first_wildshape_form),
+                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
+                                                  Helpers.PrerequisiteStatValue(StatType.Wisdom, 19)
+                                                 );
+
+            var buff = Helpers.CreateBuff("MutatedShapeBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<BuffExtraAttack>(b => b.Number = 1)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            foreach (var shape in druid_wild_shapes)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff, mutated_shape);
+            }
+            library.AddFeats(mutated_shape);
         }
 
 
@@ -201,6 +231,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintWeaponEnchantment>("c3209eb058d471548928a200d70765e0"), //composite
                 library.Get<BlueprintWeaponEnchantment>("c4d213911e9616949937e1520c80aaf3"), //strength thrown
                 WeaponEnchantments.summoned_weapon_enchant,
+                WeaponEnchantments.master_work,
                 //temporary enchants
                 library.Get<BlueprintWeaponEnchantment>("d704f90f54f813043a525f304f6c0050"),
                 library.Get<BlueprintWeaponEnchantment>("9e9bab3020ec5f64499e007880b37e52"),
@@ -248,7 +279,8 @@ namespace CallOfTheWild
             {
                 library.Get<BlueprintWeaponEnchantment>("c3209eb058d471548928a200d70765e0"), //composite
                 library.Get<BlueprintWeaponEnchantment>("c4d213911e9616949937e1520c80aaf3"), //strength thrown
-                WeaponEnchantments.summoned_weapon_enchant
+                WeaponEnchantments.summoned_weapon_enchant,
+                WeaponEnchantments.master_work
             };
 
             greater_weapon_shift = Helpers.CreateFeature("GreaterWeaponShiftFeature",

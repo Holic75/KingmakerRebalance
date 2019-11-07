@@ -1,6 +1,10 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +19,76 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment empower_enchant;
         static public BlueprintWeaponEnchantment maximize_enchant;
         static public BlueprintWeaponEnchantment summoned_weapon_enchant;
+        static public BlueprintWeaponEnchantment[] temporary_enchants = new BlueprintWeaponEnchantment[] {library.Get<BlueprintWeaponEnchantment>("d704f90f54f813043a525f304f6c0050"),
+                                                                                                         library.Get<BlueprintWeaponEnchantment>("9e9bab3020ec5f64499e007880b37e52"),
+                                                                                                         library.Get<BlueprintWeaponEnchantment>("d072b841ba0668846adeb007f623bd6c"),
+                                                                                                         library.Get<BlueprintWeaponEnchantment>("6a6a0901d799ceb49b33d4851ff72132"),
+                                                                                                         library.Get<BlueprintWeaponEnchantment>("746ee366e50611146821d61e391edf16") };
 
+        static public BlueprintEquipmentEnchantment[] unarmed_enchants = new BlueprintEquipmentEnchantment[] {library.Get<BlueprintEquipmentEnchantment>("da7d830b3f75749458c2e51524805560"),
+                                                                                                             library.Get<BlueprintEquipmentEnchantment>("49f9befa0e77cd5428ca3b28fd66a54e"),
+                                                                                                             library.Get<BlueprintEquipmentEnchantment>("bae627dfb77c2b048900f154719ca07b"),
+                                                                                                             library.Get<BlueprintEquipmentEnchantment>("a4016a5d78384a94581497d0d135d98b"),
+                                                                                                             library.Get<BlueprintEquipmentEnchantment>("c3ad7f708c573b24082dde91b081ca5f") };
+
+        static public BlueprintWeaponEnchantment[] standard_enchants = new BlueprintWeaponEnchantment[] {library.Get<BlueprintWeaponEnchantment>("d42fc23b92c640846ac137dc26e000d4"),
+                                                                                                             library.Get<BlueprintWeaponEnchantment>("eb2faccc4c9487d43b3575d7e77ff3f5"),
+                                                                                                             library.Get<BlueprintWeaponEnchantment>("80bb8a737579e35498177e1e3c75899b"),
+                                                                                                             library.Get<BlueprintWeaponEnchantment>("783d7d496da6ac44f9511011fc5f1979"),
+                                                                                                             library.Get<BlueprintWeaponEnchantment>("bdba267e951851449af552aa9f9e3992") };
+        static public BlueprintWeaponEnchantment master_work = library.Get<BlueprintWeaponEnchantment>("6b38844e2bffbac48b63036b66e735be");
+        static public BlueprintWeaponEnchantment[] static_enchants;
         static public void initialize()
         {
             createMetamagicEnchantments();
             createSummonedWeaponEnchantment();
+            createStaticEnchants();
+            //fix weapon enchants to be non cumulative
+            fixEnchants();
         }
+
+
+        static void createStaticEnchants()
+        {
+            static_enchants = new BlueprintWeaponEnchantment[5];
+
+            for (int i = 0; i < static_enchants.Length; i++)
+            {
+                static_enchants[i] = Common.createWeaponEnchantment($"StaticTemporaryEnhancement{i + 1}",
+                                                                    temporary_enchants[i].Name,
+                                                                    $"Attacks with this weapon get +{i + 1} enhancement bonus on both attack and damage rolls.",
+                                                                    temporary_enchants[i].Prefix,
+                                                                    temporary_enchants[i].Suffix,
+                                                                    "",
+                                                                    temporary_enchants[i].IdentifyDC,
+                                                                    temporary_enchants[i].WeaponFxPrefab,
+                                                                    Helpers.Create<NewMechanics.EnchantmentMechanics.StaticWeaponEnhancementBonus>(s => s.EnhancementBonus = i + 1)
+                                                                    );
+            }
+        }
+
+
+        static void fixEnchants()
+        {
+            for (int i = 0; i < unarmed_enchants.Length; i++)
+            {
+                unarmed_enchants[i].ComponentsArray[0] = Helpers.Create<NewMechanics.EnchantmentMechanics.StaticEquipmentWeaponTypeEnhancement>(s => { s.Enhancement = i + 1; s.AllNaturalAndUnarmed = true; });
+            }
+
+            for (int i = 0; i < standard_enchants.Length; i++)
+            {
+                standard_enchants[i].ComponentsArray[0] = Helpers.Create<NewMechanics.EnchantmentMechanics.StaticWeaponEnhancementBonus>(s => { s.EnhancementBonus = i + 1; });
+            }
+
+            //fix magic fang
+            var magic_fang = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33");
+            var greater_magic_fang = library.Get<BlueprintAbility>("f1100650705a69c4384d3edd88ba0f52");
+
+            (magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment[0] = standard_enchants[0];
+            (greater_magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment = standard_enchants;
+        }
+
+
 
 
         static void createSummonedWeaponEnchantment()

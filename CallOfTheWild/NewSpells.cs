@@ -123,6 +123,11 @@ namespace CallOfTheWild
 
         static public BlueprintAbility freezing_sphere;
 
+        static public BlueprintAbility howling_agony;
+        static public BlueprintAbility spite;
+        static public BlueprintAbility forceful_strike;
+
+
         static public void load()
         {
             createShillelagh();
@@ -185,6 +190,218 @@ namespace CallOfTheWild
             createIrresistibleDance();
             createHoldMonsterMass();
             createFreezingSphere();
+
+            createHowlingAgony();
+            createSpite();
+            createForcefulStrike();
+        }
+
+
+        static void createForcefulStrike()
+        {
+            var icon = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea").Icon; //resounding blow
+
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
+            dmg.DamageType.Type = DamageType.Force;
+
+            var bull_rush = Helpers.Create<ContextActionCombatManeuver>(c => c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush);
+
+            var bull_rush_buff = Helpers.CreateBuff("ForcefullStrikeBullRushBuff",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    null,
+                                                    Helpers.Create<NewMechanics.ContextCombatManeuverBonus>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush; c.Bonus = Helpers.CreateContextValue(AbilityRankType.StatBonus); }),
+                                                    Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus)
+                                                    );
+            bull_rush_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var apply_bull_rush_buff = Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(bull_rush_buff, Helpers.CreateContextDuration(1), is_child: true));
+
+
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, bull_rush)));
+
+            var buff = Helpers.CreateBuff("ForcefulStrikeBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_bull_rush_buff, effect, Helpers.Create<ContextActionRemoveSelf>()))
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes));
+
+            forceful_strike = Helpers.CreateAbility("ForcefulStrikeAbility",
+                                                    "Forceful Strike",
+                                                    "You cast this spell as you strike a creature with a melee weapon, unarmed strike, or natural attack to unleash a concussive blast of force. You deal normal weapon damage from the blow, but also deal an additional amount of force damage equal to 1d4 points per caster level (maximum of 10d4). The force of the blow may be enough to knock the target backward as well. To determine if the target is pushed back, make a combat maneuver check with a bonus equal to your caster level to resolve a bull rush attempt against the creature struck. You do not move as a result of this free bull rush, but it can push the target back if it defeats the target’s CMD. A successful Fortitude save halves the force damage and negates the bull rush effect.",
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Swift,
+                                                    AbilityRange.Personal,
+                                                    "One minute or until discharged",
+                                                    "Fortitude Partial",
+                                                    Helpers.CreateRunActions(apply_buff),
+                                                    Common.createAbilitySpawnFx("52d413df527f9fa4a8cf5391fd593edd", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                    );
+            forceful_strike.setMiscAbilityParametersSelfOnly();
+            forceful_strike.AvailableMetamagic = Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize;
+
+            forceful_strike.AddToSpellList(Helpers.clericSpellList, 4);
+            forceful_strike.AddToSpellList(Helpers.magusSpellList, 4);
+            forceful_strike.AddToSpellList(Helpers.inquisitorSpellList, 4);
+            forceful_strike.AddToSpellList(Helpers.paladinSpellList, 4);
+
+            forceful_strike.AddSpellAndScroll("cbf529be5408e9042822a3b22ca55bca");
+        }
+
+        static void createSpite()
+        {
+            var icon = library.Get<BlueprintFeature>("fb343ede45ca1a84496c91c190a847ff").Icon;
+
+            var divination_buff = library.Get<BlueprintBuff>("6d338078b1a8cdc41bf3a39f65247161");
+
+            var spite_give_ability_buff = Helpers.CreateBuff("SpiteGiveAbilityBuff",
+                                                                   "",
+                                                                   "",
+                                                                   "",
+                                                                   null,
+                                                                   null);
+            spite_give_ability_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var action_remove_spite_use = Helpers.CreateActionList(Common.createContextActionRemoveBuff(spite_give_ability_buff));
+            var spite_store_buff = Helpers.CreateBuff("SpiteBuff",
+                                                        "Spite",
+                                                        "Choose a single touch range spell of 4th level or lower with a casting time of 1 standard action or less. As part of the action of casting spite, you cast the associated spell and bind it into a defensive ward in the form of a tattoo, birthmark, or wart somewhere upon your body. The next time you are hit by a melee attack or a combat maneuver is used successfully against you, the stored spell is triggered against your foe. You do not need to succeed on a touch attack to affect the target, but in all other respects the spell is treated as though you had cast it normally. If the attacking creature is not a valid target for the spell, the stored spell is lost with no effect.\n"
+                                                        + "You can have only one spite spell in effect at a time; if you cast this spell a second time, the previous spell effect ends.",
+                                                        "",
+                                                        icon,
+                                                        divination_buff.FxOnStart,
+                                                        Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => { f.actions_on_store = action_remove_spite_use; f.always_hit = true; }),
+                                                        Helpers.CreateAddFactContextActions(Common.createContextActionApplyBuff(spite_give_ability_buff,
+                                                                                                                                Helpers.CreateContextDuration(),
+                                                                                                                                is_child: true, is_permanent: true)
+                                                                                                                                )
+                                                        );
+            spite_store_buff.AddComponent(Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = spite_store_buff));
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = spite_store_buff);
+
+            var release_buff = Helpers.CreateBuff("SpiteReleaseBuff",
+                                                  "",
+                                                  "",
+                                                  "",
+                                                  null,
+                                                  null,
+                                                  Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(spite_store_buff), Helpers.Create<ContextActionRemoveSelf>()),
+                                                                                                Helpers.CreateActionList(release_action))
+                                                 );
+            spite_store_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuff(release_buff)));
+
+            var apply_release_buff = Common.createContextActionApplyBuff(release_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+            int max_variants = 6;
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return spell.Spellbook != null
+                        && spell.StickyTouch != null
+                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
+                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent)
+                        && !SpellManipulationMechanics.FactStoreSpell.hasSpellStoredInFact(spell.Caster, spite_store_buff);
+            };
+
+
+
+            for (int i = 0; i < max_variants; i++)
+            {
+                var spite_use = Helpers.CreateAbility($"SpiteStoreAbility{i}",
+                                                            "Spite: Store",
+                                                            spite_store_buff.Description,
+                                                            "",
+                                                            spite_store_buff.Icon,
+                                                            AbilityType.Spell,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                            AbilityRange.Personal,
+                                                            "1 hour/level or until discharged",
+                                                            "",
+                                                            Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                            Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
+                                                                                                                                {
+                                                                                                                                    s.fact = spite_store_buff;
+                                                                                                                                    s.check_slot_predicate = check_slot_predicate;
+                                                                                                                                    s.variant = i;
+                                                                                                                                    s.actions = Helpers.CreateActionList(apply_release_buff);
+                                                                                                                                }
+                                                                                                                              ),
+                                                            Helpers.CreateContextRankConfig()
+                                                            );
+                spite_give_ability_buff.AddComponent(Helpers.CreateAddFact(spite_use));
+                spite_use.setMiscAbilityParametersSelfOnly();
+                Common.setAsFullRoundAction(spite_use);
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(spite_store_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), rate: DurationRate.Hours));
+            spite = Helpers.CreateAbility("SpiteAbility",
+                                                "Spite",
+                                                spite_store_buff.Description,
+                                                "",
+                                                spite_store_buff.Icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "1 hour/level or until discharged",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.CreateSpellComponent(SpellSchool.Abjuration)
+                                                );
+            spite.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(spite);
+            spite.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
+            //spite.AddSpellAndScroll("beab337b352b5ac479698e2bbc08f4ce"); //circle of death
+        }
+
+
+        static void createHowlingAgony()
+        {
+            var icon = library.Get<BlueprintAbility>("d42c6d3f29e07b6409d670792d72bc82").Icon; //banshee blast
+            var buff = Helpers.CreateBuff("HowlingAgonyBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.SaveReflex, -2, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -2, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                          Common.createAttackTypeAttackBonus(-2, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            howling_agony = Helpers.CreateAbility("HowlingAgonyAbility",
+                                                  "HowlingAgony",
+                                                  "You send wracking pains through the targets’ bodies. Because of the pain, affected creatures take a –2 penalty to AC, attacks, melee damage rolls, and Reflex saving throws.",
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Close,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  Helpers.fortNegates,
+                                                  Helpers.CreateRunActions(apply_buff),
+                                                  Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                  Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Necromancy)
+                                                  );
+            howling_agony.SpellResistance = true;
+            howling_agony.setMiscAbilityParametersRangedDirectional();
+            howling_agony.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken;
+
+            howling_agony.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            howling_agony.AddToSpellList(Helpers.wizardSpellList, 3);
+            howling_agony.AddSpellAndScroll("f6073b26d3e1d61418f62928f34b601f");
         }
 
 
@@ -2121,9 +2338,9 @@ namespace CallOfTheWild
 
             BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[]
             {
-                library.Get<BlueprintWeaponEnchantment>("d42fc23b92c640846ac137dc26e000d4"),
-                library.Get<BlueprintWeaponEnchantment>("eb2faccc4c9487d43b3575d7e77ff3f5"),
-                library.Get<BlueprintWeaponEnchantment>("80bb8a737579e35498177e1e3c75899b")
+                WeaponEnchantments.standard_enchants[0],
+                WeaponEnchantments.standard_enchants[1],
+                WeaponEnchantments.standard_enchants[2]
             };
 
 
@@ -2620,7 +2837,8 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Helpers.CreateContextRankConfig(),
-                                                Helpers.CreateSpellComponent(SpellSchool.Evocation)
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                Helpers.CreateContextRankConfig()
                                                 );
             contingency.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(contingency);

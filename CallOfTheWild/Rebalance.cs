@@ -547,7 +547,10 @@ namespace CallOfTheWild
             {
                 r.UseValueMultiplier = false;
                 r.ValueMultiplier = Common.createSimpleContextValue(1);
+                r.Value = Common.createSimpleContextValue(1);
             }
+            drs[3].RemoveComponents<ContextRankConfig>();
+
         }
 
         internal static void fixVitalStrike()

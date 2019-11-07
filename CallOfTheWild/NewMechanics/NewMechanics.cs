@@ -2398,6 +2398,27 @@ namespace CallOfTheWild
 
 
 
+        [ComponentName("Maneuver Bonus")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextCombatManeuverBonus : RuleTargetLogicComponent<RuleCombatManeuver>
+        {
+            public CombatManeuver Type;
+            public ContextValue Bonus;
+
+            public override void OnEventAboutToTrigger(RuleCombatManeuver evt)
+            {
+                if (evt.Type != this.Type && this.Type != CombatManeuver.None)
+                    return;
+                evt.AddBonus(this.Bonus.Calculate(this.Fact.MaybeContext), this.Fact);
+            }
+
+            public override void OnEventDidTrigger(RuleCombatManeuver evt)
+            {
+            }
+        }
+
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
         public class DoubleWeaponSize : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>

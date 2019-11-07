@@ -66,6 +66,102 @@ using Kingmaker.Blueprints.Items.Equipment;
 
 namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 {
+
+    public class StaticWeaponEnhancementBonus : WeaponEnhancementBonus
+    {
+        [JsonProperty]
+        private int added_bonus = 0;
+
+        public new void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (evt.Weapon != this.Owner)
+                return;
+
+            int bonus = EnhancementBonus - evt.Enhancement;
+            added_bonus = bonus > 0 ? bonus : 0;
+
+
+            evt.AddBonusDamage(added_bonus);
+            evt.Enhancement += added_bonus;
+        }
+
+        public new void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+
+        public new void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+            if (evt.Weapon != this.Owner)
+                return;
+            evt.AddBonus(added_bonus, this.Fact);
+        }
+
+        public new void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+        }
+    }
+
+
+    public class StaticEquipmentWeaponTypeEnhancement : EquipmentEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
+    {
+        public int Enhancement;
+        public bool AllNaturalAndUnarmed;
+        [HideIf("AllNaturalAndUnarmed")]
+        public WeaponCategory Category;
+        [JsonProperty]
+        private int added_bonus = 0;
+
+        public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (!this.CheckWeapon(evt.Weapon))
+                return;
+
+            int bonus = Enhancement - evt.Enhancement;
+            added_bonus = bonus > 0 ? bonus : 0;
+
+            evt.AddBonusDamage(added_bonus);
+            evt.Enhancement += added_bonus;
+        }
+
+        public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+
+        public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+        {
+            /*ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            PhysicalDamage weaponDamage = evt.DamageBundle.WeaponDamage as PhysicalDamage;
+            if (weapon == null || weaponDamage == null || !this.CheckWeapon(weapon))
+                return;
+            weaponDamage.Enchantment += added_bonus;
+            weaponDamage.EnchantmentTotal += added_bonus;*/
+        }
+
+        public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+            if (evt.Weapon == null || !this.CheckWeapon(evt.Weapon))
+                return;
+            evt.AddBonus(added_bonus, this.Fact);
+        }
+
+        public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleCalculateDamage evt)
+        {
+        }
+
+        public bool CheckWeapon(ItemEntityWeapon weapon)
+        {
+            if (!this.AllNaturalAndUnarmed || !weapon.Blueprint.IsNatural && !weapon.Blueprint.IsUnarmed)
+                return weapon.Blueprint.Category == this.Category;
+            return true;
+        }
+    }
+
+
+
     public class BuffRemainingGroupsSizeEnchantPrimaryHandWeapon : BuffLogic
     {
         public ActivatableAbilityGroup group;
@@ -996,7 +1092,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
             var primary_hand_weapon = this.Owner?.Body?.CurrentHandsEquipmentSet?.PrimaryHand?.MaybeItem as ItemEntityWeapon;
             
-            if (primary_hand_weapon == null || !primary_hand_weapon.Blueprint.IsMelee)
+            if (primary_hand_weapon == null || !primary_hand_weapon.Blueprint.IsMelee || Helpers.isSummoned(primary_hand_weapon))
             {
                 return;
             }

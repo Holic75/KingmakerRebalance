@@ -131,6 +131,7 @@ namespace CallOfTheWild
         {
             public ActionList actions_on_store = new ActionList();
             public bool ignore_target_checkers = false;
+            public bool always_hit = false;
             [JsonProperty]
             private AbilityData spell = null;
 
@@ -142,6 +143,10 @@ namespace CallOfTheWild
                 {
                     var rule_cast_spell = new RuleCastSpell(spell, target);
                     rule_cast_spell.Context.AttackRoll = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackWithWeapon>()?.AttackRoll;
+                    if (always_hit)
+                    {
+                        rule_cast_spell.Context.ForceAlwaysHit = true;
+                    }
                     Rulebook.Trigger<RuleCastSpell>(rule_cast_spell);
                     Common.AddBattleLogMessage($"{this.Owner.CharacterName} released {spell.Blueprint.Name} from {this.Fact.Name}.");
                     spell = null;

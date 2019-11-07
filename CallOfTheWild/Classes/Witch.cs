@@ -934,6 +934,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),
@@ -960,6 +961,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "d797007a142a6c0409a74b064065a15e", 4), //poison
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
+                new Common.SpellId( NewSpells.spite.AssetGuid, 4),
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
@@ -1052,6 +1054,7 @@ namespace CallOfTheWild
             }
 
             HexEngine.hex_vulnerability_spell.AddSpellAndScroll("e236e280f8be487428dcc09fe44dd5fd"); //hold person
+            NewSpells.spite.AddSpellAndScroll("beab337b352b5ac479698e2bbc08f4ce"); //circle of death
 
             return witch_spellbook;
         }
