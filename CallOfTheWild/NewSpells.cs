@@ -199,12 +199,12 @@ namespace CallOfTheWild
 
         static void createForcefulStrike()
         {
-            var icon = library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea").Icon; //resounding blow
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ForcefulStrike.png");
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
             dmg.DamageType.Type = DamageType.Force;
 
-            var bull_rush = Helpers.Create<ContextActionCombatManeuver>(c => c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush);
+            var bull_rush = Helpers.Create<ContextActionCombatManeuver>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush; c.IgnoreConcealment = true; });
 
             var bull_rush_buff = Helpers.CreateBuff("ForcefullStrikeBullRushBuff",
                                                     "",
@@ -227,7 +227,8 @@ namespace CallOfTheWild
                                           "",
                                           null,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_bull_rush_buff, effect, Helpers.Create<ContextActionRemoveSelf>()))
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_bull_rush_buff, effect, Helpers.Create<ContextActionRemoveSelf>()), check_weapon_range_type: true),
+                                          Helpers.CreateContextRankConfig(max: 10)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes));
@@ -245,7 +246,8 @@ namespace CallOfTheWild
                                                     Helpers.CreateRunActions(apply_buff),
                                                     Common.createAbilitySpawnFx("52d413df527f9fa4a8cf5391fd593edd", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
+                                                    Helpers.Create<AbilityCasterMainWeaponIsMelee>()
                                                     );
             forceful_strike.setMiscAbilityParametersSelfOnly();
             forceful_strike.AvailableMetamagic = Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize;
@@ -304,7 +306,7 @@ namespace CallOfTheWild
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null
-                        && spell.StickyTouch != null
+                        && spell.Blueprint.StickyTouch != null
                         && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
                         && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent)
                         && !SpellManipulationMechanics.FactStoreSpell.hasSpellStoredInFact(spell.Caster, spite_store_buff);
@@ -324,7 +326,7 @@ namespace CallOfTheWild
                                                             AbilityRange.Personal,
                                                             "1 hour/level or until discharged",
                                                             "",
-                                                            Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                            Helpers.CreateSpellComponent(SpellSchool.Abjuration),
                                                             Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
                                                                                                                                 {
                                                                                                                                     s.fact = spite_store_buff;
@@ -355,6 +357,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateContextRankConfig(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Abjuration)
                                                 );
+            spite.MaterialComponent = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").MaterialComponent; //same as for stoneskin
             spite.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(spite);
             spite.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
