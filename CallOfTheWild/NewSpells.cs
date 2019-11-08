@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
@@ -127,6 +128,10 @@ namespace CallOfTheWild
         static public BlueprintAbility spite;
         static public BlueprintAbility forceful_strike;
 
+        static public BlueprintAbility ghoul_touch;
+        static public BlueprintAbility fleshworm_infestation;
+        static public BlueprintAbility rebuke;
+
 
         static public void load()
         {
@@ -194,6 +199,226 @@ namespace CallOfTheWild
             createHowlingAgony();
             createSpite();
             createForcefulStrike();
+
+            createGhoulTouch();
+            createFleshwormInfestation();
+            createRebuke();
+        }
+
+
+        static void createRebuke()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Rebuke.png");
+
+            var sonic_dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default)),
+                            isAoE: true, halfIfSaved: true);
+            sonic_dmg1.Half = true;
+
+            var holy_dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default)),
+                isAoE: true, halfIfSaved: true);
+            holy_dmg1.Half = true;
+
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+
+            var effect1 = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1)));
+
+
+            var sonic_dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+                isAoE: true, halfIfSaved: true);
+            sonic_dmg2.Half = true;
+
+            var holy_dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+                isAoE: true, halfIfSaved: true);
+            holy_dmg2.Half = true;
+
+            var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
+
+            var effect2 = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1)));
+
+
+            var deities = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4").AllFeatures;
+
+            var effect = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionCasterAndTargetHasFactFromList>(c => c.facts = deities),
+                                                    new GameAction[] { sonic_dmg2, holy_dmg2, effect2 },
+                                                    new GameAction[] { sonic_dmg1, holy_dmg1, effect1 }
+                                                  );
+
+
+
+
+
+            rebuke = Helpers.CreateAbility("RebukeAbility",
+                                           "Rebuke",
+                                           "Your wrathful words cause physical harm to your enemies.\n"
+                                           + "Your enemies take 1d8 points of damage per two caster levels(maximum 5d8) and are staggered for 1 round.Half of this damage is sonic damage, but the other half results directly from divine power and is therefore not subject to being reduced by resistance to sonic - based attacks.Rebuke is especially devastating to foes who worship your god, inflicting 1d6 points of damage per caster level(maximum 10d6) and stunning them for 1d4 rounds.A successful Fortitude save halves the damage and negates the staggering or stunning effect.",
+                                           "",
+                                           icon,
+                                           AbilityType.Spell,
+                                           UnitCommand.CommandType.Standard,
+                                           AbilityRange.Personal,
+                                           "",
+                                           "Fortitude partial",
+                                           Helpers.CreateRunActions(effect),
+                                           Common.createAbilitySpawnFx("2483780330931b64f97cbb6bb7cbd352", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                           Helpers.Create<SharedSpells.CannotBeShared>(),
+                                           Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic),
+                                           Helpers.CreateContextRankConfig(max: 5),
+                                           Helpers.CreateContextRankConfig(max: 10, type: AbilityRankType.DamageDice),
+                                           Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Enemy)
+                                           );
+            rebuke.setMiscAbilityParametersSelfOnly();
+            rebuke.SpellResistance = true;
+            rebuke.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten;
+
+            rebuke.AddToSpellList(Helpers.inquisitorSpellList, 4);
+            rebuke.AddSpellAndScroll("4c73f11f91ca3fb4a8af325686b660d8");                            
+        }
+
+
+        static void createFleshwormInfestation()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FleshwormInfestation.png");
+            var protection_from_evil = library.Get<BlueprintBuff>("4a6911969911ce9499bf27dde9bfcedc");
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, 1, 0));
+            dmg.DamageType.Type = DamageType.Direct;
+
+            var dex_dmg = Helpers.CreateActionDealDamage(StatType.Dexterity, Helpers.CreateContextDiceValue(DiceType.Zero, 0, 2));
+
+            var effect = Helpers.CreateConditionalSaved(new GameAction[] { Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1)) },
+                                                         new GameAction[] { Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1)), dmg, dex_dmg }
+                                                       );
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(effect));
+
+            var conditional = Helpers.CreateConditional(Common.createContextConditionHasFact(protection_from_evil),
+                                                    null,
+                                                    action
+                                                    );
+
+            var buff = Helpers.CreateBuff("FleshwormInfestationBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          Common.createPrefabLink("fbf39991ad3f5ef4cb81868bb9419bff"),
+                                          Helpers.CreateAddFactContextActions(activated: conditional, newRound: conditional)
+                                          );
+
+            var ability = Helpers.CreateAbility("FleshwormInfestationAbility",
+                                                "Fleshworm Infestation",
+                                                "With a touch, you cause an infestation of ravenous worms to manifest in the target’s flesh. The target must make a Fortitude save every round. Failure means it takes 1d6 hit points of damage and 2 points of Dexterity damage, and is staggered for 1 round. If it makes the save, it takes no hit point or Dexterity damage and is only sickened for 1 round rather than staggered. Fleshworm infestation cannot be ended early by remove disease or heal, as the infestation starts anew if the current worms are slain. Protection from evil negates this spell’s effects for as long as the two durations overlap.",
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                Helpers.roundsPerLevelDuration,
+                                                "Fortitude partial",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                Helpers.CreateContextRankConfig(),
+                                                Common.createAbilityTargetHasFact(inverted: true, Common.undead, Common.construct, Common.elemental),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Evil),
+                                                Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                Helpers.CreateDeliverTouch()
+                                                );
+
+            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Reach | Metamagic.Empower;
+            ability.setMiscAbilityParametersTouchHarmful();
+            ability.SpellResistance = true;
+
+            fleshworm_infestation = ability.CreateTouchSpellCast();
+            fleshworm_infestation.AddComponent(Common.createAbilityTargetHasFact(inverted: true, Common.undead, Common.construct, Common.elemental));
+            fleshworm_infestation.AddToSpellList(Helpers.clericSpellList, 4);
+            fleshworm_infestation.AddToSpellList(Helpers.inquisitorSpellList, 4);
+            fleshworm_infestation.AddToSpellList(Helpers.wizardSpellList, 4);
+
+            fleshworm_infestation.AddSpellAndScroll("a9a0d65ec202e25478bcae4a87e844f9");//forced repentance
+        }
+
+        static void createGhoulTouch()
+        {
+            var icon = library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603").Icon; //bestow curse
+            var sickened = library.CopyAndAdd<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323", "GhoulTouchSickened", "");
+            sickened.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Poison));
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "GhoulTouchSickenedArea", "");
+            var apply_buff = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(), is_child: true, is_permanent: true);
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_buff)));
+
+            var effect = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFact(Common.undead),
+                                                                                                                Common.createContextConditionHasFact(Common.construct),
+                                                                                                                Common.createContextConditionHasFact(Common.elemental),
+                                                                                                                Common.createContextConditionIsCaster()),
+                                                   null,
+                                                   action);
+
+            var remove = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFact(Common.undead),
+                                                                                                    Common.createContextConditionHasFact(Common.construct),
+                                                                                                    Common.createContextConditionHasFact(Common.elemental),
+                                                                                                    Common.createContextConditionIsCaster()),
+                                       null,
+                                       Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = sickened));
+
+
+
+            area.ReplaceComponent<AbilityAreaEffectBuff>(Helpers.CreateAreaEffectRunAction(unitEnter: effect,
+                                                                                           round: effect,
+                                                                                           unitExit: remove)
+                                                         );
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Poison));
+            //area.Fx = Common.createPrefabLink("e1278588b084bc344842635e44770c90"); //poison cloud
+
+            var aura_buff = Helpers.CreateBuff("GhoulTouchAuraBuff",
+                                                  "",
+                                                  "",
+                                                  "",
+                                                  null,
+                                                  null,
+                                                  Common.createAddAreaEffect(area)
+                                               );
+            aura_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var buff = Helpers.CreateBuff("GhoulTouchBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          Common.createPrefabLink("fbf39991ad3f5ef4cb81868bb9419bff"),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Paralyzed),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.MovementImpairing),
+                                          Common.createAuraFeatureComponent(aura_buff)
+                                          );
+
+            var ability = Helpers.CreateAbility("GhoulTouchAbility",
+                                                "Ghoul Touch",
+                                                "Imbuing you with negative energy, this spell allows you to paralyze a single living humanoid for the duration of the spell with a successful melee touch attack.\n" +
+                                                "A paralyzed subject exudes a carrion stench that causes all living creatures(except you) in a 10 - foot - radius spread to become sickened(Fortitude negates).A neutralize poison spell removes the effect from a sickened creature, and creatures immune to poison are unaffected by the stench.This is a poison effect.",
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "1d6+2 rounds",
+                                                Helpers.fortNegates,
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2, DurationRate.Rounds, DiceType.D6, 1))),
+                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                Helpers.CreateDeliverTouch(),
+                                                Helpers.CreateSpellComponent(SpellSchool.Necromancy)
+                                               );
+            var hold_person = library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e");
+            var checkers = hold_person.GetComponents<AbilityTargetHasNoFactUnless>().ToArray<BlueprintComponent>().AddToArray(hold_person.GetComponents<AbilityTargetHasFact>()).AddToArray(hold_person.GetComponents<AbilityTargetHasNoFactUnless>());
+
+            ability.AddComponents(checkers);
+            ability.setMiscAbilityParametersTouchHarmful();
+            ability.SpellResistance = true;
+            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+
+            ghoul_touch = ability.CreateTouchSpellCast();
+
+            ghoul_touch.AddToSpellList(Helpers.wizardSpellList, 2);
+            ghoul_touch.AddSpellAndScroll("d1d24c5613bb8c14a9a089c54b77527d");
         }
 
 
@@ -299,6 +524,7 @@ namespace CallOfTheWild
                                                   Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(spite_store_buff), Helpers.Create<ContextActionRemoveSelf>()),
                                                                                                 Helpers.CreateActionList(release_action))
                                                  );
+            release_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             spite_store_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuff(release_buff)));
 
             var apply_release_buff = Common.createContextActionApplyBuff(release_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
@@ -306,6 +532,7 @@ namespace CallOfTheWild
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null
+                        && spell.SpellLevel <= 4
                         && spell.Blueprint.StickyTouch != null
                         && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
                         && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent)
@@ -383,7 +610,7 @@ namespace CallOfTheWild
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
             howling_agony = Helpers.CreateAbility("HowlingAgonyAbility",
-                                                  "HowlingAgony",
+                                                  "Howling Agony",
                                                   "You send wracking pains through the targets’ bodies. Because of the pain, affected creatures take a –2 penalty to AC, attacks, melee damage rolls, and Reflex saving throws.",
                                                   "",
                                                   icon,

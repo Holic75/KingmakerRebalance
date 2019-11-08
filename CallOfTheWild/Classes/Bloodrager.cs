@@ -386,6 +386,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "c83447189aabc72489164dfc246f3a36", 2), //frigid touch
+                new Common.SpellId( NewSpells.ghoul_touch.AssetGuid, 2),
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
                 new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image

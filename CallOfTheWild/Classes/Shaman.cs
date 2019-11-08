@@ -906,7 +906,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict critical wounds
                 new Common.SpellId( "a8666d26bbbd9b640958284e0eee3602", 4), //life blast
                 new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison
-                new Common.SpellId( "d797007a142a6c0409a74b064065a15e", 4), //poison
+                new Common.SpellId( "2a6eda8ef30379142a4b75448fb214a3", 4), //poison
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud

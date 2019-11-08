@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -38,6 +39,8 @@ namespace CallOfTheWild
                                                                                                              library.Get<BlueprintWeaponEnchantment>("bdba267e951851449af552aa9f9e3992") };
         static public BlueprintWeaponEnchantment master_work = library.Get<BlueprintWeaponEnchantment>("6b38844e2bffbac48b63036b66e735be");
         static public BlueprintWeaponEnchantment[] static_enchants;
+
+        static public BlueprintEquipmentEnchantment[] unarmed_bonus = new BlueprintEquipmentEnchantment[5];
         static public void initialize()
         {
             createMetamagicEnchantments();
@@ -73,6 +76,8 @@ namespace CallOfTheWild
             for (int i = 0; i < unarmed_enchants.Length; i++)
             {
                 unarmed_enchants[i].ComponentsArray[0] = Helpers.Create<NewMechanics.EnchantmentMechanics.StaticEquipmentWeaponTypeEnhancement>(s => { s.Enhancement = i + 1; s.AllNaturalAndUnarmed = true; });
+                unarmed_bonus[i] = library.CopyAndAdd<BlueprintEquipmentEnchantment>(unarmed_enchants[i], $"UnarmedBonusEnhancement{i + 1}", "");
+                unarmed_bonus[i].ComponentsArray = new BlueprintComponent[] { Helpers.Create<NewMechanics.EnchantmentMechanics.EquipmentWeaponTypeEnhancement>(s => { s.Enhancement = i + 1; s.AllNaturalAndUnarmed = true; }) };
             }
 
             for (int i = 0; i < standard_enchants.Length; i++)
@@ -86,9 +91,21 @@ namespace CallOfTheWild
 
             (magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment[0] = standard_enchants[0];
             (greater_magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment = standard_enchants;
+
+
+            //fix monk robes
+            var robes = new BlueprintItemArmor[]{ library.Get<BlueprintItemArmor>("70c13c319f3d18841bb4c4e5c27125c9"), //protector
+                                                  library.Get<BlueprintItemArmor>("d2eb319bc6b399a48b1b1d0a73238ac4"), //arbiter
+                                                  library.Get<BlueprintItemArmor>("c18a1d22dca8b684195633d685855d0c") //enforcer
+                                                 };
+
+            for(int i = 0; i < robes.Length; i++)
+            {
+                var robe_enchants = Helpers.GetField<BlueprintEquipmentEnchantment[]>(robes[i], "m_Enchantments");
+                robe_enchants[1] = unarmed_bonus[2 * i];
+                Helpers.SetField(robes[i], "m_Enchantments", robe_enchants);
+            }
         }
-
-
 
 
         static void createSummonedWeaponEnchantment()

@@ -129,12 +129,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public void OnEventAboutToTrigger(RuleCalculateDamage evt)
         {
-            /*ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
-            PhysicalDamage weaponDamage = evt.DamageBundle.WeaponDamage as PhysicalDamage;
-            if (weapon == null || weaponDamage == null || !this.CheckWeapon(weapon))
-                return;
-            weaponDamage.Enchantment += added_bonus;
-            weaponDamage.EnchantmentTotal += added_bonus;*/
+
         }
 
         public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
@@ -142,6 +137,54 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             if (evt.Weapon == null || !this.CheckWeapon(evt.Weapon))
                 return;
             evt.AddBonus(added_bonus, this.Fact);
+        }
+
+        public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleCalculateDamage evt)
+        {
+        }
+
+        public bool CheckWeapon(ItemEntityWeapon weapon)
+        {
+            if (!this.AllNaturalAndUnarmed || !weapon.Blueprint.IsNatural && !weapon.Blueprint.IsUnarmed)
+                return weapon.Blueprint.Category == this.Category;
+            return true;
+        }
+    }
+
+
+    public class EquipmentWeaponTypeEnhancement : EquipmentEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
+    {
+        public int Enhancement;
+        public bool AllNaturalAndUnarmed;
+        [HideIf("AllNaturalAndUnarmed")]
+        public WeaponCategory Category;
+
+        public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (!this.CheckWeapon(evt.Weapon))
+                return;
+
+            evt.AddBonusDamage(Enhancement);
+        }
+
+        public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+
+        public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+        {
+
+        }
+
+        public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+            if (evt.Weapon == null || !this.CheckWeapon(evt.Weapon))
+                return;
+            evt.AddBonus(Enhancement, this.Fact);
         }
 
         public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)

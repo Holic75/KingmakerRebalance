@@ -80,10 +80,16 @@ namespace CallOfTheWild
         {
             public int BonusDC;
             private int actual_dc = 0;
+            public BlueprintAbility current_spell = null;
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
 
+                if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
+                {
+                    actual_dc = 0;
+                    return;
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
@@ -102,6 +108,7 @@ namespace CallOfTheWild
                 }
                 actual_dc = Mathf.Min(evt.SpellLevel, BonusDC);
                 evt.AddBonusDC(actual_dc);
+                current_spell = evt.Spell;
             }
 
             public override void OnEventDidTrigger(RuleCastSpell evt)
@@ -134,6 +141,7 @@ namespace CallOfTheWild
                     this.Owner.Stats.TemporaryHitPoints.AddModifier(m.ModValue, m.Source, m.SourceComponent, m.ModDescriptor);
                 }
                 this.Owner.Stats.TemporaryHitPoints.UpdateValue();
+                current_spell = null;
             }
         }
 
@@ -150,11 +158,12 @@ namespace CallOfTheWild
             public string display_name = "Conduit Surge";
             public BlueprintAbilityResource resource;
             private int caster_level_increase = -1;
+            public BlueprintAbility current_spell = null;
 
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-                if (evt.Spell.SourceItem != null)
+                if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
                 {
                     caster_level_increase = -1;
                     return;
@@ -171,6 +180,7 @@ namespace CallOfTheWild
                 }
                 caster_level_increase = dice_value.Calculate(this.Fact.MaybeContext);
                 evt.AddBonusCasterLevel(caster_level_increase);
+                current_spell = evt.Spell;
             }
 
             public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
@@ -195,6 +205,7 @@ namespace CallOfTheWild
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
                 }
                 caster_level_increase = -1;
+                current_spell = null;
             }
         }
 
@@ -2414,6 +2425,29 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCombatManeuver evt)
             {
+            }
+        }
+
+
+        public class ContextConditionCasterAndTargetHasFactFromList : ContextCondition
+        {
+            public BlueprintUnitFact[] facts;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                foreach (var f in facts)
+                {
+                    if (this.Target.Unit.Descriptor.HasFact(f) && this.Context.MaybeCaster.Descriptor.HasFact(f))
+                    {
+                        return !Not;
+                    }
+                }
+                return Not;
             }
         }
 
