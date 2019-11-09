@@ -183,7 +183,7 @@ Original game bug fixes:
 - Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training),
 - Web school is changed to conjuration
 - radius of teamwork feats that require "adjacent" allies changed to 5 feet (instead of 5 meters) (optional)
-
+- Invulnerable rager extreme endurance bonus no longer scales exponentially
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/16/8/10/15
