@@ -207,25 +207,27 @@ namespace CallOfTheWild
         {
             bonded_mind_feat = Helpers.CreateFeature("BindedMindFeat",
                                          "Bonded Mind",
-                                         "You and your partner are so close that you can almost read each other’s minds. You can be target of the spells with range of Personal of any of your companions who have Share Spells feat.",
+                                         "You and your partner are so close that you can almost read each other’s minds. You can be target of the spells with range of Personal of any of your companions who have Share Spells feat.\n"
+                                         + "Note: you can not benefit from this feat or any other feat that uses it as a prerequisite unless you permanently posses them.",
                                          "",
                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Bonded_Mind.png"),
                                          FeatureGroup.Feat);
             bonded_mind_feat.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.TeamworkFeat };
             share_spells_feat = Helpers.CreateFeature("SharedSpellFeat",
-                             "Share Spells",
-                             "You can cast a spell with a range of Personal on an ally as a touch spell, as per the share spells familiar ability, so long as the ally possesses the Bonded Mind feat.",
-                             "",
-                             LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Share_Spells.png"),
-                             FeatureGroup.Feat,
-                             Helpers.PrerequisiteFeature(bonded_mind_feat),
-                             Helpers.PrerequisiteFeaturesFromList(new BlueprintFeature[] { ac_share_spell, familiar_share_spell }, true)
-                             );
+                                                     "Share Spells",
+                                                     "You can cast a spell with a range of Personal on an ally as a touch spell, as per the share spells familiar ability, so long as the ally possesses the Bonded Mind feat.",
+                                                     "",
+                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Share_Spells.png"),
+                                                     FeatureGroup.Feat,
+                                                     Helpers.PrerequisiteFeature(bonded_mind_feat),
+                                                     Helpers.PrerequisiteFeaturesFromList(new BlueprintFeature[] { ac_share_spell, familiar_share_spell }, true)
+                                                     );
             share_spells_feat.Groups = new FeatureGroup[]{ FeatureGroup.Feat, FeatureGroup.TeamworkFeat };
             library.AddFeats(bonded_mind_feat, share_spells_feat);
 
             //add these teamwork feats to feat sharing feats
-            Common.addTemworkFeats(bonded_mind_feat, share_spells_feat);
+            Common.addTemworkFeats(bonded_mind_feat, false);
+            Common.addTemworkFeats(share_spells_feat, false);
         }
 
 

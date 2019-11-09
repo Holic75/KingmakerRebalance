@@ -1751,50 +1751,57 @@ namespace CallOfTheWild
         }
 
 
-        static public void addTemworkFeats(params BlueprintFeature[] feats)
+        static public void addTemworkFeats(BlueprintFeature feat, bool share = true)
         {
-
             var tactical_leader_feat_share_buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
             var monster_tactics_buff = library.Get<BlueprintBuff>("81ddc40b935042844a0b5fb052eeca73");
             var sh_teamwork_share = library.Get<BlueprintFeature>("e1f437048db80164792155102375b62c");
             var teamwork_feat = library.Get<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb");
             var teamwork_feat_vanguard = library.Get<BlueprintFeatureSelection>("90b882830b3988446ae681c6596460cc");
 
-            sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats);
-            monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts = monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feats);
-            //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
-            tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts = tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feats);
-            teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feats);
+            if (share)
+            {
+                sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feat);
+                monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts = monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feat);
+                //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
+                tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts = tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feat);
+            }
+            teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feat);
             Hunter.hunter_teamwork_feat.AllFeatures = teamwork_feat.AllFeatures;
-            teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feats);
+            teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feat);
 
-            VindicativeBastard.teamwork_feat.AllFeatures = VindicativeBastard.teamwork_feat.AllFeatures.AddToArray(feats);
+            VindicativeBastard.teamwork_feat.AllFeatures = VindicativeBastard.teamwork_feat.AllFeatures.AddToArray(feat);
 
 
 
             //update vanguard features
             var vanguard_variants = library.Get<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8").GetComponent<AbilityVariants>();
-            foreach (var f in feats)
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", "VanguardTactician" + feat.name + "Buff", "");
+            var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
+            add_fact.Facts = new BlueprintUnitFact[] { feat };
+            buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
+            buff.SetName("Vanguard Tactician — " + feat.Name);
+            buff.SetDescription(feat.Description);
+
+
+            var ability = library.CopyAndAdd<BlueprintAbility>("53f4d8597163db24f8309462aadc4348", "VanguardTactician" + feat.name + "Ability", "");
+            ability.ReplaceComponent<AbilityShowIfCasterHasFact>(Common.createAbilityShowIfCasterHasFact(feat));
+
+            var condition_apply_buff = (Conditional)ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0];
+            var context_apply_buff = ((ContextActionApplyBuff)condition_apply_buff.IfTrue.Actions[0]).CreateCopy();
+            context_apply_buff.Buff = buff;
+            var run_action = Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(feat, false), context_apply_buff));
+
+            ability.ReplaceComponent<AbilityEffectRunAction>(run_action);
+            ability.SetName(buff.Name);
+            ability.SetDescription(buff.Description);
+
+            if (share)
             {
-                var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", "VanguardTactician" + f.name + "Buff", "");
-                var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
-                add_fact.Facts[0] = f;
-                buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
-                buff.SetName("Vanguard Tactician — " + f.Name);
-                buff.SetDescription(f.Description);
-
-                var ability = library.CopyAndAdd<BlueprintAbility>("53f4d8597163db24f8309462aadc4348", "VanguardTactician" + f.name + "Ability", "");
-                ability.ReplaceComponent<AbilityShowIfCasterHasFact>(Common.createAbilityShowIfCasterHasFact(f));
-
-                var condition_apply_buff = (Conditional)ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0];
-                var context_apply_buff = ((ContextActionApplyBuff)condition_apply_buff.IfTrue.Actions[0]).CreateCopy();
-                context_apply_buff.Buff = buff;
-                var run_action = Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(f, false), context_apply_buff));
-                ability.ReplaceComponent<AbilityEffectRunAction>(run_action);
-                ability.SetName(buff.Name);
-                ability.SetDescription(buff.Description);
                 vanguard_variants.Variants = vanguard_variants.Variants.AddToArray(ability);
             }
+
         }
 
 
