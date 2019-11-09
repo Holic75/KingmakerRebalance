@@ -26,7 +26,7 @@ namespace CallOfTheWild.InitiativeMechanics
 
                 // Another unit isn't waiting, but we just rolled, so it must be the surprise round.
                 // Let us act too.
-                Log.Write($"Can act in surprise round: {Owner.CharacterName}, because other unit could: {unit.Unit.Descriptor.CharacterName}");
+                //Log.Write($"Can act in surprise round: {Owner.CharacterName}, because other unit could: {unit.Unit.Descriptor.CharacterName}");
                 unit.Cooldown.Initiative = 0;
             }
         }

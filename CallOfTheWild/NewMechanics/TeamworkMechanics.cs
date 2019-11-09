@@ -1,11 +1,15 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
+using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -83,6 +87,73 @@ namespace CallOfTheWild.TeamworkMechanics
 
         public override void OnEventDidTrigger(RuleCalculateAC evt)
         {
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class AlliedSpellcasterSameSpellBonus : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>, IGlobalRulebookHandler<RuleSpellResistanceCheck>, IConcentrationBonusProvider,  IRulebookHandler<RuleSpellResistanceCheck>, IGlobalRulebookSubscriber
+    {
+        public BlueprintUnitFact AlliedSpellcasterFact;
+        public int Radius;
+
+        public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+        {
+            var spell = evt.Spell;
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, (float)this.Radius, true, false))
+            {
+                if ((unitEntityData.Descriptor.HasFact(this.AlliedSpellcasterFact) || (bool)this.Owner.State.Features.SoloTactics) && unitEntityData != this.Owner.Unit && !unitEntityData.IsEnemy(this.Owner.Unit)
+                     && hasSpell(unitEntityData.Descriptor, evt.Spell))
+                {
+                    evt.AddBonusCasterLevel(1);
+                    evt.AddBonusConcentration(2);
+                    break;
+                }
+            }
+        }
+
+
+        public void OnEventAboutToTrigger(RuleSpellResistanceCheck evt)
+        {
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, (float)this.Radius, true, false))
+            {
+                if ((unitEntityData.Descriptor.HasFact(this.AlliedSpellcasterFact) || (bool)this.Owner.State.Features.SoloTactics) && unitEntityData != this.Owner.Unit && !unitEntityData.IsEnemy(this.Owner.Unit)
+                     && hasSpell(unitEntityData.Descriptor, evt.Ability))
+                {
+                    evt.AdditionalSpellPenetration += 2;
+                    break;
+                }
+            }
+        }
+
+        public void OnEventDidTrigger(RuleSpellResistanceCheck evt)
+        {
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+        {
+        }
+
+        public int GetStaticConcentrationBonus()
+        {
+            return 0;
+        }
+
+        private bool hasSpell (UnitDescriptor unit, BlueprintAbility spell)
+        {
+            var duplicates = SpellDuplicates.getDuplicates(spell);
+            foreach (var sb in unit.Spellbooks)
+            {
+                foreach (var d in duplicates)
+                {
+                    if (sb.CanSpend(d))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 

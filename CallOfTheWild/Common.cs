@@ -1938,7 +1938,7 @@ namespace CallOfTheWild
         }
 
 
-        static public NewMechanics.CrowdAlliesACBonus createCrowdAlliesACBonus(int min_num_allies_around, ContextValue value, int radius = 2)
+        static public NewMechanics.CrowdAlliesACBonus createCrowdAlliesACBonus(int min_num_allies_around, ContextValue value, int radius = 2 /* in meters ~ roughly 7 feets*/)
         {
             var c = Helpers.Create<NewMechanics.CrowdAlliesACBonus>();
             c.num_allies_around = min_num_allies_around;

@@ -64,6 +64,23 @@ namespace CallOfTheWild
         }
 
 
+        public static BlueprintAbility[] getDuplicates(BlueprintAbility original)
+        {
+            if (original == null)
+            {
+                return new BlueprintAbility[0];
+            }
+            if (duplicate_spells.ContainsKey(original.AssetGuid))
+            {
+                return duplicate_spells[original.AssetGuid].ToArray();
+            }
+            else
+            {
+                return new BlueprintAbility[] { original };
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class SavingThrowBonusAgainstSpecificSpellsOrDuplicates : RuleInitiatorLogicComponent<RuleSavingThrow>
         {

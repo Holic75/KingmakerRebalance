@@ -29,6 +29,7 @@ namespace CallOfTheWild
             internal bool x3_crit_multiplier_for_flails { get; }
             internal bool swap_weapon_sets_as_move_action { get; }
             internal bool allow_spellcasting_in_elemental_form { get; }
+            internal bool fix_teamwork_feats { get; }
 
             internal Settings()
             {
@@ -45,6 +46,7 @@ namespace CallOfTheWild
                     x3_crit_multiplier_for_flails = (bool)jo["x3_crit_multiplier_for_flails"];
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
                     allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
+                    fix_teamwork_feats = (bool)jo["fix_teamwork_feats"];
                 }
             }
         }
@@ -132,6 +134,13 @@ namespace CallOfTheWild
                     }
 
 
+                    if (settings.fix_teamwork_feats)
+                    {
+                        Main.logger.Log("Fixing teamwork feats.");
+                        CallOfTheWild.Rebalance.fixTeamworkFeats();
+                    }
+
+
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
                     //CallOfTheWild.Rebalance.fixDomains();
@@ -152,6 +161,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixCaveFangs();
                     CallOfTheWild.Rebalance.fixDazzlingDisplay();
                     CallOfTheWild.Rebalance.fixSpellDescriptors();
+                    CallOfTheWild.Rebalance.fixSpellRanges();
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                     CallOfTheWild.ChannelEnergyEngine.init();
@@ -167,6 +177,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
+                    
 
 #if DEBUG
                     CallOfTheWild.HexEngine.test_mode = true;

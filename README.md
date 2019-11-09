@@ -171,8 +171,9 @@ enchanced attacks (optional),
 - flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties (optional),
 - medium range for spells was increased to 60 ft, long range to 100 ft,
 - weapon swap consumes move action instead of standard,
-- spell casting is not forbidden while in elemental form (optional).
-
+- spell casting is not forbidden while in elemental form (optional),
+- allied spellcaster now should additionally give +1 cl and +2 spell penetration if adjacent with this feat teammates have the same spell available (optional)
+- changes range of Wail of Banshee and Polar Midnight to medium (since by the time you can cast these spells in pnp the range will be around 65 ft)
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -181,6 +182,7 @@ Original game bug fixes:
 - Lingering Performance no longer allows to overlap different bardic performances,
 - Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training),
 - Web school is changed to conjuration
+- radius of teamwork feats that require "adjacent" allies changed to 5 feet (instead of 5 meters) (optional)
 
 
 Mod also changes stats of some npcs (optional)

@@ -64,6 +64,7 @@ namespace CallOfTheWild
         static public BlueprintFeature target_of_opportunity;
         static public BlueprintFeature distracting_charge;
         static public BlueprintFeature swarm_scatter;
+        static public BlueprintFeature coordinated_charge;
 
         static internal void load()
         {
@@ -101,6 +102,15 @@ namespace CallOfTheWild
             createDistractingCharge();
             createTargetOfOpportunity();
             createSwarmTactics();
+            //createCoordinatedCharge();
+        }
+
+
+        static void createCoordinatedCharge()
+        {
+            //test swift charge
+            var charge = library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038");
+            charge.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift;
         }
 
 
@@ -109,7 +119,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SwarmScatter.png");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraSwarmScatterArea", "");
-            area.Size = 5.Feet();
+            area.Size = 7.Feet();
 
             var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "AuraSwarmScatterBuff", "");
             buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
@@ -137,7 +147,7 @@ namespace CallOfTheWild
                                                                                             t.descriptor = ModifierDescriptor.Circumstance;
                                                                                             t.value_per_unit = 1;
                                                                                             t.teamwork_fact = swarm_scatter;
-                                                                                            t.Radius = 5.Feet().Meters;
+                                                                                            t.Radius = 7.Feet().Meters;
                                                                                         }
                                                                                         )
                                        );

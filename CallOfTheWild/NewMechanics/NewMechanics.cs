@@ -74,6 +74,10 @@ namespace CallOfTheWild
 {
     namespace NewMechanics
     {
+
+
+
+
         [ComponentName("Increase spell descriptor DC by spell level up to BonusDC and then deals dc_increase d6 damage")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class RageCasting : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
@@ -2587,7 +2591,7 @@ namespace CallOfTheWild
         {
             public UnitAnimationAction GetAbilityAction(UnitEntityData caster)
             {
-                Main.logger.Log("here " + $"{ caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action != null}");
+                //Main.logger.Log("here " + $"{ caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action != null}");
                 return caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action;
             }
         }
@@ -3863,7 +3867,7 @@ namespace CallOfTheWild
                 ModifiableValueAttributeStat skill_stat = owner_skill.BaseStat;
                 ModifiableValueAttributeStat replacement_stat = this.Owner.Stats.GetStat(ReplacementStat) as ModifiableValueAttributeStat;
 
-                Main.logger.Log(skill_stat.Bonus.ToString() + " : " + replacement_stat.Bonus.ToString());
+                //Main.logger.Log(skill_stat.Bonus.ToString() + " : " + replacement_stat.Bonus.ToString());
                 int bonus = replacement_stat.Bonus - skill_stat.Bonus;
                 if (bonus <= 0)
                 {

@@ -30,6 +30,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.Utility;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Designers.Mechanics.Facts;
 
 namespace CallOfTheWild
 {
@@ -485,6 +486,29 @@ namespace CallOfTheWild
             animal_growth_run_action.Actions = Helpers.CreateActionList(new_run_action);
         }
 
+
+        static internal void fixTeamworkFeats()
+        {
+            var back_to_back = library.Get<BlueprintFeature>("c920f2cd2244d284aa69a146aeefcb2c");
+            back_to_back.GetComponent<BackToBack>().Radius = 2;
+            var shield_wall = library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907");
+            shield_wall.GetComponent<ShieldWall>().Radius = 2;
+            var shake_it_off = library.Get<BlueprintFeature>("6337b37f2a7c11b4ab0831d6780bce2a");
+            shake_it_off.GetComponent<ShakeItOff>().Radius = 2;
+            var allied_spell_caster = library.Get<BlueprintFeature>("9093ceeefe9b84746a5993d619d7c86f");
+            allied_spell_caster.GetComponent<AlliedSpellcaster>().Radius = 2;
+            allied_spell_caster.AddComponent(Helpers.Create<TeamworkMechanics.AlliedSpellcasterSameSpellBonus>(a => { a.Radius = 2; a.AlliedSpellcasterFact = allied_spell_caster; }));
+            allied_spell_caster.SetDescription("Whenever you are adjacent to an ally who also has this feat, you receive a +2 competence bonus on level checks made to overcome spell resistance. If your ally has the same spell prepared (or known with a slot available if they are spontaneous spellcasters), this bonus increases to +4 and you receive a +1 bonus to the caster level for all level-dependent variables, such as duration, range, and effect.");
+            var shielded_caster = library.Get<BlueprintFeature>("0b707584fc2ea724aa72c396c2230dc7");
+            shielded_caster.GetComponent<ShieldedCaster>().Radius = 2;
+        }
+
+
+        static internal void fixSpellRanges()
+        {
+            library.Get<BlueprintAbility>("b24583190f36a8442b212e45226c54fc").Range = AbilityRange.Medium; //change range of wail of banshee to medium since by the time you can cast it will be 25 + 17/2 * 5 = 65
+            library.Get<BlueprintAbility>("ba48abb52b142164eba309fd09898856").Range = AbilityRange.Medium; //change range of polar midnight to medium since by the time you can cast it will be 25 + 17/2 * 5 = 65
+        }
 
         static internal void fixIncreasedDamageReduction()
         {

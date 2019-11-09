@@ -243,10 +243,6 @@ namespace CallOfTheWild
                                                     new GameAction[] { sonic_dmg1, holy_dmg1, effect1 }
                                                   );
 
-
-
-
-
             rebuke = Helpers.CreateAbility("RebukeAbility",
                                            "Rebuke",
                                            "Your wrathful words cause physical harm to your enemies.\n"
