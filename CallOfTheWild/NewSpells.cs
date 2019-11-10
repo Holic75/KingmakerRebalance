@@ -212,12 +212,13 @@ namespace CallOfTheWild
 
         static void createBladedDash()
         {
+            var icon = library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e").Icon; //freedom of movement
             var dimension_door = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "BladedDashTeleportAbility", "");
             dimension_door.ActionType = UnitCommand.CommandType.Free;
             dimension_door.CanTargetEnemies = true;
             dimension_door.CanTargetFriends = true;
             dimension_door.Type = AbilityType.Special;
-            dimension_door.SetNameDescription("", "");
+            dimension_door.SetNameDescriptionIcon("", "", icon);
 
             var buff = Helpers.CreateBuff("BladedDashBuff",
                                           "",
