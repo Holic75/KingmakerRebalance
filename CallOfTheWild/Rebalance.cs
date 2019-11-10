@@ -512,6 +512,7 @@ namespace CallOfTheWild
 
         static internal void fixEcclesitheurge()
         {
+            var cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var archetype = library.Get<BlueprintArchetype>("472af8cb3de628f4a805dc4a038971bc");
             archetype.AddSkillPoints = 0;
 
@@ -519,6 +520,11 @@ namespace CallOfTheWild
 
             bonded.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.value = -2; c.spells = new BlueprintAbility[0]; }));
             bonded.SetDescription(bonded.Description + "\nThis ability replaces the increase to channel energy gained at 3rd level.");
+
+            var long_blessing = library.Get<BlueprintAbility>("3ef665bb337d96946bcf98a11103f32f");
+            long_blessing.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                             classes: new BlueprintCharacterClass[] { cleric_class }, stepLevel: 2, startLevel: 3));
+
         }
 
 

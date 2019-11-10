@@ -617,7 +617,7 @@ namespace CallOfTheWild
                                                                    "",
                                                                    sound_burst.Icon,
                                                                    null,
-                                                                   Common.createAddTargetAttackWithWeaponTrigger(deal_dmg, null, not_reach: false, only_melee: false)
+                                                                   Common.createAddTargetAttackWithWeaponTrigger(deal_dmg, null, not_reach: false, only_melee: false, wait_for_attack_to_resolve: true)
                                                                    );
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", "DiscordantVoiceArea", ""); //dirge of doom

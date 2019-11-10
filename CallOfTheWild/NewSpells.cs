@@ -250,12 +250,12 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true, wait_for_attack_to_resolve: true),
                                           Helpers.CreateAddFact(activatable_ability),
                                           Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 3, stepLevel: 2, max: 5)
                                           );
             var remove = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionMainTargetHasFact>(c => c.Fact = allow_buff), Common.createContextActionRemoveBuff(buff));
-            buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove), check_weapon_range_type: true, on_initiator: true));
+            buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove), check_weapon_range_type: true, on_initiator: true, wait_for_attack_to_resolve: true));
 
             fiery_runes = Helpers.CreateAbility("FieryRunesAbility",
                                                 buff.Name,
@@ -2537,7 +2537,8 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
-                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                Helpers.CreateContextRankConfig()
                                                 );
             savage_maw.setMiscAbilityParametersSelfOnly();
             savage_maw.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
