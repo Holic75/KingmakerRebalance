@@ -30,11 +30,11 @@ namespace CallOfTheWild
             internal bool swap_weapon_sets_as_move_action { get; }
             internal bool allow_spellcasting_in_elemental_form { get; }
             internal bool fix_teamwork_feats { get; }
-
+            internal bool fix_ecclesitheurge_class { get; }
             internal Settings()
             {
 
-                using (StreamReader settings_file = File.OpenText("Mods/CallOfTheWild/settings.json"))
+                using (StreamReader settings_file = File.OpenText(@"./Mods/CallOfTheWild/settings.json"))
                 using (JsonTextReader reader = new JsonTextReader(settings_file))
                 {
                     JObject jo = (JObject)JToken.ReadFrom(reader);
@@ -47,6 +47,7 @@ namespace CallOfTheWild
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
                     allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
                     fix_teamwork_feats = (bool)jo["fix_teamwork_feats"];
+                    fix_ecclesitheurge_class = (bool)jo["fix_ecclesitheurge_class"];
                 }
             }
         }
@@ -138,6 +139,12 @@ namespace CallOfTheWild
                     {
                         Main.logger.Log("Fixing teamwork feats.");
                         CallOfTheWild.Rebalance.fixTeamworkFeats();
+                    }
+
+                    if (settings.fix_ecclesitheurge_class)
+                    {
+                        Main.logger.Log("Fixing Ecclesitheurge");
+                        CallOfTheWild.Rebalance.fixEcclesitheurge();
                     }
 
 

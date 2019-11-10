@@ -175,7 +175,8 @@ enchanced attacks (optional),
 - weapon swap consumes move action instead of standard,
 - spell casting is not forbidden while in elemental form (optional),
 - allied spellcaster now should additionally give +1 cl and +2 spell penetration if adjacent with this feat teammates have the same spell available (optional)
-- changes range of Wail of Banshee and Polar Midnight to medium (since by the time you can cast these spells in pnp the range will be around 65 ft)
+- changes range of Wail of Banshee and Polar Midnight to medium (since by the time you can cast these spells in pnp the range will be around 65 ft),
+- fixes ecclesitheurge to be as per pnp rules (no bonus skill point, no channel energy damage increase at level 3) (optional)
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

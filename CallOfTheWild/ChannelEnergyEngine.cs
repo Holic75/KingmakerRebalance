@@ -858,6 +858,17 @@ namespace CallOfTheWild
             //should be last
             addToBloodfireAndBloodrain(entry);
             addToChannelResistance(entry);
+
+
+            //ecclicitheurge scaling (no bonus at lvl 3)
+            var bonded = library.Get<BlueprintFeature>("aa34ca4f3cd5e5d49b2475fcfdf56b24");
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var penalty = bonded.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>();
+            if (penalty != null && entry.scalesWithClass(cleric))
+            {
+                penalty.spells = penalty.spells.AddToArray(entry.ability);
+            }
+
         }
 
 

@@ -106,7 +106,7 @@ namespace CallOfTheWild
         static public BlueprintAbility flashfire;
         static public BlueprintAbility stricken_heart;
         static public BlueprintAbility rigor_mortis;
-        //static public BlueprintAbility touch_of_blood_letting; - ? to powerful due to ai and a bit complicated to implement
+        //static public BlueprintAbility touch_of_blood_letting; - ? too powerful due to ai and a bit complicated to implement
         static public BlueprintAbility ice_body;
 
         static public BlueprintAbility fire_seeds;
@@ -326,6 +326,7 @@ namespace CallOfTheWild
                                                 );
 
             bladed_dash.setMiscAbilityParametersSingleTargetRangedHarmful(false);
+            bladed_dash.NeedEquipWeapons = true;
             bladed_dash.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
             bladed_dash.AddToSpellList(Helpers.magusSpellList, 2);
             bladed_dash.AddToSpellList(Helpers.bardSpellList, 2);
@@ -360,6 +361,7 @@ namespace CallOfTheWild
                                     );
 
             bladed_dash_greater.setMiscAbilityParametersSingleTargetRangedHarmful(false);
+            bladed_dash_greater.NeedEquipWeapons = true;
             bladed_dash_greater.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
             bladed_dash_greater.AddToSpellList(Helpers.magusSpellList, 5);
             bladed_dash_greater.AddToSpellList(Helpers.bardSpellList, 5);
@@ -2512,7 +2514,8 @@ namespace CallOfTheWild
             var apply_bleed = Common.createContextActionApplyBuff(bleed1d4, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
             buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_bleed), critical_hit: true, weapon_category: WeaponCategory.Bite));
 
-            var roar = library.CopyAndAdd<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb", "SavageMawRoarAbility", "");
+            var roar = library.CopyAndAdd<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb", "SavageMawRoarAbility", "");//dazzling display
+            roar.RemoveComponents<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>(); //remove weapon requirement added by rebalance
             roar.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift;
             roar.SetNameDescriptionIcon("Savage Maw: Roar",
                                         "Your teeth extend and sharpen, transforming your mouth into a maw of razor-sharp fangs. You gain a secondary bite attack that deals 1d4 points of damage plus your Strength modifier. If you confirm a critical hit with this attack, it also deals 1d4 bleed damage. You can end this spell before its normal duration by making a bestial roar as a swift action. When you do, you can make an Intimidate check to demoralize all foes within a 30-foot radius that can hear the roar.",

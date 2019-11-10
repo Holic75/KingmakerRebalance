@@ -510,6 +510,18 @@ namespace CallOfTheWild
             library.Get<BlueprintAbility>("ba48abb52b142164eba309fd09898856").Range = AbilityRange.Medium; //change range of polar midnight to medium since by the time you can cast it will be 25 + 17/2 * 5 = 65
         }
 
+        static internal void fixEcclesitheurge()
+        {
+            var archetype = library.Get<BlueprintArchetype>("472af8cb3de628f4a805dc4a038971bc");
+            archetype.AddSkillPoints = 0;
+
+            var bonded = library.Get<BlueprintFeature>("aa34ca4f3cd5e5d49b2475fcfdf56b24");
+
+            bonded.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.value = -2; c.spells = new BlueprintAbility[0]; }));
+            bonded.SetDescription(bonded.Description + "\nThis ability replaces the increase to channel energy gained at 3rd level.");
+        }
+
+
         static internal void fixIncreasedDamageReduction()
         {
             var drs = new BlueprintFeature[] {library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8"), //barbarian
