@@ -96,6 +96,7 @@ New spells:
 - Blood Armor,
 - Bone Fists,
 - Burst of Radiance,
+- Fiery Runes,
 - Flame Blade,
 - Flurry of Snowballs,
 - Force Sword,

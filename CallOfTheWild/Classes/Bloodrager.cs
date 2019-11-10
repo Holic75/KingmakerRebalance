@@ -384,6 +384,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "de7a025d48ad5da4991e7d3c682cf69d", 2), //cats grace
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagles splendor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
+                new Common.SpellId( NewSpells.fiery_runes.AssetGuid, 2),
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "c83447189aabc72489164dfc246f3a36", 2), //frigid touch
                 new Common.SpellId( NewSpells.ghoul_touch.AssetGuid, 2),

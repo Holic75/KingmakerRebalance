@@ -135,6 +135,9 @@ namespace CallOfTheWild
         static public BlueprintAbility bladed_dash;
         static public BlueprintAbility bladed_dash_greater;
 
+        static public BlueprintAbility fiery_runes;
+        //static public BlueprintAbility channel_vigor; ?
+
 
         static public void load()
         {
@@ -208,7 +211,80 @@ namespace CallOfTheWild
             createRebuke();
 
             createBladedDash();
+            createFieryRunes();
         }
+
+
+        static void createFieryRunes()
+        {
+            var icon = library.Get<BlueprintFeature>("5e33543285d1c3d49b55282cf466bef3").Icon; //evocation
+
+            var allow_buff = Helpers.CreateBuff("FieryRunesAllowBuff",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                null);
+            allow_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var activatable_ability = Helpers.CreateActivatableAbility("FieryRunesDischargeActivatableAbility",
+                                                                       "Fiery Runes: Discharge",
+                                                                       "You charge a target with a magic rune of fire.\n"
+                                                                       + "When the it successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d4 + 1 points of fire damage to the target.This damage isn’t multiplied on a critical hit.\n"
+                                                                       + "For every 2 caster levels beyond 3rd the caster possesses, the rune deals an additional 1d4 + 1 points of fire damage (2d4 + 2 at caster level 5th, 3d4 + 3 at 7th, and so on) to a maximum of 5d4 + 5 points of fire damage at caster level 11th.",
+                                                                       "",
+                                                                       icon,
+                                                                       allow_buff,
+                                                                       AbilityActivationType.Immediately,
+                                                                       UnitCommand.CommandType.Swift,
+                                                                       null
+                                                                       );
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+                                                     IgnoreCritical: true);
+
+            var effect = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionMainTargetHasFact>(c => c.Fact = allow_buff), dmg);
+            
+            var buff = Helpers.CreateBuff("FieryRunesBuff",
+                                          "Fiery Runes",
+                                          activatable_ability.Description,
+                                          "",
+                                          icon,
+                                          null,
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true),
+                                          Helpers.CreateAddFact(activatable_ability),
+                                          Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 3, stepLevel: 2, max: 5)
+                                          );
+            var remove = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionMainTargetHasFact>(c => c.Fact = allow_buff), Common.createContextActionRemoveBuff(buff));
+            buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove), check_weapon_range_type: true, on_initiator: true));
+
+            fiery_runes = Helpers.CreateAbility("FieryRunesAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValueRank(AbilityRankType.Default), DurationRate.Minutes))),
+                                                Common.createAbilitySpawnFx("52d413df527f9fa4a8cf5391fd593edd", anchor: AbilitySpawnFxAnchor.SelectedTarget), //evocation buff
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
+                                                Helpers.CreateContextRankConfig()
+                                                );
+
+            fiery_runes.setMiscAbilityParametersTouchFriendly();
+            fiery_runes.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Reach | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize;
+
+            fiery_runes.AddToSpellList(Helpers.alchemistSpellList, 2);
+            fiery_runes.AddToSpellList(Helpers.magusSpellList, 2);
+            fiery_runes.AddToSpellList(Helpers.druidSpellList, 2);
+            fiery_runes.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            fiery_runes.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
+        }
+
 
         static void createBladedDash()
         {
