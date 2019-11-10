@@ -132,6 +132,9 @@ namespace CallOfTheWild
         static public BlueprintAbility fleshworm_infestation;
         static public BlueprintAbility rebuke;
 
+        static public BlueprintAbility bladed_dash;
+        static public BlueprintAbility bladed_dash_greater;
+
 
         static public void load()
         {
@@ -203,6 +206,88 @@ namespace CallOfTheWild
             createGhoulTouch();
             createFleshwormInfestation();
             createRebuke();
+
+            createBladedDash();
+        }
+
+        static void createBladedDash()
+        {
+            var dimension_door = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "BladedDashTeleportAbility", "");
+            dimension_door.ActionType = UnitCommand.CommandType.Free;
+            dimension_door.CanTargetEnemies = true;
+            dimension_door.CanTargetFriends = true;
+            dimension_door.Type = AbilityType.Special;
+            dimension_door.SetNameDescription("", "");
+
+            var buff = Helpers.CreateBuff("BladedDashBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<NewMechanics.AttackBonusMaxFromMultipleStats>(a => { a.stats = new StatType[] { StatType.Charisma, StatType.Intelligence }; a.descriptor = ModifierDescriptor.Circumstance; })
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            bladed_dash = Helpers.CreateAbility("BladedDashAbility",
+                                                "Bladed Dash",
+                                                "When you cast this spell, you immediately move to any one target in close range, and make a single melee attack against it at your base attack bonus. You gain a circumstance bonus on your attack roll equal to your Intelligence or Charisma modifier, whichever is higher. Despite the name, the spell works with any melee weapon.",
+                                                "",
+                                                dimension_door.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                                         Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door),
+                                                                         Common.createContextActionAttack(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
+                                                                                                          Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))
+                                                                                                         )
+                                                                         ),
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                Helpers.Create<AbilityCasterMainWeaponIsMelee>()
+                                                );
+
+            bladed_dash.setMiscAbilityParametersSingleTargetRangedHarmful(false);
+            bladed_dash.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
+            bladed_dash.AddToSpellList(Helpers.magusSpellList, 2);
+            bladed_dash.AddToSpellList(Helpers.bardSpellList, 2);
+
+            bladed_dash.AddSpellAndScroll("02adc587ef2d8a54ababd846072dbef8");
+
+
+            bladed_dash_greater = Helpers.CreateAbility("BladedDashAbilityGreater",
+                                    "Bladed Dash, Greater",
+                                    "This spell functions like bladed dash, save that you can make a single melee attack against every creature you pass during the 30 feet of your dash. You cannot attack an individual creature more than once with spell.\n"
+                                    + bladed_dash.Name + ": " + bladed_dash.Description,
+                                    "",
+                                    dimension_door.Icon,
+                                    AbilityType.Spell,
+                                    UnitCommand.CommandType.Standard,
+                                    AbilityRange.Projectile,
+                                    "",
+                                    "",
+                                    Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), 
+                                                                                      new GameAction[]{Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                                                                       Helpers.CreateConditional(Helpers.Create<ContextConditionIsMainTarget>(),
+                                                                                                                                 Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door)
+                                                                                                                                ),
+                                                                                                       Common.createContextActionAttack(),
+                                                                                                       Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))
+                                                                                                      }
+                                                                                      )
+                                                             ),
+                                    library.Get<BlueprintAbility>("c3e84b5e4400f16459ae8f0585e8dc2b").GetComponent<AbilityDeliverProjectile>(), //air blast torrent
+                                    Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                    Helpers.Create<AbilityCasterMainWeaponIsMelee>()
+                                    );
+
+            bladed_dash_greater.setMiscAbilityParametersSingleTargetRangedHarmful(false);
+            bladed_dash_greater.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
+            bladed_dash_greater.AddToSpellList(Helpers.magusSpellList, 5);
+            bladed_dash_greater.AddToSpellList(Helpers.bardSpellList, 5);
+
+            bladed_dash_greater.AddSpellAndScroll("02adc587ef2d8a54ababd846072dbef8");
         }
 
 

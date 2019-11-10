@@ -4070,5 +4070,29 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AttackBonusMaxFromMultipleStats : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public StatType[] stats;
+            public ModifierDescriptor descriptor;
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                int bonus = 0;
+
+                foreach (var s in stats)
+                {
+                    bonus = Math.Max(bonus, evt.Initiator.Stats.GetStat<ModifiableValueAttributeStat>(s).Bonus);
+                }
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
     }
 }

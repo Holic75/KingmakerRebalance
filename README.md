@@ -91,6 +91,7 @@ New spells:
 - Sense Spirit Magic,
 - Shillelagh,
 - Spirit Call,
+- Bladed Dash and Bladed Dash, Greater
 - Blistering Invective,
 - Blood Armor,
 - Bone Fists,
