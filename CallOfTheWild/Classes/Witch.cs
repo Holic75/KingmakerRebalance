@@ -1200,7 +1200,7 @@ namespace CallOfTheWild
         {
             slumber_hex = hex_engine.createSlumber("Slumber", "Slumber",
                                                    "Effect: A witch can cause a creature within 30 feet to fall into a deep, magical sleep, as per the spell sleep. The creature receives a Will save to negate the effect. If the save fails, the creature falls asleep for a number of rounds equal to the witch’s level.\n"
-                                                    + "This hex can affect a creature of any HD. The creature will not wake due to noise or light, but others can rouse it with a standard action. This hex ends immediately if the creature takes damage. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
+                                                    + "This hex can affect a creature with total HD less or equal to  your character level. The creature will not wake due to noise or light, but others can rouse it with a standard action. This hex ends immediately if the creature takes damage. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
                                                    "31f0fa4235ad435e95ebc89d8549c2ce",
                                                    "c086eeb69a4442df9c4bb8469a2c362d",
                                                    "0ccdbefa7f304a5788c4369b0a988e21");

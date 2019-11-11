@@ -4096,6 +4096,31 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityTargetCasterHDDifference : BlueprintComponent, IAbilityTargetChecker
+        {
+            public int difference = 0;
+            public int min_hd = 1;
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                var target_hd = unit.Descriptor.Progression.CharacterLevel;
+                if (target_hd <= min_hd)
+                {
+                    return true;
+                }
+                var caster_hd = caster.Descriptor.Progression.CharacterLevel;
+
+                return caster_hd >= target_hd + difference;
+            }
+        }
+
+
 
     }
 }

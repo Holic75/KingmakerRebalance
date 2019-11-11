@@ -343,6 +343,7 @@ namespace CallOfTheWild
             hex_ability.AddComponent(Helpers.CreateRunActions(action));
             hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
             hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
+            hex_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetCasterHDDifference>(a => a.difference = 0));
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
             var slumber_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                       hex_ability.Name,
@@ -874,7 +875,7 @@ namespace CallOfTheWild
                                                                                 SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
                                                       );
             hex_ability2_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
-            var apply_buff2 = Common.createContextActionApplyBuff(hex_ability2_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+            var apply_buff2 = Common.createContextActionApplyBuff(hex_ability2_buff, Helpers.CreateContextDuration(1, DurationRate.Days),
                                                                                    dispellable: false);
             hex_ability2.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff2));
 
