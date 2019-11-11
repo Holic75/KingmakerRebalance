@@ -329,6 +329,7 @@ namespace CallOfTheWild
             ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
             ability.AddToSpellList(shaman_class.Spellbook.SpellList, 1);
             ability.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531");
+            sense_spirit_magic = ability;
         }
 
 
@@ -411,6 +412,8 @@ namespace CallOfTheWild
             ability.AddToSpellList(shaman_class.Spellbook.SpellList, 1);
             ability.AddToSpellList(Helpers.druidSpellList, 1);
             ability.AddSpellAndScroll("4e78560ea01fe2541b663c96e87b6057");
+
+            spirit_call = ability;
         }
 
 
@@ -498,6 +501,7 @@ namespace CallOfTheWild
             ability.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
             ability.AddToSpellList(shaman_class.Spellbook.SpellList, 3);
             ability.AddSpellAndScroll("c5d17bfbbd02f86408cbabe8649a4497");
+            font_of_spirit_magic = ability;
         }
 
 

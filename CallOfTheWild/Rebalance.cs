@@ -316,6 +316,9 @@ namespace CallOfTheWild
 
             library.Get<BlueprintSpellList>("ac551db78c1baa34eb8edca088be13cb").SpellsByLevel[2].Spells.Add(web); //add to lust
             library.Get<BlueprintSpellList>("17c0bfe5b7c8ac3449da655cdcaed4e7").SpellsByLevel[2].Spells.Remove(web); //remove from wrath
+
+            library.Get<BlueprintSpellList>("69a6eba12bc77ea4191f573d63c9df12").SpellsByLevel[2].Spells.Add(web); //add to conjuration
+            library.Get<BlueprintSpellList>("becbcfeca9624b6469319209c2a6b7f1").SpellsByLevel[2].Spells.Remove(web);//remove from conjuration
         }
 
         internal static void fixDomains()

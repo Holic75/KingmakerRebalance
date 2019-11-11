@@ -544,6 +544,7 @@ namespace CallOfTheWild
 
         public static void AddToSpellList(this BlueprintAbility spell, BlueprintSpellList spellList, int level)
         {
+            var feyspeaker_spell_list = ResourcesLibrary.TryGetBlueprint<BlueprintSpellList>("640b4c89527334e45b19d884dd82e500");//feyspeaker
             var comp = Helpers.Create<SpellListComponent>();
             comp.SpellLevel = level;
             comp.SpellList = spellList;
@@ -561,6 +562,11 @@ namespace CallOfTheWild
                     {
                         thassilonianSchoolList.Value[i]?.SpellsByLevel[level].Spells.Add(spell);
                     }
+                }
+
+                if (school == SpellSchool.Enchantment || school == SpellSchool.Illusion)
+                {
+                    feyspeaker_spell_list.SpellsByLevel[level].Spells.Add(spell);
                 }
             }
         }
