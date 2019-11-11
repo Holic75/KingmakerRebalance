@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using Harmony12;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
@@ -6,6 +7,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
@@ -895,6 +897,36 @@ namespace CallOfTheWild
             {
                 __result = (__instance.Ability != null) && __instance.Ability.IsSpell;
             }
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
+    [Harmony12.HarmonyPatch("TryOvercomeSpellResistance", Harmony12.MethodType.Normal)]
+    class Patch_AreaEffectEntityData_TryOvercomeSpellResistance_Transpiler
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_sr_index = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ldfld && x.operand.ToString().Contains("m_Blueprint"));
+
+            codes[check_sr_index + 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //unit (unitEntityData)
+            codes.Insert(check_sr_index + 2, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<BlueprintAbilityAreaEffect, UnitEntityData, bool>(hasSr).Method
+                                                                           )
+                        );
+
+            return codes.AsEnumerable();
+        }
+
+
+        static private bool hasSr(BlueprintAbilityAreaEffect area, UnitEntityData unit)
+        {
+            if (unit == null || area == null)
+            {
+                return false;
+            }
+            return area.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
         }
     }
 }
