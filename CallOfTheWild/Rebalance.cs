@@ -321,6 +321,14 @@ namespace CallOfTheWild
             library.Get<BlueprintSpellList>("becbcfeca9624b6469319209c2a6b7f1").SpellsByLevel[2].Spells.Remove(web);//remove from conjuration
         }
 
+
+        internal static void fixJudgments()
+        {
+            //fix smiting buffs
+            library.Get<BlueprintActivatableAbility>("72fe16312b4479145afc6cc6c87cd08f").Buff = library.Get<BlueprintBuff>("481b03bc6cbc5af448b1f6cb70d88859");//alignment
+            library.Get<BlueprintActivatableAbility>("2c448ab4135c7c741b6f0f223901f9fa").Buff = library.Get<BlueprintBuff>("2e3f01df36b508b4e9186bab7a337dfa");//adamantite
+        }
+
         internal static void fixDomains()
         {
             var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");

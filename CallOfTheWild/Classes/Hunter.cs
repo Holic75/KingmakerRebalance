@@ -593,7 +593,11 @@ namespace CallOfTheWild
 
             createForesterTactician();
 
-            forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, bonus_feat_selection),
+            var forester_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "ForesterAnimalFocusFeature", "");
+            
+            forester_animal_focus_additional_use.SetDescription("The forester can apply additional animal focus to herself.");
+            forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, forester_animal_focus_additional_use),
+                                                                Helpers.LevelEntry(2, bonus_feat_selection),
                                                                 Helpers.LevelEntry(3, forester_tactician),
                                                                 Helpers.LevelEntry(4, evasion),
                                                                 Helpers.LevelEntry(5, forester_favored_terrain_selection),
@@ -613,7 +617,7 @@ namespace CallOfTheWild
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(bonus_feat_selection, bonus_feat_selection, bonus_feat_selection, bonus_feat_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection));
-           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_tactician, evasion, camouflage, improved_evasion));
+           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_animal_focus_additional_use, forester_tactician, evasion, camouflage, improved_evasion));
         }
 
 
@@ -621,7 +625,7 @@ namespace CallOfTheWild
         {
             var tactician_ability = library.CopyAndAdd<BlueprintAbility>("f1c8ec6179505714083ed9bd47599268", "ForesterTacticianAbility", "d63901c064b146eaa9a0bc4144e26f29");
             tactician_ability.SetName("Tactician");
-            tactician_ability.SetDescription("At 3rd level as a standard action, a forester can grant the benefits of all her teamwork feats to all allies within 30 feet who can see and hear her. Allies retain the use of this bonus feats for 3 rounds plus 1 round for every 2 levels the forester has. Allies do not need to meet the prerequisites of these bonus feats. The forester can use this ability once per day at 3rd level, plus one additional time per day at 7th level and every 5 levels thereafter.");
+            tactician_ability.SetDescription("At 3rd level as a standard action, a forester can grant the benefits of all her teamwork feats to all allies within 30 feet who can see and hear her. Allies retain the use of these bonus feats for 3 rounds plus 1 round for every 2 levels the forester has. Allies do not need to meet the prerequisites of these bonus feats. The forester can use this ability once per day at 3rd level, plus one additional time per day at 7th level and every 5 levels thereafter.");
 
             var tactician_resource = Helpers.Create<BlueprintAbilityResource>();
             tactician_resource.name = "ForesterTacticianResource";

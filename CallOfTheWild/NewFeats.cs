@@ -66,6 +66,8 @@ namespace CallOfTheWild
         static public BlueprintFeature swarm_scatter;
         static public BlueprintFeature coordinated_charge;
 
+        static public BlueprintFeature spell_bane;
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -103,6 +105,42 @@ namespace CallOfTheWild
             createTargetOfOpportunity();
             createSwarmTactics();
             //createCoordinatedCharge();
+
+            createSpellBane();
+        }
+
+        static void createSpellBane()
+        {
+
+            spell_bane = Helpers.CreateFeature("SpellBaneFeature",
+                                               "Spell Bane",
+                                               "While your bane class feature is affecting a creature type, the saving throw’s DCs for your spells increase by +2 for creatures of that type.",
+                                               "",
+                                               null,
+                                               FeatureGroup.None,
+                                               Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("7ddf7fbeecbe78342b83171d888028cf"))//bane
+                                               );
+
+            var buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("be190d2dd5433dd41a4aa00e1abc9a5b"), library.Get<BlueprintBuff>("60dffde0dd392a84b8c26dc37c471cd1") };
+
+            var spell_bane_buff = Helpers.CreateBuff("SpellBaneBuff",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     null,
+                                                     Helpers.Create<NewMechanics.IncreaseAllSpellsDC>(i => i.Value = 2)
+                                                     );
+            spell_bane_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_spell_bane = Common.createContextActionApplyBuff(spell_bane_buff, Helpers.CreateContextDuration(), dispellable: false, is_child: true);
+
+            foreach (var b in buffs)
+            {
+                b.AddComponent(Helpers.CreateAddFactContextActions(activated: apply_spell_bane));
+            }
+
+            library.AddFeats(spell_bane);
         }
 
 

@@ -138,6 +138,10 @@ namespace CallOfTheWild
         static public BlueprintAbility fiery_runes;
         //static public BlueprintAbility channel_vigor; ?
 
+        static public BlueprintAbility lend_judgement;
+        static public BlueprintAbility lend_judgement_greater;
+        static public BlueprintAbility flames_of_the_faithful;
+
 
         static public void load()
         {
@@ -212,6 +216,177 @@ namespace CallOfTheWild
 
             createBladedDash();
             createFieryRunes();
+
+            createLendJudgement();
+            createFlamesOfTheFaithful();
+        }
+
+
+        static void createFlamesOfTheFaithful()
+        {
+
+            var flaming = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
+            var flaming_burst = library.Get<BlueprintWeaponEnchantment>("3f032a3cd54e57649a0cdad0434bf221");
+
+            var buff_flaming_burst = Helpers.CreateBuff("FlamesOfTheFaithfulFlamingBurstBuff",
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           null,
+                                                           null,
+                                                           Common.createBuffContextEnchantPrimaryHandWeapon(1, false, true, flaming_burst)
+                                                           );
+            buff_flaming_burst.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var judgment_watcher = library.Get<BlueprintBuff>("9b8bb2ce8f67e5b4fa634ed6a6671f7a");
+            var conditional = Helpers.CreateConditional(Helpers.CreateConditionHasFact(judgment_watcher),
+                                                        Common.createContextActionApplyBuff(buff_flaming_burst, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false),
+                                                        Common.createContextActionRemoveBuff(buff_flaming_burst)
+                                                        );
+
+            var buff = Helpers.CreateBuff("FlamesOfTheFaithfulBuff",
+                                            "",
+                                            "",
+                                            "",
+                                            null,
+                                            null,
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(1, false, true, flaming),
+                                            Helpers.CreateAddFactContextActions(activated: conditional, newRound: conditional)
+                                            );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            flames_of_the_faithful = Helpers.CreateAbility("FlamesOfTheFaithful",
+                                                           "Flames of the Faithful",
+                                                           "With a touch, you cause a glowing rune to appear on a single weapon, granting that weapon the flaming property (and allowing it to cause an extra 1d6 points of fire damage on a successful hit). If you are using the judgment class feature, your weapon gains the flaming burst property instead.\n"
+                                                           + "The spell functions only for weapons that you wield.If the weapon leaves your hand for any reason, the spell effect ends.The effects of this spell do not stack with any existing flaming or flaming burst weapon property that the target weapon may already possess.",
+                                                           "",
+                                                           library.Get<BlueprintBuff>("32e17840df49fbd48b835d080f5673a4").Icon, //arcane weapon flaming
+                                                           AbilityType.Spell,
+                                                           UnitCommand.CommandType.Standard,
+                                                           AbilityRange.Personal,
+                                                           Helpers.roundsPerLevelDuration,
+                                                           "",
+                                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
+                                                           Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                           Helpers.CreateRunActions(apply_buff),
+                                                           Helpers.CreateContextRankConfig()
+                                                           );
+            flames_of_the_faithful.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
+            flames_of_the_faithful.NeedEquipWeapons = true;
+            flames_of_the_faithful.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            flames_of_the_faithful.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            flames_of_the_faithful.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
+        }
+
+
+        static void createLendJudgement()
+        {
+            var icon = library.Get<BlueprintAbility>("db0f61cd985ca09498cafde9a4b27a16").Icon; //eccle blessing short
+            List <BlueprintActivatableAbility> judgments = new List<BlueprintActivatableAbility>();
+
+            judgments.AddRange(library.Get<BlueprintFeature>("981def910b98200499c0c8f85a78bde8").GetComponent<AddFacts>().Facts.Cast<BlueprintActivatableAbility>()); //base
+            //judgments.Add(library.Get<BlueprintActivatableAbility>("bfec9cee57e7a7d47a8641c5c9d43c41")); //resilency base
+            judgments.Add(library.Get<BlueprintActivatableAbility>("d7e61eb9f0cec5e49bd1b0c428fa98e4")); //smiting base
+            judgments.Add(library.Get<BlueprintActivatableAbility>("2c448ab4135c7c741b6f0f223901f9fa")); //smiting adamantite;
+            judgments.Add(library.Get<BlueprintActivatableAbility>("72fe16312b4479145afc6cc6c87cd08f")); //smiting alignment
+
+            foreach (var comp in library.Get<BlueprintFeature>("112314658d0848645b34555a41def2ff").GetComponents<AddFeatureOnAlignment>())
+            {
+                judgments.Add(comp.Facts[0] as BlueprintActivatableAbility);
+            }
+
+            List<BlueprintAbility> variants = new List<BlueprintAbility>();
+            List<BlueprintBuff> variant_buffs = new List<BlueprintBuff>();
+
+            foreach (var judgment in judgments)
+            {
+                var judgment_buff = judgment.Buff;
+                var buff = Helpers.CreateBuff(judgment_buff.name + "LendJudgmentBuff",
+                                              "Lend Judgment: " + judgment_buff.Name,
+                                              judgment_buff.Description,
+                                              "",
+                                              judgment_buff.Icon,
+                                              judgment_buff.FxOnStart,
+                                              judgment.ComponentsArray.Where(c => !(c is AddFactContextActions)).ToArray()
+                                              );
+
+                var remove_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(judgment_buff), null, Helpers.Create<ContextActionRemoveSelf>());
+                buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: remove_condition));
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+                var ability = Helpers.CreateAbility(judgment_buff.name + "LendJudgmentAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Touch,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(apply_buff),
+                                                    Common.createAbilityShowIfCasterHasFact(judgment_buff),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                    Helpers.CreateContextRankConfig()
+                                                    );
+                ability.setMiscAbilityParametersTouchFriendly(false);
+                ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+
+                variants.Add(ability);
+                variant_buffs.Add(buff);
+            }
+
+            lend_judgement = Common.createVariantWrapper("LendJudgmentAbility", "", variants.ToArray());
+            lend_judgement.SetNameDescriptionIcon("Lend Judgment",
+                                                  "You create a conduit of divine knowledge and outrage between you and an ally. That ally gains the benefit of one of your active judgments (as do you). If you cannot use a judgment (for example, if you are not in combat, are frightened or unconscious, and so on) or change judgments, the ally loses the benefit of the judgment. If you have multiple judgments active, the ally gains only one, chosen when you cast this spell.",
+                                                  icon
+                                                  );
+            lend_judgement.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Divination));
+
+            var greater_buff = Helpers.CreateBuff("LendJudgmentGreaterBuff",
+                                                  "Lend Judgement, Greater",
+                                                  "This functions as lend judgment, except the ally gains the benefit of all your active judgments.\n"
+                                                  + lend_judgement.Name + ": " + lend_judgement.Description,
+                                                  "",
+                                                  icon,
+                                                  null
+                                                  );
+            greater_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            List<GameAction> actions = new List<GameAction>();
+
+
+            foreach (var b in variant_buffs)
+            {
+                var apply_greater = Common.createContextActionApplyBuff(b, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_child: true, dispellable: false);
+                actions.Add(apply_greater);
+            }
+
+            greater_buff.AddComponent(Helpers.CreateAddFactContextActions(activated: actions.ToArray()));
+
+            var apply_greater_buff = Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            lend_judgement_greater = Helpers.CreateAbility("LendJudgmentGreaterAbility",
+                                                            greater_buff.Name,
+                                                            greater_buff.Description,
+                                                            "",
+                                                            greater_buff.Icon,
+                                                            AbilityType.Spell,
+                                                            UnitCommand.CommandType.Standard,
+                                                            AbilityRange.Touch,
+                                                            Helpers.roundsPerLevelDuration,
+                                                            "",
+                                                            Helpers.CreateRunActions(apply_greater_buff),
+                                                            Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                            Helpers.CreateContextRankConfig()
+                                                            );
+            lend_judgement_greater.setMiscAbilityParametersTouchFriendly(false);
+            lend_judgement_greater.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+
+
+            lend_judgement.AddToSpellList(Helpers.inquisitorSpellList, 1);
+            lend_judgement.AddSpellAndScroll("bd2b396f9e96fb24786d3744fe874a19");
+            lend_judgement_greater.AddToSpellList(Helpers.inquisitorSpellList, 5);
+            lend_judgement_greater.AddSpellAndScroll("bd2b396f9e96fb24786d3744fe874a19");
         }
 
 

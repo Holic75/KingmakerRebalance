@@ -3886,6 +3886,40 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddStatDifferenceBonus : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public StatType ReplacementStat;
+            public StatType OldStat;
+            public StatType TargetStat;
+            public ModifierDescriptor Descriptor = ModifierDescriptor.UntypedStackable;
+
+            private ModifiableValue.Modifier m_Modifier;
+
+            public override void OnTurnOn()
+            {
+
+                var target_stat = this.Owner.Stats.GetStat(TargetStat);
+                ModifiableValueAttributeStat replacement_stat = this.Owner.Stats.GetStat(ReplacementStat) as ModifiableValueAttributeStat;
+                ModifiableValueAttributeStat old_stat = this.Owner.Stats.GetStat(OldStat) as ModifiableValueAttributeStat;
+
+                int bonus = replacement_stat.Bonus - old_stat.Bonus;
+                if (bonus <= 0)
+                {
+                    return;
+                }
+                this.m_Modifier = target_stat.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor);
+            }
+
+            public override void OnTurnOff()
+            {
+                if (this.m_Modifier != null)
+                    this.m_Modifier.Remove();
+                this.m_Modifier = (ModifiableValue.Modifier)null;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
         public class CasterLevelCheckBonus : RuleInitiatorLogicComponent<RuleSpellResistanceCheck>, IInitiatorRulebookHandler<RuleDispelMagic>
         {
             public ContextValue Value;
@@ -4117,6 +4151,289 @@ namespace CallOfTheWild
                 var caster_hd = caster.Descriptor.Progression.CharacterLevel;
 
                 return caster_hd >= target_hd + difference;
+            }
+        }
+
+
+        [ComponentName("Increase all spells DC")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseAllSpellsDC : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spell.IsSpell)
+                {
+                    evt.AddBonusDC(this.Value.Calculate(this.Context));
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ModifyD20WithActions : RuleInitiatorLogicComponent<RuleRollD20>
+        {
+            [SerializeField]
+            [ShowIf("IsSavingThrow")]
+            [EnumFlagsAsButtons(ColumnCount = 4)]
+            private ModifyD20WithActions.InnerSavingThrowType m_SavingThrowType = ModifyD20WithActions.InnerSavingThrowType.All;
+            [EnumFlagsAsButtons(ColumnCount = 3)]
+            public RuleType Rule;
+            public bool Replace;
+            [HideIf("Replace")]
+            public int RollsAmount;
+            [HideIf("Replace")]
+            public bool TakeBest;
+            [ShowIf("Replace")]
+            public int Roll;
+            public bool WithChance;
+            [ShowIf("WithChance")]
+            [Tooltip("[0..100]")]
+            public ContextValue Chance;
+            [HideIf("IsInitiative")]
+            public bool RerollOnlyIfFailed;
+            public bool DispellOnRerollFinished;
+            public bool DispellOn20;
+            [ShowIf("IsSkillCheck")]
+            public bool SpecificSkill;
+            [ShowIf("SpecificSkill")]
+            public StatType[] Skill;
+            [ShowIf("IsSavingThrow")]
+            public bool SpecificDescriptor;
+            [ShowIf("SpecificDescriptor")]
+            public SpellDescriptorWrapper SpellDescriptor;
+            [ShowIf("IsSavingThrow")]
+            public bool AddSavingThrowBonus;
+            [ShowIf("AddSavingThrowBonus")]
+            public ModifierDescriptor ModifierDescriptor;
+            [ShowIf("AddSavingThrowBonus")]
+            public ContextValue Value;
+            [ShowIf("IsCombatManeuver")]
+            public bool TandemTrip;
+            [ShowIf("TandemTrip")]
+            public BlueprintFeature TandemTripFeature;
+            private RuleRollD20 m_Roll;
+
+            public ActionList actions;
+
+            private bool IsSkillCheck
+            {
+                get
+                {
+                    return (this.Rule & RuleType.SkillCheck) != (RuleType)0;
+                }
+            }
+
+            private bool IsSavingThrow
+            {
+                get
+                {
+                    return (this.Rule & RuleType.SavingThrow) != (RuleType)0;
+                }
+            }
+
+            private bool IsAttackRoll
+            {
+                get
+                {
+                    return (this.Rule & RuleType.AttackRoll) != (RuleType)0;
+                }
+            }
+
+            private bool IsCombatManeuver
+            {
+                get
+                {
+                    return (this.Rule & RuleType.Maneuver) != (RuleType)0;
+                }
+            }
+
+            private bool IsInitiative
+            {
+                get
+                {
+                    return (this.Rule & RuleType.Intiative) != (RuleType)0;
+                }
+            }
+
+            private bool IsSpellResistanceCheck
+            {
+                get
+                {
+                    return (this.Rule & RuleType.SpellResistance) != (RuleType)0;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleRollD20 evt)
+            {
+                RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
+                if (previousEvent == null || !this.CheckRule(previousEvent))
+                    return;
+                int roll = 0;
+                if (this.RerollOnlyIfFailed)
+                    roll = evt.PreRollDice();
+                if (this.RerollOnlyIfFailed && !ModifyD20WithActions.IsRollFailed(roll, previousEvent) || this.WithChance && UnityEngine.Random.Range(0, 101) >= this.Chance.Calculate(this.Fact.MaybeContext))
+                    return;
+                this.m_Roll = evt;
+                if (this.AddSavingThrowBonus)
+                {
+                    CharacterStats stats = evt.Initiator.Stats;
+                    int num = this.Value.Calculate(this.Fact.MaybeContext);
+                    previousEvent.AddTemporaryModifier(stats.SaveWill.AddModifier(num, (GameLogicComponent)this, this.ModifierDescriptor));
+                    previousEvent.AddTemporaryModifier(stats.SaveReflex.AddModifier(num, (GameLogicComponent)this, this.ModifierDescriptor));
+                    previousEvent.AddTemporaryModifier(stats.SaveFortitude.AddModifier(num, (GameLogicComponent)this, this.ModifierDescriptor));
+                }
+                if (this.Replace)
+                    evt.Override(this.Roll);
+                else
+                    evt.SetReroll(this.RollsAmount, this.TakeBest);
+            }
+
+            private static bool IsRollFailed(int roll, RulebookEvent evt)
+            {
+                bool? nullable1 = (evt as RuleAttackRoll)?.IsSuccessRoll(roll);
+                int num;
+                if ((!nullable1.HasValue ? 0 : (nullable1.Value ? 1 : 0)) == 0)
+                {
+                    bool? nullable2 = (evt as RuleSkillCheck)?.IsSuccessRoll(roll, 0);
+                    if ((!nullable2.HasValue ? 0 : (nullable2.Value ? 1 : 0)) == 0)
+                    {
+                        bool? nullable3 = (evt as RuleSavingThrow)?.IsSuccessRoll(roll, 0);
+                        if ((!nullable3.HasValue ? 0 : (nullable3.Value ? 1 : 0)) == 0)
+                        {
+                            bool? nullable4 = (evt as RuleCombatManeuver)?.IsSuccessRoll(roll);
+                            num = !nullable4.HasValue ? 0 : (nullable4.Value ? 1 : 0);
+                            goto label_5;
+                        }
+                    }
+                }
+                num = 1;
+            label_5:
+                return num == 0;
+            }
+
+            public override void OnEventDidTrigger(RuleRollD20 evt)
+            {
+                if (this.m_Roll != evt)
+                    return;
+                if (evt.Result == 20 && this.DispellOn20 || this.DispellOnRerollFinished)
+                    this.Owner.RemoveFact(this.Fact);
+                this.m_Roll = (RuleRollD20)null;
+
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, this.Owner.Unit);
+            }
+
+            private bool CheckRule(RulebookEvent rule)
+            {
+                if (this.IsAttackRoll && rule is RuleAttackRoll || (this.IsSuitableSkillCheck(rule) || this.IsSuitableSavingThrow(rule)) || (this.IsSuitableCombatManeuver(rule) || this.IsInitiative && rule is RuleInitiativeRoll))
+                    return true;
+                if (this.IsSpellResistanceCheck)
+                    return rule is RuleSpellResistanceCheck;
+                return false;
+            }
+
+            private bool IsSuitableSkillCheck(RulebookEvent rule)
+            {
+                RuleSkillCheck ruleSkillCheck = rule as RuleSkillCheck;
+                if (!this.IsSkillCheck || ruleSkillCheck == null)
+                    return false;
+                if (this.SpecificSkill)
+                    return ((IList<StatType>)this.Skill).HasItem<StatType>(ruleSkillCheck.StatType);
+                return true;
+            }
+
+            private bool IsSuitableSavingThrow(RulebookEvent rule)
+            {
+                RuleSavingThrow ruleSavingThrow = rule as RuleSavingThrow;
+                if (!this.IsSavingThrow || ruleSavingThrow == null)
+                    return false;
+                Kingmaker.Blueprints.Classes.Spells.SpellDescriptor? spellDescriptor = rule.Reason.Context?.SpellDescriptor;
+                Kingmaker.Blueprints.Classes.Spells.SpellDescriptor descriptor1 = !spellDescriptor.HasValue ? Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.None : spellDescriptor.Value;
+                if (this.SpecificDescriptor && !descriptor1.Intersects((Kingmaker.Blueprints.Classes.Spells.SpellDescriptor)this.SpellDescriptor))
+                    return false;
+                return (this.m_SavingThrowType & ModifyD20WithActions.ConvertToInnerSavingThrowType(ruleSavingThrow.Type)) != (ModifyD20WithActions.InnerSavingThrowType)0;
+            }
+
+            private bool IsSuitableCombatManeuver(RulebookEvent rule)
+            {
+                RuleCombatManeuver evt = rule as RuleCombatManeuver;
+                if (!this.IsCombatManeuver || evt == null)
+                    return false;
+                if (this.TandemTrip)
+                    return this.CheckTandemTrip(evt);
+                return true;
+            }
+
+            private static ModifyD20WithActions.InnerSavingThrowType ConvertToInnerSavingThrowType(
+              SavingThrowType type)
+            {
+                switch (type)
+                {
+                    case SavingThrowType.Fortitude:
+                        return ModifyD20WithActions.InnerSavingThrowType.Fortitude;
+                    case SavingThrowType.Reflex:
+                        return ModifyD20WithActions.InnerSavingThrowType.Reflex;
+                    case SavingThrowType.Will:
+                        return ModifyD20WithActions.InnerSavingThrowType.Will;
+                    default:
+                        return (ModifyD20WithActions.InnerSavingThrowType)0;
+                }
+            }
+
+            private bool CheckTandemTrip(RuleCombatManeuver evt)
+            {
+                if (!evt.Target.CombatState.IsFlanked || evt.Type != CombatManeuver.Trip)
+                    return false;
+                bool flag = (bool)this.Owner.State.Features.SoloTactics;
+                if (!flag)
+                {
+                    foreach (UnitEntityData unitEntityData in evt.Target.CombatState.EngagedBy)
+                    {
+                        flag = unitEntityData.Descriptor.HasFact((BlueprintUnitFact)this.TandemTripFeature) && unitEntityData != this.Owner.Unit;
+                        if (flag)
+                            break;
+                    }
+                }
+                return flag;
+            }
+
+            public override void Validate(ValidationContext context)
+            {
+                base.Validate(context);
+                if (this.Replace && this.Roll < 1)
+                    context.AddError("Replace roll value must be > 0", (object[])Array.Empty<object>());
+                if (!this.Replace && this.RollsAmount < 1)
+                    context.AddError("Rolls amount must be > 0", (object[])Array.Empty<object>());
+                if (!this.IsSavingThrow || this.m_SavingThrowType != (ModifyD20WithActions.InnerSavingThrowType)0)
+                    return;
+                context.AddError("No Saving Throw specified", (object[])Array.Empty<object>());
+            }
+
+            [Flags]
+            private enum InnerSavingThrowType
+            {
+                Fortitude = 1,
+                Reflex = 2,
+                Will = 4,
+                All = Will | Reflex | Fortitude, // 0x00000007
             }
         }
 
