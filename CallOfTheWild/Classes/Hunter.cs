@@ -595,7 +595,7 @@ namespace CallOfTheWild
 
             var forester_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "ForesterAnimalFocusFeature", "");
             
-            forester_animal_focus_additional_use.SetDescription("The forester can apply additional animal focus to herself.");
+            forester_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The forester can apply additional animal focus to herself.");
             forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, forester_animal_focus_additional_use),
                                                                 Helpers.LevelEntry(2, bonus_feat_selection),
                                                                 Helpers.LevelEntry(3, forester_tactician),

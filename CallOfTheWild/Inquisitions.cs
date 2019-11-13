@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Stats;
@@ -23,9 +24,10 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class Inquisitions
+    public class Inquisitions
     {
         static LibraryScriptableObject library => Main.library;
+        static internal bool test_mode = false;
         static public BlueprintProgression anger;
         static public BlueprintProgression heresy;
         static public BlueprintProgression conversion;
@@ -36,14 +38,21 @@ namespace CallOfTheWild
                                                                                            library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")};//inquisitor
 
 
-        static internal void create()
+        static internal void create(bool is_test = false)
         {
+            test_mode = is_test;
+            Main.logger.Log("Inquisitions test mode: " + test_mode.ToString());
             createAngerInquisiton();
             createHeresyInquisition();
             createConversionInquisition();
             createValorInquisition();
             createTacticsInquisition();
-            createTacticsInquisition();
+
+            var domain_selections = new BlueprintFeatureSelection[] { library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9"), library.Get<BlueprintFeatureSelection>("43281c3d7fe18cc4d91928395837cd1e") };
+            foreach (var selection in domain_selections)
+            {
+                selection.AllFeatures = selection.AllFeatures.AddToArray(anger, heresy, conversion, tactics, valor);
+            }
         }
 
 
@@ -87,6 +96,7 @@ namespace CallOfTheWild
             var divine_anger_ability = library.CopyAndAdd<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730", "DivineAngerToggleAbility", "");
             divine_anger_ability.SetNameDescription("Divine Anger", "At 6th level, you gain the ability to rage like a barbarian. Your effective barbarian level for this ability is your inquisitor level – 3. If you have levels in barbarian, these levels stack when determining the effect of your rage. You do not gain any rage powers from this granted power, though if you have rage powers from another class, you may use them with these rages. You can rage a number of rounds per day equal to your Wisdom bonus, plus 1 round for every inquisitor level above 4th.");
             divine_anger_ability.ReplaceComponent<ActivatableAbilityResourceLogic>(a => a.RequiredResource = divine_anger_resource);
+            divine_anger_ability.DeactivateIfCombatEnded = !test_mode;
             var divine_anger = Common.ActivatableAbilityToFeature(divine_anger_ability, false);
             divine_anger.AddComponent(Helpers.CreateAddAbilityResource(divine_anger_resource));
 
@@ -311,7 +321,7 @@ namespace CallOfTheWild
 
         static void createTacticsInquisition()
         {
-            var inquisitors_direction = library.CopyAndAdd<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98", "InquisitorsDirection", "");
+            var inquisitors_direction = library.CopyAndAdd<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98", "InquisitorsDirectionAbility", "");
             inquisitors_direction.RemoveComponents<SpellListComponent>();
             inquisitors_direction.RemoveComponents<SpellComponent>();
             inquisitors_direction.RemoveComponents<AbilityTargetsAround>();
@@ -358,7 +368,7 @@ namespace CallOfTheWild
             var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "GrantTheInitiativeBuff", "");
             buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
 
-            var grant_the_initiative = Helpers.CreateFeature("GrantTheInitiativeFeature",
+            var grant_the_initiative = Helpers.CreateFeature("GrantInitiativeFeature",
                                                              grant_the_initiative_buff.Name,
                                                              grant_the_initiative_buff.Description,
                                                              "",
@@ -367,6 +377,12 @@ namespace CallOfTheWild
                                                              Common.createAuraFeatureComponent(buff)
                                                              );
 
+            tactics = Helpers.CreateProgression("TacticsInquisitionProgression",
+                                  "Tactics Inquisition",
+                                  "It is the cold and tactical mind that often wins the day. A proper, carefully considered sacrifice can inspire one’s allies to serve your cause.",
+                                  "",
+                                  null,
+                                  FeatureGroup.Domain);
             tactics.Classes = scaling_classes;
 
             tactics.LevelEntries = new LevelEntry[]{

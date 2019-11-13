@@ -1035,7 +1035,6 @@ namespace CallOfTheWild
                 BlueprintProgression domain = (BlueprintProgression)domain_feature;
                 domain.Classes = domain.Classes.AddToArray(class_to_add);
                 domain.Archetypes = domain.Archetypes.AddToArray(archetypes_to_add);
-                // Main.logger.Log("Processing " + domain.Name);
 
                 foreach (var entry in domain.LevelEntries)
                 {
@@ -1045,11 +1044,9 @@ namespace CallOfTheWild
                     }
                 }
 
-                if (spells_type == DomainSpellsType.NormalList)
+                var spell_list = domain.GetComponent<Kingmaker.UnitLogic.FactLogic.LearnSpellList>()?.SpellList;
+                if (spells_type == DomainSpellsType.NormalList && spell_list != null)
                 {
-
-                    var spell_list = domain.GetComponent<Kingmaker.UnitLogic.FactLogic.LearnSpellList>().SpellList;
-
                     if (archetypes_to_add.Empty())
                     {
                         var learn_spells_fact = Helpers.Create<Kingmaker.UnitLogic.FactLogic.LearnSpellList>();

@@ -170,6 +170,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSpellDescriptors();
                     CallOfTheWild.Rebalance.fixSpellRanges();
                     CallOfTheWild.Rebalance.fixJudgments();
+                    
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                     CallOfTheWild.ChannelEnergyEngine.init();
@@ -185,9 +186,10 @@ namespace CallOfTheWild
                     CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
-                    
 
+                    bool inquisitions_test = false;
 #if DEBUG
+                    
                     CallOfTheWild.HexEngine.test_mode = true;
                     CallOfTheWild.Bloodrager.test_mode = true;
                     CallOfTheWild.Skald.test_mode = true;
@@ -196,7 +198,9 @@ namespace CallOfTheWild
                     CallOfTheWild.HolyVindicator.test_mode = true;
                     CallOfTheWild.NewFeats.test_mode = true;
                     CallOfTheWild.VindicativeBastard.test_mode = true;
+                    inquisitions_test = true;
 #endif
+                    CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.VindicativeBastard.createClass();
                     CallOfTheWild.Hunter.createHunterClass();
                     if (settings.sacred_huntsmaster_animal_focus)
