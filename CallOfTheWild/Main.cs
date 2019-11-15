@@ -170,7 +170,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSpellDescriptors();
                     CallOfTheWild.Rebalance.fixSpellRanges();
                     CallOfTheWild.Rebalance.fixJudgments();
-                    
+                    CallOfTheWild.Rebalance.fixMissingSlamProficiency();
+
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
                     CallOfTheWild.ChannelEnergyEngine.init();

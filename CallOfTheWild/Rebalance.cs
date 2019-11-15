@@ -31,6 +31,7 @@ using Kingmaker.Utility;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.UnitLogic;
 
 namespace CallOfTheWild
 {
@@ -307,6 +308,21 @@ namespace CallOfTheWild
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
             jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
 
+        }
+
+
+        internal static void fixMissingSlamProficiency()
+        {
+
+            Action<UnitDescriptor> add_slam_proficiency = delegate (UnitDescriptor u)
+            {
+                if (!u.Proficiencies.Contains(WeaponCategory.OtherNaturalWeapons))
+                {
+                    u.Proficiencies.Add(WeaponCategory.OtherNaturalWeapons);
+                }
+            };
+
+            SaveGameFix.save_game_actions.Add(add_slam_proficiency);
         }
 
         internal static void fixWebSchool()
