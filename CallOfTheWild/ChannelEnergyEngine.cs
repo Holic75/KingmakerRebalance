@@ -846,7 +846,7 @@ namespace CallOfTheWild
 
             addToImprovedChannel(entry);
 
-            Common.addFeaturePrerequisiteOr(selective_channel, parent_feature);
+            Common.addFeaturePrerequisiteAny(selective_channel, parent_feature);
 
             addToBackToTheGrave(entry);
             addToVersatileChanneler(entry);

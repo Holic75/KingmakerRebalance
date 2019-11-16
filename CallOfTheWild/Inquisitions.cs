@@ -400,7 +400,7 @@ namespace CallOfTheWild
             area.ReplaceComponent<AbilityAreaEffectBuff>(a =>
                                                         {
                                                             a.Buff = grant_the_initiative_buff;
-                                                            a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(), Common.createContextConditionIsCaster(not: false));
+                                                            a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(), Common.createContextConditionIsCaster(not: true));
                                                         }
                                                         );
             var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "GrantTheInitiativeBuff", "");
@@ -439,7 +439,7 @@ namespace CallOfTheWild
             caging_strike_resource.SetIncreasedByStat(3, StatType.Wisdom);
 
             var entangle = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
-            var apply_entangle = Common.createContextActionApplyBuff(entangle, Helpers.CreateContextDuration(0, DurationRate.Rounds, Kingmaker.RuleSystem.DiceType.D4, 1), dispellable: false);
+            var apply_entangle = Common.createContextActionApplyBuff(entangle, Helpers.CreateContextDuration(null, DurationRate.Rounds, Kingmaker.RuleSystem.DiceType.D4, 1), dispellable: false);
             var apply_entnagle_save = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_entangle)));
             var caging_strike_buff = Helpers.CreateBuff("CagingStrikeBuff",
                                                         "Caging Strike",
@@ -474,7 +474,7 @@ namespace CallOfTheWild
 
             var hold_monster = library.Get<BlueprintBuff>("2cfcce5b62d3e6d4082ec31b58468cc8");
             var apply_hold_monster = Common.createContextActionApplyBuff(hold_monster, Helpers.CreateContextDuration(Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default)), dispellable: false);
-            var apply_hold_monster_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_entangle)));
+            var apply_hold_monster_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_hold_monster)));
             var apply_hold_monster_buff = Helpers.CreateBuff("DivinePrisonBuff",
                                                         "Divine Prison",
                                                         "At 8th level, once per day upon making a successful melee attack, you can affect your target with hold monster (Will negates).",

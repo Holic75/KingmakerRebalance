@@ -2566,6 +2566,20 @@ namespace CallOfTheWild
             }
         }
 
+        public static void addFeaturePrerequisiteAny(BlueprintFeature feature, BlueprintFeature prerequisite)
+        {
+            var features_prereq = feature.GetComponents<PrerequisiteFeature>().Where(f => f.Group == Prerequisite.GroupType.Any);
+            foreach (var fp in features_prereq)
+            {
+                if (fp.Feature == prerequisite)
+                {
+                    return;
+                }
+            }
+
+            feature.AddComponent(Helpers.PrerequisiteFeature(prerequisite, any: true));
+        }
+
 
         public static AddTargetAttackWithWeaponTrigger createAddTargetAttackWithWeaponTrigger(ActionList action_self = null, ActionList action_attacker = null, WeaponCategory[] categories = null,
                                                                                              bool only_hit = true, bool not_reach = true, bool only_melee = true, bool not = false,
