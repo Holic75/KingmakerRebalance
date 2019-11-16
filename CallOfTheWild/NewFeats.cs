@@ -150,7 +150,9 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
 
             osyluth_guile = Common.AbilityToFeature(ability, false);
-            osyluth_guile.AddComponent(Helpers.PrerequisiteStatValue(StatType.SkillPersuasion, 8));
+            osyluth_guile.AddComponents(Helpers.PrerequisiteStatValue(StatType.SkillPersuasion, 8),
+                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5"))//dodge
+                                        );
             osyluth_guile.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
             library.AddCombatFeats(osyluth_guile);
 
