@@ -760,12 +760,12 @@ namespace CallOfTheWild
             return item == null ? 0 : item.Cost * material.Count;
         }
 
-        internal static BuffFlags GetBuffFlags(this BlueprintBuff buff)
+        static public BuffFlags GetBuffFlags(this BlueprintBuff buff)
         {
             return (BuffFlags)(int)Helpers.GetField(buff, "m_Flags");
         }
 
-        internal static void SetBuffFlags(this BlueprintBuff buff, BuffFlags flags)
+        static public void SetBuffFlags(this BlueprintBuff buff, BuffFlags flags)
         {
             Helpers.SetField(buff, "m_Flags", (int)flags);
         }
@@ -813,7 +813,7 @@ namespace CallOfTheWild
     }
 
     [Flags]
-    enum BuffFlags
+    public enum BuffFlags
     {
         IsFromSpell = 0x1,
         HiddenInUi = 0x2,

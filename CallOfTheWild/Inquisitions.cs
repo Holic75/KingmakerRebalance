@@ -98,6 +98,7 @@ namespace CallOfTheWild
                                                                                                        only_melee: true,
                                                                                                        wait_for_attack_to_resolve: true)
                                                          );
+
             var hateful_retort_ability = Helpers.CreateActivatableAbility("HatefulRetortToggleAbility",
                                                                           hateful_retort_buff.Name,
                                                                           hateful_retort_buff.Description,
@@ -187,8 +188,9 @@ namespace CallOfTheWild
                                               Helpers.Create<NewMechanics.ModifyD20WithActions>(m => { m.SpecificSkill = true;
                                                                                                        m.Skill = new StatType[] { checks[i] };
                                                                                                        m.RollsAmount = 1;
+                                                                                                       m.TakeBest = true;
                                                                                                        m.Rule = RuleType.SkillCheck;
-                                                                                                       m.DispellOnRerollFinished = true;
+                                                                                                       //m.DispellOnRerollFinished = true;
                                                                                                        m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(blessed_infiltration_resource, 1)); })
                                               );
 
@@ -212,7 +214,7 @@ namespace CallOfTheWild
 
             var word_of_anathema = library.CopyAndAdd<BlueprintAbility>("69851cc3b821c2d479ac1f2d86e8ffa5", "WordOfAnathemaAbility", "");//curse deterioration
             word_of_anathema.Type = AbilityType.SpellLike;
-            word_of_anathema.Range = AbilityRange.Long;
+            word_of_anathema.Range = AbilityRange.Medium;
             word_of_anathema.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             word_of_anathema.RemoveComponents<AbilityDeliverTouch>();
             word_of_anathema.RemoveComponents<SpellComponent>();
@@ -227,7 +229,7 @@ namespace CallOfTheWild
                                                                                                                )
                                                                       );
             word_of_anathema.SetNameDescription("Word of Anathema", "At 8th level, once per day, you can speak a word of anathema against a single creature within 60 feet (Will negates). This acts as bestow curse and lasts for 1 minute, giving the target a –4 penalty on attack rolls, saves, ability checks, and skill checks.");
-           // word_of_anathema.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(scaling_classes, StatType.Wisdom));
+            word_of_anathema.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(scaling_classes, StatType.Wisdom));
             word_of_anathema.LocalizedDuration = Helpers.CreateString("WordOfAnathema.Duration", Helpers.oneMinuteDuration);
             word_of_anathema.AddComponent(Helpers.CreateResourceLogic(word_of_anathema_resource));
             var word_of_anathema_feat = Common.AbilityToFeature(word_of_anathema, false);
@@ -286,7 +288,7 @@ namespace CallOfTheWild
                                                                                                                )
                                                                       );
             swaying_word.SetNameDescription("Swaying Word", "At 8th level, once per day you may speak a word of divinely inspired wisdom that causes a single creature to switch its alliance to you. The target must be within line of sight and able to hear you. If he fails his Will save, he is affected by dominate person, except the duration is only 1 minute.");
-            //swaying_word.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(scaling_classes, StatType.Wisdom));
+            swaying_word.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(scaling_classes, StatType.Wisdom));
             swaying_word.LocalizedDuration = Helpers.CreateString("WordOfAnathema.Duration", Helpers.oneMinuteDuration);
             swaying_word.AddComponent(Helpers.CreateResourceLogic(swaying_word_resource));
             var swaying_word_feat = Common.AbilityToFeature(swaying_word, false);

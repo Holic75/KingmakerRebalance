@@ -67,6 +67,7 @@ namespace CallOfTheWild
         static public BlueprintFeature coordinated_charge;
 
         static public BlueprintFeature spell_bane;
+        static public BlueprintFeature osyluth_guile;
 
         static internal void load()
         {
@@ -107,6 +108,55 @@ namespace CallOfTheWild
             //createCoordinatedCharge();
 
             createSpellBane();
+            createOsyluthGuile();
+        }
+
+
+        static void createOsyluthGuile()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/OsyluthGuile.png");
+            var buff = Helpers.CreateBuff("OsyluthGuileBuff",
+                                          "Osyluth Guile",
+                                          "While you are fighting defensively or using the total defense action, select one opponent. Add your Charisma bonus to your AC as a dodge bonus against that opponent’s melee attacks until your next turn. You cannot use this feat if you cannot see the selected opponent.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.ACBonusAgainstTargetIfHasFact>(a =>
+                                                                                                      {
+                                                                                                          a.CheckCaster = true;
+                                                                                                          a.checked_fact = library.Get<BlueprintBuff>("6ffd93355fb3bcf4592a5d976b1d32a9"); //fight defensively
+                                                                                                          a.Descriptor = ModifierDescriptor.Dodge;
+                                                                                                          a.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                          a.only_melee = true;
+                                                                                                      }
+                                                                                                     ),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0),
+                                          Helpers.Create<UniqueBuff>()
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+
+            var ability = Helpers.CreateAbility("OsyluthGuileAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Special,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                AbilityRange.Long,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff)
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            osyluth_guile = Common.AbilityToFeature(ability, false);
+            osyluth_guile.AddComponent(Helpers.PrerequisiteStatValue(StatType.SkillPersuasion, 8));
+            osyluth_guile.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+            library.AddCombatFeats(osyluth_guile);
+
+
+
+
         }
 
         static void createSpellBane()
@@ -154,7 +204,7 @@ namespace CallOfTheWild
 
         static void createSwarmTactics()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SwarmScatter.png");
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/SwarmScatter.png");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraSwarmScatterArea", "");
             area.Size = 7.Feet();
@@ -196,7 +246,7 @@ namespace CallOfTheWild
 
         static void createTargetOfOpportunity()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/TargetOfOpportunity.png");
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/TargetOfOpportunity.png");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraTargetOfOpportunityArea", "");
 
@@ -286,7 +336,7 @@ namespace CallOfTheWild
 
         static void createDistractingCharge()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/DistractingCharge.png");
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/DistractingCharge.png");
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraDistractingChargeArea", "");
 
             area.Size = 100.Feet();

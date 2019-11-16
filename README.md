@@ -29,6 +29,7 @@ New feats:
 - Furious Focus,
 - Felling Smash,
 - Strike True,
+- Osyluth Guile,
 - Devastating Strike,
 - Weapon of The Chosen, Improved Weapon of the Chosen, Greater Weapon of the Chosen,
 - Planar Wild Shape,
@@ -78,6 +79,15 @@ New features:
 - Druids can use armor while in wild shape (optional),
 - Animal companions can now equip belts, bracers, capes and amulets,
 - Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log.
+
+The mod also adds following inquisitions that can be selected instead of domains:
+- Anger,
+- Conversion,
+- Heresy,
+- Imprisonment,
+- Persistence,
+- Tactics,
+- Valor.
 
 
 New spells:
@@ -189,7 +199,8 @@ Original game bug fixes:
 - Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training),
 - Web school is changed to conjuration
 - radius of teamwork feats that require "adjacent" allies changed to 5 feet (instead of 5 meters) (optional)
-- Invulnerable rager extreme endurance bonus no longer scales exponentially
+- Invulnerable rager extreme endurance bonus no longer scales exponentially,
+- Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/16/8/10/15

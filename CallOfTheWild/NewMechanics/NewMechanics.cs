@@ -2131,6 +2131,55 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ACBonusIfHasFacts : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, ITargetRulebookSubscriber
+        {
+            public BlueprintUnitFact[] CheckedFacts;
+            public bool all = false;
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                bool is_ok = true;
+                if (!CheckedFacts.Empty())
+                {
+                    is_ok = all;
+                    foreach (var f in CheckedFacts)
+                    {
+                        if (evt.Target.Descriptor.HasFact(f))
+                        {
+                            if (!all)
+                            {
+                                is_ok = true;
+                                break;
+                            }
+                        }
+                        else if (all)
+                        {
+
+                            is_ok = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!is_ok)
+                {
+                    return;
+                }
+
+                int bonus = this.Bonus.Calculate(this.Fact.MaybeContext);
+
+
+                evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -2160,7 +2209,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                if (evt.Weapon == null || !evt.Initiator.Descriptor.HasFact(this.CheckedFact)
+                if (evt.Weapon == null || (CheckedFact != null && !evt.Initiator.Descriptor.HasFact(this.CheckedFact))
                     || (!evt.Weapon.HoldInTwoHands && OnlyTwoHanded)
                     || (!evt.RuleAttackWithWeapon.IsFirstAttack && OnlyFirstAttack)
                     || !WeaponAttackTypes.Contains(evt.AttackType))
@@ -2766,6 +2815,29 @@ namespace CallOfTheWild
                 }
 
                 return weapon_types.Contains(weapon.Blueprint.Type);
+            }
+        }
+
+
+        public class ActivatableAbilityMainWeaponCategoryAllowed : ActivatableAbilityRestriction
+        {
+            public WeaponCategory[] categories;
+
+            public override bool IsAvailable()
+            {
+
+                if (categories == null || categories.Empty())
+                {
+                    return true;
+                }
+
+                var weapon = Owner.Body.PrimaryHand.HasWeapon ? Owner.Body.PrimaryHand.MaybeWeapon : Owner.Body.EmptyHandWeapon;
+                if (weapon == null)
+                {
+                    return false;
+                }
+
+                return categories.Contains(weapon.Blueprint.Category);
             }
         }
 
@@ -4434,6 +4506,83 @@ namespace CallOfTheWild
                 Reflex = 2,
                 Will = 4,
                 All = Will | Reflex | Fortitude, // 0x00000007
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class ActionOnNearMissIfHasFact : RuleTargetLogicComponent<RuleAttackWithWeapon>
+        {
+            [HideIf("RangedOnly")]
+            public bool MeleeOnly;
+            [HideIf("MeleeOnly")]
+            public bool RangedOnly;
+            public int HitAndArmorDifference;
+            public ActionList Action;
+            public bool OnAttacker;
+            public BlueprintUnitFact checked_fact;
+
+            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+
+            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+                if (!this.Check(evt) || evt.AttackRoll.IsHit || (checked_fact != null && !evt.Target.Descriptor.HasFact(checked_fact)))
+                    return;
+                //UberDebug.LogError((object)("MISS BY: " + (object)evt.AttackRoll.TargetAC + " " + (object)evt.AttackRoll.Roll + " " + (object)evt.AttackRoll.AttackBonus), (object[])Array.Empty<object>());
+                if (evt.AttackRoll.TargetAC - evt.AttackRoll.Roll - evt.AttackRoll.AttackBonus > this.HitAndArmorDifference)
+                    return;
+
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)(!this.OnAttacker ? evt.Target : evt.Initiator));
+            }
+
+            private bool Check(RuleAttackWithWeapon evt)
+            {
+                return (!this.MeleeOnly || evt.Weapon.Blueprint.IsMelee) && (!this.RangedOnly || evt.Weapon.Blueprint.IsRanged);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class ACBonusAgainstTargetIfHasFact : BuffLogic, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+        {
+            public ContextValue Value;
+            public bool CheckCaster;
+            public bool CheckCasterFriend;
+            public ModifierDescriptor Descriptor;
+            public BlueprintUnitFact checked_fact;
+            public bool only_melee = false;
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                UnitEntityData maybeCaster = this.Buff.Context.MaybeCaster;
+                bool flag1 = this.CheckCaster && evt.Target == maybeCaster;
+                bool flag2 = this.CheckCasterFriend && maybeCaster != null && evt.Target.GroupId == maybeCaster.GroupId && evt.Target != maybeCaster;
+                if (!flag1 && !flag2)
+                    return;
+                if (!evt.Target.Descriptor.HasFact(checked_fact))
+                {
+                    return;
+                }
+                if (!evt.Weapon.Blueprint.IsMelee && only_melee)
+                {
+                    return;
+                }
+                evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(this.Value.Calculate(this.Buff.Context), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+
+            public override void Validate(ValidationContext context)
+            {
+                base.Validate(context);
+                if (this.CheckCaster || this.CheckCasterFriend)
+                    return;
+                context.AddError("CheckCaster or CheckCasterFriend must be true", (object[])Array.Empty<object>());
             }
         }
 
