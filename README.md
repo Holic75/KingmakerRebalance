@@ -29,6 +29,7 @@ New feats:
 - Furious Focus,
 - Felling Smash,
 - Strike True,
+- Artful Dodge,
 - Osyluth Guile,
 - Devastating Strike,
 - Weapon of The Chosen, Improved Weapon of the Chosen, Greater Weapon of the Chosen,
@@ -91,7 +92,7 @@ The mod also adds following inquisitions that can be selected instead of domains
 
 
 New spells:
-- Command,
+- Command and Command, Greater,
 - Chill Touch,
 - Frostbite,
 - Hex Vulnerability,

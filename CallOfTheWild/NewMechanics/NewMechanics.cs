@@ -4587,6 +4587,58 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ACBonusSingleThreat : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, ITargetRulebookSubscriber
+        {
+            public int Bonus;
+            public ModifierDescriptor Descriptor;
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Target.IsEngage(evt.Initiator) && evt.Initiator.CombatState.EngagedBy.Count == 1)
+                {
+                    evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(this.Bonus * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
+                }
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class FeatureReplacement : BlueprintComponent
+        {
+            public BlueprintFact replacement_feature;
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(FactCollection))]
+        [Harmony12.HarmonyPatch("HasFact", Harmony12.MethodType.Normal)]
+        [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintFact)})]
+        class FactCollection__HasFact__Patch
+        {
+
+            static void Postfix(FactCollection __instance, ref bool __result, BlueprintFact blueprint)
+            {
+                if (!__result)
+                {
+                    foreach (var c in blueprint.GetComponents<FeatureReplacement>())
+                    {
+                        if (__instance.GetFact(c.replacement_feature) != null)
+                        {
+                            __result = true;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+
 
     }
 }

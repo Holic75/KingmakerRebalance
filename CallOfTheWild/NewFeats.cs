@@ -68,6 +68,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature spell_bane;
         static public BlueprintFeature osyluth_guile;
+        static public BlueprintFeature artful_dodge;
 
         static internal void load()
         {
@@ -109,6 +110,28 @@ namespace CallOfTheWild
 
             createSpellBane();
             createOsyluthGuile();
+            createArtfulDodge();
+        }
+
+
+        static void createArtfulDodge()
+        {
+            artful_dodge = Helpers.CreateFeature("ArtfulDodgeFeature",
+                                                 "Artful Dodge",
+                                                 "If you are the only character threatening an opponent, you gain a +1 dodge bonus to AC against that opponent.\n"
+                                                 + "Special: The Artful Dodge feat acts as the Dodge feat for the purpose of satisfying prerequisites that require Dodge.\n"
+                                                 + "You can use Intelligence, rather than Dexterity, for feats with a minimum Dexterity prerequisite.",
+                                                 "",
+                                                 null,
+                                                 FeatureGroup.Feat,
+                                                 Helpers.Create<ReplaceStatForPrerequisites>(r => { r.OldStat = StatType.Dexterity; r.NewStat = StatType.Intelligence; r.Policy = ReplaceStatForPrerequisites.StatReplacementPolicy.NewStat; }),
+                                                 Helpers.Create<NewMechanics.ACBonusSingleThreat>(a => { a.Bonus = 1; a.Descriptor = ModifierDescriptor.Dodge; }),
+                                                 Helpers.PrerequisiteStatValue(StatType.Intelligence, 13)
+                                                 );
+
+            library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5").AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = artful_dodge)); //dodge
+            artful_dodge.Groups = artful_dodge.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(artful_dodge);
         }
 
 

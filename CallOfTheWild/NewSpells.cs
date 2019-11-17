@@ -54,6 +54,7 @@ namespace CallOfTheWild
         static public BlueprintBuff sanctuary_buff;
 
         static public BlueprintAbility command;
+        static public BlueprintAbility command_greater;
         static public BlueprintAbility fire_shield;
         static public Dictionary<DamageEnergyType, BlueprintBuff> fire_shield_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
         static public Dictionary<DamageEnergyType, BlueprintAbility> fire_shield_variants = new Dictionary<DamageEnergyType, BlueprintAbility>();
@@ -1020,7 +1021,7 @@ namespace CallOfTheWild
         {
             var hold_monster = library.Get<BlueprintAbility>("41e8a952da7a5c247b3ec1c2dbb73018");
 
-            var checker_fact = hold_monster.GetComponent<AbilityTargetHasNoFactUnless>();
+            var checker_fact = hold_monster.GetComponents<AbilityTargetHasNoFactUnless>().ToArray();
             var does_not_work = hold_monster.GetComponent<AbilityTargetHasFact>();
 
             hold_monster_mass = library.CopyAndAdd<BlueprintAbility>("c7104f7526c4c524f91474614054547e", "HoldMonsterMassAbility", "");
@@ -1029,18 +1030,20 @@ namespace CallOfTheWild
             hold_monster_mass.RemoveComponents<AbilityTargetHasFact>();
             hold_monster_mass.RemoveComponents<RecommendationNoFeatFromGroup>();
             hold_monster_mass.setMiscAbilityParametersRangedDirectional();
-            hold_monster_mass.AddComponent(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy));
+            hold_monster_mass.AddComponent(Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy));
 
             hold_monster_mass.SetName("Hold Monster, Mass");
             hold_monster_mass.SetDescription("This spell functions like hold monster, except as noted above.\n" + hold_monster.Description);
 
-            var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact.CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact.UnlessFact, has: false)),
+            var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[0].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[0].UnlessFact, has: false)),
                                                     null,
-                                                    Helpers.CreateConditional(Common.createContextConditionHasFacts(false, does_not_work.CheckedFacts),
-                                                                            null,
-                                                                            hold_monster.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]
-                                                                            )
-
+                                                    Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[1].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[1].UnlessFact, has: false)),
+                                                                              null,
+                                                                                Helpers.CreateConditional(Common.createContextConditionHasFacts(false, does_not_work.CheckedFacts),
+                                                                                                        null,
+                                                                                                        hold_monster.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]
+                                                                                                        )
+                                                                             )
                                                     );
 
             hold_monster_mass.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
@@ -1165,7 +1168,7 @@ namespace CallOfTheWild
             hold_person_mass.RemoveComponents<AbilityTargetHasFact>();
             hold_person_mass.RemoveComponents<RecommendationNoFeatFromGroup>();
             hold_person_mass.setMiscAbilityParametersRangedDirectional();
-            hold_person_mass.AddComponents(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy));
+            hold_person_mass.AddComponents(Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy));
 
             hold_person_mass.SetName("Hold Person, Mass");
             hold_person_mass.SetDescription("This spell functions like hold person, except as noted above.\n" + hold_person.Description);
@@ -3512,44 +3515,63 @@ namespace CallOfTheWild
 
         static void createCommand()
         {
-            var dominate_person = library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61");
-            BlueprintBuff[] buffs = new BlueprintBuff[]{library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759"), //daze
-                                                         library.Get<BlueprintBuff>("24cf3deb078d3df4d92ba24b176bda97"), //prone
-                                                         library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf") //frightened
+            var dominate_monster = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
+            BlueprintBuff[] buffs = new BlueprintBuff[]{library.CopyAndAdd<BlueprintBuff>("9934fedff1b14994ea90205d189c8759", "DazeCommandBuff", ""), //daze
+                                                         library.CopyAndAdd<BlueprintBuff>("bd9d11c630f645443b8a1061044d5cf0", "ProneCommandBuff", ""), //prone
+                                                         library.CopyAndAdd<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf", "FrightenedCommandBuff", "") //frightened
                                                         };
+            buffs[2].ReplaceComponent<AddCondition>(Common.createBuffStatusCondition(Kingmaker.UnitLogic.UnitCondition.Frightened, SavingThrowType.Will, save_each_round: true));
+            foreach (var b in buffs)
+            {
+                b.ReplaceComponent<BuffStatusCondition>(s => { s.SaveEachRound = true; s.SaveType = SavingThrowType.Will; });
+            }
             string[] names = { "Halt", "Fall", "Run" };
             string[] descriptions = { "The subject stands in place for 1 round. It may not take any actions but is not considered helpless.",
                                       "On its turn, the subject falls to the ground and remains prone for 1 round. It may act normally while prone but takes any appropriate penalties.",
                                       "On its turn, the subject moves away from you as quickly as possible for 1 round. It may do nothing but move during its turn, and it provokes attacks of opportunity for this movement as normal." };
 
             List<BlueprintAbility> commands = new List<BlueprintAbility>();
-
+            List<BlueprintAbility> greater_commands = new List<BlueprintAbility>();
 
             command = Helpers.CreateAbility("CommandSpellAbility",
                                             "Command",
                                             "You give the subject a single command, which it obeys to the best of its ability at its earliest opportunity.",
                                             "",
-                                            dominate_person.Icon,
+                                            dominate_monster.Icon,
                                             AbilityType.Spell,
                                             Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                             AbilityRange.Close,
                                             Helpers.oneRoundDuration,
-                                            Helpers.willNegates);
+                                            Helpers.willNegates,
+                                            dominate_monster.GetComponent<SpellDescriptorComponent>(),
+                                            dominate_monster.GetComponent<SpellComponent>()
+                                            );
 
-            command.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-            command.EffectOnAlly = AbilityEffectOnUnit.Harmful;
-            command.CanTargetEnemies = true;
-            command.CanTargetFriends = true;
-            command.CanTargetSelf = false;
-            command.CanTargetPoint = false;
-            command.Animation = dominate_person.Animation;
-            command.AnimationStyle = dominate_person.AnimationStyle;
-            command.AddComponent(dominate_person.GetComponent<SpellDescriptorComponent>());
-            command.AddComponent(dominate_person.GetComponent<SpellComponent>());
-            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            command.setMiscAbilityParametersSingleTargetRangedHarmful();
+            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
             command.SpellResistance = true;
 
 
+            var checker_fact = dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>().ToArray();
+            var does_not_work = dominate_monster.GetComponent<AbilityTargetHasFact>();
+
+            command_greater = Helpers.CreateAbility("CommandGreaterSpellAbility",
+                                "Command, Greater",
+                                "This spell functions like command, except several creatures may be affected, and the activities continue beyond 1 round. At the start of each commanded creature’s action after the first, it gets another Will save to attempt to break free from the spell. Each creature must receive the same command.",
+                                "",
+                                dominate_monster.Icon,
+                                AbilityType.Spell,
+                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                AbilityRange.Close,
+                                Helpers.roundsPerLevelDuration,
+                                Helpers.willNegates,
+                                dominate_monster.GetComponent<SpellDescriptorComponent>(),
+                                Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy),
+                                dominate_monster.GetComponent<SpellComponent>());
+
+            command_greater.setMiscAbilityParametersRangedDirectional();
+            command_greater.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            command_greater.SpellResistance = true;
 
             for (int i = 0; i < buffs.Length; i++)
             {
@@ -3558,22 +3580,52 @@ namespace CallOfTheWild
                 variant_command.SetName($"Command ({names[i]})");
 
                 var buff_action = Common.createContextSavedApplyBuff(buffs[i],
-                                                                      Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds)
+                                                                      Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds)
                                                                      );
                 var buff_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(buff_action));
 
                 variant_command.AddComponent(Helpers.CreateRunActions(buff_save));
-                variant_command.AddComponent(dominate_person.GetComponent<AbilitySpawnFx>());
-                variant_command.AddComponent(dominate_person.GetComponent<AbilityTargetHasFact>());
-                variant_command.AddComponents(dominate_person.GetComponents<AbilityTargetHasNoFactUnless>());
+                variant_command.AddComponent(dominate_monster.GetComponent<AbilitySpawnFx>());
+                variant_command.AddComponent(Helpers.CreateContextRankConfig(min: 1, max: 1)); 
+                variant_command.AddComponent(dominate_monster.GetComponent<AbilityTargetHasFact>());
+                variant_command.AddComponents(dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>());
                 commands.Add(variant_command);
+
+                var variant_greater = library.CopyAndAdd<BlueprintAbility>(command_greater.AssetGuid, $"CommandGreateSpell{i + 1}Ability", "");
+                variant_greater.SetName($"Command, Greater ({names[i]})");
+                variant_greater.SetDescription(descriptions[i]);
+                variant_greater.AddComponent(Helpers.CreateContextRankConfig());
+
+                var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[0].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[0].UnlessFact, has: false)),
+                                                        null,
+                                                        Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[1].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[1].UnlessFact, has: false)),
+                                                                                  null,
+                                                                                    Helpers.CreateConditional(Common.createContextConditionHasFacts(false, does_not_work.CheckedFacts),
+                                                                                                            null,
+                                                                                                            buff_save
+                                                                                                            )
+                                                                                 )
+                                                        );
+                variant_greater.AddComponent(Helpers.CreateRunActions(action));
+                variant_greater.AddComponent(dominate_monster.GetComponent<AbilitySpawnFx>());
+
+                greater_commands.Add(variant_greater);
             }
 
+            
             command.AddComponent(command.CreateAbilityVariants(commands));
             command.AddToSpellList(Helpers.clericSpellList, 1);
             command.AddToSpellList(Helpers.inquisitorSpellList, 1);
-
             command.AddSpellAndScroll("f199f6e5026488c499042900b572eb7f"); //dominate person
+
+            command_greater.AddComponents(command_greater.CreateAbilityVariants(greater_commands));
+            command_greater.AddToSpellList(Helpers.clericSpellList, 5);
+            command_greater.AddToSpellList(Helpers.inquisitorSpellList, 5);
+            command_greater.AddSpellAndScroll("f199f6e5026488c499042900b572eb7f"); //dominate person
+
+            //nobility domain fix
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("8480f2d1ca764774895ee6fd610a568e"), command_greater, 5);
+
         }
 
 
