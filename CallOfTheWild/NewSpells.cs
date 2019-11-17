@@ -299,19 +299,20 @@ namespace CallOfTheWild
 
             List<BlueprintAbility> variants = new List<BlueprintAbility>();
             List<BlueprintBuff> variant_buffs = new List<BlueprintBuff>();
-
+            List<BlueprintBuff> j_buffs = new List<BlueprintBuff>();
             foreach (var judgment in judgments)
             {
                 var judgment_buff = judgment.Buff;
+                j_buffs.Add(judgment_buff);
                 var buff = Helpers.CreateBuff(judgment_buff.name + "LendJudgmentBuff",
                                               "Lend Judgment: " + judgment_buff.Name,
                                               judgment_buff.Description,
                                               "",
                                               judgment_buff.Icon,
                                               judgment_buff.FxOnStart,
-                                              judgment.ComponentsArray.Where(c => !(c is AddFactContextActions)).ToArray()
+                                              judgment_buff.ComponentsArray.Where(c => !(c as AddFactContextActions)).ToArray()
                                               );
-
+               
                 var remove_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(judgment_buff), null, Helpers.Create<ContextActionRemoveSelf>());
                 buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: remove_condition));
 
@@ -327,7 +328,7 @@ namespace CallOfTheWild
                                                     Helpers.roundsPerLevelDuration,
                                                     "",
                                                     Helpers.CreateRunActions(apply_buff),
-                                                    Common.createAbilityShowIfCasterHasFact(judgment_buff),
+                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterHasFact>(a => a.UnitFact = judgment_buff),
                                                     Helpers.CreateSpellComponent(SpellSchool.Divination),
                                                     Helpers.CreateContextRankConfig()
                                                     );
@@ -357,13 +358,15 @@ namespace CallOfTheWild
             List<GameAction> actions = new List<GameAction>();
 
 
-            foreach (var b in variant_buffs)
+            for (int i = 0; i < variant_buffs.Count; i++)
             {
-                var apply_greater = Common.createContextActionApplyBuff(b, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_child: true, dispellable: false);
-                actions.Add(apply_greater);
+                var apply_greater = Common.createContextActionApplyBuff(variant_buffs[i], Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_child: true, dispellable: false);
+                var apply_greater_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(j_buffs[i]), apply_greater, null);
+                actions.Add(apply_greater_condition);
             }
 
             greater_buff.AddComponent(Helpers.CreateAddFactContextActions(activated: actions.ToArray()));
+            greater_buff.AddComponent(Helpers.CreateContextRankConfig());
 
             var apply_greater_buff = Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
             lend_judgement_greater = Helpers.CreateAbility("LendJudgmentGreaterAbility",
@@ -378,7 +381,8 @@ namespace CallOfTheWild
                                                             "",
                                                             Helpers.CreateRunActions(apply_greater_buff),
                                                             Helpers.CreateSpellComponent(SpellSchool.Divination),
-                                                            Helpers.CreateContextRankConfig()
+                                                            Helpers.CreateContextRankConfig(),
+                                                            Common.createAbilityCasterHasFacts(j_buffs.ToArray())
                                                             );
             lend_judgement_greater.setMiscAbilityParametersTouchFriendly(false);
             lend_judgement_greater.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
@@ -2817,7 +2821,7 @@ namespace CallOfTheWild
 
             countless_eyes.SetName("Countless Eyes");
             countless_eyes.SetDescription("The target sprouts extra eyes all over its body, including on the back of its head. It gains all-around vision and cannot be flanked.");
-
+            countless_eyes.LocalizedDuration = Helpers.CreateString("CountlessEyes.Duration", Helpers.hourPerLevelDuration);
             var buff = Helpers.CreateBuff("NoFlankingBuff",
                                           "",
                                           "",

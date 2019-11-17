@@ -4639,6 +4639,18 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterHasFact : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintUnitFact UnitFact;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                return ability.Caster.Progression.Features.HasFact((BlueprintFact)this.UnitFact) || ability.Caster.Buffs.HasFact(UnitFact);
+            }
+        }
+
+
 
     }
 }
