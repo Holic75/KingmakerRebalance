@@ -2796,11 +2796,12 @@ namespace CallOfTheWild
                                                 AbilityType.Spell,
                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                 AbilityRange.Touch,
-                                                Helpers.oneMinuteDuration,
+                                                Helpers.minutesPerLevelDuration,
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //CommonTransmutationBuff00
-                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                Helpers.CreateContextRankConfig()
                                                 );
 
             flame_arrow.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Reach;

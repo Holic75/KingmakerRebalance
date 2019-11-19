@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -70,6 +71,14 @@ namespace CallOfTheWild
         static public BlueprintFeature osyluth_guile;
         static public BlueprintFeature artful_dodge;
 
+        static public BlueprintFeature hurtful;
+        static public BlueprintFeature broken_wing_gambit;
+        static public BlueprintFeature extended_bane;
+
+        static public BlueprintFeature dazing_assult;
+        static public BlueprintFeature stunning_assult;
+
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -111,18 +120,169 @@ namespace CallOfTheWild
             createSpellBane();
             createOsyluthGuile();
             createArtfulDodge();
+
+            createHurtful();
+            createBrokenWingGambit();
+            createExtendedBane();
+        }
+
+
+        static void createExtendedBane()
+        {
+            extended_bane = library.CopyAndAdd<BlueprintFeature>("756dc2f7340b0b34285a1dc367ff7359", "ExtendedBaneFeature", "");
+            extended_bane.SetNameDescription("Extended Bane", "Add your Wisdom bonus to the number of rounds per day that you can use your bane ability.");
+            var old_increase = extended_bane.GetComponent<IncreaseResourceAmount>();
+            extended_bane.ReplaceComponent(old_increase, Helpers.Create<NewMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = old_increase.Resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }));
+            extended_bane.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom));
+
+            library.AddFeats(extended_bane);
+        }
+
+
+        static void createBrokenWingGambit()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/BrokenWingGambit.png");
+            broken_wing_gambit = Helpers.CreateFeature("BrokenWingGambitFeature",
+                                                       "Broken Wing Gambit",
+                                                       "Whenever you make a melee attack and hit your opponent, you can use a free action to grant that opponent a +2 bonus on attack and damage rolls against you until the end of your next turn or until your opponent attacks you, whichever happens first. If that opponent attacks you with this bonus, it provokes attacks of opportunity from your allies who have this feat.",
+                                                       "",
+                                                       icon,
+                                                       FeatureGroup.Feat,
+                                                       Helpers.PrerequisiteStatValue(StatType.SkillPersuasion, 5)
+                                                       );
+
+            var broken_wing_gambit_effect_buff = Helpers.CreateBuff("BrokenWingEffectGambitBuff",
+                                                              broken_wing_gambit.Name,
+                                                              broken_wing_gambit.Description,
+                                                              "",
+                                                              broken_wing_gambit.Icon,
+                                                              null,
+                                                              Helpers.Create<AttackBonusAgainstCaster>(a => a.Value = 2),
+                                                              Helpers.Create<NewMechanics.DamageBonusAgainstCaster>(d => d.Value = 2)
+                                                              );
+            var apply_buff = Common.createContextActionApplyBuff(broken_wing_gambit_effect_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var broken_wing_gambit_buff = Helpers.CreateBuff("BrokenWingGambitBuff",
+                                                              broken_wing_gambit.Name,
+                                                              broken_wing_gambit.Description,
+                                                              "",
+                                                              broken_wing_gambit.Icon,
+                                                              null,
+                                                              Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_buff), check_weapon_range_type: true)
+                                                              );
+            broken_wing_gambit_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var broken_wing_ability = Helpers.CreateActivatableAbility("BrokenWingGambitToggleAbility",
+                                                                       broken_wing_gambit.Name,
+                                                                       broken_wing_gambit.Description,
+                                                                       "",
+                                                                       broken_wing_gambit.Icon,
+                                                                       broken_wing_gambit_buff,
+                                                                       AbilityActivationType.Immediately,
+                                                                       Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                                       null);
+            broken_wing_ability.DeactivateImmediately = true;
+
+            broken_wing_gambit.AddComponents(Helpers.CreateAddFact(broken_wing_ability),
+                                             Common.createAddTargetAttackWithWeaponTrigger(null,
+                                                                                           Helpers.CreateActionList(Helpers.Create<TeamworkMechanics.ProvokeAttackFromFactOwners>(p => p.fact = broken_wing_gambit)),
+                                                                                           wait_for_attack_to_resolve: true)
+                                            );
+
+            broken_wing_gambit.Groups = broken_wing_gambit.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat);
+
+            library.AddCombatFeats(broken_wing_gambit);
+            Common.addTemworkFeats(broken_wing_gambit);
+        }
+
+
+        static void createHurtful()
+        {
+            var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+            var frightened = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/Hurtful.png");
+            hurtful = Helpers.CreateFeature("HurtfulFeature",
+                                            "Hurtful",
+                                            "When you successfully demoralize an opponent within your melee reach with an Intimidate check, you can make a single melee attack against that creature as a swift action. If your attack fails to damage the target, its shaken condition from being demoralized immediately ends.",
+                                            "",
+                                            icon,
+                                            FeatureGroup.Feat,
+                                            Helpers.PrerequisiteStatValue(StatType.Strength, 13),
+                                            Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5")) //power attack
+                                            );
+
+            var hurtful_buff = Helpers.CreateBuff("HurtfulBuff",
+                                                  hurtful.Name,
+                                                  hurtful.Description,
+                                                  "",
+                                                  hurtful.Icon,
+                                                  null,
+                                                  shaken.GetComponent<SpellDescriptorComponent>());
+            
+            var hurtful_ability = Helpers.CreateAbility("HurtfulAbility",
+                                                        hurtful.Name,
+                                                        hurtful.Description,
+                                                        "",
+                                                        hurtful.Icon,
+                                                        AbilityType.Special,
+                                                        Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                        AbilityRange.Weapon,
+                                                        "",
+                                                        "",
+                                                        Helpers.CreateRunActions(Common.createContextActionAttack(Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(hurtful_buff)),
+                                                                                                                  Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(shaken),
+                                                                                                                                           Common.createContextActionRemoveBuffFromCaster(frightened),
+                                                                                                                                           Common.createContextActionRemoveBuffFromCaster(hurtful_buff))
+                                                                                                                  )
+                                                                                                                  ),
+                                                        Helpers.Create<NewMechanics.AttackAnimation>(),
+                                                        Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] { hurtful_buff })
+                                                        );
+            hurtful_ability.setMiscAbilityParametersTouchHarmful();
+
+            hurtful.AddComponent(Helpers.CreateAddFact(hurtful_ability));
+
+            var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(hurtful), Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>() },
+                                                   Common.createContextActionApplyBuff(hurtful_buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 3));
+            var displays = new ActionList[]{ library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb").GetComponent<AbilityEffectRunAction>().Actions,
+                                                   library.Get<BlueprintAbility>("7d2233c3b7a0b984ba058a83b736e6ac").GetComponent<AbilityEffectRunAction>().Actions,
+                                                   (library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional).IfTrue ,
+                                                 };
+            //no need to fix dreadful carnage since it uses dazzling display
+            foreach (var display in displays)
+            {
+                var demoralize = (display.Actions[0] as Demoralize);
+
+                var new_demoralize = Helpers.Create<NewMechanics.DemoralizeWithAction>(d =>
+                {
+                    d.ShatterConfidenceBuff = demoralize.ShatterConfidenceBuff;
+                    d.ShatterConfidenceFeature = demoralize.ShatterConfidenceFeature;
+                    d.SwordlordProwessFeature = demoralize.SwordlordProwessFeature;
+                    d.DazzlingDisplay = demoralize.DazzlingDisplay;
+                    d.Buff = demoralize.Buff;
+                    d.GreaterBuff = demoralize.GreaterBuff;
+                    d.actions = Helpers.CreateActionList(action);
+                });
+
+                display.Actions[0] = new_demoralize;
+            }
+
+            var blistering_demoralize = NewSpells.blistering_invective.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as NewMechanics.ActionOnDemoralize;
+            blistering_demoralize.actions = Helpers.CreateActionList(action, blistering_demoralize.actions.Actions[0]);
+            hurtful.Groups = hurtful.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(hurtful);
         }
 
 
         static void createArtfulDodge()
         {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/ArtfulDodge.png");
             artful_dodge = Helpers.CreateFeature("ArtfulDodgeFeature",
                                                  "Artful Dodge",
                                                  "If you are the only character threatening an opponent, you gain a +1 dodge bonus to AC against that opponent.\n"
                                                  + "Special: The Artful Dodge feat acts as the Dodge feat for the purpose of satisfying prerequisites that require Dodge.\n"
                                                  + "You can use Intelligence, rather than Dexterity, for feats with a minimum Dexterity prerequisite.",
                                                  "",
-                                                 null,
+                                                 icon,
                                                  FeatureGroup.Feat,
                                                  Helpers.Create<ReplaceStatForPrerequisites>(r => { r.OldStat = StatType.Dexterity; r.NewStat = StatType.Intelligence; r.Policy = ReplaceStatForPrerequisites.StatReplacementPolicy.NewStat; }),
                                                  Helpers.Create<NewMechanics.ACBonusSingleThreat>(a => { a.Bonus = 1; a.Descriptor = ModifierDescriptor.Dodge; }),

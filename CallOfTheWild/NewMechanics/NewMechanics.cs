@@ -4047,6 +4047,80 @@ namespace CallOfTheWild
 
 
 
+        public class DemoralizeWithAction : ContextAction
+        {
+            public BlueprintBuff Buff;
+            public BlueprintBuff GreaterBuff;
+            public bool DazzlingDisplay;
+            public BlueprintFeature SwordlordProwessFeature;
+            public BlueprintFeature ShatterConfidenceFeature;
+            public BlueprintBuff ShatterConfidenceBuff;
+            public ActionList actions;
+
+            public override string GetCaption()
+            {
+                return "Demoralize target";
+            }
+
+            public override void RunAction()
+            {
+                MechanicsContext context = ElementsContext.GetData<MechanicsContext.Data>()?.Context;
+                UnitEntityData maybeCaster = context?.MaybeCaster;
+                if (maybeCaster == null || !this.Target.IsUnit)
+                {
+                    UberDebug.LogError((UnityEngine.Object)this, (object)"Unable to apply buff: no context found", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    int dc = 10 + this.Target.Unit.Descriptor.Progression.CharacterLevel + this.Target.Unit.Stats.Wisdom.Bonus;
+                    ModifiableValue.Modifier modifier = (ModifiableValue.Modifier)null;
+                    try
+                    {
+                        if (this.DazzlingDisplay && (bool)maybeCaster.Descriptor.State.Features.SwordlordWeaponProwess)
+                        {
+                            int num = 0;
+                            foreach (Feature feature in maybeCaster.Descriptor.Progression.Features)
+                            {
+                                FeatureParam featureParam = feature.Param;
+                                WeaponCategory? nullable1;
+                                WeaponCategory? nullable2;
+                                if ((object)featureParam == null)
+                                {
+                                    nullable1 = new WeaponCategory?();
+                                    nullable2 = nullable1;
+                                }
+                                else
+                                    nullable2 = featureParam.WeaponCategory;
+                                nullable1 = nullable2;
+                                if ((nullable1.GetValueOrDefault() != WeaponCategory.DuelingSword ? 0 : (nullable1.HasValue ? 1 : 0)) != 0)
+                                    ++num;
+                            }
+                            modifier = maybeCaster.Stats.CheckIntimidate.AddModifier(num, (GameLogicComponent)null, ModifierDescriptor.None);
+                        }
+                        RuleSkillCheck ruleSkillCheck = context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(maybeCaster, StatType.CheckIntimidate, dc));
+                        if (!ruleSkillCheck.IsPassed)
+                            return;
+                        if (this.actions != null)
+                        {
+                            this.actions.Run();
+                        }
+                        int num1 = 1 + (ruleSkillCheck.RollResult - dc) / 5 + (!(bool)maybeCaster.Descriptor.State.Features.FrighteningThug ? 0 : 1);
+                        if ((bool)maybeCaster.Descriptor.State.Features.FrighteningThug && num1 >= 4)
+                            this.Target.Unit.Descriptor.AddBuff(this.GreaterBuff, context, new TimeSpan?(1.Rounds().Seconds));
+                        Kingmaker.UnitLogic.Buffs.Buff buff1 = this.Target.Unit.Descriptor.AddBuff(this.Buff, context, new TimeSpan?(num1.Rounds().Seconds));
+                        if (this.ShatterConfidenceFeature!= null && !maybeCaster.Descriptor.HasFact(this.ShatterConfidenceFeature) || buff1 == null)
+                            return;
+                        Kingmaker.UnitLogic.Buffs.Buff buff2 = this.Target.Unit.Descriptor.AddBuff(this.ShatterConfidenceBuff, context, new TimeSpan?(num1.Rounds().Seconds));
+                        buff1.StoreFact((Fact)buff2);
+                    }
+                    finally
+                    {
+                        modifier?.Remove();
+                    }
+                }
+            }
+        }
+
         public class ActionOnDemoralize : ContextAction
         {
             public BlueprintBuff Buff;
@@ -4650,7 +4724,63 @@ namespace CallOfTheWild
             }
         }
 
+        public class ContextConditionEngagedByCaster : ContextCondition
+        {
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                var target = this.Target?.Unit;
+                var caster = this.Context.MaybeCaster;
+
+                if (target == null || caster == null)
+                {
+                    return false;
+                }
+
+                return caster.IsEngage(target);
+            }
+        }
 
 
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class DamageBonusAgainstCaster : BuffLogic, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+        {
+            public ContextValue Value;
+            public bool ApplyToSpellDamage = false;
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                UnitEntityData maybeCaster = this.Buff.Context.MaybeCaster;
+                if (evt.Target != maybeCaster)
+                    return;
+                if (!this.ApplyToSpellDamage && evt.DamageBundle.Weapon == null)
+                    return;
+
+                evt.DamageBundle.First?.AddBonusTargetRelated(this.Value.Calculate(this.Buff.Context));
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        public class ContextIncreaseResourceAmount : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+        {
+            public ContextValue Value;
+            public BlueprintAbilityResource Resource;
+
+            public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
+            {
+                if (!this.Fact.Active || (resource != this.Resource))
+                    return;
+                bonus += this.Value.Calculate(this.Fact.MaybeContext);
+            }
+        }
     }
 }

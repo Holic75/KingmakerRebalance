@@ -10,6 +10,7 @@ using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -82,7 +83,7 @@ namespace CallOfTheWild.TeamworkMechanics
                 return;
             }
             evt.AddBonus(bonus, this.Fact);
-           // evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            // evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
         }
 
         public override void OnEventDidTrigger(RuleCalculateAC evt)
@@ -93,7 +94,7 @@ namespace CallOfTheWild.TeamworkMechanics
 
     [AllowedOn(typeof(BlueprintUnitFact))]
     [AllowMultipleComponents]
-    public class AlliedSpellcasterSameSpellBonus : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>, IGlobalRulebookHandler<RuleSpellResistanceCheck>, IConcentrationBonusProvider,  IRulebookHandler<RuleSpellResistanceCheck>, IGlobalRulebookSubscriber
+    public class AlliedSpellcasterSameSpellBonus : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>, IGlobalRulebookHandler<RuleSpellResistanceCheck>, IConcentrationBonusProvider, IRulebookHandler<RuleSpellResistanceCheck>, IGlobalRulebookSubscriber
     {
         public BlueprintUnitFact AlliedSpellcasterFact;
         public int Radius;
@@ -140,7 +141,7 @@ namespace CallOfTheWild.TeamworkMechanics
             return 0;
         }
 
-        private bool hasSpell (UnitDescriptor unit, BlueprintAbility spell)
+        private bool hasSpell(UnitDescriptor unit, BlueprintAbility spell)
         {
             var duplicates = SpellDuplicates.getDuplicates(spell);
             foreach (var sb in unit.Spellbooks)
@@ -256,4 +257,42 @@ namespace CallOfTheWild.TeamworkMechanics
         }
     }
 
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class ProvokeAttackFromFactOwners : ContextAction
+    {
+        public BlueprintUnitFact fact;
+
+
+        public override string GetCaption()
+        {
+            return string.Empty;
+        }
+
+        public override void RunAction()
+        {
+            foreach (UnitEntityData attacker in this.Target.Unit.CombatState.EngagedBy)
+            {
+                if (attacker.Descriptor.HasFact(this.fact) && attacker != this.Context.MaybeCaster)
+                {
+                    Kingmaker.Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(attacker, this.Target.Unit);
+                }
+            }
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class AbilityTargetHasFactOrCasterHasSoloTactics : BlueprintComponent, IAbilityTargetChecker
+    {
+        public BlueprintUnitFact fact;
+
+        public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+        {
+            UnitEntityData unit = target.Unit;
+            return ((bool)caster.Descriptor.State.Features.SoloTactics) || unit.Descriptor.HasFact(fact);
+        }
+    }
 }

@@ -1387,7 +1387,7 @@ namespace CallOfTheWild
 
         static public void allowElementalsToCast()
         {
-            Main.logger.Log("Enabling casting in elemntal shape.");
+            Main.logger.Log("Enabling casting in elemental shape.");
             var  spellIds = new string[] {
                 "690c90a82bf2e58449c6b541cb8ea004", // elemental body i, ii, iii, iv
                 "6d437be73b459594ab103acdcae5b9e2",

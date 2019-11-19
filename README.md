@@ -51,7 +51,12 @@ New feats:
 - Distracting Charge,
 - Target of Opportunity,
 - Swarm Scatter,
-- Bonded Mind and Share Spell.
+- Bonded Mind and Share Spell,
+- Extended Bane,
+- Broken Wing Gambit,
+- Hurtful,
+- Dazing Assault,
+- Stunning Assault.
 
 New rage powers:
 - Terrifying Howl
