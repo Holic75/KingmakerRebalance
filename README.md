@@ -96,6 +96,10 @@ The mod also adds following inquisitions that can be selected instead of domains
 - Valor.
 
 
+New Wild Talents:
+- Blade Rush.
+
+
 New spells:
 - Command and Command, Greater,
 - Chill Touch,
@@ -195,7 +199,9 @@ enchanced attacks (optional),
 - spell casting is not forbidden while in elemental form (optional),
 - allied spellcaster now should additionally give +1 cl and +2 spell penetration if adjacent with this feat teammates have the same spell available (optional)
 - changes range of Wail of Banshee and Polar Midnight to medium (since by the time you can cast these spells in pnp the range will be around 65 ft),
-- fixes ecclesitheurge to be as per pnp rules (no bonus skill point, no channel energy damage increase at level 3) (optional)
+- fixes ecclesitheurge to be as per pnp rules (no bonus skill point, no channel energy damage increase at level 3) (optional),
+- when using kinetic healer ability, burn cost can be optionally offloaded to the target,
+- Kinetic Knights now receive Blade Rush infusion at level 3 and Swift Blade Rush infusion at level 13 for free.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -206,7 +212,8 @@ Original game bug fixes:
 - Web school is changed to conjuration
 - radius of teamwork feats that require "adjacent" allies changed to 5 feet (instead of 5 meters) (optional)
 - Invulnerable rager extreme endurance bonus no longer scales exponentially,
-- Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats
+- Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats,
+- Fixes incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/16/8/10/15

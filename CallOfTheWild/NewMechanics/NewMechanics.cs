@@ -1512,11 +1512,19 @@ namespace CallOfTheWild
         //and restore it in prefix
         [Harmony12.HarmonyPatch(typeof(AbilityData))]
         [Harmony12.HarmonyPatch("GetAvailableForCastCount", Harmony12.MethodType.Normal)]
-        class AbilityData__GetAvailableCostCount__Patch
+        class AbilityData__GetAvailableForCastCount__Patch
         {
             static bool Prefix(AbilityData __instance, ref bool __state, ref int __result)
             {
                 __state = false;
+
+                if (__instance.StickyTouch != null)
+                {
+                    var num_charges = __instance.Caster.Get<StickyTouchMechnics.UnitPartTouchMultipleCharges>();
+                    __result =  num_charges == null ? 1 : num_charges.getNumCharges();
+                    return false;
+                }
+
                 if (__instance.Fact != null)
                 {
                     AbilityResourceLogic abilityResourceLogic = __instance.Fact.Blueprint.GetComponents<AbilityResourceLogic>().FirstOrDefault<AbilityResourceLogic>();

@@ -145,9 +145,11 @@
     <Compile Include="Classes\VindicativeBastard.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="Enchantments\WeaponEnchantments.cs" />
+    <Compile Include="FavoredClass.cs" />
     <Compile Include="GlobalMap.cs" />
     <Compile Include="Hexes\ShamanHexes.cs" />
     <Compile Include="Inquisitions.cs" />
+    <Compile Include="KineticistFix.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="NewMechanics\SharedHandItems.cs" />
     <Compile Include="NewMechanics\SpellbookMechanics.cs" />
     <Compile Include="NewMechanics\SpellDuplicates.cs" />
+    <Compile Include="NewMechanics\StickyTouchMechanics.cs" />
     <Compile Include="NewMechanics\TeamworkMechanics.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />

@@ -135,6 +135,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility bladed_dash;
         static public BlueprintAbility bladed_dash_greater;
+        static public BlueprintAbility dimension_door_free;
 
         static public BlueprintAbility fiery_runes;
         //static public BlueprintAbility channel_vigor; ?
@@ -469,12 +470,12 @@ namespace CallOfTheWild
         static void createBladedDash()
         {
             var icon = library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e").Icon; //freedom of movement
-            var dimension_door = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "BladedDashTeleportAbility", "");
-            dimension_door.ActionType = UnitCommand.CommandType.Free;
-            dimension_door.CanTargetEnemies = true;
-            dimension_door.CanTargetFriends = true;
-            dimension_door.Type = AbilityType.Special;
-            dimension_door.SetNameDescriptionIcon("", "", icon);
+            dimension_door_free = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "BladedDashTeleportAbility", "");
+            dimension_door_free.ActionType = UnitCommand.CommandType.Free;
+            dimension_door_free.CanTargetEnemies = true;
+            dimension_door_free.CanTargetFriends = true;
+            dimension_door_free.Type = AbilityType.Special;
+            dimension_door_free.SetNameDescriptionIcon("", "", icon);
 
             var buff = Helpers.CreateBuff("BladedDashBuff",
                                           "",
@@ -489,14 +490,14 @@ namespace CallOfTheWild
                                                 "Bladed Dash",
                                                 "When you cast this spell, you immediately move to any one target in close range, and make a single melee attack against it at your base attack bonus. You gain a circumstance bonus on your attack roll equal to your Intelligence or Charisma modifier, whichever is higher. Despite the name, the spell works with any melee weapon.",
                                                 "",
-                                                dimension_door.Icon,
+                                                dimension_door_free.Icon,
                                                 AbilityType.Spell,
                                                 UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
                                                 "",
                                                 "",
                                                 Helpers.CreateRunActions(Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
-                                                                         Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door),
+                                                                         Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door_free),
                                                                          Common.createContextActionAttack(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
                                                                                                           Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))
                                                                                                          )
@@ -519,7 +520,7 @@ namespace CallOfTheWild
                                     "This spell functions like bladed dash, save that you can make a single melee attack against every creature you pass during the 30 feet of your dash. You cannot attack an individual creature more than once with spell.\n"
                                     + bladed_dash.Name + ": " + bladed_dash.Description,
                                     "",
-                                    dimension_door.Icon,
+                                    dimension_door_free.Icon,
                                     AbilityType.Spell,
                                     UnitCommand.CommandType.Standard,
                                     AbilityRange.Projectile,
@@ -528,7 +529,7 @@ namespace CallOfTheWild
                                     Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), 
                                                                                       new GameAction[]{Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
                                                                                                        Helpers.CreateConditional(Helpers.Create<ContextConditionIsMainTarget>(),
-                                                                                                                                 Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door)
+                                                                                                                                 Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door_free)
                                                                                                                                 ),
                                                                                                        Common.createContextActionAttack(),
                                                                                                        Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))
@@ -734,7 +735,7 @@ namespace CallOfTheWild
             var ability = Helpers.CreateAbility("GhoulTouchAbility",
                                                 "Ghoul Touch",
                                                 "Imbuing you with negative energy, this spell allows you to paralyze a single living humanoid for the duration of the spell with a successful melee touch attack.\n" +
-                                                "A paralyzed subject exudes a carrion stench that causes all living creatures(except you) in a 10 - foot - radius spread to become sickened(Fortitude negates).A neutralize poison spell removes the effect from a sickened creature, and creatures immune to poison are unaffected by the stench.This is a poison effect.",
+                                                "A paralyzed subject exudes a carrion stench that causes all living creatures (except you) in a 10 - foot - radius spread to become sickened (Fortitude negates). A neutralize poison spell removes the effect from a sickened creature, and creatures immune to poison are unaffected by the stench.This is a poison effect.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
@@ -2421,7 +2422,7 @@ namespace CallOfTheWild
 
 
             var buff = Helpers.CreateBuff("FrostBiteBuff",
-                                            frost_bite_enchantments[0].Name,
+                                            frost_bite_enchantments[0].Name + " (As Weapon)",
                                             frost_bite_enchantments[0].Description,
                                             "",
                                             icon,
@@ -2443,7 +2444,7 @@ namespace CallOfTheWild
             }
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
-            frost_bite = Helpers.CreateAbility("FrostBiteAbility",
+            var frost_bite_weapon = Helpers.CreateAbility("FrostBiteWeaponAbility",
                                                   buff.Name,
                                                   buff.Description,
                                                   "",
@@ -2459,10 +2460,36 @@ namespace CallOfTheWild
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                   Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff)))
                                                   );
-            frost_bite.setMiscAbilityParametersTouchHarmful();
+            frost_bite_weapon.setMiscAbilityParametersTouchHarmful();
 
-            frost_bite.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+            frost_bite_weapon.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
 
+            var frost_bite_charge = Helpers.CreateAbility("FrostBiteChargeAbility",
+                                      "Forstbite",
+                                      "Your melee touch attack deals 1d6 points of cold damage + 1 point per level (max + 10), and the target is fatigued. This spell cannot make a creature exhausted even if it is already fatigued. You can use this melee touch attack up to one time per level.",
+                                      "",
+                                      buff.Icon,
+                                      AbilityType.Spell,
+                                      Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                      AbilityRange.Touch,
+                                      "",
+                                      Helpers.savingThrowNone,
+                                      Helpers.CreateRunActions(apply_fatigued, Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                      Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Transmutation),
+                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                      Helpers.CreateDeliverTouch(),
+                                      library.Get<BlueprintAbility>("c83447189aabc72489164dfc246f3a36").GetComponent<AbilitySpawnFx>() //from frigid touch
+                                      );
+
+            frost_bite_charge.AvailableMetamagic = frost_bite_weapon.AvailableMetamagic;
+            frost_bite_charge.setMiscAbilityParametersTouchHarmful();
+            var frost_bite_sticky = Helpers.CreateTouchSpellCast(frost_bite_charge);
+            frost_bite_sticky.AddComponents(Helpers.Create<StickyTouchMechnics.AbilityEffectStickyTouchMultiple>(a => a.num_charges = Helpers.CreateContextValue(AbilityRankType.ProjectilesCount)),
+                                 Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount)
+                                 );
+
+            frost_bite = Common.createVariantWrapper("FrostBiteAbility", "", frost_bite_sticky, frost_bite_weapon);
+            frost_bite.AddComponent(frost_bite_charge.GetComponent<SpellComponent>());
             frost_bite.AddToSpellList(Helpers.druidSpellList, 1);
             frost_bite.AddToSpellList(Helpers.magusSpellList, 1);
             frost_bite.AddSpellAndScroll("1cd597e316ac49941a568312de2be6ae"); //acid maw
@@ -2537,7 +2564,7 @@ namespace CallOfTheWild
                                                                                                   false, false,
                                                                                                   new BlueprintWeaponType[0], WeaponEnchantments.maximize_enchant);
             var buff = Helpers.CreateBuff("ChillTouchBuff",
-                                            chill_touch_echantments[0].Name,
+                                            "Chill Touch (As Weapon)",
                                             chill_touch_echantments[0].Description,
                                             "",
                                             icon,
@@ -2559,7 +2586,7 @@ namespace CallOfTheWild
             }
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
-            chill_touch = Helpers.CreateAbility("ChillTouchAbility",
+            var chill_touch_weapon = Helpers.CreateAbility("ChillTouchWeaponAbility",
                                                   buff.Name,
                                                   buff.Description,
                                                   "",
@@ -2568,16 +2595,52 @@ namespace CallOfTheWild
                                                   Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                   AbilityRange.DoubleMove,
                                                   Helpers.minutesPerLevelDuration,
-                                                  "",
+                                                  "Fortitude partial or Will negates",
                                                   Helpers.CreateRunActions(Common.createContextActionForceAttack()),
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Necromancy),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
-                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                   Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff)))
                                                   );
-            chill_touch.setMiscAbilityParametersTouchHarmful();
+            chill_touch_weapon.setMiscAbilityParametersTouchHarmful();
 
-            chill_touch.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+            chill_touch_weapon.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
+
+
+            var charge_on_living = Helpers.CreateConditionalSaved(null, Helpers.CreateActionDealDamage(StatType.Strength, Helpers.CreateContextDiceValue(DiceType.Zero, bonus: 1)));
+            var charge_on_undead = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), diceType: DiceType.D4, diceCount: 1)));
+            var charge_effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(undead),
+                                                   new GameAction[] { Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(charge_on_undead)) },
+                                                   new GameAction[] {Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(charge_on_living)),
+                                                                     Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1, 0))
+                                                                     }
+                                                  );
+            var chill_touch_charge = Helpers.CreateAbility("ChillTouchChargeAbility",
+                                                           "Chill Touch",
+                                                           "A touch from your hand, which glows with blue energy, disrupts the life force of living creatures. Each touch channels negative energy that deals 1d6 points of damage. The touched creature also takes 1 point of Strength damage unless it makes a successful Fortitude saving throw.  You can make one touch attack per caster level.\n"
+                                                           + "An undead creature you touch takes no damage of either sort, but it must make a successful Will saving throw or flee as if panicked for 1d4 rounds + 1 round per caster level (max + 10)\n.",
+                                                           "",
+                                                           chill_touch_weapon.Icon,
+                                                           AbilityType.Spell,
+                                                           UnitCommand.CommandType.Standard,
+                                                           AbilityRange.Touch,
+                                                           "",
+                                                           "Fortitude partial or Will negates",
+                                                           Helpers.CreateRunActions(charge_effect),
+                                                           Helpers.CreateDeliverTouch(),
+                                                           Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Necromancy),
+                                                           library.Get<BlueprintAbility>("cbecdd04ad2523c438123ef596fd2b9f").GetComponent<AbilitySpawnFx>(), //touch of fatigue fx
+                                                           Helpers.CreateContextRankConfig(max: 10)
+                                                           );
+            chill_touch_charge.setMiscAbilityParametersTouchHarmful();
+            chill_touch_charge.SpellResistance = true;
+            chill_touch_charge.AvailableMetamagic = chill_touch_weapon.AvailableMetamagic;
+            var chill_touch_sticky = Helpers.CreateTouchSpellCast(chill_touch_charge);
+            chill_touch_sticky.AddComponents(Helpers.Create<StickyTouchMechnics.AbilityEffectStickyTouchMultiple>(a => a.num_charges = Helpers.CreateContextValue(AbilityRankType.ProjectilesCount)),
+                                             Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount)
+                                             );
+
+            chill_touch = Common.createVariantWrapper("ChillTouchAbility", "", chill_touch_sticky, chill_touch_weapon);
+            chill_touch.AddComponent(chill_touch_charge.GetComponent<SpellComponent>());
 
             chill_touch.AddToSpellList(Helpers.wizardSpellList, 1);
             chill_touch.AddToSpellList(Helpers.magusSpellList, 1);
