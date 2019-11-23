@@ -59,15 +59,25 @@ namespace CallOfTheWild
                 {
                     slot.Clear();
                     slot.SetupInfo(player.Body);
-                    if (player.Descriptor.IsPet && !allowed_slots.Contains(slot.Type))
+                    if (player.Descriptor.IsPet)
                     {
-                        if (!slot.Slot.Lock)
+                        if (!allowed_slots.Contains(slot.Type))
                         {
-                            slot.Slot.Lock.Retain();
+                            if (!slot.Slot.Lock)
+                            {
+                                slot.Slot.Lock.Retain();
+                            }
+                            if (!slot.HasItem)
+                            {
+                                slot.ItemImage.color = new UnityEngine.Color(1.0f, 1.0f, 1.0f, 0.3f);
+                            }
                         }
-                        if (!slot.HasItem)
+                        else
                         {
-                            slot.ItemImage.color = new UnityEngine.Color(1.0f, 1.0f, 1.0f, 0.3f);
+                            if (slot.Slot.Lock)
+                            {
+                                slot.Slot.Lock.Release();
+                            }
                         }
                     }
                 }

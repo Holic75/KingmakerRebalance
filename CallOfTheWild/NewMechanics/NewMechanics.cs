@@ -4748,7 +4748,7 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-
+                
                 return caster.IsEngage(target);
             }
         }

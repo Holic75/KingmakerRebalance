@@ -74,7 +74,7 @@ namespace CallOfTheWild
         static public BlueprintFeature hurtful;
         static public BlueprintFeature broken_wing_gambit;
         static public BlueprintFeature extended_bane;
-
+        //TODO:
         static public BlueprintFeature dazing_assult;
         static public BlueprintFeature stunning_assult;
 
@@ -182,9 +182,12 @@ namespace CallOfTheWild
                                                                        null);
             broken_wing_ability.DeactivateImmediately = true;
 
+            var on_attack = Helpers.CreateConditional(Common.createContextConditionHasFact(broken_wing_gambit_effect_buff),
+                                                      Helpers.Create<TeamworkMechanics.ProvokeAttackFromFactOwners>(p => p.fact = broken_wing_gambit)
+                                                      );
             broken_wing_gambit.AddComponents(Helpers.CreateAddFact(broken_wing_ability),
                                              Common.createAddTargetAttackWithWeaponTrigger(null,
-                                                                                           Helpers.CreateActionList(Helpers.Create<TeamworkMechanics.ProvokeAttackFromFactOwners>(p => p.fact = broken_wing_gambit)),
+                                                                                           Helpers.CreateActionList(on_attack),
                                                                                            wait_for_attack_to_resolve: true)
                                             );
 
