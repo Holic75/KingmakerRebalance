@@ -1,4 +1,6 @@
-﻿using Kingmaker.Blueprints;
+﻿using Harmony12;
+using Kingmaker;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
@@ -9,6 +11,7 @@ using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
@@ -405,8 +408,8 @@ namespace CallOfTheWild
                                                                                     a.BurnType = KineticistBurnType.Blast;
                                                                                     a.Value = cost.BlastBurnCost;
                                                                                 }
-                                                                                                                                            )
-                                                                                                 );
+                                                                                                                        )
+                                                                                );
                 }
             }
 
@@ -486,11 +489,48 @@ namespace CallOfTheWild
     {
         static bool Prefix(UnitPartKineticist __instance, ref AddKineticistPart ___m_Settings)
         {
-            if (!__instance.Owner.Buffs.HasFact(KineticistFix.kinetic_whip_buff))
+            if (__instance.Owner.Buffs.HasFact(KineticistFix.kinetic_whip_buff))
+            {
+                return false;
+            }
+
+            /*var blade_enabled_buff = __instance.Owner.Buffs.GetBuff(___m_Settings.BladeActivatedBuff);
+
+            if (Main.settings.kinetic_blade_refresh_for_tb && __instance.Owner.Unit.IsInCombat && blade_enabled_buff != null)
+            {//remove after 5 seconds to avoid paying cost for next round in the previous one, will not properly work in rt
+                blade_enabled_buff.RemoveAfterDelay(new TimeSpan(0, 0, 5));
+            }
+            else
             {
                 __instance.Owner.Buffs.RemoveFact(___m_Settings.BladeActivatedBuff);
-            }
+            }*/
+
+            __instance.Owner.Buffs.RemoveFact(___m_Settings.BladeActivatedBuff);
             return false;
         }
     }
-}
+
+
+    //avoid getting burn on the queued command if it has cooldown
+    [Harmony12.HarmonyPatch(typeof(KineticistController))]
+    [Harmony12.HarmonyPatch("TryRunKineticBladeActivationAction", Harmony12.MethodType.Normal)]
+    class Patch_KineticistController_TryRunKineticBladeActivationAction_Transpiler
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_blade_activated = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsActivatingBladeNow"));
+
+            codes[check_blade_activated] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //cmd
+            codes.Insert(check_blade_activated + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,  new Func<UnitPartKineticist, UnitCommand, bool>(shouldReturnToQueue).Method));
+
+            return codes.AsEnumerable();
+        }
+
+        private static bool shouldReturnToQueue(UnitPartKineticist kineticist, UnitCommand cmd)
+        {
+            return kineticist.IsActivatingBladeNow || kineticist.Owner.Unit.CombatState.HasCooldownForCommand(cmd);
+        }
+    }
+
+    }

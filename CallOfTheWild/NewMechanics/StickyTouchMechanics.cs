@@ -8,6 +8,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace CallOfTheWild.StickyTouchMechnics
 {
     public class UnitPartTouchMultipleCharges : UnitPart
     {
+        [JsonProperty]
         private int num_charges = 0;
 
         public void init(int charges)
