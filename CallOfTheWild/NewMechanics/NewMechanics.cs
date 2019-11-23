@@ -4790,5 +4790,26 @@ namespace CallOfTheWild
                 bonus += this.Value.Calculate(this.Fact.MaybeContext);
             }
         }
+
+
+        public class ContextConditionHasArchetype : ContextCondition
+        {
+            public BlueprintArchetype archetype;
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                var target = this.Target?.Unit;
+
+                if (target == null)
+                {
+                    return false;
+                }
+                return target.Descriptor.Progression.IsArchetype(archetype);
+            }
+        }
     }
 }

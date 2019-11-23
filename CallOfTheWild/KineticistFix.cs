@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -12,6 +13,7 @@ using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +28,17 @@ namespace CallOfTheWild
         static Dictionary<string, (BlueprintActivatableAbility, BlueprintAbility)> blast_kinetic_blades_burn_map = new Dictionary<string, (BlueprintActivatableAbility, BlueprintAbility)>();
         static List<BlueprintActivatableAbility> substance_infusions = new List<BlueprintActivatableAbility>();
 
-        static BlueprintFeature blade_rush;
-        static BlueprintFeature blade_rush_swift;
+        public static BlueprintFeature blade_rush;
+        public static BlueprintFeature blade_rush_swift;
+        public static BlueprintFeature kinetic_whip;
+        public static BlueprintBuff kinetic_whip_buff;
+
+        //public static BlueprintFeature suffocate;
+        public static BlueprintFeature wings_of_air;
+        public static BlueprintFeature spark_of_life;
+
+        public static BlueprintFeature whip_hurricane;
+
         static BlueprintCharacterClass kineticist_class = library.Get<BlueprintCharacterClass>("42a455d9ec1ad924d889272429eb8391");
         static BlueprintFeature kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
         static BlueprintFeature whirlwind_infusion = library.Get<BlueprintFeature>("80fdf049d396c33408a805d9e21a42e1");
@@ -63,14 +74,87 @@ namespace CallOfTheWild
             }
 
             //addWhirlwindInfusionToKineticistSelection();
-            //restoreKineticKnightinfusions();
+            restoreKineticKnightinfusions();
             whirlwind_infusion.HideInUI = false;
             fixKineticBladeCost();
             fixKineticBladeCostForKineticKnight();
             fixBladeWhirlwindCost();
             fixKineticHealer();
+            fixBladeWhirlwindRange();
+
+            fixShroudOfWaterForKineticKnight();
 
             createBladeRush();
+            createKineticWhip();
+            createWhipHurricane();
+        }
+
+        static void fixShroudOfWaterForKineticKnight()
+        {
+            //make shroud of water give enchancement bonus to armor or shield for burn (as of now it is not capped unlike in pnp)
+            var abilities = new BlueprintAbility[] { library.Get<BlueprintAbility>("d2603c237cf8d9e41b95b71e4cf0e692"), //armor
+                                                     library.Get<BlueprintAbility>("78926d1c7c01f5245974c5da015d0641") }; //shield
+
+            var buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("04d22f8c690781d4c8f61f0437cb91ef"), //armor
+                                                     library.Get<BlueprintBuff>("1f1657d95529d8945964515ca44473aa") }; //shield
+
+            var armor_feature = library.CopyAndAdd<BlueprintFeature>("1ff803cb49f63ea4185490fae2c43ca7", "ShroudOfWaterArmorKineticKnightEffectFeature", "");
+            var shield_feature = library.CopyAndAdd<BlueprintFeature>("4d8feca11d6e29a499ae761b90eacdba", "ShroudOfWaterShieldKineticKnightEffectFeature", "");
+
+            armor_feature.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: new  BlueprintCharacterClass[]{ kineticist_class },
+                                                progression: ContextRankProgression.StartPlusDivStep, startLevel: - 10, stepLevel: 4, min: 4),
+                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, feature: armor_feature, type: Kingmaker.Enums.AbilityRankType.DamageDice),
+                Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, Kingmaker.Enums.ModifierDescriptor.Armor),
+                Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, Kingmaker.Enums.ModifierDescriptor.ArmorEnhancement, rankType: Kingmaker.Enums.AbilityRankType.DamageDice),
+                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[]{armor_feature })
+            };
+
+
+            shield_feature.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: new  BlueprintCharacterClass[]{ kineticist_class },
+                                                progression: ContextRankProgression.StartPlusDivStep, startLevel: - 2, stepLevel: 4, min: 2),
+                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, feature: shield_feature, type: Kingmaker.Enums.AbilityRankType.DamageDice),
+                Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, Kingmaker.Enums.ModifierDescriptor.Shield),
+                Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.AC, Kingmaker.Enums.ModifierDescriptor.ShieldEnhancement, rankType: Kingmaker.Enums.AbilityRankType.DamageDice),
+                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[]{shield_feature })
+            };
+
+            var features = new BlueprintFeature[] { armor_feature, shield_feature };
+
+            for (int i = 0; i < abilities.Length; i++)
+            {
+                var apply_buff = abilities[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff;
+                var base_buff = apply_buff.Buff;
+
+                var new_buff = library.CopyAndAdd<BlueprintBuff>(base_buff.AssetGuid, "KineticKnight" + base_buff.name, "");
+                new_buff.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { features[i] });
+                var apply_new_buff = apply_buff.CreateCopy(a => a.Buff = new_buff);
+
+                var action = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionHasArchetype>(c => c.archetype = kinetic_knight),
+                                                        apply_new_buff,
+                                                        apply_buff
+                                                      );
+                abilities[i].ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+                var remove = Common.createContextActionRemoveBuff(new_buff);
+                buffs[i].GetComponent<AddFactContextActions>().Deactivated.Actions = buffs[i].GetComponent<AddFactContextActions>().Deactivated.Actions.AddToArray(remove);
+            }
+
+            //update description
+            var elemental_bastion = library.Get<BlueprintFeature>("82fbdd5eb5ac73b498c572cc71bda48f");
+            elemental_bastion.SetDescription(elemental_bastion.Description + "\nNote:  If she has the shroud of water defense wild talent, whenever its bonus would be increased by accepting burn, she instead increases the enhancement bonus of her armor or shield by an equal amount.");
+        }
+
+        static void fixBladeWhirlwindRange()
+        {
+            var blade_whirlwind = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
+            var range = blade_whirlwind.GetComponent<AbilityTargetsAround>();
+            Helpers.SetField(range, "m_Radius", 15.Feet());
+
+            var attack_in_range = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>(), blade_whirlwind.GetComponent<AbilityEffectRunAction>().Actions.Actions);
+            blade_whirlwind.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(attack_in_range));
         }
 
 
@@ -83,7 +167,7 @@ namespace CallOfTheWild
                 var features = new List<BlueprintFeatureBase>();
                 foreach (var f in rf.Features)
                 {
-                    if (f != infusion_selection || rf.Level == 3)
+                    if (f != infusion_selection || rf.Level <= 3)
                     {
                         features.Add(f);
                     }
@@ -143,6 +227,97 @@ namespace CallOfTheWild
             }
             return burns.ToArray();
         }
+
+
+        static void createKineticWhip()
+        {
+            var icon = library.Get<BlueprintAbility>("16e23c7a8ae53cc42a93066d19766404").Icon; //jolt
+            var blade_enabled_buff = library.Get<BlueprintBuff>("426a9c079ee7ac34aa8e0054f2218074");
+            var apply_blade = Common.createContextActionApplyBuff(blade_enabled_buff, Helpers.CreateContextDuration(), dispellable: false, is_child: true, is_permanent: true);
+            var blade_whirlwind = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
+
+            kinetic_whip_buff = Helpers.CreateBuff("KineticWhipBuff",
+                                                   "Kinetic Whip",
+                                                   "You form a long tendril of energy or elemental matter. This functions as kinetic blade but counts as a reach weapon appropriate for your size. Unlike most reach weapons, the kinetic whip can also attack nearby creatures. The kinetic whip disappears at the beginning of your next turn, but in the intervening time, it threatens all squares within its reach, allowing you to make attacks of opportunity that deal the whip’s usual damage.",
+                                                   "",
+                                                   icon,
+                                                   null,
+                                                   Helpers.CreateAddStatBonus(Kingmaker.EntitySystem.Stats.StatType.Reach, 4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable),
+                                                   Helpers.CreateAddFactContextActions(activated: apply_blade),
+                                                   Helpers.Create<AddConditionImmunity>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity)
+                                                   );
+
+            var apply_whip = Common.createContextActionApplyBuff(kinetic_whip_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var kinetic_whip_ability = Helpers.CreateAbility("KineticWhipAbility",
+                                                kinetic_whip_buff.Name,
+                                                "Element: universal\nType: form infusion\nLevel: 3\nBurn: 2\nPrerequisites: kinetic blade\nAssociated Blasts: any\nSaving Throw: none\n" + kinetic_whip_buff.Description,
+                                                "",
+                                                icon,
+                                                AbilityType.Special,
+                                                UnitCommand.CommandType.Free,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                "",   
+                                                Helpers.CreateRunActions(apply_whip),
+                                                blade_whirlwind.GetComponent<AbilityCasterHasFacts>(),
+                                                Helpers.Create<AbilityKineticist>(a =>
+                                                {
+                                                    a.InfusionBurnCost = 2;
+                                                }
+                                                                                 )
+                                                );
+
+            kinetic_whip_ability.setMiscAbilityParametersSelfOnly();
+
+            addBladeInfusionCostIncrease(kinetic_whip_ability);
+
+
+            kinetic_whip = Common.AbilityToFeature(kinetic_whip_ability, false);
+            kinetic_whip.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
+            kinetic_whip.AddComponent(Helpers.PrerequisiteFeature(kinetic_blade_infusion));
+            infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(kinetic_whip);
+
+            kinetic_knight.AddFeatures = kinetic_knight.AddFeatures.AddToArray(Helpers.LevelEntry(5, kinetic_whip));
+            kineticist_progression.UIGroups.Last().Features.Add(kinetic_whip);
+
+            //remove whip when using blade whirlwind, blade dash and swift blade dash
+            var remove_whip = Common.createContextActionRemoveBuff(kinetic_whip_buff);
+            blade_whirlwind.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+            blade_rush.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+            blade_rush_swift.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+        }
+
+
+        static void createWhipHurricane()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/WhipHurricane.png");
+            var blade_whirlwind = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
+
+            var whip_hurricane_ability = library.CopyAndAdd<BlueprintAbility>(blade_whirlwind.AssetGuid, "WhipHurricaneAbility", "");
+            whip_hurricane_ability.SetNameDescriptionIcon("Whip Hurricane",
+                                                          "Element: universal\nType: form infusion\nLevel: 6\nBurn: 4\nPrerequisites: kinetic blade, kinetic whip, blade whirlwind\nAssociated Blasts: any\nSaving Throw: none\n"
+                                                          + "As blade whirlwind, except it manifests a kinetic whip, and the whip lasts until the beginning of your next turn or until you use any form infusion that creates a blade or whip again, whichever comes first.",
+                                                          icon);
+
+            var add_whip = Common.createContextActionApplyBuff(kinetic_whip_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            whip_hurricane_ability.ReplaceComponent<AbilityExecuteActionOnCast>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionOnContextCaster(add_whip)));
+            whip_hurricane_ability.ReplaceComponent<AbilityKineticist>(a => a.InfusionBurnCost = 4);
+            whip_hurricane_ability.ReplaceComponent<AbilityTargetsAround>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            addBladeInfusionCostIncrease(whip_hurricane_ability);
+
+
+            whip_hurricane = Common.AbilityToFeature(whip_hurricane_ability, false);
+            whip_hurricane.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 12));
+            whip_hurricane.AddComponent(Helpers.PrerequisiteFeature(kinetic_blade_infusion));
+            whip_hurricane.AddComponent(Helpers.PrerequisiteFeature(kinetic_whip));
+            whip_hurricane.AddComponent(Helpers.PrerequisiteFeature(whirlwind_infusion));
+
+            infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(whip_hurricane);
+
+            kinetic_knight.AddFeatures = kinetic_knight.AddFeatures.AddToArray(Helpers.LevelEntry(11, whip_hurricane));
+            kineticist_progression.UIGroups.Last().Features.Add(whip_hurricane);
+        }
+
 
 
         static void createBladeRush()
@@ -301,6 +476,21 @@ namespace CallOfTheWild
                 }
             }
 
+        }
+    }
+
+    //do not remove kinetic blade if we have kinetic whip active
+    [Harmony12.HarmonyPatch(typeof(UnitPartKineticist))]
+    [Harmony12.HarmonyPatch("RemoveBladeActivatedBuff", Harmony12.MethodType.Normal)]
+    class UnitPartKineticist__RemoveBladeActivatedBuff__Patch
+    {
+        static bool Prefix(UnitPartKineticist __instance, ref AddKineticistPart ___m_Settings)
+        {
+            if (!__instance.Owner.Buffs.HasFact(KineticistFix.kinetic_whip_buff))
+            {
+                __instance.Owner.Buffs.RemoveFact(___m_Settings.BladeActivatedBuff);
+            }
+            return false;
         }
     }
 }

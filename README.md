@@ -97,7 +97,9 @@ The mod also adds following inquisitions that can be selected instead of domains
 
 
 New Wild Talents:
-- Blade Rush.
+- Blade Rush,
+- Kinetic Whip,
+- Whip Hurricane.
 
 
 New spells:
@@ -201,7 +203,8 @@ enchanced attacks (optional),
 - changes range of Wail of Banshee and Polar Midnight to medium (since by the time you can cast these spells in pnp the range will be around 65 ft),
 - fixes ecclesitheurge to be as per pnp rules (no bonus skill point, no channel energy damage increase at level 3) (optional),
 - when using kinetic healer ability, burn cost can be optionally offloaded to the target,
-- Kinetic Knights now receive Blade Rush infusion at level 3 and Swift Blade Rush infusion at level 13 for free.
+- Kinetic Knights now receive Blade Rush infusion at level 3, Kinetic Whip infusion at level 5, Whip Hurricane infusion at level 11 and Swift Blade Rush infusion at level 13 for free,
+- When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
