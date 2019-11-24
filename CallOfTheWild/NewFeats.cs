@@ -147,7 +147,8 @@ namespace CallOfTheWild
                                           null,
                                           Common.createAttackTypeAttackBonus(-5, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true),
-                                          Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; })
+                                          library.Get<BlueprintBuff>("f766db0dcd17aaa44b76181bdf85fee9").GetComponent<ContextCalculateAbilityParams>() //from staggering critical
+                                          //Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; c.ReplaceSpellLevel = true; })
                                           );
 
             var ability = Helpers.CreateActivatableAbility("DazingAssaultToggleAbility",
@@ -188,7 +189,8 @@ namespace CallOfTheWild
                                           null,
                                           Common.createAttackTypeAttackBonus(-5, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true),
-                                          Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; })
+                                          library.Get<BlueprintBuff>("f766db0dcd17aaa44b76181bdf85fee9").GetComponent<ContextCalculateAbilityParams>() //from staggering critical
+                                          // Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; c.ReplaceSpellLevel = true; })
                                           );
 
             var ability = Helpers.CreateActivatableAbility("StunningAssaultToggleAbility",
