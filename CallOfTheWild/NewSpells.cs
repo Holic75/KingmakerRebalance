@@ -136,6 +136,7 @@ namespace CallOfTheWild
         static public BlueprintAbility bladed_dash;
         static public BlueprintAbility bladed_dash_greater;
         static public BlueprintAbility dimension_door_free;
+        static public BlueprintBuff bladed_dash_buff;
 
         static public BlueprintAbility fiery_runes;
         //static public BlueprintAbility channel_vigor; ?
@@ -548,6 +549,7 @@ namespace CallOfTheWild
             bladed_dash_greater.AddToSpellList(Helpers.bardSpellList, 5);
 
             bladed_dash_greater.AddSpellAndScroll("02adc587ef2d8a54ababd846072dbef8");
+            bladed_dash_buff = buff;
         }
 
 

@@ -124,6 +124,91 @@ namespace CallOfTheWild
             createHurtful();
             createBrokenWingGambit();
             createExtendedBane();
+
+            createDazingAssault();
+            createStunningAssault();
+        }
+
+
+        static void createDazingAssault()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/DazingAssault.png");
+            var dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
+
+            var apply = Common.createContextActionApplyBuff(dazed, Helpers.CreateContextDuration(1), dispellable: false);
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude,
+                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply))
+                                                              );
+            var buff = Helpers.CreateBuff("DazingAssaultBuff",
+                                          "Dazing Assault",
+                                          "You can choose to take a –5 penalty on all melee attack rolls and combat maneuver checks to daze opponents you hit with your melee attacks for 1 round, in addition to the normal damage dealt by the attack. A successful Fortitude save negates the effect. The DC of this save is 10 + your base attack bonus. You must choose to use this feat before making the attack roll, and its effects last until your next turn.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Common.createAttackTypeAttackBonus(-5, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true),
+                                          Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; })
+                                          );
+
+            var ability = Helpers.CreateActivatableAbility("DazingAssaultToggleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null);
+            ability.DeactivateImmediately = true;
+
+            dazing_assult = Common.ActivatableAbilityToFeature(ability, false);
+            dazing_assult.Groups = new FeatureGroup[] { FeatureGroup.CombatFeat, FeatureGroup.Feat };
+            dazing_assult.AddComponents(Helpers.PrerequisiteStatValue(StatType.Strength, 13),
+                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11),
+                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5")) //power attack
+                                        );
+            library.AddCombatFeats(dazing_assult);
+        }
+
+
+        static void createStunningAssault()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/StunningAssault.png");
+            var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
+
+            var apply = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), dispellable: false);
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude,
+                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply))
+                                                              );
+            var buff = Helpers.CreateBuff("StunninAssaultBuff",
+                                          "Stunning Assault",
+                                          "You can choose to take a –5 penalty on all melee attack rolls and combat maneuver checks to stun targets you hit with your melee attacks for 1 round. A successful Fortitude save negates the effect. The DC of this save is 10 + your base attack bonus. You must choose to use this feat before making the attack roll, and its effects last until your next turn.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Common.createAttackTypeAttackBonus(-5, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true),
+                                          Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; })
+                                          );
+
+            var ability = Helpers.CreateActivatableAbility("StunningAssaultToggleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null);
+            ability.DeactivateImmediately = true;
+
+            stunning_assult = Common.ActivatableAbilityToFeature(ability, false);
+            stunning_assult.Groups = new FeatureGroup[] { FeatureGroup.CombatFeat, FeatureGroup.Feat };
+            stunning_assult.AddComponents(Helpers.PrerequisiteStatValue(StatType.Strength, 13),
+                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 16),
+                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5")) //power attack
+                                        );
+            library.AddCombatFeats(stunning_assult);
         }
 
 

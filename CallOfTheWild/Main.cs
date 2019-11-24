@@ -31,7 +31,6 @@ namespace CallOfTheWild
             internal bool allow_spellcasting_in_elemental_form { get; }
             internal bool fix_teamwork_feats { get; }
             internal bool fix_ecclesitheurge_class { get; }
-            internal bool kinetic_blade_refresh_for_tb { get; }
             internal Settings()
             {
 
@@ -49,7 +48,6 @@ namespace CallOfTheWild
                     allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
                     fix_teamwork_feats = (bool)jo["fix_teamwork_feats"];
                     fix_ecclesitheurge_class = (bool)jo["fix_ecclesitheurge_class"];
-                    kinetic_blade_refresh_for_tb = (bool)jo["kinetic_blade_refresh_for_tb"];
                 }
             }
         }
