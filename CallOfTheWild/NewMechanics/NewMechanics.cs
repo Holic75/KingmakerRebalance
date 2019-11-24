@@ -2531,9 +2531,13 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                evt.DoNotScaleDamage = true;
-                DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? evt.Weapon.Blueprint.BaseDamage : evt.WeaponDamageDiceOverride.Value;
                 var wielder_size = evt.Initiator.Descriptor.State.Size;
+                evt.DoNotScaleDamage = true;
+
+                //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
+                var base_weapon_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.Damage : evt.Weapon.Blueprint.ScaleDamage(wielder_size);
+                DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : evt.WeaponDamageDiceOverride.Value;
+                
 
                 if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
                 {
@@ -2543,7 +2547,7 @@ namespace CallOfTheWild
                 }
                 else
                 {
-                    evt.WeaponDamageDiceOverride = new DiceFormula?(WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, Size.Medium, evt.Weapon.Blueprint));
+                    evt.WeaponDamageDiceOverride = new DiceFormula?(WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, wielder_size, evt.Weapon.Blueprint));
                 }
             }
 
