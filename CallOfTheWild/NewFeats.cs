@@ -220,7 +220,8 @@ namespace CallOfTheWild
             extended_bane.SetNameDescription("Extended Bane", "Add your Wisdom bonus to the number of rounds per day that you can use your bane ability.");
             var old_increase = extended_bane.GetComponent<IncreaseResourceAmount>();
             extended_bane.ReplaceComponent(old_increase, Helpers.Create<NewMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = old_increase.Resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }));
-            extended_bane.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom));
+            extended_bane.AddComponents(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom),
+                                        Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom));
 
             library.AddFeats(extended_bane);
         }
@@ -446,7 +447,8 @@ namespace CallOfTheWild
                                                Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("7ddf7fbeecbe78342b83171d888028cf"))//bane
                                                );
 
-            var buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("be190d2dd5433dd41a4aa00e1abc9a5b"), library.Get<BlueprintBuff>("60dffde0dd392a84b8c26dc37c471cd1") };
+            var buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("be190d2dd5433dd41a4aa00e1abc9a5b"), //bane
+                                              library.Get<BlueprintBuff>("60dffde0dd392a84b8c26dc37c471cd1") }; //greater bane
 
             var spell_bane_buff = Helpers.CreateBuff("SpellBaneBuff",
                                                      "",
