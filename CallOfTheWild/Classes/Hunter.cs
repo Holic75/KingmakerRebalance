@@ -1147,7 +1147,8 @@ namespace CallOfTheWild
                                                 "Next Attack",
                                                 Helpers.savingThrowNone,
                                                 Helpers.CreateRunActions(apply_buff),
-                                                Helpers.CreateResourceLogic(trick_resource)
+                                                Helpers.CreateResourceLogic(trick_resource),
+                                                Common.createAbilityCasterHasNoFacts(buff)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
             feature.ReplaceComponent<AddFacts>(a => a.Facts[0] = ability);

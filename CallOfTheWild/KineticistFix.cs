@@ -264,10 +264,11 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(apply_whip),
                                                 blade_whirlwind.GetComponent<AbilityCasterHasFacts>(),
                                                 Helpers.Create<AbilityKineticist>(a =>
-                                                {
-                                                    a.InfusionBurnCost = 2;
-                                                }
-                                                                                 )
+                                                                                    {
+                                                                                        a.InfusionBurnCost = 2;
+                                                                                    }
+                                                                                 ),
+                                                Common.createAbilityCasterHasNoFacts(kinetic_whip_buff)
                                                 );
 
             kinetic_whip_ability.setMiscAbilityParametersSelfOnly();
