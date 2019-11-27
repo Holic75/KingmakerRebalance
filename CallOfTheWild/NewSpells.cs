@@ -2467,8 +2467,8 @@ namespace CallOfTheWild
             frost_bite_weapon.AvailableMetamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend | Kingmaker.UnitLogic.Abilities.Metamagic.Heighten | Kingmaker.UnitLogic.Abilities.Metamagic.Empower | Kingmaker.UnitLogic.Abilities.Metamagic.Maximize;
 
             var frost_bite_charge = Helpers.CreateAbility("FrostBiteChargeAbility",
-                                      "Forstbite",
-                                      "Your melee touch attack deals 1d6 points of cold damage + 1 point per level (max + 10), and the target is fatigued. This spell cannot make a creature exhausted even if it is already fatigued. You can use this melee touch attack up to one time per level.",
+                                      "Frostbite",
+                                      "Your melee touch attack deals 1d6 points of cold damage + 1 point per level (max + 10), and the target is fatigued. This spell cannot make a creature exhausted even if it is already fatigued. You can use this melee touch attack up to one time per caster level.",
                                       "",
                                       buff.Icon,
                                       AbilityType.Spell,

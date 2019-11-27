@@ -145,7 +145,6 @@
     <Compile Include="Classes\VindicativeBastard.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="Enchantments\WeaponEnchantments.cs" />
-    <Compile Include="FavoredClass.cs" />
     <Compile Include="GlobalMap.cs" />
     <Compile Include="Hexes\ShamanHexes.cs" />
     <Compile Include="Inquisitions.cs" />

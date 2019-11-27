@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    partial class MysteryEngine
+    public partial class MysteryEngine
     {
         static LibraryScriptableObject library => Main.library;
         BlueprintCharacterClass[] classes;
