@@ -339,6 +339,7 @@ namespace CallOfTheWild
                                                    (library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional).IfTrue ,
                                                  };
             //no need to fix dreadful carnage since it uses dazzling display
+            //no need to fix warpriest glory blessing demoralize since it will be automatically picked from cornugon smash
             foreach (var display in displays)
             {
                 var demoralize = (display.Actions[0] as Demoralize);
