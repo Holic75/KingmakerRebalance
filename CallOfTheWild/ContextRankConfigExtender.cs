@@ -16,6 +16,7 @@ namespace CallOfTheWild
         None,
         MasterClassLevel, //ClassLevel or Master class level if pet
         MasterMaxClassLevelWithArchetype, //MaxClassLevelWithArchetype or Master class level if pet
+        MasterFeatureRank,
     }
 
     public static partial class Extensions
@@ -93,7 +94,8 @@ namespace CallOfTheWild
             }
         }
 
-        static bool Prefix(ContextRankConfig __instance, MechanicsContext context, ContextRankBaseValueType ___m_BaseValueType, ref int __result)
+        static bool Prefix(ContextRankConfig __instance, MechanicsContext context, ContextRankBaseValueType ___m_BaseValueType,
+                           BlueprintFeature ___m_Feature, ref int __result)
         {
             if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType()
                 || ___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType())
@@ -102,6 +104,18 @@ namespace CallOfTheWild
                 var caster = context.MaybeCaster;
 
                 __result = rankBonus1 + getMasterRank(caster.Descriptor, __instance);
+                return false;
+            }
+            else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterFeatureRank.ToContextRankBaseValueType())
+            {
+                if (context.MaybeCaster.Descriptor.IsPet)
+                {
+                    __result =  context.MaybeCaster.Descriptor.Master.Value.Descriptor.Progression.Features.GetRank(___m_Feature);
+                }
+                else
+                {
+                    __result = context.MaybeCaster.Descriptor.Progression.Features.GetRank(___m_Feature);
+                }
                 return false;
             }
             else

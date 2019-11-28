@@ -3151,5 +3151,23 @@ namespace CallOfTheWild
         }
 
 
+
+        public static BlueprintFeature  createAddFeatToAnimalCompanion(BlueprintFeature feat, string guid)
+        {
+            var add_feat_ac = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion>();
+            add_feat_ac.Feature = feat;
+
+            var feature = Helpers.CreateFeature("Add" + feat.name,
+                                                feat.Name,
+                                                feat.Description,
+                                                guid,
+                                                feat.Icon,
+                                                FeatureGroup.None,
+                                                add_feat_ac);
+            feature.Ranks = feat.Ranks;
+            return feature;
+        }
+
+
     }
 }

@@ -158,6 +158,29 @@ namespace CallOfTheWild
 
             createWeaponShift();
             createMutatedShape();
+
+
+            createFavoredClassNaturalAcBonus();
+        }
+
+
+        static void createFavoredClassNaturalAcBonus()
+        {
+            var icon = library.Get<BlueprintFeature>("c4d651bc0d4eabd41b08ee81bfe701d8").Icon; //wildshape
+
+            var natural_ac_feature = Helpers.CreateFeature("DruidWildshapeNaturalAcFeature",
+                                                           "Wildshape Natural AC Bonus",
+                                                           "Add +1/3 to the druid’s natural armor bonus when using wild shape.",
+                                                           "38ac98295f614fc394e74a444d03c67d",
+                                                           icon,
+                                                           FeatureGroup.None);
+            natural_ac_feature.Ranks = 6;
+            foreach (var shape in druid_wild_shapes)
+            {
+                shape.AddComponents(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, rankType: AbilityRankType.ProjectilesCount),
+                                    Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount, baseValueType: ContextRankBaseValueType.FeatureRank, feature: natural_ac_feature)
+                                   );
+            }                                        
         }
 
         static void createMutatedShape()
