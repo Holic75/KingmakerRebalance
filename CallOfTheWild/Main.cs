@@ -171,6 +171,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSpellRanges();
                     CallOfTheWild.Rebalance.fixJudgments();
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
+                    CallOfTheWild.Rebalance.fixNeclaceOfDoubleCrosses();
                     
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();

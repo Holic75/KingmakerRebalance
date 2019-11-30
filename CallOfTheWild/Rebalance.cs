@@ -273,7 +273,10 @@ namespace CallOfTheWild
 
             //change linzi
             var linzi_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("77c11edb92ce0fd408ad96b40fd27121");
-            linzi_companion.Dexterity = 16;
+            linzi_companion.Dexterity = 15;
+            linzi_companion.Charisma = 16;
+            linzi_companion.Constitution = 12;
+            linzi_companion.Strength = 11;
             //change octavia
             var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
             octavia_companion.Dexterity = 16;
@@ -287,16 +290,19 @@ namespace CallOfTheWild
             //change ekun
             var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
             ekun_companion.Strength = 14;
-            ekun_companion.Constitution = 10;
-            ekun_companion.Dexterity = 18;
+            ekun_companion.Constitution = 12;
+            ekun_companion.Dexterity = 17;
             ekun_companion.Wisdom = 14;
-            ekun_companion.Charisma = 8;
+            ekun_companion.Charisma = 10;
             var ekun_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0bc6dc9b6648a744899752508addae8c");
             var ekun_class_level = ekun_feature.GetComponent<AddClassLevels>();
             ekun_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;
             //change jubilost
             var jubilost_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("3f5777b51d301524c9b912812955ee1e");
             jubilost_companion.Dexterity = 16;
+            jubilost_companion.Wisdom = 10;
+            jubilost_companion.Intelligence = 17;
+            jubilost_companion.Constitution = 12;
             //change nok-nok
             var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
             noknok_companion.Constitution = 14;
@@ -835,6 +841,14 @@ namespace CallOfTheWild
             {
                 Helpers.SetField(f, "m_CriticalModifier", 3);
             }
+        }
+
+
+        internal static void fixNeclaceOfDoubleCrosses()
+        {
+            var neclace_feature = library.Get<BlueprintFeature>("64d5a59feeb292e49a6c459fe37c3953");
+            var sneak = neclace_feature.GetComponent<AdditionalSneakDamageOnHit>();
+            Helpers.SetField(sneak, "m_Weapon", 1);
         }
 
 

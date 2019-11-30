@@ -947,7 +947,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddStatBonus(StatType.SaveReflex, -2, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -2, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
-                                          Common.createAttackTypeAttackBonus(-2, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                          Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = -2; w.Descriptor = ModifierDescriptor.UntypedStackable; w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; }),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
                                           );
 
@@ -962,7 +962,7 @@ namespace CallOfTheWild
                                                   AbilityRange.Close,
                                                   Helpers.roundsPerLevelDuration,
                                                   Helpers.fortNegates,
-                                                  Helpers.CreateRunActions(apply_buff),
+                                                  Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(null, apply_buff)),
                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                   Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
@@ -4112,6 +4112,7 @@ namespace CallOfTheWild
                                               deadly_juggernaut.Icon,
                                               null,
                                               Common.createAttackTypeAttackBonus(Common.createSimpleContextValue(bonus), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.Luck),
+                                              Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = bonus; w.Descriptor = ModifierDescriptor.Luck; w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; }),
                                               Helpers.CreateAddStatBonus(StatType.AdditionalDamage, bonus, ModifierDescriptor.Luck),
                                               Common.createAbilityScoreCheckBonus(Common.createSimpleContextValue(bonus), ModifierDescriptor.Luck, StatType.Strength),
                                               Helpers.CreateAddStatBonus(StatType.SkillAthletics, bonus, ModifierDescriptor.Luck),
