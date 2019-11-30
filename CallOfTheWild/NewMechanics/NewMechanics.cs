@@ -1521,7 +1521,7 @@ namespace CallOfTheWild
                 if (__instance.StickyTouch != null)
                 {
                     var num_charges = __instance.Caster.Get<StickyTouchMechnics.UnitPartTouchMultipleCharges>();
-                    __result =  num_charges == null ? 1 : num_charges.getNumCharges();
+                    __result = num_charges == null ? 1 : num_charges.getNumCharges();
                     return false;
                 }
 
@@ -2537,7 +2537,7 @@ namespace CallOfTheWild
                 //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
                 var base_weapon_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.Damage : evt.Weapon.Blueprint.ScaleDamage(wielder_size);
                 DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : evt.WeaponDamageDiceOverride.Value;
-                
+
 
                 if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
                 {
@@ -4120,7 +4120,7 @@ namespace CallOfTheWild
                         if ((bool)maybeCaster.Descriptor.State.Features.FrighteningThug && num1 >= 4)
                             this.Target.Unit.Descriptor.AddBuff(this.GreaterBuff, context, new TimeSpan?(1.Rounds().Seconds));
                         Kingmaker.UnitLogic.Buffs.Buff buff1 = this.Target.Unit.Descriptor.AddBuff(this.Buff, context, new TimeSpan?(num1.Rounds().Seconds));
-                        if (this.ShatterConfidenceFeature!= null && !maybeCaster.Descriptor.HasFact(this.ShatterConfidenceFeature) || buff1 == null)
+                        if (this.ShatterConfidenceFeature != null && !maybeCaster.Descriptor.HasFact(this.ShatterConfidenceFeature) || buff1 == null)
                             return;
                         Kingmaker.UnitLogic.Buffs.Buff buff2 = this.Target.Unit.Descriptor.AddBuff(this.ShatterConfidenceBuff, context, new TimeSpan?(num1.Rounds().Seconds));
                         buff1.StoreFact((Fact)buff2);
@@ -4704,7 +4704,7 @@ namespace CallOfTheWild
 
         [Harmony12.HarmonyPatch(typeof(FactCollection))]
         [Harmony12.HarmonyPatch("HasFact", Harmony12.MethodType.Normal)]
-        [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintFact)})]
+        [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintFact) })]
         class FactCollection__HasFact__Patch
         {
 
@@ -4752,7 +4752,7 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-                
+
                 return caster.IsEngage(target);
             }
         }
@@ -4813,6 +4813,41 @@ namespace CallOfTheWild
                     return false;
                 }
                 return target.Descriptor.Progression.IsArchetype(archetype);
+            }
+        }
+
+
+
+        public class addSpellChoice : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+        {
+            [JsonProperty]
+            bool applied;
+            public BlueprintSpellList spell_list;
+            public int spell_level;
+            public BlueprintSpellbook spell_book;
+
+            public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+            {
+            }
+
+            public override void OnFactActivate()
+            {
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                    if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, 1 + existingNewSpells);
+                        applied = true;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
             }
         }
     }

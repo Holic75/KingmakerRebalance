@@ -3169,5 +3169,55 @@ namespace CallOfTheWild
         }
 
 
+        public static BlueprintSpellList combineSpellLists(params BlueprintSpellList[] spell_lists)
+        {
+            var spell_list = Helpers.Create<BlueprintSpellList>();
+            library.AddAsset(spell_list, "");
+            spell_list.SpellsByLevel = new SpellLevelList[10];
+            for (int i = 0; i < spell_list.SpellsByLevel.Length; i++)
+            {
+                spell_list.SpellsByLevel[i] = new SpellLevelList(i);
+            }
+
+
+            Dictionary<string, int> spell_guid_level_map = new Dictionary<string, int>();
+
+            foreach (var spell_list_i in spell_lists)
+            {
+                for (int i = 0; i < spell_list_i.SpellsByLevel.Length; i++)
+                {
+                    foreach (var s in spell_list_i.SpellsByLevel[i].Spells)
+                    if (!spell_guid_level_map.ContainsKey(s.AssetGuid) || spell_guid_level_map[s.AssetGuid] > spell_list_i.SpellsByLevel[i].SpellLevel)
+                    {
+                            spell_guid_level_map[s.AssetGuid] = spell_list_i.SpellsByLevel[i].SpellLevel;
+                    }
+                }
+            }
+
+            foreach (var spell_entry in spell_guid_level_map)
+            {
+                spell_list.SpellsByLevel[spell_entry.Value].Spells.Add(library.Get<BlueprintAbility>(spell_entry.Key));
+            }
+
+            return spell_list;
+        }
+
+
+        public static void excludeSpellsFromList(BlueprintSpellList base_list, BlueprintSpellList list_to_exclude)
+        {
+            foreach (var sbl in base_list.SpellsByLevel)
+            {
+                var all_spells = sbl.Spells.ToArray();
+                foreach (var s in all_spells)
+                {
+                    if (list_to_exclude.Contains(s))
+                    {
+                        sbl.Spells.Remove(s);
+                    }
+                }
+            }
+        }
+
+
     }
 }

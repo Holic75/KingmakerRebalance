@@ -894,7 +894,6 @@ namespace CallOfTheWild
             for (int i = 0; i < hunter_spellbook.SpellList.SpellsByLevel.Length; i++)
             {
                 hunter_spellbook.SpellList.SpellsByLevel[i] = new SpellLevelList(i);
-               
             }
             hunter_spellbook.SpellList.SpellsByLevel[0].SpellLevel = 0;
             /* hunter_spellbook.SpellList = library.CopyAndAdd<BlueprintSpellList>("29f3c338532390546bc5347826a655c4", //ranger spelllist

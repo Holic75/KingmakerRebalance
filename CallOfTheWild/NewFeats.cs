@@ -78,6 +78,7 @@ namespace CallOfTheWild
         static public BlueprintFeature dazing_assult;
         static public BlueprintFeature stunning_assult;
 
+        static public BlueprintFeature unsanctioned_knowledge;
 
         static internal void load()
         {
@@ -127,6 +128,51 @@ namespace CallOfTheWild
 
             createDazingAssault();
             createStunningAssault();
+
+            createUnsanctionedKnowledge();
+        }
+
+
+        static void createUnsanctionedKnowledge()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/UnsanctionedKnowledge.png");
+            var cleric_spell_list = library.Get<BlueprintSpellList>("8443ce803d2d31347897a3d85cc32f53");
+            var inquisitor_spell_list = library.Get<BlueprintSpellList>("57c894665b7895c499b3dce058c284b3");
+            var bard_spell_list = library.Get<BlueprintSpellList>("25a5013493bdcf74bb2424532214d0c8");
+
+            var combined_spell_list = Common.combineSpellLists(cleric_spell_list, inquisitor_spell_list, bard_spell_list);
+
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            Common.excludeSpellsFromList(combined_spell_list, paladin.Spellbook.SpellList);
+
+            unsanctioned_knowledge = Helpers.CreateFeature("UnsanctionedKnowledgeFeature",
+                                                            "Unsanctioned Knowledge",
+                                                            "Pick one 1st-level spell, one 2nd-level spell, one 3rd-level spell, and one 4th-level spell from the bard, cleric, inquisitor, or oracle spell lists. Add these spells to your paladin spell list as paladin spells of the appropriate level. Once chosen, these spells cannot be changed.",
+                                                            "",
+                                                            icon,
+                                                            FeatureGroup.Feat,
+
+                                                            Helpers.Create<NewMechanics.addSpellChoice>(a => { a.spell_book = paladin.Spellbook; a.spell_level = 1; a.spell_list = combined_spell_list; }),
+                                                            Helpers.Create<NewMechanics.addSpellChoice>(a => { a.spell_book = paladin.Spellbook; a.spell_level = 2; a.spell_list = combined_spell_list; }),
+                                                            Helpers.Create<NewMechanics.addSpellChoice>(a => { a.spell_book = paladin.Spellbook; a.spell_level = 3; a.spell_list = combined_spell_list; }),
+                                                            Helpers.Create<NewMechanics.addSpellChoice>(a => { a.spell_book = paladin.Spellbook; a.spell_level = 4; a.spell_list = combined_spell_list; }),
+                                                            Helpers.PrerequisiteStatValue(StatType.Intelligence, 13),
+                                                            Common.createPrerequisiteClassSpellLevel(paladin, 1)
+                                                            );
+
+            
+
+
+            var bastard_unsanctioned_knowledge = library.CopyAndAdd<BlueprintFeature>(NewFeats.unsanctioned_knowledge.AssetGuid, "VindictiveBastardUnsanctionedKnowledgeFeature", "");
+            bastard_unsanctioned_knowledge.ReplaceComponent<PrerequisiteClassSpellLevel>(p => p.CharacterClass = VindicativeBastard.vindicative_bastard_class);
+
+            foreach (var c in bastard_unsanctioned_knowledge.GetComponents<NewMechanics.addSpellChoice>())
+            {
+                c.spell_book = VindicativeBastard.vindicative_bastard_spellbook;
+            }
+
+            library.AddFeats(unsanctioned_knowledge, bastard_unsanctioned_knowledge);
+
         }
 
 

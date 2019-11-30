@@ -32,6 +32,8 @@ using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.UnitLogic;
+using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Items.Armors;
 
 namespace CallOfTheWild
 {
@@ -611,6 +613,10 @@ namespace CallOfTheWild
                                 );
             dr_buff_stalwart.SetBuffFlags(BuffFlags.HiddenInUi);
             increased_dr_stalwart.ComponentsArray = new BlueprintComponent[0];
+            //fix it to give dr2 as for unchained barb
+            increased_dr_stalwart.SetDescription("The stalwart defender's damage reduction from this class increases by 2/—. This increase is always active while the stalwart defender is in a defensive stance. He can select this power up to two times. Its effects stack. The stalwart defender must be at least 6th level before selecting this defensive power.");
+            dr_buff_stalwart.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] { increased_dr_stalwart, increased_dr_stalwart }));
+
 
             var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(defensive_stance_buff, dr_buff_stalwart, increased_dr_stalwart);
@@ -849,6 +855,39 @@ namespace CallOfTheWild
             var neclace_feature = library.Get<BlueprintFeature>("64d5a59feeb292e49a6c459fe37c3953");
             var sneak = neclace_feature.GetComponent<AdditionalSneakDamageOnHit>();
             Helpers.SetField(sneak, "m_Weapon", 1);
+        }
+
+
+        internal static void fixStalwartDefender()
+        {
+            var stalwart_defender = library.Get<BlueprintCharacterClass>("d5917881586ff1d4d96d5b7cebda9464");
+            var progression = library.Get<BlueprintProgression>("e93eabf4f9b48914c9d880dd41c06385");
+
+            stalwart_defender.AddComponent(Helpers.Create<PrerequisiteProficiency>(p => p.ArmorProficiencies = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Light, ArmorProficiencyGroup.Medium }));
+
+            var proficiency = library.CopyAndAdd<BlueprintFeature>("a23591cc77086494ba20880f87e73970", "StalwartDefenderProficiency", "");
+            proficiency.SetNameDescription("Stalwart Defender Proficiencies",
+                                           "A stalwart defender is proficient with all simple and martial weapons, all types of armor, and shields (including tower shields)."
+                                           );
+            progression.LevelEntries[0].Features.Add(proficiency);
+            //give it retroactively
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(stalwart_defender) >=1 && !unit.Progression.Features.HasFact(proficiency))
+                {
+                    unit.Progression.Features.AddFeature(proficiency);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
+
+
+            var internal_fortitude = library.Get<BlueprintFeature>("727fcc6ef87e568479ab9dc3a8a5dc6c");
+            internal_fortitude.ComponentsArray = new BlueprintComponent[0];
+            var internal_fortitude_buff = library.CopyAndAdd<BlueprintBuff>("21ff8159995fe194b81d89b1c83f33a3", "StalwartDefenderInternalFortitudeBuff", ""); //from rage
+
+            var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(defensive_stance_buff, internal_fortitude_buff, internal_fortitude);
+
         }
 
 
