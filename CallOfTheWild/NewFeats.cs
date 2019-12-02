@@ -146,7 +146,7 @@ namespace CallOfTheWild
             Common.excludeSpellsFromList(combined_spell_list, paladin.Spellbook.SpellList);
 
             unsanctioned_knowledge = Helpers.CreateFeature("UnsanctionedKnowledgeFeature",
-                                                            "Unsanctioned Knowledge",
+                                                            "Unsanctioned Knowledge (Paladin)",
                                                             "Pick one 1st-level spell, one 2nd-level spell, one 3rd-level spell, and one 4th-level spell from the bard, cleric, inquisitor, or oracle spell lists. Add these spells to your paladin spell list as paladin spells of the appropriate level. Once chosen, these spells cannot be changed.",
                                                             "",
                                                             icon,
@@ -165,7 +165,7 @@ namespace CallOfTheWild
 
             var bastard_unsanctioned_knowledge = library.CopyAndAdd<BlueprintFeature>(NewFeats.unsanctioned_knowledge.AssetGuid, "VindictiveBastardUnsanctionedKnowledgeFeature", "");
             bastard_unsanctioned_knowledge.ReplaceComponent<PrerequisiteClassSpellLevel>(p => p.CharacterClass = VindicativeBastard.vindicative_bastard_class);
-
+            bastard_unsanctioned_knowledge.SetName("Unsanctioned Knowledge (Vindictive Bastard)");
             foreach (var c in bastard_unsanctioned_knowledge.GetComponents<NewMechanics.addSpellChoice>())
             {
                 c.spell_book = VindicativeBastard.vindicative_bastard_spellbook;

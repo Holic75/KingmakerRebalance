@@ -199,7 +199,7 @@ namespace CallOfTheWild
         static void createVindicativeSmite()
         {
             vindicative_smite_buff = library.CopyAndAdd<BlueprintBuff>("b6570b8cbb32eaf4ca8255d0ec3310b0", "VindicativeSmiteBuff", "");
-            vindicative_smite_buff.SetName("Vindicative Smite");
+            vindicative_smite_buff.SetName("Vindictive Smite");
             vindicative_smite_buff.RemoveComponents<IgnoreTargetDR>();
 
             Common.addConditionToResoundingBlow(Common.createContextConditionHasBuffFromCaster(vindicative_smite_buff));
