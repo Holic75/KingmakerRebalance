@@ -1,5 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.PubSubSystem;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Mechanics;
@@ -86,6 +88,21 @@ namespace CallOfTheWild.ResourceMechanics
                 return false;
             }
             return unit.Descriptor.Resources.HasEnoughResource(resource, amount);
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    public class ContextIncreaseResourceAmount : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+    {
+        public ContextValue Value;
+        public BlueprintAbilityResource Resource;
+
+        public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
+        {
+            if (!this.Fact.Active || (resource != this.Resource))
+                return;
+            bonus += this.Value.Calculate(this.Fact.MaybeContext);
         }
     }
 

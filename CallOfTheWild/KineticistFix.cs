@@ -153,11 +153,12 @@ namespace CallOfTheWild
         static void fixBladeWhirlwindRange()
         {
             var blade_whirlwind = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
-            var range = blade_whirlwind.GetComponent<AbilityTargetsAround>();
-            Helpers.SetField(range, "m_Radius", 15.Feet());
-
-            var attack_in_range = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>(), blade_whirlwind.GetComponent<AbilityEffectRunAction>().Actions.Actions);
-            blade_whirlwind.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(attack_in_range));
+            //var range = blade_whirlwind.GetComponent<AbilityTargetsAround>();
+            // Helpers.SetField(range, "m_Radius", 15.Feet());
+            //var attack_in_range = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>(), blade_whirlwind.GetComponent<AbilityEffectRunAction>().Actions.Actions);
+            // blade_whirlwind.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(attack_in_range));
+            var attack_engaged = Helpers.Create<NewMechanics.ContextActionOnEngagedTargets>(c => c.actions = blade_whirlwind.GetComponent<AbilityEffectRunAction>().Actions);
+            blade_whirlwind.RemoveComponents<AbilityEffectRunAction>();
         }
 
 
@@ -306,7 +307,7 @@ namespace CallOfTheWild
             var add_whip = Common.createContextActionApplyBuff(kinetic_whip_buff, Helpers.CreateContextDuration(1), dispellable: false);
             whip_hurricane_ability.ReplaceComponent<AbilityExecuteActionOnCast>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionOnContextCaster(add_whip)));
             whip_hurricane_ability.ReplaceComponent<AbilityKineticist>(a => a.InfusionBurnCost = 4);
-            whip_hurricane_ability.ReplaceComponent<AbilityTargetsAround>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            //whip_hurricane_ability.ReplaceComponent<AbilityTargetsAround>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
             addBladeInfusionCostIncrease(whip_hurricane_ability);
 
 

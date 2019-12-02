@@ -3969,6 +3969,9 @@ namespace CallOfTheWild
         }
 
 
+
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddStatDifferenceBonus : OwnedGameLogicComponent<UnitDescriptor>
         {
@@ -4781,19 +4784,7 @@ namespace CallOfTheWild
         }
 
 
-        [AllowMultipleComponents]
-        public class ContextIncreaseResourceAmount : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
-        {
-            public ContextValue Value;
-            public BlueprintAbilityResource Resource;
 
-            public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
-            {
-                if (!this.Fact.Active || (resource != this.Resource))
-                    return;
-                bonus += this.Value.Calculate(this.Fact.MaybeContext);
-            }
-        }
 
 
         public class ContextConditionHasArchetype : ContextCondition
@@ -4850,5 +4841,34 @@ namespace CallOfTheWild
                 }
             }
         }
+
+
+        public class ContextActionOnEngagedTargets: ContextAction
+        {
+            public ActionList actions;
+
+            public override string GetCaption()
+            {
+                return string.Empty;
+            }
+
+            public override void RunAction()
+            {
+                if (actions == null)
+                {
+                    return;
+                }
+
+                foreach (UnitEntityData engagee in this.Target.Unit.CombatState.EngagedUnits)
+                {
+                    using (this.Context.GetDataScope((TargetWrapper)engagee))
+                    {
+                        this.actions.Run();
+                    }
+                }
+            }
+        }
+
+
     }
 }

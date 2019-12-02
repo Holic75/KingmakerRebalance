@@ -265,7 +265,7 @@ namespace CallOfTheWild
             extended_bane = library.CopyAndAdd<BlueprintFeature>("756dc2f7340b0b34285a1dc367ff7359", "ExtendedBaneFeature", "");
             extended_bane.SetNameDescription("Extended Bane", "Add your Wisdom bonus to the number of rounds per day that you can use your bane ability.");
             var old_increase = extended_bane.GetComponent<IncreaseResourceAmount>();
-            extended_bane.ReplaceComponent(old_increase, Helpers.Create<NewMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = old_increase.Resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }));
+            extended_bane.ReplaceComponent(old_increase, Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = old_increase.Resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }));
             extended_bane.AddComponents(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom),
                                         Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom));
 
