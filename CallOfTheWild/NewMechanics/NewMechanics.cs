@@ -4870,5 +4870,81 @@ namespace CallOfTheWild
         }
 
 
+        public class EnergyDamageTypeSpellBonus : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+        {
+            public DamageEnergyType energy_type;
+            public ContextValue value;
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null  || !context.SourceAbility.IsSpell)
+                    return;
+
+                var dmg = value.Calculate(this.Fact.MaybeContext);
+
+                foreach (BaseDamage baseDamage in evt.DamageBundle)
+                {
+                    
+                    var energy_damage = baseDamage as EnergyDamage;
+                    if (energy_damage == null)
+                    {
+                        continue;
+                    }
+
+                    if (energy_damage.EnergyType == energy_type)
+                    {
+                        energy_damage.AddBonus(dmg);
+                        return;
+                    }
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        public class SpellDescriptorDamageSpellBonus : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+        {
+            public SpellDescriptorWrapper SpellDescriptor;
+            public ContextValue value;
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null || !context.SourceAbility.IsSpell || !context.SpellDescriptor.HasAnyFlag((Kingmaker.Blueprints.Classes.Spells.SpellDescriptor)this.SpellDescriptor))
+                    return;
+
+                var dmg = value.Calculate(this.Fact.MaybeContext);
+                evt.DamageBundle.First?.AddBonus(dmg);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+        public class DamageAbilityBonus : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintAbility[] abilities;
+            public ContextValue value;
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null || !abilities.Contains(context.SourceAbility))
+                    return;
+
+                var dmg = value.Calculate(this.Fact.MaybeContext);
+                evt.DamageBundle.First?.AddBonus(dmg);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
     }
 }

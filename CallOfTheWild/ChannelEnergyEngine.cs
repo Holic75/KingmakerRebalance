@@ -319,7 +319,52 @@ namespace CallOfTheWild
                                                  );
                 c.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
             }
+            //create favored class bonuses for favored class mod
+
+            var feature_favored_all = Helpers.CreateFeature("ChannelFavoredClassBonusFeature",
+                                                            "Channel Energy Bonus",
+                                                            "Gain a +1/3 bonus on the damage dealt or healed with channel energy ability.",
+                                                            "59c3b881e1b549f79a76c1f28dea54f6",
+                                                             cleric_positive_heal.Icon,
+                                                             FeatureGroup.None);
+            feature_favored_all.Ranks = 6;
+
+            var feature_favored_undead = Helpers.CreateFeature("HarmUndeadFavoredClassBonusFeature",
+                                                                "Harm Undead Bonus",
+                                                                "Add +1/2 to damage when using positive energy against undead.",
+                                                                "8994cd3223f741248e64685248e715a3",
+                                                                 cleric_positive_harm.Icon,
+                                                                 FeatureGroup.None);
+            feature_favored_all.Ranks = 10;
+
+            var cleric_channels = new BlueprintAbility[] { cleric_negative_heal, cleric_positive_harm, cleric_negative_heal, cleric_negative_harm };
+
+            foreach (var ch in cleric_channels)
+            {
+                var actions = ch.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                actions = CallOfTheWild.Common.changeAction<ContextActionHealTarget>(actions, c => c.Value.BonusValue = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative));
+                actions = CallOfTheWild.Common.changeAction<ContextActionDealDamage>(actions, c => c.Value.BonusValue = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative));
+
+                ch.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, feature: feature_favored_all, type: AbilityRankType.DamageDiceAlternative));
+                if (ch == cleric_positive_harm)
+                {
+                    ch.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks,
+                                                                     featureList: new BlueprintFeature[] { feature_favored_undead, feature_favored_all },
+                                                                     type: AbilityRankType.DamageDiceAlternative));
+                }
+                else
+                {
+                    ch.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank,
+                                                                     feature: feature_favored_all,
+                                                                     type: AbilityRankType.DamageDiceAlternative));
+                }
+
+                ch.ReplaceComponent<AbilityEffectRunAction>(CallOfTheWild.Helpers.CreateRunActions(actions));
+            }
+
         }
+
+
 
 
         static public void addChannelResitance(BlueprintFeature new_cr)
@@ -1166,9 +1211,9 @@ namespace CallOfTheWild
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
                                                                                            check_weapon_range_type: true,
                                                                                            only_hit: false,
-                                                                                           on_initiator: true),
-                                           c.ability.GetComponent<ContextRankConfig>()
+                                                                                           on_initiator: true)
                                           );
+            buff.AddComponents(c.ability.GetComponents<ContextRankConfig>());
 
             var apply_buff = Common.createContextActionApplyBuff(buff,
                                                                  Helpers.CreateContextDuration(Common.createSimpleContextValue(1), Kingmaker.UnitLogic.Mechanics.DurationRate.Rounds),
