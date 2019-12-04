@@ -43,6 +43,8 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using static CallOfTheWild.NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph;
+using static Kingmaker.Blueprints.BlueprintUnit;
+using Kingmaker.Items.Slots;
 
 namespace CallOfTheWild
 {
@@ -1474,5 +1476,20 @@ namespace CallOfTheWild
                 buff.AddComponent(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell.CreateAddMechanics());
             }
         }
+
+
+        [Harmony12.HarmonyPatch(typeof(Kingmaker.Items.UnitBody))]
+        [Harmony12.HarmonyPatch("ApplyPolymorphEffect", Harmony12.MethodType.Normal)]
+        class Patch_FixPolymorphLockingTemporaryItems_UnitBody_ApplyPolymorphEffect
+        {
+            static public void Postfix(Kingmaker.Items.UnitBody __instance)
+            {
+                foreach (ItemSlot itemSlot in __instance.AllSlots)
+                {
+                    itemSlot.Lock.Release();
+                }
+            }
+        }
+
     }
 }
