@@ -2353,6 +2353,9 @@ namespace CallOfTheWild
         }
 
 
+
+
+
         [ComponentName("Replace attack stat for specific weapon")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AttackStatReplacementForWeaponCategory : RuleInitiatorLogicComponent<RuleCalculateAttackBonusWithoutTarget>
@@ -4942,6 +4945,101 @@ namespace CallOfTheWild
             }
 
             public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Weapon Damage Stat Replacement against fact owner")]
+        public class WeaponDamageStatReplacementAgainstFactOwner : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public StatType new_stat;
+            public BlueprintUnitFact fact;
+            public bool only_unarmed_or_feral_combat_training = false;
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.AttackWithWeapon == null)
+                {
+                    return;
+                }
+
+                if (!evt.AttackWithWeapon.Target.Descriptor.HasFact(fact))
+                {
+                    return;
+                }
+
+                if (only_unarmed_or_feral_combat_training && !FeralCombatTraining.checkHasFeralCombat(evt.Initiator, evt.AttackWithWeapon.Weapon))
+                {
+                    return;
+                }
+
+                var current_stat = evt.AttackWithWeapon.WeaponStats.DamageBonusStat;
+
+                if (!current_stat.HasValue || evt.Initiator.Stats.GetStat(current_stat.Value).ModifiedValue >= evt.Initiator.Stats.GetStat(new_stat).ModifiedValue)
+                {
+                    return;
+                }
+
+                evt.OverrideDamageBonusStat(new_stat);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        public class ContextActionAttackOfOpportunity : ContextAction
+        {
+            public override string GetCaption()
+            {
+                return "";
+            }
+
+            public override void RunAction()
+            {
+                if (this.Context.MaybeCaster == null || this.Target?.Unit == null)
+                {
+                    return;
+                }
+                Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Context.MaybeCaster, this.Target.Unit);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class JabbingStrikeDamageBonus : RuleInitiatorLogicComponent<RulePrepareDamage>
+        {
+            public BlueprintUnitFact target_buff;
+            public BlueprintUnitFact target_buff_master;
+            public BlueprintUnitFact master_fact;
+
+            public override void OnEventAboutToTrigger(RulePrepareDamage evt)
+            {
+                if (evt.DamageBundle.Empty())
+                {
+                    return;
+                }
+                if (!FeralCombatTraining.checkHasFeralCombat(evt.Initiator, evt.DamageBundle.Weapon))
+                {
+                    return;
+                }
+
+                int dmg_multiplier = evt.Initiator.Descriptor.HasFact(master_fact) ? 2 : 1;
+
+                if (evt.Target.Descriptor.HasFact(target_buff_master) && evt.Target.Descriptor.HasFact(target_buff))
+                {
+                    evt.DamageBundle.Add(evt.DamageBundle.FirstOrDefault().CreateTypeDescription().CreateDamage(new DiceFormula(dmg_multiplier * 2, DiceType.D6), 0));
+                }
+                else if (evt.Target.Descriptor.HasFact(target_buff))
+                {
+                    evt.DamageBundle.Add(evt.DamageBundle.FirstOrDefault().CreateTypeDescription().CreateDamage(new DiceFormula(dmg_multiplier, DiceType.D6), 0));
+                }
+            }
+
+            public override void OnEventDidTrigger(RulePrepareDamage evt)
             {
             }
         }

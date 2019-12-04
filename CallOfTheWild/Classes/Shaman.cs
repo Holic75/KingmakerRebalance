@@ -213,6 +213,8 @@ namespace CallOfTheWild
                 wandering_hex_selection.AllFeatures = hexes;
                 wandering_hex_selection.HideInCharacterSheetAndLevelUp = true;
 
+                progression.Classes = getShamanArray();
+                wandering_progression.Classes = getShamanArray();
             }
         }
 

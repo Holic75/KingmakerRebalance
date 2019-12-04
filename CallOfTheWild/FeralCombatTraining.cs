@@ -121,7 +121,9 @@ namespace CallOfTheWild
         static void fixAbilities()
         {
             BlueprintFeature[] flurry = new BlueprintFeature[] { library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), //lvl1
-                                                                 library.Get<BlueprintFeature>("a34b8a9fcc9024b42bacfd5e6b614bfa") //lvl11
+                                                                 library.Get<BlueprintFeature>("a34b8a9fcc9024b42bacfd5e6b614bfa"), //lvl11
+                                                                 Warpriest.flurry2_unlock,
+                                                                 Warpriest.flurry15_unlock
                                                                 };
             foreach (var b in flurry)
             {

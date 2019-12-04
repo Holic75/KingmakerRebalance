@@ -74,11 +74,14 @@ namespace CallOfTheWild
         static public BlueprintFeature hurtful;
         static public BlueprintFeature broken_wing_gambit;
         static public BlueprintFeature extended_bane;
-        //TODO:
+        
         static public BlueprintFeature dazing_assult;
         static public BlueprintFeature stunning_assult;
 
         static public BlueprintFeature unsanctioned_knowledge;
+
+        static public BlueprintFeature linnorm_style, linnorm_vengeance, linnorm_wrath;
+        static public BlueprintFeature jabbing_style, jabbing_dancer, jabbing_master;
 
         static internal void load()
         {
@@ -130,6 +133,230 @@ namespace CallOfTheWild
             createStunningAssault();
 
             createUnsanctionedKnowledge();
+            createLinnormStyleFeats();
+            createJabbingStyleFeats();
+        }
+
+
+        static void createJabbingStyleFeats()
+        {
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+            var dodge = library.Get<BlueprintFeature>("97e216dbb46ae3c4faef90cf6bbe6fd5");
+            var mobility = library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb");
+            var power_attack = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+
+            var jabbing_style_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/JabbingStyle.png");
+            var jabbing_dancer_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/JabbingDancer.png");
+            var jabbing_master_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/JabbingMaster.png");
+
+            var jabbing_dancer_buff = Helpers.CreateBuff("JabbingDancerBuff",
+                                                          "Jabbing Dancer",
+                                                          "If you hit an opponent with an unarmed strike while using Jabbing Style you receive + 10 bonus to your mobility until end of the round.",
+                                                          "",
+                                                          jabbing_dancer_icon,
+                                                          null,
+                                                          Helpers.CreateAddStatBonus(StatType.SkillMobility, 10, ModifierDescriptor.UntypedStackable)
+                                                          );
+            jabbing_dancer = Helpers.CreateFeature("JabbingDancerFeature",
+                                                   jabbing_dancer_buff.Name,
+                                                   jabbing_dancer_buff.Description,
+                                                   "",
+                                                   jabbing_dancer_buff.Icon,
+                                                   FeatureGroup.Feat,
+                                                   Helpers.PrerequisiteFeature(dodge),
+                                                   Helpers.PrerequisiteFeature(improved_unarmed_strike),
+                                                   Helpers.PrerequisiteFeature(mobility),
+                                                   Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 9, any: true),
+                                                   Helpers.PrerequisiteClassLevel(monk, 5, any: true)
+                                                   );
+            jabbing_dancer.Groups = jabbing_dancer.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.StyleFeat);
+
+            var apply_jabbing_dancer_buff = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(jabbing_dancer),
+                                                                      Common.createContextActionApplyBuffToCaster(jabbing_dancer_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                     );
+
+
+            var master_target_buff = Helpers.CreateBuff("JabbingMasterTargetBuff",
+                                                         "Jabbing Master Target",
+                                                         "While using Jabbing Style, the extra damage you deal when you hit a single target with two unarmed strikes increases to 2d6, and the extra damage when you hit a single target with three or more unarmed strikes increases to 4d6.",
+                                                         "",
+                                                         jabbing_master_icon,
+                                                         null);
+            master_target_buff.Stacking = StackingType.Stack;
+
+            var target_buff = Helpers.CreateBuff("JabbingStyleTargetBuff",
+                                                 "Jabbing Style Target",
+                                                 "When you hit a target with an unarmed strike and you have hit that target with an unarmed strike previously that round, you deal an extra 1d6 points of damage to that target.",
+                                                 "",
+                                                 jabbing_style_icon,
+                                                 null,
+                                                 Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffFromCaster(master_target_buff)));
+            target_buff.Stacking = StackingType.Stack;
+
+            var apply_target_buff = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(target_buff, not: true),
+                                                              Common.createContextActionApplyBuff(target_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                              );
+
+            jabbing_master = Helpers.CreateFeature("JabbingMasterFeature",
+                                                   "Jabbing Master",
+                                                   master_target_buff.Description,
+                                                   "",
+                                                   jabbing_master_icon,
+                                                   FeatureGroup.Feat,
+                                                   Helpers.PrerequisiteFeature(dodge),
+                                                   Helpers.PrerequisiteFeature(improved_unarmed_strike),
+                                                   Helpers.PrerequisiteFeature(mobility),
+                                                   Helpers.PrerequisiteFeature(power_attack),
+                                                   Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 12, any: true),
+                                                   Helpers.PrerequisiteClassLevel(monk, 8, any: true));
+            jabbing_master.Groups = jabbing_master.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.StyleFeat);
+
+            var apply_master_buff = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(jabbing_master), Common.createContextConditionHasBuffFromCaster(target_buff), Common.createContextConditionHasBuffFromCaster(master_target_buff, not: true) },
+                                                              Common.createContextActionApplyBuff(master_target_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                             );
+
+            var on_hit = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_target_buff, apply_master_buff, apply_jabbing_dancer_buff), wait_for_attack_to_resolve: true, check_weapon_range_type: true);
+            var buff = Helpers.CreateBuff("JabbingStyleBuff",
+                                          "Jabbing Style",
+                                          target_buff.Description,
+                                          "",
+                                          jabbing_style_icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.JabbingStrikeDamageBonus>(j => { j.target_buff = target_buff; j.target_buff_master = master_target_buff; j.master_fact = jabbing_master; }),
+                                          FeralCombatTraining.AddInitiatorAttackWithWeaponTriggerOrFeralTraining.fromAddInitiatorAttackWithWeaponTrigger(on_hit)
+                                          );
+
+            var jabbing_style_ability = Helpers.CreateActivatableAbility("JabbingStyleToggleAbility",
+                                                                         buff.Name,
+                                                                         buff.Description,
+                                                                         "",
+                                                                         buff.Icon,
+                                                                         buff,
+                                                                         AbilityActivationType.Immediately,
+                                                                         Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                                         null);
+            jabbing_style_ability.Group = ActivatableAbilityGroup.CombatStyle;
+
+            jabbing_style = Common.ActivatableAbilityToFeature(jabbing_style_ability, false);
+            jabbing_style.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.StyleFeat };
+
+            jabbing_style.AddComponents(Helpers.PrerequisiteFeature(improved_unarmed_strike),
+                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
+                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), any: true), //monk flurry
+                                        Helpers.PrerequisiteFeature(Warpriest.flurry2_unlock, any: true)
+                                        );
+
+            jabbing_dancer.AddComponent(Helpers.PrerequisiteFeature(jabbing_style));
+            jabbing_master.AddComponent(Helpers.PrerequisiteFeature(jabbing_style));
+
+            library.AddCombatFeats(jabbing_style, jabbing_dancer, jabbing_master);
+
+            Warpriest.sacred_fist_syle_feat_selection.AllFeatures = Warpriest.sacred_fist_syle_feat_selection.AllFeatures.AddToArray(jabbing_style, jabbing_dancer, jabbing_master);
+        }
+
+
+        static void createLinnormStyleFeats()
+        {
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+
+            var linnorm_style_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/LinnormStyle.png");
+            var linnorm_vengeance_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/LinnormVengeance.png");
+            var linnorm_wrath_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/LinnormWrath.png");
+            var target_buff = Helpers.CreateBuff("LinnormStyleTargetBuff",
+                                                 "Linnorm Style Target",
+                                                 "While using this style, you take a –2 penalty to your AC against melee attacks. After a creature makes a melee attack against you, you can choose to add your Wisdom bonus to the damage from your unarmed strikes against that creature, rather than your Strength bonus. If you can normally add your Dexterity bonus to the attack’s damage, you can instead replace it with your Wisdom bonus. This lasts until the beginning of the target creature’s next turn.",
+                                                 "",
+                                                 linnorm_style_icon,
+                                                 null);
+            var apply_target_buff = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(target_buff, not: true),
+                                      Common.createContextActionApplyBuff(target_buff, Helpers.CreateContextDuration(1), is_child:true, dispellable: false)
+                                      );
+
+
+            var vengeance_buff = Helpers.CreateBuff("LinnormVengeanceTargetBuff",
+                                                     "Linnorm Vengeance Target",
+                                                     "While you’re using the Linnorm Style feat and an enemy hits you with a melee attack, you gain a +2 bonus on unarmed strike attack rolls you make against that creature until the beginning of that creature’s next turn.",
+                                                     "",
+                                                     linnorm_vengeance_icon,
+                                                     null,
+                                                     Helpers.Create<AttackBonusAgainstTarget>(a => { a.CheckCaster = true; a.Value = 2; })
+                                                     );
+            vengeance_buff.Stacking = StackingType.Stack;
+            linnorm_vengeance = Helpers.CreateFeature("LinnormVengeanceFeature",
+                                                      "Linnorm Vengeance",
+                                                      vengeance_buff.Description,
+                                                      "",
+                                                      vengeance_buff.Icon,
+                                                      FeatureGroup.Feat,
+                                                      Helpers.PrerequisiteStatValue(StatType.Wisdom, 13),
+                                                      Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
+                                                      Helpers.PrerequisiteFeature(improved_unarmed_strike));
+            linnorm_vengeance.Groups = linnorm_vengeance.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.StyleFeat);
+
+            var apply_vengeance_buff = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(linnorm_vengeance), Common.createContextConditionHasBuffFromCaster(vengeance_buff, not: true) },
+                                                                 Common.createContextActionApplyBuff(vengeance_buff, Helpers.CreateContextDuration(1), is_child: true, dispellable: false)
+                                                                );
+
+            var cooldown_buff = Helpers.CreateBuff("LinnormWrathCooldownBuff",
+                                                     "Linnorm Wrath Cooldown",
+                                                     "When you use the Linnorm Style feat, you can make a retaliatory unarmed strike attack against an opponent that hits you once per round. This acts as an attack of opportunity, and counts against the number of attacks of opportunity you can make each round.",
+                                                     "",
+                                                     linnorm_wrath_icon,
+                                                     null);
+
+            linnorm_wrath = Helpers.CreateFeature("LinnormWrathFeature",
+                                          "Linnorm Wrath",
+                                          cooldown_buff.Description,
+                                          "",
+                                          cooldown_buff.Icon,
+                                          FeatureGroup.Feat,
+                                          Helpers.PrerequisiteStatValue(StatType.Wisdom, 13),
+                                          Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 9),
+                                          Helpers.PrerequisiteFeature(linnorm_vengeance),
+                                          Helpers.PrerequisiteFeature(improved_unarmed_strike));
+            linnorm_wrath.Groups = linnorm_vengeance.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.StyleFeat);
+
+            var make_aoo =  Helpers.CreateConditional(new Condition[] {Common.createContextConditionCasterHasFact(linnorm_wrath), Common.createContextConditionCasterHasFact(cooldown_buff, false) },
+                                                      new GameAction[]{Common.createContextActionApplyBuffToCaster(cooldown_buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                      Helpers.Create<NewMechanics.ContextActionAttackOfOpportunity>()
+                                                                     }
+                                                     );
+            var caster_buff = Helpers.CreateBuff("LinnormStyleCasterBuff",
+                                                 "Linnorm Style",
+                                                 "While using this style, you take a –2 penalty to your AC against melee attacks. After a creature makes a melee attack against you, you can choose to add your Wisdom bonus to the damage from your unarmed strikes against that creature, rather than your Strength bonus. If you can normally add your Dexterity bonus to the attack’s damage, you can instead replace it with your Wisdom bonus. This lasts until the beginning of the target creature’s next turn.",
+                                                 "",
+                                                 linnorm_style_icon,
+                                                 null,
+                                                 Helpers.Create<NewMechanics.WeaponDamageStatReplacementAgainstFactOwner>(w => { w.fact = target_buff; w.only_unarmed_or_feral_combat_training = true; w.new_stat = StatType.Wisdom; }),
+                                                 Common.createAddTargetAttackWithWeaponTrigger(null, Helpers.CreateActionList(apply_target_buff), only_hit: false, not_reach: false),
+                                                 Common.createAddTargetAttackWithWeaponTrigger(null, Helpers.CreateActionList(apply_vengeance_buff, make_aoo), only_hit: true, not_reach: false),
+                                                 Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable)
+                                                 );
+
+            var linnorm_style_ability = Helpers.CreateActivatableAbility("LinnormStyleToggleAbility",
+                                                                     caster_buff.Name,
+                                                                     caster_buff.Description,
+                                                                     "",
+                                                                     caster_buff.Icon,
+                                                                     caster_buff,
+                                                                     AbilityActivationType.Immediately,
+                                                                     Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                                     null,
+                                                                     Helpers.Create<FeralCombatTraining.AbilityCasterMainWeaponCheckOrFeralCombat>());
+            linnorm_style_ability.Group = ActivatableAbilityGroup.CombatStyle;
+
+            linnorm_style = Common.ActivatableAbilityToFeature(linnorm_style_ability, false);
+            linnorm_style.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.StyleFeat };
+            linnorm_style.AddComponents(Helpers.PrerequisiteStatValue(StatType.Wisdom, 13),
+                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 3),
+                                        Helpers.PrerequisiteFeature(improved_unarmed_strike));
+            linnorm_vengeance.AddComponent(Helpers.PrerequisiteFeature(linnorm_style));
+            linnorm_wrath.AddComponent(Helpers.PrerequisiteFeature(linnorm_style));
+
+            library.AddCombatFeats(linnorm_style, linnorm_vengeance, linnorm_wrath);
+
+            Warpriest.sacred_fist_syle_feat_selection.AllFeatures = Warpriest.sacred_fist_syle_feat_selection.AllFeatures.AddToArray(linnorm_style, linnorm_vengeance, linnorm_wrath);
         }
 
 

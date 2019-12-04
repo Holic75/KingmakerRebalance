@@ -46,7 +46,7 @@ New feats:
 - Guided Hand,
 - Spell Bane,
 - Planar Focus,
-- Weapon Shift, Improved Weapon Shift, Greater Weapon Shift 
+- Weapon Shift, Improved Weapon Shift, Greater Weapon Shift, 
 - Coordinated Shot,
 - Distracting Charge,
 - Target of Opportunity,
@@ -56,7 +56,9 @@ New feats:
 - Broken Wing Gambit,
 - Hurtful,
 - Dazing Assault,
-- Stunning Assault.
+- Stunning Assault,
+- Linnorm Style, Linnorm Vengeance, Linnorm Wrath,
+- Jabbing Style, Jabbing Dancer, Jabbing Master.
 
 New rage powers:
 - Terrifying Howl

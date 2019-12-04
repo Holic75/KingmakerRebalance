@@ -340,6 +340,25 @@ namespace CallOfTheWild
             apply_buff.UseDurationSeconds = duration_seconds > 0;
             apply_buff.DurationSeconds = duration_seconds;
             apply_buff.AsChild = is_child;
+            apply_buff.ToCaster = false;
+            return apply_buff;
+        }
+
+
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuffToCaster(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
+                                                                                                          bool is_child = false, bool is_permanent = false, bool dispellable = true,
+                                                                                                          int duration_seconds = 0)
+        {
+            var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
+            apply_buff.IsFromSpell = is_from_spell;
+            apply_buff.Buff = buff;
+            apply_buff.Permanent = is_permanent;
+            apply_buff.DurationValue = duration;
+            apply_buff.IsNotDispelable = !dispellable;
+            apply_buff.UseDurationSeconds = duration_seconds > 0;
+            apply_buff.DurationSeconds = duration_seconds;
+            apply_buff.AsChild = is_child;
+            apply_buff.ToCaster = true;
             return apply_buff;
         }
 
@@ -2866,6 +2885,42 @@ namespace CallOfTheWild
             }
 
             return actions.ToArray();
+        }
+
+
+        public static List<T> extractActions<T>(GameAction[] action_list) where T : GameAction
+        {
+            //we assume that only possible actions are actual actions, conditionals, ContextActionSavingThrow or ContextActionConditionalSaved
+            var found_actions = new List<T>();
+
+            for (int i = 0; i < action_list.Length; i++)
+            {
+                if (action_list[i] == null)
+                {
+                    continue;
+                }
+                else if (action_list[i] is T)
+                {
+                    found_actions.Add(action_list[i] as T);
+                }
+
+                if (action_list[i] is Conditional)
+                {
+                    found_actions.AddRange(extractActions<T>((action_list[i] as Conditional).IfTrue.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as Conditional).IfFalse.Actions));
+                }
+                else if (action_list[i] is ContextActionConditionalSaved)
+                {
+                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionConditionalSaved).Succeed.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionConditionalSaved).Failed.Actions));
+                }
+                else if (action_list[i] is ContextActionSavingThrow)
+                {
+                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionSavingThrow).Actions.Actions));
+                }
+            }
+
+            return found_actions;
         }
 
 
