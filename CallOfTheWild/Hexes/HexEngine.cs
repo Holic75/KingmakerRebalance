@@ -323,19 +323,12 @@ namespace CallOfTheWild
                                                     AbilityRange.Close,
                                                     Helpers.roundsPerLevelDuration,
                                                     sleep_spell.LocalizedSavingThrow);
-            hex_ability.CanTargetPoint = false;
-            hex_ability.CanTargetEnemies = true;
-            hex_ability.CanTargetFriends = test_mode;
-            hex_ability.CanTargetSelf = test_mode;
-            hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
-            hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
-            hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
-            target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
-                                                                    library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
-                                                                  };
-            target_checker.Inverted = true;
-            hex_ability.AddComponent(target_checker);
+            hex_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            hex_ability.AddComponent(Common.createAbilityTargetHasFact(true,
+                                                                       library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
+                                                                       library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
+                                                                       )
+                                    );
             hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
            
             var action = (Common.createContextActionSavingThrow(SavingThrowType.Will, 
@@ -952,6 +945,11 @@ namespace CallOfTheWild
             hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
             hex_ability.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Nauseated));
 
+            hex_ability.AddComponent(Common.createAbilityTargetHasFact(true,
+                                                                       library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
+                                                                       library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
+                                                                       )
+                                    );
             addWitchHexCooldownScaling(hex_ability, cooldown_guid);
 
             var agony = Helpers.CreateFeature(name_prefix + "HexFeature",
@@ -1567,21 +1565,12 @@ namespace CallOfTheWild
                                                     "Permanent",
                                                     sleep_spell.LocalizedSavingThrow);
 
-            hex_ability.Range = AbilityRange.Touch;
-            hex_ability.CanTargetPoint = false;
-            hex_ability.CanTargetEnemies = true;
-            hex_ability.CanTargetFriends = test_mode;
-            hex_ability.CanTargetSelf = test_mode;
-            hex_ability.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
-            hex_ability.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
-            hex_ability.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
-
-            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
-            target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
-                                                                    library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
-                                                                  };
-            target_checker.Inverted = true;
-            hex_ability.AddComponent(target_checker);
+            hex_ability.setMiscAbilityParametersTouchHarmful(test_mode);
+            hex_ability.AddComponent(Common.createAbilityTargetHasFact(true,
+                                                                       library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
+                                                                       library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
+                                                                       )
+                                    );
             hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
        
             var action = Common.createContextActionSavingThrow(SavingThrowType.Will,
