@@ -1491,5 +1491,19 @@ namespace CallOfTheWild
             }
         }
 
+
+        [Harmony12.HarmonyPatch(typeof(Kingmaker.Items.UnitBody))]
+        [Harmony12.HarmonyPatch("CancelPolymorphEffect", Harmony12.MethodType.Normal)]
+        class Patch_FixPolymorphLockingTemporaryItems_
+        {
+            static public void Prefix(Kingmaker.Items.UnitBody __instance)
+            {
+                foreach (ItemSlot itemSlot in __instance.AllSlots)
+                {
+                    itemSlot.Lock.Retain();
+                }
+            }
+        }
+
     }
 }

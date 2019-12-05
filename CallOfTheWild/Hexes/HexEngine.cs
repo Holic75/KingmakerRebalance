@@ -968,6 +968,72 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createRestlessSlumber(string name_prefix, string display_name, string description)
+        {
+            var icon = library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0").Icon; //feat
+            var sleep_spell = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
+            var dominate_spell = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
+            var sleep_buff = library.CopyAndAdd<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a", name_prefix + "WitchHexBuff", "");
+            var confusion_buff = library.Get<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df");
+
+            var hex_ability = Helpers.CreateAbility(name_prefix + "HexAbility",
+                                                    display_name,
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Supernatural,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Close,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    sleep_spell.LocalizedSavingThrow);
+            hex_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+
+            var remove_sleep = Helpers.Create<NewMechanics.AddIncomingDamageTriggerExceptAbility>(a =>
+                                                                                                {
+                                                                                                    a.Actions = sleep_buff.GetComponent<AddIncomingDamageTrigger>().Actions;
+                                                                                                    a.except_abilities = new BlueprintAbility[] { hex_ability };
+                                                                                                    a.TriggerOnStatDamageOrEnergyDrain = true;
+                                                                                                }
+                                                                                                );
+            sleep_buff.ReplaceComponent<AddIncomingDamageTrigger>(remove_sleep);
+            var deal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D10, 1, 0), IgnoreCritical: true);
+            var apply_confusion = Common.createContextActionApplyBuff(confusion_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+            sleep_buff.AddComponents(Helpers.CreateAddFactContextActions(newRound: deal_dmg, deactivated: apply_confusion),
+                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes, progression: ContextRankProgression.Div2));
+            sleep_buff.SetNameDescriptionIcon(display_name, description, icon);
+
+
+            var target_checker = Helpers.Create<Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetHasFact>();
+            target_checker.CheckedFacts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct
+                                                                    library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33") //undead
+                                                                  };
+            target_checker.Inverted = true;
+            hex_ability.AddComponent(target_checker);
+            hex_ability.AddComponent(dominate_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+
+
+            var action = (Common.createContextActionSavingThrow(SavingThrowType.Will,
+                          Helpers.CreateActionList(Common.createContextSavedApplyBuff(sleep_buff, DurationRate.Rounds, is_from_spell: true, is_dispellable: false))));
+            hex_ability.AddComponent(Helpers.CreateRunActions(action));
+            hex_ability.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes));
+            hex_ability.AddComponent(sleep_spell.GetComponent<Kingmaker.Blueprints.Classes.Spells.SpellDescriptorComponent>());
+            hex_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetCasterHDDifference>(a => a.difference = 0));
+            var hex_cooldown = addWitchHexCooldownScaling(hex_ability, "");
+            var hex = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                      hex_ability.Name,
+                                                      hex_ability.Description,
+                                                      "",
+                                                      hex_ability.Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFact(hex_ability));
+            addMajorHexPrerequisite(hex);
+            hex.Ranks = 1;
+            addToAmplifyHex(hex_ability);
+            //addToSplitHex(hex_ability, true);
+            return hex;
+        }
+
+
         public BlueprintFeature createBeastGift(string name_prefix, string display_name, string description, string ability_guid, string buff_guid,
                                                  string feature_guid, string cooldown_guid)
         {

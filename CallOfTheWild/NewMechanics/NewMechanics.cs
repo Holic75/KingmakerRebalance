@@ -2232,6 +2232,52 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ForceMissAttackAndPerformAction : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public bool OnlyFirstAttack;
+            public bool OnlyFullAttack;
+            public ActionList action;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.RuleAttackWithWeapon == null)
+                {
+                    return;
+                }
+                
+                if (OnlyFirstAttack && !evt.RuleAttackWithWeapon.IsFirstAttack)
+                {
+                    return;
+                }
+
+                if (OnlyFullAttack && !evt.RuleAttackWithWeapon.IsFullAttack)
+                {
+                    return;
+                }
+
+                evt.AutoMiss = true;               
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, (TargetWrapper)evt.Target);
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class CriticalConfirmationBonusAgainstALignment : RuleInitiatorLogicComponent<RuleAttackRoll>
         {
@@ -5041,6 +5087,85 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RulePrepareDamage evt)
             {
+            }
+        }
+
+
+        public class AddIncomingDamageTriggerExceptAbility : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, ITargetRulebookHandler<RuleDealStatDamage>, ITargetRulebookHandler<RuleDrainEnergy>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber, IRulebookHandler<RuleDealStatDamage>, IRulebookHandler<RuleDrainEnergy>
+        {
+            public ActionList Actions;
+            public bool TriggerOnStatDamageOrEnergyDrain;
+            public BlueprintAbility[] except_abilities;
+
+            private void RunAction()
+            {
+                if (!this.Actions.HasActions)
+                    return;
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, (TargetWrapper)this.Owner.Unit);
+            }
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                if (evt.SourceAbility != null && except_abilities.Contains(evt.SourceAbility))
+                {
+                    return;
+                }
+                this.RunAction();
+            }
+
+            public void OnEventAboutToTrigger(RuleDealStatDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealStatDamage evt)
+            {
+                if (!this.TriggerOnStatDamageOrEnergyDrain)
+                    return;
+                this.RunAction();
+            }
+
+            public void OnEventAboutToTrigger(RuleDrainEnergy evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDrainEnergy evt)
+            {
+                if (!this.TriggerOnStatDamageOrEnergyDrain)
+                    return;
+                this.RunAction();
+            }
+        }
+
+
+        public class TwoWeaponFightingRestriction : ActivatableAbilityRestriction
+        {
+
+            public override bool IsAvailable()
+            {
+                if (Owner.Body.IsPolymorphed)
+                {
+                    return false;
+                }
+
+              
+                var weapon1 = Owner.Body.PrimaryHand.HasWeapon ? Owner.Body.PrimaryHand.MaybeWeapon : null;
+                var weapon2 = Owner.Body.SecondaryHand.HasWeapon ? Owner.Body.SecondaryHand.MaybeWeapon : null;
+
+                if (weapon1 == null || weapon2 == null)
+                {
+                    return false;
+                }
+
+                if (weapon1.Blueprint.IsNatural || weapon2.Blueprint.IsNatural)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
 

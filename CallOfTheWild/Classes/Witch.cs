@@ -73,7 +73,7 @@ namespace CallOfTheWild
         static public BlueprintFeature ice_tomb;
         static public BlueprintFeature regenerative_sinew;
         static public BlueprintFeature retribution;
-        // restless slumber? withering ?
+        static public BlueprintFeature restless_slumber;
         // grand hexes
         static public BlueprintFeature animal_servant;
         static public BlueprintFeature death_curse;
@@ -495,6 +495,7 @@ namespace CallOfTheWild
             createWard();
             createSwampsGrasp();
 
+            createRestlessSlumber();
             createMajorHealing();
             createMajorAmeliorating();
             createAnimalSkin();
@@ -521,7 +522,7 @@ namespace CallOfTheWild
                                                            null,
                                                            FeatureGroup.None);
             hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle, ward, swamps_grasp,
-                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew, retribution,
+                                                              major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew, retribution, restless_slumber,
                                                               animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
         }
@@ -1335,6 +1336,16 @@ namespace CallOfTheWild
                                                       "",
                                                       "",
                                                       "3c7752fbba7949dfb8ff07044c4db11d");
+        }
+
+
+        static void createRestlessSlumber()
+        {
+            restless_slumber = hex_engine.createRestlessSlumber("RestlessSlumber", "Restless Slumber",
+                                                   "The witch causes a creature within 30 feet to fall into a sleep riddled with nightmares. This functions as the slumber hex. Additionally, the restless nature of the sleep causes the creature to violently toss and turn, dealing 1d10 points of damage to itself each turn.\n"
+                                                    + "This damage does not wake the creature. When it wakes, the creature’s addled state causes it to be confused for a number of rounds equal to half the witch’s level. The witch must have the slumber hex to select this hex."
+                                                   );
+            restless_slumber.AddComponent(Helpers.PrerequisiteFeature(slumber_hex));
         }
 
 
