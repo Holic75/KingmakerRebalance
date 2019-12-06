@@ -135,6 +135,16 @@ namespace CallOfTheWild
             createUnsanctionedKnowledge();
             createLinnormStyleFeats();
             createJabbingStyleFeats();
+            fixKineticKnightCombatExpertiseReplacement();
+        }
+
+
+        static void fixKineticKnightCombatExpertiseReplacement()
+        {
+            //make universal, that I no longer need to specify kinetic warrior as alternative to combat expertise for new feats
+            var kinetic_warrior = library.Get<BlueprintFeature>("ff14cb2bfab1c0547be66d8aaa7e4ada");
+            var combat_expertise = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a");
+            combat_expertise.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = kinetic_warrior));
         }
 
 

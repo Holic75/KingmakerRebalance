@@ -412,7 +412,7 @@ namespace CallOfTheWild
             var activatable_ability = Helpers.CreateActivatableAbility("FieryRunesDischargeActivatableAbility",
                                                                        "Fiery Runes: Discharge",
                                                                        "You charge a target with a magic rune of fire.\n"
-                                                                       + "When the it successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d4 + 1 points of fire damage to the target.This damage isn’t multiplied on a critical hit.\n"
+                                                                       + "When the it successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d4 + 1 points of fire damage to the target. This damage isn’t multiplied on a critical hit.\n"
                                                                        + "For every 2 caster levels beyond 3rd the caster possesses, the rune deals an additional 1d4 + 1 points of fire damage (2d4 + 2 at caster level 5th, 3d4 + 3 at 7th, and so on) to a maximum of 5d4 + 5 points of fire damage at caster level 11th.",
                                                                        "",
                                                                        icon,
