@@ -2232,50 +2232,7 @@ namespace CallOfTheWild
         }
 
 
-        [AllowMultipleComponents]
-        [AllowedOn(typeof(BlueprintUnitFact))]
-        public class ForceMissAttackAndPerformAction : RuleInitiatorLogicComponent<RuleAttackRoll>
-        {
-            public bool OnlyFirstAttack;
-            public bool OnlyFullAttack;
-            public ActionList action;
 
-            private MechanicsContext Context
-            {
-                get
-                {
-                    MechanicsContext context = (this.Fact as Buff)?.Context;
-                    if (context != null)
-                        return context;
-                    return (this.Fact as Feature)?.Context;
-                }
-            }
-
-            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
-            {
-                if (evt.RuleAttackWithWeapon == null)
-                {
-                    return;
-                }
-                
-                if (OnlyFirstAttack && !evt.RuleAttackWithWeapon.IsFirstAttack)
-                {
-                    return;
-                }
-
-                if (OnlyFullAttack && !evt.RuleAttackWithWeapon.IsFullAttack)
-                {
-                    return;
-                }
-
-                evt.AutoMiss = true;               
-                (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, (TargetWrapper)evt.Target);
-            }
-
-            public override void OnEventDidTrigger(RuleAttackRoll evt)
-            {
-            }
-        }
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -3542,7 +3499,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (attack_with_weapon.IsCharge || attack_with_weapon.AttacksCount != 1 || attack_with_weapon.IsAttackOfOpportunity)
+                if (attack_with_weapon.IsCharge || attack_with_weapon.AttacksCount != 1 || attack_with_weapon.IsAttackOfOpportunity || attack_with_weapon.IsFullAttack)
                 {
                     return;
                 }
@@ -3575,7 +3532,7 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
             {
-                if (evt.IsCharge || evt.AttacksCount != 1 || evt.IsAttackOfOpportunity)
+                if (evt.IsCharge || evt.AttacksCount != 1 || evt.IsAttackOfOpportunity || evt.IsFullAttack)
                 {
                     return;
                 }

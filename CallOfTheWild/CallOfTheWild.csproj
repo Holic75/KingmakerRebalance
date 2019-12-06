@@ -151,6 +151,7 @@
     <Compile Include="KineticistFix.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
+    <Compile Include="NewMechanics\AttackReplacement.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="FeralCombatTraining.cs" />
