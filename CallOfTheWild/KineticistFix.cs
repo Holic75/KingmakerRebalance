@@ -158,7 +158,10 @@ namespace CallOfTheWild
             //var attack_in_range = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>(), blade_whirlwind.GetComponent<AbilityEffectRunAction>().Actions.Actions);
             // blade_whirlwind.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(attack_in_range));
             var attack_engaged = Helpers.Create<NewMechanics.ContextActionOnEngagedTargets>(c => c.actions = blade_whirlwind.GetComponent<AbilityEffectRunAction>().Actions);
-            blade_whirlwind.RemoveComponents<AbilityEffectRunAction>();
+            blade_whirlwind.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(attack_engaged));
+            blade_whirlwind.RemoveComponents<AbilityTargetsAround>();
+            blade_whirlwind.NeedEquipWeapons = true;
+            blade_whirlwind.AddComponent(CallOfTheWild.Helpers.Create<NewMechanics.AttackAnimation>());
         }
 
 
