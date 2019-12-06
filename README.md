@@ -206,7 +206,8 @@ enchanced attacks (optional),
 - fixes ecclesitheurge to be as per pnp rules (no bonus skill point, no channel energy damage increase at level 3) (optional),
 - when using kinetic healer ability, burn cost can be optionally offloaded to the target,
 - Kinetic Knights now receive Blade Rush infusion at level 3, Kinetic Whip infusion at level 5, Whip Hurricane infusion at level 11 and Swift Blade Rush infusion at level 13 for free,
-- When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses.
+- When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses,
+- Increased damage reduction defensive power increase dr by 2 instead of 1 9to make it similar to unchained barbarian rage power)
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -218,7 +219,8 @@ Original game bug fixes:
 - radius of teamwork feats that require "adjacent" allies changed to 5 feet (instead of 5 meters) (optional)
 - Invulnerable rager extreme endurance bonus no longer scales exponentially,
 - Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats,
-- Fixes incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities.
+- Fixes incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities,
+- Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/16/8/10/15
