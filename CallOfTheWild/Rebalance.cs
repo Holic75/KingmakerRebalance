@@ -888,6 +888,18 @@ namespace CallOfTheWild
             var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(defensive_stance_buff, internal_fortitude_buff, internal_fortitude);
 
+            //remove second improved uncanny dodge
+
+            var new_level_entries = new List<LevelEntry>();
+
+            foreach (var level_entry in progression.LevelEntries)
+            {
+                if (level_entry.Level != 9)
+                {
+                    new_level_entries.Add(level_entry);
+                }
+            }
+            progression.LevelEntries = new_level_entries.ToArray();
         }
 
 
