@@ -226,7 +226,7 @@ namespace CallOfTheWild
                                                               Common.createContextActionApplyBuff(master_target_buff, Helpers.CreateContextDuration(1), dispellable: false)
                                                              );
 
-            var on_hit = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_target_buff, apply_master_buff, apply_jabbing_dancer_buff), wait_for_attack_to_resolve: true, check_weapon_range_type: true);
+            var on_hit = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_master_buff, apply_target_buff, apply_jabbing_dancer_buff), wait_for_attack_to_resolve: true, check_weapon_range_type: true);
             var buff = Helpers.CreateBuff("JabbingStyleBuff",
                                           "Jabbing Style",
                                           target_buff.Description,
@@ -252,9 +252,8 @@ namespace CallOfTheWild
             jabbing_style.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.StyleFeat };
 
             jabbing_style.AddComponents(Helpers.PrerequisiteFeature(improved_unarmed_strike),
-                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
-                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), any: true), //monk flurry
-                                        Helpers.PrerequisiteFeature(Warpriest.flurry2_unlock, any: true)
+                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6, any: true),
+                                        Helpers.PrerequisiteClassLevel(monk, 1, any: true)
                                         );
 
             jabbing_dancer.AddComponent(Helpers.PrerequisiteFeature(jabbing_style));

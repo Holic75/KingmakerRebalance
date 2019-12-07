@@ -57,6 +57,7 @@ New feats:
 - Hurtful,
 - Dazing Assault,
 - Stunning Assault,
+- Unsanctioned Knowledge,
 - Linnorm Style, Linnorm Vengeance, Linnorm Wrath,
 - Jabbing Style, Jabbing Dancer, Jabbing Master.
 

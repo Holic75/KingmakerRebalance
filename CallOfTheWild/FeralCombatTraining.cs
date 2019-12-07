@@ -182,18 +182,9 @@ namespace CallOfTheWild
             public bool OnlyOnFirstHit;
             public bool CriticalHit;
             public bool OnlySneakAttack;
-            public BlueprintWeaponType WeaponType;
-            public bool CheckWeaponCategory;
-            [ShowIf("CheckWeaponCategory")]
-            public WeaponCategory Category;
-            [ShowIf("CheckWeaponRangeType")]
-            public AttackTypeAttackBonus.WeaponRangeType RangeType;
             public bool ActionsOnInitiator;
             [Tooltip("For melee attacks only")]
             public bool ReduceHPToZero;
-            [ShowIf("CheckDistance")]
-            public Feet DistanceLessEqual;
-            public bool DuelistWeapon;
             public ActionList Action;
             private bool m_HadHit;
 
@@ -207,14 +198,8 @@ namespace CallOfTheWild
                 a.OnlyOnFirstHit = prototype.OnlyOnFirstHit;
                 a.CriticalHit = prototype.CriticalHit;
                 a.OnlySneakAttack = prototype.OnlySneakAttack;
-                a.WeaponType = prototype.WeaponType;
-                a.Category = prototype.Category;
-                a.CheckWeaponCategory = prototype.CheckWeaponCategory;
-                a.RangeType = prototype.RangeType;
                 a.ActionsOnInitiator = prototype.ActionsOnInitiator;
                 a.ReduceHPToZero = prototype.ReduceHPToZero;
-                a.DistanceLessEqual = prototype.DistanceLessEqual;
-                a.DuelistWeapon = prototype.DuelistWeapon;
                 a.Action = prototype.Action;
                 return a;
             }
@@ -262,7 +247,7 @@ namespace CallOfTheWild
                 ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
                 var unit = evt.Initiator;
                 if (owner != null && owner != evt.Weapon || this.OnlyHit && !evt.AttackRoll.IsHit 
-                    || (((bool)(this.WeaponType) && this.WeaponType != evt.Weapon.Blueprint.Type || this.CheckWeaponCategory && this.Category != evt.Weapon.Blueprint.Category) && !checkHasFeralCombat(unit, evt.Weapon))
+                    || !checkHasFeralCombat(unit, evt.Weapon)
                     || (this.CriticalHit && (!evt.AttackRoll.IsCriticalConfirmed || evt.AttackRoll.FortificationNegatesCriticalHit) || (this.OnlyOnFullAttack && !evt.IsFullAttack || this.OnlyOnFirstAttack && !evt.IsFirstAttack)) 
                     || (this.OnlyOnFirstHit && !evt.IsFullAttack || this.OnlyOnFirstHit && !evt.AttackRoll.IsHit || this.OnlyOnFirstHit && !evt.IsFirstAttack && this.m_HadHit)
                     )
@@ -279,8 +264,7 @@ namespace CallOfTheWild
                     this.m_HadHit = true;
                 if (this.OnlySneakAttack && (!evt.AttackRoll.IsSneakAttack || evt.AttackRoll.FortificationNegatesSneakAttack))
                     return false;
-                bool flag = evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Light) || evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.OneHandedPiercing) || (bool)evt.Initiator.Descriptor.State.Features.DuelingMastery && evt.Weapon.Blueprint.Category == WeaponCategory.DuelingSword || evt.Initiator.Descriptor.Ensure<DamageGracePart>().HasEntry(evt.Weapon.Blueprint.Category);
-                return !this.DuelistWeapon || flag;
+                return true;
             }
         }
 
