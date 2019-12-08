@@ -593,7 +593,7 @@ namespace CallOfTheWild
             rebuke = Helpers.CreateAbility("RebukeAbility",
                                            "Rebuke",
                                            "Your wrathful words cause physical harm to your enemies.\n"
-                                           + "Your enemies take 1d8 points of damage per two caster levels(maximum 5d8) and are staggered for 1 round.Half of this damage is sonic damage, but the other half results directly from divine power and is therefore not subject to being reduced by resistance to sonic - based attacks.Rebuke is especially devastating to foes who worship your god, inflicting 1d6 points of damage per caster level(maximum 10d6) and stunning them for 1d4 rounds.A successful Fortitude save halves the damage and negates the staggering or stunning effect.",
+                                           + "Your enemies take 1d8 points of damage per two caster levels(maximum 5d8) and are staggered for 1 round. Half of this damage is sonic damage, but the other half results directly from divine power and is therefore not subject to being reduced by resistance to sonic - based attacks.Rebuke is especially devastating to foes who worship your god, inflicting 1d6 points of damage per caster level(maximum 10d6) and stunning them for 1d4 rounds. A successful Fortitude save halves the damage and negates the staggering or stunning effect.",
                                            "",
                                            icon,
                                            AbilityType.Spell,
@@ -1252,7 +1252,7 @@ namespace CallOfTheWild
             var water_subtype = library.Get<BlueprintFeature>("bf7ee56ec9e43c14fa17727997e91993");
             var buff = Helpers.CreateBuff("FluidFormBuff",
                                             "Fluid Form",
-                                            "When you cast this spell, your body takes on a slick, oily appearance.For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment.You gain DR 10 / slashing and your reach increases by 10 feet.",
+                                            "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment.You gain DR 10 / slashing and your reach increases by 10 feet.",
                                             "",
                                             icon,
                                             Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
