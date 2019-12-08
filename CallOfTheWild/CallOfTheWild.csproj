@@ -170,6 +170,7 @@
     <Compile Include="NewMechanics\NewMechanics.cs" />
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
     <Compile Include="NewMechanics\OutgoingConcealementMechanics.cs" />
+    <Compile Include="NewMechanics\PrerequisiteMechanics.cs" />
     <Compile Include="NewMechanics\ResourceMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />
     <Compile Include="NewMechanics\SharedHandItems.cs" />
