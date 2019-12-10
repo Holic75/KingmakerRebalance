@@ -54,7 +54,9 @@ namespace CallOfTheWild
         static BlueprintBuff accursed_hex_buff;
 
         static public BlueprintFeature split_hex_feat;
+        static public BlueprintAbility split_hex_ability;
         static BlueprintBuff immune_to_split_hex_buff;
+        static public BlueprintFeature split_major_hex_feat;
 
         static public BlueprintFeature amplified_hex_feat;
         static BlueprintBuff amplified_hex_buff;
@@ -347,7 +349,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             slumber_hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
-            addToSplitHex(hex_ability, true);
+            addToSplitHex(hex_ability, slumber_hex, true);
             return slumber_hex;
         }
 
@@ -391,7 +393,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             misfortune_hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
-            addToSplitHex(hex_ability, true);
+            addToSplitHex(hex_ability, misfortune_hex, true);
             return misfortune_hex;
         }
 
@@ -433,7 +435,7 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFact(hex_ability));
             fortune_hex.Ranks = 1;
-            addToSplitHex(hex_ability);
+            addToSplitHex(hex_ability, fortune_hex);
             return fortune_hex;
         }
 
@@ -528,8 +530,8 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.CreateAddFacts(hex_ability));
             ameliorating.Ranks = 1;
-            addToSplitHex(hex_ability1);
-            addToSplitHex(hex_ability2);
+            addToSplitHex(hex_ability1, ameliorating);
+            addToSplitHex(hex_ability2, ameliorating);
             return ameliorating;
         }
 
@@ -538,6 +540,14 @@ namespace CallOfTheWild
                                               string feature_guid, string buff1_guid, string buff2_guid, string buff3_guid)
         {
             var eyebyte = library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642");
+
+            var evil_eye = Helpers.CreateFeature(name_prefix + "HexFeature",
+                              display_name,
+                              description,
+                              feature_guid,
+                              eyebyte.Icon,
+                              FeatureGroup.None
+                              );
 
             var context_value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
@@ -553,11 +563,11 @@ namespace CallOfTheWild
 
             BlueprintAbility[] evil_eye_variants = new BlueprintAbility[3];
             evil_eye_variants[0] = createEvilEyeComponent(name_prefix + "ACHex", $"{display_name} (AC Penalty)", description, abil1_guid, buff1_guid,
-                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[0], context_rank_config);
+                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, evil_eye, penalties[0], context_rank_config);
             evil_eye_variants[1] = createEvilEyeComponent(name_prefix + "AttackHex", $"{display_name} (Attack Rolls Penalty)", description, abil2_guid, buff2_guid,
-                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[1], context_rank_config);
+                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, evil_eye, penalties[1], context_rank_config);
             evil_eye_variants[2] = createEvilEyeComponent(name_prefix + "SavesHex", $"{display_name} (Saving Throws Penalty)", description, abil3_guid, buff3_guid,
-                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, penalties[2], penalties[3], penalties[4], context_rank_config);
+                                                     eyebyte.Icon, eyebyte.GetComponent<AbilitySpawnFx>().PrefabLink, evil_eye, penalties[2], penalties[3], penalties[4], context_rank_config);
             var evil_eye_ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                          display_name,
                                                          description,
@@ -580,21 +590,14 @@ namespace CallOfTheWild
             };
             SaveGameFix.save_game_actions.Add(save_game_fix);
 
-            var evil_eye = Helpers.CreateFeature(name_prefix + "HexFeature",
-                                          display_name,
-                                          description,
-                                          feature_guid,
-                                          eyebyte.Icon,
-                                          FeatureGroup.None,
-                                          Helpers.CreateAddFact(evil_eye_ability)
-                                          );
+            evil_eye.AddComponent(Helpers.CreateAddFact(evil_eye_ability));
             evil_eye.Ranks = 1;
             return evil_eye;
         }
 
 
         BlueprintAbility createEvilEyeComponent(string name, string display_name, string description, string guid, string buff_guid, UnityEngine.Sprite icon, PrefabLink prefab,
-                                                        params BlueprintComponent[] components)
+                                                        BlueprintFeature parent_feature, params BlueprintComponent[] components)
         {
             var buff = Helpers.CreateBuff(name + "Buff", display_name, description, buff_guid, icon, prefab, components);
             buff.Stacking = StackingType.Prolong;
@@ -641,7 +644,7 @@ namespace CallOfTheWild
             var eyebyte = library.Get<BlueprintAbility>("582009cf6013790469d6e98e5210477a");
             ability.AddComponent(eyebyte.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             addToAmplifyHex(ability);
-            addToSplitHex(ability, true);
+            addToSplitHex(ability, parent_feature,  true);
             return ability;
         }
 
@@ -691,7 +694,7 @@ namespace CallOfTheWild
                               );
             summer_heat.Ranks = 1;
             addToAmplifyHex(hex_ability);
-            addToSplitHex(hex_ability, true);
+            addToSplitHex(hex_ability, summer_heat, true);
             return summer_heat;
         }
 
@@ -774,67 +777,17 @@ namespace CallOfTheWild
             addToAmplifyHex(heal2_hex_ability);
             if (update_level < 10)
             {
-                addToSplitHex(heal1_hex_ability, true);
-                addToSplitHex(heal2_hex_ability, true);
-            };
+                addToSplitHex(heal1_hex_ability, healing_hex1_feature, true);
+                addToSplitHex(heal2_hex_ability, healing_hex2_feature, true);
+            }
+            else
+            {
+                addToSplitMajorHex(heal1_hex_ability, healing_hex1_feature, true);
+                addToSplitMajorHex(heal2_hex_ability, healing_hex2_feature, true);
+            }
             return healing;
         }
 
-
-        /*BlueprintFeature createHealingHex(string name, string display_name, string description, string heal1_guid, string heal2_guid, string ability1_guid, string ability2_guid,
-                                                    string feature1_guid, string feature2_guid, string feature_guid, string cooldown_guid, int update_level)
-        {
-            var heal1_hex_ability = library.CopyAndAdd<BlueprintAbility>(heal1_guid, name + "1Ability", ability1_guid);
-            heal1_hex_ability.SetName(display_name);
-            heal1_hex_ability.SetDescription(description);
-
-            heal1_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                                                                       classes: hex_classes,
-                                                                                                                                                       max: update_level));
-            var hex_cooldown = addWitchHexCooldownScaling(heal1_hex_ability, cooldown_guid);
-
-
-            var heal2_hex_ability = library.CopyAndAdd<BlueprintAbility>(heal2_guid, name + "2Ability", ability2_guid);
-            heal2_hex_ability.SetName(heal1_hex_ability.Name);
-            heal2_hex_ability.SetDescription(heal1_hex_ability.Description);
-
-
-            heal2_hex_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                                                                       classes: hex_classes,
-                                                                                                                                                       max: update_level + 5));
-            addWitchHexCooldownScaling(heal2_hex_ability, hex_cooldown);
-
-            var healing_hex1_feature = Helpers.CreateFeature(name + "1Feature", heal1_hex_ability.Name, heal1_hex_ability.Description,
-                                                             feature1_guid,
-                                                             heal1_hex_ability.Icon,
-                                                             FeatureGroup.None,
-                                                             Helpers.CreateAddFact(heal1_hex_ability));
-            healing_hex1_feature.HideInCharacterSheetAndLevelUp = true;
-            var healing_hex2_feature = Helpers.CreateFeature(name + "2Feature", heal1_hex_ability.Name, heal1_hex_ability.Description,
-                                                 feature2_guid,
-                                                 heal1_hex_ability.Icon,
-                                                 FeatureGroup.None,
-                                                 Helpers.CreateAddFact(heal2_hex_ability));
-            healing_hex2_feature.HideInCharacterSheetAndLevelUp = true;
-            var healing = Helpers.CreateFeature(name + "Feature",
-                                                heal1_hex_ability.Name,
-                                                heal1_hex_ability.Description,
-                                                feature_guid,
-                                                heal1_hex_ability.Icon,
-                                                FeatureGroup.None,
-                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex1_feature, update_level, hex_classes, new BlueprintArchetype[0], true),
-                                                Helpers.CreateAddFeatureOnClassLevel(healing_hex2_feature, update_level, hex_classes, new BlueprintArchetype[0], false)
-                                                );
-            healing.Ranks = 1;
-            addToAmplifyHex(heal1_hex_ability);
-            addToAmplifyHex(heal2_hex_ability);
-            if (update_level < 10)
-            {
-                addToSplitHex(heal1_hex_ability, true);
-                addToSplitHex(heal2_hex_ability, true);
-            };
-            return healing;
-        }*/
 
 
         public BlueprintFeature createMajorAmeliorating(string name_prefix, string display_name, string description, string abil1_guid, string abil2_guid,
@@ -886,6 +839,9 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFacts(hex_ability));
             major_ameliorating.Ranks = 1;
             addMajorHexPrerequisite(major_ameliorating);
+
+            addToSplitMajorHex(hex_ability2, major_ameliorating);
+            addToSplitMajorHex(hex_ability1, major_ameliorating);
             return major_ameliorating;
         }
 
@@ -962,6 +918,7 @@ namespace CallOfTheWild
             agony.Ranks = 1;
             addMajorHexPrerequisite(agony);
             addToAmplifyHex(hex_ability);
+            addToSplitMajorHex(hex_ability, agony, true);
             return agony;
         }
 
@@ -1027,7 +984,7 @@ namespace CallOfTheWild
             addMajorHexPrerequisite(hex);
             hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
-            //addToSplitHex(hex_ability, true);
+            addToSplitMajorHex(hex_ability, hex, true);
             return hex;
         }
 
@@ -1070,6 +1027,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateAddFact(hex_ability));
             beast_gift.Ranks = 1;
             addMajorHexPrerequisite(beast_gift);
+            addToSplitMajorHex(hex_ability, beast_gift);
             return beast_gift;
         }
 
@@ -1164,6 +1122,7 @@ namespace CallOfTheWild
             harrowing_curse.Ranks = 1;
             addMajorHexPrerequisite(harrowing_curse);
             addToAmplifyHex(hex_ability);
+            addToSplitMajorHex(hex_ability, harrowing_curse, true);
             return harrowing_curse;
         }
 
@@ -1229,6 +1188,7 @@ namespace CallOfTheWild
             retribution.Ranks = 1;
             addMajorHexPrerequisite(retribution);
             addToAmplifyHex(ability);
+            addToSplitMajorHex(ability, retribution, true);
             return retribution;
         }
 
@@ -1312,6 +1272,7 @@ namespace CallOfTheWild
             ice_tomb.Ranks = 1;
             addMajorHexPrerequisite(ice_tomb);
             addToAmplifyHex(hex_ability);
+            addToSplitMajorHex(hex_ability, ice_tomb, true);
             return ice_tomb;
         }
 
@@ -1359,15 +1320,20 @@ namespace CallOfTheWild
             Helpers.SetField(restoration_ability, "m_IsFullRoundAction", false);
             addWitchHexCooldownScaling(restoration_ability, hex_cooldown);
 
+            var hex_ability = Common.createVariantWrapper(name_prefix + "HexAbility", "", fast_healing_ability, restoration_ability);
+            hex_ability.SetName(display_name);
+
             var regenerative_sinew = Helpers.CreateFeature(name_prefix + "HexFeature",
                                           display_name,
                                           fast_healing_ability.Description,
                                           feature_guid,
                                           fast_healing_ability.Icon,
                                           FeatureGroup.None,
-                                          Helpers.CreateAddFacts(fast_healing_ability, restoration_ability));
+                                          Helpers.CreateAddFacts(hex_ability));
             regenerative_sinew.Ranks = 1;
             addMajorHexPrerequisite(regenerative_sinew);
+            addToSplitMajorHex(fast_healing_ability, regenerative_sinew);
+            addToSplitMajorHex(restoration_ability, regenerative_sinew);
             return regenerative_sinew;
         }
 
@@ -1846,14 +1812,36 @@ namespace CallOfTheWild
 
         static void createSplitHex()
         {
-            split_hex_feat = Helpers.CreateFeature("SplitHexFeature",
+
+            split_hex_ability = Helpers.CreateAbility("SplitHexAbility",
                                                        "Split Hex",
                                                        "When you use one of your hexes (not a major hex or a grand hex) that targets a single creature, you can apply the same hex to another creature as a free action.",
                                                        "",
                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Split.png"),
-                                                       FeatureGroup.Feat);
+                                                       AbilityType.Supernatural,
+                                                       CommandType.Free,
+                                                       AbilityRange.Close,
+                                                       "",
+                                                       "");
+            split_hex_ability.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAbilityVariants(split_hex_ability) };
 
-            //var evocation = library.Get<BlueprintFeature>("c46512b796216b64899f26301241e4e6"); //school evocation
+            split_hex_feat = Helpers.CreateFeature("SplitHexFeature",
+                                                       split_hex_ability.Name,
+                                                       split_hex_ability.Description,
+                                                       "",
+                                                       split_hex_ability.Icon,
+                                                       FeatureGroup.Feat,
+                                                       Helpers.CreateAddFact(split_hex_ability));
+
+            split_major_hex_feat = Helpers.CreateFeature("SplitMajorHexFeature",
+                                                       "Split Major Hex",
+                                                       "When you use one of your major hexes (not a grand hex) that targets a creature,  you can apply the same hex to another creature as a free action.",
+                                                       "",
+                                                       split_hex_ability.Icon,
+                                                       FeatureGroup.Feat,
+                                                       Helpers.PrerequisiteFeature(split_hex_feat));
+
+
             immune_to_split_hex_buff = Helpers.CreateBuff("ImmuneToSplitHexBuff",
                                                             split_hex_feat.Name,
                                                             split_hex_feat.Description,
@@ -1862,11 +1850,23 @@ namespace CallOfTheWild
                                                             null
                                                             );
             immune_to_split_hex_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            library.AddFeats(split_hex_feat);
+            library.AddFeats(split_hex_feat, split_major_hex_feat);
         }
 
 
-        BlueprintAbility addToSplitHex(BlueprintAbility hex, bool amplify = false)
+        BlueprintAbility addToSplitHex(BlueprintAbility hex, BlueprintFeature parent_feature, bool amplify = false)
+        {
+            return addToSplitHexBase(hex, parent_feature, amplify, false);
+        }
+
+
+        BlueprintAbility addToSplitMajorHex(BlueprintAbility hex, BlueprintFeature parent_feature, bool amplify = false)
+        {
+            return addToSplitHexBase(hex, parent_feature, amplify, true);
+        }
+
+
+        BlueprintAbility addToSplitHexBase(BlueprintAbility hex, BlueprintFeature parent_feature, bool amplify, bool major)
         {
             BlueprintAbility split_hex = null;
             if (hex.StickyTouch == null)
@@ -1881,26 +1881,39 @@ namespace CallOfTheWild
                 split_hex.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
             }
             split_hex.SetName("Split Hex : " + hex.Name);
-            split_hex.SetIcon(immune_to_split_hex_buff.Icon);
+            split_hex.SetIcon(split_hex.Icon);
             split_hex.ActionType = CommandType.Free;
+            split_hex.Parent = split_hex_ability;
+
+            if (major)
+            {
+                split_hex.AddComponent(Common.createAbilityShowIfCasterHasFacts(parent_feature, split_major_hex_feat));
+            }
+            else
+            {
+                split_hex.AddComponent(Common.createAbilityShowIfCasterHasFact(parent_feature));
+            }
 
             var split_hex_buff = Helpers.CreateBuff("SplitHex" + hex.name + "Buff",
                                                 split_hex.Name,
                                                 split_hex_feat.Description,
                                                 "",
                                                 split_hex.Icon,
-                                                null,
-                                                Helpers.CreateAddFact(split_hex)
+                                                null
                                                 );
 
             split_hex.AddComponent(Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[]{immune_to_split_hex_buff}));
+            split_hex.AddComponent(Common.createAbilityCasterHasFacts(split_hex_buff));
+
+            var split_variants = split_hex_ability.GetComponent<AbilityVariants>();
+            split_variants.Variants = split_variants.Variants.AddToArray(split_hex);
 
             var apply_caster_buff = Common.createContextActionApplyBuff(split_hex_buff,
                                                                         Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
                                                                         dispellable: false,
                                                                         duration_seconds: 3);
 
-            var apply_target_buff = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(split_hex_feat),
+            var apply_target_buff = Helpers.CreateConditional(major ? Common.createContextConditionCasterHasFact(split_major_hex_feat) : Common.createContextConditionCasterHasFact(split_hex_feat),
                                                               Common.createContextActionApplyBuff(immune_to_split_hex_buff, 
                                                                                                   Helpers.CreateContextDuration(Common.createSimpleContextValue(1)), dispellable: false)
                                                               );

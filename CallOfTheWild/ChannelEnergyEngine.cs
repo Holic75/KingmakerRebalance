@@ -450,13 +450,6 @@ namespace CallOfTheWild
             cone_ability.AddComponent(Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(versatile_channel)));
             entry.base_ability.addToAbilityVariants(line_ability, cone_ability);
 
-            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
-            if (caster_alignment != null)
-            {
-                line_ability.AddComponent(caster_alignment);
-                cone_ability.AddComponent(caster_alignment);
-            }
-
             updateItemsForChannelDerivative(entry.ability, line_ability);
             updateItemsForChannelDerivative(entry.ability, cone_ability);
 
@@ -658,12 +651,10 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSelfOnly();
 
             entry.base_ability.addToAbilityVariants(ability);
-            //updateItemsForChannelDerivative(entry.ability, ability);  ? shield is not updated
 
-            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
-            if (caster_alignment != null)
+            foreach (var checker in entry.ability.GetComponents<IAbilityCasterChecker>())
             {
-                ability.AddComponent(caster_alignment);
+                ability.AddComponent(checker as BlueprintComponent);
             }
 
             storeChannel(ability, entry.parent_feature, entry.channel_type | ChannelType.HolyVindicatorShield, entry.properties);
@@ -1244,10 +1235,9 @@ namespace CallOfTheWild
             c.base_ability.addToAbilityVariants(ability);
             updateItemsForChannelDerivative(c.ability, ability);
 
-            var caster_alignment = c.ability.GetComponent<AbilityCasterAlignment>();
-            if (caster_alignment != null)
+            foreach (var checker in c.ability.GetComponents<IAbilityCasterChecker>())
             {
-                ability.AddComponent(caster_alignment);
+                ability.AddComponent(checker as BlueprintComponent);
             }
 
             var smite_feature = Common.AbilityToFeature(ability, guid: Helpers.MergeIds(ability.AssetGuid, c.parent_feature.AssetGuid));
@@ -1332,12 +1322,6 @@ namespace CallOfTheWild
 
             entry.base_ability.addToAbilityVariants(quicken_ability);
 
-            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
-            if (caster_alignment != null)
-            {
-                quicken_ability.AddComponent(caster_alignment);
-            }
-
             updateItemsForChannelDerivative(entry.ability, quicken_ability);
 
             storeChannel(quicken_ability, entry.parent_feature, entry.channel_type | ChannelType.SwiftPositiveChannel, entry.properties);
@@ -1373,11 +1357,6 @@ namespace CallOfTheWild
             quicken_ability.AddComponent(Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(quick_channel)));
             entry.base_ability.addToAbilityVariants(quicken_ability);
 
-            var caster_alignment = entry.ability.GetComponent<AbilityCasterAlignment>();
-            if (caster_alignment != null)
-            {
-                quicken_ability.AddComponent(caster_alignment);
-            }
 
             updateItemsForChannelDerivative(entry.ability, quicken_ability);
 

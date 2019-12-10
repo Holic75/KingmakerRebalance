@@ -404,7 +404,8 @@ namespace CallOfTheWild
             bastard_unsanctioned_knowledge.SetName("Unsanctioned Knowledge (Vindictive Bastard)");
             foreach (var c in bastard_unsanctioned_knowledge.GetComponents<NewMechanics.addSpellChoice>())
             {
-                c.spell_book = VindicativeBastard.vindicative_bastard_spellbook;
+                var new_c = c.CreateCopy(asc => asc.spell_book = VindicativeBastard.vindicative_bastard_spellbook);
+                bastard_unsanctioned_knowledge.ReplaceComponent(c, new_c);
             }
 
             library.AddFeats(unsanctioned_knowledge, bastard_unsanctioned_knowledge);

@@ -158,6 +158,7 @@ namespace CallOfTheWild
             addToPrestigeClasses();
 
             HexEngine.split_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
+            HexEngine.split_major_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 18));
         }
 
 

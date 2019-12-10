@@ -19,7 +19,7 @@ New feats:
 - Extra Hex,
 - Accursed Hex,
 - Amplified Hex,
-- Split Hex,
+- Split Hex and Split Major Hex,
 - Witch Knife,
 - Rage Casting,
 - Raging Brutality,

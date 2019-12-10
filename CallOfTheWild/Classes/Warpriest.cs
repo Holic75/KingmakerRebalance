@@ -3250,7 +3250,9 @@ namespace CallOfTheWild
                                                        major_ability.Description,
                                                        "",
                                                        major_ability.Icon,
-                                                       FeatureGroup.None);
+                                                       FeatureGroup.None,
+                                                       Helpers.CreateAddFact(major_ability_base)
+                                                       );
 
 
             var major_buff = Helpers.CreateBuff("WarpriestReposeBlessingMajorBuff",
@@ -3258,8 +3260,7 @@ namespace CallOfTheWild
                                                 major_ability.Description,
                                                 "",
                                                 major_ability.Icon,
-                                                null,
-                                                Helpers.CreateAddFact(major_ability_base)
+                                                null
                                                 );
 
             var remove_buff = Helpers.Create<ContextActionOnContextCaster>(c =>
@@ -3268,7 +3269,7 @@ namespace CallOfTheWild
             }
             );
             major_ability.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(c.Actions.Actions.AddToArray(remove_buff)));
-
+            major_ability.AddComponent(Common.createAbilityCasterHasFacts(major_buff));
 
             var caster_action = Helpers.Create<ContextActionOnContextCaster>(c =>
             {
