@@ -309,7 +309,7 @@ namespace CallOfTheWild
             var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
             noknok_companion.Constitution = 14;
             noknok_companion.Wisdom = 10;
-
+            //noknok_companion.GetComponent<AddClassLevels>().Levels = 1;
             //change jaethal
             var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
             var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();

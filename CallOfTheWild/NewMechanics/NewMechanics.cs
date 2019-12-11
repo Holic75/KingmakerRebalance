@@ -5126,5 +5126,16 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class PrimaryHandMeleeWeaponRestriction : ActivatableAbilityRestriction
+        {
+            public override bool IsAvailable()
+            {
+                if (Owner.Body.PrimaryHand.HasWeapon)
+                    return Owner.Body.PrimaryHand.Weapon.Blueprint.IsMelee;
+                return false;
+            }
+        }
+
     }
 }
