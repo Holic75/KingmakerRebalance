@@ -169,8 +169,8 @@ namespace CallOfTheWild
             var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
             valerie_companion.Strength = 16;//+2
             valerie_companion.Dexterity = 10;
-            valerie_companion.Constitution = 16;
-            valerie_companion.Intelligence = 8;
+            valerie_companion.Constitution = 14;
+            valerie_companion.Intelligence = 13;
             valerie_companion.Wisdom = 10;
             valerie_companion.Charisma = 15;
             var valerie1_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("912444657701e2d4ab2634c3d1e130ad");
@@ -214,10 +214,10 @@ namespace CallOfTheWild
             tristian_level.Selections[6].ParamSpellSchool = SpellSchool.Evocation;
 
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
-            harrim_companion.Strength = 16;
-            harrim_companion.Constitution = 16;
-            harrim_companion.Charisma = 8;
-            harrim_companion.Wisdom = 15;
+            harrim_companion.Strength = 17;
+            harrim_companion.Constitution = 12;
+            harrim_companion.Charisma = 10;
+            harrim_companion.Wisdom = 16;
             harrim_companion.Dexterity = 10;
             harrim_companion.Body.PrimaryHandAlternative1 = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("7f7c8e1e4fdd99e438b30ed9622e9e3f");//heavy flail
 
@@ -289,6 +289,7 @@ namespace CallOfTheWild
             //change regongar
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
+            ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>().Levels = 1;
             //change ekun
             var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
             ekun_companion.Strength = 14;
@@ -309,7 +310,8 @@ namespace CallOfTheWild
             var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
             noknok_companion.Constitution = 14;
             noknok_companion.Wisdom = 10;
-            //noknok_companion.GetComponent<AddClassLevels>().Levels = 1;
+            noknok_companion.GetComponent<AddClassLevels>().Levels = 1;
+            noknok_companion.GetComponent<AddClassLevels>().Skills = new StatType[] { StatType.SkillMobility, StatType.SkillThievery, StatType.SkillPerception, StatType.SkillStealth, StatType.SkillUseMagicDevice, StatType.SkillLoreNature, StatType.SkillAthletics };
             //change jaethal
             var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
             var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();

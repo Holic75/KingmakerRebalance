@@ -208,28 +208,28 @@ enchanced attacks (optional),
 - when using kinetic healer ability, burn cost can be optionally offloaded to the target,
 - Kinetic Knights now receive Blade Rush infusion at level 3, Kinetic Whip infusion at level 5, Whip Hurricane infusion at level 11 and Swift Blade Rush infusion at level 13 for free,
 - When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses,
-- Increased damage reduction defensive power increase dr by 2 instead of 1 9to make it similar to unchained barbarian rage power)
+- Increased damage reduction defensive power increases dr by 2 instead of 1 to make it similar to unchained barbarian rage power)
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
 - Singing Steel works properly,
 - Archaelogist luck works with Lingering Performance and Singing Steel,
 - Lingering Performance no longer allows to overlap different bardic performances,
-- Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so it can benefit from haste and feral combat training),
+- Dragonkind I dragons bite and claw weapon are placed in main/off hand slots (so they can benefit from haste and feral combat training),
 - Web school is changed to conjuration
 - radius of teamwork feats that require "adjacent" allies changed to 5 feet (instead of 5 meters) (optional)
 - Invulnerable rager extreme endurance bonus no longer scales exponentially,
 - Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats,
-- Fixes incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities,
+- Fixed incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities,
 - Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire.
 
 Mod also changes stats of some npcs (optional)
-- Valerie class was changed to Vindictive Bastard and stats to 18/10/16/8/10/15
-- Harrim class was changed to Warpriest and stats to 16/10/18/10/17/6
+- Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
+- Harrim class was changed to Warpriest and stats to 17/10/14/10/17/8
 - Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
 - Ekun to 14/18/10/10/14/8
 - Tristian to 10/14/12/10/19/14 and replaces his primary domain to fire
-- Linzi to 8/18/14/14/10/16
+- Linzi to 9/17/12/14/10/18
 - Octavia to 10/16/10/18/10/14
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 8/22/14/12/10/8
