@@ -232,6 +232,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
+                    CallOfTheWild.AiFix.load();
 
 
                     if (settings.update_companions)

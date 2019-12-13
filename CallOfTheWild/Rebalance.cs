@@ -267,10 +267,6 @@ namespace CallOfTheWild
             harrim_class_level.Selections[9].ParamWeaponCategory = WeaponCategory.HeavyFlail;
 
             harrim_feature.GetComponent<AddFacts>().Facts =  harrim_feature.GetComponent<AddFacts>().Facts.Take(1).ToArray();
-
-
-
-
             //harrim_class_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("9ebe166b9b901c746b1858029f13a2c5"); //madness domain instead of chaos
 
             //change linzi
@@ -284,7 +280,6 @@ namespace CallOfTheWild
             octavia_companion.Dexterity = 16;
             octavia_companion.Intelligence = 16;
             octavia_companion.Constitution = 10;
-
 
             //change regongar
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");

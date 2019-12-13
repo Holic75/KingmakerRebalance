@@ -123,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActivatableGroupExtender.cs" />
+    <Compile Include="AiFix.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
