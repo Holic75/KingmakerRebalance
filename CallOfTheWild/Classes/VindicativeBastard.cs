@@ -397,7 +397,7 @@ namespace CallOfTheWild
         static void createStalwart()
         {
             stalwart = library.Get<BlueprintFeature>("ec9dbc9a5fa26e446a54fe5df6779088");
-            stalwart.SetDescription("At 14th level, a vindictive bastard can use mental and physical resiliency to avoid certain attacks. If she makes a Fortitude or Will saving throw against an attack that has a halved damage on a successful save, she instead avoids the damage entirely.");
+            stalwart.SetDescription("A character can use mental and physical resiliency to avoid certain attacks. If she makes a Fortitude or Will saving throw against an attack that has a halved damage on a successful save, she instead avoids the damage entirely.");
         }
 
 

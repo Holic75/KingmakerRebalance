@@ -303,6 +303,7 @@ namespace CallOfTheWild
             jubilost_companion.Constitution = 12;
             //change nok-nok
             var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
+            noknok_companion.Strength = 11;
             noknok_companion.Constitution = 14;
             noknok_companion.Wisdom = 10;
             noknok_companion.GetComponent<AddClassLevels>().Levels = 1;
