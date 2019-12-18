@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
@@ -25,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class KineticistFix
+    public class KineticistFix
     {
         static LibraryScriptableObject library => Main.library;
         static Dictionary<string, (BlueprintActivatableAbility, BlueprintAbility)> blast_kinetic_blades_burn_map = new Dictionary<string, (BlueprintActivatableAbility, BlueprintAbility)>();
@@ -41,6 +42,9 @@ namespace CallOfTheWild
         public static BlueprintFeature spark_of_life;
 
         public static BlueprintFeature whip_hurricane;
+
+        public static BlueprintFeature internal_buffer;
+        public static BlueprintAbilityResource internal_buffer_resource;
 
         static BlueprintCharacterClass kineticist_class = library.Get<BlueprintCharacterClass>("42a455d9ec1ad924d889272429eb8391");
         static BlueprintFeature kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
@@ -90,6 +94,53 @@ namespace CallOfTheWild
             createBladeRush();
             createKineticWhip();
             createWhipHurricane();
+            createInternalBuffer();
+        }
+
+
+        static void createInternalBuffer()
+        {
+            internal_buffer_resource = Helpers.CreateAbilityResource("KineticistInternalBufferResource", "", "", "", null);
+            internal_buffer_resource.SetIncreasedByLevelStartPlusDivStep(0, 6, 1, 5, 1, 0, 0.0f, new BlueprintCharacterClass[] { kineticist_class });
+
+            var icon = library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980").Icon; //healing judgment
+            var spend_resource = Helpers.Create<NewMechanics.ContextActionSpendResource>(s => s.resource = internal_buffer_resource);
+            var buff = Helpers.CreateBuff("InternalBufferBuff",
+                                          "Internal Buffer",
+                                          "At 6th level, a kineticist’s study of her body and the elemental forces that course through it allow her to form an internal buffer to store extra energy.\n" +
+                                          "When she would otherwise accept burn, a kineticist can spend energy from her buffer to avoid accepting 1 point of burn. She can do it once per day. Kineticist gets an additional use of this ability at levels 11 and 16.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<KineticistMechanics.DecreaseWildTalentCostWithActionOnBurn>(a => a.actions = Helpers.CreateActionList(spend_resource))
+                                          );
+
+            var ability = Helpers.CreateActivatableAbility("InternalBufferActivatableAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           UnitCommand.CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(internal_buffer_resource, ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                           );
+            ability.DeactivateImmediately = true;
+
+            internal_buffer = Common.ActivatableAbilityToFeature(ability, hide: false);
+            internal_buffer.AddComponent(Helpers.CreateAddAbilityResource(internal_buffer_resource));
+            kineticist_progression.LevelEntries[5].Features.Add(internal_buffer);
+
+            //fix previous saves without buffer
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(kineticist_class) >= 6 && !unit.Progression.Features.HasFact(internal_buffer))
+                {
+                    unit.Progression.Features.AddFeature(internal_buffer);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
         static void fixShroudOfWaterForKineticKnight()

@@ -71,7 +71,7 @@ namespace CallOfTheWild
         {
             public BlueprintAbilityResource resource = null;
             public int amount;
-            public BlueprintUnitFact[] cost_reducing_facts;
+            public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             public BlueprintSpellbook spellbook = null;
             private int cost_to_pay;
             public BlueprintAbility[] allowed_spells = new BlueprintAbility[0];
@@ -272,7 +272,7 @@ namespace CallOfTheWild
             public SpellDescriptorWrapper spell_descriptor;
             public BlueprintAbilityResource resource = null;
             public int amount;
-            public BlueprintUnitFact[] cost_reducing_facts;
+            public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay;
 
 
@@ -359,7 +359,7 @@ namespace CallOfTheWild
             public BlueprintAbility[] spell_list;
             public BlueprintAbilityResource resource = null;
             public int amount;
-            public BlueprintUnitFact[] cost_reducing_facts;
+            public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay;
 
 

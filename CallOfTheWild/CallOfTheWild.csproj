@@ -165,6 +165,7 @@
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\HealingMechanics.cs" />
     <Compile Include="NewMechanics\InitiativeMechanics.cs" />
+    <Compile Include="NewMechanics\KineticistMechanics.cs" />
     <Compile Include="NewMechanics\MetamagicMechanics.cs" />
     <Compile Include="NewFeats.cs" />
     <Compile Include="NewMechanics\MonsterLore.cs" />

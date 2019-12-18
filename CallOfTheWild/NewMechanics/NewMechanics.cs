@@ -1491,7 +1491,7 @@ namespace CallOfTheWild
 
         public class ResourseCostCalculatorWithDecreasingFacts : BlueprintComponent, IAbilityResourceCostCalculator
         {
-            public BlueprintFact[] cost_reducing_facts;
+            public BlueprintFact[] cost_reducing_facts = new BlueprintFact[0];
 
             public int Calculate(AbilityData ability)
             {
@@ -1657,11 +1657,12 @@ namespace CallOfTheWild
         {
             public BlueprintAbilityResource resource;
             public int amount = 1;
-            public BlueprintUnitFact[] cost_reducing_facts;
+            public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
 
 
             public override void RunAction()
             {
+                
                 int need_resource = amount;
 
                 var owner = this.Context.MaybeOwner.Descriptor;
@@ -1673,16 +1674,18 @@ namespace CallOfTheWild
                         need_resource--;
                     }
                 }
+
                 if (need_resource < 0)
                 {
                     need_resource = 0;
                 }
 
-                if (this.resource == null || owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < need_resource)
+                if (this.resource == null || owner.Resources.GetResourceAmount(this.resource) < need_resource)
                 {
                     return;
                 }
-                owner.Resources.Spend((BlueprintScriptableObject)this.resource, need_resource);
+                
+                owner.Resources.Spend(this.resource, need_resource);
             }
 
 
