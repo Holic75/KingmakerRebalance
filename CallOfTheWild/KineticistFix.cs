@@ -212,7 +212,9 @@ namespace CallOfTheWild
             blade_whirlwind.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(attack_engaged));
             blade_whirlwind.RemoveComponents<AbilityTargetsAround>();
             blade_whirlwind.NeedEquipWeapons = true;
-            blade_whirlwind.AddComponent(CallOfTheWild.Helpers.Create<NewMechanics.AttackAnimation>());
+            blade_whirlwind.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Special;
+            blade_whirlwind.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionSpecialAttack;
+            //blade_whirlwind.AddComponent(CallOfTheWild.Helpers.Create<NewMechanics.AttackAnimation>());
         }
 
 
