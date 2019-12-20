@@ -168,11 +168,11 @@ namespace CallOfTheWild
                 var icon = library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140").Icon;
                 greater_spirit_ability = Helpers.CreateFeature("ShamanHealersTouchFeature",
                                                                "Healer's Touch",
-                                                               "The shaman gains a +4 bonus to religion skill.",
+                                                               "The shaman gains a +3 bonus to religion skill.",
                                                                "",
                                                                icon,
                                                                FeatureGroup.None,
-                                                               Helpers.CreateAddStatBonus(StatType.SkillLoreReligion, 4, ModifierDescriptor.UntypedStackable)
+                                                               Helpers.CreateAddStatBonus(StatType.SkillLoreReligion, 3, ModifierDescriptor.UntypedStackable)
                                                                );
             }
 

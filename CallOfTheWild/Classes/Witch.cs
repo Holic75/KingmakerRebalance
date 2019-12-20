@@ -105,6 +105,7 @@ namespace CallOfTheWild
         internal static void createWitchClass()
         {
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            var sorceror_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
             witch_class = Helpers.Create<BlueprintCharacterClass>();
             witch_class.name = "WitcherClass";
@@ -131,13 +132,13 @@ namespace CallOfTheWild
             witch_class.IsDivineCaster = false;
             witch_class.IsArcaneCaster = true;
             witch_class.StartingGold = wizard_class.StartingGold;
-            witch_class.PrimaryColor = wizard_class.PrimaryColor;
-            witch_class.SecondaryColor = wizard_class.SecondaryColor;
+            witch_class.PrimaryColor = sorceror_class.PrimaryColor;
+            witch_class.SecondaryColor = sorceror_class.SecondaryColor;
             witch_class.RecommendedAttributes = wizard_class.RecommendedAttributes;
             witch_class.NotRecommendedAttributes = wizard_class.NotRecommendedAttributes;
-            witch_class.EquipmentEntities = wizard_class.EquipmentEntities;
-            witch_class.MaleEquipmentEntities = wizard_class.MaleEquipmentEntities;
-            witch_class.FemaleEquipmentEntities = wizard_class.FemaleEquipmentEntities;
+            witch_class.EquipmentEntities = sorceror_class.EquipmentEntities;
+            witch_class.MaleEquipmentEntities = sorceror_class.MaleEquipmentEntities;
+            witch_class.FemaleEquipmentEntities = sorceror_class.FemaleEquipmentEntities;
             witch_class.ComponentsArray = wizard_class.ComponentsArray;
             witch_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff
@@ -308,8 +309,19 @@ namespace CallOfTheWild
                                                                                                                                                       library.Get<BlueprintAbility>("0cea35de4d553cc439ae80b3a8724397"),
                                                                                                                                                       library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449")
                                                                                                                                                      )
-                                                                                                             );
-            hedge_witch_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, witch_spontaneous_cure)};
+                                                                                                              );
+
+            var icon = library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140").Icon;
+            var empatic_healing = Helpers.CreateFeature("HedgeWitchEmpaticHealingFeature",
+                                                        "Empatic Healing",
+                                                        "The witch gains a +3 bonus to religion skill.",
+                                                        "",
+                                                        icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddStatBonus(StatType.SkillLoreReligion, 3, ModifierDescriptor.UntypedStackable)
+                                                        );
+
+            hedge_witch_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, witch_spontaneous_cure), Helpers.LevelEntry(8, empatic_healing) };
         }
 
 
