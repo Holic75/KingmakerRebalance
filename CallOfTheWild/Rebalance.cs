@@ -856,14 +856,27 @@ namespace CallOfTheWild
         }
 
 
+        internal static void fixDomainSpells()
+        {
+            Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("eba577470b8ee8443bb4552433451990"), 5, "WeatherDomain"); //ice storm
+            Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("eba577470b8ee8443bb4552433451990"), 7, "WeatherDomain"); //fire storm
+
+            Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("35e15cd1b353e2d47b507c445d2f8c6f"), 5, "WaterDomain"); //ice storm
+            Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("df3bc5bda7deb9d46b0f177db3bb7876"), 6, "EarthDomain"); //stoneskin
+        }
+
         internal static void fixStalwartDefender()
         {
             var stalwart_defender = library.Get<BlueprintCharacterClass>("d5917881586ff1d4d96d5b7cebda9464");
             var progression = library.Get<BlueprintProgression>("e93eabf4f9b48914c9d880dd41c06385");
 
-            stalwart_defender.AddComponent(Helpers.Create<PrerequisiteProficiency>(p => p.ArmorProficiencies = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Light, ArmorProficiencyGroup.Medium }));
+            //ad armor proficiency prerequisites
+            var light_armor_proficiency = library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132");
+            var medium_armor_proficiency = library.Get<BlueprintFeature>("46f4fb320f35704488ba3d513397789d");
+            stalwart_defender.AddComponent(Helpers.PrerequisiteFeature(light_armor_proficiency));
+            stalwart_defender.AddComponent(Helpers.PrerequisiteFeature(medium_armor_proficiency));
 
-            var proficiency = library.CopyAndAdd<BlueprintFeature>("a23591cc77086494ba20880f87e73970", "StalwartDefenderProficiency", "");
+            var proficiency = library.CopyAndAdd<BlueprintFeature>("a23591cc77086494ba20880f87e73970", "StalwartDefenderProficiency", ""); //from fighter
             proficiency.SetNameDescription("Stalwart Defender Proficiencies",
                                            "A stalwart defender is proficient with all simple and martial weapons, all types of armor, and shields (including tower shields)."
                                            );

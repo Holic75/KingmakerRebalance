@@ -173,6 +173,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
                     CallOfTheWild.Rebalance.fixNeclaceOfDoubleCrosses();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
+                    CallOfTheWild.Rebalance.fixDomainSpells();
 
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
@@ -241,7 +242,6 @@ namespace CallOfTheWild
                         CallOfTheWild.Rebalance.fixCompanions();
                     }
 
-                    //CallOfTheWild.FavoredClass.FavoredClassBonus.load();
 
 #if DEBUG
                     string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";

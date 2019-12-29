@@ -3274,5 +3274,12 @@ namespace CallOfTheWild
         }
 
 
+        public static void replaceSpellFromListWithDuplicate(BlueprintSpellList spell_list, int spell_level, string prefix)
+        {
+            var spell = spell_list.SpellsByLevel[spell_level].Spells[0];
+            spell_list.SpellsByLevel[spell_level].Spells[0] = SpellDuplicates.addDuplicateSpell(spell, prefix + spell.name);
+        }
+
+
     }
 }

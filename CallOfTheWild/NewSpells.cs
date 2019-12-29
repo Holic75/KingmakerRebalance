@@ -3577,7 +3577,8 @@ namespace CallOfTheWild
             fire_shield.AddSpellAndScroll("8e0c81ac23fe75b4288c21ee57f55e3f"); // shield of dawn
 
             //replace 5th level spell in fire domain
-            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), fire_shield, 5);
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), 
+                                      SpellDuplicates.addDuplicateSpell(fire_shield, "FireDomain" + fire_shield.name), 5);
             //replace 4th level spell in sun domain
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc"), fire_shield, 4);
         }
@@ -4036,7 +4037,8 @@ namespace CallOfTheWild
             produce_flame.AddToSpellList(Helpers.druidSpellList, 1);
             produce_flame.AddSpellAndScroll("5b172c2c3e356eb43ba5a8f8008a8a5a"); //fireball
             //replace 2nd level spell in fire domain
-            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), produce_flame, 2);
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), 
+                                      SpellDuplicates.addDuplicateSpell(produce_flame, "FireDomain"+produce_flame.Name),  2);
         }
 
 
