@@ -392,7 +392,6 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         [JsonProperty]
         private bool m_unlock;
 
-
         public override void OnFactActivate()
         {
             m_unlock = false;
@@ -420,9 +419,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 bonus = 4;
             }
 
-
-
-            m_Enchantment = weapon.AddEnchantment(WeaponEnchantments.standard_enchants[bonus], Context, new Rounds?());
+            m_Enchantment = weapon.AddEnchantment(WeaponEnchantments.temporary_enchants[bonus], Context, new Rounds?());
 
             if (lock_slot && !weapon.IsNonRemovable)
             {

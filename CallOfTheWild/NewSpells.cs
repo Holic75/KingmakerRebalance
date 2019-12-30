@@ -148,6 +148,9 @@ namespace CallOfTheWild
         static public BlueprintAbility magic_weapon;
         static public BlueprintAbility magic_weapon_greater;
 
+        static public BlueprintAbility dazzling_blade;
+        static public BlueprintAbility dazzling_blade_mass;
+
 
         static public void load()
         {
@@ -226,6 +229,99 @@ namespace CallOfTheWild
             createLendJudgement();
             createFlamesOfTheFaithful();
             createMagicWeapon();
+            createDazzlingBlade();
+        }
+
+
+        static void createDazzlingBlade()
+        {
+            var brilliant_energy = library.Get<BlueprintWeaponEnchantment>("6cbb732b9d638724a960d784634dcdcf"); //plasma
+            var enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
+            var icon = library.Get<BlueprintBuff>("50d0501ad05f15d498c3aa8d602af273").Icon;
+            var blinded = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+            var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
+
+            var release_action = Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(dazzled, Helpers.CreateContextDuration(1)),
+                                                      Common.createContextActionApplyBuff(blinded, Helpers.CreateContextDuration(1)));
+
+            var release_ability = Helpers.CreateAbility("DazzlingBladeReleaseAbility",
+                                                        "Dazzling Blade: Release",
+                                                        "Dazzling blade makes a weapon appear dazzlingly shiny, as if crafted from pure silver and heavily polished. In combat, the flashing movements of a dazzling blade become almost hypnotic. The wielder of a weapon under the effects of dazzling blade gains a + 1 competence bonus on all Bluff checks made to feint in combat. The wielder also gains a + 1 competence bonus on all CMB checks made to disarm a foe, and a +1 competence bonus to his CMD against disarm attempts made against the weapon bearing the dazzling blade effect. This bonus increases by +1 for every 3 caster levels, to a maximum bonus of + 5 at 12th level.\n"
+                                                        + "The wielder of a dazzling blade can discharge the spell into a blinding burst of silvery light as a free action.The wielder selects an adjacent opponent as the focal point of this burst of light—that creature must make a Will save to avoid being blinded for 1 round(with a successful save, the creature is instead dazzled for 1 round).\n"
+                                                        + "Despite its shiny appearance, a dazzling blade grants no extra benefit against creatures that are vulnerable to silver.",
+                                                        "",
+                                                        icon,
+                                                        AbilityType.Special,
+                                                        UnitCommand.CommandType.Free,
+                                                        AbilityRange.Weapon,
+                                                        Helpers.oneRoundDuration,
+                                                        Helpers.willNegates,
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness)
+                                                        );
+            release_ability.setMiscAbilityParametersTouchHarmful();
+
+            var buff = Helpers.CreateBuff("DazzlingBladeBuff",
+                                          "Dazzling Blade",
+                                          release_ability.Description,
+                                          "",
+                                          release_ability.Icon,
+                                          null,
+                                          Helpers.CreateAddFact(release_ability),
+                                          Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = release_ability),
+                                          Common.createContextManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          Helpers.Create<NewMechanics.ContextCombatManeuverBonus>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm; c.Bonus = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                          Helpers.CreateAddContextStatBonus(StatType.CheckBluff, ModifierDescriptor.Competence),
+                                          Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 3, max: 5),
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.enchant = enchant; p.secondary_hand = false; })
+                                          );
+
+            release_ability.AddComponent(Helpers.CreateRunActions(SavingThrowType.Will, release_action, Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))));
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Minutes));
+
+            dazzling_blade = Helpers.CreateAbility("DazzlingBladeAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Swift,
+                                                   AbilityRange.Touch,
+                                                   Helpers.minutesPerLevelDuration,
+                                                   Helpers.willNegates,
+                                                   Helpers.CreateRunActions(apply_buff),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                   Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                   );
+            dazzling_blade.setMiscAbilityParametersTouchFriendly();
+            dazzling_blade.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach;
+
+            dazzling_blade_mass = Helpers.CreateAbility("DazzlingBladeMassAbility",
+                                                       "Dazzling Blade, Mass",
+                                                       "This spell functions like dazzling blade, except as noted above and that it affects multiple weapons. Each wielder of a dazzling blade can discharge the weapon’s effect to attempt to blind a foe independently of the others.\n"
+                                                       + "Dazzling Blade: " + dazzling_blade.Description,
+                                                       "",
+                                                       buff.Icon,
+                                                       AbilityType.Spell,
+                                                       UnitCommand.CommandType.Swift,
+                                                       AbilityRange.Close,
+                                                       Helpers.minutesPerLevelDuration,
+                                                       Helpers.willNegates,
+                                                       Helpers.CreateRunActions(apply_buff),
+                                                       Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                       Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally),
+                                                       Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                       );
+            dazzling_blade_mass.setMiscAbilityParametersRangedDirectional();
+            dazzling_blade_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach;
+
+            dazzling_blade.AddToSpellList(Helpers.bardSpellList, 1);
+            dazzling_blade.AddToSpellList(Helpers.wizardSpellList, 1);
+
+            dazzling_blade_mass.AddToSpellList(Helpers.wizardSpellList, 3);
+
+            dazzling_blade.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
+            dazzling_blade_mass.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
         }
 
 

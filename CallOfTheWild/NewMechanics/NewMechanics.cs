@@ -2523,7 +2523,6 @@ namespace CallOfTheWild
         }
 
 
-
         [ComponentName("Maneuver Bonus")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextCombatManeuverBonus : RuleInitiatorLogicComponent<RuleCombatManeuver>
