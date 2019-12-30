@@ -235,7 +235,7 @@ Mod also changes stats of some npcs (optional)
 - Linzi to 9/17/12/14/10/18
 - Octavia to 10/16/10/18/10/14
 - Regongar to 19/12/12/10/8/16
-- Nok-Nok to 8/22/14/12/10/8
+- Nok-Nok to 9/22/14/12/10/8
 
 
 NOTE: Changes to animal companion bonuses, npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,
