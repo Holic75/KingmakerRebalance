@@ -365,6 +365,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.frost_bite.AssetGuid, 1),
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "4ac47ddb9fa1eaf43a1b6809980cfbd2", 1), //magic missile
+                new Common.SpellId( NewSpells.magic_weapon.AssetGuid, 1),
                 new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //mage shield
                 new Common.SpellId( "433b1faf4d02cc34abb0ade5ceda47c4", 1), //protection from alignment
                 new Common.SpellId( "450af0402422b0b4980d9c2175869612", 1), //ray of enfeeblement
@@ -407,6 +408,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
                 new Common.SpellId( NewSpells.keen_edge.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
+                new Common.SpellId( NewSpells.magic_weapon_greater.AssetGuid, 3),
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),

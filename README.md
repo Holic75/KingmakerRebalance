@@ -112,6 +112,7 @@ New spells:
 - Hex Vulnerability,
 - Ill Omen,
 - Lend Judgment and Lend Judgment, Greater
+- Magic Weapon, Magic Weapon, Greater
 - Obscuring Mist,
 - Produce Flame,
 - Sanctuary,
@@ -223,7 +224,7 @@ Original game bug fixes:
 - Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats,
 - Fixed incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities,
 - Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire, as a side effect it also allows to loot body under baleful polymorph.
-- Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list.
+- Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required).
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

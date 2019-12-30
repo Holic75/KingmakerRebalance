@@ -853,6 +853,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "40ec382849b60504d88946df46a10f2d", 1), //haze of dreams
                 new Common.SpellId( HexEngine.hex_vulnerability_spell.AssetGuid, 1), //hex vilnerability
                 new Common.SpellId( "e5af3674bb241f14b9a9f6b0c7dc3d27", 1), //inflict light wounds
+                new Common.SpellId( NewSpells.magic_weapon.AssetGuid, 1),
                 new Common.SpellId( NewSpells.obscuring_mist.AssetGuid, 1),
                 new Common.SpellId( NewSpells.produce_flame.AssetGuid, 1),
                 new Common.SpellId( "433b1faf4d02cc34abb0ade5ceda47c4", 1), //protection from alignment
@@ -911,6 +912,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict critical wounds
                 new Common.SpellId( "a8666d26bbbd9b640958284e0eee3602", 4), //life blast
+                new Common.SpellId( NewSpells.magic_weapon_greater.AssetGuid, 4),
                 new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison
                 new Common.SpellId( "2a6eda8ef30379142a4b75448fb214a3", 4), //poison
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration

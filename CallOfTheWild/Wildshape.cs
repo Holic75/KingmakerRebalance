@@ -329,7 +329,8 @@ namespace CallOfTheWild
                                           Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
                                                                                                                                           {
                                                                                                                                               t.transfer_type = TransferType.Except;
-                                                                                                                                              t.enchants = enchants3;
+                                                                                                                                              t.enchants = enchants2;
+                                                                                                                                              t.transfer_enhancement = true;
                                                                                                                                           }
                                                                                                                                          )
                                           );

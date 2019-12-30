@@ -145,6 +145,9 @@ namespace CallOfTheWild
         static public BlueprintAbility lend_judgement_greater;
         static public BlueprintAbility flames_of_the_faithful;
 
+        static public BlueprintAbility magic_weapon;
+        static public BlueprintAbility magic_weapon_greater;
+
 
         static public void load()
         {
@@ -222,6 +225,98 @@ namespace CallOfTheWild
 
             createLendJudgement();
             createFlamesOfTheFaithful();
+            createMagicWeapon();
+        }
+
+
+        static void createMagicWeapon()
+        {
+            var icon = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4").Icon;
+
+
+            var buff = Helpers.CreateBuff("MagicWeaponBaseBuff",
+                                          "Magic Weapon",
+                                          "Magic weapon gives a weapon a +1 enhancement bonus on attack and damage rolls. An enhancement bonus does not stack with a masterwork weapon’s +1 bonus on attack rolls.\n"
+                                          + "You can’t cast this spell on a natural weapon, such as an unarmed strike (instead, see magic fang).",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnhancePrimaryHandWeaponUpToValue>(b => b.value = 1)
+                                          );
+            buff.Stacking = StackingType.Stack;
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Minutes), true);
+
+            var greater_buff = Helpers.CreateBuff("MagicWeaponGreaterBuff",
+                                          "Magic Weapon, Greater",
+                                          "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5).\n"
+                                          + "Magic Weapon: " + buff.Description,
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnhancePrimaryHandWeaponUpToValue>(b => b.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 4)
+                                          );
+
+            greater_buff.Stacking = StackingType.Stack;
+            greater_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var apply_greater_buff = Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Hours), true);
+
+            magic_weapon = Helpers.CreateAbility("MagicWeaponBaseAbility",
+                                                 buff.Name,
+                                                 buff.Description,
+                                                 "",
+                                                 buff.Icon,
+                                                 AbilityType.Spell,
+                                                 UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Touch,
+                                                 Helpers.minutesPerLevelDuration,
+                                                 "",
+                                                 Helpers.CreateRunActions(apply_buff),
+                                                 Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                 Common.createAbilitySpawnFx("cf69c140c7d4d3c49a37e9202c5b835e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //bless weapon
+                                                 Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>()
+                                                 );
+            magic_weapon.setMiscAbilityParametersTouchFriendly();
+            magic_weapon.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
+
+            magic_weapon_greater = Helpers.CreateAbility("MagicWeaponGreaterAbility",
+                                                         greater_buff.Name,
+                                                         greater_buff.Description,
+                                                         "",
+                                                         greater_buff.Icon,
+                                                         AbilityType.Spell,
+                                                         UnitCommand.CommandType.Standard,
+                                                         AbilityRange.Touch,
+                                                         Helpers.hourPerLevelDuration,
+                                                         "",
+                                                         Helpers.CreateRunActions(apply_greater_buff),
+                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus),
+                                                         Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                         Common.createAbilitySpawnFx("cf69c140c7d4d3c49a37e9202c5b835e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //bless weapon
+                                                         Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>()
+                                                         );
+            magic_weapon_greater.setMiscAbilityParametersTouchFriendly();
+            magic_weapon_greater.AvailableMetamagic = magic_weapon.AvailableMetamagic;
+
+            magic_weapon.AddToSpellList(Helpers.inquisitorSpellList, 1);
+            magic_weapon.AddToSpellList(Helpers.clericSpellList, 1);
+            magic_weapon.AddToSpellList(Helpers.magusSpellList, 1);
+            magic_weapon.AddToSpellList(Helpers.paladinSpellList, 1);
+            magic_weapon.AddToSpellList(Helpers.wizardSpellList, 1);
+            magic_weapon.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502"); //bless weapon
+
+
+            magic_weapon_greater.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            magic_weapon_greater.AddToSpellList(Helpers.clericSpellList, 4);
+            magic_weapon_greater.AddToSpellList(Helpers.magusSpellList, 3);
+            magic_weapon_greater.AddToSpellList(Helpers.paladinSpellList, 3);
+            magic_weapon_greater.AddToSpellList(Helpers.wizardSpellList, 3);
+            magic_weapon_greater.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502"); //bless weapon
+
+            //replace 1st level spell in war domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("8d454cbb7f25070419a1c8eaf89b5be5"), magic_weapon, 1);
         }
 
 

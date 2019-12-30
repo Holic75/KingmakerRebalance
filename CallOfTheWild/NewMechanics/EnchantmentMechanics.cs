@@ -67,36 +67,37 @@ using Kingmaker.Blueprints.Items.Equipment;
 namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 {
 
-    public class StaticWeaponEnhancementBonus : WeaponEnhancementBonus
+    public class StaticWeaponEnhancementBonus : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
     {
         [JsonProperty]
         private int added_bonus = 0;
 
-        public new void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        public int EnhancementBonus;
+
+        public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
         {
             if (evt.Weapon != this.Owner)
                 return;
-
+       
             int bonus = EnhancementBonus - evt.Enhancement;
             added_bonus = bonus > 0 ? bonus : 0;
-
 
             evt.AddBonusDamage(added_bonus);
             evt.Enhancement += added_bonus;
         }
 
-        public new void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
         {
         }
 
-        public new void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
         {
             if (evt.Weapon != this.Owner)
                 return;
             evt.AddBonus(added_bonus, this.Fact);
         }
 
-        public new void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
         {
         }
     }
@@ -352,6 +353,76 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 return;
             }
             m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+
+            if (lock_slot && !weapon.IsNonRemovable)
+            {
+                weapon.IsNonRemovable = true;
+                m_unlock = true;
+            }
+            //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
+            m_Weapon = weapon;
+        }
+
+        public override void OnFactDeactivate()
+        {
+            if (this.m_Weapon == null)
+                return;
+            //m_Weapon.IsNonRemovable = false;
+            if (m_unlock)
+            {
+                m_Weapon.IsNonRemovable = false;
+            }
+            if (this.m_Enchantment == null)
+                return;
+            this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+        }
+    }
+
+
+    public class BuffContextEnhancePrimaryHandWeaponUpToValue : BuffLogic
+    {
+        public ContextValue value;
+        public BlueprintWeaponType[] allowed_types;
+        public bool lock_slot = false;
+        public bool only_non_magical = false;
+        [JsonProperty]
+        private ItemEnchantment m_Enchantment;
+        [JsonProperty]
+        private ItemEntityWeapon m_Weapon;
+        [JsonProperty]
+        private bool m_unlock;
+
+
+        public override void OnFactActivate()
+        {
+            m_unlock = false;
+            var unit = this.Owner;
+            if (unit == null) return;
+
+            var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            if (weapon == null)
+            {
+                return;
+            }
+
+            if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
+            {
+                return;
+            }
+
+            int bonus = value.Calculate(Context) - GameHelper.GetItemEnhancementBonus(weapon) - 1;
+            if (bonus < 0)
+            {
+                return;
+            }
+            if (bonus >= 5)
+            {
+                bonus = 4;
+            }
+
+
+
+            m_Enchantment = weapon.AddEnchantment(WeaponEnchantments.standard_enchants[bonus], Context, new Rounds?());
 
             if (lock_slot && !weapon.IsNonRemovable)
             {
@@ -1101,6 +1172,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             Except
         }
 
+        public bool transfer_enhancement = false;
+
         public BlueprintWeaponEnchantment[] enchants;
         public TransferType transfer_type;
 
@@ -1192,6 +1265,27 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                         new_enchant.RemoveOnUnequipItem = true;
                         m_enchants.Add(new_enchant);
                     }
+                }
+            }
+
+            if (transfer_enhancement)
+            {
+                var enchancement_bonus = GameHelper.GetItemEnhancementBonus(primary_hand_weapon);
+                
+                if (enchancement_bonus <= 0)
+                {
+                    return;
+                }
+                else
+                {
+                    enchancement_bonus = Math.Min(4, enchancement_bonus);
+                }
+
+                foreach (var w in weapons)
+                {
+                    var new_enchant = w.AddEnchantment(WeaponEnchantments.static_enchants[enchancement_bonus], this.Fact.MaybeContext, new Rounds?());
+                    new_enchant.RemoveOnUnequipItem = true;
+                    m_enchants.Add(new_enchant);
                 }
             }
         }

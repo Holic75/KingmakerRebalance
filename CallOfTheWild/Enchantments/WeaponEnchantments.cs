@@ -58,7 +58,7 @@ namespace CallOfTheWild
             for (int i = 0; i < static_enchants.Length; i++)
             {
                 static_enchants[i] = Common.createWeaponEnchantment($"StaticTemporaryEnhancement{i + 1}",
-                                                                    temporary_enchants[i].Name,
+                                                                    "Static " + temporary_enchants[i].Name,
                                                                     $"Attacks with this weapon get +{i + 1} enhancement bonus on both attack and damage rolls.",
                                                                     temporary_enchants[i].Prefix,
                                                                     temporary_enchants[i].Suffix,
@@ -80,17 +80,17 @@ namespace CallOfTheWild
                 unarmed_bonus[i].ComponentsArray = new BlueprintComponent[] { Helpers.Create<NewMechanics.EnchantmentMechanics.EquipmentWeaponTypeEnhancement>(s => { s.Enhancement = i + 1; s.AllNaturalAndUnarmed = true; }) };
             }
 
-            for (int i = 0; i < standard_enchants.Length; i++)
+            /*for (int i = 0; i < standard_enchants.Length; i++)
             {
                 standard_enchants[i].ComponentsArray[0] = Helpers.Create<NewMechanics.EnchantmentMechanics.StaticWeaponEnhancementBonus>(s => { s.EnhancementBonus = i + 1; });
-            }
+            }*/
 
             //fix magic fang
             var magic_fang = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33");
             var greater_magic_fang = library.Get<BlueprintAbility>("f1100650705a69c4384d3edd88ba0f52");
 
-            (magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment[0] = standard_enchants[0];
-            (greater_magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment = standard_enchants;
+            (magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment[0] = static_enchants[0];
+            (greater_magic_fang.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as MagicFang).Enchantment = static_enchants;
 
 
             //fix monk robes

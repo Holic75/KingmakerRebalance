@@ -353,8 +353,48 @@ namespace CallOfTheWild
                 if (unit == null)
                     return false;
 
-                if (unit.Body.PrimaryHand.HasWeapon)
-                    return ((IEnumerable<WeaponCategory>)this.Category).Contains<WeaponCategory>(unit.Body.PrimaryHand.Weapon.Blueprint.Type.Category);
+                var primary_hand = unit.Body?.PrimaryHand;
+                if (primary_hand == null)
+                {
+                    return false;
+                }
+
+                if (primary_hand.HasWeapon)
+                    return ((IEnumerable<WeaponCategory>)this.Category).Contains<WeaponCategory>(primary_hand.Weapon.Blueprint.Type.Category);
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilitTargetManufacturedWeapon : BlueprintComponent, IAbilityTargetChecker
+        {
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+                if (unit == null)
+                    return false;
+
+                if (unit.Body.IsPolymorphed)
+                {
+                    return false;
+                }
+
+                var primary_hand = unit.Body?.PrimaryHand;
+                if (primary_hand == null)
+                {
+                    return false;
+                }
+
+                if (primary_hand.HasWeapon)
+                    return !primary_hand.Weapon.Blueprint.IsNatural && !primary_hand.Weapon.Blueprint.IsUnarmed && !EnchantmentMechanics.Helpers.isSummoned(primary_hand.Weapon);
                 return false;
             }
 
@@ -375,6 +415,11 @@ namespace CallOfTheWild
                 UnitEntityData unit = target.Unit;
                 if (unit == null)
                     return false;
+
+                if (unit.Body.IsPolymorphed)
+                {
+                    return false;
+                }
 
                 if (unit.Body.PrimaryHand.HasWeapon)
                     return !(unit.Body.PrimaryHand.Weapon.Blueprint.Type.IsNatural || unit.Body.PrimaryHand.Weapon.Blueprint.Type.IsUnarmed);

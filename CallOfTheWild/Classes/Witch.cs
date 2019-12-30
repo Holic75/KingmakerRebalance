@@ -680,7 +680,7 @@ namespace CallOfTheWild
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
                                          "042aaa117e89c4d4b8cb41478dd3fca3", //grace
                                          "2d4263d80f5136b4296d6eb43a221d7d", //magic vestment
-                                         "a26c23a887a6f154491dc2cefdad2c35",  //crusader's edge
+                                         NewSpells.magic_weapon_greater.AssetGuid,
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flameStrike
                                          "6a234c6dcde7ae94e94e9c36fd1163a7", //bulls strength mass
                                          "3cf5b2bd093a36a468b4ece38ad4d5fa", //bestow grace of the champion
@@ -800,7 +800,7 @@ namespace CallOfTheWild
                 createWitchPatronFeature("Strength", "6f859ba938f94132920eeb63a8c9af50", "8125ff1edafc4c5489ad2739a85d5386",
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
                                          "4c3d08935262b6544ae97599b3a9556d", //bulls strength
-                                         "2d4263d80f5136b4296d6eb43a221d7d", //magical vestment
+                                         NewSpells.magic_weapon_greater.AssetGuid,
                                          "ef16771cb05d1344989519e87f25b3c5", //divine power
                                          "90810e5cf53bf854293cbd5ea1066252", //righteous magic
                                          "6a234c6dcde7ae94e94e9c36fd1163a7", //bulls strength mass
