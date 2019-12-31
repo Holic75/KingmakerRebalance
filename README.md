@@ -108,6 +108,7 @@ New Wild Talents:
 New spells:
 - Command and Command, Greater,
 - Chill Touch,
+- Dazzling Blade and Dazzling Blade, Greater,
 - Frostbite,
 - Hex Vulnerability,
 - Ill Omen,
@@ -137,6 +138,7 @@ New spells:
 - Stricken Heart,
 - Vine Strike,
 - Winter's Grasp,
+- Accursed Glare,
 - Burning Entanglement,
 - Countless Eyes,
 - Deadly Juggernaut,

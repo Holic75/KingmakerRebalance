@@ -151,6 +151,8 @@ namespace CallOfTheWild
         static public BlueprintAbility dazzling_blade;
         static public BlueprintAbility dazzling_blade_mass;
 
+        static public BlueprintAbility accursed_glare;
+
 
         static public void load()
         {
@@ -230,6 +232,42 @@ namespace CallOfTheWild
             createFlamesOfTheFaithful();
             createMagicWeapon();
             createDazzlingBlade();
+
+            createAccursedGlare();
+        }
+
+
+        static void createAccursedGlare()
+        {
+            var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
+            accursed_glare = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "AccursedGlareAbility", ""); //touch of chaos as base
+
+            accursed_glare.SetName("Accursed Glare");
+            accursed_glare.LocalizedDuration = Helpers.CreateString("AccursedGlareAbility.Duration", "1 day/level");
+            accursed_glare.SetDescription("You channel a fell curse through your glare.If the target fails its saving throw, it begins to obsessively second guess its actions and attract bad luck.Whenever the target attempts an attack roll or saving throw while the curse lasts, it must roll twice and take the lower result.");
+            accursed_glare.Range = AbilityRange.Close;
+            accursed_glare.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
+            accursed_glare.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
+            accursed_glare.RemoveComponent(accursed_glare.GetComponent<AbilityDeliverTouch>());
+            accursed_glare.RemoveComponent(accursed_glare.GetComponent<AbilityResourceLogic>());
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "AccursedGlareBuff", "");
+            buff.SetName(accursed_glare.Name);
+            buff.SetDescription(accursed_glare.Description);
+               
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will,
+                                                                Helpers.CreateActionList(Common.createContextSavedApplyBuff(buff, DurationRate.Days, AbilityRankType.Default)));
+
+            accursed_glare.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(action));
+            accursed_glare.AddComponent(Helpers.CreateContextRankConfig());
+            accursed_glare.AddComponent(doom_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
+            accursed_glare.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Necromancy));
+            accursed_glare.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Curse));
+            accursed_glare.AvailableMetamagic = Metamagic.Quicken | Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach;
+            accursed_glare.SpellResistance = true;
+
+            accursed_glare.AddToSpellList(Helpers.wizardSpellList, 3);
+            accursed_glare.AddSpellAndScroll("d1d24c5613bb8c14a9a089c54b77527d");
         }
 
 
