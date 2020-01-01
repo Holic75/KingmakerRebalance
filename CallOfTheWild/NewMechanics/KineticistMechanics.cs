@@ -36,7 +36,16 @@ namespace CallOfTheWild.KineticistMechanics
             if (caster != this.Owner)
                 return;
 
-            cost.IncreaseGatherPower(value);
+            var burn_cost = abilityBlueprint.GetComponent<AbilityKineticist>();
+            if (burn_cost != null && burn_cost.WildTalentBurnCost > 0)
+            {
+                //to make it work for wild talents
+                cost.Decrease(1, KineticistBurnType.WildTalent);
+            }
+            else
+            {
+                cost.IncreaseGatherPower(value);
+            }
         }
 
         public void HandleKineticistAcceptBurn(UnitPartKineticist kinetecist, int burn, AbilityData ability)
