@@ -836,7 +836,27 @@ namespace CallOfTheWild
         }
 
 
-        public static void fixFlailCritMultiplier()
+        internal static void fixAnimalCompanionFeats()
+        {
+            //remove weapon focus from ac
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            var animal_companion_selection = library.Get<BlueprintFeatureSelection>("571f8434d98560c43935e132df65fe76");
+
+            foreach (var f in animal_companion_selection.AllFeatures)
+            {
+                var u = f.GetComponent<AddPet>()?.Pet;
+                if (u == null)
+                {
+                    continue;
+                }
+                var feats = u.GetComponent<AddClassLevels>().Selections[0].Features;
+                u.GetComponent<AddClassLevels>().Selections[0].Features = feats.RemoveFromArray(weapon_focus);
+            }
+            
+        }
+        
+
+        internal static void fixFlailCritMultiplier()
         {
             BlueprintWeaponType[] flails = new BlueprintWeaponType[] {library.Get<BlueprintWeaponType>("bf1e53f7442ed0c43bf52d3abe55e16a"),
                                                                       library.Get<BlueprintWeaponType>("8fefb7e0da38b06408f185e29372c703")

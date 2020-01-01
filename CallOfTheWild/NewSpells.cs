@@ -152,6 +152,7 @@ namespace CallOfTheWild
         static public BlueprintAbility dazzling_blade_mass;
 
         static public BlueprintAbility accursed_glare;
+        static public BlueprintAbility solid_fog;
 
 
         static public void load()
@@ -234,6 +235,61 @@ namespace CallOfTheWild
             createDazzlingBlade();
 
             createAccursedGlare();
+            createSolidFogAndFixAcidFog();
+        }
+
+
+        static void createSolidFogAndFixAcidFog()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "SolidFogArea", ""); //mind fog
+            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Size = 20.Feet();
+            area.SpellResistance = false;
+
+            var buff = Helpers.CreateBuff("SolidFogBuff",
+                                          "Solid Fog",
+                                          "This spell functions like fog cloud, but in addition to obscuring sight, the solid fog is so thick that it impedes movement. Creatures moving through a solid fog move at half their normal speed and take a -2 penalty on all melee attack and melee damage rolls. The vapors prevent effective ranged weapon attacks (except for magic rays and the like).",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
+                                          Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; }),
+                                          Helpers.Create<WeaponParametersAttackBonus>(a => a.AttackBonus = -2),
+                                          Helpers.Create<WeaponParametersDamageBonus>(a => a.DamageBonus = -2),
+                                          Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] {AttackType.Ranged}),
+                                          Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged })
+                                          );
+
+            foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
+            {
+                buff.AddComponent(Common.createOutgoingConcelement(c));
+            }
+
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
+
+
+            solid_fog = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "SolidFogAbility", "");
+            solid_fog.SpellResistance = false;
+            solid_fog.RemoveComponents<SpellListComponent>();
+            solid_fog.RemoveComponents<SpellDescriptorComponent>();
+            solid_fog.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            solid_fog.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
+            solid_fog.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+            solid_fog.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            solid_fog.AddToSpellList(Helpers.magusSpellList, 4);
+            solid_fog.AddToSpellList(Helpers.wizardSpellList, 4);
+
+            solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            //fix acid fog 
+            var acid_fog = library.Get<BlueprintAbility>("dbf99b00cd35d0a4491c6cc9e771b487");
+            acid_fog.SetDescription("Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d6 points of acid damage to each creature and object within it.\n"
+                                    + "Solid Fog: " + solid_fog.Description);
+
+            var acid_fog_buff = library.Get<BlueprintBuff>("af76754540cacca45bfb1f0074bf3013");
+            acid_fog_buff.ComponentsArray = buff.ComponentsArray;
+            acid_fog_buff.SetDescription(acid_fog.Description);
         }
 
 
@@ -490,7 +546,7 @@ namespace CallOfTheWild
             flames_of_the_faithful = Helpers.CreateAbility("FlamesOfTheFaithful",
                                                            "Flames of the Faithful",
                                                            "With a touch, you cause a glowing rune to appear on a single weapon, granting that weapon the flaming property (and allowing it to cause an extra 1d6 points of fire damage on a successful hit). If you are using the judgment class feature, your weapon gains the flaming burst property instead.\n"
-                                                           + "The spell functions only for weapons that you wield.If the weapon leaves your hand for any reason, the spell effect ends.The effects of this spell do not stack with any existing flaming or flaming burst weapon property that the target weapon may already possess.",
+                                                           + "The spell functions only for weapons that you wield. If the weapon leaves your hand for any reason, the spell effect ends. The effects of this spell do not stack with any existing flaming or flaming burst weapon property that the target weapon may already possess.",
                                                            "",
                                                            library.Get<BlueprintBuff>("32e17840df49fbd48b835d080f5673a4").Icon, //arcane weapon flaming
                                                            AbilityType.Spell,

@@ -158,6 +158,7 @@ New spells:
 - Rebuke,
 - Rigor Mortis,
 - River of Wind,
+- Solid Fog,
 - Spite,
 - Virtuoso Performance,
 - Suffocate,
@@ -212,7 +213,8 @@ enchanced attacks (optional),
 - Kineticists now receive internal buffer ability (as in pnp),
 - Kinetic Knights now receive Blade Rush infusion at level 3, Kinetic Whip infusion at level 5, Whip Hurricane infusion at level 11 and Swift Blade Rush infusion at level 13 for free,
 - When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses,
-- Increased damage reduction defensive power increases dr by 2 instead of 1 to make it similar to unchained barbarian rage power)
+- Increased damage reduction defensive power increases dr by 2 instead of 1 to make it similar to unchained barbarian rage power,
+- Acid Fog spell effect was changed to work as in pnp.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

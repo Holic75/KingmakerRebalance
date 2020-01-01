@@ -174,7 +174,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixNeclaceOfDoubleCrosses();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
                     CallOfTheWild.Rebalance.fixDomainSpells();
-
+                    CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 

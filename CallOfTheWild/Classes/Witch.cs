@@ -977,6 +977,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "2a6eda8ef30379142a4b75448fb214a3", 4), //poison
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
+                new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( NewSpells.spite.AssetGuid, 4),
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime

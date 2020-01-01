@@ -1866,9 +1866,33 @@ namespace CallOfTheWild
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class WeaponAttackAutoMiss : RuleTargetLogicComponent<RuleAttackRoll>, ITargetRulebookHandler<RuleAttackRoll>
         {
-
             public AttackType[] attack_types;
 
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Weapon == null)
+                {
+                    return;
+                }
+
+                if (attack_types.Contains(evt.AttackType))
+                {
+                    evt.AutoMiss = true;
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+
+            }
+        }
+
+
+        [ComponentName("Outgoing Weapon Attack Auto Miss")]
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class OutgoingWeaponAttackAutoMiss : RuleInitiatorLogicComponent<RuleAttackRoll>, IInitiatorRulebookHandler<RuleAttackRoll>
+        {
+            public AttackType[] attack_types;
 
             public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {

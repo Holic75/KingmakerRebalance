@@ -917,6 +917,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "2a6eda8ef30379142a4b75448fb214a3", 4), //poison
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
+                new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 4), //spit venom           
