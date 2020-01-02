@@ -299,7 +299,7 @@ namespace CallOfTheWild
         {
             var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
             accursed_glare = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "AccursedGlareAbility", ""); //touch of chaos as base
-
+            accursed_glare.Type = AbilityType.Spell;
             accursed_glare.SetName("Accursed Glare");
             accursed_glare.LocalizedDuration = Helpers.CreateString("AccursedGlareAbility.Duration", "1 day/level");
             accursed_glare.SetDescription("You channel a fell curse through your glare.If the target fails its saving throw, it begins to obsessively second guess its actions and attract bad luck.Whenever the target attempts an attack roll or saving throw while the curse lasts, it must roll twice and take the lower result.");
@@ -308,6 +308,7 @@ namespace CallOfTheWild
             accursed_glare.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             accursed_glare.RemoveComponent(accursed_glare.GetComponent<AbilityDeliverTouch>());
             accursed_glare.RemoveComponent(accursed_glare.GetComponent<AbilityResourceLogic>());
+            accursed_glare.RemoveComponents<SpellComponent>();
 
             var buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "AccursedGlareBuff", "");
             buff.SetName(accursed_glare.Name);

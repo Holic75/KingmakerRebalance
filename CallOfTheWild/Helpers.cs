@@ -2360,6 +2360,17 @@ namespace CallOfTheWild
             }
         }
 
+
+        static public void AddItemToSpecifiedVendorTable(BlueprintSharedVendorTable vendor_table, BlueprintItem new_item, int amount = 1)
+        {
+            var loot_item = new LootItem();
+            LootItem_setItem(loot_item, new_item);
+            var new_pack = Helpers.Create<LootItemsPackFixed>();
+            LootItemsPackFixed_setItem(new_pack, loot_item);
+            Helpers.SetField(new_pack, "m_Count", amount);
+            vendor_table.AddComponent(new_pack);
+        }
+
         static readonly FastSetter LootItem_setItem = CreateFieldSetter<LootItem>("m_Item");
         static readonly FastSetter LootItemsPackFixed_setItem = CreateFieldSetter<LootItemsPackFixed>("m_Item");
 
@@ -2467,6 +2478,9 @@ namespace CallOfTheWild
             scroll.DC = 10 + scrollSpellLevel * 3 / 2;
 
             scroll.Ability = spell.HasVariants ? spell.Variants.Skip(variant).First() : spell;
+
+            var zarcies = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
+            AddItemToSpecifiedVendorTable(zarcies, scroll, 5);
             modScrolls.Add(scroll);
         }
 

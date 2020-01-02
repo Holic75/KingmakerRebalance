@@ -937,6 +937,7 @@ namespace CallOfTheWild
             athach_form_form_spell.SetIcon(defensive_stance.Icon);
 
             giant_formII = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "GiantFormIISpell", "");
+            giant_formII.RemoveComponents<SpellListComponent>();
             giant_formII.SetIcon(defensive_stance.Icon);
             giant_formII.SetName("Giant Form II");
             giant_formII.SetDescription("You can aquire features of Huge Athach or Storm Giant.");
@@ -1087,6 +1088,7 @@ namespace CallOfTheWild
             plant_shapeII = replaceForm(beast_shape_prototype, shambling_mound_form, "PlantShapeIISpell", "Plant Shape II",
                                                 "You become a Large shambling mound. You gain a +4 size bonus to your Strength, a +2 size bonus to your Constitution, +4 natural armor bonus, resist fire 20, and resist electricity 20. Your movement speed is reduced by 10 feet. You also have two 2d6 slam attacks, the constricting vines ability, and the poison ability.\nConstricting Vines: A shambling mound's vines coil around any creature it hits with a slam attack. The shambling mound attempts a grapple maneuver check against its target, and on a successful check its vines deal 2d6+5 damage and the foe is grappled.\nGrappled characters cannot move, and take a -2 penalty on all attack rolls and a -4 penalty to Dexterity. Grappled characters attempt to escape every round by making a successful combat maneuver, Strength, Athletics, or Mobility check. The DC of this check is the shambling mound's CMD.\nEach round, creatures grappled by a shambling mound suffer 4d6+Strength modifier × 2 damage.\nA shambling mound receives a +4 bonus on grapple maneuver checks.\nPoison:\nSlam; Save: Fortitude\nFrequency: 1/round for 2 rounds\nEffect: 1d2 Strength and 1d2 Dexterity damage\nCure: 1 save\nThe save DC is Constitution-based.");
 
+            plant_shapeII.RemoveComponents<SpellListComponent>();
             plant_shapeII.AddToSpellList(Helpers.alchemistSpellList, 6);
             plant_shapeII.AddToSpellList(Helpers.wizardSpellList, 6);
             plant_shapeII.SetIcon(entangle.Icon);
@@ -1136,7 +1138,9 @@ namespace CallOfTheWild
 
             giant_flytrap_form_spell.RemoveComponents<SpellListComponent>();
             giant_flytrap_form_spell.SetIcon(entangle.Icon);
+           
             plant_shapeIII = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "PlantShapeIIISpell", "");
+            plant_shapeIII.RemoveComponents<SpellListComponent>();
             plant_shapeIII.SetIcon(entangle.Icon);
             plant_shapeIII.SetName("Plant Shape III");
             plant_shapeIII.SetDescription("You become a Huge Treant or a Huge Giant Flytrap");
