@@ -54,6 +54,13 @@ namespace CallOfTheWild
         static BlueprintArchetype kinetic_knight = library.Get<BlueprintArchetype>("7d61d9b2250260a45b18c5634524a8fb");
         static BlueprintProgression kineticist_progression = library.Get<BlueprintProgression>("b79e92dd495edd64e90fb483c504b8df");
 
+
+        static BlueprintAbility blade_whirlwind_ability = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
+        static BlueprintAbility kinetic_whip_ability;
+        static BlueprintAbility whip_hurricane_ability;
+        static BlueprintAbility blade_rush_ability;
+        static BlueprintAbility blade_rush_swift_ability;
+
         internal static void load()
         {
             var kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
@@ -95,6 +102,23 @@ namespace CallOfTheWild
             createKineticWhip();
             createWhipHurricane();
             createInternalBuffer();
+            fixKineticistAbilitiesToBeSpelllike();
+        }
+
+
+        static void fixKineticistAbilitiesToBeSpelllike()
+        {
+            var abilities = library.GetAllBlueprints().Where<BlueprintScriptableObject>(a => a is BlueprintAbility).ToArray().Cast<BlueprintAbility>().Where(b => b.GetComponent< AbilityKineticist>() != null).ToArray();
+
+            var combat_abilities = new BlueprintAbility[] { blade_rush_ability, blade_rush_swift_ability, whip_hurricane_ability, blade_whirlwind_ability, kinetic_whip_ability };
+
+            foreach (var ability in abilities)
+            {
+                if (!combat_abilities.Contains(ability))
+                {
+                    ability.Type = AbilityType.SpellLike;
+                }              
+            }
         }
 
 
@@ -308,7 +332,7 @@ namespace CallOfTheWild
                                                    );
 
             var apply_whip = Common.createContextActionApplyBuff(kinetic_whip_buff, Helpers.CreateContextDuration(1), dispellable: false);
-            var kinetic_whip_ability = Helpers.CreateAbility("KineticWhipAbility",
+            kinetic_whip_ability = Helpers.CreateAbility("KineticWhipAbility",
                                                 kinetic_whip_buff.Name,
                                                 "Element: universal\nType: form infusion\nLevel: 3\nBurn: 2\nPrerequisites: kinetic blade\nAssociated Blasts: any\nSaving Throw: none\n" + kinetic_whip_buff.Description,
                                                 "",
@@ -343,9 +367,9 @@ namespace CallOfTheWild
 
             //remove whip when using blade whirlwind, blade dash and swift blade dash
             var remove_whip = Common.createContextActionRemoveBuff(kinetic_whip_buff);
-            blade_whirlwind.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
-            blade_rush.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
-            blade_rush_swift.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+            blade_whirlwind_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+            blade_rush_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+            blade_rush_swift_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
         }
 
 
@@ -354,7 +378,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/WhipHurricane.png");
             var blade_whirlwind = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
 
-            var whip_hurricane_ability = library.CopyAndAdd<BlueprintAbility>(blade_whirlwind.AssetGuid, "WhipHurricaneAbility", "");
+            whip_hurricane_ability = library.CopyAndAdd<BlueprintAbility>(blade_whirlwind.AssetGuid, "WhipHurricaneAbility", "");
             whip_hurricane_ability.SetNameDescriptionIcon("Whip Hurricane",
                                                           "Element: universal\nType: form infusion\nLevel: 6\nBurn: 4\nPrerequisites: kinetic blade, kinetic whip, blade whirlwind\nAssociated Blasts: any\nSaving Throw: none\n"
                                                           + "As blade whirlwind, except it manifests a kinetic whip, and the whip lasts until the beginning of your next turn or until you use any form infusion that creates a blade or whip again, whichever comes first.",
@@ -388,7 +412,7 @@ namespace CallOfTheWild
             var blade_whirlwind = library.Get<BlueprintAbility>("80f10dc9181a0f64f97a9f7ac9f47d65");
             var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
             
-            var blade_rush_ability = Helpers.CreateAbility("BladeRushAbility",
+            blade_rush_ability = Helpers.CreateAbility("BladeRushAbility",
                                                             "Blade Rush",
                                                             "Element: universal\nType: form infusion\nLevel: 2\nBurn: 2\nPrerequisites: kinetic blade\nAssociated Blasts: any\nSaving Throw: none\nYou use your element’s power to instantly move 25 feet in any direction, manifest a kinetic blade, and attack once. You gain a +2 bonus on the attack roll and take a –2 penalty to your AC until the start of your next turn. The movement doesn’t provoke attacks of opportunity, though activating blade rush does. If you have the kinetic whip infusion, you can manifest a kinetic whip instead of a kinetic blade at the end of your movement by increasing the burn cost of this infusion by 1. The blade or whip vanishes instantly after the rush.",
                                                             "",
@@ -421,15 +445,15 @@ namespace CallOfTheWild
             infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(blade_rush);
 
 
-            var blade_rush_ability_swift = library.CopyAndAdd<BlueprintAbility>(blade_rush_ability.AssetGuid, "BladeRushSwift", "");
-            blade_rush_ability_swift.ActionType = UnitCommand.CommandType.Swift;
-            blade_rush_ability_swift.SetNameDescription("Blade Rush (Swift Action)",
+            blade_rush_swift_ability = library.CopyAndAdd<BlueprintAbility>(blade_rush_ability.AssetGuid, "BladeRushSwift", "");
+            blade_rush_swift_ability.ActionType = UnitCommand.CommandType.Swift;
+            blade_rush_swift_ability.SetNameDescription("Blade Rush (Swift Action)",
                                                         "At 13th level as a swift action, she can accept 2 points of burn to unleash a kinetic blast with the blade rush infusion."
                                                         );
-            addBladeInfusionCostIncrease(blade_rush_ability_swift);
-            blade_rush_ability_swift.ReplaceComponent<AbilityKineticist>(a => a.WildTalentBurnCost = 2);
+            addBladeInfusionCostIncrease(blade_rush_swift_ability);
+            blade_rush_swift_ability.ReplaceComponent<AbilityKineticist>(a => a.WildTalentBurnCost = 2);
 
-            blade_rush_swift = Common.AbilityToFeature(blade_rush_ability_swift, false, "");
+            blade_rush_swift = Common.AbilityToFeature(blade_rush_swift_ability, false, "");
 
             kinetic_knight.AddFeatures[2].Features.Add(blade_rush);
             kinetic_knight.AddFeatures = kinetic_knight.AddFeatures.AddToArray(Helpers.LevelEntry(13, blade_rush_swift));

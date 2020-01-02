@@ -1810,6 +1810,39 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Skill bonus in combat")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class SkillBonusInCombat : RuleInitiatorLogicComponent<RuleSkillCheck>
+        {
+            public BlueprintUnitFact reason = null;
+            public ContextValue value;
+            public StatType skill;
+            public ModifierDescriptor descriptor;
+
+            public override void OnEventAboutToTrigger(RuleSkillCheck evt)
+            {
+                if (evt.StatType != skill)
+                {
+                    return;
+                }
+                if (reason != null && (evt.Reason.Fact == null || evt.Reason.Fact.Blueprint != reason))
+                {
+                    return;
+                }
+
+                var bonus = value.Calculate(this.Fact.MaybeContext);
+
+                evt.Bonus.AddModifier(bonus, this, descriptor);
+            }
+
+            public override void OnEventDidTrigger(RuleSkillCheck evt)
+            {
+            }
+        }
+
+
         [AllowMultipleComponents]
         [ComponentName("Saving throw bonus against fact from caster")]
         [AllowedOn(typeof(BlueprintUnitFact))]

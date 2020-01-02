@@ -153,6 +153,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility accursed_glare;
         static public BlueprintAbility solid_fog;
+        static public BlueprintAbility thirsting_entanglement;
 
 
         static public void load()
@@ -236,6 +237,7 @@ namespace CallOfTheWild
 
             createAccursedGlare();
             createSolidFogAndFixAcidFog();
+            createThirstingEntanglement();
         }
 
 
@@ -364,7 +366,7 @@ namespace CallOfTheWild
                                           Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = release_ability),
                                           Common.createContextManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm, Helpers.CreateContextValue(AbilityRankType.Default)),
                                           Helpers.Create<NewMechanics.ContextCombatManeuverBonus>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm; c.Bonus = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                          Helpers.CreateAddContextStatBonus(StatType.CheckBluff, ModifierDescriptor.Competence),
+                                          Helpers.Create<NewMechanics.SkillBonusInCombat>(s => { s.value = Helpers.CreateContextValue(AbilityRankType.Default); s.skill = StatType.CheckBluff; s.descriptor = ModifierDescriptor.Competence; }),
                                           Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 3, max: 5),
                                           Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.enchant = enchant; p.secondary_hand = false; })
                                           );
@@ -2233,6 +2235,7 @@ namespace CallOfTheWild
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("c18a821ee662db0439fb873165da25be"), obscuring_mist, 1);//weather
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), obscuring_mist, 1);//water
             obscuring_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+
         }
 
 
@@ -2394,6 +2397,62 @@ namespace CallOfTheWild
             burning_entanglement.AddToSpellList(Helpers.rangerSpellList, 3);
 
             burning_entanglement.AddSpellAndScroll("5022612735a9e2345bfc5110106823d8"); //entangle
+        }
+
+
+        static void createThirstingEntanglement()
+        {
+            var icon = library.Get<BlueprintAbility>("6c7467f0344004d48848a43d8c078bf8").Icon;
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("bcb6329cefc66da41b011299a43cc681", "ThirstingEntanglementArea", ""); //entangle
+            var difficult_terrain = library.Get<BlueprintBuff>("762f5da59182e9b4b90c62ed3142b732"); //difficultTerrain
+
+            var area_run_actions = area.GetComponent<AbilityAreaEffectRunAction>().CreateCopy();
+            var buff = library.CopyAndAdd<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38", "ThirstinEntanglementBuff", "");
+            buff.SetIcon(icon);
+            buff.SetName("Thirsting Entanglement");
+            buff.SetDescription("This spell functions as entangle, except the plants latch on to targets and drain away their vitality. Any creature that fails a save to avoid becoming entangled or fails a check to break free takes 1d2 points of Constitution damage.");
+            var con_damage = Helpers.CreateActionDealDamage(StatType.Constitution, Helpers.CreateContextDiceValue(DiceType.D2, 1, 0));
+
+            var break_free = Helpers.Create<ContextActionBreakFree>(c => { c.Success = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+                                                                           c.Failure = Helpers.CreateActionList(con_damage);
+                                                                         }
+                                                                   );
+            buff.ReplaceComponent<AddFactContextActions>(a =>
+                                                        {
+                                                            a.Activated = Helpers.CreateActionList(con_damage);
+                                                            a.NewRound = Helpers.CreateActionList(break_free);
+                                                        }
+                                                        );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true);
+            var save_action = Helpers.CreateActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateConditionalSaved(null, apply_buff));
+            var remove_buff = Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = buff);
+            var remove_difficult_terrain = Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = difficult_terrain);
+            var apply_difficult_terrain = Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_child: true, is_permanent: true);
+            var area_run_action = Helpers.CreateAreaEffectRunAction(unitEnter: new GameAction[] { save_action, apply_difficult_terrain },
+                                                                   unitExit: new GameAction[] { remove_buff, remove_difficult_terrain },
+                                                                   round: new GameAction[] {Helpers.CreateConditional(Helpers.CreateConditionHasFact(buff),
+                                                                                                                      null,
+                                                                                                                      save_action)}
+                                                                   );
+
+            area.ReplaceComponent<AbilityAreaEffectRunAction>(area_run_action);
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            thirsting_entanglement = library.CopyAndAdd<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca", "ThirstingEntanglementAbility", "");
+
+            thirsting_entanglement.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(spawn_area));
+            thirsting_entanglement.RemoveComponents<SpellListComponent>();
+            thirsting_entanglement.AvailableMetamagic = thirsting_entanglement.AvailableMetamagic | Metamagic.Empower | Metamagic.Maximize;
+
+            thirsting_entanglement.SetNameDescriptionIcon(buff.Name,
+                                                          buff.Description,
+                                                          buff.Icon
+                                                          );
+
+            thirsting_entanglement.AddToSpellList(Helpers.druidSpellList, 4);
+            thirsting_entanglement.AddToSpellList(Helpers.rangerSpellList, 4);
+
+            thirsting_entanglement.AddSpellAndScroll("9e0655dcd2f81f84d8fcaff6d439a4a0"); //sickening entanglement
         }
 
 
@@ -3004,7 +3063,8 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.AttackNearest));
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.AttackNearest),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Poison));
 
             var concleament_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", "BloodMistConcleamentBuff", "");
             concleament_buff.SetName("Blood Mist Concleament");
@@ -4323,7 +4383,7 @@ namespace CallOfTheWild
             produce_flame.AddSpellAndScroll("5b172c2c3e356eb43ba5a8f8008a8a5a"); //fireball
             //replace 2nd level spell in fire domain
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), 
-                                      SpellDuplicates.addDuplicateSpell(produce_flame, "FireDomain"+produce_flame.Name),  2);
+                                      SpellDuplicates.addDuplicateSpell(produce_flame, "FireDomain"+produce_flame.name),  2);
         }
 
 

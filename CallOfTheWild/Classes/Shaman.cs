@@ -922,6 +922,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 4), //spit venom           
                 new Common.SpellId( "c83db50513abdf74ca103651931fac4b", 4), //summon nature ally IV
+                new Common.SpellId( NewSpells.thirsting_entanglement.AssetGuid, 4),
                 new Common.SpellId( "2daf9c5112f16d54ab3cd6904c705c59", 4), //thorn body
 
                 new Common.SpellId( "56923211d2ac95e43b8ac5031bab74d8", 5), //animal growth
