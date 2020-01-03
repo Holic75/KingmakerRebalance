@@ -150,6 +150,7 @@
     <Compile Include="Hexes\ShamanHexes.cs" />
     <Compile Include="Inquisitions.cs" />
     <Compile Include="KineticistFix.cs" />
+    <Compile Include="MysticTheurgeFix.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="Classes\Hunter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
+    <Compile Include="NewMechanics\FreeActionAbilityUse.cs" />
     <Compile Include="NewMechanics\HealingMechanics.cs" />
     <Compile Include="NewMechanics\InitiativeMechanics.cs" />
     <Compile Include="NewMechanics\KineticistMechanics.cs" />

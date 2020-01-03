@@ -59,7 +59,9 @@ New feats:
 - Stunning Assault,
 - Unsanctioned Knowledge,
 - Linnorm Style, Linnorm Vengeance, Linnorm Wrath,
-- Jabbing Style, Jabbing Dancer, Jabbing Master.
+- Jabbing Style, Jabbing Dancer, Jabbing Master,
+- Lesser Spell Synthesis,
+- Extra Spell Synthesis.
 
 New rage powers:
 - Terrifying Howl
@@ -216,7 +218,8 @@ enchanced attacks (optional),
 - Kinetic Knights now receive Blade Rush infusion at level 3, Kinetic Whip infusion at level 5, Whip Hurricane infusion at level 11 and Swift Blade Rush infusion at level 13 for free,
 - When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses,
 - Increased damage reduction defensive power increases dr by 2 instead of 1 to make it similar to unchained barbarian rage power,
-- Acid Fog spell effect was changed to work as in pnp.
+- Acid Fog spell effect was changed to work as in pnp,
+- Mystic Theurge now receives spell synthesis ability at level 10.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

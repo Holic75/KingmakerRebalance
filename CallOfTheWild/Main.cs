@@ -230,6 +230,7 @@ namespace CallOfTheWild
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
 
                     CallOfTheWild.KineticistFix.load();
+                    CallOfTheWild.MysticTheurgeFix.load();
 
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();

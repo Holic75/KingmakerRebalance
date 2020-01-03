@@ -275,8 +275,6 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay;
 
-
-
             private int calculate_cost(UnitEntityData caster)
             {
                 var cost = amount;
@@ -469,9 +467,6 @@ namespace CallOfTheWild
         }
 
 
-
-
-
         [Harmony12.HarmonyPatch(typeof(AutoMetamagic))]
         [Harmony12.HarmonyPatch("ShouldApplyTo", Harmony12.MethodType.Normal)]
         class AutoMetamagic__ShouldApplyTo__Patch
@@ -487,5 +482,8 @@ namespace CallOfTheWild
                 return true;
             }
         }
+
+
+        
     }
 }
