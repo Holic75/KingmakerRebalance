@@ -3628,7 +3628,6 @@ namespace CallOfTheWild
             public ActionList action;
             public AttackType[] allowed_attack_types;
 
-
             public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
             {
 
@@ -5240,6 +5239,7 @@ namespace CallOfTheWild
                 return false;
             }
         }
+
 
     }
 }

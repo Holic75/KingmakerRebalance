@@ -2,10 +2,12 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
@@ -55,6 +57,57 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
         public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartFreeAbilityUse>().removeBuff(this.Fact);
+        }
+    }
+
+
+    public class IterativeAttacksWithAbilities : FreeActionAbilityUse, IInitiatorRulebookHandler<RuleAttackRoll>, IGlobalSubscriber, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+    {
+        private int m_MainAttacksCount;
+        private int m_PenalizedAttacksCount;
+        private int m_AttackPenalty;
+
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            return abilities.Contains(ability.Blueprint);
+        }
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+
+            RuleCalculateAttacksCount calculateAttacksCount = Rulebook.Trigger<RuleCalculateAttacksCount>(new RuleCalculateAttacksCount(this.Owner.Unit)
+            {
+                ForceIterativeNaturealAttacks = true
+            });
+            this.m_MainAttacksCount = calculateAttacksCount.PrimaryHand.MainAttacks;
+            this.m_PenalizedAttacksCount = calculateAttacksCount.PrimaryHand.PenalizedAttacks;
+            this.m_AttackPenalty = 0;
+        }
+
+
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (!(evt.Reason.Ability != (AbilityData)null) || !((IList<BlueprintAbility>)this.abilities).HasItem<BlueprintAbility>(evt.Reason.Ability.Blueprint))
+                return;
+                 
+            if (this.m_MainAttacksCount < 1)
+                this.m_AttackPenalty += 5;
+            if (this.m_MainAttacksCount > 0)
+                --this.m_MainAttacksCount;
+            else if (this.m_PenalizedAttacksCount > 0)
+                --this.m_PenalizedAttacksCount;
+
+            evt.SetAttackBonusPenalty(this.m_AttackPenalty);
+           
+            if (this.m_MainAttacksCount <= 0 && this.m_PenalizedAttacksCount <= 0)
+                this.Buff.Remove();
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
         }
     }
 

@@ -175,6 +175,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixStalwartDefender();
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
+                    CallOfTheWild.Rebalance.fixAlchemistFastBombs();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 

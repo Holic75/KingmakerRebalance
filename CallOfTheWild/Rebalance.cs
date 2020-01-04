@@ -34,6 +34,7 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.UnitLogic;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 
 namespace CallOfTheWild
 {
@@ -961,6 +962,47 @@ namespace CallOfTheWild
                     __result = 100.Feet();
                 }
             }
+        }
+
+
+        internal static void fixAlchemistFastBombs()
+        {
+            var fast_bombs = library.Get<BlueprintFeature>("128c5fccec5ca724281a4907b1f0ac83");
+            var fast_bombs_ability = fast_bombs.GetComponent<AddFacts>().Facts[0] as BlueprintActivatableAbility;
+            var fast_bombs_buff = fast_bombs_ability.Buff;
+
+            var bombs = fast_bombs_buff.GetComponent<FastBombs>().Abilities;
+
+            var new_buff = Helpers.CreateBuff("FastBombs2Buff",
+                                              fast_bombs_buff.Name,
+                                              fast_bombs.Description,
+                                              "",
+                                              fast_bombs.Icon,
+                                              null,
+                                              Helpers.Create<FreeActionAbilityUseMechanics.IterativeAttacksWithAbilities>(i => i.abilities = bombs)
+                                              );
+
+            var new_ability = Helpers.CreateAbility("FastBombs2Ability",
+                                                    new_buff.Name,
+                                                    new_buff.Description,
+                                                    "",
+                                                    new_buff.Icon,
+                                                    AbilityType.Special,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    Helpers.oneRoundDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(new_buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                    Common.createAbilityCasterHasNoFacts(fast_bombs_buff)
+                                                    );
+            fast_bombs_ability.AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = new_buff; r.Not = true; }));
+            new_ability.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(new_ability);
+
+            //fast_bombs.AddComponent(Helpers.CreateAddFact(new_ability));
+           // Helpers.SetField(fast_bombs_ability, "m_ActivateWithUnitCommand", UnitCommand.CommandType.Move);
+         //   fast_bombs_ability.DeactivateAfterFirstRound = true;
+
         }
     }
 }

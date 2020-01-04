@@ -297,8 +297,10 @@ namespace CallOfTheWild
 
         static void createAccursedGlare()
         {
+            var icon = library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642").Icon; //eyebite
             var doom_spell = library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485");
             accursed_glare = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "AccursedGlareAbility", ""); //touch of chaos as base
+            accursed_glare.SetIcon(icon);
             accursed_glare.Type = AbilityType.Spell;
             accursed_glare.SetName("Accursed Glare");
             accursed_glare.LocalizedDuration = Helpers.CreateString("AccursedGlareAbility.Duration", "1 day/level");
@@ -326,7 +328,7 @@ namespace CallOfTheWild
             accursed_glare.SpellResistance = true;
 
             accursed_glare.AddToSpellList(Helpers.wizardSpellList, 3);
-            accursed_glare.AddSpellAndScroll("d1d24c5613bb8c14a9a089c54b77527d");
+            accursed_glare.AddSpellAndScroll("f80549ec4e61ae64d8051bb3b24cf10e");
         }
 
 
@@ -1630,7 +1632,7 @@ namespace CallOfTheWild
             suffocation = Helpers.CreateAbility("SuffocationAbility",
                                                 "Suffocation",
                                                 "This spell extracts the air from the target’s lungs, causing swift suffocation.\n"
-                                                + "The target can attempt to resist this spell’s effects with a Fortitude save -if he succeeds, he is merely staggered for 1 round as he gasps for breath.If the target fails, he immediately begins to suffocate.On the target’s next turn, he falls unconscious and is reduced to 0 hit points. One round later, the target drops to - 1 hit points and is dying. One round after that, the target dies. Each round, the target can delay that round’s effects from occurring by making a successful Fortitude save, but the spell continues for 3 rounds, and each time a target fails his Fortitude save, he moves one step further along the track to suffocation.This spell only affects living creatures that must breathe.It is impossible to defeat the effects of this spell by simply holding one’s breath -if the victim fails the initial Saving Throw, the air in his lungs is extracted.",
+                                                + "The target can attempt to resist this spell’s effects with a Fortitude save - if he succeeds, he is merely staggered for 1 round as he gasps for breath.If the target fails, he immediately begins to suffocate.On the target’s next turn, he falls unconscious and is reduced to 0 hit points. One round later, the target drops to - 1 hit points and is dying. One round after that, the target dies. Each round, the target can delay that round’s effects from occurring by making a successful Fortitude save, but the spell continues for 3 rounds, and each time a target fails his Fortitude save, he moves one step further along the track to suffocation. This spell only affects living creatures that must breathe. It is impossible to defeat the effects of this spell by simply holding one’s breath -if the victim fails the initial Saving Throw, the air in his lungs is extracted.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
@@ -2644,7 +2646,7 @@ namespace CallOfTheWild
                                                           );
 
             var description = "You strike the ground and unleash a tremor of seismic force, hurling up earth, rock, and sand.\n"
-                              + "You choose whether the earth tremor affects a 30 - foot line, a 20 - foot cone - shaped spread, or a 10 - foot - radius spread centered on you. the space you occupy is not affected by earth tremor.the area you choose becomes dense rubble that costs 2 squares of movement to enter.Dense rubble and is considered as difficult terrain. Creatures on the ground in the area take 1d4 points of bludgeoning damage per caster level you have (maximum 10d4) or half damage on a successful save. Medium or smaller creatures that fail their saves are knocked prone.\n"
+                              + "You choose whether the earth tremor affects a 30 - foot line, a 20 - foot cone - shaped spread, or a 10 - foot - radius spread centered on you. The space you occupy is not affected by earth tremor.the area you choose becomes dense rubble that costs 2 squares of movement to enter. Dense rubble and is considered as difficult terrain. Creatures on the ground in the area take 1d4 points of bludgeoning damage per caster level you have (maximum 10d4) or half damage on a successful save. Medium or smaller creatures that fail their saves are knocked prone.\n"
                               + "This spell can be cast only on a surface of earth, sand, or stone. It has no effect if you are in a wooden or metal structure or if you are not touching the ground.";
 
             var earth_tremor_cone = Helpers.CreateAbility("EarthTremorCone",
@@ -2656,7 +2658,7 @@ namespace CallOfTheWild
                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                  AbilityRange.Projectile,
                                                  "",
-                                                 Helpers.savingThrowNone,
+                                                 Helpers.reflexHalfDamage,
                                                  Helpers.CreateRunActions(SavingThrowType.Reflex, dmg, failure_prone_action,
                                                                           Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(1, DurationRate.Hours))
                                                                           ),
@@ -3342,7 +3344,7 @@ namespace CallOfTheWild
             var buff = Helpers.CreateBuff("ForceSwordBuff",
                                             "Force Sword",
                                             "You create a +1 longsword of pure force sized appropriately for you that you can wield or give to another creature like any other longsword. At 8th level, the sword functions as a +2 longsword. "
-                                            + "At 13th level, it functions as a + 3 longsword.A force sword cannot be attacked or harmed by physical attacks, but dispel magic, disintegrate, a sphere of annihilation, or a rod of cancellation affects it.\n"
+                                            + "At 13th level, it functions as a + 3 longsword. A force sword cannot be attacked or harmed by physical attacks, but dispel magic, disintegrate, a sphere of annihilation, or a rod of cancellation affects it.\n"
                                             + "Target's primary hand must be free when you cast this spell.",
                                             "",
                                             icon,
