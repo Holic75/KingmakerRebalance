@@ -65,6 +65,7 @@ using UnityModManagerNet;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.Blueprints.Items.Components;
 
 namespace CallOfTheWild
 {
@@ -2477,7 +2478,9 @@ namespace CallOfTheWild
             SetField(scroll, "m_Cost", scrollCost);
             scroll.DC = 10 + scrollSpellLevel * 3 / 2;
 
+            //remove reference to custom spell (it is present sometimes ?)
             scroll.Ability = spell.HasVariants ? spell.Variants.Skip(variant).First() : spell;
+            scroll.ReplaceComponent<CopyScroll>(c => c.CustomSpell = null);
 
             var zarcies = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
             AddItemToSpecifiedVendorTable(zarcies, scroll, 5);

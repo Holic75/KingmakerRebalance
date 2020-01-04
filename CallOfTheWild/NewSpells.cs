@@ -1530,7 +1530,7 @@ namespace CallOfTheWild
             curse_major.AddToSpellList(Helpers.clericSpellList, 5);
             curse_major.AddToSpellList(Helpers.wizardSpellList, 6);
 
-            curse_major.AddSpellAndScroll("b2bd1f6b0505672408eb0ee5714e4640");
+            curse_major.AddSpellAndScroll("01bd2a92d4112864b871995c93456b54");
         }
 
 
