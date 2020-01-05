@@ -1,5 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Controllers.Projectiles;
+using Kingmaker.ElementsSystem;
 using Kingmaker.Enums;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
@@ -8,7 +10,9 @@ using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Mechanics.ContextData;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
@@ -205,6 +209,63 @@ namespace CallOfTheWild.CombatManeuverMechanics
 
         public override void OnEventDidTrigger(RuleCalculateCMB evt)
         {
+        }
+    }
+
+
+    public class ApplyBuffOnHit : GameLogicComponent, ITargetRulebookHandler<RuleAttackWithWeapon>, IRulebookHandler<RuleAttackWithWeapon>, IInitiatorRulebookSubscriber
+    {
+        public bool apply_to_ranged = false;
+        public bool apply_to_natural = false;
+
+        public ActionList main_hand_action = null;
+        public ActionList off_hand_action = null;
+        public ActionList other_action = null;
+
+
+        public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+        {
+            
+        }
+
+        public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+        {
+
+            if (evt.Weapon.Blueprint.IsRanged && !apply_to_ranged)
+            {
+                 return;
+            }
+
+            if ((evt.Weapon.Blueprint.IsNatural || evt.Weapon.Blueprint.IsUnarmed) && !apply_to_natural)
+            {
+                return;
+            }
+
+            if (evt.Weapon.HoldingSlot == evt.Initiator.Body.PrimaryHand)
+            {
+                if (main_hand_action != null)
+                {
+                    using (new ContextAttackData(evt.AttackRoll, (Projectile)null))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.main_hand_action, (TargetWrapper)evt.Initiator);
+                }
+            }
+            else if (evt.Weapon.HoldingSlot == evt.Initiator.Body.SecondaryHand)
+            {
+                if (off_hand_action != null)
+                {
+                    using (new ContextAttackData(evt.AttackRoll, (Projectile)null))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.off_hand_action, (TargetWrapper)evt.Initiator);
+                }
+            }
+            else
+            {
+                if (other_action != null)
+                {
+                    using (new ContextAttackData(evt.AttackRoll, (Projectile)null))
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.other_action, (TargetWrapper)evt.Initiator);
+                }
+            }
+
         }
     }
 }

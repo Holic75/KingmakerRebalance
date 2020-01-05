@@ -155,6 +155,9 @@ namespace CallOfTheWild
         static public BlueprintAbility solid_fog;
         static public BlueprintAbility thirsting_entanglement;
 
+        static public BlueprintAbility resinous_skin;
+
+
 
         static public void load()
         {
@@ -238,6 +241,68 @@ namespace CallOfTheWild
             createAccursedGlare();
             createSolidFogAndFixAcidFog();
             createThirstingEntanglement();
+
+            createResinousSkin();
+        }
+
+
+        static void createResinousSkin()
+        {
+            var icon = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889").Icon; //spell resistance
+
+            var main_hand_buff = library.CopyAndAdd<BlueprintBuff>("f7db19748af8b69469073485a65f37cf", "ResionousSKinMainHandBuff", "");
+            var off_hand_buff = library.CopyAndAdd<BlueprintBuff>("afb1ea46a8c41e04eaab833b7b1b9321", "ResionousSKinOffHandBuff", "");
+
+            var break_free = Helpers.CreateAddFactContextActions(newRound: Common.createContextActionSkillCheck(StatType.Strength, Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>())));
+            main_hand_buff.AddComponent(break_free);
+            off_hand_buff.AddComponent(break_free);
+
+            var apply_main_hand = Common.createContextActionApplyBuff(main_hand_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false);
+            var apply_off_hand = Common.createContextActionApplyBuff(off_hand_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false);
+
+            var apply_main_hand_saved = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_main_hand)));
+            var apply_off_hand_saved = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_off_hand)));
+            var buff = Helpers.CreateBuff("ResinousSkinBuff",
+                                          "Resinous Skin",
+                                          "You coat your body with a resinous substance, protecting you from attacks and binding weapons that strike you. You gain DR 5/piercing, as well as a +4 circumstance bonus to your CMD against disarm attempts and on saving throws against effects that cause you to drop something you are holding. Additionally, you gain a +2 circumstance bonus on combat maneuver checks to initiate a grapple and maintain a grapple. Any weapon, that strikes you becomes stuck unless its wielder succeeds at a Reflex saving throw. Such a weapon can be pulled free of you only with a successful Strength check (DC = your saving throw DC for this spell). This spell has no effect on unarmed strikes or natural weapons.",
+                                          "",
+                                          icon,
+                                          library.Get<BlueprintBuff>("0bc608c3f2b548b44b7146b7530613ac").FxOnStart, //slow
+                                          Common.createContextFormDR(5, PhysicalDamageForm.Piercing),
+                                          Common.createContextManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm, 4),
+                                          Common.createContextManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Grapple, 2),
+                                          Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Grapple, 2),
+                                          Helpers.Create<CombatManeuverMechanics.ApplyBuffOnHit>(a =>
+                                                                                                  {
+                                                                                                      a.main_hand_action = Helpers.CreateActionList(apply_main_hand_saved);
+                                                                                                      a.off_hand_action = Helpers.CreateActionList(apply_off_hand_saved);
+                                                                                                  }
+                                                                                                 )
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes));
+            resinous_skin = Helpers.CreateAbility("ResinousSkinAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Personal,
+                                                  Helpers.tenMinPerLevelDuration,
+                                                  "See text",
+                                                  Helpers.CreateRunActions(apply_buff),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                  Helpers.CreateContextRankConfig()
+                                                  );
+            resinous_skin.setMiscAbilityParametersSelfOnly();
+            resinous_skin.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            resinous_skin.AddToSpellList(Helpers.alchemistSpellList, 3);
+            resinous_skin.AddToSpellList(Helpers.wizardSpellList, 3);
+            resinous_skin.AddToSpellList(Helpers.druidSpellList, 3);
+
+            resinous_skin.AddSpellAndScroll("05c7f7bc5f565214ca74146774c02694");
         }
 
 

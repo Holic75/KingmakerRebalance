@@ -44,8 +44,8 @@ namespace CallOfTheWild
             resource.SetFixedResource(1);
 
             var arcane_buff = Helpers.CreateBuff($"LesserSpellSynthesisArcaneBuff",
-                                      "",
-                                      "",
+                                      lesser_spell_synthesis.Name + " (Arcane)",
+                                      lesser_spell_synthesis.Description,
                                       "",
                                       icon,
                                       null,
@@ -62,11 +62,10 @@ namespace CallOfTheWild
                                                                   progression: Kingmaker.UnitLogic.Mechanics.Components.ContextRankProgression.OnePlusDiv2
                                                                   )
                                       );
-            arcane_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             var divine_buff = Helpers.CreateBuff($"LesserSpellSynthesisDivineBuff",
-                                  "",
-                                  "",
+                                  lesser_spell_synthesis.Name + " (Divine)",
+                                  lesser_spell_synthesis.Description,
                                   "",
                                   icon,
                                   null,
@@ -83,7 +82,6 @@ namespace CallOfTheWild
                                                                   progression: Kingmaker.UnitLogic.Mechanics.Components.ContextRankProgression.OnePlusDiv2
                                                                   )
                                   );
-            divine_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
 
             var buff = Helpers.CreateBuff("LesserSpellSynthesisBuff",
@@ -93,6 +91,7 @@ namespace CallOfTheWild
                                           icon,
                                           null
                                           );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             var ability = Helpers.CreateAbility($"LesserSpellSynthesisAbility",
                                     "Lesser Spell Synthesis",
@@ -158,7 +157,7 @@ namespace CallOfTheWild
                                           Helpers.Create<NewMechanics.IncreaseAllSpellsDC>(i => i.Value = 2),
                                           Helpers.Create<SpellPenetrationBonus>(s => s.Value = 2)
                                           );
-
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
 
             CommandType[] action_types = new CommandType[] { CommandType.Standard, CommandType.Standard, CommandType.Swift };
@@ -172,8 +171,8 @@ namespace CallOfTheWild
             for (int i = 0; i < action_types.Length; i++)
             {
                 var arcane_buff = Helpers.CreateBuff($"SpellSynthesis{i}ArcaneBuff",
-                                                      "",
-                                                      "",
+                                                      "Spell Synthesis (Arcane): " + names[i],
+                                                      spell_synthesis.Description,
                                                       "",
                                                       icon,
                                                       null,
@@ -185,11 +184,10 @@ namespace CallOfTheWild
                                                                                                                   }
                                                                                                                   )
                                                       );
-                arcane_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
                 var divine_buff = Helpers.CreateBuff($"SpellSynthesis{i}DivineBuff",
-                                      "",
-                                      "",
+                                      "Spell Synthesis (Divine): " + names[i],
+                                      spell_synthesis.Description,
                                       "",
                                       icon,
                                       null,
@@ -202,7 +200,6 @@ namespace CallOfTheWild
                                                                                                   }
                                                                                                   )
                                       );
-                divine_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
                 var ability = Helpers.CreateAbility($"SpellSynthesis{i}Ability",
                                                     "Spell Synthesis: " + names[i],
