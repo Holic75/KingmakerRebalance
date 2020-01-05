@@ -150,6 +150,7 @@ New spells:
 - Font of Spirit Magic,
 - Howling Agony,
 - Keen Edge,
+- Resinous Skin,
 - Sheet Lightning,
 - Archon's Trumpet,
 - Aura of Doom,

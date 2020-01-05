@@ -156,6 +156,7 @@ namespace CallOfTheWild
         static public BlueprintAbility thirsting_entanglement;
 
         static public BlueprintAbility resinous_skin;
+        static public BlueprintAbility delayed_consumption;
 
 
 
@@ -170,6 +171,7 @@ namespace CallOfTheWild
             createCommand();
             createFireShield();
             createContingency();
+            createDelayedConsumption();
             createStrongJaw();
             createProduceFlame();
             createFlurryOfSnowballs();
@@ -868,7 +870,7 @@ namespace CallOfTheWild
             bladed_dash.AddToSpellList(Helpers.magusSpellList, 2);
             bladed_dash.AddToSpellList(Helpers.bardSpellList, 2);
 
-            bladed_dash.AddSpellAndScroll("02adc587ef2d8a54ababd846072dbef8");
+            bladed_dash.AddSpellAndScroll("f49fc4e47cef56e42a49d561289dd500");
 
 
             bladed_dash_greater = Helpers.CreateAbility("BladedDashAbilityGreater",
@@ -903,7 +905,7 @@ namespace CallOfTheWild
             bladed_dash_greater.AddToSpellList(Helpers.magusSpellList, 5);
             bladed_dash_greater.AddToSpellList(Helpers.bardSpellList, 5);
 
-            bladed_dash_greater.AddSpellAndScroll("02adc587ef2d8a54ababd846072dbef8");
+            bladed_dash_greater.AddSpellAndScroll("f49fc4e47cef56e42a49d561289dd500");
             bladed_dash_buff = buff;
         }
 
@@ -1575,6 +1577,7 @@ namespace CallOfTheWild
             foreach (var v in bestow_curse.GetComponent<AbilityVariants>().Variants)
             {
                 var ability = library.CopyAndAdd<BlueprintAbility>(v.StickyTouch.TouchDeliveryAbility, v.StickyTouch.TouchDeliveryAbility.name + "Major", "");
+                ability.SetName(ability.Name + ", Major");
                 ability.RemoveComponents<AbilityDeliverTouch>();
                 ability.Range = AbilityRange.Close;
 
@@ -3843,6 +3846,7 @@ namespace CallOfTheWild
             {
                 return spell.Spellbook != null
                         && spell.SpellLevel <= (spell.Spellbook.CasterLevel / 3)
+                        && !spell.Spellbook.Blueprint.IsAlchemist
                         && spell.Blueprint.CanTargetSelf
                         && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
                         && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent)
@@ -3891,7 +3895,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Helpers.CreateContextRankConfig(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                Helpers.CreateContextRankConfig()
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.Create<SharedSpells.CannotBeShared>()
                                                 );
             contingency.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(contingency);
@@ -3899,6 +3904,119 @@ namespace CallOfTheWild
             contingency.AddToSpellList(Helpers.wizardSpellList, 6);
             contingency.AddSpellAndScroll("beab337b352b5ac479698e2bbc08f4ce"); //circle of death
         }
+
+
+
+        static void createDelayedConsumption()
+        {
+            var icon = library.Get<BlueprintAbility>("07b608fab304f894880898dc0764e6e5").Icon; //geniekind
+            var divination_buff = library.Get<BlueprintBuff>("6d338078b1a8cdc41bf3a39f65247161");
+
+            var delayed_consumption_give_ability_buff = Helpers.CreateBuff("DelayedConsumptionGiveAbilityBuff",
+                                                                   "",
+                                                                   "",
+                                                                   "",
+                                                                   null,
+                                                                   null);
+            delayed_consumption_give_ability_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var action_remove_delayed_consumption_use = Helpers.CreateActionList(Common.createContextActionRemoveBuff(delayed_consumption_give_ability_buff));
+            var delayed_consumption_store_buff = Helpers.CreateBuff("DelayedConsumptionBuff",
+                                                            "Delayed Consumption",
+                                                            "When you consume this extract, you quickly consume another extract of your choice-this second extract’s effects do not come into effect until a later point. You must consume this second, companion extract on the round following delayed consumption or waste the extract. The companion extract can be no higher than 4th level, and you must pay any costs associated with the companion extract when you consume it.\n"
+                                                            + "At any point during the duration of this extract, you can cause the companion extract to take effect as an immediate action. You can only have one delayed consumption in effect at one time. If a second is consumed, the first is dispelled without any effect.\n",
+                                                            "",
+                                                            icon,
+                                                            divination_buff.FxOnStart,
+                                                            Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.actions_on_store = action_remove_delayed_consumption_use),
+                                                            Helpers.CreateAddFactContextActions(Common.createContextActionApplyBuff(delayed_consumption_give_ability_buff,
+                                                                                                                                    Helpers.CreateContextDuration(),
+                                                                                                                                    is_child: true, is_permanent: true)
+                                                                                                                                    )
+                                                            );
+            delayed_consumption_store_buff.AddComponent(Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = delayed_consumption_store_buff));
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = delayed_consumption_store_buff);
+            var remove_buff = Common.createContextActionRemoveBuff(delayed_consumption_store_buff);
+
+            var delay_consumption_release = Helpers.CreateAbility("DelayConsumptionReleaseAbility",
+                                                            "Delay Consumption: Take Effect",
+                                                            delayed_consumption_store_buff.Description,
+                                                            "",
+                                                            delayed_consumption_store_buff.Icon,
+                                                            AbilityType.SpellLike,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                            AbilityRange.Personal,
+                                                            "",
+                                                            "",
+                                                            Helpers.CreateRunActions(release_action, remove_buff),
+                                                            Helpers.Create<SpellManipulationMechanics.AbilityCasterHasSpellStoredInFact>(a => a.store_fact = delayed_consumption_store_buff)
+                                                            );
+            delay_consumption_release.setMiscAbilityParametersSelfOnly();
+            delayed_consumption_store_buff.AddComponent(Helpers.CreateAddFact(delay_consumption_release));
+
+            int max_variants = 6;
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return spell.Spellbook != null
+                        && spell.SpellLevel <= 4
+                        && spell.Spellbook.Blueprint.IsAlchemist
+                        && spell.Blueprint.CanTargetSelf
+                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
+                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent)
+                        && !SpellManipulationMechanics.FactStoreSpell.hasSpellStoredInFact(spell.Caster, delayed_consumption_store_buff);
+            };
+
+
+
+            for (int i = 0; i < max_variants; i++)
+            {
+                var delay_consumption_use = Helpers.CreateAbility($"DelayConsumptionStoreAbility{i}",
+                                                            "Delay Consumption: Companion Extract",
+                                                            delayed_consumption_store_buff.Description,
+                                                            "",
+                                                            delayed_consumption_store_buff.Icon,
+                                                            AbilityType.Spell,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                            AbilityRange.Personal,
+                                                            "1 day/level or until discharged",
+                                                            "",
+                                                            Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                            Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
+                                                            {
+                                                                s.fact = delayed_consumption_store_buff;
+                                                                s.check_slot_predicate = check_slot_predicate;
+                                                                s.variant = i;
+                                                            }
+                                                                                                                              )
+                                                            );
+                delayed_consumption_give_ability_buff.AddComponent(Helpers.CreateAddFact(delay_consumption_use));
+                delay_consumption_use.setMiscAbilityParametersSelfOnly();
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(delayed_consumption_store_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), rate: DurationRate.Days));
+            delayed_consumption = Helpers.CreateAbility("DelayConsumptionAbility",
+                                                "Delay Consumption",
+                                                delayed_consumption_store_buff.Description,
+                                                "",
+                                                delayed_consumption_store_buff.Icon,
+                                                AbilityType.Spell,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "1 day/level or until discharged",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.Create<SharedSpells.CannotBeShared>()
+                                                );
+            delayed_consumption.setMiscAbilityParametersSelfOnly();
+
+            delayed_consumption.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
+            delayed_consumption.AddToSpellList(Helpers.alchemistSpellList, 5);
+            delayed_consumption.AddSpellAndScroll("f948342d6a9f2ce49b6aa5f362569d72"); //geniekind
+        }
+
+
 
 
         static void createFireShield()

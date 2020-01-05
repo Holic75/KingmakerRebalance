@@ -1012,7 +1012,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "82a5b848c05e3f342b893dedb1f9b446", 6), //plague storm
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead
                 new Common.SpellId( "a6e59e74cba46a44093babf6aec250fc", 6), //slay living
-                new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flуsh
+                new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flesh
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation
                 new Common.SpellId( "b3da3fbee6a751d4197e446c7e852bcb", 6), //true seeing
