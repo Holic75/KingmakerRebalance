@@ -953,7 +953,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead
                 new Common.SpellId( "a6e59e74cba46a44093babf6aec250fc", 6), //slay living
-                new Common.SpellId( "051b979e7d7f8ec41b9fa35d04746b33", 6), //summon nature ally VI
+                new Common.SpellId( "55bbce9b3e76d4a4a8c8e0698d29002c", 6), //summon nature ally VI
                 new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flesh
                 
                 new Common.SpellId( "7f71a70d822af94458dc1a235507e972", 7), //cloak of dreams

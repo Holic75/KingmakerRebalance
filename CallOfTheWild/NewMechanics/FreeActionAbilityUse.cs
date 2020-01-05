@@ -44,6 +44,8 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
         }
     }
 
+
+
     public abstract class FreeActionAbilityUse: BuffLogic
     {
         public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
@@ -200,6 +202,90 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
             {
                 __result = CommandType.Free;
             }
+        }
+    }
+
+
+
+    public class UnitPartFullRoundAbilityUse : AdditiveUnitPart
+    {
+        public bool canBeUsedOnAbility(AbilityData ability)
+        {
+            if (buffs.Empty())
+            {
+                return false;
+            }
+
+            foreach (var b in buffs)
+            {
+                if (b.Get<FullRoundAbilityUse>().canUseOnAbility(ability))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+
+
+    public abstract class FullRoundAbilityUse : BuffLogic
+    {
+        public abstract bool canUseOnAbility(AbilityData ability);
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartFullRoundAbilityUse>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartFullRoundAbilityUse>().removeBuff(this.Fact);
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(AbilityData))]
+    [Harmony12.HarmonyPatch("RequireFullRoundAction", Harmony12.MethodType.Getter)]
+    class AbilityData__RequireFullRoundAction__Patch
+    {
+        static void Postfix(AbilityData __instance, ref bool __result)
+        {
+            if (__result == true)
+            {
+                return;
+            }
+
+
+            var full_round_use_part = __instance.Caster.Get<UnitPartFullRoundAbilityUse>();
+
+            if (full_round_use_part == null)
+            {
+                return;
+            }
+
+            if (full_round_use_part.canBeUsedOnAbility(__instance))
+            {
+                __result = true;
+            }
+        }
+    }
+
+
+    public class ForceFullRoundOnAbilities : FullRoundAbilityUse
+    {
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+
+            return abilities.Contains(ability.Blueprint);
         }
     }
 

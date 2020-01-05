@@ -999,6 +999,7 @@ namespace CallOfTheWild
             new_ability.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(new_ability);
 
+            //fast_bombs_buff.AddComponent(Helpers.Create<FreeActionAbilityUseMechanics.ForceFullRoundOnAbilities>(f => f.abilities = bombs));
             //fast_bombs.AddComponent(Helpers.CreateAddFact(new_ability));
            // Helpers.SetField(fast_bombs_ability, "m_ActivateWithUnitCommand", UnitCommand.CommandType.Move);
          //   fast_bombs_ability.DeactivateAfterFirstRound = true;
