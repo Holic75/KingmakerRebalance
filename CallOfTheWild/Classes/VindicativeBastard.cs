@@ -321,6 +321,7 @@ namespace CallOfTheWild
                                                                         );
             if (!test_mode)
             {
+                Helpers.SetField(solo_tactics_ability, "m_ActivateWithUnitCommand", CommandType.Swift);
                 solo_tactics_ability.DeactivateIfCombatEnded = true;
                 solo_tactics_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }

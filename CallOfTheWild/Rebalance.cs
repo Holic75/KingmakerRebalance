@@ -979,7 +979,7 @@ namespace CallOfTheWild
                                               "",
                                               fast_bombs.Icon,
                                               null,
-                                              Helpers.Create<FreeActionAbilityUseMechanics.IterativeAttacksWithAbilities>(i => i.abilities = bombs)
+                                              Helpers.Create<TurnActionMechanics.IterativeAttacksWithAbilities>(i => i.abilities = bombs)
                                               );
 
             var new_ability = Helpers.CreateAbility("FastBombs2Ability",

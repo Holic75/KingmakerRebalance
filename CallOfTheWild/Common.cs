@@ -2570,6 +2570,12 @@ namespace CallOfTheWild
         }
 
 
+        public static void unsetAsFullRoundAction(BlueprintAbility spell)
+        {
+            Helpers.SetField(spell, "m_IsFullRoundAction", false);
+        }
+
+
         public static void addFeaturePrerequisiteOr(BlueprintFeature feature,  BlueprintFeature prerequisite)
         {
             var features_from_list = feature.GetComponent<PrerequisiteFeaturesFromList>();

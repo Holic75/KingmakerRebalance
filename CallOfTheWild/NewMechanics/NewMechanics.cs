@@ -69,6 +69,7 @@ using Kingmaker.AreaLogic.Cutscenes.Commands;
 using Pathfinding;
 using Kingmaker.Controllers.Combat;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using System.Text;
 
 namespace CallOfTheWild
 {
@@ -1534,9 +1535,42 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        public class PrerequisiteAbility : Prerequisite
+        {
+            [NotNull]
+            public BlueprintAbility Ability;
+
+            public override bool Check(
+              FeatureSelectionState selectionState,
+              UnitDescriptor unit,
+              LevelUpState state)
+            {
+                return unit.HasFact(Ability);
+            }
+
+            public override string GetUIText()
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                if (this.Ability == null)
+                {
+                    UberDebug.LogError((object)("Empty Feature fild in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(this.Ability.Name))
+                        UberDebug.LogError((object)string.Format("{0} has no Display Name", this.Ability.name), (object[])Array.Empty<object>());
+                    stringBuilder.Append(this.Ability.Name);
+                }
+                return stringBuilder.ToString();
+            }
+        }
+
+
         public class ResourseCostCalculatorWithDecreasingFacts : BlueprintComponent, IAbilityResourceCostCalculator
         {
             public BlueprintFact[] cost_reducing_facts = new BlueprintFact[0];
+            public BlueprintFact[] cost_increasing_facts = new BlueprintFact[0];
 
             public int Calculate(AbilityData ability)
             {
@@ -1548,6 +1582,15 @@ namespace CallOfTheWild
                         cost--;
                     }
                 }
+
+                foreach (var f in cost_increasing_facts)
+                {
+                    if (ability.Caster.Buffs.HasFact(f))
+                    {
+                        cost++;
+                    }
+                }
+
                 return cost < 0 ? 0 : cost;
             }
         }

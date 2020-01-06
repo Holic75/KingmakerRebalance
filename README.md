@@ -83,7 +83,8 @@ New rage powers:
 - Celestial Totem, Greater,
 - Daemon Totem, Lesser,
 - Daemon Totem,
-- Daemon Totem, Greater.
+- Daemon Totem, Greaterб
+- Quicken Blessing.
 
 New features:
 - Share Spell for animal companions,

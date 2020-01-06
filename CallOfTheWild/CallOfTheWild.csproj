@@ -164,7 +164,7 @@
     <Compile Include="Classes\Hunter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
-    <Compile Include="NewMechanics\FreeActionAbilityUse.cs" />
+    <Compile Include="NewMechanics\TurnActionMechanics.cs" />
     <Compile Include="NewMechanics\HealingMechanics.cs" />
     <Compile Include="NewMechanics\InitiativeMechanics.cs" />
     <Compile Include="NewMechanics\KineticistMechanics.cs" />

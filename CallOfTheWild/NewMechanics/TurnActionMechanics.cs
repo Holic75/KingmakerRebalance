@@ -21,7 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
-namespace CallOfTheWild.FreeActionAbilityUseMechanics
+namespace CallOfTheWild.TurnActionMechanics
 {
     public class UnitPartFreeAbilityUse : AdditiveUnitPart
     {
@@ -34,7 +34,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
 
             foreach (var b in buffs)
             {
-                if (b.Get<FreeActionAbilityUse>().canUseOnAbility(ability, actual_action_type))
+                if (b.Get<FreeActionAbilityUseBase>().canUseOnAbility(ability, actual_action_type))
                 {
                     return true;
                 }
@@ -46,7 +46,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
 
 
 
-    public abstract class FreeActionAbilityUse: BuffLogic
+    public abstract class FreeActionAbilityUseBase: BuffLogic
     {
         public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
 
@@ -63,7 +63,47 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
     }
 
 
-    public class IterativeAttacksWithAbilities : FreeActionAbilityUse, IInitiatorRulebookHandler<RuleAttackRoll>, IGlobalSubscriber, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+    public class UnitPartSwiftAbilityUse : AdditiveUnitPart
+    {
+        public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (buffs.Empty())
+            {
+                return false;
+            }
+
+            foreach (var b in buffs)
+            {
+                if (b.Get<SwiftActionAbilityUseBase>().canUseOnAbility(ability, actual_action_type))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+
+
+    public abstract class SwiftActionAbilityUseBase : BuffLogic
+    {
+        public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartSwiftAbilityUse>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartSwiftAbilityUse>().removeBuff(this.Fact);
+        }
+    }
+
+
+    public class IterativeAttacksWithAbilities : FreeActionAbilityUseBase, IInitiatorRulebookHandler<RuleAttackRoll>, IGlobalSubscriber, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
     {
         private int m_MainAttacksCount;
         private int m_PenalizedAttacksCount;
@@ -113,7 +153,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
         }
     }
 
-    public class SpellSynthesis : FreeActionAbilityUse, IUnitSubscriber, IInitiatorRulebookHandler<RuleCastSpell>
+    public class SpellSynthesis : FreeActionAbilityUseBase, IUnitSubscriber, IInitiatorRulebookHandler<RuleCastSpell>
     {
         public bool is_arcane;
         public CommandType action_type;
@@ -175,7 +215,25 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
             }
         }
     }
-  
+
+
+
+    public class UseAbilitiesAsSwiftAction : SwiftActionAbilityUseBase
+    {
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+
+
+
+            return abilities.Contains(ability.Blueprint) || abilities.Contains(ability.Blueprint.Parent);
+        }
+    }
 
 
 
@@ -193,15 +251,21 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
 
             var free_use_part = __instance.Caster.Get<UnitPartFreeAbilityUse>();
 
-            if (free_use_part == null)
+            if (free_use_part != null && free_use_part.canBeUsedOnAbility(__instance, __result))
             {
+                __result = CommandType.Free;
                 return;
             }
 
-            if (free_use_part.canBeUsedOnAbility(__instance, __result))
+            var swift_use_part = __instance.Caster.Get<UnitPartSwiftAbilityUse>();
+
+            if (swift_use_part != null && swift_use_part.canBeUsedOnAbility(__instance, __result))
             {
-                __result = CommandType.Free;
+                __result = CommandType.Swift;
+                return;
             }
+
+
         }
     }
 
@@ -218,7 +282,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
 
             foreach (var b in buffs)
             {
-                if (b.Get<FullRoundAbilityUse>().canUseOnAbility(ability))
+                if (b.Get<FullRoundAbilityUseBase>().canUseOnAbility(ability))
                 {
                     return true;
                 }
@@ -230,7 +294,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
 
 
 
-    public abstract class FullRoundAbilityUse : BuffLogic
+    public abstract class FullRoundAbilityUseBase : BuffLogic
     {
         public abstract bool canUseOnAbility(AbilityData ability);
 
@@ -274,7 +338,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
     }
 
 
-    public class ForceFullRoundOnAbilities : FullRoundAbilityUse
+    public class ForceFullRoundOnAbilities : FullRoundAbilityUseBase
     {
         public BlueprintAbility[] abilities;
 
@@ -285,7 +349,7 @@ namespace CallOfTheWild.FreeActionAbilityUseMechanics
                 return false;
             }
 
-            return abilities.Contains(ability.Blueprint);
+            return abilities.Contains(ability.Blueprint) || abilities.Contains(ability.Blueprint.Parent);
         }
     }
 

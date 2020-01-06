@@ -49,7 +49,7 @@ namespace CallOfTheWild
                                       "",
                                       icon,
                                       null,
-                                      Helpers.Create<FreeActionAbilityUseMechanics.SpellSynthesis>(s =>
+                                      Helpers.Create<TurnActionMechanics.SpellSynthesis>(s =>
                                                                                                   {
                                                                                                       s.action_type = CommandType.Standard;
                                                                                                       s.is_full_round = false;
@@ -69,7 +69,7 @@ namespace CallOfTheWild
                                   "",
                                   icon,
                                   null,
-                                  Helpers.Create<FreeActionAbilityUseMechanics.SpellSynthesis>(s =>
+                                  Helpers.Create<TurnActionMechanics.SpellSynthesis>(s =>
                                                                                               {
                                                                                                   s.action_type = CommandType.Standard;
                                                                                                   s.is_full_round = false;
@@ -176,7 +176,7 @@ namespace CallOfTheWild
                                                       "",
                                                       icon,
                                                       null,
-                                                      Helpers.Create<FreeActionAbilityUseMechanics.SpellSynthesis>(s => 
+                                                      Helpers.Create<TurnActionMechanics.SpellSynthesis>(s => 
                                                                                                                   { s.action_type = action_types[i];
                                                                                                                     s.is_full_round = full_round[i];
                                                                                                                     s.max_spell_level = 100;
@@ -191,7 +191,7 @@ namespace CallOfTheWild
                                       "",
                                       icon,
                                       null,
-                                      Helpers.Create<FreeActionAbilityUseMechanics.SpellSynthesis>(s =>
+                                      Helpers.Create<TurnActionMechanics.SpellSynthesis>(s =>
                                                                                                   {
                                                                                                       s.action_type = action_types[i];
                                                                                                       s.is_full_round = full_round[i];
