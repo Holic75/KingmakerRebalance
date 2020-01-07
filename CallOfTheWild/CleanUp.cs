@@ -172,5 +172,11 @@ namespace CallOfTheWild
         }
 
 
+        static internal void addBloodragerAutoCast()
+        {
+
+        }
+
+
     }
 }

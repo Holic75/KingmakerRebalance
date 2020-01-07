@@ -3155,6 +3155,19 @@ namespace CallOfTheWild
         }
 
 
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellList createSpellList(string name, string guid, BlueprintSpellList from_list, int max_level = 9)
+        {
+            var spell_list = createSpellList(name, guid);
+
+            for (int i = 0; i <= max_level; i++)
+            {
+                spell_list.SpellsByLevel[i] = from_list.SpellsByLevel[i];
+            }
+
+            return spell_list;
+        }
+
+
         static public OutgoingConcealementMechanics.AddOutgoingConcealment createOutgoingConcelement(AddConcealment self_concealement)
         {
             var o = Helpers.Create<OutgoingConcealementMechanics.AddOutgoingConcealment>();

@@ -109,13 +109,15 @@ New Wild Talents:
 
 
 New spells:
+- Blade Lash,
 - Command and Command, Greater,
 - Chill Touch,
 - Dazzling Blade and Dazzling Blade, Greater,
 - Frostbite,
 - Hex Vulnerability,
 - Ill Omen,
-- Lend Judgment and Lend Judgment, Greater
+- Lend Judgment and Lend Judgment, Greater,
+- Long Arm,
 - Magic Weapon, Magic Weapon, Greater
 - Obscuring Mist,
 - Produce Flame,

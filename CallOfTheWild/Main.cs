@@ -219,12 +219,13 @@ namespace CallOfTheWild
                     CallOfTheWild.HexEngine.Initialize();
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
-                    CallOfTheWild.Bloodrager.createBloodragerClass();
-                    CallOfTheWild.Shaman.createShamanClass();
 
+                    
+                    CallOfTheWild.Shaman.createShamanClass();
 
                     CallOfTheWild.SharedSpells.load();
 
+                    CallOfTheWild.Bloodrager.createBloodragerClass();
                     CallOfTheWild.Warpriest.createWarpriestClass();
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.Hinterlander.createHinterlanderClass();

@@ -35,6 +35,7 @@ using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResource
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 
 namespace CallOfTheWild
 {
@@ -74,6 +75,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection bloodline_feat_selection;
 
         static public ActivatableAbilityGroup metarage_group = ActivatableAbilityGroupExtension.MetaRage.ToActivatableAbilityGroup();
+        static public BlueprintFeature blood_casting;
 
         public class BloodlineInfo
         {
@@ -194,6 +196,7 @@ namespace CallOfTheWild
             creatBloodlineSelection();
             removeUnauthorizedbloodlinesFromDragonDisciple();
             createBloodSanctuary();
+            createBloodCasting();
 
             bloodrager_progression = Helpers.CreateProgression("BloodragerProgression",
                            bloodrager_class.Name,
@@ -237,7 +240,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(8),
                                                                     Helpers.LevelEntry(9,  bloodline_feat_selection),
                                                                     Helpers.LevelEntry(10, damage_reduction),
-                                                                    Helpers.LevelEntry(11, greater_bloodrage),
+                                                                    Helpers.LevelEntry(11, greater_bloodrage, blood_casting),
                                                                     Helpers.LevelEntry(12, bloodline_feat_selection),
                                                                     Helpers.LevelEntry(13, damage_reduction),
                                                                     Helpers.LevelEntry(14, indomitable_will),
@@ -250,7 +253,8 @@ namespace CallOfTheWild
                                                                     };
 
             bloodrager_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { bloodrager_proficiencies, detect_magic, bloodline_selection };
-            bloodrager_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(bloodrage, greater_bloodrage, tireless_bloodrage, mighty_bloodrage) };
+            bloodrager_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(bloodrage, greater_bloodrage, tireless_bloodrage, mighty_bloodrage),
+                                                              Helpers.CreateUIGroup(fast_movement, uncanny_dodge, blood_sanctuary, improved_uncanny_dodge, blood_casting, indomitable_will)};
         }
 
 
@@ -263,6 +267,71 @@ namespace CallOfTheWild
                                                                       null,
                                                                       FeatureGroup.None
                                                                       );
+        }
+
+
+        static void createBloodCasting()
+        {
+            var icon = library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a").Icon;
+            var blood_casting_allowed_buff = Helpers.CreateBuff("BloodCastingAllowedBuff",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                null,
+                                                                null);
+            blood_casting_allowed_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_allow_blood_casting = Common.createContextActionApplyBuff(blood_casting_allowed_buff, Helpers.CreateContextDuration(1), is_child: true, dispellable: false);
+            var add_fact_context_actions = bloodrage_buff.GetComponent<AddFactContextActions>();
+            add_fact_context_actions.Activated = Helpers.CreateActionList(add_fact_context_actions.Activated.Actions.AddToArray(apply_allow_blood_casting));
+
+            var cast_only_on_self = Common.createContextActionApplyBuff(SharedSpells.can_only_target_self_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
+            var blood_casting_buff = Helpers.CreateBuff("BloodCastingBuff",
+                                                        "Blood Casting",
+                                                        "The bloodrager can apply the effects a bloodrager spell he knows of 2nd level or lower to himself the round he enters bloodrage. The spell must have a range of touch or personal. This use consumes a bloodrager spell slot, as if he had cast the spell; he must have the spell slot available to take advantage of this effect.\n"
+                                                        + "At level 20, the spell he can apply to himself at the beginning of a bloodrage is no longer limited to only spells of 2nd level or lower.",
+                                                        "",
+                                                        icon,
+                                                        null,
+                                                        Helpers.Create<TurnActionMechanics.FreeTouchOrPersonalSpellUseFromSpellbook>(f =>
+                                                                                                                                    {
+                                                                                                                                        f.allowed_spellbook = bloodrager_class.Spellbook;
+                                                                                                                                        f.max_spell_level = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                                        f.control_buff = blood_casting_allowed_buff;
+                                                                                                                                    }
+                                                                                                                                    ),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                        classes: getBloodragerArray(),
+                                                                                        progression: ContextRankProgression.Custom,
+                                                                                        customProgression: new (int, int)[] {(19, 2), (20, 4)}
+                                                                                        ),
+                                                        Helpers.CreateAddFactContextActions(cast_only_on_self)
+                                                        );
+
+            var blood_casting_ability = Helpers.CreateActivatableAbility("BloodCastingToggleAbility",
+                                                                         blood_casting_buff.Name,
+                                                                         blood_casting_buff.Description,
+                                                                         "",
+                                                                         blood_casting_buff.Icon,
+                                                                         blood_casting_buff,
+                                                                         AbilityActivationType.Immediately,
+                                                                         CommandType.Free,
+                                                                         null,
+                                                                         Helpers.Create<RestrictionHasFact>(r => r.Feature = blood_casting_allowed_buff));
+            blood_casting_ability.DeactivateImmediately = true;
+
+            blood_casting = Common.ActivatableAbilityToFeature(blood_casting_ability, false);
+
+
+            //fix previous saves without bloodcasting
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(bloodrager_class) >= 11 && !unit.Progression.Features.HasFact(blood_casting))
+                {
+                    unit.Progression.Features.AddFeature(blood_casting);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 
@@ -353,16 +422,18 @@ namespace CallOfTheWild
 
             Common.SpellId[] spells = new Common.SpellId[]
             {
+                new Common.SpellId( NewSpells.blade_lash.AssetGuid, 1),
                 new Common.SpellId( "4783c3709a74a794dbe7c8e7e0b1b038", 1), //burning hands
                 new Common.SpellId( "bd81a3931aa285a4f9844585b5d97e51", 1), //cause fear
                 new Common.SpellId( NewSpells.chill_touch.AssetGuid, 1),
                 new Common.SpellId( "91da41b9793a4624797921f221db653c", 1), //color sparay
-                new Common.SpellId( "1a40fc88aeac9da4aa2fbdbb88335f5d", 1), //corrosive touch
+                new Common.SpellId( "95810d2829895724f950c8c4086056e7", 1), //corrosive touch
                 new Common.SpellId( "8e7cfa5f213a90549aadd18f8f6f4664", 1), //ear piercing scream
                 new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
                 new Common.SpellId( "b065231094a21d14dbf1c3832f776871", 1), //fire belly
                 new Common.SpellId( "39a602aa80cc96f4597778b6d4d49c0a", 1), //flare burst
                 new Common.SpellId( NewSpells.frost_bite.AssetGuid, 1),
+                new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "4ac47ddb9fa1eaf43a1b6809980cfbd2", 1), //magic missile
                 new Common.SpellId( NewSpells.magic_weapon.AssetGuid, 1),
@@ -374,7 +445,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "ab395d2335d3f384e99dddee8562978f", 1), //shocking grasp
                 new Common.SpellId( "9f10909f0be1f5141bf1c102041f93d9", 1), //snowball
                 new Common.SpellId( "85067a04a97416949b5d1dbf986d93f3", 1), //stone fist
-                new Common.SpellId( "5d38c80a819e8084ba19b29a865312c2", 1), //touch of gracelessness
+                new Common.SpellId( "ad10bfec6d7ae8b47870e3a545cc8900", 1), //touch of gracelessness
                 new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike
 
                 new Common.SpellId( "9a46dfd390f943647ab4395fc997936d", 2), //acid arrow
@@ -387,7 +458,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( NewSpells.fiery_runes.AssetGuid, 2),
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
-                new Common.SpellId( "c83447189aabc72489164dfc246f3a36", 2), //frigid touch
+                new Common.SpellId( "b6010dda6333bcf4093ce20f0063cd41", 2), //frigid touch
                 new Common.SpellId( NewSpells.ghoul_touch.AssetGuid, 2),
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
@@ -2800,6 +2871,7 @@ namespace CallOfTheWild
             metamagic_rager_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(5, improved_uncanny_dodge) };
             createMetarage();
             metamagic_rager_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(5, metarage) };
+            bloodrager_progression.UIGroups[1].Features.Add(metarage);
         }
 
 
@@ -2913,6 +2985,7 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(16, blood_of_life),
                                                                   Helpers.LevelEntry(19, blood_of_life),
                                                                 };
+            bloodrager_progression.UIGroups[1].Features.Add(spell_eating);
             bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(blood_of_life, blood_of_life, blood_of_life, blood_of_life, blood_of_life, blood_of_life));
         }
 
@@ -3038,6 +3111,9 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(13, armor_training),
                                                                   Helpers.LevelEntry(17, armor_training),
                                                                 };
+            bloodrager_progression.UIGroups[1].Features.Add(armored_swiftness);
+            bloodrager_progression.UIDeterminatorsGroup = bloodrager_progression.UIDeterminatorsGroup.AddToArray(steelblood_proficiencies);
+            bloodrager_progression.UIGroups[1].Features.Add(blood_deflection);
             bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(armor_training, armor_training, armor_training, armor_training));
         }
 

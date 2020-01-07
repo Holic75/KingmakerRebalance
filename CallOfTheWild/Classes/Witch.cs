@@ -903,6 +903,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.frost_bite.AssetGuid, 1),
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
                 new Common.SpellId( "e5af3674bb241f14b9a9f6b0c7dc3d27", 1), //inflict light wounds
+                new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( NewSpells.obscuring_mist.AssetGuid, 1),
                 new Common.SpellId( "450af0402422b0b4980d9c2175869612", 1), //ray of enfeeblement

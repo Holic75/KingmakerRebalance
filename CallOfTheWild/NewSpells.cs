@@ -158,6 +158,8 @@ namespace CallOfTheWild
         static public BlueprintAbility resinous_skin;
         static public BlueprintAbility delayed_consumption;
 
+        static public BlueprintAbility long_arm;
+        static public BlueprintAbility blade_lash;
 
 
         static public void load()
@@ -245,6 +247,92 @@ namespace CallOfTheWild
             createThirstingEntanglement();
 
             createResinousSkin();
+
+            createLongArm();
+            createBladeLash();
+        }
+
+
+        static void createBladeLash()
+        {
+            var buff = Helpers.CreateBuff("BladeLashCMBBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Trip, 10)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_buff = Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1));
+            var remove_buff = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff));
+
+            var maneuver = Helpers.Create<ContextActionCombatManeuver>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip; c.OnSuccess = Helpers.CreateActionList(); });
+
+            blade_lash = Helpers.CreateAbility("BladeLashAbility",
+                                               "Blade Lash",
+                                               "Your weapon elongates and becomes whip-like. As part of casting this spell, you can use this weapon to attempt a trip combat maneuver against one creature within 20 feet, and you gain a +10 bonus on your roll, after which the weapon returns to its previous form.",
+                                               "",
+                                               library.Get<BlueprintActivatableAbility>("85742dd6788c6914f96ddc4628b23932").Icon, //arcane bond speed
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Standard,
+                                               AbilityRange.Custom,
+                                               "",
+                                               "",
+                                               Helpers.CreateRunActions(apply_buff, maneuver, remove_buff),
+                                               Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                               Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                               Helpers.Create<NewMechanics.AttackAnimation>(),
+                                               Helpers.Create<AbilityCasterMainWeaponIsMelee>()
+                                               );
+            blade_lash.NeedEquipWeapons = true;
+            blade_lash.CustomRange = 20.Feet();
+            blade_lash.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            blade_lash.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken;
+            blade_lash.AddToSpellList(Helpers.magusSpellList, 1);
+
+            blade_lash.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
+        }
+
+
+        static void createLongArm()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/LongArm.png");
+
+            var buff = Helpers.CreateBuff("LongArmBuff",
+                                          "Long Arm",
+                                          "Your arms temporarily grow in length, increasing your reach with those limbs by 5 feet.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.Reach, 5, ModifierDescriptor.UntypedStackable)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            long_arm = Helpers.CreateAbility("LongArmAbility",
+                                             buff.Name,
+                                             buff.Description,
+                                             "",
+                                             icon,
+                                             AbilityType.Spell,
+                                             UnitCommand.CommandType.Standard,
+                                             AbilityRange.Personal,
+                                             Helpers.minutesPerLevelDuration,
+                                             "",
+                                             Helpers.CreateRunActions(apply_buff),
+                                             Helpers.CreateContextRankConfig(),
+                                             Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                             Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                             );
+            long_arm.setMiscAbilityParametersSelfOnly();
+            long_arm.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+            long_arm.AddToSpellList(Helpers.alchemistSpellList, 1);
+            long_arm.AddToSpellList(Helpers.magusSpellList, 1);
+            long_arm.AddToSpellList(Helpers.wizardSpellList, 1);
+
+            long_arm.AddSpellAndScroll("42d9445b9cdfac94385eaa2a3499b204"); //stone fist
         }
 
 
@@ -1867,7 +1955,7 @@ namespace CallOfTheWild
 
             var enchantment = Common.createWeaponEnchantment("IceBodyWeaponEcnchantment",
                                                              "Ice Body",
-                                                             "This weapon 1 an additional point of cold damage.",
+                                                             "This weapon deals an additional point of cold damage.",
                                                              "",
                                                              "",
                                                              "",
@@ -1888,6 +1976,7 @@ namespace CallOfTheWild
                                           Common.createAddEnergyDamageImmunity(DamageEnergyType.Electricity),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Electricity | SpellDescriptor.Cold | SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison),
                                           Common.createBuffDescriptorImmunity(SpellDescriptor.Electricity | SpellDescriptor.Cold | SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison),
+                                          Helpers.CreateAddFact(library.Get<BlueprintFeature>("5e4d22d5cb6869e499f5fdc82e2127ad")), //cold subtype
                                           Common.createMagicDR(5),
                                           Helpers.Create<AddImmunityToAbilityScoreDamage>(),
                                           Helpers.Create<AddImmunityToCriticalHits>(),
@@ -2185,7 +2274,7 @@ namespace CallOfTheWild
             var buff = Helpers.CreateBuff("WindsOfVengeanceBuff",
                                           "Winds of Vengeance",
                                           "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you to fly granting immunity to ground-based effects and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
-                                          + "Ranged weapons(including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you.Gases and most gaseous breath weapons cannot pass though the winds.\n"
+                                          + "Ranged weapons (including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you.Gases and most gaseous breath weapons cannot pass though the winds.\n"
                                           + "In addition, once per round, when a creature hits you with a melee attack, winds lash out at that creature. The creature must make a Fortitude Saving Throw or take 5d8 points of bludgeoning damage and be knocked prone.\n"
                                           + "On a successful save, the damage is halved and the creature is not knocked prone.",
                                           "",

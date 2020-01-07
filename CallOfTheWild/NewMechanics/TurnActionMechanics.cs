@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
@@ -9,6 +10,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
@@ -212,6 +214,71 @@ namespace CallOfTheWild.TurnActionMechanics
             if (canUseOnAbility(evt.Spell, CommandType.Free) || canUseOnAbility(evt.Spell, action_type))
             {
                 this.Buff.Remove();
+            }
+        }
+    }
+
+
+
+    public class FreeTouchOrPersonalSpellUseFromSpellbook : FreeActionAbilityUseBase, IUnitSubscriber, IInitiatorRulebookHandler<RuleCastSpell>
+    {
+        public BlueprintSpellbook allowed_spellbook;
+        public ContextValue max_spell_level;
+        public BlueprintBuff control_buff;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (control_buff != null && !ability.Caster.Buffs.HasFact(control_buff))
+            {
+                return false;
+            }
+
+            if (ability == null)
+            {
+                return false;
+            }
+
+            if (ability.Spellbook == null)
+            {
+                return false;
+            }
+
+            if (ability.SpellLevel > max_spell_level.Calculate(this.Fact.MaybeContext))
+            {
+                return false;
+            }
+
+            if (ability.Spellbook.Blueprint != allowed_spellbook)
+            {
+                return false;
+            }
+
+
+            if (!Common.isPersonalSpell(ability))
+            {
+                return false;
+            }
+
+            if (!(ability.Blueprint.Range == AbilityRange.Personal || ability.Blueprint.Range == AbilityRange.Touch))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void OnEventAboutToTrigger(RuleCastSpell evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleCastSpell evt)
+        {
+            if (canUseOnAbility(evt.Spell, CommandType.Free))
+            {
+                if (control_buff != null)
+                {
+                    this.Owner?.Buffs?.GetBuff(control_buff)?.Remove();
+                }
             }
         }
     }

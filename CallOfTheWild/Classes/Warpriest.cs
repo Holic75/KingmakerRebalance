@@ -210,7 +210,7 @@ namespace CallOfTheWild
             warpriest_spellbook.CasterLevelModifier = 0;
             warpriest_spellbook.CantripsType = CantripsType.Orisions;
             warpriest_spellbook.SpellsPerLevel = cleric_class.Spellbook.SpellsPerLevel;
-            warpriest_spellbook.SpellList = cleric_class.Spellbook.SpellList;
+            warpriest_spellbook.SpellList = Common.createSpellList("WarpriestSpellList", "", cleric_class.Spellbook.SpellList, 6);
             return warpriest_spellbook;
         }
 
