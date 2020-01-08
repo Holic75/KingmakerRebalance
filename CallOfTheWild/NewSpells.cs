@@ -160,6 +160,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility long_arm;
         static public BlueprintAbility blade_lash;
+        static public BlueprintAbility stunning_barrier_greater;
 
 
         static public void load()
@@ -250,7 +251,61 @@ namespace CallOfTheWild
 
             createLongArm();
             createBladeLash();
+            createStunningBarrierGreater();
         }
+
+
+        static void createStunningBarrierGreater()
+        {
+            var resource = Helpers.CreateAbilityResource("StunningBarrierResource", "", "", "", null);
+            resource.SetFixedResource(30);
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("705fec87d90607444a1ae629acfeb94e", "StunningBarrierGreaterBuff", "");
+            buff.ReplaceComponent<AddStatBonus>(a => a.Value = 2);
+            buff.ReplaceComponent<BuffAllSavesBonus>(b => b.Value = 2);
+            buff.AddComponent(Helpers.CreateAddAbilityResourceNoRestore(resource));
+
+            var after_discharge = Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => { c.resource = resource; c.amount = 2; }),
+                                                                                                                  Helpers.Create<NewMechanics.ContextActionSpendResource>(c => c.resource = resource),
+                                                                                                                  Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                  );
+            buff.ReplaceComponent<AddTargetAttackWithWeaponTrigger>(a =>
+                                                                    {
+                                                                        a.ActionOnSelf = Helpers.CreateActionList(after_discharge);
+                                                                    });
+
+            buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c =>
+                                                                                                                                     {
+                                                                                                                                         c.Resource = resource;
+                                                                                                                                         c.amount = Helpers.CreateContextValue(AbilityRankType.DamageDice);
+                                                                                                                                     }
+                                                                                                                                     )));
+            buff.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDice, max: 30));
+
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+
+            stunning_barrier_greater = Helpers.CreateAbility("StunningBarrierGreaterAbility",
+                                                             "Stunning Barrier, Greater",
+                                                             "This spell functions as stunning barrier, except as noted above, and it provides a +2 bonus to AC and on saving throws. It is not discharged until it has stunned a number of creatures equal to your caster level.\n"
+                                                             + "Stunning Barrier: You are closely surrounded by a barely visible magical field. The field provides a +1 deflection bonus to AC and a +1 resistance bonus on saves. Any creature that strikes you with a melee attack is stunned for 1 round (Will negates). Once the field has stunned an opponent, the spell is discharged.",
+                                                             "",
+                                                             buff.Icon,
+                                                             AbilityType.Spell,
+                                                             UnitCommand.CommandType.Standard,
+                                                             AbilityRange.Personal,
+                                                             Helpers.roundsPerLevelDuration,
+                                                             Helpers.willNegates,
+                                                             Helpers.CreateRunActions(apply_buff),
+                                                             Helpers.CreateSpellComponent(SpellSchool.Abjuration)
+                                                             );
+            stunning_barrier_greater.setMiscAbilityParametersSelfOnly();
+            stunning_barrier_greater.AddToSpellList(Helpers.paladinSpellList, 3);
+            stunning_barrier_greater.AddToSpellList(Helpers.clericSpellList, 3);
+            stunning_barrier_greater.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            stunning_barrier_greater.AddToSpellList(Helpers.wizardSpellList, 3);
+            stunning_barrier_greater.AddSpellAndScroll("e029ec259c9a37249b113060df32a01d");
+        } 
 
 
         static void createBladeLash()
@@ -1049,6 +1104,7 @@ namespace CallOfTheWild
                                            Helpers.CreateRunActions(effect),
                                            Common.createAbilitySpawnFx("2483780330931b64f97cbb6bb7cbd352", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
                                            Helpers.Create<SharedSpells.CannotBeShared>(),
+                                           Helpers.Create<NewMechanics.AbilityTargetIsCaster>(),
                                            Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic),
                                            Helpers.CreateContextRankConfig(max: 5),
@@ -1368,6 +1424,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Personal,
                                                 "1 hour/level or until discharged",
                                                 "",
+                                                Helpers.Create<NewMechanics.AbilityTargetIsCaster>(),
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Helpers.CreateContextRankConfig(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Abjuration)
@@ -2140,6 +2197,7 @@ namespace CallOfTheWild
                                                          dazzling_display.GetComponent<AbilityTargetsAround>(),
                                                          dazzling_display.GetComponent<AbilitySpawnFx>(),
                                                          Helpers.Create<SharedSpells.CannotBeShared>(),
+                                                         Helpers.Create<NewMechanics.AbilityTargetIsCaster>(),
                                                          Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
                                                          );
@@ -2728,7 +2786,8 @@ namespace CallOfTheWild
                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),//necromancy buff
                                                Helpers.CreateSpellComponent(SpellSchool.Necromancy),
                                                Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally),
-                                               Helpers.Create<SharedSpells.CannotBeShared>()
+                                               Helpers.Create<SharedSpells.CannotBeShared>(),
+                                               Helpers.Create<NewMechanics.AbilityTargetIsCaster>()
                                                );
             bone_fists.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
             bone_fists.setMiscAbilityParametersSelfOnly();
@@ -3985,7 +4044,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateContextRankConfig(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                 Helpers.CreateContextRankConfig(),
-                                                Helpers.Create<SharedSpells.CannotBeShared>()
+                                                Helpers.Create<SharedSpells.CannotBeShared>(),
+                                                Helpers.Create<NewMechanics.AbilityTargetIsCaster>()
                                                 );
             contingency.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(contingency);
@@ -4011,7 +4071,7 @@ namespace CallOfTheWild
             var action_remove_delayed_consumption_use = Helpers.CreateActionList(Common.createContextActionRemoveBuff(delayed_consumption_give_ability_buff));
             var delayed_consumption_store_buff = Helpers.CreateBuff("DelayedConsumptionBuff",
                                                             "Delayed Consumption",
-                                                            "When you consume this extract, you quickly consume another extract of your choice-this second extract’s effects do not come into effect until a later point. You must consume this second, companion extract on the round following delayed consumption or waste the extract. The companion extract can be no higher than 4th level, and you must pay any costs associated with the companion extract when you consume it.\n"
+                                                            "When you consume this extract, you quickly consume another extract of your choice-this second extract’s effects do not come into effect until a later point.  The companion extract can be no higher than 4th level, and you must pay any costs associated with the companion extract when you consume it.\n"
                                                             + "At any point during the duration of this extract, you can cause the companion extract to take effect as a swift action. You can only have one delayed consumption in effect at one time. If a second is consumed, the first is dispelled without any effect.\n",
                                                             "",
                                                             icon,
@@ -4027,7 +4087,7 @@ namespace CallOfTheWild
             var remove_buff = Common.createContextActionRemoveBuff(delayed_consumption_store_buff);
 
             var delay_consumption_release = Helpers.CreateAbility("DelayConsumptionReleaseAbility",
-                                                            "Delay Consumption: Take Effect",
+                                                            "Delayed Consumption: Take Effect",
                                                             delayed_consumption_store_buff.Description,
                                                             "",
                                                             delayed_consumption_store_buff.Icon,
@@ -4059,7 +4119,7 @@ namespace CallOfTheWild
             for (int i = 0; i < max_variants; i++)
             {
                 var delay_consumption_use = Helpers.CreateAbility($"DelayConsumptionStoreAbility{i}",
-                                                            "Delay Consumption: Companion Extract",
+                                                            "Delayed Consumption: Companion Extract",
                                                             delayed_consumption_store_buff.Description,
                                                             "",
                                                             delayed_consumption_store_buff.Icon,
@@ -4083,7 +4143,7 @@ namespace CallOfTheWild
 
             var apply_buff = Common.createContextActionApplyBuff(delayed_consumption_store_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), rate: DurationRate.Days));
             delayed_consumption = Helpers.CreateAbility("DelayConsumptionAbility",
-                                                "Delay Consumption",
+                                                "Delayed Consumption",
                                                 delayed_consumption_store_buff.Description,
                                                 "",
                                                 delayed_consumption_store_buff.Icon,
@@ -4096,7 +4156,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateContextRankConfig(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                 Helpers.CreateContextRankConfig(),
-                                                Helpers.Create<SharedSpells.CannotBeShared>()
+                                                Helpers.Create<SharedSpells.CannotBeShared>(),
+                                                Helpers.Create<NewMechanics.AbilityTargetIsCaster>()
                                                 );
             delayed_consumption.setMiscAbilityParametersSelfOnly();
 

@@ -155,6 +155,7 @@ New spells:
 - Keen Edge,
 - Resinous Skin,
 - Sheet Lightning,
+- Stunning Barrier, Greater,
 - Archon's Trumpet,
 - Aura of Doom,
 - Explosion of Rot,

@@ -342,6 +342,20 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetIsCaster : BlueprintComponent, IAbilityTargetChecker
+        {
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                UnitEntityData unit = target.Unit;
+
+                return target == caster;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
         public class AbilitTargetMainWeaponCheck : BlueprintComponent, IAbilityTargetChecker
