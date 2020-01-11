@@ -26,7 +26,6 @@ namespace CallOfTheWild.AttackReplacementMechanics
     [Harmony12.HarmonyPatch("CreateFullAttack", Harmony12.MethodType.Normal)]
     class UnitAttack__CreateFullAttack__Patch
     {
-
         static bool Prefix(UnitAttack __instance)
         {
             __instance.Executor.Descriptor.Ensure<FullAttackWatcherUnitPart>().is_full_attack = true;
@@ -90,6 +89,9 @@ namespace CallOfTheWild.AttackReplacementMechanics
             this.valid = true;
         }
     }
+
+
+
 
 
 

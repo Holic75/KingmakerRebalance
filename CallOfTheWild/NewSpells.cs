@@ -299,6 +299,7 @@ namespace CallOfTheWild
                                                              Helpers.CreateRunActions(apply_buff),
                                                              Helpers.CreateSpellComponent(SpellSchool.Abjuration)
                                                              );
+            stunning_barrier_greater.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
             stunning_barrier_greater.setMiscAbilityParametersSelfOnly();
             stunning_barrier_greater.AddToSpellList(Helpers.paladinSpellList, 3);
             stunning_barrier_greater.AddToSpellList(Helpers.clericSpellList, 3);
