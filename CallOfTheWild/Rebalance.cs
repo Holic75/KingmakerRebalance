@@ -1014,4 +1014,16 @@ namespace CallOfTheWild
 
         }
     }
+
+
+    //allow inherent modifiers to be considered as permanent
+    [Harmony12.HarmonyPatch(typeof(ModifiableValue.Modifier))]
+    [Harmony12.HarmonyPatch("IsPermanent", Harmony12.MethodType.Normal)]
+    class ModifiableValue_IsPermanent
+    {
+        static void Postfix(ModifiableValue.Modifier __instance,  ref bool __result)
+        {
+            __result = __result || __instance.ModDescriptor == ModifierDescriptor.Inherent;
+        }
+    }
 }

@@ -66,6 +66,7 @@ using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResource
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.Blueprints.Items.Components;
+using Kingmaker.Designers.Mechanics.Prerequisites;
 
 namespace CallOfTheWild
 {
@@ -1119,6 +1120,16 @@ namespace CallOfTheWild
         public static PrerequisiteStatValue PrerequisiteStatValue(this StatType stat, int value, bool any = false)
         {
             var result = Create<PrerequisiteStatValue>();
+            result.Stat = stat;
+            result.Value = value;
+            result.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
+            return result;
+        }
+
+
+        public static PrerequisiteFullStatValue PrerequisiteFullStatValue(this StatType stat, int value, bool any = false)
+        {
+            var result = Create<PrerequisiteFullStatValue>();
             result.Stat = stat;
             result.Value = value;
             result.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
