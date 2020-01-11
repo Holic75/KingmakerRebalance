@@ -116,7 +116,7 @@ namespace CallOfTheWild
             witch_class.LocalizedName = Helpers.CreateString("Witch.Name", "Witch");
             witch_class.LocalizedDescription = Helpers.CreateString("Witch.Description",
                 "Some gain power through study, some through devotion, others through blood, but the witch gains power from her communion with the unknown.Generally feared and misunderstood, the witch draws her magic from a pact made with an otherworldly power.Communing with that source, using her familiar as a conduit, the witch gains not only a host of spells, but a number of strange abilities known as hexes.As a witch grows in power, she might learn about the source of her magic, but some remain blissfully unaware.Some are even afraid of that source, fearful of what it might be or where its true purposes lie.\n"
-                + "Role: While many witches are recluses, living on the edge of civilization, some live within society, openly or in hiding.The blend of witches’ spells makes them adept at filling a number of different roles, from seer to healer, and their hexes grant them a number of abilities that are useful in a fight.Some witches travel about, seeking greater knowledge and better understanding of the mysterious powers that guide them."
+                + "Role: While many witches are recluses, living on the edge of civilization, some live within society, openly or in hiding. The blend of witches’ spells makes them adept at filling a number of different roles, from seer to healer, and their hexes grant them a number of abilities that are useful in a fight.Some witches travel about, seeking greater knowledge and better understanding of the mysterious powers that guide them."
                 );
             witch_class.m_Icon = wizard_class.Icon;
             witch_class.SkillPoints = wizard_class.SkillPoints;
@@ -475,8 +475,8 @@ namespace CallOfTheWild
             hex_channeler_channel_energy_selection = Helpers.CreateFeatureSelection("WitchChannelEnergySelection",
                                                                                     "Channel Energy",
                                                                                     "At 2nd level, a hex channeler can call upon her patron to release a wave of energy from herself or her familiar.A good witch channels positive energy(like a good cleric), and an evil witch channels negative energy(like an evil cleric).A witch who is neither good nor evil must choose whether she channels positive or negative energy; once this choice is made, it cannot be reversed.\n"
-                                                                                    + "Channeling energy causes a burst that affects all creatures of one type (either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability.The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
-                                                                                    + "This burst heals or deals 1d6 points of damage.Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                                                                    + "Channeling energy causes a burst that affects all creatures of one type (either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability. The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
+                                                                                    + "This burst heals or deals 1d6 points of damage. Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
                                                                                     "d33b4095dbfa47588ed1f07b5af30e2c",
                                                                                     bless_spell.Icon,
                                                                                     FeatureGroup.None);
@@ -530,7 +530,7 @@ namespace CallOfTheWild
             hex_selection = Helpers.CreateFeatureSelection("WitchHexSelection",
                                                            "Hex",
                                                            "Witches learn a number of magic tricks, called hexes, that grant them powers or weaken foes. At 1st level, a witch gains one hex of her choice. She gains an additional hex at 2nd level and for every 2 levels attained after 2nd level. A witch cannot select an individual hex more than once.\n" +
-                                                           "Unless otherwise noted, using a hex is a standard action that does not provoke an attack of opportunity. The save to resist a hex is equal to 10 + 1 / 2 the witch’s level + the witch’s Intelligence modifier.",
+                                                           "Unless otherwise noted, using a hex is a standard action that does not provoke an attack of opportunity. The save to resist a hex is equal to 10 + 1/2 the witch’s level + the witch’s Intelligence modifier.",
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
@@ -1422,7 +1422,7 @@ namespace CallOfTheWild
         {
             regenerative_sinew = hex_engine.createRegenerativeSinew("WitchRegenerativeSinew", "Regenerative Sinew",
                                                                      "The witch can cause the debilitating wounds of a creature she touches to quickly close, helping it heal rapidly.\n"
-                                                                     + "The target either gains fast healing 5 for a number of rounds equal to 1 / 2 the witch’s class level or it heals ability score damage for one ability score.\n"
+                                                                     + "The target either gains fast healing 5 for a number of rounds equal to 1/2 the witch’s class level or it heals ability score damage for one ability score.\n"
                                                                      + "Once a creature has benefited from this hex, it cannot benefit from it again for 24 hours.",
                                                                      "6fab21ff649245babdb6f1155579f6b0",
                                                                      "03963bcf8dd64abea3757311c1e8a79c",
@@ -1435,7 +1435,7 @@ namespace CallOfTheWild
         {
             animal_servant = hex_engine.createAnimalServant("WitchAnimalServant", "Animal Servant",
                                                             "Effect: The witch can use this hex to turn a humanoid enemy into an animal and rob it of its free will.\n"
-                                                            + "The transformation works as beast shape II and is negated by a successful Will save. The transformed creature retains its Intelligence score and known languages, if any, but the witch controls its mind. This effect functions as dominate monster, except the creature does not receive further saving throws to resist the hex.The effect can be removed only with wish or similar magic, although slaying the witch also ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
+                                                            + "The transformation works as beast shape II and is negated by a successful Will save. The transformed creature retains its Intelligence score and known languages, if any, but the witch controls its mind. This effect functions as dominate monster, except the creature does not receive further saving throws to resist the hex. The effect can be removed only with wish or similar magic, although slaying the witch also ends the effect. Whether or not the save is successful, a creature cannot be the target of this hex again for 1 day.",
                                                             "583e661fe4244a319672bc6ccdc51294",
                                                             "32b4b11964724f59a9034e61014dbb3c",
                                                             "92859cd9f42a4fae95462e27e3a940fb",

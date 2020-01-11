@@ -185,6 +185,32 @@ namespace CallOfTheWild.CombatManeuverMechanics
     }
 
 
+    public class ContextActionForceMove : ContextAction
+    {
+        public bool provoke_aoo = false;
+        public ContextDiceValue distance_dice;
+
+        public override string GetCaption()
+        {
+            return "Force Move";
+        }
+
+        public override void RunAction()
+        {
+            var caster = this.Context.MaybeCaster;
+
+            var unit = this.Target.Unit;
+
+            if (unit == null || caster == null)
+            {
+                return;
+            }
+            var distance = distance_dice.Calculate(this.Context);
+            unit.Ensure<UnitPartForceMove>().Push((unit.Position - caster.Position).normalized, distance.Feet().Meters, provoke_aoo);
+        }
+    }
+
+
 
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class CombatManeuverBonus : RuleInitiatorLogicComponent<RuleCalculateCMB>

@@ -161,7 +161,7 @@ namespace CallOfTheWild
         static public BlueprintAbility long_arm;
         static public BlueprintAbility blade_lash;
         static public BlueprintAbility stunning_barrier_greater;
-
+        static public BlueprintAbility tidal_surge;
 
         static public void load()
         {
@@ -252,6 +252,41 @@ namespace CallOfTheWild
             createLongArm();
             createBladeLash();
             createStunningBarrierGreater();
+
+            createTidalSurge();
+        }
+
+
+        static void createTidalSurge()
+        {
+            var icon = library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon;//charged blast
+            var deliver_projectile = library.Get<BlueprintAbility>("963da934d652bdc41900ed68f63ca1fa").GetComponent<AbilityDeliverProjectile>(); //from water blast
+
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
+            var knock_out = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
+                                                      Helpers.Create<ContextActionKnockdownTarget>());
+            var move = Helpers.Create<CombatManeuverMechanics.ContextActionForceMove>(c => c.distance_dice = Helpers.CreateContextDiceValue(DiceType.D4, 5, 0));
+
+
+            tidal_surge = Helpers.CreateAbility("TidalSurgeAbility",
+                                                "Tidal Surge",
+                                                "You create an onrushing surge of water 10 feet high in a 30 - foot cone that deals 1d6 points of bludgeoning damage for every 2 caster levels you have (maximum 10d6 at 20th level). In addition to taking damage, creatures that fail their Reflex saves are pushed 1d4×5 feet away from you, and Medium or smaller creatures are also knocked prone.",
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "",
+                                                Helpers.reflexHalfDamage,
+                                                Helpers.CreateRunActions(SavingThrowType.Reflex, dmg, Helpers.CreateConditionalSaved(new GameAction[0], new GameAction[] { knock_out, move })),
+                                                Helpers.CreateContextRankConfig(progression: ContextRankProgression.Div2, max: 10),
+                                                Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                deliver_projectile
+                                                );
+            tidal_surge.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten;
+            tidal_surge.setMiscAbilityParametersRangedDirectional();
+            tidal_surge.AddToSpellList(Helpers.druidSpellList, 5);
+            tidal_surge.AddSpellAndScroll("449bf6d894ed8de4bbf148023cdf36f5");
         }
 
 
@@ -2141,7 +2176,7 @@ namespace CallOfTheWild
             area.SpellResistance = true;
             flashfire = Helpers.CreateAbility("FlashfireAbility",
                                                 "Flashfire",
-                                                "You cause flames to spring up in a 30-ft line, these flames deal 1d6 points of fire damage for every 3 caster levels you have (maximum 5d6) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire",
+                                                "You cause flames to spring up in a 30-ft line, these flames deal 1d6 points of fire damage for every 3 caster levels you have (maximum 5d6) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
