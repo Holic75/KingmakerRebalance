@@ -163,6 +163,9 @@ namespace CallOfTheWild
         static public BlueprintAbility stunning_barrier_greater;
         static public BlueprintAbility tidal_surge;
 
+        static public BlueprintAbility path_of_glory;
+        static public BlueprintAbility path_of_glory_greater;
+
         static public void load()
         {
             createShillelagh();
@@ -254,6 +257,111 @@ namespace CallOfTheWild
             createStunningBarrierGreater();
 
             createTidalSurge();
+            createPathOfGlory();
+            createPathOfGloryGreater();
+        }
+
+        
+        static void createPathOfGlory()
+        {
+            List<Vector2> points = new List<Vector2>();
+            for (int i = -3; i <= 3; i++)
+            {
+                points.Add(new Vector2(0.0f, (i * 8.0f).Feet().Meters));
+            }
+            var buff = Helpers.CreateBuff("PathOfGloryBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddContextEffectFastHealing(1)
+                                          );
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("b8a7c68b040695a40b3a87b9676f7b50", "PathOfGloryArea", "");//cave fangs trap
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => 
+                                                                                                   { a.Condition = Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsAlly>());
+                                                                                                     a.Buff = buff;
+                                                                                                   }
+                                                                                                   ) 
+                                                            };
+                               
+            area.AffectEnemies = false;
+            area.AggroEnemies = false;
+
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/PathOfGlory.png");
+            var duration = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds);
+            path_of_glory = Helpers.CreateAbility("PathOfGloryAbility",
+                                                  "Path of Glory",
+                                                  "You cause a 60-ft line to glow with dim illumination. Allies that end their turns in the glowing area are healed of 1 point of damage.",
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Close,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  "",
+                                                  Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffectMultiple(area, duration, points.ToArray())),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP),
+                                                  Helpers.CreateContextRankConfig()
+                                                  );
+            path_of_glory.setMiscAbilityParametersRangedDirectional();
+            path_of_glory.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken;
+            path_of_glory.AddToSpellList(Helpers.clericSpellList, 2);
+            path_of_glory.AddToSpellList(Helpers.bardSpellList, 2);
+            path_of_glory.AddSpellAndScroll("792862674c565ad4fbb1ab0c97c42acd");
+        }
+
+
+        static void createPathOfGloryGreater()
+        {
+
+            List<Vector2> points = new List<Vector2>();
+            for (int i = -3; i <= 3; i++)
+            {
+                points.Add(new Vector2(0.0f, (i * 8.0f).Feet().Meters));
+            }
+            var buff = Helpers.CreateBuff("PathOfGloryGreaterBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddContextEffectFastHealing(5)
+                                          );
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("b8a7c68b040695a40b3a87b9676f7b50", "PathOfGloryGreaterArea", "");//cave fangs trap
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a =>
+                                                                                                   { a.Condition = Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsAlly>());
+                                                                                                     a.Buff = buff;
+                                                                                                   }
+                                                                                                   )
+                                                            };
+            area.AffectEnemies = false;
+            area.AggroEnemies = false;
+
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/PathOfGlory.png");
+            var duration = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds);
+            path_of_glory_greater = Helpers.CreateAbility("PathOfGloryGreaterAbility",
+                                                  "Path of Glory, Greater",
+                                                  "This spell functions as path of glory, except as noted above, and spell area provides 5 points of healing instead of 1.\n"
+                                                  + "Path of Glory: " + path_of_glory.Description,
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Close,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  "",
+                                                  Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffectMultiple(area, duration, points.ToArray())),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP),
+                                                  Helpers.CreateContextRankConfig()
+                                                  );
+            path_of_glory_greater.setMiscAbilityParametersRangedDirectional();
+            path_of_glory_greater.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken;
+            path_of_glory_greater.AddToSpellList(Helpers.clericSpellList, 4);
+            path_of_glory_greater.AddToSpellList(Helpers.bardSpellList, 4);
+            path_of_glory_greater.AddSpellAndScroll("792862674c565ad4fbb1ab0c97c42acd");
         }
 
 
