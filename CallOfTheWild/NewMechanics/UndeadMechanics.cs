@@ -103,7 +103,7 @@ namespace CallOfTheWild.UndeadMechanics
         {
             try
             {
-                if (!__result) __result = __instance.Ensure< UnitPartConsiderUndeadForHealing>().active();
+                if (!__result) __result = __instance.Ensure<UnitPartConsiderUndeadForHealing>().active();
             }
             catch (Exception ex)
             {

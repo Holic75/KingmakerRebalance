@@ -17,7 +17,7 @@ namespace CallOfTheWild.NewMechanics
         {
             var AnimateEquipmentChangeInCombat = typeof(UnitViewHandsEquipment).GetNestedTypes(Harmony12.AccessTools.all).First(x => x.Name.Contains("AnimateEquipmentChangeInCombat"));
             var original = Harmony12.AccessTools.Method(AnimateEquipmentChangeInCombat, "MoveNext");
-            var transpiler = Harmony12.AccessTools.Method(typeof(WeaponSetSwapPatch), nameof(StartGameCoroutine_Transpiler));
+            var transpiler = Harmony12.AccessTools.Method(typeof(WeaponSetSwapPatch), nameof(AnimateEquipmentChangeInCombat_Transpiler));
             try
             {
                Main.harmony.Patch(original, null, null, new Harmony12.HarmonyMethod(transpiler));
@@ -28,7 +28,7 @@ namespace CallOfTheWild.NewMechanics
             }
         }
 
-        public static IEnumerable<Harmony12.CodeInstruction> StartGameCoroutine_Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        public static IEnumerable<Harmony12.CodeInstruction> AnimateEquipmentChangeInCombat_Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
         {
             List<Harmony12.CodeInstruction> codes = new List<Harmony12.CodeInstruction>();
             try

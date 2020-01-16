@@ -226,7 +226,8 @@ enchanced attacks (optional),
 - When using burn to improve water shroud ac bonus, kinetic knight increases enchantment bonus of his armor or shield instead of raw armor/shield bonuses,
 - Increased damage reduction defensive power increases dr by 2 instead of 1 to make it similar to unchained barbarian rage power,
 - Acid Fog spell effect was changed to work as in pnp,
-- Mystic Theurge now receives spell synthesis ability at level 10.
+- Mystic Theurge now receives spell synthesis ability at level 10,
+- Vital Strike now works with ranged attacks.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

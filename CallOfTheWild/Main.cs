@@ -176,6 +176,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
                     CallOfTheWild.Rebalance.fixAlchemistFastBombs();
+                    CallOfTheWild.Rebalance.fixChannelNegativeEnergyHeal();
+                    CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 

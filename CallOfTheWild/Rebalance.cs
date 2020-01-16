@@ -35,6 +35,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
+using Kingmaker.RuleSystem;
 
 namespace CallOfTheWild
 {
@@ -558,7 +559,6 @@ namespace CallOfTheWild
             var long_blessing = library.Get<BlueprintAbility>("3ef665bb337d96946bcf98a11103f32f");
             long_blessing.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                              classes: new BlueprintCharacterClass[] { cleric_class }, stepLevel: 2, startLevel: 3));
-
         }
 
 
@@ -631,6 +631,18 @@ namespace CallOfTheWild
             }
             drs[3].RemoveComponents<ContextRankConfig>();
 
+        }
+
+
+        internal static void fixChannelNegativeEnergyHeal()
+        {
+            //in vanilla it uses shared value for unknown reason, to make it uniform with other abilities we replace heal amount with context value
+            var negative_heal = library.Get<BlueprintAbility>("9be3aa47a13d5654cbcb8dbd40c325f2");
+
+            var new_actions = Common.changeAction<ContextActionHealTarget>(negative_heal.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                                                                           c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+
+            negative_heal.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(new_actions));
         }
 
         internal static void fixVitalStrike()

@@ -1,10 +1,14 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Controllers.Combat;
+using Kingmaker.EntitySystem.Entities;
+using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
@@ -174,6 +178,49 @@ namespace CallOfTheWild.VitalStrikeMechanics
         }
     }
 
+    //fix vital strike to work on ranged weapons
+    internal class VitalStrikeRangedAttackPatch
+    {
 
+        internal static void Run()
+        {
+            var Deliver = typeof(AbilityCustomMeleeAttack).GetNestedTypes(Harmony12.AccessTools.all).First(x => x.Name.Contains("Deliver"));
+            var original = Harmony12.AccessTools.Method(Deliver, "MoveNext");
+            var transpiler = Harmony12.AccessTools.Method(typeof(VitalStrikeRangedAttackPatch), nameof(Deliver_Transpiler));
+            try
+            {
+                Main.harmony.Patch(original, null, null, new Harmony12.HarmonyMethod(transpiler));
+            }
+            catch (Exception ex)
+            {
+                Main.logger.Log(ex.ToString());
+            }
+        }
+
+        public static IEnumerable<Harmony12.CodeInstruction> Deliver_Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        {
+            List<Harmony12.CodeInstruction> codes = new List<Harmony12.CodeInstruction>();
+            try
+            {
+                codes = instructions.ToList();
+                var load_this = codes.Find(x => x.opcode == System.Reflection.Emit.OpCodes.Ldfld && x.operand.ToString().Contains("this"));
+                var find_threat_hand = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Call && x.operand.ToString().Contains("GetThreatHand"));
+                codes[find_threat_hand] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<UnitEntityData, AbilityCustomMeleeAttack, WeaponSlot>(getWeaponSlot).Method);
+                codes.InsertRange(find_threat_hand, new Harmony12.CodeInstruction[] { new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0), load_this });
+            }
+            catch (Exception ex)
+            {
+                Main.logger.Log(ex.ToString());
+            }
+
+            return codes.AsEnumerable();
+        }
+
+
+        static WeaponSlot getWeaponSlot(UnitEntityData attacker, AbilityCustomMeleeAttack custom_ability)
+        {
+            return !custom_ability.IsVitalStrike ? attacker.GetThreatHand() : attacker.Body.PrimaryHand;
+        }
+    }
 
 }
