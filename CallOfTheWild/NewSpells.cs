@@ -168,6 +168,11 @@ namespace CallOfTheWild
 
         static public BlueprintAbility meteor_swarm;
 
+        static public BlueprintAbility fly;
+        static public BlueprintAbility air_walk;
+        static public BlueprintAbility air_walk_communal;
+        static public BlueprintAbility overland_flight;
+
         static public void load()
         {
             createShillelagh();
@@ -263,6 +268,142 @@ namespace CallOfTheWild
             createPathOfGloryGreater();
 
             createMeteorSwarm();
+            createFlyAndOverlandFlight();
+            createAirWalk();
+        }
+
+
+        static void createFlyAndOverlandFlight()
+        {
+            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Fly.png");
+            var spawn_fx = library.Get<BlueprintAbility>("f3c0b267dd17a2a45a40805e31fe3cd1").GetComponent<AbilitySpawnFx>();
+            var buff = Helpers.CreateBuff("FlyBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddFact(airborne)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            fly = Helpers.CreateAbility("FlyAbility",
+                                        "Fly",
+                                        "The subject can fly. Its speed is increased by 10 feet and it gains immunity to difficult terrain and ground-based effects. It also receives +3 dodge bonus to melee AC against non-flying creatures.",
+                                        "",
+                                        icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Touch,
+                                        Helpers.minutesPerLevelDuration,
+                                        "",
+                                        Helpers.CreateRunActions(apply_buff),
+                                        spawn_fx,
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                        );
+            fly.setMiscAbilityParametersTouchFriendly();
+
+            fly.AddToSpellList(Helpers.alchemistSpellList, 3);
+            fly.AddToSpellList(Helpers.magusSpellList, 3);
+            fly.AddToSpellList(Helpers.wizardSpellList, 3);
+            fly.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
+            fly.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("d169dd2de3630b749a2363c028bb6e7b"), fly, 3);//travel
+
+
+            var apply_buff_long = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Hours));
+            overland_flight = Helpers.CreateAbility("OverlandFlightAbility",
+                                        "Overland Flight",
+                                        "This spell functions like a fly spell, except that it lasts much longer.\n"
+                                        + "Fly: " + fly.Description,
+                                        "",
+                                        icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Personal,
+                                        Helpers.hourPerLevelDuration,
+                                        "",
+                                        Helpers.CreateRunActions(apply_buff_long),
+                                        spawn_fx,
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                        );
+            overland_flight.setMiscAbilityParametersSelfOnly();
+            overland_flight.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            overland_flight.AddToSpellList(Helpers.alchemistSpellList, 5);
+            overland_flight.AddToSpellList(Helpers.magusSpellList, 5);
+            overland_flight.AddToSpellList(Helpers.wizardSpellList, 5);
+            overland_flight.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
+        }
+
+
+        static void createAirWalk()
+        {
+            var icon = library.Get<BlueprintAbility>("f3c0b267dd17a2a45a40805e31fe3cd1").Icon;
+            var spawn_fx = library.Get<BlueprintAbility>("f3c0b267dd17a2a45a40805e31fe3cd1").GetComponent<AbilitySpawnFx>();
+            var buff = Helpers.CreateBuff("AirWalkBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
+                                          Common.createSpellImmunityToSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground),
+                                          Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes));
+            air_walk = Helpers.CreateAbility("AirWalkAbility",
+                                        "Air Walk",
+                                        "The subject can tread on air as if walking on solid ground. It gains immunity to difficult terrain and ground-based effects.",
+                                        "",
+                                        icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Touch,
+                                        Helpers.tenMinPerLevelDuration,
+                                        "",
+                                        Helpers.CreateRunActions(apply_buff),
+                                        spawn_fx,
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                        );
+            air_walk.setMiscAbilityParametersTouchFriendly();
+
+            air_walk.AddToSpellList(Helpers.alchemistSpellList, 4);
+            air_walk.AddToSpellList(Helpers.clericSpellList, 3);
+            air_walk.AddToSpellList(Helpers.druidSpellList, 4);
+            air_walk.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
+            air_walk.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("750bfcd133cd52f42acbd4f7bc9cc365"), air_walk, 4);//air
+
+            air_walk_communal = Helpers.CreateAbility("AirWalkCommunalAbility",
+                                        "Overland Flight",
+                                        "This spell functions like air walk, except that it effects all allies in 30 ft radius.\n"
+                                        + "Air Walk: " + air_walk.Description,
+                                        "",
+                                        icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Personal,
+                                        Helpers.tenMinPerLevelDuration,
+                                        "",
+                                        Helpers.CreateRunActions(apply_buff),
+                                        spawn_fx,
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                        Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
+                                        Helpers.Create<SharedSpells.CannotBeShared>()
+                                        );
+            air_walk_communal.setMiscAbilityParametersSelfOnly();
+            air_walk_communal.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+            air_walk_communal.AddToSpellList(Helpers.alchemistSpellList, 5);
+            air_walk_communal.AddToSpellList(Helpers.clericSpellList, 5);
+            air_walk_communal.AddToSpellList(Helpers.druidSpellList, 5);
+            air_walk_communal.AddSpellAndScroll("3ac4b3793a6e580479c9fea69d737dc4"); //feather step mass
         }
 
 
@@ -2527,7 +2668,7 @@ namespace CallOfTheWild
             var on_hit = Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(),
                                                                        Helpers.CreateActionList(action)
                                                                        );
-
+            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
             var buff = Helpers.CreateBuff("WindsOfVengeanceBuff",
                                           "Winds of Vengeance",
                                           "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you to fly granting immunity to ground-based effects and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
@@ -2538,7 +2679,7 @@ namespace CallOfTheWild
                                           icon,
                                           Common.createPrefabLink("40c31beb53bffb845b095542133ac9bc"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.BreathWeapon | SpellDescriptor.Poison | SpellDescriptor.Ground),
-                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Ground),
+                                          Helpers.CreateAddFact(airborne),
                                           Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
                                           Helpers.CreateAddStatBonus(StatType.Speed, 30, ModifierDescriptor.UntypedStackable),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch }),

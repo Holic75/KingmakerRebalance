@@ -949,6 +949,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "04e820e1ce3a66f47a50ad5074d3ae40", 3), //delay posion communal
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
+                new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
@@ -995,6 +996,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 5), //inflict critical wounds
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
+                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 3),
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue

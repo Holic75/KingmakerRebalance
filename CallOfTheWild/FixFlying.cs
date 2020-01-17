@@ -10,6 +10,7 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.Utility;
 using System;
@@ -92,6 +93,20 @@ namespace CallOfTheWild
             //tar pool, obsidian flow
             //spike stones, spike growth
             //tremor, ice slick, 
+
+            //entangle is already set in vanilla
+            var spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("7d700cdf260d36e48bb7af3a8ca5031f"), //tar pool
+                library.Get<BlueprintAbility>("e48638596c955a74c8a32dbc90b518c1"), //obsidian flow
+                library.Get<BlueprintAbility>("d1afa8bc28c99104da7d784115552de5"), //spike stones
+                library.Get<BlueprintAbility>("29b0f9026ad05e14789d84e867cc6dff") //spike growth
+            };
+
+            foreach (var s in spells)
+            {
+                s.AddComponent(Helpers.CreateSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
+            }
         }
 
         static void createFlyingFact()
@@ -131,6 +146,7 @@ namespace CallOfTheWild
             airborne.AddComponent(Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
             airborne.AddComponent(Common.createSpellImmunityToSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
             airborne.AddComponent(Helpers.Create<AddFlying>());
+            airborne.AddComponent(Helpers.Create<ManeuverImmunity>(m => m.Type = CombatManeuver.Trip));
             var air_mastery = library.Get<BlueprintFeature>("be52ced7ae1c7354a8ee12d9bad47805");
 
             BlueprintUnitFact[] facts = new BlueprintUnitFact[]{
@@ -194,7 +210,9 @@ namespace CallOfTheWild
                                                       library.Get<BlueprintUnitType>("f52b75839bb928242b6108df9d7f35a2"), //wyvern
                                                       library.Get<BlueprintUnitType>("284b6fd0b67688a4bb3ec28b15152d69"), //ankou
                                                       library.Get<BlueprintUnitType>("a574fa56e67623d41b538bdeae291fd5"), //gargoyle
-                                                      library.Get<BlueprintUnitType>("535823c600a2c8f4a906063b7b949eb5") //jabberwok
+                                                      library.Get<BlueprintUnitType>("535823c600a2c8f4a906063b7b949eb5"), //jabberwok
+                                                      library.Get<BlueprintUnitType>("248c45d90c2f6e7429358fbe503e9c08") //manticore
+
                                                      };
 
             var units = library.GetAllBlueprints().OfType<BlueprintUnit>();

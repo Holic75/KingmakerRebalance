@@ -895,6 +895,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "754c478a2aa9bb54d809e648c3f7ac0e", 3), //dominate animal
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
                 new Common.SpellId( NewSpells.flashfire.AssetGuid, 3),
+                new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "bd5da98859cf2b3418f6d68ea66cabbe", 3), //inflict serious wounds
                 new Common.SpellId( "2d4263d80f5136b4296d6eb43a221d7d", 3), //magic vestment
                 new Common.SpellId( "c927a8b0cd3f5174f8c0b67cdbfde539", 3), //remove blindness

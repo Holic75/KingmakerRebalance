@@ -473,6 +473,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
                 new Common.SpellId( "2d81362af43aeac4387a3d4fced489c3", 3), //fireball
                 new Common.SpellId( NewSpells.flame_arrow.AssetGuid, 3),
+                new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 3), //hold person
