@@ -185,10 +185,11 @@ New spells:
 - Particulate Form,
 - Blood Mist,
 - Irresistible Dance,
+- Meteor Swarm,
 - Hold Monster, Mass,
 - Shapechange,
 - Suffocate Mass,
-- Winds of Vengeance.  
+- Winds of Vengeance. 
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  
@@ -211,7 +212,7 @@ enchanced attacks (optional),
 - Barbarian Increased Damage Reduction rage power works only during rage, same for Stalwart Defender,
 - Empyreal Sorcerer Channel Energy ability depends now on Wisdom rather than Charisma,
 - Channel Energy dc no longer scales with character level, but with class level that gave access to it.
-- all flying creatures are immune to difficult terrain and ground based buff effects,
+- all flying creatures are immune to difficult terrain and ground based buff effects and also receive +3 dodge melee ac bonus against non-flying creatures,
 - flails and heavy flails critical multiplier was changed to x3 to compensate for missing trip and disarm properties (optional),
 - medium range for spells was increased to 60 ft, long range to 100 ft,
 - weapon swap consumes move action instead of standard,

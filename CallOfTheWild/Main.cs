@@ -159,7 +159,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixAnimalGrowth();
                     CallOfTheWild.Rebalance.fixIncreasedDamageReduction();
                     CallOfTheWild.Rebalance.fixItemBondForSpontnaeousCasters();
-                    CallOfTheWild.Rebalance.giveDifficultTerrainImmunityToAirborneUnits();
+                    CallOfTheWild.FixFlying.load();
                     CallOfTheWild.Rebalance.fixVitalStrike();
                     CallOfTheWild.Rebalance.fixArcheologistLuck();
                     CallOfTheWild.Rebalance.fixElementalMovementWater();

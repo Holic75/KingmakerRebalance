@@ -166,6 +166,8 @@ namespace CallOfTheWild
         static public BlueprintAbility path_of_glory;
         static public BlueprintAbility path_of_glory_greater;
 
+        static public BlueprintAbility meteor_swarm;
+
         static public void load()
         {
             createShillelagh();
@@ -259,9 +261,62 @@ namespace CallOfTheWild
             createTidalSurge();
             createPathOfGlory();
             createPathOfGloryGreater();
+
+            createMeteorSwarm();
         }
 
-        
+
+        static void createMeteorSwarm()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/MeteorSwarm.png");
+            var firestorm = library.Get<BlueprintAbility>("e3d0dfe1c8527934294f241e0ae96a8d");
+
+            var on_hit_buff = Helpers.CreateBuff("MeteorSwarmOnHitBuff",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             null);
+            on_hit_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 24), true, true);
+            var main_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(damage));
+            Common.addConditionalDCIncrease(main_action, Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasBuffFromCaster(on_hit_buff)), 4);
+
+            var on_hit_actions = new GameAction[]{Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2)),
+                                                  Common.createContextActionApplyBuff(on_hit_buff, Helpers.CreateContextDuration(1)),
+                                                 };
+
+
+            var ranged_touch_attack_action = NewMechanics.ContextActionRangedTouchAttack.Create(on_hit_actions);
+            meteor_swarm = Helpers.CreateAbility("MeteorSwarmAbility",
+                                                 "Meteor Swarm",
+                                                 "Meteor swarm is a very powerful and spectacular spell that is similar to fireball in many aspects.\n"
+                                                 + "When you cast it, a rain of meteors falls on the area. You make a ranged touch attack against creatures in the area to see if meteors has stuck them. Any creature struck by a meteor takes 2d6 points of bludgeoning damage (no save) and takes a -4 penalty on the saving throw against the meteor’s fire damage (see below). If a meteor misses its target, it simply explodes at the nearest corner of the target’s space.\n"
+                                                 + "Once meteors land, they explode, dealing 24d6 damage to each creature in the area.",
+                                                 "",
+                                                 icon,
+                                                 AbilityType.Spell,
+                                                 UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Long,
+                                                 "",
+                                                 Helpers.reflexHalfDamage,
+                                                 Helpers.CreateRunActions(ranged_touch_attack_action, 
+                                                                          main_action,
+                                                                          Common.createContextActionRemoveBuffFromCaster(on_hit_buff)),
+                                                 firestorm.GetComponent<AbilitySpawnFx>(),
+                                                 Helpers.CreateAbilityTargetsAround(40.Feet(), TargetType.Any),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                                 );
+            meteor_swarm.setMiscAbilityParametersRangedDirectional();
+            meteor_swarm.SpellResistance = true;
+            meteor_swarm.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten;
+
+            meteor_swarm.AddToSpellList(Helpers.wizardSpellList, 9);
+            meteor_swarm.AddSpellAndScroll("5c6a20a7dbe44ae478a2bd72efc98e2c");
+        }
+
         static void createPathOfGlory()
         {
             List<Vector2> points = new List<Vector2>();

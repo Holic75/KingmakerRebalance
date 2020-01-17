@@ -1764,7 +1764,7 @@ namespace CallOfTheWild
 
             public override void RunAction()
             {
-                
+
                 int need_resource = amount;
 
                 var owner = this.Context.MaybeOwner.Descriptor;
@@ -1786,7 +1786,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                
+
                 owner.Resources.Spend(this.resource, need_resource);
             }
 
@@ -5009,7 +5009,7 @@ namespace CallOfTheWild
         }
 
 
-        public class ContextActionOnEngagedTargets: ContextAction
+        public class ContextActionOnEngagedTargets : ContextAction
         {
             public ActionList actions;
 
@@ -5044,14 +5044,14 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
                 MechanicsContext context = evt.Reason.Context;
-                if (context?.SourceAbility == null  || !context.SourceAbility.IsSpell)
+                if (context?.SourceAbility == null || !context.SourceAbility.IsSpell)
                     return;
 
                 var dmg = value.Calculate(this.Fact.MaybeContext);
 
                 foreach (BaseDamage baseDamage in evt.DamageBundle)
                 {
-                    
+
                     var energy_damage = baseDamage as EnergyDamage;
                     if (energy_damage == null)
                     {
@@ -5268,7 +5268,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-              
+
                 var weapon1 = Owner.Body.PrimaryHand.HasWeapon ? Owner.Body.PrimaryHand.MaybeWeapon : null;
                 var weapon2 = Owner.Body.SecondaryHand.HasWeapon ? Owner.Body.SecondaryHand.MaybeWeapon : null;
 
@@ -5298,5 +5298,50 @@ namespace CallOfTheWild
         }
 
 
+
+        public class ContextActionRangedTouchAttack : ContextAction
+        {
+            public BlueprintItemWeapon Weapon;
+
+            public ActionList OnHit, OnMiss;
+
+            internal static ContextActionRangedTouchAttack Create(GameAction[] onHit, GameAction[] onMiss = null)
+            {
+                var r = Helpers.Create<ContextActionRangedTouchAttack>();
+                r.Weapon = Main.library.Get<BlueprintItemWeapon>("f6ef95b1f7bb52b408a5b345a330ffe8");
+                r.OnHit = Helpers.CreateActionList(onHit);
+                r.OnMiss = Helpers.CreateActionList(onMiss);
+                return r;
+            }
+
+            public override string GetCaption() => $"Ranged touch attack";
+
+            public override void RunAction()
+            {
+                try
+                {
+                    var weapon = Weapon.CreateEntity<ItemEntityWeapon>();
+                    var context = AbilityContext;
+                    var attackRoll = context.AttackRoll ?? new RuleAttackRoll(context.MaybeCaster, Target.Unit, weapon, 0);
+                    attackRoll = context.TriggerRule(attackRoll);
+                    //if (context.ForceAlwaysHit) attackRoll.SetFake(AttackResult.Hit);
+                    Log.Write($"Ranged touch attack on {Target.Unit}, hit? {attackRoll.IsHit}");
+                    if (attackRoll.IsHit)
+                    {
+                        OnHit.Run();
+                    }
+                    else
+                    {
+                        OnMiss.Run();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+
+
+        }
     }
 }
