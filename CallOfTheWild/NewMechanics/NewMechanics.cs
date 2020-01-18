@@ -3923,14 +3923,18 @@ namespace CallOfTheWild
             public ActionList UnitMove = Helpers.CreateActionList(null);
             public ActionList Round = Helpers.CreateActionList(null);
             public ActionList FirstRound = Helpers.CreateActionList(null);
-            private int round_number = 0;
+
+            [JsonProperty]
+            private bool applied = false;
+
+
 
             protected override void OnUnitEnter(
               MechanicsContext context,
               AreaEffectEntityData areaEffect,
               UnitEntityData unit)
             {
-                if (!this.UnitEnter.HasActions)
+                if (!this.UnitEnter.HasActions || isFirstRound(areaEffect))
                     return;
                 using (new AreaEffectContextData(areaEffect))
                 {
@@ -3944,7 +3948,7 @@ namespace CallOfTheWild
               AreaEffectEntityData areaEffect,
               UnitEntityData unit)
             {
-                if (!this.UnitExit.HasActions)
+                if (!this.UnitExit.HasActions || isFirstRound(areaEffect))
                     return;
                 using (new AreaEffectContextData(areaEffect))
                 {
@@ -3958,7 +3962,7 @@ namespace CallOfTheWild
               AreaEffectEntityData areaEffect,
               UnitEntityData unit)
             {
-                if (!this.UnitMove.HasActions)
+                if (!this.UnitMove.HasActions || isFirstRound(areaEffect))
                     return;
                 using (new AreaEffectContextData(areaEffect))
                 {
@@ -3969,7 +3973,7 @@ namespace CallOfTheWild
 
             protected override void OnRound(MechanicsContext context, AreaEffectEntityData areaEffect)
             {
-                if (!this.Round.HasActions)
+                if (!this.Round.HasActions && !this.FirstRound.HasActions)
                     return;
                 using (new AreaEffectContextData(areaEffect))
                 {
@@ -3992,7 +3996,7 @@ namespace CallOfTheWild
 
             private bool isFirstRound(AreaEffectEntityData areaEffect)
             {
-                return Helpers.GetField<TimeSpan>(areaEffect, "m_CreationTime").Add(new TimeSpan(0, 0, 1)) > Game.Instance.TimeController.GameTime;
+                return Helpers.GetField<TimeSpan>(areaEffect, "m_CreationTime").Add(new TimeSpan(0, 0, 0, 0, 100)) > Game.Instance.TimeController.GameTime;
             }
         }
 

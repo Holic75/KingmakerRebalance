@@ -176,6 +176,9 @@ namespace CallOfTheWild
 
         static public BlueprintAbility hypnotic_pattern;
 
+        static public BlueprintAbility wall_of_nausea;
+        static public BlueprintAbility wall_of_blindness;
+
         static public void load()
         {
             createShillelagh();
@@ -275,6 +278,96 @@ namespace CallOfTheWild
             createAirWalk();
 
             createHypnoticPattern();
+
+            createWallOfNausea();
+            createWallOfBlindness();
+        }
+
+
+        static void createWallOfNausea()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/WallOfNausea.png");
+            var nauseted = library.CopyAndAdd<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e", "NausetedWithoutPoisonBuff", "");
+            nauseted.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = SpellDescriptor.Nauseated);
+            var apply_buff = Common.createContextActionApplyBuff(nauseted, Helpers.CreateContextDuration(1));
+            var knock_down = Common.createContextActionSkillCheck(StatType.SkillMobility, null, Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>()), 12);
+
+            var action = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_buff, knock_down });
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action));
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2a90aa7f771677b4e9624fa77697fdc6", "WallOfNauseaArea", "");
+            area.ComponentsArray = new BlueprintComponent[] {Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+                                                                                                                                          a.UnitEnter = Helpers.CreateActionList(effect); }) };
+
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Nauseated | SpellDescriptor.MindAffecting));
+            area.SpellResistance = true;
+            wall_of_nausea = Helpers.CreateAbility("WallOfNauseaAbility",
+                                                  "Wall Of Nausea",
+                                                  "You create a transparent, shimmering wall through which creatures and objects appear to be wildly distorted to viewers. Any creature that passes through the wall is immediately assailed by overwhelming vertigo, becoming nauseated for 1 round unless it succeeds at a Fortitude save; if nauseated, the creature must also succeed at a DC 12 Acrobatics check or fall prone.\n"
+                                                  + "The wall must be continuous and unbroken when formed. If its surface is broken by any object or creature when it is cast, the spell fails.",
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Medium,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  Helpers.fortNegates,
+                                                  Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                           ),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                  Helpers.CreateContextRankConfig(),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Nauseated)
+                                                  );
+            wall_of_nausea.setMiscAbilityParametersRangedDirectional();
+            wall_of_nausea.SpellResistance = true;
+            wall_of_nausea.AvailableMetamagic =  Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            wall_of_nausea.AddToSpellList(Helpers.wizardSpellList, 3);
+            wall_of_nausea.AddToSpellList(Helpers.bardSpellList, 3);
+            wall_of_nausea.AddSpellAndScroll("70239ec6d83b5064388e64d309fef942");
+        }
+
+
+        static void createWallOfBlindness()
+        {
+            var icon = library.Get<BlueprintAbility>("46fd02ad56c35224c9c91c88cd457791").Icon; //blindness
+            var blind = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+
+            var apply_buff = Common.createContextActionApplyBuff(blind, Helpers.CreateContextDuration(), is_permanent: true);
+          
+
+            var action = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_buff });
+            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action));
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2a90aa7f771677b4e9624fa77697fdc6", "WallOfBlindnessArea", "");
+            area.ComponentsArray = new BlueprintComponent[] {Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+                                                                                                                                          a.UnitEnter = Helpers.CreateActionList(effect); }) };
+
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness));
+            area.SpellResistance = true;
+            wall_of_blindness = Helpers.CreateAbility("WallOfBlindnessAbility",
+                                                  "Wall Of Blindness",
+                                                  "You create a translucent wall of energy, within which can be seen indistinct images of faces with their eyes sewn shut. Any creature that passes through the wall must save or become permanently blinded.\n"
+                                                  + "The wall must be continuous and unbroken when formed. If its surface is broken by any object or creature when it is cast, the spell fails.",
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Medium,
+                                                  Helpers.roundsPerLevelDuration,
+                                                  Helpers.fortNegates,
+                                                  Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                           ),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                  Helpers.CreateContextRankConfig(),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness)
+                                                  );
+            wall_of_blindness.setMiscAbilityParametersRangedDirectional();
+            wall_of_blindness.SpellResistance = true;
+            wall_of_blindness.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            wall_of_blindness.AddToSpellList(Helpers.wizardSpellList, 4);
+            wall_of_blindness.AddToSpellList(Helpers.bardSpellList, 4);
+            wall_of_blindness.AddToSpellList(Helpers.clericSpellList, 5);
+            wall_of_blindness.AddSpellAndScroll("baa7ebab329ca4c4e8343d1e2144edf6");
         }
 
 
