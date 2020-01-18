@@ -710,8 +710,15 @@ namespace CallOfTheWild
 
         internal static void fixElementalMovementWater()
         {
-            var feature = library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8");
-            feature.ReplaceComponent<AbilityTargetHasCondition>(Helpers.Create<AddCondition>(c => c.Condition = Kingmaker.UnitLogic.UnitCondition.ImmuneToCombatManeuvers));
+            var feature_water = library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8");
+            feature_water.ReplaceComponent<AbilityTargetHasCondition>(Helpers.Create<AddCondition>(c => c.Condition = Kingmaker.UnitLogic.UnitCondition.ImmuneToCombatManeuvers));
+
+            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
+
+            var feature_air = library.Get<BlueprintFeature>("1ae6835b8f568d44c8deb911f74762e4");
+            feature_air.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFact(airborne) };
+
+            feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flyig creatures.");
         }
 
 

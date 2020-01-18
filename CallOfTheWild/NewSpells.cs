@@ -169,9 +169,12 @@ namespace CallOfTheWild
         static public BlueprintAbility meteor_swarm;
 
         static public BlueprintAbility fly;
+        static public BlueprintBuff fly_buff;
         static public BlueprintAbility air_walk;
         static public BlueprintAbility air_walk_communal;
         static public BlueprintAbility overland_flight;
+
+        static public BlueprintAbility hypnotic_pattern;
 
         static public void load()
         {
@@ -270,6 +273,29 @@ namespace CallOfTheWild
             createMeteorSwarm();
             createFlyAndOverlandFlight();
             createAirWalk();
+
+            createHypnoticPattern();
+        }
+
+
+        static void createHypnoticPattern()
+        {
+            var buff = library.Get<BlueprintBuff>("6477ae917b0ec7a4ca76bc9f36b023ac"); //rainbow pattenr
+            buff.SetDescription("");
+
+            hypnotic_pattern = library.CopyAndAdd<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b", "HypnoticPatternAbility", "");
+
+            hypnotic_pattern.RemoveComponents<SpellListComponent>();
+            hypnotic_pattern.ReplaceComponent<AbilitySpawnFx>(a => a.PrefabLink = Common.createPrefabLink("bb95a6177968e3f499f39e7c90c59fee"));//blinding aoe 10 feet
+            hypnotic_pattern.ReplaceComponent<AbilityTargetsAround>(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any));
+            hypnotic_pattern.ReplaceComponent<ContextCalculateSharedValue>(c => c.Value = Helpers.CreateContextDiceValue(DiceType.D4, 2, Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+            hypnotic_pattern.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(min: 2, max: 2));
+            hypnotic_pattern.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDice, max: 10));
+            hypnotic_pattern.LocalizedDuration = Helpers.CreateString("HypnoticPattern.Description","2 rounds");
+
+            hypnotic_pattern.AddToSpellList(Helpers.wizardSpellList, 2);
+            hypnotic_pattern.AddToSpellList(Helpers.bardSpellList, 2);
+            Helpers.AddSpellAndScroll(hypnotic_pattern, "84cd707a7ae9f934389ed6bbf51b023a"); // scroll rainbow pattern
         }
 
 
@@ -304,12 +330,13 @@ namespace CallOfTheWild
                                         Helpers.CreateSpellComponent(SpellSchool.Transmutation)
                                         );
             fly.setMiscAbilityParametersTouchFriendly();
+            fly.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
 
             fly.AddToSpellList(Helpers.alchemistSpellList, 3);
             fly.AddToSpellList(Helpers.magusSpellList, 3);
             fly.AddToSpellList(Helpers.wizardSpellList, 3);
             fly.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
-            fly.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("d169dd2de3630b749a2363c028bb6e7b"), fly, 3);//travel
 
 
@@ -337,6 +364,8 @@ namespace CallOfTheWild
             overland_flight.AddToSpellList(Helpers.magusSpellList, 5);
             overland_flight.AddToSpellList(Helpers.wizardSpellList, 5);
             overland_flight.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
+
+            fly_buff = buff;
         }
 
 
@@ -372,12 +401,13 @@ namespace CallOfTheWild
                                         Helpers.CreateSpellComponent(SpellSchool.Transmutation)
                                         );
             air_walk.setMiscAbilityParametersTouchFriendly();
+            air_walk.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
 
             air_walk.AddToSpellList(Helpers.alchemistSpellList, 4);
             air_walk.AddToSpellList(Helpers.clericSpellList, 3);
             air_walk.AddToSpellList(Helpers.druidSpellList, 4);
             air_walk.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
-            air_walk.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+           
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("750bfcd133cd52f42acbd4f7bc9cc365"), air_walk, 4);//air
 
             air_walk_communal = Helpers.CreateAbility("AirWalkCommunalAbility",

@@ -55,6 +55,7 @@ namespace CallOfTheWild
         static public BlueprintFeature slumber_hex;
         static public BlueprintFeature misfortune_hex;
         static public BlueprintFeature fortune_hex;
+        static public BlueprintFeature flight_hex;
         static public BlueprintFeature iceplant_hex;
         static public BlueprintFeature murksight_hex;
         static public BlueprintFeature ameliorating;
@@ -501,6 +502,7 @@ namespace CallOfTheWild
             createFortuneHex();
             createMisfortune();
             createMurksightHex();
+            createFlightHex();
             createSlumber();
             createAmeliorating();
             createEvilEye();
@@ -534,7 +536,7 @@ namespace CallOfTheWild
                                                            "68bd6449147e4234b6d9a80564ba17ae",
                                                            null,
                                                            FeatureGroup.None);
-            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle, ward, swamps_grasp,
+            hex_selection.Features = new BlueprintFeature[] { ameliorating, healing, beast_of_ill_omen, slumber_hex, misfortune_hex, fortune_hex, iceplant_hex, murksight_hex, evil_eye, summer_heat, cackle, ward, swamps_grasp, flight_hex,
                                                               major_healing,  major_ameliorating, animal_skin, agony, beast_gift, harrowing_curse, ice_tomb, regenerative_sinew, retribution, restless_slumber,
                                                               animal_servant, death_curse, lay_to_rest, life_giver, eternal_slumber};
             hex_selection.AllFeatures = hex_selection.Features;
@@ -1262,6 +1264,14 @@ namespace CallOfTheWild
             murksight_hex = hex_engine.createMurksightHex("Murksight", "Murksight",
                                                           "The witch receives blindsight up to 15 feet.",
                                                           "e860bd889e494cd583b59bc5df42e7ef");
+        }
+
+
+        static void createFlightHex()
+        {
+            flight_hex = hex_engine.CreateFlightHex("Flight", "Flight",
+                                                     "The witch can fly as per fly spell.");
+            flight_hex.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 5));
         }
 
 

@@ -6,6 +6,7 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.Designers.Mechanics.Recommendations;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -1727,6 +1728,167 @@ namespace CallOfTheWild
                                                   hex_ability.Icon,
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        //heaven spirit hexes
+        public BlueprintFeature createEnveloppingVoid(string name_prefix, string display_name, string description)
+        {
+            var blindness = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+
+            var apply_buff = Common.createContextActionApplyBuff(blindness, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_buff)));
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                blindness.Icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "",
+                                                "Will Negates",
+                                                Helpers.CreateRunActions(action),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes)
+                                               );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            addWitchHexCooldownScaling(ability, "");
+
+            addToAmplifyHex(ability);
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  ability.Name,
+                                                  ability.Description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
+        public BlueprintFeature createStarburn(string name_prefix, string display_name, string description)
+        {
+            var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
+            resource.SetIncreasedByStat(1, StatType.Charisma); //will make it 1 + charisma
+
+            var faerie_fire_buff = library.Get<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54");
+   
+            var apply_buff = Common.createContextActionApplyBuff(faerie_fire_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
+
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(damage, Helpers.CreateConditionalSaved(null, apply_buff)));
+            var cooldown_buff = Helpers.CreateBuff(name_prefix + "CooldownBuff",
+                                                  "Cooldown: " + display_name,
+                                                  description,
+                                                  "",
+                                                  faerie_fire_buff.Icon,
+                                                  null);
+            var apply_cooldown = Common.createContextActionApplyBuffToCaster(cooldown_buff, Helpers.CreateContextDuration(0, DurationRate.Rounds, Kingmaker.RuleSystem.DiceType.D4, 1), dispellable: false);
+
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                faerie_fire_buff.Icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "",
+                                                Helpers.fortNegates,
+                                                Helpers.CreateRunActions(apply_cooldown, action),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes, progression: ContextRankProgression.Div2, min: 1),
+                                                Common.createAbilityCasterHasNoFacts(cooldown_buff),
+                                                Helpers.CreateResourceLogic(resource)
+                                               );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            addWitchHexCooldownScaling(ability, "");
+
+            addToAmplifyHex(ability);
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  ability.Name,
+                                                  ability.Description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability),
+                                                  Helpers.CreateAddAbilityResource(resource));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+        //lure of heavens is same as flight but will require level 10
+
+        //heavens leap
+        public BlueprintFeature createHeavensLeap(string name_prefix, string display_name, string description)
+        {
+            var dimension_door = library.Get<BlueprintAbility>("5bdc37e4acfa209408334326076a43bc"); //mass
+
+            var mark_buff = Helpers.CreateBuff(name_prefix + "MarkBuff",
+                                      display_name + " Target",
+                                      description,
+                                      "",
+                                      dimension_door.Icon,
+                                      null,
+                                      Helpers.Create<UniqueBuff>());
+
+            var apply_mark = Common.createContextActionApplyBuffToCaster(mark_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+
+            var ability_mark = Helpers.CreateAbility(name_prefix + "MarkAbility",
+                                    display_name + ": Select Target",
+                                    description,
+                                    "",
+                                    dimension_door.Icon,
+                                    AbilityType.Supernatural,
+                                    Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                    AbilityRange.Close,
+                                    "",
+                                    "",
+                                    Helpers.CreateRunActions(apply_mark)
+                                   );
+            ability_mark.setMiscAbilityParametersSingleTargetRangedFriendly(true);
+            addWitchHexCooldownScaling(ability_mark, "");
+
+
+            var ability_move = library.CopyAndAdd<BlueprintAbility>(dimension_door.AssetGuid, name_prefix + "MoveAbility", "");
+
+            ability_move.Parent = null;
+            ability_move.Range = AbilityRange.Close;
+            ability_move.RemoveComponents<SpellComponent>();
+            ability_move.RemoveComponents<SpellListComponent>();
+            ability_move.RemoveComponents<RecommendationNoFeatFromGroup>();
+            ability_move.SetNameDescription(display_name, description);
+
+            var dimension_door_component = ability_move.GetComponent<AbilityCustomDimensionDoor>();
+
+            var dimension_door_marked = Helpers.Create<NewMechanics.CustomAbilities.AbilityCustomDimensionDoorOnTargetWithBuffFromCaster>(a =>
+            {
+                a.buff = mark_buff;
+                a.CasterAppearFx = dimension_door_component.CasterAppearFx;
+                a.CasterAppearProjectile = dimension_door_component.CasterAppearProjectile;
+                a.CasterDisappearFx = dimension_door_component.CasterDisappearFx;
+                a.CasterDisappearProjectile = dimension_door_component.CasterDisappearProjectile;
+                a.PortalBone = dimension_door_component.PortalBone;
+                a.PortalFromPrefab = dimension_door_component.PortalFromPrefab;
+                a.Radius = 30.Feet();
+                a.SideAppearFx = dimension_door_component.SideAppearFx;
+                a.SideAppearProjectile = dimension_door_component.SideAppearProjectile;
+                a.SideDisappearFx = dimension_door_component.SideDisappearFx;
+                a.SideDisappearProjectile = dimension_door_component.SideDisappearProjectile;
+            }
+            );
+            ability_move.ReplaceComponent(dimension_door_component, dimension_door_marked);
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  ability_move.Name,
+                                                  ability_move.Description,
+                                                  "",
+                                                  ability_move.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFacts(ability_mark, ability_move));
             feature.Ranks = 1;
             return feature;
         }

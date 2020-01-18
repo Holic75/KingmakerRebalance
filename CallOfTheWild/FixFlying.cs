@@ -130,7 +130,6 @@ namespace CallOfTheWild
             wing_buffs.Add(library.Get<BlueprintBuff>("a19cda073f4c2b64ca1f8bf8fe285ece")); //black angel wings
             wing_buffs.Add(library.Get<BlueprintBuff>("4113178a8d5bf4841b8f15b1b39e004f")); //diabolic wings
             wing_buffs.Add(library.Get<BlueprintBuff>("775df52784e1d454cba0da8df5f4f59a")); //deva wings
-
             foreach (var wb in wing_buffs)
             {
                 wb.ReplaceComponent<ACBonusAgainstAttacks>(Helpers.CreateAddFact(airborne));

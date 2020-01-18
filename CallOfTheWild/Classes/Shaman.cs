@@ -84,6 +84,7 @@ namespace CallOfTheWild
         static public BlueprintFeature ameliorating;
         static public BlueprintFeature summer_heat;
         static public BlueprintFeature swamps_grasp;
+        static public BlueprintFeature flight;
 
         static public BlueprintFeature extra_hex;
 
@@ -587,7 +588,7 @@ namespace CallOfTheWild
             var dispels = new Common.SpellId[7];
             var removes = new Common.SpellId[7];
 
-            var description = "At 8th level, the witch doctor can choose to lose any prepared spirit magic spell that is 3rd level or higher in order to spontaneously cast dispel magic or remove curse.This ability can only target a spell effect that is on an ally(including herself).If she forfeits a spirit magic spell higher than 3rd level, she gains a +2 sacred bonus on her caster level check to dispel the spell or to remove the curse for every spell level higher than 3rd that she sacrifices.";
+            var description = "At 8th level, the witch doctor can choose to lose any prepared spirit magic spell that is 3rd level or higher in order to spontaneously cast dispel magic or remove curse. This ability can only target a spell effect that is on an ally (including herself). If she forfeits a spirit magic spell higher than 3rd level, she gains a +2 sacred bonus on her caster level check to dispel the spell or to remove the curse for every spell level higher than 3rd that she sacrifices.";
 
 
             for (int i = 0; i < dispels.Length; i++)
@@ -937,6 +938,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "f9910c76efc34af41b6e43d5d8752f0f", 5), //flamestrike
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflict light wounds mass
+                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 4),
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 5), //stoneskin
                 new Common.SpellId( "8f98a22f35ca6684a983363d32e51bfe", 5), //summon nature ally
                 new Common.SpellId( NewSpells.tidal_surge.AssetGuid, 5),
@@ -1072,6 +1074,7 @@ namespace CallOfTheWild
             spirits.Add("Nature", NatureSpirit.create());
             spirits.Add("Life", LifeSpirit.create());
             spirits.Add("Lore", LoreSpirit.create());
+            spirits.Add("Heavens", HeavensSpirit.create());
 
 
             foreach (var s in spirits)
@@ -1192,6 +1195,10 @@ namespace CallOfTheWild
                                                       Witch.summer_heat.Description,
                                                       "", "", "", "", "");
 
+            flight = hex_engine.CreateFlightHex("ShamanFlight",
+                                          Witch.flight_hex.Name,
+                                          Witch.flight_hex.Description);
+
             swamps_grasp = hex_engine.createSwampsGrasp("ShamanSwampsGrasp", Witch.swamps_grasp.Name, Witch.swamps_grasp.Description);
         }
 
@@ -1207,7 +1214,7 @@ namespace CallOfTheWild
             witch_hex_selection.AddComponent(Helpers.PrerequisiteNoFeature(witch_hex_selection));
             witch_hex_selection.HideInCharacterSheetAndLevelUp = true;
 
-            witch_hex_selection.AllFeatures = new BlueprintFeature[] { beast_of_ill_omen, slumber_hex, iceplant_hex, murksight_hex, ameliorating, summer_heat, swamps_grasp };
+            witch_hex_selection.AllFeatures = new BlueprintFeature[] { beast_of_ill_omen, slumber_hex, iceplant_hex, murksight_hex, ameliorating, summer_heat, swamps_grasp, flight };
 
             hex_selection = Helpers.CreateFeatureSelection("ShamanHexSelection",
                                                            "Hex",

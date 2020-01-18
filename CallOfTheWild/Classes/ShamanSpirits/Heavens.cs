@@ -1,0 +1,238 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
+using Kingmaker.Enums.Damage;
+using Kingmaker.Localization;
+using Kingmaker.ResourceLinks;
+using Kingmaker.RuleSystem;
+using Kingmaker.UI.Common;
+using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
+using Kingmaker.Utility;
+using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
+using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
+using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Buffs.Components;
+
+namespace CallOfTheWild
+{
+    partial class Shaman
+    {
+        internal class HeavensSpirit
+        {
+            internal static BlueprintFeature spirit_ability;
+            internal static BlueprintFeature greater_spirit_ability;
+            internal static BlueprintFeature true_spirit_ability;
+            internal static BlueprintFeature manifestation;
+            internal static BlueprintFeature enveloping_void;
+            internal static BlueprintFeature heavens_leap;
+            internal static BlueprintFeature lure_of_heavens;
+            internal static BlueprintFeature starburn;
+            internal static BlueprintAbility[] spells;
+            internal static BlueprintFeature[] hexes;
+
+            internal static Spirit create()
+            {
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+                createManifestation();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("91da41b9793a4624797921f221db653c"), //color sparay
+                    NewSpells.hypnotic_pattern,
+                    library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9"), //glitterdust
+                    library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow pattern
+                    NewSpells.overland_flight,
+                    library.Get<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58"), //chain lightning
+                    library.Get<BlueprintAbility>("b22fd434bdb60fb4ba1068206402c4cf"), //prismatic spray
+                    library.Get<BlueprintAbility>("e96424f70ff884947b06f41a765b7658"), //sunburst
+                    NewSpells.meteor_swarm
+                };
+
+                enveloping_void = hex_engine.createEnveloppingVoid("ShamanEnvelopingVoid",
+                                                            "Enveloping Void",
+                                                            "The shaman curses one creature with the dark void. As a standard action, the shaman can cause one enemy within close range to become blind. This effect lasts for a number of rounds equal to the shaman’s level. A successful Will saving throw negates this effect. Whether or not the save is successful, the creature cannot be the target of this hex again for 24 hours."
+                                                            );
+
+                lure_of_heavens = hex_engine.createSparklingAura("ShamanLureOfHeavens",
+                                                        "Lure of Heavens",
+                                                        "The shaman gains ability to fly as per fly spell."
+                                                        );
+                lure_of_heavens.AddComponent(Helpers.PrerequisiteClassLevel(shaman_class, 10));
+
+                heavens_leap = hex_engine.createHeavensLeap("ShamanHeavensLeap",
+                                                                "Heaven's Leap",
+                                                                "The shaman is adept at creating tiny tears in the fabric of space, and temporarily stitching them together to reach other locations through a limited, one-way wormhole. As a standard action, the shaman can designate herself or a single ally that she can see who is within close range of her. She can move that creature to any point within close range of herself. Once targeted by this hex, the ally cannot be the target of this hex again for 24 hours."
+                                                               );
+
+                starburn = hex_engine.createWindWard("ShamanStarburn",
+                                                "Starburn",
+                                                "As a standard action, the shaman causes one creature within close range to burn like a star. The creature takes 1d6 points of fire damage for every 2 levels the shaman possesses and emits bright light as per faerie fire spell for 1 round. A successful Fortitude saving throw halves the damage and negates the emission of light. The shaman can use this hex a number of times per day equal to her Charisma modifier (minimum 1), but must wait 1d4 rounds between uses."
+                                               );
+                hexes = new BlueprintFeature[]
+                {
+                    enveloping_void,
+                    lure_of_heavens,
+                    heavens_leap,
+                    starburn
+                };
+
+
+                return new Spirit("Heavens",
+                                  "Heavens",
+                                  "A shaman who selects the heavens spirit has eyes that sparkle like starlight, exuding an aura of otherworldliness to those she is around. When she calls upon one of this spirit’s abilities, her eyes turn pitch black and the colors around her drain for a brief moment.",
+                                  library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9").Icon,//glitterdust
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  manifestation,
+                                  hexes,
+                                  spells);
+            }
+
+
+            static void createSpiritAbility()
+            {
+                var icon = library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9").Icon; //glitterdust
+                var resource = Helpers.CreateAbilityResource("ShamanStardustResource", "", "", "", null);
+                resource.SetIncreasedByStat(3, StatType.Charisma);
+
+                var buff = library.CopyAndAdd<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54", "ShamanStardustBuff", "");
+                buff.SetNameDescription("Stardust",
+                                        "As a standard action, the shaman causes stardust to materialize around one creature within 30 feet. This stardust causes the target to shed light as a candle, and it cannot benefit from concealment or any invisibility effects. The creature takes a –1 penalty on attack rolls and sight-based Perception checks. This penalty to attack rolls and Perception checks increases by 1 at 4th level and every 4 levels thereafter, to a maximum of –6 at 20th level. This effect lasts for a number of rounds equal to half the shaman’s level (minimum 1). Sightless creatures cannot be affected by this ability. The shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.");
+
+                buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.UntypedStackable, multiplier: -1));
+                buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable, multiplier: -1));
+                buff.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.SightBased));
+                buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(), progression: ContextRankProgression.OnePlusDivStep, startLevel: 4));
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+
+                var stardust = Helpers.CreateAbility("ShamanStardustAbility",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     AbilityType.Supernatural,
+                                                     CommandType.Standard,
+                                                     AbilityRange.Close,
+                                                     "1 round/ 2 shaman levels",
+                                                     Helpers.savingThrowNone,
+                                                     Helpers.CreateRunActions(apply_buff),
+                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(), progression: ContextRankProgression.Div2, min: 1),
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.SightBased),
+                                                     Helpers.CreateResourceLogic(resource)
+                                                     );
+                stardust.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+
+                spirit_ability = Helpers.CreateFeature("ShamanStardustFeature",
+                                                       stardust.Name,
+                                                       stardust.Description,
+                                                       "",
+                                                       stardust.Icon,
+                                                       FeatureGroup.None,
+                                                       Helpers.CreateAddFact(stardust),
+                                                       Helpers.CreateAddAbilityResource(resource)
+                                                       );
+            }
+
+
+            static void createGreaterSpiritAbility()
+            {
+                var icon = library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1").Icon; //blur
+
+                greater_spirit_ability = Helpers.CreateFeature("ShamanVoidAdaptationFeature",
+                                                               "Void Adaptation",
+                                                               "The shaman gains immunity to blindness, poison and suffocation.",
+                                                               "",
+                                                               icon,
+                                                               FeatureGroup.None,
+                                                               Common.createAddConditionImmunity(UnitCondition.Blindness),
+                                                               Common.createAddConditionImmunity(UnitCondition.Dazzled),
+                                                               Common.createBuffDescriptorImmunity(SpellDescriptor.Poison),
+                                                               Common.createSpecificBuffImmunity(NewSpells.suffocation_buff)
+                                                               );
+            }
+
+
+            static void createTrueSpiritAbility()
+            {
+                var resource = Helpers.CreateAbilityResource("ShamanPhantasmagoricDisplay", "", "", "", null);
+                resource.SetFixedResource(3);
+
+                var ability = library.CopyAndAdd<BlueprintAbility>("b22fd434bdb60fb4ba1068206402c4cf", "ShamanHeavensPrismaticSprayAbility", "");
+                ability.Type = AbilityType.SpellLike;
+
+                ability.RemoveComponents<SpellListComponent>();
+                ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom));
+                ability.AddComponent(Helpers.CreateResourceLogic(resource));
+
+                true_spirit_ability = Helpers.CreateFeature("ShamanHeavensPrismaticSprayFeature",
+                                                           "Phantasmagoric Display",
+                                                           "Shaman can use Prismatic Spray spell 3 times per day as spell-like ability.",
+                                                           "",
+                                                           ability.Icon,
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddFact(ability),
+                                                           Helpers.CreateAddAbilityResource(resource)
+                                                           );
+            }
+
+
+            static void createManifestation()
+            {
+                manifestation = Helpers.CreateFeature("ShamanHeavensManifestationFeature",
+                                                      "Manifestation",
+                                                      "Upon reaching 20th level, the shaman becomes the spirit of heaven. She receives a bonus on all saving throws equal to her Wisdom modifier. She’s immune to fear effects, and she automatically confirms all critical hits she threatens.",
+                                                      "",
+                                                      library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252").Icon, //righteous might
+                                                      FeatureGroup.None,
+                                                      Common.createAddConditionImmunity(UnitCondition.Shaken),
+                                                      Common.createAddConditionImmunity(UnitCondition.Frightened),
+                                                      Common.createBuffDescriptorImmunity(SpellDescriptor.Frightened | SpellDescriptor.Shaken),
+                                                      Helpers.Create<CritAutoconfirmAgainstAlignment>(c => c.EnemyAlignment = AlignmentComponent.None),
+                                                      Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.UntypedStackable),
+                                                      Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.UntypedStackable),
+                                                      Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.UntypedStackable),
+                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom)
+                                                      );
+            }
+
+
+        }
+
+
+    }
+}
+

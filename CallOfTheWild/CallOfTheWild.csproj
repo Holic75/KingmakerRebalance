@@ -132,6 +132,7 @@
     <Compile Include="Classes\ShamanSpirits\Battle.cs" />
     <Compile Include="Classes\ShamanSpirits\Bones.cs" />
     <Compile Include="Classes\ShamanSpirits\Flame.cs" />
+    <Compile Include="Classes\ShamanSpirits\Heavens.cs" />
     <Compile Include="Classes\ShamanSpirits\Life.cs" />
     <Compile Include="Classes\ShamanSpirits\Lore.cs" />
     <Compile Include="Classes\ShamanSpirits\Nature.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Helpers.cs" />
     <Compile Include="Classes\Hunter.cs" />
     <Compile Include="Common.cs" />
+    <Compile Include="NewMechanics\CustomAbilities.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\TurnActionMechanics.cs" />
     <Compile Include="NewMechanics\HealingMechanics.cs" />

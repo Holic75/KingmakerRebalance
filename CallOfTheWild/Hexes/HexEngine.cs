@@ -1644,6 +1644,31 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature CreateFlightHex(string name_prefix, string display_name, string description)
+        {
+            var ability = Helpers.CreateActivatableAbility(name_prefix + "HexActivatableAbility",
+                                                          display_name,
+                                                          description,
+                                                          "",
+                                                          NewSpells.fly.Icon,
+                                                          NewSpells.fly_buff,
+                                                          AbilityActivationType.Immediately,
+                                                          CommandType.Free,
+                                                          null);
+            ability.Group = ActivatableAbilityGroup.Wings;
+
+            var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
+                                                  display_name,
+                                                  description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability));
+            feature.Ranks = 1;
+            return feature;
+        }
+
+
         static void createHexVulnerabilitySpellAndAccursedHexFeat()
         {
             var hold_person_buff = library.Get<BlueprintBuff>("11cb2fe4fe9c44b448cfe1788ae1ab59");
