@@ -2752,7 +2752,7 @@ namespace CallOfTheWild
                                                    );
             var icon = library.Get<BlueprintFeature>("2aad85320d0751340a0786de073ee3d5").Icon;//torrent infusion
 
-            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2a90aa7f771677b4e9624fa77697fdc6", "RiverOfWindArea", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2eef9ca9e79968547a01d06d3828e17f", "RiverOfWindArea", ""); //wall sandstorm
             area.ComponentsArray = new BlueprintComponent[] {Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(effect, dmg2);
                                                                                                                                           a.Round = Helpers.CreateActionList(effect2); }) };
             area.SpellResistance = true;

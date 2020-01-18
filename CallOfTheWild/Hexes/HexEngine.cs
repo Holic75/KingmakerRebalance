@@ -1762,7 +1762,7 @@ namespace CallOfTheWild
         {
             amplified_hex_feat = Helpers.CreateFeature("AmplifiedHexFeature",
                                                        "Amplified Hex",
-                                                       "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level. Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd - level spell the second time, a 3rdlevel spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
+                                                       "You can augment the power of a hex by expending a spell slot or prepared spell of at least 1st level. Each additional time you use this ability in the same day, it requires a prepared spell or spell slot 1 level higher (a 2nd-level spell the second time, a 3rd-level spell the third time, and so on). When you amplify a hex, its DC increases by 1.",
                                                        "",
                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Amplified.png"),
                                                        FeatureGroup.Feat);

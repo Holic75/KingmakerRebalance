@@ -698,7 +698,7 @@ namespace CallOfTheWild
                                          NewSpells.freezing_sphere.AssetGuid,
                                          "8eb769e3b583f594faabe1cfdb0bb696", //summon greater elemental
                                          "e3d0dfe1c8527934294f241e0ae96a8d", //firestorm
-                                         "1852a9393a23d5741b650a1ea7078abc" //icy prison mass
+                                         NewSpells.meteor_swarm.AssetGuid
                                         ),
                createWitchPatronFeature("Enchantment", "0677e4fe8b0648a99c8965c7d580ca74", "40eb72aded8c4dbfaf0ce4cf0fa79707",
                                           NewSpells.command.AssetGuid,

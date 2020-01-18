@@ -148,6 +148,14 @@ namespace CallOfTheWild
             {
                 wb.ReplaceComponent<ACBonusAgainstAttacks>(Helpers.CreateAddFact(airborne));
             }
+
+            var fiery_body = library.Get<BlueprintBuff>("b574e1583768798468335d8cdb77e94c");
+            fiery_body.AddComponent(Helpers.CreateAddFact(airborne));
+
+            fiery_body.SetDescription(fiery_body.Description + " You are also able to fly.");
+
+            var fiery_body_spell = library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39");
+            fiery_body_spell.SetDescription(fiery_body_spell.Description + " You also get ability to fly.");
         }
 
 
