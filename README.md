@@ -152,7 +152,7 @@ New spells:
 - Flame Arrow,
 - Flashfire,
 - Wall of Nausea,
-- Fly,
+- Fly and Fly, Mass,
 - Font of Spirit Magic,
 - Howling Agony,
 - Keen Edge,

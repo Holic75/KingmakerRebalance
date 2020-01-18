@@ -169,6 +169,7 @@ namespace CallOfTheWild
         static public BlueprintAbility meteor_swarm;
 
         static public BlueprintAbility fly;
+        static public BlueprintAbility fly_mass;
         static public BlueprintBuff fly_buff;
         static public BlueprintAbility air_walk;
         static public BlueprintAbility air_walk_communal;
@@ -334,7 +335,6 @@ namespace CallOfTheWild
 
             var apply_buff = Common.createContextActionApplyBuff(blind, Helpers.CreateContextDuration(), is_permanent: true);
           
-
             var action = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_buff });
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action));
 
@@ -436,6 +436,29 @@ namespace CallOfTheWild
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("d169dd2de3630b749a2363c028bb6e7b"), fly, 3);//travel
 
 
+            var apply_buff10 = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes));
+            fly_mass = Helpers.CreateAbility("FlyMassAbility",
+                                        "Fly, Mass",
+                                        "This spell functions as fly, save that it can target numerous creatures and lasts longer.",
+                                        "",
+                                        icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Close,
+                                        Helpers.tenMinPerLevelDuration,
+                                        "",
+                                        Helpers.CreateRunActions(apply_buff10),
+                                        spawn_fx,
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                        Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally)
+                                        );
+            fly_mass.setMiscAbilityParametersRangedDirectional();
+            fly_mass.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            fly_mass.AddToSpellList(Helpers.wizardSpellList, 7);
+            fly_mass.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
+
+
             var apply_buff_long = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Hours));
             overland_flight = Helpers.CreateAbility("OverlandFlightAbility",
                                         "Overland Flight",
@@ -507,7 +530,7 @@ namespace CallOfTheWild
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("750bfcd133cd52f42acbd4f7bc9cc365"), air_walk, 4);//air
 
             air_walk_communal = Helpers.CreateAbility("AirWalkCommunalAbility",
-                                        "Overland Flight",
+                                        "Air Walk, Communal",
                                         "This spell functions like air walk, except that it effects all allies in 30 ft radius.\n"
                                         + "Air Walk: " + air_walk.Description,
                                         "",

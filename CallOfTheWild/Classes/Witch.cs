@@ -998,7 +998,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 5), //inflict critical wounds
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
-                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 3),
+                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 5),

@@ -938,7 +938,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "f9910c76efc34af41b6e43d5d8752f0f", 5), //flamestrike
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflict light wounds mass
-                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 4),
+                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 5), //stoneskin
                 new Common.SpellId( "8f98a22f35ca6684a983363d32e51bfe", 5), //summon nature ally
                 new Common.SpellId( NewSpells.tidal_surge.AssetGuid, 5),

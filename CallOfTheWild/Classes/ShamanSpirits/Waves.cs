@@ -88,7 +88,7 @@ namespace CallOfTheWild
 
                 crashing_waves = hex_engine.createCrashingWaves("ShamanCrashingWaves",
                                                                 "Crashing Waves",
-                                                                "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the cold descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts water spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
+                                                                "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the cold descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts cold spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
                                                                 );
 
                 mists_shroud = hex_engine.createMistsShroud("ShamanMistsShroud",
