@@ -1198,6 +1198,7 @@ namespace CallOfTheWild
             flight = hex_engine.CreateFlightHex("ShamanFlight",
                                           Witch.flight_hex.Name,
                                           Witch.flight_hex.Description);
+            flight.AddComponent(Helpers.PrerequisiteClassLevel(shaman_class, 5));
 
             swamps_grasp = hex_engine.createSwampsGrasp("ShamanSwampsGrasp", Witch.swamps_grasp.Name, Witch.swamps_grasp.Description);
         }

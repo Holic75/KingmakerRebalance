@@ -1739,7 +1739,7 @@ namespace CallOfTheWild
             var blindness = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
 
             var apply_buff = Common.createContextActionApplyBuff(blindness, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
-            var action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_buff)));
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_buff)));
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
                                                 description,
@@ -1771,6 +1771,7 @@ namespace CallOfTheWild
 
         public BlueprintFeature createStarburn(string name_prefix, string display_name, string description)
         {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Starburn.png");
             var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
             resource.SetIncreasedByStat(1, StatType.Charisma); //will make it 1 + charisma
 
@@ -1779,12 +1780,12 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(faerie_fire_buff, Helpers.CreateContextDuration(1), dispellable: false);
             var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
 
-            var action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(damage, Helpers.CreateConditionalSaved(null, apply_buff)));
+            var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(damage, Helpers.CreateConditionalSaved(null, apply_buff)));
             var cooldown_buff = Helpers.CreateBuff(name_prefix + "CooldownBuff",
                                                   "Cooldown: " + display_name,
                                                   description,
                                                   "",
-                                                  faerie_fire_buff.Icon,
+                                                  icon,
                                                   null);
             var apply_cooldown = Common.createContextActionApplyBuffToCaster(cooldown_buff, Helpers.CreateContextDuration(0, DurationRate.Rounds, Kingmaker.RuleSystem.DiceType.D4, 1), dispellable: false);
 
@@ -1792,12 +1793,12 @@ namespace CallOfTheWild
                                                 display_name,
                                                 description,
                                                 "",
-                                                faerie_fire_buff.Icon,
+                                                icon,
                                                 AbilityType.Supernatural,
                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
                                                 "",
-                                                Helpers.fortNegates,
+                                                "Fortitude Half",
                                                 Helpers.CreateRunActions(apply_cooldown, action),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes, progression: ContextRankProgression.Div2, min: 1),
                                                 Common.createAbilityCasterHasNoFacts(cooldown_buff),
@@ -1834,7 +1835,7 @@ namespace CallOfTheWild
                                       null,
                                       Helpers.Create<UniqueBuff>());
 
-            var apply_mark = Common.createContextActionApplyBuffToCaster(mark_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var apply_mark = Common.createContextActionApplyBuff(mark_buff, Helpers.CreateContextDuration(1), dispellable: false);
 
 
             var ability_mark = Helpers.CreateAbility(name_prefix + "MarkAbility",
@@ -1855,6 +1856,7 @@ namespace CallOfTheWild
 
             var ability_move = library.CopyAndAdd<BlueprintAbility>(dimension_door.AssetGuid, name_prefix + "MoveAbility", "");
 
+            ability_move.Type = AbilityType.Supernatural;
             ability_move.Parent = null;
             ability_move.Range = AbilityRange.Close;
             ability_move.RemoveComponents<SpellComponent>();

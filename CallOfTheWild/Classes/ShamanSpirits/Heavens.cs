@@ -70,7 +70,7 @@ namespace CallOfTheWild
                 {
                     library.Get<BlueprintAbility>("91da41b9793a4624797921f221db653c"), //color sparay
                     NewSpells.hypnotic_pattern,
-                    library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9"), //glitterdust
+                    SpellDuplicates.addDuplicateSpell(library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9"), "ShamanHeavensGlitterdust", ""), //glitterdust
                     library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow pattern
                     NewSpells.overland_flight,
                     library.Get<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58"), //chain lightning
@@ -84,10 +84,10 @@ namespace CallOfTheWild
                                                             "The shaman curses one creature with the dark void. As a standard action, the shaman can cause one enemy within close range to become blind. This effect lasts for a number of rounds equal to the shaman’s level. A successful Will saving throw negates this effect. Whether or not the save is successful, the creature cannot be the target of this hex again for 24 hours."
                                                             );
 
-                lure_of_heavens = hex_engine.createSparklingAura("ShamanLureOfHeavens",
-                                                        "Lure of Heavens",
-                                                        "The shaman gains ability to fly as per fly spell."
-                                                        );
+                lure_of_heavens = hex_engine.CreateFlightHex("ShamanLureOfHeavens",
+                                                            "Lure of Heavens",
+                                                            "The shaman gains ability to fly as per fly spell."
+                                                            );
                 lure_of_heavens.AddComponent(Helpers.PrerequisiteClassLevel(shaman_class, 10));
 
                 heavens_leap = hex_engine.createHeavensLeap("ShamanHeavensLeap",
@@ -95,10 +95,10 @@ namespace CallOfTheWild
                                                                 "The shaman is adept at creating tiny tears in the fabric of space, and temporarily stitching them together to reach other locations through a limited, one-way wormhole. As a standard action, the shaman can designate herself or a single ally that she can see who is within close range of her. She can move that creature to any point within close range of herself. Once targeted by this hex, the ally cannot be the target of this hex again for 24 hours."
                                                                );
 
-                starburn = hex_engine.createWindWard("ShamanStarburn",
-                                                "Starburn",
-                                                "As a standard action, the shaman causes one creature within close range to burn like a star. The creature takes 1d6 points of fire damage for every 2 levels the shaman possesses and emits bright light as per faerie fire spell for 1 round. A successful Fortitude saving throw halves the damage and negates the emission of light. The shaman can use this hex a number of times per day equal to her Charisma modifier (minimum 1), but must wait 1d4 rounds between uses."
-                                               );
+                starburn = hex_engine.createStarburn("ShamanStarburn",
+                                                    "Starburn",
+                                                    "As a standard action, the shaman causes one creature within close range to burn like a star. The creature takes 1d6 points of fire damage for every 2 levels the shaman possesses and emits bright light as per faerie fire spell for 1 round. A successful Fortitude saving throw halves the damage and negates the emission of light. The shaman can use this hex a number of times per day equal to her Charisma modifier + 1, but must wait 1d4 rounds between uses."
+                                                   );
                 hexes = new BlueprintFeature[]
                 {
                     enveloping_void,
@@ -135,7 +135,7 @@ namespace CallOfTheWild
                 buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.UntypedStackable, multiplier: -1));
                 buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable, multiplier: -1));
                 buff.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.SightBased));
-                buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(), progression: ContextRankProgression.OnePlusDivStep, startLevel: 4));
+                buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(), progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4));
 
                 var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
 
@@ -147,7 +147,7 @@ namespace CallOfTheWild
                                                      AbilityType.Supernatural,
                                                      CommandType.Standard,
                                                      AbilityRange.Close,
-                                                     "1 round/ 2 shaman levels",
+                                                     "1 round/2 shaman levels",
                                                      Helpers.savingThrowNone,
                                                      Helpers.CreateRunActions(apply_buff),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(), progression: ContextRankProgression.Div2, min: 1),

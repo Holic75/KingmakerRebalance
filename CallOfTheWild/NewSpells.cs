@@ -285,6 +285,8 @@ namespace CallOfTheWild
 
             hypnotic_pattern = library.CopyAndAdd<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b", "HypnoticPatternAbility", "");
 
+            hypnotic_pattern.SetNameDescription("Hypnotic Pattern",
+                                                "A twisting pattern of subtle, shifting colors weaves through the air, fascinating creatures within it. Roll 2d4 and add your caster level (maximum 10) to determine the total number of HD of creatures affected. Creatures with the fewest HD are affected first; and, among creatures with equal HD, those who are closest to the spell’s point of origin are affected first. HD that are not sufficient to affect a creature are wasted. Affected creatures become fascinated by the pattern of colors. Sightless creatures are not affected.");
             hypnotic_pattern.RemoveComponents<SpellListComponent>();
             hypnotic_pattern.ReplaceComponent<AbilitySpawnFx>(a => a.PrefabLink = Common.createPrefabLink("bb95a6177968e3f499f39e7c90c59fee"));//blinding aoe 10 feet
             hypnotic_pattern.ReplaceComponent<AbilityTargetsAround>(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any));
@@ -310,7 +312,8 @@ namespace CallOfTheWild
                                           "",
                                           null,
                                           null,
-                                          Helpers.CreateAddFact(airborne)
+                                          Helpers.CreateAddFact(airborne),
+                                          Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));

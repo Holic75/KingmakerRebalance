@@ -376,7 +376,7 @@ namespace CallOfTheWild
             var inquisitor_spell_list = library.Get<BlueprintSpellList>("57c894665b7895c499b3dce058c284b3");
             var bard_spell_list = library.Get<BlueprintSpellList>("25a5013493bdcf74bb2424532214d0c8");
 
-            var combined_spell_list = Common.combineSpellLists(cleric_spell_list, inquisitor_spell_list, bard_spell_list);
+            var combined_spell_list = Common.combineSpellLists("UnsanctionedKnowledgeSpellList", cleric_spell_list, inquisitor_spell_list, bard_spell_list);
 
             var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
             Common.excludeSpellsFromList(combined_spell_list, paladin.Spellbook.SpellList);

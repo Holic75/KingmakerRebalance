@@ -181,7 +181,8 @@ namespace CallOfTheWild
                                                                                           icon,
                                                                                           FeatureGroup.None);
 
-                var wizard_spell_list = library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89");
+                var wizard_spell_list = Common.combineSpellLists("LoreSpiritWizardSpellList", library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89"));
+                Common.excludeSpellsFromList(wizard_spell_list, shaman_class.Spellbook.SpellList);
                 for (int i = 1; i <= 9; i++)
                 {
                     var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"ShamanArcaneEnlightenment{i}ParametrizedFeature", "");

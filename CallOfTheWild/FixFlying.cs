@@ -107,6 +107,20 @@ namespace CallOfTheWild
             {
                 s.AddComponent(Helpers.CreateSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
             }
+
+            var areas = new BlueprintAbilityAreaEffect[]
+            {
+                library.Get<BlueprintAbilityAreaEffect>("d59890fb468915946bae085439bd0881"), //tar pool
+                library.Get<BlueprintAbilityAreaEffect>("d64b08ae01012e34cbc55b3a27ea29b7"), //obsidian flow
+                library.Get<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd"), //spike stones
+                library.Get<BlueprintAbilityAreaEffect>("16e0e4c6a16f68c49832340b93706499"), //spike growth
+                library.Get<BlueprintAbilityAreaEffect>("bcb6329cefc66da41b011299a43cc681") //entangle
+             };
+
+            foreach (var a in areas)
+            {
+                a.AddComponent(Helpers.CreateSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
+            }
         }
 
         static void createFlyingFact()

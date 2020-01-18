@@ -3243,9 +3243,10 @@ namespace CallOfTheWild
         }
 
 
-        public static BlueprintSpellList combineSpellLists(params BlueprintSpellList[] spell_lists)
+        public static BlueprintSpellList combineSpellLists(string name, params BlueprintSpellList[] spell_lists)
         {
             var spell_list = Helpers.Create<BlueprintSpellList>();
+            spell_list.name = name;
             library.AddAsset(spell_list, "");
             spell_list.SpellsByLevel = new SpellLevelList[10];
             for (int i = 0; i < spell_list.SpellsByLevel.Length; i++)
