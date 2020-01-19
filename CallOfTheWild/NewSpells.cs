@@ -359,7 +359,8 @@ namespace CallOfTheWild
                                                      Helpers.reflexHalfDamage,
                                                      Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
-                                                     Helpers.CreateRunActions(spawn_area)
+                                                     Helpers.CreateRunActions(spawn_area),
+                                                     Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
                                                      );
             incendiary_cloud.setMiscAbilityParametersRangedDirectional();
             incendiary_cloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
@@ -389,7 +390,7 @@ namespace CallOfTheWild
             area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Nauseated | SpellDescriptor.MindAffecting));
             area.SpellResistance = true;
             wall_of_nausea = Helpers.CreateAbility("WallOfNauseaAbility",
-                                                  "Wall Of Nausea",
+                                                  "Wall of Nausea",
                                                   "You create a transparent, shimmering wall through which creatures and objects appear to be wildly distorted to viewers. Any creature that passes through the wall is immediately assailed by overwhelming vertigo, becoming nauseated for 1 round unless it succeeds at a Fortitude save; if nauseated, the creature must also succeed at a DC 12 Acrobatics check or fall prone.\n"
                                                   + "The wall must be continuous and unbroken when formed. If its surface is broken by any object or creature when it is cast, the spell fails.",
                                                   "",
@@ -431,7 +432,7 @@ namespace CallOfTheWild
             area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness));
             area.SpellResistance = true;
             wall_of_blindness = Helpers.CreateAbility("WallOfBlindnessAbility",
-                                                  "Wall Of Blindness",
+                                                  "Wall of Blindness",
                                                   "You create a translucent wall of energy, within which can be seen indistinct images of faces with their eyes sewn shut. Any creature that passes through the wall must save or become permanently blinded.\n"
                                                   + "The wall must be continuous and unbroken when formed. If its surface is broken by any object or creature when it is cast, the spell fails.",
                                                   "",
@@ -2913,7 +2914,7 @@ namespace CallOfTheWild
             var buff = Helpers.CreateBuff("WindsOfVengeanceBuff",
                                           "Winds of Vengeance",
                                           "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you to fly granting immunity to ground-based effects and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
-                                          + "Ranged weapons (including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you.Gases and most gaseous breath weapons cannot pass though the winds.\n"
+                                          + "Ranged weapons (including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you. Gases and most gaseous breath weapons cannot pass though the winds.\n"
                                           + "In addition, once per round, when a creature hits you with a melee attack, winds lash out at that creature. The creature must make a Fortitude Saving Throw or take 5d8 points of bludgeoning damage and be knocked prone.\n"
                                           + "On a successful save, the damage is halved and the creature is not knocked prone.",
                                           "",
