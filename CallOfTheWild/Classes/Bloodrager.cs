@@ -509,6 +509,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
                 new Common.SpellId( NewSpells.fire_shield.AssetGuid, 4), //fire shield
+                new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 4) //wall of fire
             };
 
             foreach (var spell_id in spells)
@@ -2163,9 +2164,9 @@ namespace CallOfTheWild
                     var bloodline_info = createBloodragerBloodline("Draconic",
                                                                   "At some point in your family’s history, a dragon interbred with your bloodline. Now, the sublime monster’s ancient power fuels your bloodrage.\n"
                                                                    + "Bonus Feats: Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Power Attack, Skill Focus (Mobility), Toughness.\n"
-                                                                   + "Bonus Spells: Shield (7th), resist energy (10th), dispel magic (13th), fear (16th).",
+                                                                   + "Bonus Spells: Shield (7th), resist energy (10th), fly (13th), fear (16th).",
                                                                   bloodlines[i].icon,
-                                                                  new BlueprintAbility[] { shield, resist_energy, dispel_magic, fear },
+                                                                  new BlueprintAbility[] { shield, resist_energy, NewSpells.fly, fear },
                                                                   new BlueprintFeature[] { blind_fight, cleave, great_fortitude, improved_initiative, power_attack, skill_focus_mobility, toughness },
                                                                   new BlueprintFeature[] { claws[i], draconic_resistance[i], breath_weapon[i], dragon_wings[i], dragon_form[i], power_of_the_wyrms[i] },
                                                                   "",

@@ -98,6 +98,7 @@ namespace CallOfTheWild
         static public BlueprintAbility ray_of_exhaustion;
 
         static public BlueprintAbility obscuring_mist;
+        static public BlueprintAbilityAreaEffect obscuring_mist_area;
         static public BlueprintAbility burst_of_radiance;
 
         static public BlueprintAbility river_of_wind;
@@ -179,6 +180,10 @@ namespace CallOfTheWild
 
         static public BlueprintAbility wall_of_nausea;
         static public BlueprintAbility wall_of_blindness;
+        static public BlueprintAbility wall_of_fire;
+        static public BlueprintAbility wall_of_fire_fire_domain;
+        static public BlueprintAbility incendiary_cloud;
+
 
         static public void load()
         {
@@ -282,7 +287,88 @@ namespace CallOfTheWild
 
             createWallOfNausea();
             createWallOfBlindness();
+            createWallOfFire();
+            createIncendiaryCloud();
         }
+
+
+        static void createWallOfFire()
+        {
+            var icon = library.Get<BlueprintAbility>("19309b5551a28d74288f4b6f7d8d838d").Icon; //blessing of salamander
+
+            var area  = library.CopyAndAdd<BlueprintAbilityAreaEffect>("ac8737ccddaf2f948adf796b5e74eee7", "WallOfFireSpellAbilityArea", "");
+
+            var configs = area.GetComponents<ContextRankConfig>();
+
+            foreach (var c in configs)
+            {
+                var new_c = c.CreateCopy();
+                Helpers.SetField(new_c, "m_BaseValueType", ContextRankBaseValueType.CasterLevel);
+                area.ReplaceComponent(c, new_c);
+            }
+
+            wall_of_fire = library.CopyAndAdd<BlueprintAbility>("77d255c06e4c6a745b807400793cf7b1", "WallOfFireSpellAbility", "");
+            wall_of_fire.SetNameDescriptionIcon("Wall of Fire",
+                                                "An immobile, blazing curtain of shimmering violet fire springs into existence. The wall deals 2d6 points of fire damage + 1 point of fire damage per caster level (maximum +20) to any creature that attempts to pass through and to any creature that ends turn in its area. The wall deals double damage to undead creatures.",
+                                                icon);
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+
+            wall_of_fire.RemoveComponents<AbilityResourceLogic>();
+            wall_of_fire.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(spawn_area));
+            wall_of_fire.Type = AbilityType.Spell;
+            wall_of_fire.Range = AbilityRange.Medium;
+            wall_of_fire.SpellResistance = true;
+            wall_of_fire.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+
+            wall_of_fire.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig());
+
+            wall_of_fire.AddToSpellList(Helpers.druidSpellList, 5);
+            wall_of_fire.AddToSpellList(Helpers.magusSpellList, 4);
+            wall_of_fire.AddToSpellList(Helpers.wizardSpellList, 4);
+            wall_of_fire.AddSpellAndScroll("d8f2bcc130113194998810b7ae3e07f5"); //blessing of salamander
+
+            wall_of_fire_fire_domain = SpellDuplicates.addDuplicateSpell(wall_of_fire, "FireDomain" + wall_of_fire.name);
+            //replace 4th level spell in fire domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), wall_of_fire_fire_domain, 4);
+        }
+
+
+        static void createIncendiaryCloud()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FierySoul.png");
+            var steam_cloud_area = library.Get<BlueprintAbilityAreaEffect>("35a62ad81dd5ae3478956c61d6cd2d2e");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(obscuring_mist_area.AssetGuid, "IncendiaryCloudAbilityArea", "");
+            area.AddComponent(Helpers.CreateAreaEffectRunAction(round: Helpers.CreateActionSavingThrow(SavingThrowType.Reflex,
+                                                                                                       Helpers.CreateActionDealDamage(DamageEnergyType.Fire,
+                                                                                                       Helpers.CreateContextDiceValue(DiceType.D6, 6, 0), halfIfSaved: true, isAoE: true))));
+            area.Fx = steam_cloud_area.Fx;
+            area.AffectEnemies = true;
+            area.AggroEnemies = true;
+
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            incendiary_cloud = Helpers.CreateAbility("IncendiaryCloudAbility",
+                                                     "Incendiary Cloud",
+                                                     "An incendiary cloud spell creates a cloud of roiling smoke shot through with white-hot embers. The smoke obscures all sight as a fog cloud does. In addition, the white-hot embers within the cloud deal 6d6 points of fire damage to everything within the cloud on your turn each round. All targets can make Reflex saves each round to take half damage.",
+                                                     "",
+                                                     icon,
+                                                     AbilityType.Spell,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Medium,
+                                                     Helpers.roundsPerLevelDuration,
+                                                     Helpers.reflexHalfDamage,
+                                                     Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
+                                                     Helpers.CreateRunActions(spawn_area)
+                                                     );
+            incendiary_cloud.setMiscAbilityParametersRangedDirectional();
+            incendiary_cloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
+            incendiary_cloud.AddToSpellList(Helpers.wizardSpellList, 8);
+            incendiary_cloud.AddSpellAndScroll("1cbb88fbf2a6bb74aa437fadf6946d22"); // scroll fire storm
+            //replace 8th level spell in fire domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), incendiary_cloud, 8);
+        }
+
 
 
         static void createWallOfNausea()
@@ -558,7 +644,12 @@ namespace CallOfTheWild
 
         static void createMeteorSwarm()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/MeteorSwarm.png");
+            var icon = library.Get<BlueprintAbility>("16ce660837fb2544e96c3b7eaad73c63").Icon;
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("1d649d8859b25024888966ba1cc291d1", "MeteorSwarmFxArea", ""); //volcaninc storm
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(1));
+            area.ComponentsArray = new BlueprintComponent[] {Helpers.CreateAreaEffectRunAction(new GameAction[0]) };
+
             var firestorm = library.Get<BlueprintAbility>("e3d0dfe1c8527934294f241e0ae96a8d");
 
             var on_hit_buff = Helpers.CreateBuff("MeteorSwarmOnHitBuff",
@@ -595,6 +686,7 @@ namespace CallOfTheWild
                                                                           main_action,
                                                                           Common.createContextActionRemoveBuffFromCaster(on_hit_buff)),
                                                  firestorm.GetComponent<AbilitySpawnFx>(),
+                                                 Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_area)),
                                                  Helpers.CreateAbilityTargetsAround(40.Feet(), TargetType.Any),
                                                  Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
@@ -2619,7 +2711,7 @@ namespace CallOfTheWild
             var saved_dmg = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(new GameAction[0], 
                                                                                                                                                   new GameAction[] { dmg, apply_burn })));
 
-            var area_run_action = Helpers.CreateAreaEffectRunAction(saved_dmg, null, null, saved_dmg);
+            var area_run_action = Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.UnitEnter = Helpers.CreateActionList(saved_dmg); a.Round = Helpers.CreateActionList(saved_dmg); });
 
             area.ComponentsArray = new BlueprintComponent[] { area_run_action,
                                                               Helpers.CreateContextRankConfig(progression: ContextRankProgression.StartPlusDivStep, 
@@ -2905,6 +2997,7 @@ namespace CallOfTheWild
             area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
             area.Size = 20.Feet();
             area.SpellResistance = false;
+            obscuring_mist_area = area;
 
             var buff = Helpers.CreateBuff("ObscuringMistBuff",
                                           "Obscuring Mist",

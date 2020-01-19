@@ -943,6 +943,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "8f98a22f35ca6684a983363d32e51bfe", 5), //summon nature ally
                 new Common.SpellId( NewSpells.tidal_surge.AssetGuid, 5),
                 new Common.SpellId( "b3da3fbee6a751d4197e446c7e852bcb", 5), //true seeing
+                new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 5),
 
                 new Common.SpellId( "d361391f645db984bbf58907711a146a", 6), //banishment
                 new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass

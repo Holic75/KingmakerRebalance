@@ -722,6 +722,24 @@ namespace CallOfTheWild
         }
 
 
+        internal static void fixElementalWallsToAvoidDealingDamageTwiceOnTheFirstRound()
+        {
+            var areas = new BlueprintAbilityAreaEffect[]{library.Get<BlueprintAbilityAreaEffect>("ac8737ccddaf2f948adf796b5e74eee7"),
+                                                         library.Get<BlueprintAbilityAreaEffect>("2a9cebe780b6130428f3bf4b18270021"),
+                                                         library.Get<BlueprintAbilityAreaEffect>("608d84e25f42d6044ba9b96d9f60722a"),
+                                                         library.Get<BlueprintAbilityAreaEffect>("2175d68215aa61644ad1d877d4915ece")
+                                                        };
+
+            foreach (var area in areas)
+            {
+                var old_run_action = area.GetComponent<AbilityAreaEffectRunAction>();
+                var new_run_action = Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.UnitEnter = old_run_action.UnitEnter; a.FirstRound = old_run_action.Round; a.Round = old_run_action.Round; });
+
+                area.ReplaceComponent(old_run_action, new_run_action);
+            }
+
+        }
+
         internal static void fixDazzlingDisplay()
         {
             //require holding weapon with weapon focus

@@ -2980,6 +2980,7 @@ namespace CallOfTheWild
             Helpers.SetField(data, "Value", value);
 
             var data_array = Array.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease, 1);
+            
             data_array.SetValue(data, 0);
             Helpers.SetField(context_action_savingthrow, "m_ConditionalDCIncrease", data_array);
         }

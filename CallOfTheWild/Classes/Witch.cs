@@ -815,7 +815,7 @@ namespace CallOfTheWild
                                          "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
                                          NewSpells.flashfire.AssetGuid,
                                          "f72f8f03bf0136c4180cd1d70eb773a5", //controlled fireball
-                                         "f9910c76efc34af41b6e43d5d8752f0f", //flame strike
+                                         NewSpells.wall_of_fire.AssetGuid,
                                          "093ed1d67a539ad4c939d9d05cfe192c", //sirocco
                                          "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", //sunbeam
                                          "e96424f70ff884947b06f41a765b7658", //sunburst
