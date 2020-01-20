@@ -369,7 +369,7 @@ namespace CallOfTheWild
 
             var move_ability = Helpers.CreateAbility("AgressiveThundercloudGreaterMoveAbility",
                                                      "Agressive Thundercloud, Greater",
-                                                     "Use this ability to move Agressive Thundercloud, Greater area",
+                                                     "Use this ability to move Agressive Thundercloud, Greater area.",
                                                      "",
                                                      icon,
                                                      AbilityType.Special,
@@ -463,7 +463,7 @@ namespace CallOfTheWild
 
             var move_ability = Helpers.CreateAbility("AgressiveThundercloudMoveAbility",
                                                      "Agressive Thundercloud",
-                                                     "Use this ability to move Agressive Thundercloud area",
+                                                     "Use this ability to move Agressive Thundercloud area.",
                                                      "",
                                                      icon,
                                                      AbilityType.Special,
@@ -595,7 +595,7 @@ namespace CallOfTheWild
 
             var move_ability = Helpers.CreateAbility("ScouringWindsMoveAbility",
                                                      "Scouring Winds",
-                                                     "Use this ability to move Scouring Winds area",
+                                                     "Use this ability to move Scouring Winds area.",
                                                      "",
                                                      icon,
                                                      AbilityType.Special,
