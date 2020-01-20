@@ -919,7 +919,7 @@ namespace CallOfTheWild
                 new Common.SpellId( HexEngine.hex_vulnerability_spell.AssetGuid, 1), //hex vilnerability
                 new Common.SpellId( NewSpells.command.AssetGuid, 1), //command
 
-                new Common.SpellId( NewSpells.agressive_thundercloud.AssetGuid, 2),
+                new Common.SpellId( NewSpells.aggressive_thundercloud.AssetGuid, 2),
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
                 new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
                 new Common.SpellId( NewSpells.bone_fists.AssetGuid, 2),
@@ -966,7 +966,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
 
-                new Common.SpellId( NewSpells.agressive_thundercloud_greater.AssetGuid, 4),
+                new Common.SpellId( NewSpells.aggressive_thundercloud_greater.AssetGuid, 4),
                 new Common.SpellId( "e418c20c8ce362943a8025d82c865c1c", 4), //cape of vasps
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair

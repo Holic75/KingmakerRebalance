@@ -184,9 +184,9 @@ namespace CallOfTheWild
         static public BlueprintAbility wall_of_fire_fire_domain;
         static public BlueprintAbility incendiary_cloud;
         static public BlueprintAbility scouring_winds;
-        static public BlueprintAbility agressive_thundercloud;
+        static public BlueprintAbility aggressive_thundercloud;
         static BlueprintBuff thunder_cloud_fx_buff;
-        static public BlueprintAbility agressive_thundercloud_greater;
+        static public BlueprintAbility aggressive_thundercloud_greater;
 
 
         static public void load()
@@ -295,27 +295,27 @@ namespace CallOfTheWild
             createIncendiaryCloud();
             createScouringWinds();
 
-            createAgressiveThunderCloud();
-            createAgressiveThunderCloudGreater();
+            createAggressiveThunderCloud();
+            createAggressiveThunderCloudGreater();
         }
 
 
-        static void createAgressiveThunderCloudGreater()
+        static void createAggressiveThunderCloudGreater()
         {
             var icon = library.Get<BlueprintAbility>("fc432e7a63f5a3545a93118af13bcb89").Icon;
 
-            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AgressiveThundercloudGreaterArea", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AggressiveThundercloudGreaterArea", "");
             area.Size = 3.Feet();
             area.Fx = Common.createPrefabLink("e1278588b084bc344842635e44770c90"); //poison aoe 5ft
 
 
-            var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "AgressiveThundercloudGreaterStunBuff", "");
+            var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "AggressiveThundercloudGreaterStunBuff", "");
             stunned.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic));
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, 6));
             var apply_stun = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
 
-            var stun_allowed = Helpers.CreateBuff("AgressiveThundercloudGreaterStunAllowedBuff",
+            var stun_allowed = Helpers.CreateBuff("AggressiveThundercloudGreaterStunAllowedBuff",
                                                   "",
                                                   "",
                                                   "",
@@ -352,10 +352,10 @@ namespace CallOfTheWild
             };
 
 
-            var caster_buff = Helpers.CreateBuff("AgressiveThundercloudGreaterCasterBuff",
-                                                  "Agressive Thundercloud, Greater",
-                                                  "This spell functions as aggressive thundercloud, except it deals 6d6 points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
-                                                  + "Agressive Thundercloud: " + agressive_thundercloud.Description,
+            var caster_buff = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterBuff",
+                                                  "Aggressive Thundercloud, Greater",
+                                                  "This spell functions as agggressive thundercloud, except it deals 6d6 points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
+                                                  + "Aggressive Thundercloud: " + aggressive_thundercloud.Description,
                                                   "",
                                                   icon,
                                                   null,
@@ -367,9 +367,9 @@ namespace CallOfTheWild
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(100));
 
 
-            var move_ability = Helpers.CreateAbility("AgressiveThundercloudGreaterMoveAbility",
-                                                     "Agressive Thundercloud, Greater",
-                                                     "Use this ability to move Agressive Thundercloud, Greater area.",
+            var move_ability = Helpers.CreateAbility("AggressiveThundercloudGreaterMoveAbility",
+                                                     "Aggressive Thundercloud, Greater",
+                                                     "Use this ability to move Aggressive Thundercloud, Greater area.",
                                                      "",
                                                      icon,
                                                      AbilityType.Special,
@@ -393,7 +393,7 @@ namespace CallOfTheWild
             var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
             
 
-            agressive_thundercloud_greater = Helpers.CreateAbility("AgressiveThundercloudGreaterAbility",
+            aggressive_thundercloud_greater = Helpers.CreateAbility("AggressiveThundercloudGreaterAbility",
                                                              caster_buff.Name,
                                                              caster_buff.Description,
                                                              "",
@@ -410,25 +410,25 @@ namespace CallOfTheWild
                                                              Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
                                                            );
 
-            agressive_thundercloud_greater.setMiscAbilityParametersRangedDirectional();
-            agressive_thundercloud_greater.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+            aggressive_thundercloud_greater.setMiscAbilityParametersRangedDirectional();
+            aggressive_thundercloud_greater.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
 
-            agressive_thundercloud_greater.AddToSpellList(Helpers.magusSpellList, 4);
-            agressive_thundercloud_greater.AddToSpellList(Helpers.druidSpellList, 4);
-            agressive_thundercloud_greater.AddToSpellList(Helpers.wizardSpellList, 4);
-            agressive_thundercloud_greater.AddSpellAndScroll("e8f59c0e2bbbb514db0dfff42dbdde91"); //jolting portent
+            aggressive_thundercloud_greater.AddToSpellList(Helpers.magusSpellList, 4);
+            aggressive_thundercloud_greater.AddToSpellList(Helpers.druidSpellList, 4);
+            aggressive_thundercloud_greater.AddToSpellList(Helpers.wizardSpellList, 4);
+            aggressive_thundercloud_greater.AddSpellAndScroll("e8f59c0e2bbbb514db0dfff42dbdde91"); //jolting portent
         }
 
 
 
-        static void createAgressiveThunderCloud()
+        static void createAggressiveThunderCloud()
         {
             var icon = library.Get<BlueprintAbility>("fc432e7a63f5a3545a93118af13bcb89").Icon;
 
-            thunder_cloud_fx_buff = library.CopyAndAdd<BlueprintBuff>("bedf9d0d6be45bb4eb197b83e2ad38ee", "AgressiveThundercloudFxBuff", "");
+            thunder_cloud_fx_buff = library.CopyAndAdd<BlueprintBuff>("bedf9d0d6be45bb4eb197b83e2ad38ee", "AggressiveThundercloudFxBuff", "");
             thunder_cloud_fx_buff.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }), };
             thunder_cloud_fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AgressiveThundercloudArea", "");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AggressiveThundercloudArea", "");
             area.Size = 3.Feet();
             area.Fx = Common.createPrefabLink("e1278588b084bc344842635e44770c90"); //poison aoe 5ft
 
@@ -447,8 +447,8 @@ namespace CallOfTheWild
             };
 
 
-            var caster_buff = Helpers.CreateBuff("AgressiveThundercloudCasterBuff",
-                                                  "Agressive Thundercloud",
+            var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
+                                                  "Aggressive Thundercloud",
                                                   "A crackling, spherical storm cloud at the point you designate and deals electricity damage to those inside it. It has a fly speed of 20 feet with perfect maneuverability. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
                                                   + "You can move the sphere as a move action for you; otherwise, it stays at rest and crackles with lightning.",
                                                   "",
@@ -461,9 +461,9 @@ namespace CallOfTheWild
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(100));
 
 
-            var move_ability = Helpers.CreateAbility("AgressiveThundercloudMoveAbility",
-                                                     "Agressive Thundercloud",
-                                                     "Use this ability to move Agressive Thundercloud area.",
+            var move_ability = Helpers.CreateAbility("AggressiveThundercloudMoveAbility",
+                                                     "Aggressive Thundercloud",
+                                                     "Use this ability to move Aggressive Thundercloud area.",
                                                      "",
                                                      icon,
                                                      AbilityType.Special,
@@ -487,7 +487,7 @@ namespace CallOfTheWild
             var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
 
 
-            agressive_thundercloud = Helpers.CreateAbility("AgressiveThundercloudAbility",
+            aggressive_thundercloud = Helpers.CreateAbility("AggressiveThundercloudAbility",
                                                              caster_buff.Name,
                                                              caster_buff.Description,
                                                              "",
@@ -504,13 +504,13 @@ namespace CallOfTheWild
                                                              Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
                                                            );
 
-            agressive_thundercloud.setMiscAbilityParametersRangedDirectional();
-            agressive_thundercloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+            aggressive_thundercloud.setMiscAbilityParametersRangedDirectional();
+            aggressive_thundercloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
 
-            agressive_thundercloud.AddToSpellList(Helpers.magusSpellList, 2);
-            agressive_thundercloud.AddToSpellList(Helpers.druidSpellList, 2);
-            agressive_thundercloud.AddToSpellList(Helpers.wizardSpellList, 2);
-            agressive_thundercloud.AddSpellAndScroll("e8f59c0e2bbbb514db0dfff42dbdde91"); //jolting portent
+            aggressive_thundercloud.AddToSpellList(Helpers.magusSpellList, 2);
+            aggressive_thundercloud.AddToSpellList(Helpers.druidSpellList, 2);
+            aggressive_thundercloud.AddToSpellList(Helpers.wizardSpellList, 2);
+            aggressive_thundercloud.AddSpellAndScroll("e8f59c0e2bbbb514db0dfff42dbdde91"); //jolting portent
         }
 
 
