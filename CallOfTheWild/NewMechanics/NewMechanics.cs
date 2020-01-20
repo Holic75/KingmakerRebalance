@@ -5302,8 +5302,30 @@ namespace CallOfTheWild
         }
 
 
+        public class RemoveUniqueArea : ContextAction
+        {
+            public BlueprintUnitFact feature;
 
-        public class ContextActionRangedTouchAttack : ContextAction
+            public override string GetCaption()
+            {
+                return "Remove unique Area";
+            }
+
+            public override void RunAction()
+            {
+                var area = this.Context.MaybeCaster.Ensure<UnitPartUniqueAreaEffects>().Areas.Where(a => a.Feature == feature).FirstOrDefault();
+                if (area == null)
+                {
+                    return;
+                }
+                var areaEffect = Game.Instance.State.AreaEffects[area.AreaId];
+                this.Context.MaybeCaster.Ensure<UnitPartUniqueAreaEffects>().RemoveAreaEffect(areaEffect, feature);
+            }
+        }
+
+
+
+            public class ContextActionRangedTouchAttack : ContextAction
         {
             public BlueprintItemWeapon Weapon;
 

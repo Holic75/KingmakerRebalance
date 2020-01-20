@@ -74,7 +74,7 @@ namespace CallOfTheWild
                     NewSpells.river_of_wind, 
                     library.Get<BlueprintAbility>("16fff43f034133a4a86e914a523e021f"), //summon elemental large air
                     library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c"), //sirocco
-                    library.Get<BlueprintAbility>("ee63301f83c76694692d4704d8a05bdc"), //elemental body IV air
+                    NewSpells.scouring_winds,
                     library.Get<BlueprintAbility>("333efbf776ab61c4da53e9622751d95f"), //summon elemental elder air
                     NewSpells.winds_of_vengeance
                 };

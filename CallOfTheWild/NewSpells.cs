@@ -183,6 +183,7 @@ namespace CallOfTheWild
         static public BlueprintAbility wall_of_fire;
         static public BlueprintAbility wall_of_fire_fire_domain;
         static public BlueprintAbility incendiary_cloud;
+        static public BlueprintAbility scouring_winds;
 
 
         static public void load()
@@ -289,6 +290,137 @@ namespace CallOfTheWild
             createWallOfBlindness();
             createWallOfFire();
             createIncendiaryCloud();
+            createScouringWinds();
+        }
+
+
+
+        static void createScouringWinds()
+        {
+            var invisibility = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
+            var icon = library.Get<BlueprintFeature>("f2fa7541f18b8af4896fbaf9f2a21dfe").Icon;
+
+            var buff = Helpers.CreateBuff("ScouringWindsTargetBuff",
+                              "Scouring Winds",
+                              "This spell brings forth a windstorm of stinging sand that blocks all vision. You can move the storm to any area within medium range of you as move action.\n"
+                              + "Any creature in the area takes 3d6 points of piercing damage each round. The area is considered a windstorm, creatures of medium size or smaller need to make a DC 10 Strength check or be unable to move. Creatures of small size or smaller are knocked prone and take additional 2d6 bludgeoning damage unless they succeed on a DC 15 Strength check.\n"
+                              + "Ranged attacks are impossible in the area.",
+                              "",
+                              icon,
+                              null,
+                              Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
+                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Blindness),
+                              Common.createBuffDescriptorImmunity(SpellDescriptor.SightBased),
+                              Helpers.Create<BuffInvisibility>(b => { b.NotDispellAfterOffensiveAction = true; b.m_StealthBonus = 100; }),
+                              Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                              Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged })
+                              );
+            buff.FxOnStart = invisibility.FxOnStart;
+            buff.FxOnRemove = invisibility.FxOnRemove;
+
+
+            var can_not_move_buff = Helpers.CreateBuff("ScouringWindsCanNotMoveBuff",
+                                                      "Scouring Winds (Can not move)",
+                                                      "You can not move through the wind.",
+                                                      "",
+                                                      icon,
+                                                      null,
+                                                      Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove)                               
+                                                      );
+
+            can_not_move_buff.Stacking = StackingType.Replace;
+
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("b21bc337e2beaa74b8823570cd45d6dd", "ScouringWindsArea", "");
+
+            var apply_can_not_move = Common.createContextActionApplyBuff(can_not_move_buff, Helpers.CreateContextDuration(1), dispellable: false, is_child: true);
+
+            var dmg_regular = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing, Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), isAoE: true);
+            var check_movement = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
+                                                           Common.createContextActionSkillCheck(StatType.Strength,
+                                                                                                failure: Helpers.CreateActionList(apply_can_not_move),
+                                                                                                custom_dc: 10)
+                                                           );
+            var check_small = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Small),
+                                               Common.createContextActionSkillCheck(StatType.Strength,
+                                                                                    failure: Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>(), 
+                                                                                                                      Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2, 0))
+                                                                                                                     ),
+                                                                                    custom_dc: 15)
+                                               );
+
+            var actions = Helpers.CreateActionList(dmg_regular, check_movement, check_small);
+            area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a =>
+                {
+                    a.UnitEnter = actions;
+                    a.Round = actions;
+                    a.FirstRound = actions;
+                }),
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
+            };
+
+            var caster_buff = Helpers.CreateBuff("ScouringWindsCasterBuff",
+                              buff.Name + " (Caster)",
+                              buff.Description,
+                              "",
+                              icon,
+                              null
+                              );
+            caster_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.RemoveUniqueArea>(a => a.feature = caster_buff)));
+            area.AddComponent(Helpers.Create<UniqueAreaEffect>(u => u.Feature = caster_buff));
+
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(100));
+
+
+            var move_ability = Helpers.CreateAbility("ScouringWindsMoveAbility",
+                                                     "Scouring Winds (Move Spell Area)",
+                                                     buff.Description,
+                                                     "",
+                                                     icon,
+                                                     AbilityType.Special,
+                                                     UnitCommand.CommandType.Move,
+                                                     AbilityRange.Medium,
+                                                     "",
+                                                     "",
+                                                     Helpers.CreateRunActions(spawn_area),
+                                                     Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation)
+                                                     );
+
+            move_ability.setMiscAbilityParametersRangedDirectional();
+            move_ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize;
+
+            caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
+            caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
+            
+
+            var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+
+
+            scouring_winds = Helpers.CreateAbility("ScouringWindsAbility",
+                                         buff.Name,
+                                         buff.Description,
+                                         "",
+                                         icon,
+                                         AbilityType.Spell,
+                                         UnitCommand.CommandType.Standard,
+                                         AbilityRange.Medium,
+                                         "",
+                                         "",
+                                         Helpers.CreateRunActions(spawn_area),
+                                         Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                         Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                         Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
+                                         );
+
+            scouring_winds.setMiscAbilityParametersRangedDirectional();
+            scouring_winds.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+
+            scouring_winds.AddToSpellList(Helpers.druidSpellList, 7);
+            scouring_winds.AddToSpellList(Helpers.wizardSpellList, 7);
+            scouring_winds.AddSpellAndScroll("c17e4bd5028d6534a8c8d317cd8244ca");
         }
 
 
@@ -360,7 +492,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
                                                      Helpers.CreateRunActions(spawn_area),
-                                                     Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
+                                                     Common.createAbilityAoERadius(20.Feet(), TargetType.Any)
                                                      );
             incendiary_cloud.setMiscAbilityParametersRangedDirectional();
             incendiary_cloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;

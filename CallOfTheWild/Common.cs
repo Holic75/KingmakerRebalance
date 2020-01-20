@@ -3302,5 +3302,14 @@ namespace CallOfTheWild
         }
 
 
+        public static AbilityAoERadius createAbilityAoERadius(Feet radius, TargetType target_type)
+        {
+            var a = Helpers.Create<AbilityAoERadius>();
+
+            Helpers.SetField(a, "m_Radius", radius);
+            Helpers.SetField(a, "m_TargetType", target_type);
+            return a;
+        }
+
     }
 }

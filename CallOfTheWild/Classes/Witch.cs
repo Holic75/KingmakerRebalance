@@ -1036,6 +1036,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.poison_breath.AssetGuid, 7), 
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 7), //primal regression
+                new Common.SpellId( NewSpells.scouring_winds.AssetGuid, 7),
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 7), //summon monster 7
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 7), //umbral strike
                 new Common.SpellId( "1e2d1489781b10a45a3b70192bba9be3", 7), //waves of Ectasy
