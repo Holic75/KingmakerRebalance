@@ -127,6 +127,7 @@ New spells:
 - Spirit Call,
 - Bladed Dash and Bladed Dash, Greater,
 - Blistering Invective,
+- Agressive Thundercloud and Agressive Thundercloud, Greater
 - Blood Armor,
 - Bone Fists,
 - Burst of Radiance,
