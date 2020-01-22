@@ -974,7 +974,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "051b979e7d7f8ec41b9fa35d04746b33", 7), //summon nature ally VII
                 new Common.SpellId( "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", 7), //sunbeam
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 7), //umbral strike
-                
+                new Common.SpellId( NewSpells.wind_walk.AssetGuid, 7),
+
                 new Common.SpellId(NewSpells.blood_mist.AssetGuid, 8),
                 new Common.SpellId( "1f173a16120359e41a20fc75bb53d449", 8), //cure critical wounds mass
                 new Common.SpellId( "3b646e1db3403b940bf620e01d2ce0c7", 8), //destruction

@@ -870,6 +870,8 @@ namespace CallOfTheWild
 
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("35e15cd1b353e2d47b507c445d2f8c6f"), 5, "WaterDomain"); //ice storm
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("df3bc5bda7deb9d46b0f177db3bb7876"), 6, "EarthDomain"); //stoneskin
+
+            Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("81bff1165d9468a44b2f815f7c26a373"), 6, "EvilDomain"); //create undead
         }
 
         internal static void fixStalwartDefender()

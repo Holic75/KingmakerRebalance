@@ -175,6 +175,7 @@ namespace CallOfTheWild
         static public BlueprintAbility air_walk;
         static public BlueprintAbility air_walk_communal;
         static public BlueprintAbility overland_flight;
+        static public BlueprintAbility wind_walk;
 
         static public BlueprintAbility hypnotic_pattern;
 
@@ -286,6 +287,7 @@ namespace CallOfTheWild
             createMeteorSwarm();
             createFlyAndOverlandFlight();
             createAirWalk();
+            createWindWalk();
 
             createHypnoticPattern();
 
@@ -350,6 +352,7 @@ namespace CallOfTheWild
                 Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                 Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = thunder_cloud_fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
             };
+            area.SpellResistance = true;
 
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterBuff",
@@ -412,6 +415,7 @@ namespace CallOfTheWild
 
             aggressive_thundercloud_greater.setMiscAbilityParametersRangedDirectional();
             aggressive_thundercloud_greater.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+            aggressive_thundercloud_greater.SpellResistance = true;
 
             aggressive_thundercloud_greater.AddToSpellList(Helpers.magusSpellList, 4);
             aggressive_thundercloud_greater.AddToSpellList(Helpers.druidSpellList, 4);
@@ -445,7 +449,7 @@ namespace CallOfTheWild
                 Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                 Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = thunder_cloud_fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
             };
-
+            area.SpellResistance = true;
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
                                                   "Aggressive Thundercloud",
@@ -506,6 +510,7 @@ namespace CallOfTheWild
 
             aggressive_thundercloud.setMiscAbilityParametersRangedDirectional();
             aggressive_thundercloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach;
+            aggressive_thundercloud.SpellResistance = true;
 
             aggressive_thundercloud.AddToSpellList(Helpers.magusSpellList, 2);
             aggressive_thundercloud.AddToSpellList(Helpers.druidSpellList, 2);
@@ -926,6 +931,49 @@ namespace CallOfTheWild
         }
 
 
+        static void createWindWalk()
+        {
+            var icon = library.Get<BlueprintFeature>("3c53ee4965a13d74e81b37ae34f0861b").Icon; //cloud infusion
+
+            var buff = Helpers.CreateBuff("WindWalkBuff",
+                                          "Wind Walk",
+                                          "You alter the substance of your body to a cloud-like vapor and move through the air, possibly at great speed. You can take other creatures with you, each of which acts independently.\n"
+                                          + "A wind walker can regain its physical form as desired and later resume the cloud form.\n"
+                                          + "The speed of your group while on overland map increases to 60 mph.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<TravelMap.OverrideGlobalMapTravelMultiplier>(o => o.travel_map_multiplier = 20)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Hours));
+            wind_walk = Helpers.CreateAbility("WindWalkAbility",
+                                              buff.Name,
+                                              buff.Description,
+                                              "",
+                                              icon,
+                                              AbilityType.Spell,
+                                              UnitCommand.CommandType.Standard,
+                                              AbilityRange.Personal,
+                                              Helpers.hourPerLevelDuration,
+                                              "",
+                                              Helpers.CreateRunActions(apply_buff),
+                                              Helpers.CreateContextRankConfig(),
+                                              Helpers.Create<SharedSpells.CannotBeShared>(),
+                                              Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.ClickedTarget)
+                                              );
+            wind_walk.setMiscAbilityParametersSelfOnly();
+
+            wind_walk.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            wind_walk.AddToSpellList(Helpers.alchemistSpellList, 6);
+            wind_walk.AddToSpellList(Helpers.clericSpellList, 6);
+            wind_walk.AddToSpellList(Helpers.druidSpellList, 7);
+
+            wind_walk.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");
+        }
+
+
         static void createAirWalk()
         {
             var icon = library.Get<BlueprintAbility>("f3c0b267dd17a2a45a40805e31fe3cd1").Icon;
@@ -1081,7 +1129,7 @@ namespace CallOfTheWild
             var duration = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds);
             path_of_glory = Helpers.CreateAbility("PathOfGloryAbility",
                                                   "Path of Glory",
-                                                  "You cause a 60-ft line to glow with dim illumination. Allies that end their turns in the glowing area are healed of 1 point of damage.",
+                                                  "You cause a 60-ft line to glow with dim illumination. While standing on glowing area your allies get fast healing 1.",
                                                   "",
                                                   icon,
                                                   AbilityType.Spell,
@@ -1132,7 +1180,7 @@ namespace CallOfTheWild
             var duration = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds);
             path_of_glory_greater = Helpers.CreateAbility("PathOfGloryGreaterAbility",
                                                   "Path of Glory, Greater",
-                                                  "This spell functions as path of glory, except as noted above, and spell area provides 5 points of healing instead of 1.\n"
+                                                  "This spell functions as path of glory, except as noted above, and spell area provides fast healing 5 instead of 1.\n"
                                                   + "Path of Glory: " + path_of_glory.Description,
                                                   "",
                                                   icon,

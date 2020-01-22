@@ -36,7 +36,9 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                if (b.Get<FreeActionAbilityUseBase>().canUseOnAbility(ability, actual_action_type))
+                bool result = false;
+                b.CallComponents<FreeActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                if (result)
                 {
                     return true;
                 }
@@ -76,7 +78,9 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                if (b.Get<SwiftActionAbilityUseBase>().canUseOnAbility(ability, actual_action_type))
+                bool result = false;
+                b.CallComponents<SwiftActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                if (result)
                 {
                     return true;
                 }
@@ -349,7 +353,9 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                if (b.Get<FullRoundAbilityUseBase>().canUseOnAbility(ability))
+                bool result = false;
+                b.CallComponents<FullRoundAbilityUseBase>(c => result = c.canUseOnAbility(ability));
+                if (result)
                 {
                     return true;
                 }

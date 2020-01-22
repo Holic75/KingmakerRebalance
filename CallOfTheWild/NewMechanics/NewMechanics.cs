@@ -801,17 +801,11 @@ namespace CallOfTheWild
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class ComeAndGetMe : RuleTargetLogicComponent<RuleCalculateAC>, ITargetRulebookHandler<RuleDealDamage>
+        public class ComeAndGetMe : RuleTargetLogicComponent<RuleCalculateAC>, ITargetRulebookHandler<RuleDealDamage>, ITargetRulebookHandler<RuleAttackWithWeapon>
         {
             public override void OnEventAboutToTrigger(RuleCalculateAC evt)
             {
-                if (this.Owner.Body.PrimaryHand.MaybeWeapon != null && this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee)
-                {
-                    //this.Owner.Unit.CombatState.AttackOfOpportunity(evt.Initiator);
-                    Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
-                }
                 evt.AddBonus(-4, this.Fact);
-                return;
             }
 
             public override void OnEventDidTrigger(RuleCalculateAC evt)
@@ -829,6 +823,20 @@ namespace CallOfTheWild
             }
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
+            }
+
+            public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+                if (this.Owner.Body.PrimaryHand.MaybeWeapon != null && this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee && evt.Weapon.Blueprint.IsMelee  &&  this.Owner.Unit.CombatState.IsEngage(evt.Initiator))
+                {
+                    //this.Owner.Unit.CombatState.AttackOfOpportunity(evt.Initiator);
+                    Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
+                }
             }
         }
 

@@ -167,6 +167,7 @@
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\CustomAbilities.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
+    <Compile Include="NewMechanics\TravelMap.cs" />
     <Compile Include="NewMechanics\TurnActionMechanics.cs" />
     <Compile Include="NewMechanics\HealingMechanics.cs" />
     <Compile Include="NewMechanics\InitiativeMechanics.cs" />
