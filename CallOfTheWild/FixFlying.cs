@@ -155,7 +155,28 @@ namespace CallOfTheWild
             fiery_body.SetDescription(fiery_body.Description + " You are also able to fly.");
 
             var fiery_body_spell = library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39");
-            fiery_body_spell.SetDescription(fiery_body_spell.Description + " You also get ability to fly.");
+            fiery_body_spell.SetDescription(fiery_body_spell.Description + " You also gain ability to fly.");
+
+
+            var buffs_to_add_flying = new BlueprintBuff[] 
+            { library.Get<BlueprintBuff>("b33f44fecadb3ca48b438dacac6454c2"), //angelic aspect
+              library.Get<BlueprintBuff>("87fcda72043d20840b4cdc2adcc69c63") //angelic aspect greater
+            };
+
+            foreach (var b in buffs_to_add_flying)
+            {
+                b.AddComponent(Helpers.CreateAddFact(airborne));
+            }
+
+            var abilities_to_add_flying_description = new BlueprintAbility[]
+            {library.Get<BlueprintAbility>("75a10d5a635986641bfbcceceec87217"), //angelic aspect
+             library.Get<BlueprintAbility>("b1c7576bd06812b42bda3f09ab202f14") //angelic aspect greater
+            };
+
+            foreach (var a in abilities_to_add_flying_description)
+            {
+                a.SetDescription(a.Description + " You also sprout white feathered wings allowing you to fly.");
+            }
         }
 
 

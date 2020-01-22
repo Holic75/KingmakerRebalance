@@ -36,6 +36,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.RuleSystem;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 
 namespace CallOfTheWild
 {
@@ -662,6 +663,7 @@ namespace CallOfTheWild
         {
             var archaeologist_luck = library.Get<BlueprintActivatableAbility>("12dc796147c42e04487fcad3aaa40cea");
             archaeologist_luck.Group = ActivatableAbilityGroup.BardicPerformance;
+            Helpers.SetField(archaeologist_luck, "m_ActivateWithUnitCommand", UnitCommand.CommandType.Swift);
         }
 
 
@@ -1001,7 +1003,26 @@ namespace CallOfTheWild
            // fast_bombs_ability.DeactivateImmediately = false;
 
         }
+
+        static internal void fixArchonsAuraToEffectOnlyEnemies()
+        {
+            var area = ResourcesLibrary.TryGetBlueprint<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762");
+
+            var run_actions = area.GetComponent<AbilityAreaEffectRunAction>();
+
+            Common.changeAction<Conditional>(run_actions.UnitEnter.Actions, a =>
+                                                                            {
+                                                                                if (a.ConditionsChecker.Conditions.Length == 2 && (a.ConditionsChecker.Conditions[1] is ContextConditionIsAlly))
+                                                                                {
+                                                                                    a.ConditionsChecker.Conditions[1] = Helpers.Create<ContextConditionIsEnemy>();
+                                                                                }
+                                                                            }
+                                            );
+        }
     }
+
+
+
 
 
     //allow inherent modifiers to be considered as permanent

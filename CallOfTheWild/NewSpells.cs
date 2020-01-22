@@ -960,6 +960,7 @@ namespace CallOfTheWild
                                               Helpers.CreateRunActions(apply_buff),
                                               Helpers.CreateContextRankConfig(),
                                               Helpers.Create<SharedSpells.CannotBeShared>(),
+                                              Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                               Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.ClickedTarget)
                                               );
             wind_walk.setMiscAbilityParametersSelfOnly();
