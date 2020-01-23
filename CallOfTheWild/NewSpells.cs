@@ -307,8 +307,8 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintAbility>("fc432e7a63f5a3545a93118af13bcb89").Icon;
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AggressiveThundercloudGreaterArea", "");
-            area.Size = 3.Feet();
-            area.Fx = Common.createPrefabLink("e1278588b084bc344842635e44770c90"); //poison aoe 5ft
+            area.Size = 2.Feet();
+            area.Fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1");//will o wisp fx
 
 
             var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "AggressiveThundercloudGreaterStunBuff", "");
@@ -381,7 +381,7 @@ namespace CallOfTheWild
                                                      "",
                                                      "",
                                                      Helpers.CreateRunActions(spawn_area),
-                                                     Common.createAbilityAoERadius(3.Feet(), TargetType.Any),
+                                                     Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity)
                                                      );
@@ -407,7 +407,7 @@ namespace CallOfTheWild
                                                              Helpers.roundsPerLevelDuration,
                                                              "Reflex Negates; Fortitude Negates",
                                                              Helpers.CreateRunActions(spawn_area),
-                                                             Common.createAbilityAoERadius(3.Feet(), TargetType.Any),
+                                                             Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
                                                              Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                                              Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
@@ -433,8 +433,8 @@ namespace CallOfTheWild
             thunder_cloud_fx_buff.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }), };
             thunder_cloud_fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AggressiveThundercloudArea", "");
-            area.Size = 3.Feet();
-            area.Fx = Common.createPrefabLink("e1278588b084bc344842635e44770c90"); //poison aoe 5ft
+            area.Size = 2.Feet();
+            area.Fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1"); //will o wisp fx
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, 3));
             var dmg_action = Helpers.CreateActionList(Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg))));
@@ -476,7 +476,7 @@ namespace CallOfTheWild
                                                      "",
                                                      "",
                                                      Helpers.CreateRunActions(spawn_area),
-                                                     Common.createAbilityAoERadius(3.Feet(), TargetType.Any),
+                                                     Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity)
                                                      );
@@ -502,7 +502,7 @@ namespace CallOfTheWild
                                                              Helpers.roundsPerLevelDuration,
                                                              "Reflex Negates",
                                                              Helpers.CreateRunActions(spawn_area),
-                                                             Common.createAbilityAoERadius(3.Feet(), TargetType.Any),
+                                                             Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
                                                              Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                                              Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
