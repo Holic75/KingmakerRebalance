@@ -76,9 +76,6 @@ namespace CallOfTheWild
     namespace NewMechanics
     {
 
-
-
-
         [ComponentName("Increase spell descriptor DC by spell level up to BonusDC and then deals dc_increase d6 damage")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class RageCasting : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
@@ -89,7 +86,6 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-
                 if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
                 {
                     actual_dc = 0;
@@ -5088,6 +5084,7 @@ namespace CallOfTheWild
         {
             public SpellDescriptorWrapper SpellDescriptor;
             public ContextValue value;
+            public bool only_energy = true;
 
             public void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
@@ -5096,7 +5093,14 @@ namespace CallOfTheWild
                     return;
 
                 var dmg = value.Calculate(this.Fact.MaybeContext);
-                evt.DamageBundle.First?.AddBonus(dmg);
+                if (!only_energy)
+                {
+                    evt.DamageBundle.First?.AddBonus(dmg);
+                }
+                else
+                {
+                    evt.DamageBundle.First(d => d is EnergyDamage)?.AddBonus(dmg);
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateDamage evt)

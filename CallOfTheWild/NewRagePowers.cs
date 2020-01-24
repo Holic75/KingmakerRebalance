@@ -48,6 +48,7 @@ namespace CallOfTheWild
         static public BlueprintBuff rage_marker_caster;
 
         static public BlueprintFeature taunting_stance;
+        static public BlueprintBuff taunting_stance_buff;
         static public BlueprintFeature terrifying_howl_feature;
         static public BlueprintAbility terrifying_howl_ability;
         static public BlueprintFeature quick_reflexes_feature;
@@ -738,6 +739,7 @@ namespace CallOfTheWild
             taunting_stance.AddComponent(Helpers.PrerequisiteClassLevel(barbarian_class, 12));
             taunting_stance.Groups = new FeatureGroup[] { FeatureGroup.RagePower };
             addToSelection(taunting_stance);
+            taunting_stance_buff = buff;
         }
 
 

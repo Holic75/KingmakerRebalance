@@ -88,6 +88,8 @@ namespace CallOfTheWild
         static public BlueprintFeature bardic_performance_move;
         static public BlueprintFeature bardic_performance_swift;
 
+        static public BlueprintFeatureSelection extra_rage_power;
+
 
         static public BlueprintArchetype urban_skald_archetype;
         static public BlueprintFeature urban_skald_proficiencies;
@@ -157,7 +159,7 @@ namespace CallOfTheWild
             skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
-            //fixExtraRagePower(); do not give skald extra rage power due to balance reasons
+            fixExtraRagePower();
 
 
             //fix saves with missing spell kenning resource
@@ -231,9 +233,29 @@ namespace CallOfTheWild
 
         static void fixExtraRagePower()
         {
-            var extra_rage_power = library.Get<BlueprintFeatureSelection>("0c7f01fbbe687bb4baff8195cb02fe6a");
-            extra_rage_power.GetComponent<PrerequisiteFeature>().Group = Prerequisite.GroupType.Any;
-            extra_rage_power.AddComponent(Helpers.PrerequisiteFeature(skald_rage_powers, true));
+            extra_rage_power = library.CopyAndAdd<BlueprintFeatureSelection>("0c7f01fbbe687bb4baff8195cb02fe6a", "SkaldExtraRagePower", "");
+            extra_rage_power.ReplaceComponent<PrerequisiteFeature>(r => r.Feature = skald_rage_powers);
+
+            extra_rage_power.SetNameDescription("Extra Rage Power (Skald)",
+                                                "You gain one additional rage power, which can not be shared with raging song. You must meet all of the prerequisites for this rage power. This feat can be taken multiple times."
+                                                );
+
+            extra_rage_power.AllFeatures = new BlueprintFeature[] {library.Get<BlueprintFeature>("efb97e482f53f064dab85a9eeaf01085"), //guarded stance
+                                                                   library.Get<BlueprintFeature>("efd53fe2887c3a54d86b99f4bba61dd6"), //protect vitals
+                                                                   library.Get<BlueprintFeature>("6a9319f42f742024680af38af54f5d6f"), //reflexive dodge
+                                                                   library.Get<BlueprintFeature>("c841ffa13d39ce442a408f57feb3cb8e"), //deadly accuracy feature
+                                                                   library.Get<BlueprintFeature>("bb79cb9706379934c9460e46fe8cd04e"), //lethal accuracy
+                                                                   library.Get<BlueprintFeature>("e4450dd9c06dc034fb7c0c08abcc202b"), //lethal stance
+                                                                   library.Get<BlueprintFeature>("32c4d277007aed74c905779cd04a6fed"), //inspire ferocity
+                                                                   library.Get<BlueprintFeature>("cb502c65dab407b4e928f5d8355cafc9"), //reckless stance
+                                                                   library.Get<BlueprintFeature>("cb502c65dab407b4e928f5d8355cafc9"), //renewed vigor
+                                                                   NewRagePowers.terrifying_howl_feature,
+                                                                   NewRagePowers.taunting_stance,
+                                                                   NewRagePowers.greater_atavism_totem
+                                                                  };
+
+            library.AddFeats(extra_rage_power);
+            
         }
 
         static void createForbidSpellCastingBuff()
@@ -1319,7 +1341,8 @@ namespace CallOfTheWild
             var personal_buffs = new BlueprintUnitFact[] {library.Get<BlueprintBuff>("c52e4fdad5df5d047b7ab077a9907937"), //reckless stance
                                                      library.Get<BlueprintBuff>("16649b2e80602eb48bbeaad77f9f365f"), //lethal stance
                                                      library.Get<BlueprintBuff>("fd0fb6aef4000a443bdc45363410e377"), //guarded stance
-                                                     library.Get<BlueprintBuff>("4b3fb3c9473a00f4fa526f4bd3fc8b7a") //inspire ferocity
+                                                     library.Get<BlueprintBuff>("4b3fb3c9473a00f4fa526f4bd3fc8b7a"), //inspire ferocity
+                                                     NewRagePowers.taunting_stance_buff
                                                      };
             List<BlueprintUnitFact> patched_buffs = new List<BlueprintUnitFact>();
             var component = buff.GetComponent<AddFactContextActions>();
