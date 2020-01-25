@@ -871,7 +871,7 @@ namespace CallOfTheWild
             var ranger_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6");
             var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
-            //will not work properly with mystic theurge
+ 
             var hunter_spellbook = Helpers.Create<BlueprintSpellbook>();
             hunter_spellbook.name = "HunterSpellbook";
             library.AddAsset(hunter_spellbook, "e1e06d8905884a1faaadd77a3cb5f87a");

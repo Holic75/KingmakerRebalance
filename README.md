@@ -10,7 +10,10 @@ It introduces new classes:
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Hinterlander and Holy Vindicator prestige classes,
-- Vindictive Bastard Paladin Archetype (implemented as a separate class).
+New Archetypes for existing classes:
+- Vindictive Bastard Paladin Archetype (implemented as a separate class),
+- Arrowsong Minstrel Bard Archetype
+
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
 with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.

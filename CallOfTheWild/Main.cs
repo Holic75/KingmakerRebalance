@@ -232,6 +232,9 @@ namespace CallOfTheWild
                     CallOfTheWild.Bloodrager.createBloodragerClass();
                     CallOfTheWild.Warpriest.createWarpriestClass();
                     CallOfTheWild.NewFeats.load();
+
+                    CallOfTheWild.Archetypes.ArrowsongMinstrel.Create();
+
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
 

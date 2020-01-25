@@ -604,6 +604,29 @@ namespace CallOfTheWild
         }
 
 
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable increaseNumSpellsCast(string name, string guid, BlueprintSpellsTable base_spell_table, int increase)
+        {
+            var new_levels = new SpellsLevelEntry[base_spell_table.Levels.Length];
+
+            for (int lvl = 0; lvl < new_levels.Length; lvl++)
+            {
+                var count = base_spell_table.Levels[lvl].Count;
+                var new_count = new int [count.Length];
+                for (int i = 0; i < count.Length; i++)
+                {
+                    new_count[i] = count[i] + increase;
+                    if (new_count[i] < 0)
+                    {
+                        new_count[i] = 0;
+                    }
+                }
+                new_levels[lvl] = Common.createSpellsLevelEntry(new_count);
+            }
+
+            return createSpellsTable(name, guid, new_levels);
+        }
+
+
         static public Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride createEmptyHandWeaponOverride(BlueprintItemWeapon weapon)
         {
             var c = Helpers.Create<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>();

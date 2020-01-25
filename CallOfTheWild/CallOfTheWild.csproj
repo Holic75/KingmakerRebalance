@@ -125,6 +125,7 @@
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AiFix.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
+    <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
     <Compile Include="Classes\Mysteries\Time.cs" />
