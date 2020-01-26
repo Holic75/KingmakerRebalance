@@ -41,27 +41,61 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    partial class Shaman
+    partial class SpiritsEngine
     {
-        internal class LoreSpirit
+        public class LoreSpirit
         {
-            internal static BlueprintFeature spirit_ability;
-            internal static BlueprintFeature greater_spirit_ability;
-            internal static BlueprintFeature greater_spirit_ability_wandering;
-            internal static BlueprintFeature true_spirit_ability;
-            internal static BlueprintFeature manifestation;
-            internal static BlueprintFeature benefit_of_wisdom;
-            internal static BlueprintFeature brain_drain;
-            internal static BlueprintFeature confusion_curse;
-            internal static BlueprintFeature mental_acuity;
-            internal static BlueprintAbility[] spells;
-            internal static BlueprintFeature[] hexes;
+            public BlueprintFeature spirit_ability;
+            public BlueprintFeature greater_spirit_ability;
+            public BlueprintFeature greater_spirit_ability_wandering;
+            public BlueprintFeature true_spirit_ability;
+            public BlueprintFeature manifestation;
+            public BlueprintFeature benefit_of_wisdom;
+            public BlueprintFeature brain_drain;
+            public BlueprintFeature confusion_curse;
+            public BlueprintFeature mental_acuity;
+            public BlueprintAbility[] spells;
+            public BlueprintFeature[] hexes;
+
+            HexEngine hex_engine;
+            string prefix;
+            string spell_list_prefix;
+            bool test_mode;
 
 
-            internal static Spirit create()
+            public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                spell_list_prefix = "";
+
+                createHexes();
                 createSpiritAbility();
-                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+                createManifestation();
+
+                return new Archetypes.SpiritWhisperer.Spirit("Lore",
+                                                          "Lore",
+                                                          "A shaman who selects the lore spirit appears far wiser and knowing that her age would suggest. Though she can seem unassuming, her eyes give the impression she is peering deep into all she looks at, seeing the secrets of the essential merely by concentrating.",
+                                                          manifestation.Icon,
+                                                          "",
+                                                          spirit_ability,
+                                                          true_spirit_ability,
+                                                          manifestation,
+                                                          hexes);
+            }
+
+            public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, string spell_list_asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                spell_list_prefix = spell_list_asset_prefix;
+
+                createHexes();
+                createSpiritAbility();
+                createGreaterSpiritAbility(true);
                 createTrueSpiritAbility();
                 createManifestation();
 
@@ -78,35 +112,7 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("1f01a098d737ec6419aedc4e7ad61fdd"), //foresight
                 };
 
-                benefit_of_wisdom = hex_engine.createBenefitOfWisdom("ShamanBenefitOfWisdom",
-                                                                  "Benefit of Wisdom",
-                                                                  "The shaman relies on wisdom rather than intellect to gain and retain knowledge. She can use her Wisdom modifier instead of her Intelligence modifier on all Intelligence-based skill checks."
-                                                                  );
-                brain_drain = hex_engine.createBrainDrain("ShamanBrainDrain",
-                                                          "Brain Drain",
-                                                          "As a standard action, the shaman violently probes the mind of a single intelligent enemy within 30 feet. The target can attempt a Will saving throw to negate the effect. If it succeeds, it immediately knows the source of the mental prying; otherwise, it’s wracked with pain and takes 1d4 points of damage for every 2 levels the shaman possesses.\n"
-                                                          + "This is a mind-affecting effect. Once she successfully affects a creature, she cannot use this hex on that creature again for 24 hours."
-                                                          );
-
-                confusion_curse = hex_engine.createConfusionCurse("ShamanConfusionCurse",
-                                                                  "Confusion Curse ",
-                                                                  "The shaman’s command of lore can cause weaker minds to become mired in confusion. The shaman chooses a single intelligent target within 30 feet. That creature must succeed at a Will saving throw or become confused for a number of rounds equal to the shaman’s Charisma modifier (minimum 1). Once affected by this hex, the creature cannot be the target of this hex again for 24 hours."
-                                                                  );
-
-                mental_acuity = hex_engine.createMentalAcuity("ShamanMentalAcuity",
-                                                              "Mental Acuity",
-                                                              "Shaman receives +1 inherent bonus to her intelligence. This bonus increases by 1 for every 5 shaman levels."
-                                                             );
-
-                hexes = new BlueprintFeature[]
-                {
-                    benefit_of_wisdom,
-                    brain_drain,
-                    confusion_curse,
-                    mental_acuity,
-                };
-
-                return new Spirit("Lore",
+                return new Shaman.Spirit("Lore",
                                   "Lore",
                                   "A shaman who selects the lore spirit appears far wiser and knowing that her age would suggest. Though she can seem unassuming, her eyes give the impression she is peering deep into all she looks at, seeing the secrets of the essential merely by concentrating.",
                                   manifestation.Icon,
@@ -119,11 +125,42 @@ namespace CallOfTheWild
                                   spells);
             }
 
-
-            static void createSpiritAbility()
+            void createHexes()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanMonstrousInsightResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, StatType.Charisma);
+                benefit_of_wisdom = hex_engine.createBenefitOfWisdom(prefix + "BenefitOfWisdom",
+                                                                      "Benefit of Wisdom",
+                                                                      "The shaman relies on wisdom rather than intellect to gain and retain knowledge. She can use her Wisdom modifier instead of her Intelligence modifier on all Intelligence-based skill checks."
+                                                                      );
+                brain_drain = hex_engine.createBrainDrain(prefix + "BrainDrain",
+                                                          "Brain Drain",
+                                                          "As a standard action, the shaman violently probes the mind of a single intelligent enemy within 30 feet. The target can attempt a Will saving throw to negate the effect. If it succeeds, it immediately knows the source of the mental prying; otherwise, it’s wracked with pain and takes 1d4 points of damage for every 2 levels the shaman possesses.\n"
+                                                          + "This is a mind-affecting effect. Once she successfully affects a creature, she cannot use this hex on that creature again for 24 hours."
+                                                          );
+
+                confusion_curse = hex_engine.createConfusionCurse(prefix + "ConfusionCurse",
+                                                                  "Confusion Curse ",
+                                                                  "The shaman’s command of lore can cause weaker minds to become mired in confusion. The shaman chooses a single intelligent target within 30 feet. That creature must succeed at a Will saving throw or become confused for a number of rounds equal to the shaman’s Charisma modifier (minimum 1). Once affected by this hex, the creature cannot be the target of this hex again for 24 hours."
+                                                                  );
+
+                mental_acuity = hex_engine.createMentalAcuity(prefix + "MentalAcuity",
+                                                              "Mental Acuity",
+                                                              "Shaman receives +1 inherent bonus to her intelligence. This bonus increases by 1 for every 5 shaman levels."
+                                                             );
+
+                hexes = new BlueprintFeature[]
+                {
+                    benefit_of_wisdom,
+                    brain_drain,
+                    confusion_curse,
+                    mental_acuity,
+                };
+            }
+
+
+            void createSpiritAbility()
+            {
+                var resource = Helpers.CreateAbilityResource(prefix + "MonstrousInsightResource", "", "", "", null);
+                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
                 var icon = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e").Icon; //detect magic
 
                 var lore_action = Helpers.Create<NewMechanics.MonsterLore.ContextMonsterLoreCheck>(c =>
@@ -133,7 +170,7 @@ namespace CallOfTheWild
                                                                                                     }
                                                                                                   );
 
-                var buff = Helpers.CreateBuff("ShamanMonstrousInsightBuff",
+                var buff = Helpers.CreateBuff(prefix + "MonstrousInsightBuff",
                                                 "Monstrous Insight",
                                                 "The shaman can identify creatures and gain insight into their strengths and weaknesses. As a standard action, the shaman can attempt a Knowledge skill check to identify a creature and its abilities (using the appropriate skill for the monster’s type) with an insight bonus equal to her shaman level. Whether or not the check is successful, she also gains a +2 insight bonus for 1 minute on attack rolls made against that creature and a +2 insight bonus to her AC against attacks made by that creature. The shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                 "",
@@ -143,7 +180,7 @@ namespace CallOfTheWild
                                                 Helpers.Create<ACBonusAgainstTarget>(c => { c.Value = Common.createSimpleContextValue(2); c.CheckCaster = true; c.Descriptor = ModifierDescriptor.Insight; })
                                                 );
                 var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
-                var ability = Helpers.CreateAbility("ShamanMonstrousInsightAbility",
+                var ability = Helpers.CreateAbility(prefix + "MonstrousInsightAbility",
                                                     buff.Name,
                                                     buff.Description,
                                                     "",
@@ -157,7 +194,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateRunActions(lore_action, apply_buff),
                                                     Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(),
                                                     Common.createAbilitySpawnFx("749bb96fb50ee5b4685645472d718465", anchor: AbilitySpawnFxAnchor.SelectedTarget),
-                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray())
+                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes)
                                                                                     
                                                     );
                 ability.setMiscAbilityParametersTouchHarmful();
@@ -170,10 +207,10 @@ namespace CallOfTheWild
             }
 
 
-            static void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility(bool need_secondary)
             {
                 var icon = library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830").Icon; //restoration
-                BlueprintFeatureSelection learn_selection = Helpers.CreateFeatureSelection("ShamanArcaneEnlightenmentFeatureSelection",
+                BlueprintFeatureSelection learn_selection = Helpers.CreateFeatureSelection(prefix + "ArcaneEnlightenmentFeatureSelection",
                                                                                           "Arcane Enlightenment",
                                                                                           "The shaman’s native intelligence grants her the ability to tap into arcane lore. The shaman can add a spell from the sorceror/wizard spell list to the list of shaman spells she can prepare.\n"
                                                                                           + "To select a spell she needs to have both Intelligence and Charisma scores equal to 10 + the spell's level. She can add an additional spell every two levels thereafter.",
@@ -181,37 +218,35 @@ namespace CallOfTheWild
                                                                                           icon,
                                                                                           FeatureGroup.None);
 
-                var wizard_spell_list = Common.combineSpellLists("LoreSpiritWizardSpellList", library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89"));
-                Common.excludeSpellsFromList(wizard_spell_list, shaman_class.Spellbook.SpellList);
+                var wizard_spell_list = Common.combineSpellLists(spell_list_prefix + "LoreSpiritWizardSpellList", library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89"));
+                Common.excludeSpellsFromList(wizard_spell_list, hex_engine.hex_classes[0].Spellbook.SpellList);
                 for (int i = 1; i <= 9; i++)
                 {
-                    var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"ShamanArcaneEnlightenment{i}ParametrizedFeature", "");
+                    var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", prefix + $"ArcaneEnlightenment{i}ParametrizedFeature", "");
                     learn_spell.SpellLevel = i;
                     learn_spell.SpecificSpellLevel = true;
                     learn_spell.SpellLevelPenalty = 0;
-                    learn_spell.SpellcasterClass = shaman_class;
+                    learn_spell.SpellcasterClass = hex_engine.hex_classes[0];
                     learn_spell.SpellList = wizard_spell_list;
-                    learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = wizard_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = shaman_class; });
+                    learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = wizard_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = hex_engine.hex_classes[0]; });
                     learn_spell.AddComponents(Helpers.PrerequisiteStatValue(StatType.Intelligence, 10 + i),
-                                              Helpers.PrerequisiteStatValue(StatType.Charisma, 10 + i),
-                                              Common.createPrerequisiteClassSpellLevel(shaman_class, i)
+                                              Helpers.PrerequisiteStatValue(hex_engine.hex_secondary_stat, 10 + i),
+                                              Common.createPrerequisiteClassSpellLevel(hex_engine.hex_classes[0], i)
                                               );
-                    learn_spell.SetName(Helpers.CreateString($"ShamanArcaneEnlightenmentParametrizedFeature{i + 1}.Name", "Arcane Enlightenment " + $"(level {i})"));
+                    learn_spell.SetName(Helpers.CreateString(prefix + $"ArcaneEnlightenmentParametrizedFeature{i + 1}.Name", "Arcane Enlightenment " + $"(level {i})"));
                     learn_spell.SetDescription(learn_selection.Description);
                     learn_spell.SetIcon(learn_selection.Icon);
 
                     learn_selection.AllFeatures = learn_selection.AllFeatures.AddToArray(learn_spell);
                 }
 
-                greater_spirit_ability = Helpers.CreateProgression("ShamanArcaneEnlightenmentProgression",
+                greater_spirit_ability = Helpers.CreateProgression(prefix + "ArcaneEnlightenmentProgression",
                                                                    learn_selection.Name,
                                                                    learn_selection.Description,
                                                                    "",
                                                                    learn_selection.Icon,
                                                                    FeatureGroup.None);
-
-                greater_spirit_ability_wandering = library.CopyAndAdd<BlueprintProgression>(greater_spirit_ability.AssetGuid, "ShamanArcaneEnlightenmentWanderingFeatureSelection", "");
-
+        
                 var entries = new List<LevelEntry>();
                 for (int i = 8; i <= 20; i = i + 2)
                 {
@@ -225,14 +260,18 @@ namespace CallOfTheWild
                     entries.Add(Helpers.LevelEntry(i, learn_selection));
                 }
 
-                (greater_spirit_ability_wandering as BlueprintProgression).LevelEntries = entries.ToArray();
+                if (need_secondary)
+                {
+                    greater_spirit_ability_wandering = library.CopyAndAdd<BlueprintProgression>(greater_spirit_ability.AssetGuid, prefix + "ArcaneEnlightenmentWanderingFeatureSelection", "");
+                    (greater_spirit_ability_wandering as BlueprintProgression).LevelEntries = entries.ToArray();
+                }
             }
 
 
-            static void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
                 var icon = library.Get<BlueprintActivatableAbility>("1f7e326d3a88fd84985a60e416388c27").Icon; //judgement resilence
-                true_spirit_ability = Helpers.CreateFeature("ShamanPerfectKnowledgeFeature",
+                true_spirit_ability = Helpers.CreateFeature(prefix + "PerfectKnowledgeFeature",
                                                             "Perfect Knowledge",
                                                             "Shaman gains a +10 competence bonus on all Lore and Knowledge checks.",
                                                             "",
@@ -246,14 +285,14 @@ namespace CallOfTheWild
             }
 
 
-            static void createManifestation()
+            void createManifestation()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanLoreManifestationResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix +"LoreManifestationResource", "", "", "", null);
                 resource.SetFixedResource(1);
                 var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png");
                 var skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion };
 
-                var wish_variants = NewSpells.createWishSpellLevelVariants("ShamanLoreManifestationWish",
+                var wish_variants = NewSpells.createWishSpellLevelVariants(prefix + "LoreManifestationWish",
                                                                            "Manifestation: Wish",
                                                                            "This ability allows you to cast any sorcerer/wizard spell of 8th level or lower, or any other spell of 7th level or lower. You can not cast spells requiring expensive material components.",
                                                                            icon,
@@ -263,10 +302,10 @@ namespace CallOfTheWild
                                                                            allow_metamagic: false,
                                                                            allow_spells_with_material_components: false,
                                                                            resource: resource,
-                                                                           additional_components: new BlueprintComponent[] {Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom)}
+                                                                           additional_components: new BlueprintComponent[] {Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat)}
                                                                            );
 
-                manifestation = Helpers.CreateFeature("ShamanLoreManifestationFeature",
+                manifestation = Helpers.CreateFeature(prefix + "LoreManifestationFeature",
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes an unending font of knowledge and lore. She can take 20 on all Knowledge skill checks, including those she isn’t trained in. Her understanding of the fundamental underpinnings of reality has also become so advanced that she can cast wish once per day. This doesn’t require a material component, but the wish cannot be used to grant ability score bonuses or replicate spells with expensive material components.",
                                                       "",

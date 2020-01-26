@@ -11,6 +11,7 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
@@ -64,7 +65,7 @@ namespace CallOfTheWild.Archetypes
         static LibraryScriptableObject library => Main.library;
 
 
-        internal static void Create()
+        internal static void create()
         {
             var bard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
             createSpellbook();
@@ -103,6 +104,11 @@ namespace CallOfTheWild.Archetypes
             bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery, precise_minstrel, arrowsong_strike));
             bard_class.Archetypes = bard_class.Archetypes.AddToArray(archetype);
 
+
+            archetype.ReplaceStartingEquipment = true;
+            var starting_items = library.Get<BlueprintArchetype>("44388c01eb4a29d4d90a25cc0574320d").StartingItems; //from eldritch archer
+            //replace scroll of snowball with cure light wounds
+            archetype.StartingItems = starting_items.RemoveFromArray(library.Get<BlueprintItemEquipmentUsable>("66fc961f9c39ae94fb87a79adc87212e")).AddToArray(library.Get<BlueprintItemEquipmentUsable>("cd635d5720937b044a354dba17abad8d"));
             addToPrestigeClasses();
         }
 
@@ -241,7 +247,7 @@ namespace CallOfTheWild.Archetypes
             spellbook.SpellsPerDay = Common.increaseNumSpellsCast("ArrowsongMinstrellSpellPerDay", "", bard_class.Spellbook.SpellsPerDay, -1);
             spellbook.SpellsKnown = bard_class.Spellbook.SpellsKnown;
             spellbook.Spontaneous = true;
-            spellbook.IsArcane = false;
+            spellbook.IsArcane = true;
             spellbook.AllSpellsKnown = false;
             spellbook.CanCopyScrolls = false;
             spellbook.CastingAttribute = StatType.Charisma;

@@ -107,6 +107,18 @@ namespace CallOfTheWild
         static public BlueprintAbility spirit_call; //+4 concentration checks and +1 cl for spells from primary spirit or druid domain 1minute/level for everyone around shaman
         static public BlueprintAbility font_of_spirit_magic; //+2 spell penetartion and dc of spells from spirit/wandering spirit to all allies for 1 round/level (for diamond dust)
 
+        static SpiritsEngine spirits_engine;
+        static public SpiritsEngine.BattleSpirit battle_spirit;
+        static public SpiritsEngine.BonesSpirit bones_spirit;
+        static public SpiritsEngine.FlameSpirit flame_spirit;
+        static public SpiritsEngine.LifeSpirit life_spirit;
+        static public SpiritsEngine.HeavensSpirit heavens_spirit;
+        static public SpiritsEngine.LoreSpirit lore_spirit;
+        static public SpiritsEngine.NatureSpirit nature_spirit;
+
+        static public SpiritsEngine.StoneSpirit stone_spirit;
+        static public SpiritsEngine.WavesSpirit waves_spirit;
+        static public SpiritsEngine.WindSpirit wind_spirit;
 
         public class Spirit
         {
@@ -676,7 +688,7 @@ namespace CallOfTheWild
                                     Helpers.Create<LearnSpellList>(l => { l.CharacterClass = shaman_class; l.SpellList = controlling_magic_spell_list; })
                                     );
             feature.HideInCharacterSheetAndLevelUp = true;
-            WavesSpirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(controlling_magic, feature));
+            waves_spirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(controlling_magic, feature));
 
             overseer_archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
@@ -1067,16 +1079,30 @@ namespace CallOfTheWild
 
         static void createSpirits()
         {
-            spirits.Add("Battle", BattleSpirit.create());
-            spirits.Add("Bones", BonesSpirit.create());
-            spirits.Add("Flame", FlameSpirit.create());
-            spirits.Add("Stone", StoneSpirit.create());
-            spirits.Add("Waves", WavesSpirit.create());
-            spirits.Add("Wind", WindSpirit.create());
-            spirits.Add("Nature", NatureSpirit.create());
-            spirits.Add("Life", LifeSpirit.create());
-            spirits.Add("Lore", LoreSpirit.create());
-            spirits.Add("Heavens", HeavensSpirit.create());
+            spirits_engine = new SpiritsEngine(hex_engine);
+
+            battle_spirit = new SpiritsEngine.BattleSpirit();
+            bones_spirit = new SpiritsEngine.BonesSpirit();
+            flame_spirit = new SpiritsEngine.FlameSpirit();
+            heavens_spirit = new SpiritsEngine.HeavensSpirit();
+            life_spirit = new SpiritsEngine.LifeSpirit();
+            lore_spirit = new SpiritsEngine.LoreSpirit();
+            nature_spirit = new SpiritsEngine.NatureSpirit();
+            stone_spirit = new SpiritsEngine.StoneSpirit();
+            waves_spirit = new SpiritsEngine.WavesSpirit();
+            wind_spirit = new SpiritsEngine.WindSpirit();
+
+
+            spirits.Add("Battle", battle_spirit.createShamanSpirit(hex_engine, "Shaman", "", test_mode));
+            spirits.Add("Bones", bones_spirit.createShamanSpirit(hex_engine, "Shaman", "", test_mode));
+            spirits.Add("Flame", flame_spirit.createShamanSpirit(hex_engine, "Shaman", test_mode));
+            spirits.Add("Stone", stone_spirit.createShamanSpirit(hex_engine, "Shaman", test_mode));
+            spirits.Add("Waves", waves_spirit.createShamanSpirit(hex_engine, "Shaman", test_mode));
+            spirits.Add("Wind", wind_spirit.createShamanSpirit(hex_engine, "Shaman", test_mode));
+            spirits.Add("Nature", nature_spirit.createShamanSpirit(hex_engine, "Shaman", test_mode));      
+            spirits.Add("Lore", lore_spirit.createShamanSpirit(hex_engine, "Shaman", "", test_mode));
+            spirits.Add("Heavens", heavens_spirit.createShamanSpirit(hex_engine, "Shaman", test_mode));
+            spirits.Add("Life", life_spirit.createShamanSpirit(hex_engine, "Shaman", "", "Extra Channel (Shaman Life Spirit)", test_mode));
 
 
             foreach (var s in spirits)
@@ -1091,7 +1117,7 @@ namespace CallOfTheWild
                                                     );
                 feature.HideInCharacterSheetAndLevelUp = true;
 
-                WavesSpirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(s.Value.spirit_magic_spells, feature));
+                waves_spirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(s.Value.spirit_magic_spells, feature));
             }
 
 
@@ -1265,8 +1291,9 @@ namespace CallOfTheWild
             shaman_familiar = library.CopyAndAdd<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183", "ShamanSpiritAnimal", "dc6e4b01140349e39806ace27ed1140e");
             shaman_familiar.DlcType = Kingmaker.Blueprints.Root.DlcType.None;
             shaman_familiar.ComponentsArray = new BlueprintComponent[0];
-            shaman_familiar.SetNameDescription("Spirit Animal",
-                                               "At 1st level, a shaman forms a close bond with a spirit animal tied to her chosen spirit. This animal is her conduit to the spirit world, guiding her along the path to enlightenment. The animal also aids a shaman by granting her a special ability. A shaman must commune with her spirit animal each day to prepare her spells. While the spirit animal does not store the spells like a witch’s familiar does, the spirit animal serves as her conduit to divine power. If a shaman’s spirit animal is slain, she cannot prepare new spells or use her spirit magic class feature until the spirit animal is replaced.");
+            shaman_familiar.SetNameDescriptionIcon("Spirit Animal",
+                                                   "At 1st level, a shaman forms a close bond with a spirit animal tied to her chosen spirit. This animal is her conduit to the spirit world, guiding her along the path to enlightenment. The animal also aids a shaman by granting her a special ability. A shaman must commune with her spirit animal each day to prepare her spells. While the spirit animal does not store the spells like a witch’s familiar does, the spirit animal serves as her conduit to divine power. If a shaman’s spirit animal is slain, she cannot prepare new spells or use her spirit magic class feature until the spirit animal is replaced.",
+                                                   Helpers.GetIcon("1194129055923ae46a6b876ff6a30358"));
         }
 
 

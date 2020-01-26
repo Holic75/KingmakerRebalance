@@ -114,8 +114,8 @@ namespace CallOfTheWild
                                                                                    library.Get<BlueprintFeatureSelection>("ee63330662126374e8785cc901941ac7"), //ranger
                                                                                    library.Get<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67"), //sacred huntsmaster
                                                                                    library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c"), //sylvan sorcerer
-                                                                                   Shaman.NatureSpirit.true_spirit_ability as BlueprintFeatureSelection,
-                                                                                   Shaman.NatureSpirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
+                                                                                   Shaman.nature_spirit.true_spirit_ability as BlueprintFeatureSelection,
+                                                                                   Shaman.nature_spirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
                                                                                    };
         public static BlueprintFeatureSelection familiar_selection = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183"); //rogue familiar
                                                                                                      

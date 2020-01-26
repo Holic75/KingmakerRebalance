@@ -42,24 +42,60 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    partial class Shaman
+    public partial class SpiritsEngine
     {
-        internal class BonesSpirit
+        public class BonesSpirit
         {
-            internal static BlueprintFeature spirit_ability;
-            internal static BlueprintFeature greater_spirit_ability;
-            internal static BlueprintFeature true_spirit_ability;
-            internal static BlueprintFeature manifestation;
-            internal static BlueprintFeature bone_lock_hex;
-            internal static BlueprintFeature bone_ward_hex;
-            internal static BlueprintFeature deathly_being_hex;
-            internal static BlueprintFeature fearful_gaze_hex;
-            internal static BlueprintAbility[] spells;
-            internal static BlueprintFeature[] hexes;
+            public  BlueprintFeature spirit_ability;
+            public  BlueprintFeature greater_spirit_ability;
+            public  BlueprintFeature true_spirit_ability;
+            public  BlueprintFeature manifestation;
+            public  BlueprintFeature bone_lock_hex;
+            public  BlueprintFeature bone_ward_hex;
+            public  BlueprintFeature deathly_being_hex;
+            public  BlueprintFeature fearful_gaze_hex;
+            public  BlueprintAbility[] spells;
+            public  BlueprintFeature[] hexes;
 
-            internal static Spirit create()
+            HexEngine hex_engine;
+            string prefix;
+            string touch_of_the_grave_prefix;
+            bool test_mode;
+
+
+            public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, string touch_of_the_grave_asset_prefix,  bool test = false)
             {
-                createDeathlyBeingHex();
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                touch_of_the_grave_prefix = touch_of_the_grave_asset_prefix;
+
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createManifestation();
+
+                return new Archetypes.SpiritWhisperer.Spirit("Bones",
+                                                            "Bones",
+                                                            "A shaman who selects the bones spirit is cadaverously thin, with sunken eye sockets and dead eyes that stare off into the distance. Her body has a faint smell of the grave. When she calls upon one of this spirit’s abilities, a ghostly wind whips her hair and clothes about, and the unpleasant stench becomes more prominent.",
+                                                            manifestation.Icon,
+                                                            "",
+                                                            spirit_ability,
+                                                            greater_spirit_ability,
+                                                            manifestation,
+                                                            hexes);
+            }
+
+
+            public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, string touch_of_the_grave_asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                touch_of_the_grave_prefix = touch_of_the_grave_asset_prefix;
+
+                createHexes();
 
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -79,30 +115,8 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("b24583190f36a8442b212e45226c54fc"), //wail of banshee
                 };
 
-                bone_lock_hex = hex_engine.createBoneLock("ShamanBoneLock",
-                                                            "Bone Lock",
-                                                            "With a quick incantation, the shaman causes a creature within 30 feet to suffer stiffness in the joints and bones, causing the target to be staggered 1 round. A successful Fortitude saving throw negates this effect. At 8th level, the duration is increased to a number of rounds equal to her shaman level, though the target can attempt a save each round to end the effect if its initial saving throw fails. At 16th level, the target can no longer attempt a saving throw each round to end the effect, although it still attempts the initial Fortitude saving throw to negate the effect entirely."
-                                                            );
 
-                bone_ward_hex = hex_engine.createBoneWard("ShamanBoneWard",
-                                                        "Bone Ward",
-                                                        "A shaman touches a willing creature (including herself ) and grants a bone ward. The warded creature becomes encircled by a group of flying bones that grant it a +2 deflection bonus to AC for a number of rounds equal to the shaman’s level. At 8th level, the ward increases to +3 and lasts for 1 minute. At 16th level, the bonus increases to +4 and lasts for 1 hour. A creature affected by this hex cannot be affected by it again for 24 hours."
-                                                        );
-
-                fearful_gaze_hex = hex_engine.createFearfulGaze("ShamanFearfulGaze",
-                                                                "Fearful Gaze",
-                                                                "With a single shout, the shaman causes one target creature within 30 feet to become shaken for 1 round. A successful Will saving throw negates this effect. At 8th level, she makes the target frightened instead. At 16th level, she makes it panicked instead. This is a mind-affecting fear effect. A creature affected by this hex cannot be affected by it again for 24 hours."
-                                                               );
-                hexes = new BlueprintFeature[]
-                {
-                    bone_ward_hex,
-                    bone_lock_hex,
-                    fearful_gaze_hex,
-                    deathly_being_hex,
-                };
-
-
-                return new Spirit("Bones",
+                return new Shaman.Spirit("Bones",
                                   "Bones",
                                   "A shaman who selects the bones spirit is cadaverously thin, with sunken eye sockets and dead eyes that stare off into the distance. Her body has a faint smell of the grave. When she calls upon one of this spirit’s abilities, a ghostly wind whips her hair and clothes about, and the unpleasant stench becomes more prominent.",
                                   manifestation.Icon,
@@ -116,14 +130,42 @@ namespace CallOfTheWild
             }
 
 
-            static internal void createDeathlyBeingHex()
+            void createHexes()
+            {
+                createDeathlyBeingHex();
+                bone_lock_hex = hex_engine.createBoneLock(prefix + "BoneLock",
+                                            "Bone Lock",
+                                            "With a quick incantation, the shaman causes a creature within 30 feet to suffer stiffness in the joints and bones, causing the target to be staggered 1 round. A successful Fortitude saving throw negates this effect. At 8th level, the duration is increased to a number of rounds equal to her shaman level, though the target can attempt a save each round to end the effect if its initial saving throw fails. At 16th level, the target can no longer attempt a saving throw each round to end the effect, although it still attempts the initial Fortitude saving throw to negate the effect entirely."
+                                            );
+
+                bone_ward_hex = hex_engine.createBoneWard(prefix + "BoneWard",
+                                                        "Bone Ward",
+                                                        "A shaman touches a willing creature (including herself ) and grants a bone ward. The warded creature becomes encircled by a group of flying bones that grant it a +2 deflection bonus to AC for a number of rounds equal to the shaman’s level. At 8th level, the ward increases to +3 and lasts for 1 minute. At 16th level, the bonus increases to +4 and lasts for 1 hour. A creature affected by this hex cannot be affected by it again for 24 hours."
+                                                        );
+
+                fearful_gaze_hex = hex_engine.createFearfulGaze(prefix + "FearfulGaze",
+                                                                "Fearful Gaze",
+                                                                "With a single shout, the shaman causes one target creature within 30 feet to become shaken for 1 round. A successful Will saving throw negates this effect. At 8th level, she makes the target frightened instead. At 16th level, she makes it panicked instead. This is a mind-affecting fear effect. A creature affected by this hex cannot be affected by it again for 24 hours."
+                                                               );
+
+                hexes = new BlueprintFeature[]
+                {
+                    bone_ward_hex,
+                    bone_lock_hex,
+                    fearful_gaze_hex,
+                    deathly_being_hex,
+                };
+            }
+
+
+            void createDeathlyBeingHex()
             {
                 var icon = library.Get<BlueprintFeature>("b0acce833384b9b428f32517163c9117").Icon; //deaths_embrace
 
                 var energy_drain_immunity_feature = library.Get<BlueprintFeature>("efe0344bca1290244a277ed5c45d9ff2");
                 energy_drain_immunity_feature.HideInCharacterSheetAndLevelUp = true;
 
-                var living_feature1 = Helpers.CreateFeature("ShamanDeathlyBeingLiving1Feature",
+                var living_feature1 = Helpers.CreateFeature(prefix + "DeathlyBeingLiving1Feature",
                                             "Deathly Being",
                                             "",
                                             "",
@@ -134,18 +176,18 @@ namespace CallOfTheWild
                                             );
                 living_feature1.HideInUI = true;
 
-                var living_feature2 = Helpers.CreateFeature("ShamanDeathlyBeingLiving2Feature",
+                var living_feature2 = Helpers.CreateFeature(prefix + "DeathlyBeingLiving2Feature",
                                                             "",
                                                             "",
                                                             "",
                                                             icon,
                                                             FeatureGroup.None,
                                                             Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Death),
-                                                            Helpers.CreateAddFeatureOnClassLevel(energy_drain_immunity_feature, 16, getShamanArray())
+                                                            Helpers.CreateAddFeatureOnClassLevel(energy_drain_immunity_feature, 16, hex_engine.hex_classes)
                                                             );
                 living_feature1.HideInUI = true;
 
-                var undead_feature1 = Helpers.CreateFeature("ShamanDeathlyBeingUndead1Feature",
+                var undead_feature1 = Helpers.CreateFeature(prefix + "DeathlyBeingUndead1Feature",
                                           "",
                                           "",
                                           "",
@@ -160,7 +202,7 @@ namespace CallOfTheWild
                                                                                                 )
                                           );
 
-                var undead_feature2 = Helpers.CreateFeature("ShamanDeathlyBeingUndead2Feature",
+                var undead_feature2 = Helpers.CreateFeature(prefix + "DeathlyBeingUndead2Feature",
                                                           "",
                                                           "",
                                                           "",
@@ -172,7 +214,7 @@ namespace CallOfTheWild
                                                               c.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                                                               c.BypassFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("3d8e38c9ed54931469281ab0cec506e9") }; //sun domain
                                                           }),
-                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(),
+                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes,
                                                                                           progression: ContextRankProgression.Custom,
                                                                                           customProgression: new (int, int)[2] {(15, 1), (20, 3) }, type: AbilityRankType.StatBonus)
                                                           );
@@ -180,7 +222,7 @@ namespace CallOfTheWild
 
 
                 var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
-                var deathly_being_hex2 = Helpers.CreateFeature("ShamanDeathlyBeing2Feature",
+                var deathly_being_hex2 = Helpers.CreateFeature(prefix + "DeathlyBeing2Feature",
                                             "",
                                             "",
                                             "",
@@ -191,7 +233,7 @@ namespace CallOfTheWild
                                             );
                 deathly_being_hex2.HideInUI = true;
 
-                deathly_being_hex = Helpers.CreateFeature("ShamanDeathlyBeingFeature",
+                deathly_being_hex = Helpers.CreateFeature(prefix + "DeathlyBeingFeature",
                                                           "Deathly Being",
                                                           "If the shaman is a living creature, she reacts to positive and negative energy as if she were undead—positive energy harms her, while negative energy heals her. If she’s an undead creature or a creature with the negative energy affinity ability, she gains a +1 bonus to her channel resistance. At 8th level, if she’s a living creature she gains a +4 bonus on saves against death effects and effects that drain energy, or if she’s an undead creature her bonus to channel resistance increases to +2.\n"
                                                           + "At 16th level, if the shaman a living creature, she takes no penalties from energy drain effects, though she can still be killed if she accrues more negative levels than she has Hit Dice. Furthermore, after 24 hours any negative levels the shaman has are removed without requiring her to succeed at an additional saving throw. If the shaman is an undead creature, her bonus to channel resistance increases to +4.",
@@ -200,15 +242,15 @@ namespace CallOfTheWild
                                                           FeatureGroup.None,
                                                           Helpers.Create<UndeadMechanics.AddFeatureIfHasNegativeEnergyAffinity>(a => { a.Feature = living_feature1; a.inverted = true; }),
                                                           Helpers.Create<UndeadMechanics.AddFeatureIfHasNegativeEnergyAffinity>(a => { a.Feature = undead_feature1; a.inverted = true; }),
-                                                          Helpers.CreateAddFeatureOnClassLevel(deathly_being_hex2, 8, getShamanArray())
+                                                          Helpers.CreateAddFeatureOnClassLevel(deathly_being_hex2, 8, hex_engine.hex_classes)
                                                           );
             }
 
 
-            static void createSpiritAbility()
+            void createSpiritAbility()
             {
-                var resource = Helpers.CreateAbilityResource("TouchOfTheGraveResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, StatType.Charisma);
+                var resource = Helpers.CreateAbilityResource(touch_of_the_grave_prefix + "TouchOfTheGraveResource", "", "", "", null);
+                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
                 var inflict_light_wounds = library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
 
                 var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)));
@@ -216,7 +258,7 @@ namespace CallOfTheWild
 
                 var effect = Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(), heal, dmg);
 
-                var touch_of_the_grave_ability = Helpers.CreateAbility("TouchOfGraveAbility",
+                var touch_of_the_grave_ability = Helpers.CreateAbility(touch_of_the_grave_prefix + "TouchOfGraveAbility",
                                                                        "Touch of the Grave",
                                                                        "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier",
                                                                        "",
@@ -230,7 +272,7 @@ namespace CallOfTheWild
                                                                        inflict_light_wounds.GetComponent<AbilityTargetHasFact>(),
                                                                        inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                                        inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
-                                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray(),
+                                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes,
                                                                                                        progression: ContextRankProgression.Div2)
                                                                       );
                 touch_of_the_grave_ability.setMiscAbilityParametersTouchHarmful(true);
@@ -239,7 +281,7 @@ namespace CallOfTheWild
 
                 var unholy = library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453");
 
-                var unholy_weapon_feature = Helpers.CreateFeature("TouchOfTheGraveUnholyWeaponFeature",
+                var unholy_weapon_feature = Helpers.CreateFeature(touch_of_the_grave_prefix + "TouchOfTheGraveUnholyWeaponFeature",
                                                               "",
                                                               "",
                                                               "",
@@ -252,19 +294,19 @@ namespace CallOfTheWild
 
                 spirit_ability = Common.AbilityToFeature(touch_of_the_grave_ability_sticky, false);
                 spirit_ability.SetDescription("As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon that the shaman wields is treated as an unholy weapon.");
-                spirit_ability.AddComponents(Helpers.CreateAddFeatureOnClassLevel(unholy_weapon_feature, 11, getShamanArray()),
+                spirit_ability.AddComponents(Helpers.CreateAddFeatureOnClassLevel(unholy_weapon_feature, 11, hex_engine.hex_classes),
                                              Helpers.CreateAddAbilityResource(resource));
             }
 
 
-            static void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {           
-                var resource = Helpers.CreateAbilityResource("ShamanShardSoulResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "ShardSoulResource", "", "", "", null);
                 resource.SetFixedResource(3);
 
                 var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ShardSoul.png");
 
-                var cooldown_buff = Helpers.CreateBuff("ShamanShardSoulCooldownBuff",
+                var cooldown_buff = Helpers.CreateBuff(prefix + "ShardSoulCooldownBuff",
                                                        "Shard Soul: Cooldown",
                                                        "As a standard action Shaman can cause jagged pieces of bone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage for every 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                                        "",
@@ -279,7 +321,7 @@ namespace CallOfTheWild
                                                       Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg))
                                                       );
 
-                var shard_soul_ability = Helpers.CreateAbility("ShamanShardSoulAbility",
+                var shard_soul_ability = Helpers.CreateAbility(prefix + "ShardSoulAbility",
                                                                "Shard Soul",
                                                                cooldown_buff.Description,
                                                                "",
@@ -291,10 +333,10 @@ namespace CallOfTheWild
                                                                Helpers.reflexHalfDamage,
                                                                Helpers.CreateRunActions(effect),
                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
-                                                                                               classes: getShamanArray()),
+                                                                                               classes: hex_engine.hex_classes),
                                                                Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any),
                                                                Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster),
-                                                               Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                               Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
                                                                Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                                                Common.createAbilityCasterHasNoFacts(cooldown_buff),
                                                                Helpers.CreateResourceLogic(resource)
@@ -305,24 +347,24 @@ namespace CallOfTheWild
                 greater_spirit_ability = Common.AbilityToFeature(shard_soul_ability, false);
                 greater_spirit_ability.AddComponents(Common.createMagicDR(Helpers.CreateContextValue(AbilityRankType.Default)),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
-                                                                                     classes: getShamanArray(), stepLevel: 4),
+                                                                                     classes: hex_engine.hex_classes, stepLevel: 4),
                                                      Helpers.CreateAddAbilityResource(resource)
                                                     );
                 greater_spirit_ability.SetDescription("The shaman gains DR 3/magic. This DR increases by 1 for every 4 shaman levels she possesses beyond 8th. In addition, as a standard action she can cause jagged pieces of bone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage for every 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.");
             }
 
 
-            static void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanSheddingFormResource", "", "", "", null);
-                resource.SetIncreasedByLevel(0, 1, getShamanArray());
+                var resource = Helpers.CreateAbilityResource(prefix + "SheddingFormResource", "", "", "", null);
+                resource.SetIncreasedByLevel(0, 1, hex_engine.hex_classes);
 
-                var buff = library.CopyAndAdd<BlueprintBuff>("e82c0ec9a87a8514ba34fad5926ef129", "ShamanSheddingForm", "");
+                var buff = library.CopyAndAdd<BlueprintBuff>("e82c0ec9a87a8514ba34fad5926ef129", prefix + "SheddingForm", "");
                 buff.AddComponent(Common.createAddOutgoingGhost());
                 buff.SetNameDescription("Shedding Form",
                                         "As a standard action, the shaman sheds her body and becomes incorporeal. While in this form, all of her weapon attacks are considered to have the ghost touch weapon special ability. The shaman can use this ability for a number of rounds equal to her shaman level, though those rounds do not need to be consecutive.");
 
-                var ability = Helpers.CreateActivatableAbility("ShamanSheddingFormAbility",
+                var ability = Helpers.CreateActivatableAbility(prefix + "SheddingFormAbility",
                                                                buff.Name,
                                                                buff.Description,
                                                                "",
@@ -338,15 +380,15 @@ namespace CallOfTheWild
             }
 
 
-            static void createManifestation()
+            void createManifestation()
             {
-                var animate_dead = library.CopyAndAdd<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27", "ShamanBonesManifestationAnimateDeadAbility", "");
+                var animate_dead = library.CopyAndAdd<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27", prefix + "BonesManifestationAnimateDeadAbility", "");
                 animate_dead.Type = AbilityType.Supernatural;
                 animate_dead.RemoveComponents<SpellListComponent>();
                 animate_dead.RemoveComponents<SpellComponent>();
-                animate_dead.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getShamanArray()));
+                animate_dead.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes));
 
-                var power_word_kill = library.CopyAndAdd<BlueprintAbility>("2f8a67c483dfa0f439b293e094ca9e3c", "ShamanBonesManifestationPowerWordKillAbility", "");
+                var power_word_kill = library.CopyAndAdd<BlueprintAbility>("2f8a67c483dfa0f439b293e094ca9e3c", prefix + "BonesManifestationPowerWordKillAbility", "");
                 power_word_kill.RemoveComponents<SpellListComponent>();
                 power_word_kill.RemoveComponents<SpellComponent>();
                 power_word_kill.Type = AbilityType.Supernatural;
@@ -356,11 +398,11 @@ namespace CallOfTheWild
                                                                    c => c.ConditionsChecker = Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionCompareTargetHP>(h => h.Value = 151))
                                                                    );
                 power_word_kill.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
-                var resource = Helpers.CreateAbilityResource("ShamanBonesManifestationResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "BonesManifestationResource", "", "", "", null);
                 resource.SetFixedResource(1);
                 power_word_kill.AddComponent(Helpers.CreateResourceLogic(resource));
 
-                manifestation = Helpers.CreateFeature("ShamanBonesManifestationFeature",
+                manifestation = Helpers.CreateFeature(prefix + "BonesManifestationFeature",
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a spirit of death. She can cast animate dead at will without paying a material component cost, although she is still subject to the usual Hit Dice control limit. Once per day, she can cast power word kill, but the spell can target a creature with 150 hit points or fewer.",
                                                       "",

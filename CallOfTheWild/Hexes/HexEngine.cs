@@ -62,8 +62,9 @@ namespace CallOfTheWild
         static BlueprintBuff amplified_hex_buff;
         static private BlueprintAbility[] amplified_hex_sacrifice_spells = new BlueprintAbility[10];
 
-        private BlueprintCharacterClass[] hex_classes;
-        private StatType hex_stat;
+        public BlueprintCharacterClass[] hex_classes;
+        public StatType hex_stat;
+        public StatType hex_secondary_stat;
         private List<BlueprintBuff> cackle_buffs = new List<BlueprintBuff>();
 
 
@@ -75,13 +76,21 @@ namespace CallOfTheWild
             Main.logger.Log("Hex Engine test mode: " + test_mode.ToString());
         }
 
-        public HexEngine(BlueprintCharacterClass[] scaling_classes, StatType scaling_stat)
+        public HexEngine(BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, StatType secondary_scaling_stat = StatType.Charisma, BlueprintArchetype archetype = null)
         {
             hex_classes = scaling_classes;
             hex_stat = scaling_stat;
+            hex_secondary_stat = secondary_scaling_stat;
             foreach (var c in hex_classes)
             {
-                amplified_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
+                if (archetype == null)
+                {
+                    amplified_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
+                }
+                else
+                {
+                    amplified_hex_feat.AddComponent(Common.createPrerequisiteArchetypeLevel(c, archetype, 1, true));
+                }
                 var conversion_feature = Helpers.CreateFeature(c.name + "AmblifiedHexSpontaneousConversion",
                                                                "",
                                                                "",
@@ -93,8 +102,15 @@ namespace CallOfTheWild
                 conversion_feature.HideInCharacterSheetAndLevelUp = true;
 
                 amplified_hex_feat.AddComponent(Helpers.CreateAddFeatureOnClassLevel(conversion_feature, 1, new BlueprintCharacterClass[] { c }));
-                accursed_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
 
+                if (archetype == null)
+                {
+                    accursed_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
+                }
+                else
+                {
+                    accursed_hex_feat.AddComponent(Common.createPrerequisiteArchetypeLevel(c, archetype, 1, true));
+                }
             }
             //manually add hex_vilneraility to all necessary spellbooks
             //and create scroll once

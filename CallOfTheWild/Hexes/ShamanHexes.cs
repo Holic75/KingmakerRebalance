@@ -554,12 +554,12 @@ namespace CallOfTheWild
             var boneshaker = library.Get<BlueprintAbility>("b7731c2b4fa1c9844a092329177be4c3");
 
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
-            var staggered_save = library.CopyAndAdd<BlueprintBuff>(staggered, "BoneLockStaggeredSaveEachRound", "");
+            var staggered_save = library.CopyAndAdd<BlueprintBuff>(staggered, name_prefix + "BoneLockStaggeredSaveEachRound", "");
             staggered_save.ReplaceComponent<BuffStatusCondition>(b => { b.SaveEachRound = true; b.SaveType = SavingThrowType.Fortitude;});
 
             var apply1 = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1), dispellable: false);
             var apply8 = Common.createContextActionApplyBuff(staggered_save, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
-            var apply16 = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1), dispellable: false);
+            var apply16 = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
 
             var saved_action = Helpers.CreateConditionalSaved(null, Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus),
                                                                                     Helpers.CreateActionList(apply1),
@@ -835,7 +835,7 @@ namespace CallOfTheWild
         public  BlueprintFeature createBeckoningChill(string name_prefix, string display_name, string description)
         {
             var icon = library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931").Icon;
-            var entangle = library.CopyAndAdd<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38", "BeckoningChillEntangle", "");
+            var entangle = library.CopyAndAdd<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38", name_prefix + "BeckoningChillEntangle", "");
 
             entangle.Stacking = StackingType.Prolong;
             entangle.FxOnStart = Common.createPrefabLink("21b65d177b9db1d4ca4961de15645d95");
@@ -1156,7 +1156,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(action),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, progression: ContextRankProgression.AsIs,
-                                                                                type: AbilityRankType.StatBonus, min: 1, stat: StatType.Charisma)
+                                                                                type: AbilityRankType.StatBonus, min: 1, stat: hex_secondary_stat)
                                                );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "", cooldown_only_on_success: true);
@@ -1201,12 +1201,39 @@ namespace CallOfTheWild
                                                 description,
                                                 "",
                                                 icon,
-                                                FeatureGroup.None,
-                                                Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Wisdom; }),
-                                                Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Wisdom; }),
-                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
-                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                                FeatureGroup.None
                                                );
+
+            if (hex_stat == StatType.Wisdom)
+            {
+
+                feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Wisdom; }),
+                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Wisdom; }),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                     );
+            }
+            else if (hex_stat == StatType.Intelligence)
+            {
+                feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreNature; s.ReplacementStat = StatType.Intelligence; }),
+                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreReligion; s.ReplacementStat = StatType.Intelligence; }),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                      );
+            }
+            else if (hex_stat == StatType.Charisma)
+            {
+                feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreNature; s.ReplacementStat = StatType.Charisma; }),
+                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreReligion; s.ReplacementStat = StatType.Charisma; }),
+                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Charisma; }),
+                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Charisma; }),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                      );
+            }
+
+
             feature.Ranks = 1;
             return feature;
         }
@@ -1237,7 +1264,7 @@ namespace CallOfTheWild
                                                 "Reflex Negates",
                                                 Helpers.CreateRunActions(action),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, progression: ContextRankProgression.AsIs,
-                                                                                type: AbilityRankType.StatBonus, min: 1, stat: StatType.Charisma)
+                                                                                type: AbilityRankType.StatBonus, min: 1, stat: hex_secondary_stat)
                                                );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
@@ -1294,7 +1321,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Sacred),
                                           Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Sacred),
                                           Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Sacred),
-                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma,
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: hex_secondary_stat,
                                                                           min: 0)
                                          );
 
@@ -1653,7 +1680,7 @@ namespace CallOfTheWild
             });
             buff.AddComponents(on_hit,
                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, progression: ContextRankProgression.AsIs,
-                                                                           type: AbilityRankType.DamageBonus, stat: StatType.Charisma)
+                                                                           type: AbilityRankType.DamageBonus, stat: hex_secondary_stat)
                                );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus)), dispellable: false);
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
@@ -1773,7 +1800,7 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Starburn.png");
             var resource = Helpers.CreateAbilityResource(name_prefix + "HexResource", "", "", "", null);
-            resource.SetIncreasedByStat(1, StatType.Charisma); //will make it 1 + charisma
+            resource.SetIncreasedByStat(1, hex_secondary_stat); //will make it 1 + charisma
 
             var faerie_fire_buff = library.Get<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54");
    

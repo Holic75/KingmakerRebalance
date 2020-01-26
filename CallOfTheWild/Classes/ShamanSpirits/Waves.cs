@@ -44,25 +44,59 @@ using Kingmaker.UnitLogic.Buffs;
 
 namespace CallOfTheWild
 {
-    partial class Shaman
+    partial class SpiritsEngine
     {
-        internal class WavesSpirit
+        public class WavesSpirit
         {
-            internal static BlueprintFeature spirit_ability;
-            internal static BlueprintFeature greater_spirit_ability;
-            internal static BlueprintFeature true_spirit_ability;
-            internal static BlueprintFeature manifestation;
-            internal static BlueprintFeature fluid_magic;
-            internal static BlueprintFeature beckoning_chill;
-            internal static BlueprintFeature mists_shroud;
-            internal static BlueprintFeature crashing_waves;
-            internal static BlueprintAbility[] spells;
-            internal static BlueprintFeature[] hexes;
+            public BlueprintFeature spirit_ability;
+            public BlueprintFeature greater_spirit_ability;
+            public BlueprintFeature true_spirit_ability;
+            public BlueprintFeature manifestation;
+            public BlueprintFeature fluid_magic;
+            public BlueprintFeature beckoning_chill;
+            public BlueprintFeature mists_shroud;
+            public BlueprintFeature crashing_waves;
+            public BlueprintAbility[] spells;
+            public BlueprintFeature[] hexes;
 
-            internal static Spirit create()
+            HexEngine hex_engine;
+            string prefix;
+            bool test_mode;
+
+
+            public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
-                createFluidMagicHex();
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
 
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createManifestation();
+
+
+                return new Archetypes.SpiritWhisperer.Spirit("Waves",
+                                                              "Waves",
+                                                              "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
+                                                              library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon,//charged blast
+                                                              "",
+                                                              spirit_ability,
+                                                              greater_spirit_ability,
+                                                              manifestation,
+                                                              hexes.Skip(1).ToArray());
+            }
+
+
+            public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
+                
                 createSpiritAbility();
                 createGreaterSpiritAbility();
                 createTrueSpiritAbility();
@@ -81,17 +115,35 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
                 };
 
-                beckoning_chill = hex_engine.createBeckoningChill("ShamanBeckoningChill",
+
+                return new Shaman.Spirit("Waves",
+                                      "Waves",
+                                      "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
+                                      library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon,//charged blast
+                                      "",
+                                      spirit_ability,
+                                      greater_spirit_ability,
+                                      true_spirit_ability,
+                                      manifestation,
+                                      hexes,
+                                      spells);
+            }
+
+
+            void createHexes()
+            {
+                createFluidMagicHex();
+                beckoning_chill = hex_engine.createBeckoningChill(prefix + "BeckoningChill",
                                                                   "Beckoning Chill ",
                                                                   "The shaman causes one creature within 30 feet to become more susceptible to the sapping powers of cold for 1 minute. When a creature takes cold damage while under this effect, it is entangled for 1 round. Once affected, the creature cannot be the target of this hex again for 24 hours."
                                                                   );
 
-                crashing_waves = hex_engine.createCrashingWaves("ShamanCrashingWaves",
+                crashing_waves = hex_engine.createCrashingWaves(prefix + "CrashingWaves",
                                                                 "Crashing Waves",
                                                                 "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the cold descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts cold spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
                                                                 );
 
-                mists_shroud = hex_engine.createMistsShroud("ShamanMistsShroud",
+                mists_shroud = hex_engine.createMistsShroud(prefix + "MistsShroud",
                                                                 "Mist's Shroud",
                                                                 "The shaman touches a willing creature (including herself ) and enshrouds that creature in mist. This grants the creature concealment as the blur spell. The mist dissipates after it causes an attack to miss because of concealment or after 1 minute, whichever comes first. At 8th and 16th levels, the mist lasts for one additional attack. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                                );
@@ -102,25 +154,13 @@ namespace CallOfTheWild
                     mists_shroud,
                     fluid_magic,
                 };
-
-
-                return new Spirit("Waves",
-                                  "Waves",
-                                  "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
-                                  library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon,//charged blast
-                                  "",
-                                  spirit_ability,
-                                  greater_spirit_ability,
-                                  true_spirit_ability,
-                                  manifestation,
-                                  hexes,
-                                  spells);
             }
 
 
-            static internal void createFluidMagicHex()
+            public void createFluidMagicHex()
             {
-                fluid_magic = Helpers.CreateFeature("ShamanFluidMagic",
+                //will be empty, will need to fill it manually
+                fluid_magic = Helpers.CreateFeature(prefix + "FluidMagic",
                                                     "Fluid Magic",
                                                     "The shaman’s magic is not constrained by the reservoirs of magic that hold others back. She is able to prepare her spirit magic spells in her regular spell slots.",
                                                     "",
@@ -129,23 +169,23 @@ namespace CallOfTheWild
             }
 
 
-            static void createSpiritAbility()
+            void createSpiritAbility()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanIceSplinterResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, StatType.Charisma);
+                var resource = Helpers.CreateAbilityResource(prefix + "IceSplinterResource", "", "", "", null);
+                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
 
-                var ice_splinter = library.CopyAndAdd<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791", "ShamanIceSplinterAbility", ""); //water domain icicle 
+                var ice_splinter = library.CopyAndAdd<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791", prefix + "IceSplinterAbility", ""); //water domain icicle 
                 ice_splinter.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
                 ice_splinter.Type = AbilityType.Supernatural;
                 ice_splinter.SpellResistance = false;
                 ice_splinter.SetNameDescription("Ice Splinter",
                                                 "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d6 points of piercing damage + 1 point for every 2 shaman levels she has."
                                                 );
-                ice_splinter.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                ice_splinter.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
 
                 var frost = library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b");
 
-                var frost_weapon_feature = Helpers.CreateFeature("ShamanIceSplinterFrostWeaponFeature",
+                var frost_weapon_feature = Helpers.CreateFeature(prefix + "IceSplinterFrostWeaponFeature",
                                                               "",
                                                               "",
                                                               "",
@@ -156,7 +196,7 @@ namespace CallOfTheWild
 
                 frost_weapon_feature.HideInCharacterSheetAndLevelUp = true;
 
-                spirit_ability = Helpers.CreateFeature("ShamanIceSplinterFeature",
+                spirit_ability = Helpers.CreateFeature(prefix + "IceSplinterFeature",
                                                        ice_splinter.Name,
                                                        ice_splinter.Description + "\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a frost weapon.",
                                                        "",
@@ -164,18 +204,18 @@ namespace CallOfTheWild
                                                        FeatureGroup.None,
                                                        Helpers.CreateAddFact(ice_splinter),
                                                        Helpers.CreateAddAbilityResource(resource),
-                                                       Helpers.CreateAddFeatureOnClassLevel(frost_weapon_feature, 11, getShamanArray())
+                                                       Helpers.CreateAddFeatureOnClassLevel(frost_weapon_feature, 11, hex_engine.hex_classes)
                                                        );
             }
 
 
-            static void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {
                 var icon = library.Get<BlueprintFeature>("52292a32bb5d0ab45a86621bac2c4c9a").Icon;
 
-                var resource = Helpers.CreateAbilityResource("ShamanFrigidBlastResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "FrigidBlastResource", "", "", "", null);
                 resource.SetFixedResource(3);
-                var cooldown_buff = Helpers.CreateBuff("ShamanFrigidBlastCooldownBuff",
+                var cooldown_buff = Helpers.CreateBuff(prefix + "FrigidBlastCooldownBuff",
                                        "Frigid Blast: Cooldown",
                                        "As a standard action, she can summon an icy blast in a 20-foot-radius burst originating from a point she can see within 30 feet. This blast deals cold damage equal to 1d6 per shaman level she has to each creature caught in the burst. Each target can attempt a Reflex saving throw to halve this damage. The shaman can use this ability three times per day, but she must wait at least 1d4 rounds between each use.",
                                        "",
@@ -183,7 +223,7 @@ namespace CallOfTheWild
                                        null);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
                 var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
-                var frigid_blast = Helpers.CreateAbility("ShamanFrigidBlastAbility",
+                var frigid_blast = Helpers.CreateAbility(prefix + "FrigidBlastAbility",
                                                          "Frigid Blast",
                                                          cooldown_buff.Description,
                                                          "",
@@ -199,12 +239,12 @@ namespace CallOfTheWild
                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                          Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                                          Helpers.CreateResourceLogic(resource),
-                                                         Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                         Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
                                                          Common.createAbilityCasterHasNoFacts(cooldown_buff)
                                                          );
                 frigid_blast.setMiscAbilityParametersRangedDirectional();
 
-                greater_spirit_ability = Helpers.CreateFeature("ShamanFrigidBlastFeature",
+                greater_spirit_ability = Helpers.CreateFeature(prefix + "FrigidBlastFeature",
                                                                frigid_blast.Name,
                                                                "The shaman gains cold resistance 10. In addition, as a standard action, she can summon an icy blast in a 20-foot-radius burst originating from a point she can see within 30 feet. This blast deals cold damage equal to 1d6 per shaman level she has to each creature caught in the burst. Each target can attempt a Reflex saving throw to halve this damage. The shaman can use this ability three times per day, but she must wait at least 1d4 rounds between each use.",
                                                                "",
@@ -217,20 +257,20 @@ namespace CallOfTheWild
             }
 
 
-            static void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanWavesElementalFormResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "WavesElementalFormResource", "", "", "", null);
                 resource.SetFixedResource(1);
 
-                var wildshape_water_elemental_freeze = library.CopyAndAdd<BlueprintFeature>("182ec5f31231ad24b96a84a3f9e87166", "ShamanWavesElementalFormFreezeFeature", "");
-                wildshape_water_elemental_freeze.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
+                var wildshape_water_elemental_freeze = library.CopyAndAdd<BlueprintFeature>("182ec5f31231ad24b96a84a3f9e87166", prefix + "WavesElementalFormFreezeFeature", "");
+                wildshape_water_elemental_freeze.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = hex_engine.hex_classes[0]);
 
-                var buff = library.CopyAndAdd<BlueprintBuff>("ea2cd08bdf2ca1c4f8a8870804790cd7", "ShamanWavesElementalFormBuff", "");
+                var buff = library.CopyAndAdd<BlueprintBuff>("ea2cd08bdf2ca1c4f8a8870804790cd7", prefix + "WavesElementalFormBuff", "");
                 buff.SetName("Elemental Form (Huge Water Elemental)");
                 buff.ReplaceComponent<Polymorph>(p => p.Facts = new BlueprintUnitFact[] { p.Facts[0], wildshape_water_elemental_freeze });
 
-                var ability = library.CopyAndAdd<BlueprintAbility>("621cc9c46f5961b47adda27791e41f75", "ShamanWavesElementalFormAbility", "");
-                ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                var ability = library.CopyAndAdd<BlueprintAbility>("621cc9c46f5961b47adda27791e41f75", prefix + "WavesElementalFormAbility", "");
+                ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
                 ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
                 ability.ReplaceComponent<AbilityTargetHasFact>(a => a.CheckedFacts = new BlueprintUnitFact[] { buff });
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions,
@@ -244,9 +284,9 @@ namespace CallOfTheWild
             }
 
 
-            static void createManifestation()
+            void createManifestation()
             {
-                manifestation = Helpers.CreateFeature("ShamanWavesManifestationFeature",
+                manifestation = Helpers.CreateFeature(prefix + "WavesManifestationFeature",
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a spirit of water. The shaman gains cold resistance 30. She can also apply any one of the following feats to any cold spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",

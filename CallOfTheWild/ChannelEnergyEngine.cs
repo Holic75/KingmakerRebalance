@@ -1272,6 +1272,10 @@ namespace CallOfTheWild
 
         public static void createSwiftPositiveChannel()
         {
+            if (swift_positve_channel_resource != null)
+            {
+                return;
+            }
             swift_positve_channel_resource = Helpers.CreateAbilityResource("SwiftPositveChannelResource", "", "", "", null);
             swift_positve_channel_resource.SetIncreasedByStat(0, Kingmaker.EntitySystem.Stats.StatType.Charisma);
             swift_positive_channel = Helpers.CreateFeature("SwiftPositiveChannelFeature",

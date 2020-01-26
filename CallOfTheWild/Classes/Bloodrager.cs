@@ -1799,7 +1799,7 @@ namespace CallOfTheWild
                 progression = createBloodragerBloodline("Destined",
                                                               "Your bloodline is destined for great things. When you bloodrage, you exude a greatness that makes all but the most legendary creatures seem lesser.\n"
                                                                + "Bonus Feats: Diehard, Endurance, Improved Initiative, Intimidating Prowess, Dazzling Display, Lightning Reflexes, Weapon Focus.\n"
-                                                               + "Bonus Spells: Shield (7th), blur (10th), protection from energy (13th), freedom of movement (16th).",
+                                                               + "Bonus Spells: shield (7th), blur (10th), protection from energy (13th), freedom of movement (16th).",
                                                               library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63").Icon, // heroism
                                                               new BlueprintAbility[] { shield, blur, protection_from_energy, freedom_of_movement },
                                                               new BlueprintFeature[] { endurance, diehard, dazzling_display, improved_initiative, weapon_focus, intimidating_prowess, lightning_reflexes },
@@ -2164,7 +2164,7 @@ namespace CallOfTheWild
                     var bloodline_info = createBloodragerBloodline("Draconic",
                                                                   "At some point in your family’s history, a dragon interbred with your bloodline. Now, the sublime monster’s ancient power fuels your bloodrage.\n"
                                                                    + "Bonus Feats: Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Power Attack, Skill Focus (Mobility), Toughness.\n"
-                                                                   + "Bonus Spells: Shield (7th), resist energy (10th), fly (13th), fear (16th).",
+                                                                   + "Bonus Spells: shield (7th), resist energy (10th), fly (13th), fear (16th).",
                                                                   bloodlines[i].icon,
                                                                   new BlueprintAbility[] { shield, resist_energy, NewSpells.fly, fear },
                                                                   new BlueprintFeature[] { blind_fight, cleave, great_fortitude, improved_initiative, power_attack, skill_focus_mobility, toughness },
@@ -3101,7 +3101,7 @@ namespace CallOfTheWild
             armored_swiftness.SetDescription("At 2nd level, a steelblood moves faster in medium and heavy armor. When wearing medium or heavy armor, a steelblood can move 5 feet faster than normal in that armor, to a maximum of his unencumbered speed.");
 
             var armor_training = library.CopyAndAdd<BlueprintFeature>("3c380607706f209499d951b29d3c44f3", "SteelbloodArmorTraining", "");
-            armor_training.RemoveComponent(armor_training.GetComponent<Kingmaker.Designers.Mechanics.Facts.ArmorSpeedPenaltyRemoval>());
+            //armor_training.RemoveComponent(armor_training.GetComponent<Kingmaker.Designers.Mechanics.Facts.ArmorSpeedPenaltyRemoval>());
             armor_training.SetDescription("At 5th level, a steelblood learns to be more maneuverable while wearing armor. Whenever he is wearing armor, he reduces the armor check penalty by 1 (to a maximum of 0) and increases the maximum Dexterity bonus allowed by his armor by 1. Every 4 levels thereafter (9th, 13th, and 17th), these bonuses increase by 1, to a maximum 4-point reduction of the armor check penalty and a +4 increase of the maximum Dexterity bonus. This ability stacks with the fighter class feature of the same name.");
 
             createBloodDeflection();

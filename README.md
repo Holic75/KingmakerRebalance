@@ -13,6 +13,7 @@ It introduces new classes:
 New Archetypes for existing classes:
 - Vindictive Bastard Paladin Archetype (implemented as a separate class),
 - Arrowsong Minstrel Bard Archetype
+- Spirit Whisperer Wizard Archetype
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)

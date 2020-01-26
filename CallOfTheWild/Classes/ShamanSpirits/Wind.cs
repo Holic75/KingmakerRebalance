@@ -44,23 +44,56 @@ using Kingmaker.UnitLogic.Buffs.Components;
 
 namespace CallOfTheWild
 {
-    partial class Shaman
+    partial class SpiritsEngine
     {
-        internal class WindSpirit
+        public class WindSpirit
         {
-            internal static BlueprintFeature spirit_ability;
-            internal static BlueprintFeature greater_spirit_ability;
-            internal static BlueprintFeature true_spirit_ability;
-            internal static BlueprintFeature manifestation;
-            internal static BlueprintFeature air_barrier;
-            internal static BlueprintFeature vortex_spells;
-            internal static BlueprintFeature sparkling_aura;
-            internal static BlueprintFeature wind_ward;
-            internal static BlueprintAbility[] spells;
-            internal static BlueprintFeature[] hexes;
+            public BlueprintFeature spirit_ability;
+            public BlueprintFeature greater_spirit_ability;
+            public BlueprintFeature true_spirit_ability;
+            public BlueprintFeature manifestation;
+            public BlueprintFeature air_barrier;
+            public BlueprintFeature vortex_spells;
+            public BlueprintFeature sparkling_aura;
+            public BlueprintFeature wind_ward;
+            public BlueprintAbility[] spells;
+            public BlueprintFeature[] hexes;
 
-            internal static Spirit create()
+            HexEngine hex_engine;
+            string prefix;
+            bool test_mode;
+
+
+            public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createManifestation();
+
+                return new Archetypes.SpiritWhisperer.Spirit("Wind",
+                                                          "Wind",
+                                                          "A shaman who selects the wind spirit appears windswept, and her movements seem lithe and carefree.",
+                                                          library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon,//sirocco
+                                                          "",
+                                                          spirit_ability,
+                                                          greater_spirit_ability,
+                                                          manifestation,
+                                                          hexes);
+            }
+
+
+            public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
                 createSpiritAbility();
                 createGreaterSpiritAbility();
                 createTrueSpiritAbility();
@@ -79,35 +112,7 @@ namespace CallOfTheWild
                     NewSpells.winds_of_vengeance
                 };
 
-                air_barrier = hex_engine.createAirBarrier("ShamanAirBarrier",
-                                                            "Air Barrier",
-                                                            "The shaman creates an invisible shell of air that grants her a +4 armor bonus to AC. At 7th level and every 4 levels thereafter, this bonus increases by 2. At 13th level, this barrier causes incoming arrows, rays, and other ranged attacks requiring an attack roll against her to suffer a 50% miss chance. The shaman can use this barrier for 1 hour per shaman level. This duration does not need to be consecutive, but it must be spent in 1-hour increments."
-                                                            );
-
-                sparkling_aura = hex_engine.createSparklingAura("ShamanSparklingAura",
-                                                        "Sparkling Aura",
-                                                        "The shaman causes a creature within 30 feet to spark and shimmer with electrical energy. Though this does not harm the creature, it does cause the creature to emit light like a torch, preventing it from gaining any benefit from concealment or invisibility. Furthermore, while the aura lasts, whenever the target is hit with a metal melee weapon, it also takes an amount of electricity damage equal to the shaman’s Charisma modifier. The sparking aura lasts a 1 round for every 2 shaman levels the shaman possesses. A creature affected by this hex cannot be affected by it again for 24 hours."
-                                                        );
-
-                vortex_spells = hex_engine.createVortexSpells("ShamanVortexSpells",
-                                                                "Vortex Spells",
-                                                                "Whenever the shaman confirms a critical hit against an opponent with a spell, the target is staggered for 1 round. At 11th level, the duration increases to 1d4 rounds."
-                                                               );
-
-                wind_ward = hex_engine.createWindWard("ShamanWindWard",
-                                                "Wind Ward",
-                                                "The shaman can touch a willing creature (including herself) and grants a ward of wind. This ward lasts for a number of rounds equal to the shaman’s level. When a warded creature is attacked with an arrow, ray, or other ranged attack that requires an attack roll, that attack suffers a 20% miss chance. At 8th level, the ward lasts for 1 minute for every level the shaman possesses. At 16th level, the miss chance increases to 50%. Once affected, the creature cannot be the target of this hex again for 24 hours."
-                                               );
-                hexes = new BlueprintFeature[]
-                {
-                    air_barrier,
-                    sparkling_aura,
-                    vortex_spells,
-                    wind_ward
-                };
-
-
-                return new Spirit("Wind",
+                return new Shaman.Spirit("Wind",
                                   "Wind",
                                   "A shaman who selects the wind spirit appears windswept, and her movements seem lithe and carefree.",
                                   library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon,//sirocco
@@ -121,12 +126,43 @@ namespace CallOfTheWild
             }
 
 
-            static void createSpiritAbility()
+            void createHexes()
+            {
+                air_barrier = hex_engine.createAirBarrier(prefix + "AirBarrier",
+                                            "Air Barrier",
+                                            "The shaman creates an invisible shell of air that grants her a +4 armor bonus to AC. At 7th level and every 4 levels thereafter, this bonus increases by 2. At 13th level, this barrier causes incoming arrows, rays, and other ranged attacks requiring an attack roll against her to suffer a 50% miss chance. The shaman can use this barrier for 1 hour per shaman level. This duration does not need to be consecutive, but it must be spent in 1-hour increments."
+                                            );
+
+                sparkling_aura = hex_engine.createSparklingAura(prefix + "SparklingAura",
+                                                        "Sparkling Aura",
+                                                        "The shaman causes a creature within 30 feet to spark and shimmer with electrical energy. Though this does not harm the creature, it does cause the creature to emit light like a torch, preventing it from gaining any benefit from concealment or invisibility. Furthermore, while the aura lasts, whenever the target is hit with a metal melee weapon, it also takes an amount of electricity damage equal to the shaman’s Charisma modifier. The sparking aura lasts a 1 round for every 2 shaman levels the shaman possesses. A creature affected by this hex cannot be affected by it again for 24 hours."
+                                                        );
+
+                vortex_spells = hex_engine.createVortexSpells(prefix + "VortexSpells",
+                                                                "Vortex Spells",
+                                                                "Whenever the shaman confirms a critical hit against an opponent with a spell, the target is staggered for 1 round. At 11th level, the duration increases to 1d4 rounds."
+                                                               );
+
+                wind_ward = hex_engine.createWindWard(prefix + "WindWard",
+                                                "Wind Ward",
+                                                "The shaman can touch a willing creature (including herself) and grants a ward of wind. This ward lasts for a number of rounds equal to the shaman’s level. When a warded creature is attacked with an arrow, ray, or other ranged attack that requires an attack roll, that attack suffers a 20% miss chance. At 8th level, the ward lasts for 1 minute for every level the shaman possesses. At 16th level, the miss chance increases to 50%. Once affected, the creature cannot be the target of this hex again for 24 hours."
+                                               );
+                hexes = new BlueprintFeature[]
+                {
+                    air_barrier,
+                    sparkling_aura,
+                    vortex_spells,
+                    wind_ward
+                };
+            }
+
+
+            void createSpiritAbility()
             {
                 var icon = library.Get<BlueprintAbility>("ab395d2335d3f384e99dddee8562978f").Icon; //shocking grasp
-                var resource = Helpers.CreateAbilityResource("ShamanShockingTOuchResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "ShockingTOuchResource", "", "", "", null);
                 resource.SetIncreasedByStat(3, StatType.Charisma);
-                var shocking_touch = library.CopyAndAdd<BlueprintAbility>("b3494639791901e4db3eda6117ad878f", "ShamanShockingTouchAbility", ""); //air domain arck of lightning 
+                var shocking_touch = library.CopyAndAdd<BlueprintAbility>("b3494639791901e4db3eda6117ad878f", prefix + "ShockingTouchAbility", ""); //air domain arck of lightning 
                 shocking_touch.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity));
                 shocking_touch.RemoveComponents<SpellComponent>();
                 shocking_touch.RemoveComponents<AbilityResourceLogic>();
@@ -138,11 +174,11 @@ namespace CallOfTheWild
                 shocking_touch.SetNameDescriptionIcon("Shocking Touch",
                                                        "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
-                shocking_touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                shocking_touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
                 var shocking_touch_sticky = Helpers.CreateTouchSpellCast(shocking_touch, resource);
                 var shocking = library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658");
 
-                var shocking_weapon_feature = Helpers.CreateFeature("ShamanShockingTouchShockingWeaponFeature",
+                var shocking_weapon_feature = Helpers.CreateFeature(prefix + "ShockingTouchShockingWeaponFeature",
                                                               "",
                                                               "",
                                                               "",
@@ -153,7 +189,7 @@ namespace CallOfTheWild
 
                 shocking_weapon_feature.HideInCharacterSheetAndLevelUp = true;
 
-                spirit_ability = Helpers.CreateFeature("ShamanShockingTouchFeature",
+                spirit_ability = Helpers.CreateFeature(prefix + "ShockingTouchFeature",
                                                        shocking_touch.Name,
                                                        "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a shocking weapon.",
                                                        "",
@@ -161,18 +197,18 @@ namespace CallOfTheWild
                                                        FeatureGroup.None,
                                                        Helpers.CreateAddFact(shocking_touch_sticky),
                                                        Helpers.CreateAddAbilityResource(resource),
-                                                       Helpers.CreateAddFeatureOnClassLevel(shocking_weapon_feature, 11, getShamanArray())
+                                                       Helpers.CreateAddFeatureOnClassLevel(shocking_weapon_feature, 11, hex_engine.hex_classes)
                                                        );
             }
 
 
-            static void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {
                 var icon = library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73").Icon; //lightning bolt
 
-                var resource = Helpers.CreateAbilityResource("ShamanSparkSoulResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "SparkSoulResource", "", "", "", null);
                 resource.SetFixedResource(3);
-                var cooldown_buff = Helpers.CreateBuff("ShamanSparkSoulCooldownBuff",
+                var cooldown_buff = Helpers.CreateBuff(prefix + "SparkSoulCooldownBuff",
                                        "Spark Soul: Cooldown",
                                        "In addition, as a standard action she can unleash a 30-foot line of sparks from her fingertips, dealing 1d4 points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                        "",
@@ -182,7 +218,7 @@ namespace CallOfTheWild
 
                 var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
                                                          isAoE: true, halfIfSaved: true);
-                var sparkling_soul = Helpers.CreateAbility("ShamanSparklingSoulAbility",
+                var sparkling_soul = Helpers.CreateAbility(prefix + "SparklingSoulAbility",
                                                            "Sparkling Soul",
                                                            cooldown_buff.Description,
                                                            "",
@@ -193,16 +229,16 @@ namespace CallOfTheWild
                                                            "",
                                                            Helpers.reflexHalfDamage,
                                                            Helpers.CreateRunActions(SavingThrowType.Reflex, dmg),
-                                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getShamanArray()),
+                                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes),
                                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                                            Helpers.CreateResourceLogic(resource),
                                                            library.Get<BlueprintAbility>("c073af2846b8e054fb28e6f72bc02749").GetComponent<AbilityDeliverProjectile>(),//kinetic thunderstorm torrent,
-                                                           Common.createContextCalculateAbilityParamsBasedOnClass(shaman_class, StatType.Wisdom),
+                                                           Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
                                                            Common.createAbilityCasterHasNoFacts(cooldown_buff),
                                                            Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown)))
                                                            );
                 sparkling_soul.setMiscAbilityParametersRangedDirectional();
-                greater_spirit_ability = Helpers.CreateFeature("ShamanSparklingSoulFeature",
+                greater_spirit_ability = Helpers.CreateFeature(prefix + "SparklingSoulFeature",
                                                                sparkling_soul.Name,
                                                                "The shaman gains electricity resistance 10. In addition, as a standard action she can unleash a 20-foot line of sparks from her fingertips, dealing 1d4 points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                                                "",
@@ -215,26 +251,16 @@ namespace CallOfTheWild
             }
 
 
-            static void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
-                var resource = Helpers.CreateAbilityResource("ShamanWindElementalFormResource", "", "", "", null);
+                var resource = Helpers.CreateAbilityResource(prefix + "WindElementalFormResource", "", "", "", null);
                 resource.SetFixedResource(1);
 
-                //var wildshape_air_elemental_whirlwind_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e", "ShamanWindElementalFormWhirlwindArea", "");
-
-                //wildshape_air_elemental_whirlwind_area.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = shaman_class);
-
-                //var whirlwind_ability_buff = library.CopyAndAdd<BlueprintBuff>("788662b4625f74c43b0dfb0308fb155e", "ShamanWindElementalFormWhirlwindBuff", "");
-                //whirlwind_ability_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = wildshape_air_elemental_whirlwind_area);
-                //var whirlwind_ability = library.CopyAndAdd<BlueprintActivatableAbility>("524954358fc39c14fb0417fceb1322c6", "ShamanWindElementalFormWhirlwindActivatableAbility", "");
-                //whirlwind_ability.Buff = whirlwind_ability_buff;
-
-                var buff = library.CopyAndAdd<BlueprintBuff>("eb52d24d6f60fc742b32fe943b919180", "ShamanWindElementalFormBuff", "");
+                var buff = library.CopyAndAdd<BlueprintBuff>("eb52d24d6f60fc742b32fe943b919180", prefix + "WindElementalFormBuff", "");
                 buff.SetName("Elemental Form (Huge Air Elemental)");
-               // buff.ReplaceComponent<Polymorph>(p => p.Facts = new BlueprintUnitFact[] { p.Facts[1], whirlwind_ability });
 
-                var ability = library.CopyAndAdd<BlueprintAbility>("e3ee03c3a959ca046a39827508ab8943", "ShamanWindElementalFormAbility", "");
-                ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getShamanArray()));
+                var ability = library.CopyAndAdd<BlueprintAbility>("e3ee03c3a959ca046a39827508ab8943", prefix + "WindElementalFormAbility", "");
+                ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
                 ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
                 ability.ReplaceComponent<AbilityTargetHasFact>(a => a.CheckedFacts = new BlueprintUnitFact[] { buff });
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions,
@@ -248,9 +274,9 @@ namespace CallOfTheWild
             }
 
 
-            static void createManifestation()
+            void createManifestation()
             {
-                manifestation = Helpers.CreateFeature("ShamanWindManifestationFeature",
+                manifestation = Helpers.CreateFeature(prefix + "WindManifestationFeature",
                                                       "Manifestation",
                                                       "Upon reaching 20th level, the shaman becomes a spirit of air. The shaman gains electricity resistance 30. She can also apply any one of the following feats to any electricity spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",

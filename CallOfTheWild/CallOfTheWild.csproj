@@ -126,6 +126,7 @@
     <Compile Include="AiFix.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
+    <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
     <Compile Include="Classes\Mysteries\Time.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Classes\ShamanSpirits\Life.cs" />
     <Compile Include="Classes\ShamanSpirits\Lore.cs" />
     <Compile Include="Classes\ShamanSpirits\Nature.cs" />
+    <Compile Include="Classes\ShamanSpirits\SpiritsEngine.cs" />
     <Compile Include="Classes\ShamanSpirits\Stone.cs" />
     <Compile Include="Classes\ShamanSpirits\Waves.cs" />
     <Compile Include="Classes\ShamanSpirits\Wind.cs" />
