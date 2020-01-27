@@ -127,6 +127,7 @@
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
+    <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
     <Compile Include="Classes\Mysteries\Time.cs" />
@@ -180,7 +181,7 @@
     <Compile Include="NewMechanics\MonsterLore.cs" />
     <Compile Include="NewMechanics\NewMechanics.cs" />
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
-    <Compile Include="NewMechanics\OutgoingConcealementMechanics.cs" />
+    <Compile Include="NewMechanics\ConcealementMechanics.cs" />
     <Compile Include="NewMechanics\PrerequisiteMechanics.cs" />
     <Compile Include="NewMechanics\ResourceMechanics.cs" />
     <Compile Include="NewMechanics\Sanctuary.cs" />

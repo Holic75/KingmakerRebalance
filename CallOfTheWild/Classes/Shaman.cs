@@ -364,8 +364,19 @@ namespace CallOfTheWild
 
             foreach (var d in blight_bond.AllFeatures)
             {
-                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent< AddSpecialSpellList>().SpellList));
+                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList));
             }
+
+            foreach (var d in Archetypes.StormDruid.domain_primary_progressions)
+            {
+                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList));
+            }
+
+            foreach (var d in Archetypes.StormDruid.domain_secondary_progressions)
+            {
+                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList));
+            }
+
 
             foreach (var fsl in feature_spell_list_map)
             {
@@ -1046,6 +1057,7 @@ namespace CallOfTheWild
                                                                                         spirit_magic,
                                                                                         shaman_spirits,
                                                                                         shaman_familiar,
+                                                                                        library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
                                                                     Helpers.LevelEntry(2, hex_selection),

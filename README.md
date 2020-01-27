@@ -11,9 +11,10 @@ It introduces new classes:
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Hinterlander and Holy Vindicator prestige classes,
 New Archetypes for existing classes:
-- Vindictive Bastard Paladin Archetype (implemented as a separate class),
-- Arrowsong Minstrel Bard Archetype
-- Spirit Whisperer Wizard Archetype
+- Vindictive Bastard Paladin archetype (implemented as a separate class),
+- Arrowsong Minstrel Bard archetype,
+- Spirit Whisperer Wizard archetype,
+- Storm Druid Druid archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)

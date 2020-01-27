@@ -1287,13 +1287,28 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormStep.png");
 
+
+            var feature_concelement = Helpers.CreateFeature(name_prefix + "IgnoreConcelementHexFeature",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              null,
+                                                              FeatureGroup.None,
+                                                              Helpers.Create<ConcealementMechanics.IgnoreFogConcelement>()
+                                                              );
+            feature_concelement.HideInCharacterSheetAndLevelUp = true;
+
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   display_name,
                                                   description,
                                                   "",
                                                   icon,
                                                   FeatureGroup.None,
-                                                  Helpers.Create<WeatherMechanics.IgnoreWhetherMovementEffects>());
+                                                  Helpers.Create<WeatherMechanics.IgnoreWhetherMovementEffects>(),
+                                                  Helpers.CreateAddFeatureOnClassLevel(feature_concelement, 10, hex_classes) 
+                                                  );
+
+
             feature.Ranks = 1;
             return feature;
         }

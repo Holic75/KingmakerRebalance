@@ -3192,9 +3192,9 @@ namespace CallOfTheWild
         }
 
 
-        static public OutgoingConcealementMechanics.AddOutgoingConcealment createOutgoingConcelement(AddConcealment self_concealement)
+        static public ConcealementMechanics.AddOutgoingConcealment createOutgoingConcelement(AddConcealment self_concealement)
         {
-            var o = Helpers.Create<OutgoingConcealementMechanics.AddOutgoingConcealment>();
+            var o = Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>();
             o.Descriptor = self_concealement.Descriptor;
             o.Concealment = self_concealement.Concealment;
             o.CheckDistance = self_concealement.CheckDistance;

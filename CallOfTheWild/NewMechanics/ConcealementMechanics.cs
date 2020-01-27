@@ -1,10 +1,13 @@
 ﻿using JetBrains.Annotations;
+using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
 using Kingmaker.Items;
+using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
@@ -17,8 +20,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CallOfTheWild.OutgoingConcealementMechanics
+namespace CallOfTheWild.ConcealementMechanics
 {
+
+    public class UnitPartIgnoreFogConcealement : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+
+
     public class UnitPartOutgoingConcealment : UnitPart
     {
         [CanBeNull]
@@ -67,8 +81,7 @@ namespace CallOfTheWild.OutgoingConcealementMechanics
             {
                 return Concealment.None; //no concelement update
             }
-
-            
+         
             if (unitPartConcealment != null)
             {
                 List<Feet> m_BlindsightRanges = Harmony12.Traverse.Create(unitPartConcealment).Field("m_BlindsightRanges").GetValue<List<Feet>>();
@@ -90,6 +103,11 @@ namespace CallOfTheWild.OutgoingConcealementMechanics
 
             foreach (UnitPartConcealment.ConcealmentEntry concealment in unitPartOutgoingConcealment.m_Concealments)
             {
+                var ignore_fog_concealement_part = initiator.Get<UnitPartIgnoreFogConcealement>();
+                if (concealment.Descriptor == ConcealmentDescriptor.Fog && ignore_fog_concealement_part != null && ignore_fog_concealement_part.active())
+                {
+                    continue;
+                }
                 if (!concealment.OnlyForAttacks || attack)
                 {
                     if (concealment.DistanceGreater > 0.Feet())
@@ -121,13 +139,103 @@ namespace CallOfTheWild.OutgoingConcealementMechanics
     }
 
 
-    [Harmony12.HarmonyPatch(typeof(UnitPartConcealment))]
+    /*[Harmony12.HarmonyPatch(typeof(UnitPartConcealment))]
     [Harmony12.HarmonyPatch("Calculate", Harmony12.MethodType.Normal)]
     class UnitPartConcealment__Calculate__Patch
     {
         static void Postfix([NotNull] UnitEntityData initiator, [NotNull] UnitEntityData target, bool attack, ref Concealment __result)
         {
             __result = UnitPartOutgoingConcealment.Max(UnitPartOutgoingConcealment.Calculate(initiator, target, attack), __result);
+        }
+    }*/
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitPartConcealment))]
+    [Harmony12.HarmonyPatch("Calculate", Harmony12.MethodType.Normal)]
+    class Patch_UnitPartConcealment
+    {
+        public static bool Prefix(UnitEntityData initiator, UnitEntityData target, bool attack, ref Concealment __result)
+        {
+            UnitPartConcealment unitPartConcealment1 = initiator.Get<UnitPartConcealment>();
+            UnitPartConcealment unitPartConcealment2 = target.Get<UnitPartConcealment>();
+            if (unitPartConcealment1 != null && unitPartConcealment1.IgnoreAll)
+            {
+                __result = Concealment.None;
+                return false;
+            }
+            List<Feet> m_BlindsightRanges = Harmony12.Traverse.Create(unitPartConcealment1).Field("m_BlindsightRanges").GetValue<List<Feet>>();
+            if (m_BlindsightRanges != null)
+            {
+                Feet feet = 0.Feet();
+                foreach (Feet blindsightRange in m_BlindsightRanges)
+                {
+                    if (feet < blindsightRange)
+                        feet = blindsightRange;
+                }
+                float num = initiator.View.Corpulence + target.View.Corpulence;
+                if ((double)initiator.DistanceTo(target) - (double)num <= (double)feet.Meters)
+                {
+                    __result = Concealment.None;
+                    return false;
+                }
+            }
+            Concealment a = Concealment.None;
+            if (!initiator.Descriptor.IsSeeInvisibility && target.Descriptor.State.HasCondition(UnitCondition.Invisible))
+                a = Concealment.Total;
+
+            var ignore_fog_concealement_part = initiator.Get<UnitPartIgnoreFogConcealement>();
+            List<UnitPartConcealment.ConcealmentEntry> m_Concealments = Harmony12.Traverse.Create(unitPartConcealment2).Field("m_Concealements").GetValue<List<UnitPartConcealment.ConcealmentEntry>>();
+            if (a < Concealment.Total && m_Concealments != null)
+            {
+                foreach (UnitPartConcealment.ConcealmentEntry concealment in m_Concealments)
+                {
+                    
+                    if (concealment.Descriptor == ConcealmentDescriptor.Fog && ignore_fog_concealement_part != null && ignore_fog_concealement_part.active())
+                    {
+                        continue;
+                    }
+                    if (!concealment.OnlyForAttacks || attack)
+                    {
+                        if (concealment.DistanceGreater > 0.Feet())
+                        {
+                            float num1 = initiator.DistanceTo(target);
+                            float num2 = initiator.View.Corpulence + target.View.Corpulence;
+                            if ((double)num1 <= (double)concealment.DistanceGreater.Meters + (double)num2)
+                                continue;
+                        }
+                        if (concealment.RangeType.HasValue)
+                        {
+                            RuleAttackRoll ruleAttackRoll = Rulebook.CurrentContext.LastEvent<RuleAttackRoll>();
+                            ItemEntityWeapon itemEntityWeapon = ruleAttackRoll == null ? initiator.GetFirstWeapon() : ruleAttackRoll.Weapon;
+                            if (itemEntityWeapon == null || !AttackTypeAttackBonus.CheckRangeType(itemEntityWeapon.Blueprint, concealment.RangeType.Value))
+                                continue;
+                        }
+                        a = a > concealment.Concealment ? a : concealment.Concealment;
+                    }
+                }
+            }
+            if (unitPartConcealment2 != null && unitPartConcealment2.Disable)
+                a = Concealment.None;
+            if (initiator.Descriptor.State.HasCondition(UnitCondition.Blindness))
+                a = Concealment.Total;
+            if (initiator.Descriptor.State.HasCondition(UnitCondition.PartialConcealmentOnAttacks))
+                a = Concealment.Partial;
+            if (a == Concealment.None && (ignore_fog_concealement_part == null || !ignore_fog_concealement_part.active()) 
+                  && Game.Instance.Player.Weather.ActualWeather >= BlueprintRoot.Instance.WeatherSettings.ConcealmentBeginsOn)
+            {
+                RuleAttackRoll ruleAttackRoll = Rulebook.CurrentContext.LastEvent<RuleAttackRoll>();
+                ItemEntityWeapon itemEntityWeapon = ruleAttackRoll == null ? initiator.GetFirstWeapon() : ruleAttackRoll.Weapon;
+                if (itemEntityWeapon != null && AttackTypeAttackBonus.CheckRangeType(itemEntityWeapon.Blueprint, AttackTypeAttackBonus.WeaponRangeType.Ranged))
+                    a = Concealment.Partial;
+            }
+            if (unitPartConcealment1 != null && unitPartConcealment1.IgnorePartial && a == Concealment.Partial)
+                a = Concealment.None;
+            if (unitPartConcealment1 != null && unitPartConcealment1.TreatTotalAsPartial && a == Concealment.Total)
+                a = Concealment.Partial;
+
+            a = UnitPartOutgoingConcealment.Max(UnitPartOutgoingConcealment.Calculate(initiator, target, attack), a);
+            __result = a;
+            return false;
         }
     }
 
@@ -170,6 +278,23 @@ namespace CallOfTheWild.OutgoingConcealementMechanics
             concealmentEntry.OnlyForAttacks = this.OnlyForAttacks;
             return concealmentEntry;
         }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IgnoreFogConcelement : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartIgnoreFogConcealement>().addBuff(this.Fact);
+        }
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartIgnoreFogConcealement>().removeBuff(this.Fact);
+        }
+
     }
 
 

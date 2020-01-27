@@ -43,6 +43,7 @@ namespace CallOfTheWild
 {
     public class NewSpells
     {
+        static public BlueprintFeature immunity_to_wind;
         static LibraryScriptableObject library => Main.library;
         static public BlueprintAbility shillelagh;
         static public BlueprintAbility flame_blade;
@@ -192,6 +193,7 @@ namespace CallOfTheWild
 
         static public void load()
         {
+            createImmunityToWind();
             createShillelagh();
             createFlameBlade();
             createVirtuosoPerformance();
@@ -560,12 +562,14 @@ namespace CallOfTheWild
             var apply_can_not_move = Common.createContextActionApplyBuff(can_not_move_buff, Helpers.CreateContextDuration(1), dispellable: false, is_child: true);
 
             var dmg_regular = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing, Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), isAoE: true);
-            var check_movement = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
+            var check_movement = Helpers.CreateConditional(new Condition[]{Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
+                                                                           Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
                                                            Common.createContextActionSkillCheck(StatType.Strength,
                                                                                                 failure: Helpers.CreateActionList(apply_can_not_move),
                                                                                                 custom_dc: 10)
                                                            );
-            var check_small = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Small),
+            var check_small = Helpers.CreateConditional(new Condition[]{Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Small),
+                                                                        Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
                                                Common.createContextActionSkillCheck(StatType.Strength,
                                                                                     failure: Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>(), 
                                                                                                                       Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2, 0))
@@ -3303,7 +3307,8 @@ namespace CallOfTheWild
                                                    null);
             var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1), is_child: true, dispellable: false);
             var apply_cooldown_on_main_target = Helpers.Create<NewMechanics.ContextActionOnMainTarget>(c => c.Actions = Helpers.CreateActionList(apply_cooldown));
-            var action = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionMainTargetHasFact>(c => c.Fact = cooldown_buff),
+            var action = Helpers.CreateConditional(new Condition[]{Helpers.Create<NewMechanics.ContextConditionMainTargetHasFact>(c => c.Fact = cooldown_buff),
+                                                                   Helpers.CreateConditionHasFact(immunity_to_wind, not: false) },
                                                    null,
                                                    new GameAction[] { Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(dmg, saved)),
                                                                                                                                        apply_cooldown_on_main_target });
@@ -3322,7 +3327,6 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("40c31beb53bffb845b095542133ac9bc"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.BreathWeapon | SpellDescriptor.Poison | SpellDescriptor.Ground),
                                           Helpers.CreateAddFact(airborne),
-                                          Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
                                           Helpers.CreateAddStatBonus(StatType.Speed, 30, ModifierDescriptor.UntypedStackable),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch }),
                                           on_hit
@@ -6024,6 +6028,23 @@ namespace CallOfTheWild
             }
 
             return wish_variants.ToArray();
+        }
+
+
+
+        static void createImmunityToWind()
+        {
+            immunity_to_wind = Helpers.CreateFeature("ImmunityToWindEffectsFeature",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None,
+                                                     Helpers.Create<WeatherMechanics.IgnoreWhetherMovementEffects>(),
+                                                     Helpers.Create<SpecificBuffImmunity>(s => s.Buff = library.Get<BlueprintBuff>("bb57c37bfb5982d4bbed8d0fea75e404"))
+                                                     );
+            immunity_to_wind.HideInCharacterSheetAndLevelUp = true;
+                                                    
         }
     }
 }

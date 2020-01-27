@@ -2,8 +2,14 @@
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.Enums;
+using Kingmaker.Items;
+using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -24,7 +30,7 @@ namespace CallOfTheWild.WeatherMechanics
 
     [Harmony12.HarmonyPatch(typeof(UnitEntityData))]
     [Harmony12.HarmonyPatch("CalculateSpeedModifier", Harmony12.MethodType.Normal)]
-    class Patch_UnitBody_ApplyPolymorphEffect
+    class Patch_UnitEntityData_CalculateSpeedModifier
     {
         static public void Postfix(UnitEntityData __instance, ref float __result)
         {
@@ -60,4 +66,5 @@ namespace CallOfTheWild.WeatherMechanics
             this.Owner.Ensure<UnitPartIgnoreWeatherMovementEffects>().removeBuff(this.Fact);
         }
     }
+
 }

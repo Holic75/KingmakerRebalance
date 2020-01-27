@@ -143,7 +143,7 @@ namespace CallOfTheWild
                                                                      );
                 storm_walker = hex_engine.createStormWalker(prefix + "StormWalker",
                                                             "Stormwalker",
-                                                            "The shaman can move through non-magical fog, rain, mist, snow, and other environmental effects without penalty. She is never slowed by such effects. "
+                                                            "The shaman can move through non-magical fog, rain, mist, snow, and other environmental effects without penalty. She is never slowed by such effects. At 10th level she is also ignoring any concealement that is provided by environmental effects, whether or not they are magical in nature."
                                                            );
 
                 hexes = new BlueprintFeature[]
@@ -167,7 +167,7 @@ namespace CallOfTheWild
                                               "",
                                               icon,
                                               Common.createPrefabLink("6dc97e33e73b5ec49bd03b90c2345d7f"), //air elemental medium cycle
-                                              Helpers.Create<OutgoingConcealementMechanics.AddOutgoingConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; })
+                                              Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; })
                                               );
                 var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
                 var ability = Helpers.CreateAbility(prefix + "StormBurstAbility",

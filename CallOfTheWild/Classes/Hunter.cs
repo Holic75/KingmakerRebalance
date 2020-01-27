@@ -977,6 +977,7 @@ namespace CallOfTheWild
             hunter_woodland_stride.AddComponent(createAddFeatToAnimalCompanion(hunter_woodland_stride));
             var entries = new List<LevelEntry>();
             entries.Add(Helpers.LevelEntry(1, hunter_proficiencies, hunter_orisons, detect_magic, bonus_hunter_spells, hunter_animal_companion, animal_focus, animal_focus_ac,
+                                                           library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
                                                            library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                            library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")  // touch calculate feature
                                                            )) ;

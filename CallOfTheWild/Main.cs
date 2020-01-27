@@ -224,7 +224,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
 
-                    
+                    CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();
 
                     CallOfTheWild.SharedSpells.load();
