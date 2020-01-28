@@ -129,7 +129,8 @@ namespace CallOfTheWild.Archetypes
                                              "",
                                              library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73").Icon, //lightning bolt
                                              FeatureGroup.None,
-                                             Helpers.CreateAddFact(NewSpells.immunity_to_wind)
+                                             Helpers.CreateAddFact(NewSpells.immunity_to_wind),
+                                             Common.createSavingThrowBonusAgainstDescriptor(2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Sonic)
                                              );
         }
 
@@ -142,19 +143,53 @@ namespace CallOfTheWild.Archetypes
             foreach (var d in domains)
             {
                 var spell_list = d.LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList;
+                var primary_domain = library.CopyAndAdd<BlueprintProgression>(d.AssetGuid, "StormLord" + d.name, "");
 
-                var spells = new List<BlueprintAbility>();
+                var spells = Common.getSpellsFromSpellList(spell_list);
+                int max_num_variants = 1;
 
-                foreach (var sl in spell_list.SpellsByLevel)
+                foreach (var s in spells)
                 {
-                    foreach (var s in sl.Spells)
+                    if (s.HasVariants)
                     {
-                        spells.Add(s);
+                        int num_variants = s.Variants.Length;
+                        max_num_variants = num_variants > max_num_variants ? num_variants : max_num_variants;
                     }
                 }
 
-                var primary_domain = library.CopyAndAdd<BlueprintProgression>(d.AssetGuid, "StormLord" + d.name, "");
-                primary_domain.AddComponent(Common.createSpontaneousSpellConversion(archetype.GetParentClass(), spells.ToArray()));
+                var spells_array = new List<BlueprintAbility>[max_num_variants];
+                for (int i = 0; i < max_num_variants; i++)
+                {
+                    spells_array[i] = new List<BlueprintAbility>();
+                    spells_array[i].Add(null); //zero level spell
+                }
+
+                foreach (var s in spells)
+                {
+                    int entries_filled = 1;
+                    if (s.HasVariants)
+                    {
+                        for (int i = 0; i < s.Variants.Length; i++)
+                        {
+                            spells_array[i].Add(s.Variants[i]);
+                        }
+                        entries_filled = s.Variants.Length;
+                    }
+                    else
+                    {
+                        spells_array[0].Add(s);
+                    }
+
+                    for (int i = entries_filled; i < spells_array.Length; i++)
+                    {
+                        spells_array[i].Add(null);
+                    }
+                }
+
+                for (int i = 0; i < spells_array.Length; i++)
+                {
+                    primary_domain.AddComponent(Common.createSpontaneousSpellConversion(archetype.GetParentClass(), spells_array[i].ToArray()));
+                }
                 var secondary_domain = library.CopyAndAdd<BlueprintProgression>(primary_domain.AssetGuid, "StormLordSecondary" + d.name, "");
 
                 List<LevelEntry> secondary_level_entries = new List<LevelEntry>();

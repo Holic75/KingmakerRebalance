@@ -1019,6 +1019,20 @@ namespace CallOfTheWild
                                                                             }
                                             );
         }
+
+
+        static internal void fixDruidDomainUi()
+        {
+            var druid_domains = library.Get<BlueprintFeatureSelection>("096fc02f6cc817a43991c4b437e12b8e").AllFeatures;
+
+            foreach (var druid_domain in druid_domains)
+            {
+                var cleric_name = druid_domain.name.Replace("Druid", "Secondary");
+                var cleric_domain = library.GetAllBlueprints().Where(a => a.name == cleric_name).First() as BlueprintProgression;
+
+                (druid_domain as BlueprintProgression).UIGroups = cleric_domain.UIGroups;
+            }
+        }
     }
 
 

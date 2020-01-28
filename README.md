@@ -9,7 +9,8 @@ It introduces new classes:
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
-- Hinterlander and Holy Vindicator prestige classes,
+- Hinterlander and Holy Vindicator prestige classes.
+
 New Archetypes for existing classes:
 - Vindictive Bastard Paladin archetype (implemented as a separate class),
 - Arrowsong Minstrel Bard archetype,

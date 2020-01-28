@@ -165,7 +165,7 @@ namespace CallOfTheWild
         static internal BlueprintFeature versatile_channeler_negative_warpriest = null;
 
         static internal BlueprintFeature holy_vindicator_shield = null;
-        static readonly public SpellDescriptor holy_vindicator_shield_descriptor = (SpellDescriptor)0x0004000000000000; //SpellDescriptor.Force;
+        static readonly public SpellDescriptor holy_vindicator_shield_descriptor = (SpellDescriptor)AdditionalSpellDescriptors.SpellDescriptor.HolyVindicatorShield;
 
 
         static BlueprintFeature stigmata_feature = null;

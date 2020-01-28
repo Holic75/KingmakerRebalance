@@ -179,6 +179,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixChannelNegativeEnergyHeal();
                     CallOfTheWild.Rebalance.fixElementalWallsToAvoidDealingDamageTwiceOnTheFirstRound();
                     CallOfTheWild.Rebalance.fixArchonsAuraToEffectOnlyEnemies();
+                    CallOfTheWild.Rebalance.fixDruidDomainUi();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
