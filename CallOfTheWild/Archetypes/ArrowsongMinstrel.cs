@@ -215,24 +215,6 @@ namespace CallOfTheWild.Archetypes
                                                      FeatureGroup.None,
                                                      Helpers.CreateAddFact(precise_shot)
                                                      );
-
-            precise_minstrel_no_cover_buff = Helpers.CreateBuff("PreciseMinstrelNoCoverBuff",
-                                                                "",
-                                                                "",
-                                                                "",
-                                                                null,
-                                                                null);
-            precise_minstrel_no_cover_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-
-
-            var performances = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
-
-
-            foreach (var p in performances)
-            {
-                var b = p.Buff;
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(b, precise_minstrel_no_cover_buff, precise_minstrel);
-            }
         }
 
 

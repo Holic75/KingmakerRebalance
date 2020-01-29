@@ -943,7 +943,7 @@ namespace CallOfTheWild
                                           "Wind Walk",
                                           "You alter the substance of your body to a cloud-like vapor and move through the air, possibly at great speed. You can take other creatures with you, each of which acts independently.\n"
                                           + "A wind walker can regain its physical form as desired and later resume the cloud form.\n"
-                                          + "The speed of your group while on overland map increases to 60 mph.",
+                                          + "The speed of your group while on global map increases to 60 mph.",
                                           "",
                                           icon,
                                           null,
