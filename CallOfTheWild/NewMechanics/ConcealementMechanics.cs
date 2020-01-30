@@ -82,23 +82,6 @@ namespace CallOfTheWild.ConcealementMechanics
                 return Concealment.None; //no concelement update
             }
          
-            if (unitPartConcealment != null)
-            {
-                List<Feet> m_BlindsightRanges = Harmony12.Traverse.Create(unitPartConcealment).Field("m_BlindsightRanges").GetValue<List<Feet>>();
-                if (m_BlindsightRanges != null)
-                {
-                    Feet feet = 0.Feet();
-                    foreach (Feet blindsightRange in m_BlindsightRanges)
-                    {
-                        if (feet < blindsightRange)
-                            feet = blindsightRange;
-                    }
-                    float num = initiator.View.Corpulence + target.View.Corpulence;
-                    if ((double)initiator.DistanceTo(target) - (double)num <= (double)feet.Meters)
-                        return Concealment.None;
-                }
-            }
-
             Concealment a = Concealment.None;   
 
             foreach (UnitPartConcealment.ConcealmentEntry concealment in unitPartOutgoingConcealment.m_Concealments)
@@ -228,12 +211,12 @@ namespace CallOfTheWild.ConcealementMechanics
                 if (itemEntityWeapon != null && AttackTypeAttackBonus.CheckRangeType(itemEntityWeapon.Blueprint, AttackTypeAttackBonus.WeaponRangeType.Ranged))
                     a = Concealment.Partial;
             }
+
+            a = UnitPartOutgoingConcealment.Max(UnitPartOutgoingConcealment.Calculate(initiator, target, attack), a);
             if (unitPartConcealment1 != null && unitPartConcealment1.IgnorePartial && a == Concealment.Partial)
                 a = Concealment.None;
             if (unitPartConcealment1 != null && unitPartConcealment1.TreatTotalAsPartial && a == Concealment.Total)
                 a = Concealment.Partial;
-
-            a = UnitPartOutgoingConcealment.Max(UnitPartOutgoingConcealment.Calculate(initiator, target, attack), a);
             __result = a;
             return false;
         }

@@ -29,6 +29,57 @@ namespace CallOfTheWild
 {
     partial class MysteryEngine
     {
+        public BlueprintFeature createSpiritWalk(string name_prefix, string display_name, string description)
+        {
+            var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 1, 2, 1, 2, 0, 0, classes);
+            var icon = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564").Icon; //mirror image
+
+            var invisibility_buff = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
+            var ghost_fx = library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232");
+
+            var incorporeal = library.Get<BlueprintFeature>("c4a7f98d743bc784c9d4cf2105852c39");
+
+            var buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                           display_name,
+                                           description,
+                                           "",
+                                           icon,
+                                           ghost_fx.FxOnStart,
+                                           Helpers.CreateAddFacts(incorporeal),
+                                           invisibility_buff.GetComponent<BuffInvisibility>(),
+                                           Helpers.Create<AddCondition>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.CantAct)
+                                           );
+
+            var ability = Helpers.CreateActivatableAbility(name_prefix + "ActivatableAbility",
+                                                           display_name,
+                                                           description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           CommandType.Standard,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
+                                                           );
+
+            var feature = Helpers.CreateFeature(name_prefix + "Feature",
+                                                  ability.Name,
+                                                  ability.Description,
+                                                  "",
+                                                  ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFact(ability),
+                                                  Helpers.CreateAddAbilityResource(resource));
+            feature.Ranks = 1;
+            foreach (var c in classes)
+            {
+                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
+            }
+            return feature;
+        }
+
+
         public BlueprintFeature createBloodOfHeroes(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);

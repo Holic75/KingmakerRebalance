@@ -722,6 +722,9 @@ namespace CallOfTheWild
             var aging_touch = mystery_engine.createAgingTouch("AgingTouchShamanRevelation",
                                                               "Aging Touch",
                                                               "Your touch ages living creatures and objects. As a melee touch attack, you can deal 1 point of Strength damage for every two shaman levels you possess to living creatures. Against constructs, you can deal 1d6 points of damage per shaman level. You can use this ability once per day, plus one additional time per day for every five shaman levels you possess.");
+            var rewind_time = mystery_engine.createRewindTime("RewindTimeShamanRevelation",
+                                                              "Rewind Time",
+                                                              "Once per day as a swift action, you can reroll any one failed d20 in the next round. At 11th level, and every four levels thereafter, you can use this ability an additional time per day. You must be at least 7th level to select this revelation.");
             var blood_of_heroes = mystery_engine.createBloodOfHeroes("BloodOfHeroesShamanRevelation",
                                                                      "Blood of Heroes",
                                                                      "As a move action, you can call upon your ancestors to grant you extra bravery in battle. You gain a +1 morale bonus on attack rolls, damage rolls, and Will saves against fear for a number of rounds equal to your Wisdom bonus. At 7th level, this bonus increases to +2, and at 14th level this bonus increases to +3. You can use this ability once per day, plus one additional time per day at 5th level, and every five levels thereafter.");
@@ -743,6 +746,9 @@ namespace CallOfTheWild
             var storm_of_souls = mystery_engine.createStormOfSouls("StormOfSoulsShamanRevelation",
                                                                    "Storm of Souls",
                                                                    "You can summon the spirits of your ancestors to attack in a ghostly barrage—their fury creates physical wounds on creatures in the area. The storm has a range of 100 feet and is a 20-foot-radius burst. Objects and creatures in the area take 1d8 hit points of damage for every two shaman levels you possess. Undead creatures in the area take 1d8 points of damage for every shaman level you possess. A successful Fortitude save reduces the damage to half. You must be at least 7th level to select this revelation. You can use this ability once per day, plus one additional time per day at 11th level and every four levels thereafter.");
+            var spirit_walk = mystery_engine.createSpiritWalk("SpiritWalkShamanRevelation",
+                                                                   "Spirit Walk",
+                                                                   "You can become incorporeal and invisible. You can take no action other than to move while in this form. You remain in this form for a number of rounds equal to twice your shaman level, but these rounds need not be consecutive. You must be at least 11th level to select this revelation.");
             var temporal_celerity = mystery_engine.createTemporalCelerity("TemporalCelerityShamanRevelation",
                                                                       "Temporal Celerity",
                                                                       "Whenever you roll for initiative, you can roll twice and take either result. At 7th level, you can always act in the surprise round, but if you fail to notice the ambush, you act last, regardless of your initiative result (you act in the normal order in following rounds). At 11th level, you can roll for initiative three times and take any one of the results.");
@@ -763,22 +769,24 @@ namespace CallOfTheWild
                                                                       "",
                                                                       null,
                                                                       FeatureGroup.None);
-            revelation_selection.AllFeatures = new BlueprintFeature[] {aging_touch, blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior, speed_or_slow_time,
-                                                                       spirit_shield, storm_of_souls, temporal_celerity, time_flicker, time_hop, time_sight};
+            revelation_selection.AllFeatures = new BlueprintFeature[] {aging_touch, rewind_time, blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior, speed_or_slow_time,
+                                                                       spirit_shield, storm_of_souls, temporal_celerity, time_flicker, time_hop, time_sight, spirit_walk};
 
-            var spells = new Common.ExtraSpellList("2c38da66e5a599347ac95b3294acbe00", //true strike
-                                               NewSpells.force_sword.AssetGuid, //force sword,
-                                               "5ab0d42fb68c9e34abae4921822b9d63", //heroism
-                                               "6717dbaef00c0eb4897a1c908a75dfe5", //phantasmal killer
-                                               "90810e5cf53bf854293cbd5ea1066252", //righteous might
-                                               NewSpells.contingency.AssetGuid,
-                                               "4aa7942c3e62a164387a73184bca3fc1", //disintegrate
-                                               "0e67fa8f011662c43934d486acc50253", //predicition of failure
-                                               "43740dab07286fe4aa00a6ee104ce7c1" //heroic invocation
+            var spells = new Common.ExtraSpellList(new Common.SpellId("2c38da66e5a599347ac95b3294acbe00",1), //true strike
+                                                   new Common.SpellId(NewSpells.force_sword.AssetGuid, 2), //force sword,
+                                                   new Common.SpellId("5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                                                   new Common.SpellId("6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
+                                                   new Common.SpellId("90810e5cf53bf854293cbd5ea1066252", 5), //righteous might
+                                                   new Common.SpellId(NewSpells.threefold_aspect.AssetGuid, 5),
+                                                   new Common.SpellId(NewSpells.contingency.AssetGuid, 6),
+                                                   new Common.SpellId("e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
+                                                   new Common.SpellId("4aa7942c3e62a164387a73184bca3fc1", 7), //disintegrate
+                                                   new Common.SpellId("0e67fa8f011662c43934d486acc50253", 8),//predicition of failure
+                                                   new Common.SpellId("43740dab07286fe4aa00a6ee104ce7c1", 9) //heroic invocation
                                                );
             mysteries_of_the_past = Helpers.CreateFeature("MysteriesOfThePastSpeakerForThePastFeature",
                                                           "Mysteries of the past",
-                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Force Sword (2nd), Heroism (3rd), Phantasmal Killer (4th), Righteous Might (5th), Contingency (6th), Disintegrate (7th), Prediction of Failure (8th), Heroic Invocation (9th).",
+                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Force Sword (2nd), Heroism (3rd), Phantasmal Killer (4th), Righteous Might (5th), Threefold Aspect (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Prediction of Failure (8th), Heroic Invocation (9th).",
                                                           "",
                                                           null,
                                                           FeatureGroup.None,

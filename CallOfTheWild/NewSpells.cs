@@ -190,6 +190,8 @@ namespace CallOfTheWild
         static BlueprintBuff thunder_cloud_fx_buff;
         static public BlueprintAbility aggressive_thundercloud_greater;
 
+        static public BlueprintAbility threefold_aspect;
+
 
         static public void load()
         {
@@ -301,6 +303,96 @@ namespace CallOfTheWild
 
             createAggressiveThunderCloud();
             createAggressiveThunderCloudGreater();
+
+            createThreefoldAspect();
+        }
+
+
+        static void createThreefoldAspect()
+        {
+            var icon = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564").Icon;
+
+            var buff1 = Helpers.CreateBuff("ThreeFoldAspect1Buff",
+                                           "Threefold Aspect: Young",
+                                           "Threefold aspect allows you to shift your appearance between your natural age and three idealized age categories: young adult (youth/maiden), adulthood (father/mother), or elderly (elder/crone). In each case, your appearance is your own at the appropriate age, rather than that of a new individual.\n"
+                                           + "You may change between these three aspects or your actual age as a standard action. As the young adult, you gain a +2 enhancement bonus to Dexterity and Constitution, but suffer a -2 penalty to Wisdom. In the adult aspect, you gain a +2 enhancement bonus to Wisdom and Intelligence, but take a -2 penalty to Dexterity. As the elderly aspect, you gain a +4 enhancement bonus to Wisdom and Intelligence, but take a -2 penalty to Strength and Dexterity. As enhancement bonuses, these stack with any bonuses or penalties you may have from your actual age (which are untyped bonuses)-the bonuses granted by this spell represent your idealized form in this threefold aspect rather than simply duplicating your ability scores at any one particular age.",
+                                           "",
+                                           icon,
+                                           null,
+                                           Helpers.CreateAddStatBonus(StatType.Dexterity, 2, ModifierDescriptor.Enhancement),
+                                           Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Enhancement),
+                                           Helpers.CreateAddStatBonus(StatType.Wisdom, -2, ModifierDescriptor.UntypedStackable)
+                                           );
+            var buff2 = Helpers.CreateBuff("ThreeFoldAspect2Buff",
+                                           "Threefold Aspect: Adult",
+                                            buff1.Description,
+                                           "",
+                                           icon,
+                                           null,
+                                           Helpers.CreateAddStatBonus(StatType.Wisdom, 2, ModifierDescriptor.Enhancement),
+                                           Helpers.CreateAddStatBonus(StatType.Intelligence, 2, ModifierDescriptor.Enhancement),
+                                           Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable)
+                                           );
+            var buff3 = Helpers.CreateBuff("ThreeFoldAspect3Buff",
+                                           "Threefold Aspect: Elder",
+                                           buff1.Description,
+                                           "",
+                                           icon,
+                                           null,
+                                           Helpers.CreateAddStatBonus(StatType.Wisdom, 4, ModifierDescriptor.Enhancement),
+                                           Helpers.CreateAddStatBonus(StatType.Intelligence, 4, ModifierDescriptor.Enhancement),
+                                           Helpers.CreateAddStatBonus(StatType.Strength, -2, ModifierDescriptor.UntypedStackable),
+                                           Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable)
+                                           );
+
+            var buffs = new BlueprintBuff[] { buff1, buff2, buff3 };
+            var abilities = new BlueprintActivatableAbility[3];
+
+            for (int i = 0; i < buffs.Length; i++)
+            {
+                abilities[i] = Helpers.CreateActivatableAbility($"ThreeFoldAspect{i}ToggleAbility",
+                                                                buffs[i].Name,
+                                                                buffs[i].Description,
+                                                                "",
+                                                                icon,
+                                                                buffs[i],
+                                                                AbilityActivationType.Immediately,
+                                                                UnitCommand.CommandType.Standard,
+                                                                null);
+                abilities[i].Group = ActivatableAbilityGroupExtension.ThreefoldAspect.ToActivatableAbilityGroup();
+            }
+
+
+            var buff = Helpers.CreateBuff("ThreeFoldAspectBuff",
+                                           "Threefold Aspect",
+                                           buff1.Description,
+                                           "",
+                                           icon,
+                                           null,
+                                           Helpers.CreateAddFacts(abilities)
+                                           );
+
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
+
+            threefold_aspect = Helpers.CreateAbility("ThreeFoldAspectAbility",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     AbilityType.Spell,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Personal,
+                                                     "24 hours",
+                                                     "",
+                                                     Helpers.CreateRunActions(apply_buff),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                     Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                     );
+            threefold_aspect.setMiscAbilityParametersSelfOnly();
+
+            threefold_aspect.AddToSpellList(Helpers.druidSpellList, 5);
+            threefold_aspect.AddSpellAndScroll("bae1ca27b27c3eb4f9e38c03abcdb64a");
         }
 
 

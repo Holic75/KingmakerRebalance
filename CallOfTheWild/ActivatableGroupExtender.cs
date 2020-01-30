@@ -25,7 +25,8 @@ namespace CallOfTheWild
             ShamanWavesMetamagic,
             ShamanWindMetamagic,
             ShamanStoneMetamagic,
-            AttackReplacement
+            AttackReplacement,
+            ThreefoldAspect,
         }
 
         public static partial class Extensions

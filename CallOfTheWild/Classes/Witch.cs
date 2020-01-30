@@ -986,6 +986,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( NewSpells.spite.AssetGuid, 4),
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
+                new Common.SpellId( NewSpells.threefold_aspect.AssetGuid, 4),
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
                 new Common.SpellId( "16ce660837fb2544e96c3b7eaad73c63", 4), //volcanic storm
 

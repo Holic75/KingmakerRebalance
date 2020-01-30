@@ -158,6 +158,7 @@ New spells:
 - Earth Tremor,
 - Flame Arrow,
 - Flashfire,
+- Threefold Aspect,
 - Wall of Nausea,
 - Fly and Fly, Mass,
 - Font of Spirit Magic,

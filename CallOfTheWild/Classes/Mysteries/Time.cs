@@ -240,6 +240,45 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createRewindTime(string name_prefix, string display_name, string description)
+        {
+            // Note: will replace with action that will make one reroll of failed action during next round
+
+            var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 7, 0, 4, 1, 0, 0, classes);
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("3bc40c9cbf9a0db4b8b43d8eedf2e6ec", name_prefix + "Buff", "");
+            buff.SetNameDescription(display_name, description);
+            buff.ReplaceComponent<ModifyD20>(m => { m.DispellOnRerollFinished = true; m.RerollOnlyIfFailed = true; });
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                    display_name,
+                                    description,
+                                    "",
+                                    buff.Icon,
+                                    AbilityType.Supernatural,
+                                    CommandType.Swift,
+                                    AbilityRange.Personal,
+                                    Helpers.oneRoundDuration,
+                                    "",
+                                    Helpers.CreateRunActions(apply_buff),
+                                    Helpers.CreateResourceLogic(resource)
+                                   );
+            ability.setMiscAbilityParametersSelfOnly();
+            var feature = Common.AbilityToFeature(ability, hide: false);
+            feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
+            foreach (var c in classes)
+            {
+                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
+            }
+
+            return feature;
+        }
+
+
         public BlueprintFeature createTimeSight(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
