@@ -191,6 +191,7 @@ namespace CallOfTheWild
         static public BlueprintAbility aggressive_thundercloud_greater;
 
         static public BlueprintAbility threefold_aspect;
+        static public BlueprintAbility sands_of_time;
 
 
         static public void load()
@@ -305,7 +306,53 @@ namespace CallOfTheWild
             createAggressiveThunderCloudGreater();
 
             createThreefoldAspect();
+            createSandsOfTime();
         }
+
+        static void createSandsOfTime()
+        {
+            var icon = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c").Icon;
+
+            var buff = Helpers.CreateBuff("SandsOfTimeBuff",
+                                          "Sands of Time",
+                                          "You temporarily age the target, immediately advancing it to the next age category. The target immediately takes the age penalties to Strength, Dexterity, and Constitution for its new age category, but does not gain the bonuses for that category. A creature whose age is unknown is treated as if the spell advances it to old age (-2 to Strength, Dexterity and Constitution). Ageless or immortal creatures are immune to this spell.\n"
+                                          + "If you cast this on an object, construct, or undead creature, it takes 3d6 points of damage + 1 point per caster level (maximum + 15) as time weathers and corrodes it. This version of the spell has an instantaneous duration.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.Strength, -2, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.Constitution, -2, ModifierDescriptor.UntypedStackable)
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes));
+            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, 3, Helpers.CreateContextValue(AbilityRankType.Default)));
+
+            var action = Helpers.CreateConditional(Common.createContextConditionHasFacts(all: false, Common.undead, Common.construct), deal_damage, apply_buff);
+            var sands_of_time_touch = Helpers.CreateAbility("SandsOfTimeTouchAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Touch,
+                                                  Helpers.tenMinPerLevelDuration,
+                                                  Helpers.savingThrowNone,
+                                                  Helpers.CreateRunActions(action),
+                                                  Common.createAbilityTargetHasFact(inverted: true, Common.elemental),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                  Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                  Helpers.CreateDeliverTouch()
+                                                  );
+            sands_of_time_touch.SpellResistance = true;
+            sands_of_time_touch.setMiscAbilityParametersTouchHarmful();
+            sands_of_time = Helpers.CreateTouchSpellCast(sands_of_time_touch);
+
+            sands_of_time.AddToSpellList(Helpers.clericSpellList, 3);
+            sands_of_time.AddToSpellList(Helpers.wizardSpellList, 3);
+            sands_of_time.AddSpellAndScroll("a9a0d65ec202e25478bcae4a87e844f9"); //forced repentance
+        }
+
 
 
         static void createThreefoldAspect()

@@ -961,6 +961,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c927a8b0cd3f5174f8c0b67cdbfde539", 3), //remove blindness
                 new Common.SpellId( "b48674cef2bff5e478a007cf57d8345b", 3), //remove curse
                 new Common.SpellId( "4093d5a0eb5cae94e909eb1e0e1a6b36", 3), //remove disease
+                new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 3), //spit venom
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3

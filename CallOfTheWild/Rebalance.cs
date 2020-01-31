@@ -358,9 +358,16 @@ namespace CallOfTheWild
         {
             var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
+            var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            var domain_classes_and_druid = new BlueprintCharacterClass[] { cleric_class, inquisitor_class, druid_class };
             var domain_classes = new BlueprintCharacterClass[] { cleric_class, inquisitor_class };
+
+            //weather
+            //add missing druid scaling to Storm Burst
+            library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9").ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", domain_classes_and_druid));
+            
             //protection domain
-            var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,
+            /*var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,
                                                                                              startLevel: 1,
                                                                                              stepLevel: 5,
                                                                                              min: 1,
@@ -370,7 +377,7 @@ namespace CallOfTheWild
             protection_domain_remove_save_bonus.AddComponent(protection_bonus_context_rank);
 
             var protection_domain_save_bonus = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Buffs.Blueprints.BlueprintBuff>("2ddb4cfc3cfd04c46a66c6cd26df1c06"); //resitant touch bonus
-            protection_domain_save_bonus.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(protection_bonus_context_rank);
+            protection_domain_save_bonus.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(protection_bonus_context_rank);*/
         }
 
 
@@ -1032,6 +1039,17 @@ namespace CallOfTheWild
 
                 (druid_domain as BlueprintProgression).UIGroups = cleric_domain.UIGroups;
             }
+        }
+
+
+        internal static void fixSylvanSorcerorAnimalCompanion()
+        {
+            //make it to be equal to level - 4 (min 1)
+            var progression = library.Get<BlueprintProgression>("09c91f959fb737f4289d121e595c657c");
+            progression.LevelEntries = progression.LevelEntries.Skip(3).ToArray();
+
+            var sylvan_animal_companion = library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c");
+            sylvan_animal_companion.SetDescription("At 1st level, you gain an animal companion. Your effective druid level for this ability is equal to your sorcerer level – 3 (minimum 1st).\n" + sylvan_animal_companion.Description);
         }
     }
 

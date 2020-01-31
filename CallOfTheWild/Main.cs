@@ -147,10 +147,10 @@ namespace CallOfTheWild
                         CallOfTheWild.Rebalance.fixEcclesitheurge();
                     }
 
-
+                    CallOfTheWild.Rebalance.fixSylvanSorcerorAnimalCompanion();
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
-                    //CallOfTheWild.Rebalance.fixDomains();
+                    CallOfTheWild.Rebalance.fixDomains();
                     CallOfTheWild.Rebalance.fixBarbarianRageAC();
                     CallOfTheWild.Rebalance.fixInspiredFerocity();
                     CallOfTheWild.Rebalance.fixWebSchool();

@@ -159,6 +159,7 @@ New spells:
 - Flame Arrow,
 - Flashfire,
 - Threefold Aspect,
+- Sands of Time,
 - Wall of Nausea,
 - Fly and Fly, Mass,
 - Font of Spirit Magic,
@@ -245,7 +246,8 @@ enchanced attacks (optional),
 - Increased damage reduction defensive power increases dr by 2 instead of 1 to make it similar to unchained barbarian rage power,
 - Acid Fog spell effect was changed to work as in pnp,
 - Mystic Theurge now receives spell synthesis ability at level 10,
-- Vital Strike now works with ranged attacks.
+- Vital Strike now works with ranged attacks,
+- Sylvan Sorcerer druid level for animal companion progression is equal to his class level - 4 (min 1)
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -259,7 +261,8 @@ Original game bug fixes:
 - Characters receive slam proficiency, that allows them to pick corresponding weapon focus and similar feats,
 - Fixed incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities,
 - Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire, as a side effect it also allows to loot body under baleful polymorph.
-- Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required).
+- Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required),
+- Fixed missing druid scaling on 1st level Weather domain ability.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

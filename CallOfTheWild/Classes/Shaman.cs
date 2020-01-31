@@ -775,9 +775,10 @@ namespace CallOfTheWild
             var spells = new Common.ExtraSpellList(new Common.SpellId("2c38da66e5a599347ac95b3294acbe00",1), //true strike
                                                    new Common.SpellId(NewSpells.force_sword.AssetGuid, 2), //force sword,
                                                    new Common.SpellId("5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                                                   new Common.SpellId(SpellDuplicates.addDuplicateSpell(NewSpells.sands_of_time, "SpeakerForThePastSendsOfTimeAbility").AssetGuid, 3), //sands of time
                                                    new Common.SpellId("6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
+                                                   new Common.SpellId(NewSpells.threefold_aspect.AssetGuid, 4),
                                                    new Common.SpellId("90810e5cf53bf854293cbd5ea1066252", 5), //righteous might
-                                                   new Common.SpellId(NewSpells.threefold_aspect.AssetGuid, 5),
                                                    new Common.SpellId(NewSpells.contingency.AssetGuid, 6),
                                                    new Common.SpellId("e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
                                                    new Common.SpellId("4aa7942c3e62a164387a73184bca3fc1", 7), //disintegrate
@@ -786,7 +787,7 @@ namespace CallOfTheWild
                                                );
             mysteries_of_the_past = Helpers.CreateFeature("MysteriesOfThePastSpeakerForThePastFeature",
                                                           "Mysteries of the past",
-                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Force Sword (2nd), Heroism (3rd), Phantasmal Killer (4th), Righteous Might (5th), Threefold Aspect (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Prediction of Failure (8th), Heroic Invocation (9th).",
+                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Force Sword (2nd), Heroism (3rd), Sands of Time(3rd), Phantasmal Killer (4th), Threefold Aspect (4th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Prediction of Failure (8th), Heroic Invocation (9th).",
                                                           "",
                                                           null,
                                                           FeatureGroup.None,
@@ -950,6 +951,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "2a6eda8ef30379142a4b75448fb214a3", 4), //poison
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
+                new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 4),
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
