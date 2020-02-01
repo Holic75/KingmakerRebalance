@@ -5337,7 +5337,7 @@ namespace CallOfTheWild
 
 
 
-            public class ContextActionRangedTouchAttack : ContextAction
+        public class ContextActionRangedTouchAttack : ContextAction
         {
             public BlueprintItemWeapon Weapon;
 
@@ -5378,8 +5378,45 @@ namespace CallOfTheWild
                     Log.Error(e);
                 }
             }
+        }
 
 
+        public class BloodHavoc : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintParametrizedFeature feature;
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                
+                var ability = evt.Reason.Context?.SourceAbility;
+                if (ability == null)
+                {
+                    return;
+                }
+
+                if (!ability.IsSpell)
+                {
+                    return;
+                }
+
+                var school = ability.School;
+                if (school == SpellSchool.None)
+                {
+                    return;
+                }
+
+                if (!this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == school))
+                {
+                    return;
+                }
+
+                foreach (BaseDamage baseDamage in evt.DamageBundle)
+                    baseDamage.AddBonus(baseDamage.Dice.Rolls);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
         }
     }
 }

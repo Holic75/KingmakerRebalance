@@ -344,6 +344,7 @@ namespace CallOfTheWild
                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                   Helpers.CreateDeliverTouch()
                                                   );
+            sands_of_time_touch.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize;
             sands_of_time_touch.SpellResistance = true;
             sands_of_time_touch.setMiscAbilityParametersTouchHarmful();
             sands_of_time = Helpers.CreateTouchSpellCast(sands_of_time_touch);
@@ -437,6 +438,7 @@ namespace CallOfTheWild
                                                      Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                      );
             threefold_aspect.setMiscAbilityParametersSelfOnly();
+            threefold_aspect.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
 
             threefold_aspect.AddToSpellList(Helpers.druidSpellList, 5);
             threefold_aspect.AddSpellAndScroll("bae1ca27b27c3eb4f9e38c03abcdb64a");

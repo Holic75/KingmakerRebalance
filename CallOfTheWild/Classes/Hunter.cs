@@ -186,8 +186,10 @@ namespace CallOfTheWild
                                                  "You gain limited levitation ability that gives you immunity to difficult terrain and ground based effects.",
                                                  "",
                                                  "",
-                                                 library.Get<BlueprintFeature>("f48c7d56a8a13af4d8e1cc9aae579b01").Icon, //wings
-                                                 airborne.ComponentsArray
+                                                 library.Get<BlueprintFeature>("f48c7d56a8a13af4d8e1cc9aae579b01").Icon, //elemental movement
+                                                 Helpers.Create<AddConditionImmunity>(a => a.Condition = UnitCondition.DifficultTerrain),
+                                                 Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
+                                                 Common.createBuffDescriptorImmunity(SpellDescriptor.Ground)
                                                );
 
             planar_focus_chaos = createToggleFocus("PlanarFocusChaos",

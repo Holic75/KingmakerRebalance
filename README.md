@@ -113,6 +113,9 @@ New Wild Talents:
 - Kinetic Whip,
 - Whip Hurricane.
 
+Bloodline Mutations:
+- Blood Havoc.
+
 
 New spells:
 - Blade Lash,
@@ -247,7 +250,10 @@ enchanced attacks (optional),
 - Acid Fog spell effect was changed to work as in pnp,
 - Mystic Theurge now receives spell synthesis ability at level 10,
 - Vital Strike now works with ranged attacks,
-- Sylvan Sorcerer druid level for animal companion progression is equal to his class level - 4 (min 1)
+- Sylvan Sorcerer druid level for animal companion progression is equal to his class level - 4 (min 1),
+- Empyreal sorceror no longer receives wings,
+- Celestial Sorcerer receives wings at lvl 9 and does not receive heavenly aura,
+- Abyssal bloodline sorcerer no longer receives wings.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

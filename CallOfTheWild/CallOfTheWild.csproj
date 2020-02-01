@@ -128,6 +128,7 @@
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
+    <Compile Include="BloodlinesFix.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
     <Compile Include="Classes\Mysteries\Time.cs" />
