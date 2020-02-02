@@ -67,7 +67,12 @@ New feats:
 - Linnorm Style, Linnorm Vengeance, Linnorm Wrath,
 - Jabbing Style, Jabbing Dancer, Jabbing Master,
 - Lesser Spell Synthesis,
-- Extra Spell Synthesis.
+- Extra Spell Synthesis,
+- Dazing Spell,
+- Intensified Spell,
+- Persistent Spell,
+- Rime Spell,
+- Toppling Spell.
 
 New rage powers:
 - Terrifying Howl
@@ -114,7 +119,8 @@ New Wild Talents:
 - Whip Hurricane.
 
 Bloodline Mutations:
-- Blood Havoc.
+- Blood Havoc,
+- Blood Intensity.
 
 
 New spells:
@@ -250,7 +256,7 @@ enchanced attacks (optional),
 - Acid Fog spell effect was changed to work as in pnp,
 - Mystic Theurge now receives spell synthesis ability at level 10,
 - Vital Strike now works with ranged attacks,
-- Sylvan Sorcerer druid level for animal companion progression is equal to his class level - 4 (min 1),
+- Sylvan Sorcerer druid level for animal companion progression is equal to his class level - 3 (min 1),
 - Empyreal sorceror no longer receives wings,
 - Celestial Sorcerer receives wings at lvl 9 and does not receive heavenly aura,
 - Abyssal bloodline sorcerer no longer receives wings.

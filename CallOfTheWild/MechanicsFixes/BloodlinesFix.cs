@@ -1,6 +1,8 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -19,15 +21,64 @@ namespace CallOfTheWild
         static BlueprintArchetype eldritch_scion = library.Get<BlueprintArchetype>("d078b2ef073f2814c9e338a789d97b73");
 
         static public BlueprintFeature blood_havoc;
+        static public BlueprintFeature blood_intensity;
 
         static internal void load()
         {
             fixSorcBloodlineProgression();
             fixBloodlinesUI();
             createBloodHavoc();
+            createBloodIntensity();
+
+            addBloodlineMutations();
+         
         }
 
+        static void createBloodIntensity()
+        {
+            var resource = Helpers.CreateAbilityResource("BloodIntensityResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 3, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { sorcerer, magus, Bloodrager.bloodrager_class }, new BlueprintArchetype[] { eldritch_scion });
 
+            var buff = Helpers.CreateBuff("BloodIntensityBuff",
+                                          "Blood Intensity",
+                                          "Whenever you cast a bloodrager or sorcerer spell that deals damage, you can increase its maximum number of damage dice by an amount equal to your Strength or Charisma modifier, whichever is higher. This otherwise functions as —and does not stack with—the Intensified Spell feat. You can use this ability once per day at 3rd level and one additional time per day for every 4 caster levels you have beyond 3rd, up to five times per day at 19th level.",
+                                          "",
+                                          MetamagicFeats.intensified_metamagic.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                                                                                                      {
+                                                                                                                          m.resource = resource;
+                                                                                                                          m.spell_descriptor = SpellDescriptor.None;
+                                                                                                                          m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity;
+                                                                                                                      })
+                                          );
+
+            var ability = Helpers.CreateActivatableAbility("BloodIntensityToggleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                           );
+            ability.DeactivateImmediately = true;
+                                          
+            blood_intensity = Helpers.CreateFeature("BloodIntensityFeature",
+                                                "Blood Intensity",
+                                                "Whenever you cast a bloodrager or sorcerer spell that deals damage, you can increase its maximum number of damage dice by an amount equal to your Strength or Charisma modifier, whichever is higher. This otherwise functions as —and does not stack with—the Intensified Spell feat. You can use this ability once per day at 3rd level and one additional time per day for every 4 caster levels you have beyond 3rd, up to five times per day at 19th level.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddAbilityResource(resource),
+                                                Helpers.CreateAddFact(ability),
+                                                Helpers.PrerequisiteClassLevel(sorcerer, 3, any: true),
+                                                Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 8, any: true),
+                                                Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 3, any: true)
+                                                );
+        }
         static void createBloodHavoc()
         {
             blood_havoc = Helpers.CreateFeature("BloodHavocFeature",
@@ -42,13 +93,18 @@ namespace CallOfTheWild
                                                 Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 1, any: true)
                                                 );
 
+        }
+
+
+        static void addBloodlineMutations()
+        {
             var feats_selections = new BlueprintFeatureSelection[] {library.Get<BlueprintFeatureSelection>("3a60f0c0442acfb419b0c03b584e1394"), //sorcerer
                                                                     Bloodrager.bloodline_feat_selection,
                                                                    };
 
             foreach (var fs in feats_selections)
             {
-                fs.AllFeatures = fs.AllFeatures.AddToArray(blood_havoc);
+                fs.AllFeatures = fs.AllFeatures.AddToArray(blood_havoc, blood_intensity);
             }
 
             var bloodlines = library.Get<BlueprintFeatureSelection>("24bef8d1bee12274686f6da6ccbc8914").AllFeatures.Cast<BlueprintProgression>().ToList();
@@ -56,6 +112,7 @@ namespace CallOfTheWild
             foreach (var b in bloodlines)
             {
                 var ability1 = b.LevelEntries[0].Features.Where(f => !f.name.Contains("Arcana") && !f.name.Contains("ClassSkill")).FirstOrDefault() as BlueprintFeature;
+                var ability3 = b.LevelEntries[1].Features.Where(f => !f.name.Contains("BloodlineBonusSpell")).FirstOrDefault() as BlueprintFeature;
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,
@@ -64,15 +121,28 @@ namespace CallOfTheWild
                                                                ability1.Icon,
                                                                FeatureGroup.None);
                 selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc };
+
+                var selection3 = Helpers.CreateFeatureSelection(ability3.name + "Selection",
+                                               ability3.Name,
+                                               ability3.Description,
+                                               "",
+                                               ability3.Icon,
+                                               FeatureGroup.None);
+                selection3.AllFeatures = new BlueprintFeature[] { ability3, blood_intensity };
                 b.UIGroups[0].Features.Remove(ability1);
                 b.UIGroups[0].Features.Add(selection);
+                b.UIGroups[0].Features.Remove(ability3);
+                b.UIGroups[0].Features.Add(selection3);
                 b.LevelEntries[0].Features.Remove(ability1);
                 b.LevelEntries[0].Features.Add(selection);
+                b.LevelEntries[1].Features.Remove(ability3);
+                b.LevelEntries[1].Features.Add(selection3);
             }
 
             foreach (var b in Bloodrager.bloodlines.Values)
             {
                 var ability1 = b.progression.LevelEntries[1].Features[0] as BlueprintFeature;
+                var ability2 = b.progression.LevelEntries[3].Features[0] as BlueprintFeature;
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,
@@ -85,10 +155,20 @@ namespace CallOfTheWild
                 b.progression.UIGroups[0].Features.Add(selection);
                 b.progression.LevelEntries[1].Features.Remove(ability1);
                 b.progression.LevelEntries[1].Features.Add(selection);
+
+                var selection2 = Helpers.CreateFeatureSelection(ability2.name + "Selection",
+                                               ability2.Name,
+                                               ability2.Description,
+                                               "",
+                                               ability2.Icon,
+                                               FeatureGroup.None);
+                selection.AllFeatures = new BlueprintFeature[] { ability2, blood_intensity };
+                b.progression.UIGroups[0].Features.Remove(ability2);
+                b.progression.UIGroups[0].Features.Add(selection2);
+                b.progression.LevelEntries[3].Features.Remove(ability2);
+                b.progression.LevelEntries[3].Features.Add(selection2);
             }
-
         }
-
 
         static void fixBloodlinesUI()
         {

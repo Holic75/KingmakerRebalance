@@ -3424,6 +3424,7 @@ namespace CallOfTheWild
 
             public SavingThrowType save_type = SavingThrowType.Unknown;
             public SpellDescriptorWrapper descriptor;
+            public bool use_existing_save;
 
             public void OnEventAboutToTrigger(RuleDealDamage evt)
             {
@@ -3454,8 +3455,6 @@ namespace CallOfTheWild
                     return;
                 }
 
-
-
                 if (evt.Damage <= min_dmg)
                 {
                     return;
@@ -3465,9 +3464,18 @@ namespace CallOfTheWild
 
                 if (save_type != SavingThrowType.Unknown)
                 {
-                    var rule_saving_throw = new RuleSavingThrow(target, save_type, dc);
+                    RuleSavingThrow rule_saving_throw = null;
 
-                    Rulebook.Trigger(rule_saving_throw);
+                    if (use_existing_save)
+                    {
+                      rule_saving_throw =  context.SavingThrow;
+                    }
+                    if (rule_saving_throw == null)
+                    {
+                        rule_saving_throw = new RuleSavingThrow(target, save_type, dc);
+                        Rulebook.Trigger(rule_saving_throw);
+                    }
+                   
                     if (rule_saving_throw.IsPassed)
                     {
                         return;
@@ -3478,9 +3486,85 @@ namespace CallOfTheWild
                     return;
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, target);
             }
-
-
         }
+
+
+        public class ApplyBuffOnSpellDamageIfHasMetamagic : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        {
+            public BlueprintBuff buff;
+            public int min_dmg = 1;
+            public bool only_critical;
+            public Metamagic metamagic;
+
+            public SavingThrowType save_type = SavingThrowType.Unknown;
+            public SpellDescriptorWrapper descriptor;
+            public bool use_existing_save;
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
+                {
+                    return;
+                }
+                //Main.logger.Log("Checking " + evt.Target.CharacterName);
+                var context = Helpers.GetMechanicsContext();
+                var spellContext = context?.SourceAbilityContext;
+                var target = evt.Target;
+                if (spellContext == null || target == null)
+                {
+                    return;
+                }
+                if (!spellContext.HasMetamagic(metamagic))
+                {
+                    return;
+                }
+                var spellbook = spellContext.Ability.Spellbook;
+                if (spellbook == null)
+                {
+                    return;
+                }
+
+                if (descriptor.Value != SpellDescriptor.None && !descriptor.HasAnyFlag(spellContext.SpellDescriptor))
+                {
+                    return;
+                }
+
+                if (evt.Damage <= min_dmg)
+                {
+                    return;
+                }
+
+                var dc = context.Params.DC;
+
+                if (save_type != SavingThrowType.Unknown)
+                {
+                    RuleSavingThrow rule_saving_throw = null;
+
+                    if (use_existing_save)
+                    {
+                        rule_saving_throw = context.SavingThrow;
+                    }
+                    if (rule_saving_throw == null)
+                    {
+                        rule_saving_throw = new RuleSavingThrow(target, save_type, dc);
+                        Rulebook.Trigger(rule_saving_throw);
+                    }
+
+                    if (rule_saving_throw.IsPassed)
+                    {
+                        return;
+                    }
+                }
+
+                var spellLevel = context.Params.SpellLevel;
+                Helpers.CreateApplyBuff(buff , Helpers.CreateContextDuration(spellLevel), fromSpell: true).RunAction();
+            }
+        }
+
 
 
 

@@ -989,7 +989,7 @@ namespace CallOfTheWild
             oneRoundDuration = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00").LocalizedDuration; // true strike
             oneMinuteDuration = library.Get<BlueprintAbility>("93f391b0c5a99e04e83bbfbe3bb6db64").LocalizedDuration; // protection from evil communal
             reflexHalfDamage = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").LocalizedSavingThrow; // fireball
-            savingThrowNone = library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").LocalizedSavingThrow; // magic missle
+            savingThrowNone = library.Get<BlueprintAbility>("b6010dda6333bcf4093ce20f0063cd41").LocalizedSavingThrow; // frigid touch
             willNegates = library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734").LocalizedSavingThrow; //bane
             fortNegates = library.Get<BlueprintAbility>("48e2744846ed04b4580be1a3343a5d3d").LocalizedSavingThrow; //contagion
 

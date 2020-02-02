@@ -128,7 +128,8 @@
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
-    <Compile Include="BloodlinesFix.cs" />
+    <Compile Include="Features\MetamagicFeats.cs" />
+    <Compile Include="MechanicsFixes\BloodlinesFix.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
     <Compile Include="Classes\Mysteries\Time.cs" />
@@ -152,19 +153,19 @@
     <Compile Include="Classes\VindicativeBastard.cs" />
     <Compile Include="CleanUp.cs" />
     <Compile Include="Enchantments\WeaponEnchantments.cs" />
-    <Compile Include="FixFlying.cs" />
+    <Compile Include="MechanicsFixes\FixFlying.cs" />
     <Compile Include="GlobalMap.cs" />
     <Compile Include="Hexes\ShamanHexes.cs" />
-    <Compile Include="Inquisitions.cs" />
-    <Compile Include="KineticistFix.cs" />
-    <Compile Include="MysticTheurgeFix.cs" />
+    <Compile Include="Features\Inquisitions.cs" />
+    <Compile Include="MechanicsFixes\KineticistFix.cs" />
+    <Compile Include="MechanicsFixes\MysticTheurgeFix.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditionalSpellDescriptors.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
-    <Compile Include="FeralCombatTraining.cs" />
+    <Compile Include="Features\FeralCombatTraining.cs" />
     <Compile Include="Hexes\HexEngine.cs" />
     <Compile Include="LoadIcons.cs" />
     <Compile Include="Main.cs" />
@@ -179,7 +180,7 @@
     <Compile Include="NewMechanics\InitiativeMechanics.cs" />
     <Compile Include="NewMechanics\KineticistMechanics.cs" />
     <Compile Include="NewMechanics\MetamagicMechanics.cs" />
-    <Compile Include="NewFeats.cs" />
+    <Compile Include="Features\NewFeats.cs" />
     <Compile Include="NewMechanics\MonsterLore.cs" />
     <Compile Include="NewMechanics\NewMechanics.cs" />
     <Compile Include="NewMechanics\CombatManeuverMechanics.cs" />
@@ -197,8 +198,8 @@
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />
     <Compile Include="NewMechanics\WeatherMechanics.cs" />
     <Compile Include="NewMechanics\WildArmor.cs" />
-    <Compile Include="NewRagePowers.cs" />
-    <Compile Include="NewSpells.cs" />
+    <Compile Include="Features\NewRagePowers.cs" />
+    <Compile Include="Features\NewSpells.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -208,13 +209,13 @@
     <Compile Include="Rebalance.cs" />
     <Compile Include="SaveCompatibility.cs" />
     <Compile Include="SaveGameFix.cs" />
-    <Compile Include="SharedSpells.cs" />
+    <Compile Include="Features\SharedSpells.cs" />
     <Compile Include="ShowRerolls.cs" />
     <Compile Include="Classes\Skald.cs" />
     <Compile Include="NewMechanics\SpellManipulationMechanics.cs" />
     <Compile Include="SpellVariantsLayoutFix.cs" />
     <Compile Include="Classes\Warpriest.cs" />
-    <Compile Include="Wildshape.cs" />
+    <Compile Include="Features\Wildshape.cs" />
     <Compile Include="Classes\Witch.cs" />
   </ItemGroup>
   <ItemGroup>

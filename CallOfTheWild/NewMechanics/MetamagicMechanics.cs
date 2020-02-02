@@ -299,7 +299,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                if (!spell_descriptor.HasAnyFlag(data.Blueprint.SpellDescriptor))
+                if (!spell_descriptor.HasAnyFlag(data.Blueprint.SpellDescriptor) && spell_descriptor != SpellDescriptor.None)
                 {
                     return false;
                 }

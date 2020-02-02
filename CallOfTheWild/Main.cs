@@ -194,11 +194,14 @@ namespace CallOfTheWild
                     {
                         CallOfTheWild.Wildshape.allowToUseArmorInWildshape();
                     }
+                    CallOfTheWild.MetamagicFeats.load();
                     CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
-
                     
+
+
+
 
                     bool inquisitions_test = false;
 #if DEBUG
