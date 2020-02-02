@@ -16,6 +16,7 @@ using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UI.Common;
+using Kingmaker.UI.Tooltip;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -426,8 +427,6 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
-
 
                 if (__instance.IsPassed)
                 {

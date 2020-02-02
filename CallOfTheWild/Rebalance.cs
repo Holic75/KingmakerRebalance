@@ -287,7 +287,15 @@ namespace CallOfTheWild
             //change regongar
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
-            ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>().Levels = 1;
+            var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();
+            regognar_levels.Levels = 1;
+            regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
+                                                                                {
+                                                                                    Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
+                                                                                    Features = new BlueprintFeature[] { BloodlinesFix.blood_havoc }
+                                                                                }
+                                                                              );
+
             //change ekun
             var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
             ekun_companion.Strength = 14;
