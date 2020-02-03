@@ -3335,5 +3335,60 @@ namespace CallOfTheWild
         }
 
 
+        public static void runActionOnDamageDealt(RuleDealDamage evt,  ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
+                                                  SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false)
+        {
+            if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
+            {
+                return;
+            }
+            var context = Helpers.GetMechanicsContext();
+            var spellContext = context?.SourceAbilityContext;
+            var target = evt.Target;
+            if (spellContext == null || target == null)
+            {
+                return;
+            }
+
+            if (!spellContext.SourceAbility.IsSpell)
+            {
+                return;
+            }
+
+            if (descriptor != SpellDescriptor.None && !descriptor.HasAnyFlag(spellContext.SpellDescriptor))
+            {
+                return;
+            }
+
+            if (evt.Damage <= min_dmg)
+            {
+                return;
+            }
+
+            var dc = context.Params.DC;
+
+            if (save_type != SavingThrowType.Unknown)
+            {
+                RuleSavingThrow rule_saving_throw = null;
+
+                if (use_existing_save)
+                {
+                    rule_saving_throw = context.SavingThrow;
+                }
+                if (rule_saving_throw == null)
+                {
+                    rule_saving_throw = new RuleSavingThrow(target, save_type, dc);
+                    Rulebook.Trigger(rule_saving_throw);
+                }
+
+                if (rule_saving_throw.IsPassed)
+                {
+                    return;
+                }
+            }
+
+            action.Run();
+        }
+
     }
 }

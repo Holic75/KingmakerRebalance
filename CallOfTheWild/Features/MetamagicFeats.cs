@@ -15,6 +15,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UI.Common;
 using Kingmaker.UI.Tooltip;
 using Kingmaker.UnitLogic.Abilities;
@@ -124,9 +125,6 @@ namespace CallOfTheWild
 
         static void createDazingSpell()
         {
-            var dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
-            
-
             dazing_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "DazingSpellFeature", "");
             dazing_metamagic.SetNameDescriptionIcon("Metamagic (Dazing Spell)",
                                                          "You can modify a spell to daze a creature damaged by the spell. When a creature takes damage from this spell, they become dazed for a number of rounds equal to the original level of the spell. If the spell allows a saving throw, a successful save negates the daze effect. If the spell does not allow a save, the target can make a Will save to negate the daze effect. \n"
@@ -134,17 +132,6 @@ namespace CallOfTheWild
                                                          + "Spells that do not inflict damage do not benefit from this feat.",
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/DazingSpell.png")
                                                         );
-            dazing_metamagic.AddComponent(Helpers.Create<NewMechanics.ApplyBuffOnSpellDamageIfHasMetamagic>(a =>
-                                                                                            {
-                                                                                                a.descriptor = SpellDescriptor.None;
-                                                                                                a.save_type = SavingThrowType.Will;
-                                                                                                a.buff = dazed;
-                                                                                                a.use_existing_save = true;
-                                                                                                a.metamagic = (Metamagic)MetamagicExtender.Dazing;
-                                                                                            }
-                                                                                            )
-                                         );
-
 
             dazing_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Dazing);
             library.AddFeats(dazing_metamagic);
@@ -164,8 +151,6 @@ namespace CallOfTheWild
 
         static void createRimeSpell()
         {
-            var entangled = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
-
             rime_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "RimeSpellFeature", "");
             rime_metamagic.SetNameDescriptionIcon("Metamagic (Rime Spell)",
                                                          "The frost of your cold spell clings to the target, impeding it for a short time. A rime spell causes creatures that takes cold damage from the spell to become entangled for a number of rounds equal to the original level of the spell.\n"
@@ -173,16 +158,6 @@ namespace CallOfTheWild
                                                          + "This feat only affects spells with the cold descriptor.",
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/RimeSpell.png")
                                                         );
-            rime_metamagic.AddComponent(Helpers.Create<NewMechanics.ApplyBuffOnSpellDamageIfHasMetamagic>(a =>
-                                                                                            {
-                                                                                                a.descriptor = SpellDescriptor.Cold;
-                                                                                                a.save_type = SavingThrowType.Unknown;
-                                                                                                a.buff = entangled;
-                                                                                                a.metamagic = (Metamagic)MetamagicExtender.Rime;
-                                                                                            }
-                                                                                            )
-                                         );
-
 
             rime_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Rime);
             library.AddFeats(rime_metamagic);
@@ -205,9 +180,6 @@ namespace CallOfTheWild
 
         static void createTopplingSpell()
         {
-
-            var action = Helpers.Create<ContextActionCombatManeuver>(a => { a.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip; a.UseCastingStat = true; a.UseCasterLevelAsBaseAttack = true; });
-
             toppling_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "TopplingSpellFeature", "");
             toppling_metamagic.SetNameDescriptionIcon("Metamagic (Toppling Spell)",
                                                          "The impact of your force spell is strong enough to knock the target prone. If the target takes damage, fails its saving throw, or is moved by your force spell, make a trip check against the target, using your caster level plus your casting ability score bonus (Wisdom for clerics, Intelligence for wizards, and so on). \n"
@@ -215,15 +187,6 @@ namespace CallOfTheWild
                                                          + "A toppling spell only affects spells with the force descriptor.",
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/TopplingSpell.png")
                                                         );
-            toppling_metamagic.AddComponent(Helpers.Create<NewMechanics.ActionOnSpellDamage>(a =>
-                                                                                            {
-                                                                                                a.descriptor = SpellDescriptor.None;
-                                                                                                a.save_type = SavingThrowType.Unknown;
-                                                                                                a.action = Helpers.CreateActionList(action);
-                                                                                            }
-                                                                                            )
-                                         );
-
 
             toppling_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Toppling);
             library.AddFeats(toppling_metamagic);
@@ -434,6 +397,43 @@ namespace CallOfTheWild
                     Harmony12.Traverse.Create(__instance).Property("D20").SetValue(RulebookEvent.Dice.D20);
                     int new_value = __instance.D20;
                     Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " rerolls saving throw due to persistent spell: " + $"{old_value}  >>  {new_value}");
+                }
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(RuleDealDamage))]
+        [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+        static class RuleDealDamage_OnTrigger_Patch
+        {
+            static BlueprintBuff entangled = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
+            static BlueprintBuff dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
+            internal static void Postfix(RuleDealDamage __instance, RulebookEventContext context)
+            {
+                var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                var target = __instance.Target;
+                if (spellContext == null || target == null)
+                {
+                    return;
+                }
+
+                var spell_level = spellContext.Params.SpellLevel;
+                if (spellContext.HasMetamagic((Metamagic)MetamagicExtender.Toppling))
+                {
+                    GameAction toppling_action = Helpers.Create<ContextActionCombatManeuver>(a => { a.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip; a.UseCastingStat = true; a.UseCasterLevelAsBaseAttack = true; });
+                    Common.runActionOnDamageDealt(__instance, Helpers.CreateActionList(toppling_action));
+                }
+
+                if (spellContext.HasMetamagic((Metamagic)MetamagicExtender.Rime))
+                {
+                    GameAction rime_action = Helpers.CreateApplyBuff(entangled, Helpers.CreateContextDuration(spell_level), fromSpell: true);
+                    Common.runActionOnDamageDealt(__instance, Helpers.CreateActionList(rime_action), descriptor: SpellDescriptor.Cold);
+                }
+
+                if (spellContext.HasMetamagic((Metamagic)MetamagicExtender.Dazing))
+                {
+                    GameAction dazed_action = Helpers.CreateApplyBuff(dazed, Helpers.CreateContextDuration(spell_level), fromSpell: true);
+                    Common.runActionOnDamageDealt(__instance, Helpers.CreateActionList(dazed_action));
                 }
             }
         }
