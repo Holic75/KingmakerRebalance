@@ -395,7 +395,6 @@ namespace CallOfTheWild.TurnActionMechanics
                 return;
             }
 
-
             var full_round_use_part = __instance.Caster.Get<UnitPartFullRoundAbilityUse>();
 
             if (full_round_use_part == null)

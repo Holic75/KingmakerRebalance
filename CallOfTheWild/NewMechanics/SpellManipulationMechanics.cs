@@ -66,6 +66,102 @@ namespace CallOfTheWild
 {
     namespace SpellManipulationMechanics
     {
+
+        public class UnitPartNoSpontnaeousMetamagicCastingTimeIncrease : AdditiveUnitPart
+        {
+            public bool canBeUsedOnAbility(AbilityData ability)
+            {
+                if (buffs.Empty())
+                {
+                    return false;
+                }
+
+                foreach (var b in buffs)
+                {
+                    bool result = false;
+                    b.CallComponents<INoSpontnaeousMetamagicCastingTimeIncrease>(c => result = c.canUseOnAbility(ability));
+                    if (result)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+
+        public interface INoSpontnaeousMetamagicCastingTimeIncrease
+        {
+            bool canUseOnAbility(AbilityData ability);
+
+
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic : OwnedGameLogicComponent<UnitDescriptor>, INoSpontnaeousMetamagicCastingTimeIncrease
+        {
+            public int max_metamagics = 1;
+
+            public override void OnTurnOn()
+            {
+                this.Owner.Ensure<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>().addBuff(this.Fact);
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.Ensure<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>().removeBuff(this.Fact);
+            }
+
+            public bool canUseOnAbility(AbilityData ability)
+            {
+                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
+                return metamagic_count > max_metamagics;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell : ParametrizedFeatureComponent
+        {
+            public int max_metamagics = 1;
+
+            public override void OnTurnOn()
+            {
+                this.Owner.Ensure<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>().addBuff(this.Fact);
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.Ensure<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>().removeBuff(this.Fact);
+            }
+
+            public bool canUseOnAbility(AbilityData ability)
+            {
+                var spell = this.Param?.Blueprint as BlueprintAbility;
+                if (spell == null || ability?.Blueprint == null)
+                {
+                    return false;
+                }
+
+                if (!spell.IsSpell)
+                {
+                    return false;
+                }
+
+                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
+                if (metamagic_count > max_metamagics)
+                {
+                    return false;
+                }
+                return ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
+            }
+        }
+
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddStoredSpellToCaption : OwnedGameLogicComponent<UnitDescriptor>
         {
@@ -105,22 +201,40 @@ namespace CallOfTheWild
         {
             static void Postfix(AbilityData __instance, ref bool __result)
             {
-                if (__result == true)
+                if (__result == false)
                 {
-                    return;
-                }
+                    if (__instance.Blueprint.GetComponent<InferIsFullRoundFromParamSpellSlot>() == null)
+                    {
+                        return;
+                    }
 
-                if (__instance.Blueprint.GetComponent<InferIsFullRoundFromParamSpellSlot>() == null)
+                    if (__instance.ParamSpellSlot?.Spell == null)
+                    {
+                        return;
+                    }
+
+                    __result = __instance.ParamSpellSlot.Spell.RequireFullRoundAction;
+                }
+                else if (!__instance.Blueprint.IsFullRoundAction)
                 {
-                    return;
-                }
+                    var fast_metamagic = __instance.Caster.Get<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>();
+                    if (fast_metamagic == null)
+                    {
+                        return;
+                    }
 
-                if (__instance.ParamSpellSlot?.Spell == null)
-                {
-                    return;
-                }
+                    if (!__instance.Blueprint.IsSpell)
+                    {
+                        return;
+                    }
 
-                __result = __instance.ParamSpellSlot.Spell.RequireFullRoundAction;
+                    if (__instance.MetamagicData.MetamagicMask == 0)
+                    {
+                        return;
+                    }
+
+                    __result = fast_metamagic.canBeUsedOnAbility(__instance);
+                }
             }
         }
 

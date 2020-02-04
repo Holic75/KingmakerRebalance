@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -31,8 +32,53 @@ namespace CallOfTheWild
             createBloodIntensity();
 
             addBloodlineMutations();
-         
+
+            fixArcaneBloodline();
         }
+
+
+        static void fixArcaneBloodline()
+        {
+            var resource = Helpers.CreateAbilityResource("ArcaneBloodlineMetamagicAdeptResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 3, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { sorcerer, magus}, new BlueprintArchetype[] { eldritch_scion });
+
+            var metamagic_adept = library.Get<BlueprintFeature>("82a966061553ea442b0ce0cdb4e1d49c");
+            var icon = library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a").Icon;
+            metamagic_adept.SetNameDescriptionIcon("Metamagic Adept",
+                                                   "At 3rd level, you can apply any one metamagic feat you know to a spell you are about to cast without increasing the casting time. You must still expend a higher-level spell slot to cast this spell. You can use this ability once per day at 3rd level and one additional time per day for every four sorcerer levels you possess beyond 3rd, up to five times per day at 19th level. At 20th level, this ability is replaced by arcane apotheosis.",
+                                                   icon);
+
+            var buff = Helpers.CreateBuff("MetamagicAdeptBuff",
+                                          metamagic_adept.Name,
+                                          metamagic_adept.Description,
+                                          "",
+                                          metamagic_adept.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.MetamagicAdept>(m => m.resource = resource),
+                                          Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic>(n => n.max_metamagics = 1)
+                                          );
+            var ability = Helpers.CreateActivatableAbility("MetamagicAdeptToggleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                           );
+
+            metamagic_adept.ComponentsArray = new BlueprintComponent[] {Helpers.CreateAddAbilityResource(resource),
+                                                                        Helpers.CreateAddFact(ability)};
+
+            var arcane_apotheosis = library.Get<BlueprintFeature>("2086d8c0d40e35b40b86d47e47fb17e4");
+            arcane_apotheosis.SetDescription("At 20th level, your body surges with arcane power. You can add any metamagic feats that you know to your spells without increasing their casting time, although you must still expend higher-level spell slots.");
+            arcane_apotheosis.SetComponents(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic>(n => n.max_metamagics = 100),
+                                            Common.createRemoveFeatureOnApply(metamagic_adept));
+        }
+
+
 
         static void createBloodIntensity()
         {

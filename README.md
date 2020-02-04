@@ -72,7 +72,12 @@ New feats:
 - Intensified Spell,
 - Persistent Spell,
 - Rime Spell,
-- Toppling Spell.
+- Toppling Spell,
+- Elemental Spell,
+- Selective Spell,
+- Spontaneous Metafocus,
+- Spell Perfection,
+- Mage's Tattoo.
 
 New rage powers:
 - Terrifying Howl
@@ -94,7 +99,7 @@ New rage powers:
 - Celestial Totem, Greater,
 - Daemon Totem, Lesser,
 - Daemon Totem,
-- Daemon Totem, Greaterб
+- Daemon Totem, Greater,
 - Quicken Blessing.
 
 New features:
@@ -259,7 +264,8 @@ enchanced attacks (optional),
 - Sylvan Sorcerer druid level for animal companion progression is equal to his class level - 3 (min 1),
 - Empyreal sorceror no longer receives wings,
 - Celestial Sorcerer receives wings at lvl 9 and does not receive heavenly aura,
-- Abyssal bloodline sorcerer no longer receives wings.
+- Abyssal bloodline sorcerer no longer receives wings,
+- Arcane bloodline combat casting was replaced with metamagic adept as per pnp rules.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

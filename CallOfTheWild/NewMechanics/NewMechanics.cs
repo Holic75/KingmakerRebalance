@@ -159,7 +159,7 @@ namespace CallOfTheWild
             public string display_name = "Conduit Surge";
             public BlueprintAbilityResource resource;
             private int caster_level_increase = -1;
-            public BlueprintAbility current_spell = null;
+            private BlueprintAbility current_spell = null;
 
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
@@ -195,6 +195,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
+                current_spell = null;
                 Common.AddBattleLogMessage($"{Owner.CharacterName}: {display_name} increases caster level by {caster_level_increase}");
                 RuleSavingThrow ruleSavingThrow = this.Fact.MaybeContext.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(this.Owner.Unit, save_type, dc_base + evt.Spell.SpellLevel + caster_level_increase));
                 if (!ruleSavingThrow.IsPassed)
@@ -206,7 +207,61 @@ namespace CallOfTheWild
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
                 }
                 caster_level_increase = -1;
+                
+            }
+        }
+
+
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class MetamagicAdept : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
+        {
+            public BlueprintAbilityResource resource;
+            private BlueprintAbility current_spell = null;
+
+
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+                if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
+                {
+                    current_spell = null;
+                    return;
+                }
+            }
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spell.Type == AbilityType.Spell)
+                {
+                    current_spell = evt.Spell;
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (current_spell == null)
+                {
+                    return;
+                }
                 current_spell = null;
+
+                int metamagic_count = Helpers.PopulationCount((int)(evt.Spell.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
+                if (metamagic_count > 1)
+                {                 
+                    return;
+                }
+                if (evt.Spell.MetamagicData.MetamagicMask != 0 && evt.Spell.MetamagicData.MetamagicMask != Metamagic.Quicken)
+                {
+                    if (resource != null)
+                    {
+                        this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
+                    }
+                }
             }
         }
 
@@ -5371,6 +5426,25 @@ namespace CallOfTheWild
             }
 
             public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        public class SpellLevelIncreaseParametrized : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public int bonus_dc = 1;
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                BlueprintAbility spell = evt.Spell;
+                SpellSchool? nullable = spell != null ? spell.GetComponent<SpellComponent>()?.School : new SpellSchool?();
+                if (!((!nullable.HasValue ? (FeatureParam)null : (FeatureParam)nullable.GetValueOrDefault()) == this.Param))
+                    return;
+                evt.AddBonusCasterLevel(bonus_dc);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
             {
             }
         }

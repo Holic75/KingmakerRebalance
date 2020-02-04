@@ -13,8 +13,10 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.Enums.Damage;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UI.Common;
 using Kingmaker.UI.Tooltip;
@@ -32,6 +34,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -71,6 +74,11 @@ namespace CallOfTheWild
         static public BlueprintFeature toppling_metamagic;
         static public BlueprintFeature rime_metamagic;
         static public BlueprintFeature persistent_metamagic;
+        static public BlueprintFeature selective_metamagic;
+        static public Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>  elemental_metamagic = new Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>();
+
+
+        
 
         public static void load()
         {
@@ -79,13 +87,40 @@ namespace CallOfTheWild
             createRimeSpell();
             createDazingSpell();
             createPersistentSpell();
+            createSelectiveSpell();
+            createElementalMetamagic();
         }
 
 
+        static void createSelectiveSpell()
+        {
+            selective_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "SelectiveSpellFeature", "");
+            selective_metamagic.SetNameDescriptionIcon("Metamagic (Selective Spell)",
+                                                         "When casting a selective spell with an area effect and a duration of instantaneous, you can exclude your allies from the effects of your spell.\n"
+                                                         + "Level Increase: +1 (a selective spell uses up a spell slot two levels higher than the spell’s actual level.)\n"
+                                                         + "Spells that do not have an area of effect or a duration of instantaneous do not benefit from this feat..",
+                                                         LoadIcons.Image2Sprite.Create(@"FeatIcons/SelectiveSpell.png")
+                                                        );
+            selective_metamagic.AddComponent(Helpers.PrerequisiteStatValue(StatType.SkillKnowledgeArcana, 10));
+
+            selective_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Selective);
+            AddMetamagicToFeatSelection(selective_metamagic);
+
+            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.LocalizedDuration.ToString().Empty() && b.HasAreaEffect() && b.EffectOnAlly == AbilityEffectOnUnit.Harmful).Cast<BlueprintAbility>().ToArray();
+            foreach (var s in spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
+                }
+            }
+        }
 
 
         static void AddMetamagicToFeatSelection(BlueprintFeature feat)
         {
+            library.AddFeats(feat);
             var selections = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("3a60f0c0442acfb419b0c03b584e1394"),
                                                             library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899"),
                                                            };
@@ -96,6 +131,49 @@ namespace CallOfTheWild
             }
         }
 
+
+        static void createElementalMetamagic()
+        {
+            var acid_icon = library.Get<BlueprintFeature>("52135eada006e9045a848cd659749608").Icon;
+            var fire_icon = library.Get<BlueprintFeature>("13bdf8d542811ac4ca228a53aa108145").Icon;
+            var elec_icon = library.Get<BlueprintFeature>("d439691f37d17804890bd9c263ae1e80").Icon;
+            var cold_icon = library.Get<BlueprintFeature>("2ed9d8bf76412ba4a8afe38fa9925fca").Icon;
+
+            createElementalSpell(MetamagicExtender.ElementalAcid, "Acid", SpellDescriptor.Acid, DamageEnergyType.Acid, acid_icon);
+            createElementalSpell(MetamagicExtender.ElementalCold, "Cold", SpellDescriptor.Cold, DamageEnergyType.Cold, cold_icon);
+            createElementalSpell(MetamagicExtender.ElementalFire, "Fire", SpellDescriptor.Fire, DamageEnergyType.Fire, fire_icon);
+            createElementalSpell(MetamagicExtender.ElementalElectricity, "Electricity", SpellDescriptor.Electricity, DamageEnergyType.Electricity, elec_icon);
+        }
+
+
+        static void createElementalSpell(MetamagicExtender metamagic, string Name, SpellDescriptor descriptor, DamageEnergyType energy, UnityEngine.Sprite icon)
+        {
+            var feat = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", Name + "ElementalSpellFeature", "");
+            feat.SetNameDescriptionIcon($"Metamagic (Elemental {Name})",
+                                                         "Choose one energy type: acid, cold, electricity, or fire. You may replace a spell’s normal damage with that energy type or split the spell’s damage, so that half is of that energy type and half is of its normal type.\n"
+                                                         + "Level Increase: +1 (an elemental spell uses up a spell slot one level higher than the spell’s actual level.)\n"
+                                                         + "You can gain this feat multiple times. Each time you must choose a different energy type.",
+                                                         icon
+                                                        );
+
+            feat.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)metamagic);
+            AddMetamagicToFeatSelection(feat);
+
+            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell
+                                                                                     && b.EffectOnEnemy == AbilityEffectOnUnit.Harmful
+                                                                                     && ((b.AvailableMetamagic & Metamagic.Maximize) != 0)
+                                                                                     && (b.SpellDescriptor & (SpellDescriptor.Fire | SpellDescriptor.Cold | SpellDescriptor.Electricity | SpellDescriptor.Acid)) != 0).Cast<BlueprintAbility>().ToArray();
+            foreach (var s in spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)metamagic;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)metamagic;
+                }
+            }
+
+            elemental_metamagic.Add((Metamagic)metamagic, new ValueTuple<SpellDescriptor, DamageEnergyType, BlueprintFeature>(descriptor, energy, feat));
+        }
 
         static void createPersistentSpell()
         {
@@ -108,7 +186,6 @@ namespace CallOfTheWild
                                                         );
 
             persistent_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Persistent);
-            library.AddFeats(persistent_metamagic);
             AddMetamagicToFeatSelection(persistent_metamagic);
 
             var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.LocalizedSavingThrow.ToString() != Helpers.savingThrowNone.ToString() && !b.LocalizedSavingThrow.ToString().Empty()).Cast<BlueprintAbility>().ToArray();
@@ -134,7 +211,6 @@ namespace CallOfTheWild
                                                         );
 
             dazing_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Dazing);
-            library.AddFeats(dazing_metamagic);
             AddMetamagicToFeatSelection(dazing_metamagic);
 
             var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.EffectOnEnemy == AbilityEffectOnUnit.Harmful && ((b.AvailableMetamagic & Metamagic.Maximize) != 0)).Cast<BlueprintAbility>().ToArray();
@@ -159,8 +235,7 @@ namespace CallOfTheWild
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/RimeSpell.png")
                                                         );
 
-            rime_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Rime);
-            library.AddFeats(rime_metamagic);
+            rime_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Rime);           
             AddMetamagicToFeatSelection(rime_metamagic);
 
             var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell 
@@ -189,7 +264,6 @@ namespace CallOfTheWild
                                                         );
 
             toppling_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Toppling);
-            library.AddFeats(toppling_metamagic);
             AddMetamagicToFeatSelection(toppling_metamagic);
 
             var spells = new BlueprintAbility[]
@@ -218,7 +292,6 @@ namespace CallOfTheWild
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/IntensifiedSpell.png")
                                                          );
             intensified_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Intensified);
-            library.AddFeats(intensified_metamagic);
             AddMetamagicToFeatSelection(intensified_metamagic);
 
 
@@ -355,9 +428,14 @@ namespace CallOfTheWild
                         return false;
                     case MetamagicExtender.Dazing:
                     case MetamagicExtender.Toppling:
+                    case MetamagicExtender.Selective:
                         __result = UIRoot.Instance.SpellBookColors.MetamagicReach;
                         return false;
                     case MetamagicExtender.Rime:
+                    case MetamagicExtender.ElementalAcid:
+                    case MetamagicExtender.ElementalCold:
+                    case MetamagicExtender.ElementalFire:
+                    case MetamagicExtender.ElementalElectricity:
                         __result = UIRoot.Instance.SpellBookColors.MetamagicHeighten;
                         return false;
                     case MetamagicExtender.Persistent:
@@ -437,5 +515,87 @@ namespace CallOfTheWild
                 }
             }
         }
+
+
+        [Harmony12.HarmonyPatch(typeof(RuleCastSpell))]
+        [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+        static class RuleCastSpell_OnTrigger_Patch
+        {
+            internal static void Postfix(RuleCastSpell __instance, RulebookEventContext context)
+            {
+                var context2 = __instance.Context;
+
+                if (context2?.AbilityBlueprint == null || context2?.Params == null)
+                {
+                    return;
+                }
+
+                if (context2.AbilityBlueprint.IsSpell &&
+                    (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Elemental) != 0)
+                {
+                    foreach (var key_value in elemental_metamagic)
+                    {
+                        if (context2.Params.HasMetamagic((Metamagic)key_value.Key) )
+                        {
+                            context2.AddSpellDescriptor(key_value.Value.Item1);
+                            return;
+                        }
+                    }                   
+                }
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(RulePrepareDamage))]
+        [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+        static class RulePrepareDamage_OnTrigger_Patch
+        {
+            internal static bool Prefix(RulePrepareDamage __instance, RulebookEventContext context)
+            {
+                var context2  = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (context2.AbilityBlueprint.IsSpell &&
+                    (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Elemental) != 0)
+                {
+                    foreach (var key_value in elemental_metamagic)
+                    {
+                        if (context2.Params.HasMetamagic((Metamagic)key_value.Key))
+                        {
+                            foreach (BaseDamage item in __instance.DamageBundle)
+                            {
+                                (item as EnergyDamage)?.ReplaceEnergy(key_value.Value.Item2);
+                            }
+                            return true;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(UnitPartSpellResistance))]
+        [Harmony12.HarmonyPatch("IsImmune", Harmony12.MethodType.Normal)]
+        static class UnitPartSpellResistance_IsImmune_Patch
+        {
+            internal static bool Prefix(UnitPartSpellResistance __instance, MechanicsContext context, ref bool __result)
+            {
+                if (context?.Params == null || context.MaybeCaster == null)
+                {
+                    return true;
+                }
+
+                if (!context.MaybeCaster.IsEnemy(__instance.Owner.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
+                {
+                    __result = true;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+
+
+
     }
 }

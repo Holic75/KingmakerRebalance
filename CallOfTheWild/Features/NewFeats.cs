@@ -83,6 +83,12 @@ namespace CallOfTheWild
         static public BlueprintFeature linnorm_style, linnorm_vengeance, linnorm_wrath;
         static public BlueprintFeature jabbing_style, jabbing_dancer, jabbing_master;
 
+
+        static public BlueprintParametrizedFeature mages_tattoo;
+        static public BlueprintParametrizedFeature spontaneous_metafocus;
+        static public BlueprintParametrizedFeature spell_perfection;
+
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -136,6 +142,66 @@ namespace CallOfTheWild
             createLinnormStyleFeats();
             createJabbingStyleFeats();
             fixKineticKnightCombatExpertiseReplacement();
+
+            createMagesTattoo();
+            createSpontaneousMetafocus();
+            createSpellPerfection();
+        }
+
+        static void createMagesTattoo()
+        {
+            mages_tattoo = library.CopyAndAdd<BlueprintParametrizedFeature>("5b04b45b228461c43bad768eb0f7c7bf", "MagesTatooFeature", "");
+            mages_tattoo.SetNameDescriptionIcon("Mage’s Tattoo",
+                                                "Select a school of magic (other than divination) in which you have Spell Focus—you cast spells from this school at +1 caster level.",
+                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/MagesTattoo.png")
+                                                );
+
+            mages_tattoo.SetComponents(Helpers.Create<NewMechanics.SpellLevelIncreaseParametrized>(s => s.bonus_dc = 1));
+            library.AddFeats(mages_tattoo);
+        }
+
+
+        static void createSpontaneousMetafocus()
+        {
+            spontaneous_metafocus = library.CopyAndAdd<BlueprintParametrizedFeature>("8a2bdb52b158bc24d83c9ef1a2cb2af4", "SpontaneousMetafocusFeature", "");
+            spontaneous_metafocus.Prerequisite = null;
+            spontaneous_metafocus.SetNameDescriptionIcon("Spontaneous Metafocus",
+                                                         "Pick a single spell that you are able to cast spontaneously. When you apply metamagic feats to that spell, you can cast the spell using the normal casting time instead of at the slower casting time.\n"
+                                                         + "Special: You can take this feat multiple times. Each time you select this feat, choose a new spell that you can cast spontaneously; the feat applies to that spell.",
+                                                         LoadIcons.Image2Sprite.Create(@"FeatIcons/SpontaneousMetafocus.png")
+                                                         );
+            var metamagic_feats = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null));
+
+            spontaneous_metafocus.SetComponents(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell>(a => a.max_metamagics = 100),
+                                                Helpers.PrerequisiteStatValue(StatType.Charisma, 13),
+                                                Helpers.PrerequisiteFeaturesFromList(metamagic_feats)
+                                                );
+            library.AddFeats(spontaneous_metafocus);
+        }
+
+
+        static void createSpellPerfection()
+        {
+            spell_perfection = library.CopyAndAdd<BlueprintParametrizedFeature>("8a2bdb52b158bc24d83c9ef1a2cb2af4", "SpellPerfectionFeature", "");
+            spell_perfection.Prerequisite = null;
+            spell_perfection.SetNameDescriptionIcon("Spell Perfection",
+                                                    "Pick one spell which you have the ability to cast. Whenever you cast that spell you may apply any one metamagic feat you have to that spell without affecting its level or casting time, as long as the total modified level of the spell does not use a spell slot above 9th level. In addition, if you have other feats which allow you to apply a set numerical bonus to any aspect of this spell (such as Spell Focus, Spell Penetration, Weapon Focus [ray], and so on), double the bonus granted by that feat when applied to this spell.",
+                                                    LoadIcons.Image2Sprite.Create(@"FeatIcons/SpellPerfection.png")
+                                                   );
+            var metamagic_feats = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null));
+
+            spell_perfection.SetComponents(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell>(a => a.max_metamagics = 1),
+                                           Helpers.Create<NewMechanics.MetamagicMechanics.OneFreeMetamagicForSpell>(),
+                                           Helpers.PrerequisiteStatValue(StatType.SkillKnowledgeArcana, 15),
+                                           Helpers.Create<PrerequisiteFeaturesFromList>(p => { p.Amount = 3; p.Features = metamagic_feats.ToArray(); })
+                                          );
+            library.AddFeats(spell_perfection);
+
+            //fix spell focus + spell focus greater
+            //fix spell specialization
+            //fix mage's tatoo
+            //fix spell penetration + spell penetration greater
+            //fix spell focus ray
         }
 
 

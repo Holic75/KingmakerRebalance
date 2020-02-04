@@ -466,6 +466,36 @@ namespace CallOfTheWild
             }
         }
 
+        public class OneFreeMetamagicForSpell : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleApplyMetamagic>
+        {
+            public int max_spell_level = 9;
+
+            public void OnEventAboutToTrigger(RuleApplyMetamagic evt)
+            {
+                var spell = this.Param?.Blueprint as BlueprintAbility;
+                if (spell == null)
+                {
+                    return;
+                }
+
+                bool same_spells = evt.Spell.Parent == null ? SpellDuplicates.isDuplicate(evt.Spell, spell) : SpellDuplicates.isDuplicate(evt.Spell.Parent, spell);
+
+                var spellbook = evt.Spellbook;
+                if (spellbook == null || spellbook.GetSpellLevel(spell) > max_spell_level)
+                {
+                    return;
+                }
+                if (evt.AppliedMetamagics.Count == 0) return;
+                int reduction = evt.AppliedMetamagics.Max(m => m == Metamagic.Heighten ? 0 : m.DefaultCost());
+
+                evt.ReduceCost(reduction);
+            }
+
+            public void OnEventDidTrigger(RuleApplyMetamagic evt)
+            {
+            }
+        }
+
 
         [Harmony12.HarmonyPatch(typeof(AutoMetamagic))]
         [Harmony12.HarmonyPatch("ShouldApplyTo", Harmony12.MethodType.Normal)]
