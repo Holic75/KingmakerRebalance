@@ -492,7 +492,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateAddFacts(fervor_positive_ability_self, fervor_positive_ability_others_sticky, fervor_swift_cast_ability)
                                                     );
 
-
+            var deaths_embrace_living = library.Get<BlueprintFeature>("fd7c08ccd3c7773458eb9613db3e93ad");
             var fervor_negative_ability_others = Helpers.CreateAbility("WarpriestFervorNegativeTouchOthersAbility",
                                                             "Fervor (Negative Energy) Others",
                                                             "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, an evil warpriest (or one who worships an evil deity) can touch a living creature and deal to it 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to heal an undead creature for same amount of damage he would otherwise deal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Living creatures do not receive a saving throw against this damage. This counts as negative energy.",
@@ -503,7 +503,9 @@ namespace CallOfTheWild
                                                             AbilityRange.Touch,
                                                             "",
                                                             Helpers.savingThrowNone,
-                                                            Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(),
+                                                            Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(),
+                                                                                                                                                 Common.createContextConditionHasFact(deaths_embrace_living)
+                                                                                                                                                ),
                                                                                                                heal_action,
                                                                                                                damage_living_action)),
                                                             inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
