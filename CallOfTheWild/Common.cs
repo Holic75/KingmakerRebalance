@@ -3390,6 +3390,24 @@ namespace CallOfTheWild
             action.Run();
         }
 
-
+        static public string getNumExtension(int i)
+        {
+            if (i == 1)
+            {
+                return "st";
+            }
+            else if (i == 2)
+            {
+                return "nd";
+            }
+            else if (i == 3)
+            {
+                return "rd";
+            }
+            else
+            {
+                return "th";
+            }
+        }
     }
 }

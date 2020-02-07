@@ -1390,7 +1390,8 @@ namespace CallOfTheWild
                                                      FeatureGroup.Feat,
                                                      Helpers.PrerequisiteClassLevel(bard, 8, any: true),
                                                      Helpers.PrerequisiteClassLevel(Skald.skald_class, 8, any: true),
-                                                     Common.createPrerequisiteArchetypeLevel(monk, sensei, 8, any: true)
+                                                     Common.createPrerequisiteArchetypeLevel(monk, sensei, 8, any: true),
+                                                     Common.createPrerequisiteArchetypeLevel(Archetypes.Evangelist.archetype.GetParentClass(), Archetypes.Evangelist.archetype, 8, any: true)
                                                      );
             library.AddFeats(discordant_voice);
             var performances = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
