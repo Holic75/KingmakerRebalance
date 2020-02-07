@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints.Classes;
+﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -17,6 +18,8 @@ namespace CallOfTheWild
         MasterClassLevel, //ClassLevel or Master class level if pet
         MasterMaxClassLevelWithArchetype, //MaxClassLevelWithArchetype or Master class level if pet
         MasterFeatureRank,
+        SummClassLevelWithArchetypes,
+        MaxClassLevelWithArchetypes
     }
 
     public static partial class Extensions
@@ -95,7 +98,7 @@ namespace CallOfTheWild
         }
 
         static bool Prefix(ContextRankConfig __instance, MechanicsContext context, ContextRankBaseValueType ___m_BaseValueType,
-                           BlueprintFeature ___m_Feature, ref int __result)
+                           BlueprintFeature ___m_Feature, BlueprintCharacterClass[] ___m_Class, BlueprintArchetype ___Archetype,  ref int __result)
         {
             if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType()
                 || ___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType())
@@ -118,12 +121,79 @@ namespace CallOfTheWild
                 }
                 return false;
             }
+            else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType())
+            {
+                __result = 0;
+                var archetypes_list = ___m_Feature.GetComponent<ContextRankConfigArchetypeList>().archetypes;
+                if (___Archetype != null)
+                {
+                    archetypes_list = archetypes_list.AddToArray(___Archetype);
+                }
+                foreach (var c in context.MaybeCaster.Descriptor.Progression.Classes)
+                {
+                    if (___m_Class.Contains(c.CharacterClass))
+                    {
+                        if (c.Archetypes.Empty())
+                        {
+                            __result += c.Level;
+                        }
+                        else
+                        {
+                            foreach (var a in c.Archetypes)
+                            {
+                                if (archetypes_list.Contains(a))
+                                {
+                                    __result += c.Level;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+            else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType())
+            {
+                __result = 0;
+                var archetypes_list = ___m_Feature.GetComponent<ContextRankConfigArchetypeList>().archetypes;
+                if (___Archetype != null)
+                {
+                    archetypes_list = archetypes_list.AddToArray(___Archetype);
+                }
+                foreach (var c in context.MaybeCaster.Descriptor.Progression.Classes)
+                {
+                    if (___m_Class.Contains(c.CharacterClass))
+                    {
+                        if (c.Archetypes.Empty())
+                        {
+                            __result = Math.Max(c.Level, __result);
+                        }
+                        else
+                        {
+                            foreach (var a in c.Archetypes)
+                            {
+                                if (archetypes_list.Contains(a))
+                                {
+                                    __result = Math.Max(c.Level, __result);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
             else
             {
                 return true;
             }
-
         }
+    }
+
+
+    public class ContextRankConfigArchetypeList: BlueprintComponent
+    {
+        public BlueprintArchetype[] archetypes;
     }
 
 }

@@ -1304,6 +1304,95 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
     }
 
+
+    public class ActionOnDamageDealtWithDCFromSpecifiedBuff : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
+    {
+        public BlueprintBuff context_buff;
+        public ActionList action;
+        public int min_dmg = 1;
+        public bool only_critical;
+
+        public SavingThrowType save_type = SavingThrowType.Unknown;
+        public DamageEnergyType energy_descriptor;
+
+        public bool use_damage_energy_type = false;
+
+        public void OnEventAboutToTrigger(RuleDealDamage evt)
+        {
+            if (evt.Reason.Item != this.Owner)
+            {
+                return;
+            }
+
+            Helpers.runActionOnDamageDealt(evt, action, min_dmg, only_critical, save_type, context_buff, energy_descriptor, use_damage_energy_type);
+        }
+
+        public void OnEventDidTrigger(RuleDealDamage evt)
+        {
+        }
+    }
+
+
+    public class ApplyBuffDamageDealtWithDCFromSpecifiedBuff : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
+    {
+        public BlueprintBuff context_buff;
+        public int min_dmg = 1;
+        public bool only_critical;
+
+        public SavingThrowType save_type = SavingThrowType.Unknown;
+        public DamageEnergyType energy_descriptor;
+
+        public bool use_damage_energy_type = false;
+        public BlueprintBuff effect_buff;
+
+        public void OnEventDidTrigger(RuleDealDamage evt)
+        {
+            if (evt.Reason.Item != this.Owner)
+            {
+                return;
+            }
+
+            var context_params = evt.Initiator?.Buffs?.GetBuff(context_buff)?.MaybeContext?.Params;
+            if (context_params == null)
+            {
+                return;
+            }
+
+            
+            var action = Common.createContextActionApplyBuff(effect_buff, CallOfTheWild.Helpers.CreateContextDuration(context_params.SpellLevel), is_from_spell: true);
+            Helpers.runActionOnDamageDealt(evt, CallOfTheWild.Helpers.CreateActionList(action), min_dmg, only_critical, save_type, context_buff, energy_descriptor, use_damage_energy_type);
+            
+        }
+
+        public void OnEventAboutToTrigger(RuleDealDamage evt)
+        {
+        }
+    }
+
+    public class ReplaceEnergyDamage : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
+    {
+
+        public DamageEnergyType energy_descriptor;
+
+
+        public void OnEventAboutToTrigger(RuleDealDamage evt)
+        {
+            if (evt.Reason.Item != this.Owner)
+            {
+                return;
+            }
+
+            foreach (var dmg in evt.DamageBundle)
+            {
+                (dmg as EnergyDamage)?.ReplaceEnergy(energy_descriptor);
+            }
+        }
+
+        public void OnEventDidTrigger(RuleDealDamage evt)
+        {
+        }
+    }
+
     //allow summoned weapons to equip as free action
     [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
     [Harmony12.HarmonyPatch("HandleEquipmentSlotUpdated", Harmony12.MethodType.Normal)]
@@ -1364,7 +1453,76 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
             return item.EnchantmentsCollection.HasFact(WeaponEnchantments.summoned_weapon_enchant);
         }
+
+
+        public static void runActionOnDamageDealt(RuleDealDamage evt, ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
+                                          BlueprintBuff context_buff = null, DamageEnergyType energy_descriptor = DamageEnergyType.Acid, bool use_damage_energy_type = false)
+        {
+
+
+            if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
+            {
+                return;
+            }
+
+
+            var target = evt.Target;
+            if (target == null)
+            {
+                return;
+            }
+
+            if (evt.Damage <= min_dmg)
+            {
+                return;
+            }
+
+            if (use_damage_energy_type)
+            {
+                bool damage_found = false;
+                foreach (var dmg in evt.DamageBundle)
+                {
+                    var energy_damage = (dmg as EnergyDamage);
+
+                    if (energy_damage != null && energy_damage.EnergyType == energy_descriptor)
+                    {
+                        damage_found = true;
+                        break;
+                    }
+                }
+
+                if (!damage_found)
+                {
+                    return;
+                }
+            }
+
+            if (save_type != SavingThrowType.Unknown)
+            {
+                var context_params = evt.Initiator.Buffs?.GetBuff(context_buff)?.MaybeContext?.Params;
+                if (context_params == null)
+                {
+                    return;
+                }
+
+                var dc = context_params.DC;
+                var rule_saving_throw = new RuleSavingThrow(target, save_type, dc);
+                Rulebook.Trigger(rule_saving_throw);
+
+                if (rule_saving_throw.IsPassed)
+                {
+                    return;
+                }
+            }
+
+            var context_fact = evt.Initiator.Buffs?.GetBuff(context_buff);
+
+            (context_fact as IFactContextOwner)?.RunActionInContext(action, target);
+        }
     }
+
+
+
 
 
 

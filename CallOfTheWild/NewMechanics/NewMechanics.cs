@@ -5448,5 +5448,131 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class SpellPerfectionDoubleFeatBonuses : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookHandler<RuleSpellResistanceCheck>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintUnitFact[] spell_resistance_feats;
+            public BlueprintUnitFact[] spell_parameters_feats;
+            public BlueprintUnitFact[] attack_roll_feats;
+            public BlueprintUnitFact[] attatck_feats;
+
+
+            public void OnEventAboutToTrigger(RuleSpellResistanceCheck evt)
+            {
+                var spell = Param?.Blueprint as BlueprintAbility;
+                if (!SpellDuplicates.isDuplicateOrParent(spell, evt.Ability))
+                {
+                    return;
+                }
+
+                // Double spell penetration bonus.
+                foreach (var fact in Owner.Progression.Features.Enumerable)
+                {
+                    if (!spell_resistance_feats.Contains(fact.Blueprint))
+                    {
+                        continue;
+                    }
+                    foreach (var c in fact.SelectComponents<SpellPenetrationBonus>())
+                    {
+                        c.OnEventAboutToTrigger(evt);
+                    }
+                }
+            }
+
+            public void OnEventDidTrigger(RuleSpellResistanceCheck evt)
+            {
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                var spell = Param?.Blueprint as BlueprintAbility;
+                if (!SpellDuplicates.isDuplicateOrParent(spell, evt.Spell))
+                {
+                    return;
+                }
+
+                // Double spell penetration bonus.
+                foreach (var fact in Owner.Progression.Features.Enumerable)
+                {
+                    if (!spell_parameters_feats.Contains(fact.Blueprint))
+                    {
+                        continue;
+                    }
+                    foreach (var c in fact.SelectComponents<IInitiatorRulebookHandler<RuleCalculateAbilityParams>>())
+                    {
+                        c.OnEventAboutToTrigger(evt);
+                    }
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                var spell = Param?.Blueprint as BlueprintAbility;
+                var evt_spell = ElementsContext.GetData<MechanicsContext.Data>()?.Context?.SourceAbility;
+
+                if (!SpellDuplicates.isDuplicateOrParent(spell, evt_spell))
+                {
+                    return;
+                }
+
+                // Double spell penetration bonus.
+                foreach (var fact in Owner.Progression.Features.Enumerable)
+                {
+                    if (!attatck_feats.Contains(fact.Blueprint))
+                    {
+                        continue;
+                    }
+                    foreach (var c in fact.SelectComponents<IInitiatorRulebookHandler<RuleCalculateWeaponStats>>())
+                    {
+                        c.OnEventAboutToTrigger(evt);
+                    }
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                var spell = Param?.Blueprint as BlueprintAbility;
+                var evt_spell = ElementsContext.GetData<MechanicsContext.Data>()?.Context?.SourceAbility;
+
+                if (!SpellDuplicates.isDuplicateOrParent(spell, evt_spell))
+                {
+                    return;
+                }
+
+                // Double spell penetration bonus.
+                foreach (var fact in Owner.Progression.Features.Enumerable)
+                {
+                    if (!attack_roll_feats.Contains(fact.Blueprint))
+                    {
+                        continue;
+                    }
+                    foreach (var c in fact.SelectComponents<IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>>())
+                    {
+                        c.OnEventAboutToTrigger(evt);
+                    }
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+
+            }
+        }
+
+
+
     }
 }

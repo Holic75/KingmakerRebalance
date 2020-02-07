@@ -28,12 +28,11 @@ namespace CallOfTheWild
         {
             fixSorcBloodlineProgression();
             fixBloodlinesUI();
+            fixArcaneBloodline();
+
             createBloodHavoc();
             createBloodIntensity();
-
             addBloodlineMutations();
-
-            fixArcaneBloodline();
         }
 
 
@@ -42,7 +41,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource("ArcaneBloodlineMetamagicAdeptResource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(0, 3, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { sorcerer, magus}, new BlueprintArchetype[] { eldritch_scion });
 
-            var metamagic_adept = library.Get<BlueprintFeature>("82a966061553ea442b0ce0cdb4e1d49c");
+            var metamagic_adept = library.Get<BlueprintFeature>("7aa83ee3526a946419561d8d1aa09e75");
             var icon = library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a").Icon;
             metamagic_adept.SetNameDescriptionIcon("Metamagic Adept",
                                                    "At 3rd level, you can apply any one metamagic feat you know to a spell you are about to cast without increasing the casting time. You must still expend a higher-level spell slot to cast this spell. You can use this ability once per day at 3rd level and one additional time per day for every four sorcerer levels you possess beyond 3rd, up to five times per day at 19th level. At 20th level, this ability is replaced by arcane apotheosis.",

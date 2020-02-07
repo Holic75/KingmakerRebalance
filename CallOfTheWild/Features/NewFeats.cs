@@ -4,6 +4,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -190,18 +191,49 @@ namespace CallOfTheWild
                                                    );
             var metamagic_feats = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null));
 
+
+            BlueprintUnitFact[] spell_resistance_feats = new BlueprintUnitFact[]
+            {
+                library.Get<BlueprintUnitFact>("ee7dc126939e4d9438357fbd5980d459"), //spell penetration
+                library.Get<BlueprintUnitFact>("1978c3f91cfbbc24b9c9b0d017f4beec"), //spell penetration greater
+            };
+
+            BlueprintUnitFact[] spell_parameters_feats = new BlueprintUnitFact[]
+            {
+                library.Get<BlueprintUnitFact>("16fa59cc9a72a6043b566b49184f53fe"), //spell focus
+                library.Get<BlueprintUnitFact>("5b04b45b228461c43bad768eb0f7c7bf"), //spell focus greater
+                library.Get<BlueprintUnitFact>("f327a765a4353d04f872482ef3e48c35"), //spell specialization first
+                NewFeats.mages_tattoo,
+                Witch.witch_knife
+            };
+            spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures); //other spell specializations
+            spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("bb24cc01319528849b09a3ae8eec0b31").AllFeatures); //elemental foci
+
+            BlueprintUnitFact[] weapon_focus_feats = new BlueprintUnitFact[]
+            {
+                library.Get<BlueprintUnitFact>("1e1f627d26ad36f43bbd26cc2bf8ac7e"), //wf
+                library.Get<BlueprintUnitFact>("09c9e82965fb4334b984a1e9df3bd088") //gwf
+            };
+
+            BlueprintUnitFact[] weapon_specialization_feats = new BlueprintUnitFact[]
+            {
+                library.Get<BlueprintUnitFact>("31470b17e8446ae4ea0dacd6c5817d86"), //ws
+                library.Get<BlueprintUnitFact>("7cf5edc65e785a24f9cf93af987d66b3") //gws
+            };
+
             spell_perfection.SetComponents(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell>(a => a.max_metamagics = 1),
                                            Helpers.Create<NewMechanics.MetamagicMechanics.OneFreeMetamagicForSpell>(),
+                                           Helpers.Create<NewMechanics.SpellPerfectionDoubleFeatBonuses>(s =>
+                                           {
+                                               s.spell_resistance_feats = spell_resistance_feats;
+                                               s.spell_parameters_feats = spell_parameters_feats;
+                                               s.attatck_feats = weapon_specialization_feats;
+                                               s.attack_roll_feats = weapon_focus_feats;
+                                           }),
                                            Helpers.PrerequisiteStatValue(StatType.SkillKnowledgeArcana, 15),
                                            Helpers.Create<PrerequisiteFeaturesFromList>(p => { p.Amount = 3; p.Features = metamagic_feats.ToArray(); })
                                           );
             library.AddFeats(spell_perfection);
-
-            //fix spell focus + spell focus greater
-            //fix spell specialization
-            //fix mage's tatoo
-            //fix spell penetration + spell penetration greater
-            //fix spell focus ray
         }
 
 
@@ -1348,7 +1380,8 @@ namespace CallOfTheWild
             discordant_voice_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
             discordant_voice_buff.FxOnStart = new Kingmaker.ResourceLinks.PrefabLink();
 
-
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            var sensei = library.Get<BlueprintArchetype>("f8767821ec805bf479706392fcc3394c");
             discordant_voice = Helpers.CreateFeature("DiscordantVocieFeature",
                                                      discordant_voice_effect_buff.Name,
                                                      discordant_voice_effect_buff.Description,
@@ -1356,7 +1389,8 @@ namespace CallOfTheWild
                                                      discordant_voice_effect_buff.Icon,
                                                      FeatureGroup.Feat,
                                                      Helpers.PrerequisiteClassLevel(bard, 8, any: true),
-                                                     Helpers.PrerequisiteClassLevel(Skald.skald_class, 8, any: true)
+                                                     Helpers.PrerequisiteClassLevel(Skald.skald_class, 8, any: true),
+                                                     Common.createPrerequisiteArchetypeLevel(monk, sensei, 8, any: true)
                                                      );
             library.AddFeats(discordant_voice);
             var performances = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);

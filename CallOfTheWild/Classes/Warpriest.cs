@@ -3521,7 +3521,7 @@ namespace CallOfTheWild
                                                       "",
                                                       flare.Icon,
                                                       AbilityType.Supernatural,
-                                                      CommandType.Swift,
+                                                      CommandType.Standard,
                                                       AbilityRange.Close,
                                                       Helpers.oneRoundDuration,
                                                       "Reflex partial",

@@ -3,8 +3,11 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
+using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using System;
 using System.Collections.Generic;
@@ -19,6 +22,7 @@ namespace CallOfTheWild
         static LibraryScriptableObject library => Main.library;
         static public BlueprintWeaponEnchantment empower_enchant;
         static public BlueprintWeaponEnchantment maximize_enchant;
+        static public Dictionary<DamageEnergyType, BlueprintWeaponEnchantment> elemental_enchants = new Dictionary<DamageEnergyType, BlueprintWeaponEnchantment>();
         static public BlueprintWeaponEnchantment summoned_weapon_enchant;
         static public BlueprintWeaponEnchantment[] temporary_enchants = new BlueprintWeaponEnchantment[] {library.Get<BlueprintWeaponEnchantment>("d704f90f54f813043a525f304f6c0050"),
                                                                                                          library.Get<BlueprintWeaponEnchantment>("9e9bab3020ec5f64499e007880b37e52"),
@@ -154,6 +158,72 @@ namespace CallOfTheWild
                                                          null,
                                                          Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponMetamagicDamage>(w => w.maximize = true)
                                                          );
+
+            DamageEnergyType[] elements = new DamageEnergyType[] { DamageEnergyType.Cold, DamageEnergyType.Acid, DamageEnergyType.Electricity, DamageEnergyType.Fire };
+
+            foreach (var elt  in elements)
+            {
+                var enchant = Common.createWeaponEnchantment(elt.ToString() + "ElementalWeaponEnchantment",
+                                             elt.ToString(),
+                                             "Weapon damage type is changed to " + elt.ToString().ToLower() + ".",
+                                             "",
+                                             "",
+                                             "",
+                                             0,
+                                             null,
+                                             Helpers.Create<NewMechanics.EnchantmentMechanics.ReplaceEnergyDamage>(r => r.energy_descriptor = elt)
+                                             );
+                elemental_enchants.Add(elt, enchant);
+            }
+        }
+
+
+        static public BlueprintWeaponEnchantment createRimeEnchantment(string name, BlueprintBuff context_buff)
+        {
+            BlueprintBuff entangled = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
+            var enchant = Common.createWeaponEnchantment(name,
+                             "Rime",
+                             MetamagicFeats.rime_metamagic.Description,
+                             "",
+                             "",
+                             "",
+                             0,
+                             null,
+                             Helpers.Create<NewMechanics.EnchantmentMechanics.ApplyBuffDamageDealtWithDCFromSpecifiedBuff>(a =>
+                                                                                                                             {
+                                                                                                                                 a.use_damage_energy_type = true;
+                                                                                                                                 a.energy_descriptor = DamageEnergyType.Cold;
+                                                                                                                                 a.context_buff = context_buff;
+                                                                                                                                 a.effect_buff = entangled;
+                                                                                                                             }
+                                                                                                                             )
+                             );
+
+            return enchant;
+        }
+
+
+        static public BlueprintWeaponEnchantment createDazingEnchantment(string name, BlueprintBuff context_buff)
+        {
+            BlueprintBuff dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
+            var enchant = Common.createWeaponEnchantment(name,
+                             "Dazing",
+                             MetamagicFeats.dazing_metamagic.Description,
+                             "",
+                             "",
+                             "",
+                             0,
+                             null,
+                             Helpers.Create<NewMechanics.EnchantmentMechanics.ApplyBuffDamageDealtWithDCFromSpecifiedBuff>(a =>
+                                                                                                                             {
+                                                                                                                                 a.context_buff = context_buff;
+                                                                                                                                 a.effect_buff = dazed;
+                                                                                                                                 a.save_type = Kingmaker.EntitySystem.Stats.SavingThrowType.Will;
+                                                                                                                             }
+                                                                                                                          )
+                             );
+
+            return enchant;
         }
     }
 }

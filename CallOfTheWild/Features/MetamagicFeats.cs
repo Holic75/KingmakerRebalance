@@ -376,6 +376,7 @@ namespace CallOfTheWild
         {
             internal static bool Prefix(ContextRankConfig __instance, int value, ref int __result)
             {
+                __result = value;
                 bool intensified_allowed = Helpers.GetField<BlueprintFeature>(__instance, "m_Feature") == intensified_metamagic && intensify_watcher != 0;
                 if (Helpers.GetField<bool>(__instance, "m_UseMin"))
                     __result = Math.Max(value, Helpers.GetField<int>(__instance, "m_Min"));

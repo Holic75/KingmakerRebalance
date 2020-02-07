@@ -64,6 +64,17 @@ namespace CallOfTheWild
         }
 
 
+        public static bool isDuplicateOrParent(BlueprintAbility original, BlueprintAbility duplicate)
+        {
+            if (original == null || duplicate == null)
+            {
+                return false;
+            }
+            return isDuplicate(original, duplicate) || isDuplicate(original, duplicate.Parent);
+        }
+
+
+
         public static BlueprintAbility[] getDuplicates(BlueprintAbility original)
         {
             if (original == null)

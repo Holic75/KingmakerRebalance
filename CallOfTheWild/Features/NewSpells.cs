@@ -4113,6 +4113,15 @@ namespace CallOfTheWild
                                                                                                   false, false,
                                                                                                   new BlueprintWeaponType[0], WeaponEnchantments.maximize_enchant);
 
+            var fire_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalFire,
+                                                                   false, false,
+                                                                   new BlueprintWeaponType[0], WeaponEnchantments.elemental_enchants[DamageEnergyType.Fire]);
+            var acid_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalAcid,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[0], WeaponEnchantments.elemental_enchants[DamageEnergyType.Acid]);
+            var elec_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalElectricity,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[0], WeaponEnchantments.elemental_enchants[DamageEnergyType.Electricity]);
 
             var buff = Helpers.CreateBuff("FrostBiteBuff",
                                             frost_bite_enchantments[0].Name + " (As Weapon)",
@@ -4125,10 +4134,25 @@ namespace CallOfTheWild
                                                                                             new BlueprintWeaponType[0], frost_bite_enchantments),
                                             empower_buff,
                                             maximize_buff,
+                                            fire_buff,
+                                            acid_buff,
+                                            elec_buff,
                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.DivStep,
                                                                             type: AbilityRankType.DamageBonus, stepLevel: 1, max: 10)
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("FrostBiteDazingEnchantment", buff);
+            var rime_enchant = WeaponEnchantments.createRimeEnchantment("FrostBiteRimeEnchantment", buff);
+
+            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
+                                                                                      false, false,
+                                                                                      new BlueprintWeaponType[0], dazing_enchant);
+
+            var rime_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Rime,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], rime_enchant);
+            buff.AddComponents(rime_buff, daze_buff);
 
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in frost_bite_enchantments)
@@ -4273,6 +4297,13 @@ namespace CallOfTheWild
                                                                             type: AbilityRankType.DamageBonus, stepLevel: 1, max: 10)
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("ChillTouchDazingEnchantment", buff);
+            var rime_enchant = WeaponEnchantments.createRimeEnchantment("ChillTouchRimeEnchantment", buff);
+
+            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
+                                                                                      false, false,
+                                                                                      new BlueprintWeaponType[0], dazing_enchant);
+            buff.AddComponent(daze_buff);
 
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in chill_touch_echantments)
@@ -5614,7 +5645,7 @@ namespace CallOfTheWild
                                                Helpers.minutesPerLevelDuration,
                                                "",
                                                bless_weapon.GetComponent<AbilitySpawnFx>(),
-                                               bless_weapon.GetComponent<ContextRankConfig>(),
+                                               Helpers.CreateContextRankConfig(),
                                                Helpers.CreateRunActions(apply_buff),
                                                Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Transmutation),
                                                Common.createAbilitTargetMainWeaponCheck(shillelagh_types[0].Category, shillelagh_types[1].Category)
@@ -5689,6 +5720,16 @@ namespace CallOfTheWild
             var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
                                                                                                   false, false,
                                                                                                   new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.maximize_enchant);
+            var cold_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalCold,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.elemental_enchants[DamageEnergyType.Cold]);
+            var acid_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalAcid,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.elemental_enchants[DamageEnergyType.Acid]);
+            var elec_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalElectricity,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.elemental_enchants[DamageEnergyType.Electricity]);
+
 
 
             var buff = Helpers.CreateBuff("FlameBladeBuff",
@@ -5702,10 +5743,27 @@ namespace CallOfTheWild
                                                                                             new BlueprintWeaponType[] { scimitar_type }, flame_blade_enchantments),
                                             empower_buff,
                                             maximize_buff,
+                                            cold_buff,
+                                            acid_buff,
+                                            elec_buff,
                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.OnePlusDivStep,
-                                                                            type: AbilityRankType.DamageBonus, stepLevel: 2)
+                                                                            type: AbilityRankType.DamageBonus, stepLevel: 2, max: 10)
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("FlameSwordDazingEnchantment", buff);
+            var rime_enchant = WeaponEnchantments.createRimeEnchantment("FlameSwordRimeEnchantment", buff);
+
+            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
+                                                                                      false, false,
+                                                                                      new BlueprintWeaponType[] { scimitar_type }, dazing_enchant);
+
+            var rime_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Rime,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[] { scimitar_type }, rime_enchant);
+
+            buff.AddComponents(daze_buff, rime_buff);
+
 
             flame_blade = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, "FlameBladeAbility", "");
             flame_blade.setMiscAbilityParametersSelfOnly();
@@ -5802,6 +5860,16 @@ namespace CallOfTheWild
                                                                                                   false, false,
                                                                                                   new BlueprintWeaponType[0], WeaponEnchantments.maximize_enchant);
 
+            var cold_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalCold,
+                                                                               false, false,
+                                                                               new BlueprintWeaponType[0], WeaponEnchantments.elemental_enchants[DamageEnergyType.Cold]);
+            var acid_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalAcid,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[0], WeaponEnchantments.elemental_enchants[DamageEnergyType.Acid]);
+            var elec_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalElectricity,
+                                                                                          false, false,
+                                                                                          new BlueprintWeaponType[0], WeaponEnchantments.elemental_enchants[DamageEnergyType.Electricity]);
+
 
             var buff = Helpers.CreateBuff("ProduceFlameBuff",
                                             produce_flame_enchantments[0].Name,
@@ -5814,10 +5882,26 @@ namespace CallOfTheWild
                                                                                             new BlueprintWeaponType[0], produce_flame_enchantments),
                                             empower_buff,
                                             maximize_buff,
+                                            cold_buff,
+                                            acid_buff,
+                                            elec_buff,
                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.DivStep,
                                                                             type: AbilityRankType.DamageBonus, stepLevel: 1, max: 5)
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("ProduceFlameDazingEnchantment", buff);
+            var rime_enchant = WeaponEnchantments.createRimeEnchantment("ProduceFlameRimeEnchantment", buff);
+
+            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
+                                                                                      false, false,
+                                                                                      new BlueprintWeaponType[0], dazing_enchant);
+
+            var rime_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Rime,
+                                                                                                  false, false,
+                                                                                                  new BlueprintWeaponType[0], rime_enchant);
+
+            buff.AddComponents(daze_buff, rime_buff);
 
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in produce_flame_enchantments)
@@ -5840,7 +5924,8 @@ namespace CallOfTheWild
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
-                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff)))
+                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_buff))),
+                                                  Helpers.CreateContextRankConfig()
                                                   );
             produce_flame.setMiscAbilityParametersSingleTargetRangedHarmful();
 
