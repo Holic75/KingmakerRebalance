@@ -4885,7 +4885,7 @@ namespace CallOfTheWild
             var apply_entangle = Common.createContextActionApplyBuff(entangle_buff, Helpers.CreateContextDuration(1));
             var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1));
 
-            var save_action = Helpers.CreateConditionalSaved(apply_cooldown, apply_entangle);
+            var save_action = Helpers.CreateConditionalSaved(new GameAction[] { apply_cooldown }, new GameAction[] { apply_entangle, apply_cooldown });
             var effect_action = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(cooldown_buff, not: true),
                                                           Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(save_action))
                                                           );
@@ -4905,7 +4905,7 @@ namespace CallOfTheWild
                                               "",
                                               cooldown_buff.Icon,
                                               null,
-                                              Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(action_list, only_first_hit: true, weapon_category: categories[i])
+                                              Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(action_list, weapon_category: categories[i])
                                               );
 
                 var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));

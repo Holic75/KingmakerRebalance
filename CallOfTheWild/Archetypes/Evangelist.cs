@@ -69,13 +69,7 @@ namespace CallOfTheWild.Archetypes
 
         static public void create()
         {
-            createChannelEnergy();
-            createSpontaneousCasting();
-            createPerformance();
-            createWeponProficiency();
-
             var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-
 
             archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
@@ -85,6 +79,12 @@ namespace CallOfTheWild.Archetypes
             });
             Helpers.SetField(archetype, "m_ParentClass", cleric_class);
             library.AddAsset(archetype, "");
+
+            createChannelEnergy();
+            createSpontaneousCasting();
+            createPerformance();
+            createWeponProficiency();
+
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, library.Get<BlueprintFeature>("8c971173613282844888dc20d572cfc9"), //cleric proficiencies
                                                                                 library.Get<BlueprintFeature>("d332c1748445e8f4f9e92763123e31bd"), //channel energy
                                                                                 library.Get<BlueprintFeature>("43281c3d7fe18cc4d91928395837cd1e")), //second domain
@@ -165,6 +165,7 @@ namespace CallOfTheWild.Archetypes
                                                                "",
                                                                null,
                                                                FeatureGroup.None);
+            archatype_list_feature.AddComponent(Helpers.Create<ContextRankConfigArchetypeList>(c => c.archetypes = new BlueprintArchetype[] { archetype }));
             archatype_list_feature.HideInCharacterSheetAndLevelUp = true;
 
             var inspire_courage_ability = library.CopyAndAdd<BlueprintActivatableAbility>("70274c5aa9124424c984217b62dabee8", "EvangelistInspireCourageToggleAbility", "");
@@ -174,6 +175,7 @@ namespace CallOfTheWild.Archetypes
                                                                     {
                                                                         Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType());
                                                                         Helpers.SetField(c, "m_Feature", archatype_list_feature);
+                                                                        Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(cleric));
                                                                     }
                                                                     );
 
@@ -181,10 +183,11 @@ namespace CallOfTheWild.Archetypes
             inspire_competence_ability.SetDescription("An evangelist of 3rd level or higher can use his performance to help allies succeed at a task. They must be within 30 feet and able to see and hear the evangelist. They get a +2 competence bonus on all skill checks as long as they continue to hear the evangelist's performance. This bonus increases by +1 for every four levels the evangelist has attained beyond 3rd (+3 at 7th, +4 at 11th, +5 at 15th, and +6 at 19th).");
             var inspire_competence_buff = library.Get<BlueprintBuff>("1fa5f733fa1d77743bf54f5f3da5a6b1");
             inspire_competence_buff.ReplaceComponent<ContextRankConfig>(c =>
-            {
-                Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType());
-                Helpers.SetField(c, "m_Feature", archatype_list_feature);
-            }
+                                                                {
+                                                                    Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType());
+                                                                    Helpers.SetField(c, "m_Feature", archatype_list_feature);
+                                                                    Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(cleric));
+                                                                }
                                                                 );
 
             var inspire_greatness_ability = library.CopyAndAdd<BlueprintActivatableAbility>("be36959e44ac33641ba9e0204f3d227b", "EvangelistInspireGreatnessToggleAbility", "");

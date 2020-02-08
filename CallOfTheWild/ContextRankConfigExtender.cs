@@ -131,21 +131,23 @@ namespace CallOfTheWild
                 }
                 foreach (var c in context.MaybeCaster.Descriptor.Progression.Classes)
                 {
-                    if (___m_Class.Contains(c.CharacterClass))
+                    if (!___m_Class.Contains(c.CharacterClass))
                     {
-                        if (c.Archetypes.Empty())
+                        continue;
+                    }
+                    var class_archetypes = archetypes_list.Where(a => a.GetParentClass() == c.CharacterClass).ToArray();
+                    if (class_archetypes.Empty())
+                    {
+                        __result = Math.Max(c.Level, __result);
+                    }
+                    else
+                    {
+                        foreach (var a in c.Archetypes)
                         {
-                            __result += c.Level;
-                        }
-                        else
-                        {
-                            foreach (var a in c.Archetypes)
+                            if (class_archetypes.Contains(a))
                             {
-                                if (archetypes_list.Contains(a))
-                                {
-                                    __result += c.Level;
-                                    break;
-                                }
+                                __result = Math.Max(c.Level, __result);
+                                break;
                             }
                         }
                     }
@@ -162,21 +164,23 @@ namespace CallOfTheWild
                 }
                 foreach (var c in context.MaybeCaster.Descriptor.Progression.Classes)
                 {
-                    if (___m_Class.Contains(c.CharacterClass))
+                    if (!___m_Class.Contains(c.CharacterClass))
                     {
-                        if (c.Archetypes.Empty())
+                        continue;
+                    }
+                    var class_archetypes = archetypes_list.Where(a => a.GetParentClass() == c.CharacterClass).ToArray();
+                    if (class_archetypes.Empty())
+                    {
+                        __result = Math.Max(c.Level, __result);
+                    }
+                    else
+                    {
+                        foreach (var a in c.Archetypes)
                         {
-                            __result = Math.Max(c.Level, __result);
-                        }
-                        else
-                        {
-                            foreach (var a in c.Archetypes)
+                            if (class_archetypes.Contains(a))
                             {
-                                if (archetypes_list.Contains(a))
-                                {
-                                    __result = Math.Max(c.Level, __result);
-                                    break;
-                                }
+                                __result = Math.Max(c.Level, __result);
+                                break;
                             }
                         }
                     }

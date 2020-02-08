@@ -15,7 +15,8 @@ New Archetypes for existing classes:
 - Vindictive Bastard Paladin archetype (implemented as a separate class),
 - Arrowsong Minstrel Bard archetype,
 - Spirit Whisperer Wizard archetype,
-- Storm Druid Druid archetype.
+- Storm Druid Druid archetype,
+- Evangelist Cleric Archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
