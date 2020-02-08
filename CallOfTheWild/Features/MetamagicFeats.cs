@@ -558,7 +558,7 @@ namespace CallOfTheWild
                 if (spellContext.HasMetamagic((Metamagic)MetamagicExtender.Dazing))
                 {
                     GameAction dazed_action = Helpers.CreateApplyBuff(dazed, Helpers.CreateContextDuration(spell_level), fromSpell: true);
-                    Common.runActionOnDamageDealt(__instance, Helpers.CreateActionList(dazed_action));
+                    Common.runActionOnDamageDealt(__instance, Helpers.CreateActionList(dazed_action), save_type: SavingThrowType.Will, use_existing_save: true);
                 }
             }
         }

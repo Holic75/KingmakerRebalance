@@ -127,7 +127,7 @@ namespace CallOfTheWild.Archetypes
             {
                 foreach (var f in s.AllFeatures)
                 {
-                    if (f.GetComponents<PrerequisiteClassSpellLevel>().Where(c => c.CharacterClass = bard_class).Count() > 0)
+                    if (f.GetComponents<PrerequisiteClassSpellLevel>().Where(c => c.CharacterClass == bard_class).Count() > 0)
                     {
                         f.AddComponent(Common.prerequisiteNoArchetype(bard_class, archetype));
                     }
@@ -148,8 +148,8 @@ namespace CallOfTheWild.Archetypes
                                        Common.createPrerequisiteArchetypeLevel(bard_class, archetype, 1));
 
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, spellbook, "DragonDiscipleArrowosngMinstrel",
-                           Common.createPrerequisiteClassSpellLevel(bard_class, 1),
-                           Common.createPrerequisiteArchetypeLevel(bard_class, archetype, 1));
+                                       Common.createPrerequisiteClassSpellLevel(bard_class, 1),
+                                       Common.createPrerequisiteArchetypeLevel(bard_class, archetype, 1));
         }
 
 
@@ -225,7 +225,7 @@ namespace CallOfTheWild.Archetypes
             spellbook = Helpers.Create<BlueprintSpellbook>();
             spellbook.name = "ArrowsongMinstrelSpellbook";
             library.AddAsset(spellbook, "");
-            spellbook.Name = bard_class.Spellbook.Name;
+            spellbook.Name = Helpers.CreateString("ArrowsongMinstrelSpellbook.Name", "Arrowsong Minstrel");
             spellbook.SpellsPerDay = Common.increaseNumSpellsCast("ArrowsongMinstrellSpellPerDay", "", bard_class.Spellbook.SpellsPerDay, -1);
             spellbook.SpellsKnown = bard_class.Spellbook.SpellsKnown;
             spellbook.Spontaneous = true;
