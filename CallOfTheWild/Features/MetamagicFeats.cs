@@ -6,6 +6,8 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Items;
+using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
@@ -77,8 +79,11 @@ namespace CallOfTheWild
         static public BlueprintFeature selective_metamagic;
         static public Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>  elemental_metamagic = new Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>();
 
-
-        
+        static readonly int[][] metamagic_rod_costs = new int[][] {
+                                                                    new int[] { 3000, 11000, 24500 },
+                                                                    new int[] { 9000, 32500, 73000 },
+                                                                    new int[] { 14000, 54000, 121500 },
+                                                                };
 
         public static void load()
         {
@@ -118,6 +123,45 @@ namespace CallOfTheWild
         }
 
 
+        static void createMetamagicRod(BlueprintFeature feature)
+        {
+            var zarcies = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
+            
+            var names = new string[] { "Lesser", "Regular", "Greater" };
+            var display_prefix = new string[] { "Lesser ", "Standard", "Greater " };
+            var max_level = new string[] { "3rd", "6th", "9th " };
+
+            var metamagic = feature.GetComponent<AddMetamagicFeat>().Metamagic;
+            var metamagic_cost = MetamagicHelper.DefaultCost(metamagic);
+
+            string[] prototype_guids = new string[] {"1e7a5a4d257cf434a87e687c9ee7a872", "a02f06b63af839a448147dadff3724f2", "a02f06b63af839a448147dadff3724f2" };
+
+            var display_name = feature.Name.Replace("(", "").Replace(")", "").Replace("Metamagic", "").Replace("Spell", "").Trim();
+            for (int i = 0; i < 3; i++)
+            {
+                var rod_name = names[i] + " " + display_name + " Metamagic Rod";
+                var description = $"The wielder can cast up to three spells per day that are affected as though the spells were augmented with the {feature.Name} feat.\n" +
+                    $"{names[i]} rods can be used with spells of {max_level[i]} level or lower.\n" +
+                    $"{feature.Name}: {feature.Description}";
+
+
+                var rod = library.CopyAndAdd<BlueprintItemEquipmentUsable>(prototype_guids[i], feature.name + $"{i+1}Rod", "");
+                Helpers.SetField(rod, "m_Cost", metamagic_rod_costs[metamagic_cost - 1][i]);
+                Helpers.SetField(rod, "m_DisplayNameText", Helpers.CreateString(rod.name + ".Name", rod_name));
+                Helpers.SetField(rod, "m_DescriptionText", Helpers.CreateString(rod.name + ".Description", description));
+
+                rod.ActivatableAbility = library.CopyAndAdd<BlueprintActivatableAbility>(rod.ActivatableAbility.AssetGuid, feature.name + $"{i+1}RodActivatableAbility", "");
+                rod.ActivatableAbility.SetNameDescription(rod.Name, rod.Description);
+                rod.ActivatableAbility.Buff = library.CopyAndAdd<BlueprintBuff>(rod.ActivatableAbility.Buff.AssetGuid, feature.name + $"{i+1}RodBuff", "");
+                rod.ActivatableAbility.Buff.SetNameDescription(rod.Name, rod.Description);
+                rod.ActivatableAbility.Buff.ReplaceComponent<MetamagicRodMechanics>(m => { m.Metamagic = metamagic; m.MaxSpellLevel = (i + 1) * 3; m.RodAbility = rod.ActivatableAbility; });
+
+                //add to zarcie
+                Helpers.AddItemToSpecifiedVendorTable(zarcies, rod, 5);
+            }
+        }
+
+
         static void AddMetamagicToFeatSelection(BlueprintFeature feat)
         {
             library.AddFeats(feat);
@@ -129,6 +173,8 @@ namespace CallOfTheWild
             {
                 s.AllFeatures = s.AllFeatures.AddToArray(feat);
             }
+
+            createMetamagicRod(feat);
         }
 
 
