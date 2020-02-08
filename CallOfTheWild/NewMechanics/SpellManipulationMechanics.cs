@@ -79,6 +79,7 @@ namespace CallOfTheWild
                 foreach (var b in buffs)
                 {
                     bool result = false;
+                    //Main.logger.Log(b.Name);
                     b.CallComponents<INoSpontnaeousMetamagicCastingTimeIncrease>(c => result = c.canUseOnAbility(ability));
                     if (result)
                     {
@@ -117,14 +118,18 @@ namespace CallOfTheWild
 
             public bool canUseOnAbility(AbilityData ability)
             {
+                if (ability.MetamagicData == null)
+                {
+                    return false;
+                }
                 int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
-                return metamagic_count > max_metamagics;
+                return metamagic_count <= max_metamagics;
             }
         }
 
 
         [AllowedOn(typeof(BlueprintParametrizedFeature))]
-        public class NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell : ParametrizedFeatureComponent
+        public class NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell : ParametrizedFeatureComponent, INoSpontnaeousMetamagicCastingTimeIncrease
         {
             public int max_metamagics = 1;
 
@@ -140,22 +145,33 @@ namespace CallOfTheWild
 
             public bool canUseOnAbility(AbilityData ability)
             {
+                //Main.logger.Log("Checking Spell and Ability");
                 var spell = this.Param?.Blueprint as BlueprintAbility;
+               
                 if (spell == null || ability?.Blueprint == null)
                 {
                     return false;
                 }
 
+               // Main.logger.Log("Checking spellbook");
                 if (!spell.IsSpell)
                 {
                     return false;
                 }
 
+                if (ability.MetamagicData == null)
+                {
+                    return false;
+                }
+
+                //Main.logger.Log("Checking metamagic");
                 int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
                 if (metamagic_count > max_metamagics)
                 {
                     return false;
                 }
+
+               // Main.logger.Log("Checking correct spell");
                 return ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
             }
         }
@@ -233,7 +249,7 @@ namespace CallOfTheWild
                         return;
                     }
 
-                    __result = fast_metamagic.canBeUsedOnAbility(__instance);
+                    __result = !fast_metamagic.canBeUsedOnAbility(__instance);
                 }
             }
         }

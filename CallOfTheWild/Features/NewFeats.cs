@@ -166,6 +166,7 @@ namespace CallOfTheWild
         {
             spontaneous_metafocus = library.CopyAndAdd<BlueprintParametrizedFeature>("8a2bdb52b158bc24d83c9ef1a2cb2af4", "SpontaneousMetafocusFeature", "");
             spontaneous_metafocus.Prerequisite = null;
+            spontaneous_metafocus.ParameterType = (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpontaneousSpell;
             spontaneous_metafocus.SetNameDescriptionIcon("Spontaneous Metafocus",
                                                          "Pick a single spell that you are able to cast spontaneously. When you apply metamagic feats to that spell, you can cast the spell using the normal casting time instead of at the slower casting time.\n"
                                                          + "Special: You can take this feat multiple times. Each time you select this feat, choose a new spell that you can cast spontaneously; the feat applies to that spell.",
@@ -185,6 +186,7 @@ namespace CallOfTheWild
         {
             spell_perfection = library.CopyAndAdd<BlueprintParametrizedFeature>("8a2bdb52b158bc24d83c9ef1a2cb2af4", "SpellPerfectionFeature", "");
             spell_perfection.Prerequisite = null;
+            spell_perfection.ParameterType = (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpontaneousSpell;
             spell_perfection.SetNameDescriptionIcon("Spell Perfection",
                                                     "Pick one spell which you have the ability to cast. Whenever you cast that spell you may apply any one metamagic feat you have to that spell without affecting its level or casting time, as long as the total modified level of the spell does not use a spell slot above 9th level. In addition, if you have other feats which allow you to apply a set numerical bonus to any aspect of this spell (such as Spell Focus, Spell Penetration, Weapon Focus [ray], and so on), double the bonus granted by that feat when applied to this spell.",
                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons/SpellPerfection.png")
@@ -204,8 +206,9 @@ namespace CallOfTheWild
                 library.Get<BlueprintUnitFact>("5b04b45b228461c43bad768eb0f7c7bf"), //spell focus greater
                 library.Get<BlueprintUnitFact>("f327a765a4353d04f872482ef3e48c35"), //spell specialization first
                 NewFeats.mages_tattoo,
-                Witch.witch_knife
-            };
+                Witch.witch_knife,
+                library.Get<BlueprintFeature>("9093ceeefe9b84746a5993d619d7c86f"), //allied spell caster
+        };
             spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures); //other spell specializations
             spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("bb24cc01319528849b09a3ae8eec0b31").AllFeatures); //elemental foci
 

@@ -67,6 +67,7 @@ namespace CallOfTheWild
                                                            null,
                                                            Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.Never)
                                                            );
+            ability.DeactivateImmediately = true;
 
             metamagic_adept.ComponentsArray = new BlueprintComponent[] {Helpers.CreateAddAbilityResource(resource),
                                                                         Helpers.CreateAddFact(ability)};
@@ -90,8 +91,10 @@ namespace CallOfTheWild
                                           "",
                                           MetamagicFeats.intensified_metamagic.Icon,
                                           null,
+                                          Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic>(n => n.max_metamagics = 0), //blood intensity does not increase casting time
                                           Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
                                                                                                                       {
+                                                                                                                          m.amount = 1;
                                                                                                                           m.resource = resource;
                                                                                                                           m.spell_descriptor = SpellDescriptor.None;
                                                                                                                           m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity;

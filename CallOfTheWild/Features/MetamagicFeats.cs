@@ -106,7 +106,7 @@ namespace CallOfTheWild
             selective_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Selective);
             AddMetamagicToFeatSelection(selective_metamagic);
 
-            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.LocalizedDuration.ToString().Empty() && b.HasAreaEffect() && b.EffectOnAlly == AbilityEffectOnUnit.Harmful).Cast<BlueprintAbility>().ToArray();
+            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.LocalizedDuration.ToString().Empty() && b.HasAreaEffect() && b.EffectOnEnemy == AbilityEffectOnUnit.Harmful).Cast<BlueprintAbility>().ToArray();
             foreach (var s in spells)
             {
                 s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
@@ -121,7 +121,7 @@ namespace CallOfTheWild
         static void AddMetamagicToFeatSelection(BlueprintFeature feat)
         {
             library.AddFeats(feat);
-            var selections = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("3a60f0c0442acfb419b0c03b584e1394"),
+            var selections = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("d6dd06f454b34014ab0903cb1ed2ade3"),
                                                             library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899"),
                                                            };
 
@@ -573,7 +573,6 @@ namespace CallOfTheWild
             }
         }
 
-
         [Harmony12.HarmonyPatch(typeof(UnitPartSpellResistance))]
         [Harmony12.HarmonyPatch("IsImmune", Harmony12.MethodType.Normal)]
         static class UnitPartSpellResistance_IsImmune_Patch
@@ -588,6 +587,30 @@ namespace CallOfTheWild
                 if (!context.MaybeCaster.IsEnemy(__instance.Owner.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
                 {
                     __result = true;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(AbilityEffectRunAction), "Apply", typeof(AbilityExecutionContext), typeof(TargetWrapper))]
+        static class AbilityEffectRunAction_Apply_Patch
+        {
+            internal static bool Prefix(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (!target.IsUnit)
+                {
+                    return true;
+                }
+                if (context?.Params == null || context.MaybeCaster == null)
+                {
+                    return true;
+                }
+
+                if (!context.MaybeCaster.IsEnemy(target.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
+                {
                     return false;
                 }
 
