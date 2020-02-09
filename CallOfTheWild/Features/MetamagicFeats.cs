@@ -600,6 +600,10 @@ namespace CallOfTheWild
             internal static bool Prefix(RulePrepareDamage __instance, RulebookEventContext context)
             {
                 var context2  = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (context2 == null)
+                {
+                    return true;
+                }
                 if (context2.AbilityBlueprint.IsSpell &&
                     (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Elemental) != 0)
                 {

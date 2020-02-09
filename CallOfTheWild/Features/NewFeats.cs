@@ -186,7 +186,7 @@ namespace CallOfTheWild
         {
             spell_perfection = library.CopyAndAdd<BlueprintParametrizedFeature>("8a2bdb52b158bc24d83c9ef1a2cb2af4", "SpellPerfectionFeature", "");
             spell_perfection.Prerequisite = null;
-            spell_perfection.ParameterType = (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpontaneousSpell;
+            spell_perfection.ParameterType = (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell;
             spell_perfection.SetNameDescriptionIcon("Spell Perfection",
                                                     "Pick one spell which you have the ability to cast. Whenever you cast that spell you may apply any one metamagic feat you have to that spell without affecting its level or casting time, as long as the total modified level of the spell does not use a spell slot above 9th level. In addition, if you have other feats which allow you to apply a set numerical bonus to any aspect of this spell (such as Spell Focus, Spell Penetration, Weapon Focus [ray], and so on), double the bonus granted by that feat when applied to this spell.",
                                                     LoadIcons.Image2Sprite.Create(@"FeatIcons/SpellPerfection.png")
