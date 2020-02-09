@@ -4,6 +4,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -129,18 +130,47 @@ namespace CallOfTheWild
         }
         static void createBloodHavoc()
         {
+            Dictionary<string, List<BlueprintFeature>> spell_asset_id_feature_map = new Dictionary<string, List<BlueprintFeature>>();
+
+            var bloodlines = library.Get<BlueprintFeatureSelection>("24bef8d1bee12274686f6da6ccbc8914").AllFeatures.Cast<BlueprintProgression>().ToList();
+
+            foreach (var b in bloodlines)
+            {
+                foreach (var le in b.LevelEntries)
+                {
+                    foreach (var f in le.Features)
+                    {
+                        if (f.name.Contains("SpellLevel"))
+                        {
+                            var spell = f.GetComponent<AddKnownSpell>()?.Spell;
+                            if (spell == null)
+                            {
+                                continue;
+                            }
+                            
+                            if (!spell_asset_id_feature_map.ContainsKey(spell.AssetGuid))
+                            {
+                                spell_asset_id_feature_map[spell.AssetGuid] = new List<BlueprintFeature>();
+                            }
+                            //Main.logger.Log("Added: " + spell.name + " --- " + f.name);
+                            spell_asset_id_feature_map[spell.AssetGuid].Add(f as BlueprintFeature);
+                        }
+                    }
+                }
+            }
+            NewMechanics.BloodHavoc.spell_asset_id_feature_map = spell_asset_id_feature_map;
+            Main.logger.Log(spell_asset_id_feature_map.Count.ToString());
             blood_havoc = Helpers.CreateFeature("BloodHavocFeature",
                                                 "Blood Havoc",
                                                 "Whenever you cast a bloodrager or sorcerer spell that deals damage, add 1 point of damage per die rolled. This benefit applies only to damaging spells that belong to schools you have selected with Spell Focus or that are bloodline spells for your bloodline.",
                                                 "",
                                                 null,
                                                 FeatureGroup.None,
-                                                Helpers.Create<NewMechanics.BloodHavoc>(b => b.feature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe")),
+                                                Helpers.Create<NewMechanics.BloodHavoc>(b => { b.feature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");}),
                                                 Helpers.PrerequisiteClassLevel(sorcerer, 1, any: true),
                                                 Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 4, any: true),
                                                 Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 1, any: true)
                                                 );
-
         }
 
 

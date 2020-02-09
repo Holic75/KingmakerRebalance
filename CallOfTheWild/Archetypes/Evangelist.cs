@@ -158,6 +158,13 @@ namespace CallOfTheWild.Archetypes
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
 
+            var amount = Helpers.GetField(resource, "m_MaxAmount");
+            BlueprintCharacterClass[] classes = (BlueprintCharacterClass[])Helpers.GetField(amount, "Class");
+            classes = classes.AddToArray(cleric);
+            Helpers.SetField(amount, "Class", classes);
+            Helpers.SetField(amount, "Archetypes", new BlueprintArchetype[] { archetype });
+            Helpers.SetField(resource, "m_MaxAmount", amount);
+
 
             var archatype_list_feature = Helpers.CreateFeature("BardicPerformanceArchetypeExtensionFeature",
                                                                "",

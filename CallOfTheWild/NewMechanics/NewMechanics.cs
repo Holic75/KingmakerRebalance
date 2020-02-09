@@ -5395,6 +5395,7 @@ namespace CallOfTheWild
         public class BloodHavoc : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
         {
             public BlueprintParametrizedFeature feature;
+            static public Dictionary<string, List<BlueprintFeature>> spell_asset_id_feature_map;
 
             public void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
@@ -5410,19 +5411,33 @@ namespace CallOfTheWild
                     return;
                 }
 
+                if (spell_asset_id_feature_map.ContainsKey(ability.AssetGuid))
+                {
+                    foreach (var f in spell_asset_id_feature_map[ability.AssetGuid])
+                    {
+                        if (this.Owner.HasFact(f))
+                        {
+                            foreach (BaseDamage baseDamage in evt.DamageBundle)
+                                baseDamage.AddBonus(baseDamage.Dice.Rolls);
+                            return;
+                        }
+                    }
+                }
+
                 var school = ability.School;
                 if (school == SpellSchool.None)
                 {
                     return;
                 }
 
-                if (!this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == school))
+                if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == school))
                 {
+                    foreach (BaseDamage baseDamage in evt.DamageBundle)
+                        baseDamage.AddBonus(baseDamage.Dice.Rolls);
                     return;
                 }
 
-                foreach (BaseDamage baseDamage in evt.DamageBundle)
-                    baseDamage.AddBonus(baseDamage.Dice.Rolls);
+
             }
 
             public void OnEventDidTrigger(RuleCalculateDamage evt)
