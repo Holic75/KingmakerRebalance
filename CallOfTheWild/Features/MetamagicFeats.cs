@@ -94,6 +94,11 @@ namespace CallOfTheWild
             createPersistentSpell();
             createSelectiveSpell();
             createElementalMetamagic();
+
+            //add metamagic text to spells 
+            var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetMetamagicList");
+            var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetMetamagicList_Patch), "Postfix");
+            Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
         }
 
 
@@ -668,6 +673,78 @@ namespace CallOfTheWild
             }
         }
 
+
+
+        static class UIUtilityTexts_GetMetamagicList_Patch
+        {
+            static void Postfix(Metamagic mask, ref string __result)
+            {          
+                string extra_metamagic = "";
+            
+                if ((mask & (Metamagic)MetamagicExtender.Intensified) != 0)
+                {
+                    extra_metamagic += "Intesnsified, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.Toppling) != 0)
+                {
+                    extra_metamagic += "Toppling, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.Selective) != 0)
+                {
+                    extra_metamagic += "Selective, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.Dazing) != 0)
+                {
+                    extra_metamagic += "Dazing, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.Rime) != 0)
+                {
+                    extra_metamagic += "Rime, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.Persistent) != 0)
+                {
+                    extra_metamagic += "Persistent, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.ElementalAcid) != 0)
+                {
+                    extra_metamagic += "Elemental Acid, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.ElementalCold) != 0)
+                {
+                    extra_metamagic += "Elemental Cold, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.ElementalElectricity) != 0)
+                {
+                    extra_metamagic += "Elemental Electricity, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.ElementalFire) != 0)
+                {
+                    extra_metamagic += "Elemental Fire, ";
+                }
+
+                if (extra_metamagic.Length > 2)
+                {
+                    extra_metamagic = extra_metamagic.Substring(0, extra_metamagic.Length - 2);
+                }
+                if (!__result.Empty())
+                {
+                    __result += ", ";
+                }
+
+                __result += extra_metamagic;
+            }
+        }
+
+
+        /*[Harmony12.HarmonyPatch(typeof(UIUtilityTexts))]
+        [Harmony12.HarmonyPatch("GetMetamagicList", Harmony12.MethodType.Normal)]
+        class UIUtilityTexts__GetMetamagicList__Patch
+        {
+            static bool Prefix(Metamagic mask, ref string __result)
+            {
+                return true;
+            }
+        }*/
 
 
 
