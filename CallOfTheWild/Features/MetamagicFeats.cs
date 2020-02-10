@@ -16,6 +16,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.Items;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
@@ -350,13 +351,18 @@ namespace CallOfTheWild
 
             foreach (var s in spells)
             {
-                var run_action = s.GetComponent<AbilityEffectRunAction>()?.Actions;
+                var spell = s;
+                if (s.StickyTouch != null)
+                {
+                    spell = s.StickyTouch.TouchDeliveryAbility;
+                }
+                var run_action = spell.GetComponent<AbilityEffectRunAction>()?.Actions;
                 if (run_action == null)
                 {
                     continue;
                 }
                 var damage = Common.extractActions<ContextActionDealDamage>(run_action.Actions).Where(d => d.Value.DiceCountValue.ValueType == ContextValueType.Rank).ToArray();
-                var context_rank_configs = s.GetComponents<ContextRankConfig>().Where(c =>                                                                                     
+                var context_rank_configs = spell.GetComponents<ContextRankConfig>().Where(c =>                                                                                     
                                                                                           Helpers.GetField<ContextRankBaseValueType>(c, "m_BaseValueType") == ContextRankBaseValueType.CasterLevel
                                                                                           && Helpers.GetField<bool>(c, "m_UseMax") == true
                                                                                           && Helpers.GetField<int>(c, "m_Max") != Helpers.GetField<int>(c, "m_Min")                                                                                 
@@ -375,11 +381,9 @@ namespace CallOfTheWild
                         s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.IntensifiedGeneral;
                         if (s.Parent != null)
                         {
-                            s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.IntensifiedGeneral;
+                            s.Parent.AvailableMetamagic = s.Parent.AvailableMetamagic | (Metamagic)MetamagicExtender.IntensifiedGeneral;
                         }
                     }
-
-                   
                 }
             }
 
@@ -541,6 +545,14 @@ namespace CallOfTheWild
             internal static void Postfix(RuleDealDamage __instance, RulebookEventContext context)
             {
                 var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (spellContext == null)
+                {                   
+                    var source_buff = (__instance.Reason?.Item as ItemEntityWeapon)?.Blueprint.GetComponent<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>()?.buff;
+                    if (source_buff != null)
+                    {
+                        spellContext = __instance.Initiator.Buffs?.GetBuff(source_buff)?.MaybeContext?.SourceAbilityContext;
+                    }
+                }
                 var target = __instance.Target;
                 if (spellContext == null || target == null)
                 {
@@ -605,6 +617,15 @@ namespace CallOfTheWild
             internal static bool Prefix(RulePrepareDamage __instance, RulebookEventContext context)
             {
                 var context2  = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (context2 == null)
+                {
+                    var source_buff = (__instance.Reason?.Item as ItemEntityWeapon)?.Blueprint.GetComponent<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>()?.buff;
+
+                    if (source_buff != null)
+                    {
+                        context2 = __instance.Initiator.Buffs?.GetBuff(source_buff)?.MaybeContext?.SourceAbilityContext;
+                    }
+                }
                 if (context2 == null)
                 {
                     return true;

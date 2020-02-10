@@ -248,6 +248,7 @@ namespace CallOfTheWild
                     CallOfTheWild.KineticistFix.load();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.BloodlinesFix.load();
+                    CallOfTheWild.Archetypes.PrimalSorcerer.create();
 
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();

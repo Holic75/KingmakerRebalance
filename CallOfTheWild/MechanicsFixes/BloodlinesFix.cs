@@ -159,7 +159,6 @@ namespace CallOfTheWild
                 }
             }
             NewMechanics.BloodHavoc.spell_asset_id_feature_map = spell_asset_id_feature_map;
-            Main.logger.Log(spell_asset_id_feature_map.Count.ToString());
             blood_havoc = Helpers.CreateFeature("BloodHavocFeature",
                                                 "Blood Havoc",
                                                 "Whenever you cast a bloodrager or sorcerer spell that deals damage, add 1 point of damage per die rolled. This benefit applies only to damaging spells that belong to schools you have selected with Spell Focus or that are bloodline spells for your bloodline.",

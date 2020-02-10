@@ -70,6 +70,7 @@ using Pathfinding;
 using Kingmaker.Controllers.Combat;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using System.Text;
+using Kingmaker.Blueprints.Root.Strings;
 
 namespace CallOfTheWild
 {
@@ -207,7 +208,7 @@ namespace CallOfTheWild
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
                 }
                 caster_level_increase = -1;
-                
+
             }
         }
 
@@ -252,7 +253,7 @@ namespace CallOfTheWild
 
                 int metamagic_count = Helpers.PopulationCount((int)(evt.Spell.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
                 if (metamagic_count > 1)
-                {                 
+                {
                     return;
                 }
                 if (evt.Spell.MetamagicData.MetamagicMask != 0 && evt.Spell.MetamagicData.MetamagicMask != Metamagic.Quicken)
@@ -883,7 +884,7 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleAttackWithWeapon evt)
             {
-                if (this.Owner.Body.PrimaryHand.MaybeWeapon != null && this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee && evt.Weapon.Blueprint.IsMelee  &&  this.Owner.Unit.CombatState.IsEngage(evt.Initiator))
+                if (this.Owner.Body.PrimaryHand.MaybeWeapon != null && this.Owner.Body.PrimaryHand.MaybeWeapon.Blueprint.IsMelee && evt.Weapon.Blueprint.IsMelee && this.Owner.Unit.CombatState.IsEngage(evt.Initiator))
                 {
                     //this.Owner.Unit.CombatState.AttackOfOpportunity(evt.Initiator);
                     Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);
@@ -5399,7 +5400,7 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
-                
+
                 var ability = evt.Reason.Context?.SourceAbility;
                 if (ability == null)
                 {
@@ -5588,6 +5589,36 @@ namespace CallOfTheWild
         }
 
 
+        public class IncomingPhysicalDamageMaterialBonus : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleCalculateDamage>
+        {
+            public PhysicalDamageMaterial material;
+            public int amount = 1;
 
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                var weaponDamage = evt.DamageBundle.WeaponDamage as PhysicalDamage;
+                if (weaponDamage != null && (weaponDamage.MaterialsMask & material) != 0)
+                {
+                    weaponDamage.AddBonusTargetRelated(amount);
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        public class PrerequisiteCharacterLevelExact : Prerequisite
+        {
+            public int level;
+
+            public override bool Check(FeatureSelectionState selectionState, UnitDescriptor unit, LevelUpState state)
+            {
+                return unit.Progression.CharacterLevel == level;
+            }
+
+            public override string GetUIText() => $"{UIStrings.Instance.Tooltips.CharacterLevel}: {level}";
+        }
     }
 }

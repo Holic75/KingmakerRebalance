@@ -16,7 +16,8 @@ New Archetypes for existing classes:
 - Arrowsong Minstrel Bard archetype,
 - Spirit Whisperer Wizard archetype,
 - Storm Druid Druid archetype,
-- Evangelist Cleric Archetype.
+- Evangelist Cleric archetype,
+- Primal Bloodline Wildblooded Sorcerer archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
@@ -78,7 +79,8 @@ New feats:
 - Selective Spell,
 - Spontaneous Metafocus,
 - Spell Perfection,
-- Mage's Tattoo.
+- Mage's Tattoo,
+- Quicken Blessing.
 
 New rage powers:
 - Terrifying Howl
@@ -100,8 +102,7 @@ New rage powers:
 - Celestial Totem, Greater,
 - Daemon Totem, Lesser,
 - Daemon Totem,
-- Daemon Totem, Greater,
-- Quicken Blessing.
+- Daemon Totem, Greater.
 
 New features:
 - Share Spell for animal companions,

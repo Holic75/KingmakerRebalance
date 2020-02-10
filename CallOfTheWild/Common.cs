@@ -54,6 +54,8 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.ResourceLinks;
+using Kingmaker.Items;
+using Kingmaker.UnitLogic.Buffs;
 
 namespace CallOfTheWild
 {
@@ -3338,22 +3340,36 @@ namespace CallOfTheWild
         public static void runActionOnDamageDealt(RuleDealDamage evt,  ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
                                                   SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false)
         {
+            Buff context_buff = null;
             if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
             {
                 return;
             }
             var context = Helpers.GetMechanicsContext();
             var spellContext = context?.SourceAbilityContext;
+
+            if (spellContext == null)
+            {
+                var source_buff = (evt.Reason?.Item as ItemEntityWeapon)?.Blueprint.GetComponent<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>()?.buff;
+
+                if (source_buff != null)
+                {
+                    context_buff = evt.Initiator.Buffs?.GetBuff(source_buff);
+                    spellContext = context_buff?.MaybeContext?.SourceAbilityContext;
+                }
+            }
+
             var target = evt.Target;
             if (spellContext == null || target == null)
             {
                 return;
             }
-
+        
             if (!spellContext.SourceAbility.IsSpell)
             {
                 return;
             }
+
 
             if (descriptor != SpellDescriptor.None && !descriptor.HasAnyFlag(spellContext.SpellDescriptor))
             {
@@ -3365,7 +3381,8 @@ namespace CallOfTheWild
                 return;
             }
 
-            var dc = context.Params.DC;
+
+            var dc = spellContext.Params.DC;
 
             if (save_type != SavingThrowType.Unknown)
             {
@@ -3373,7 +3390,7 @@ namespace CallOfTheWild
 
                 if (use_existing_save)
                 {
-                    rule_saving_throw = context.SavingThrow;
+                    rule_saving_throw = spellContext.SavingThrow;
                 }
                 if (rule_saving_throw == null)
                 {
@@ -3387,7 +3404,14 @@ namespace CallOfTheWild
                 }
             }
 
-            action.Run();
+            if (context_buff == null)
+            {
+                action.Run();
+            }
+            else
+            {
+                (context_buff as IFactContextOwner).RunActionInContext(action, target);
+            }
         }
 
         static public string getNumExtension(int i)

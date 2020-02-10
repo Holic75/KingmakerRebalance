@@ -125,6 +125,51 @@ namespace CallOfTheWild.HealingMechanics
 
 
 
+    public class UnitPartReceiveBonusHpPerDie : AdditiveUnitPart
+    {
+        public int getAmount(BlueprintAbility spell)
+        {
+            var amount = 0;
+
+            foreach (var b in buffs)
+            {
+                var comp = b.Blueprint.GetComponent<ReceiveBonusHpPerDie>();
+                if (comp == null)
+                {
+                    continue;
+                }
+                b.CallComponents<ReceiveBonusHpPerDie>(a => amount += a.perDieAmount(spell));
+            }
+
+            return amount;
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ReceiveBonusHpPerDie : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public int per_die_amount;
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartReceiveBonusHpPerDie>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartReceiveBonusHpPerDie>().removeBuff(this.Fact);
+        }
+
+        public int perDieAmount(BlueprintAbility spell)
+        {
+            return per_die_amount;
+        }
+    }
+
+
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class ExtendHpBonusToCasterLevel : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {
@@ -250,18 +295,21 @@ namespace CallOfTheWild.HealingMechanics
                     bonus = (int)(bonus * 1.5f);
                 }
 
-                context.TriggerRule<RuleHealDamage>(new RuleHealDamage(context.MaybeCaster, target, DiceFormula.Zero, bonus));
+                int dice_count = __instance.Value.DiceCountValue.Calculate(context);
+                bonus += target.Descriptor.Ensure<UnitPartReceiveBonusHpPerDie>().getAmount(context.SourceAbility) * dice_count;
 
                 if (target.Descriptor.Ensure<UnitPartReceiveBonusCasterLevelHealing>().active() && context.SourceAbility != null && __instance.Value != null)
                 {
-                    int dice_count = __instance.Value.DiceCountValue.Calculate(context);
                     var dice = __instance.Value.DiceType;
-                    if (dice_count == 0 || dice == DiceType.Zero || context.Params == null)
+                    if (dice_count != 0 && dice != DiceType.Zero && context.Params != null)
                     {
-                        return false;
+                        bonus += context.Params.CasterLevel;
                     }
-                    int bonus_hp = context.Params.CasterLevel;
-                    context.TriggerRule<RuleHealDamage>(new RuleHealDamage(target, target, DiceFormula.Zero, bonus_hp));
+                }
+
+                if (bonus > 0)
+                {
+                    context.TriggerRule<RuleHealDamage>(new RuleHealDamage(context.MaybeCaster, target, DiceFormula.Zero, bonus));
                 }
             }
 
@@ -287,17 +335,25 @@ namespace CallOfTheWild.HealingMechanics
                 was_dead = true;
             }
 
+            int dice_count = __instance.Value.DiceCountValue.Calculate(context);
+            int bonus_hp = target.Descriptor.Ensure<UnitPartReceiveBonusHpPerDie>().getAmount(context.SourceAbility) * dice_count;
+            
             if (target.Descriptor.Ensure<UnitPartReceiveBonusCasterLevelHealing>().active() && context.SourceAbility != null && __instance.Value != null)
             {
-                int dice_count = __instance.Value.DiceCountValue.Calculate(context);
                 var dice = __instance.Value.DiceType;
                 if (dice_count == 0 || dice == DiceType.Zero || context.Params == null)
                 {
                     return;
                 }
-                int bonus_hp = context.Params.CasterLevel;
+                bonus_hp += context.Params.CasterLevel;
+                
+            }
+
+            if (bonus_hp > 0)
+            {
                 context.TriggerRule<RuleHealDamage>(new RuleHealDamage(target, target, DiceFormula.Zero, bonus_hp));
             }
+            
 
             if (target.HPLeft > -(int)((ModifiableValue)target.Stats.Constitution) && was_dead)
             {

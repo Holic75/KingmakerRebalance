@@ -89,6 +89,8 @@ namespace CallOfTheWild
         static public BlueprintParametrizedFeature spontaneous_metafocus;
         static public BlueprintParametrizedFeature spell_perfection;
 
+        static public BlueprintFeature fey_foundling;
+
 
         static internal void load()
         {
@@ -147,6 +149,24 @@ namespace CallOfTheWild
             createMagesTattoo();
             createSpontaneousMetafocus();
             createSpellPerfection();
+            createFeyFoundling();
+        }
+
+
+        static void createFeyFoundling()
+        {
+            fey_foundling = Helpers.CreateFeature("FeyFoundling",
+                                             "Fey Foundling",
+                                             "You were found in the wilds as a child.\nWhenever you receive magical healing, you heal an additional 2 points per die rolled. You gain a +2 bonus on all saving throws against death effects. Unfortunately, you also suffer +1 point of damage from cold iron weapons (although you can wield cold iron weapons without significant discomfort).",
+                                             "",
+                                             Helpers.GetIcon("e8445256abbdc45488c2d90373f7dae8"),
+                                             FeatureGroup.Feat,
+                                             Helpers.Create<SavingThrowBonusAgainstDescriptor>(s => { s.SpellDescriptor = SpellDescriptor.Death; s.ModifierDescriptor = ModifierDescriptor.Feat; }),
+                                             Helpers.Create<HealingMechanics.ReceiveBonusHpPerDie>(r => r.per_die_amount = 2),
+                                             Helpers.Create<NewMechanics.PrerequisiteCharacterLevelExact>(p => p.level = 1)
+                                             );
+            library.AddFeats(fey_foundling);
+
         }
 
         static void createMagesTattoo()

@@ -1393,8 +1393,14 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
     }
 
-    //allow summoned weapons to equip as free action
-    [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
+
+    public class WeaponSourceBuff: BlueprintComponent
+    {
+        public BlueprintBuff buff;
+    }
+
+//allow summoned weapons to equip as free action
+[Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
     [Harmony12.HarmonyPatch("HandleEquipmentSlotUpdated", Harmony12.MethodType.Normal)]
     class UnitViewHandsEquipment_HandleEquipmentSlotUpdated_Patch
     {
@@ -1520,10 +1526,6 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             (context_fact as IFactContextOwner)?.RunActionInContext(action, target);
         }
     }
-
-
-
-
 
 
 }
