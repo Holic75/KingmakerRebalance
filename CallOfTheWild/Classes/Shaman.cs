@@ -42,7 +42,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    public partial class Shaman
+    public class Shaman
     {
         static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;

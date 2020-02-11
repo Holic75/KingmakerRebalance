@@ -1,7 +1,10 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +25,87 @@ namespace CallOfTheWild.SpellbookMechanics
     public class CompanionSpellbook : BlueprintComponent
     {
         public BlueprintSpellbook spellbook;
+    }
+
+
+    [AllowedOn(typeof(BlueprintSpellbook))]
+    public class CanNotUseSpells : BlueprintComponent
+    {
+       
+    }
+
+    [AllowedOn(typeof(BlueprintSpellbook))]
+    public class GetKnownSpellsFromMemorizationSpellbook : BlueprintComponent
+    {
+        public BlueprintSpellbook spellbook;
+    }
+
+
+    //make fake spell book return zero memorized spells
+    [Harmony12.HarmonyPatch(typeof(Spellbook))]
+    [Harmony12.HarmonyPatch("Rest", Harmony12.MethodType.Normal)]
+    class Spellbook__Rest__Patch
+    {
+        static void Postfix(Spellbook __instance)
+        {
+            if (!__instance.Blueprint.Spontaneous)
+            {
+                return;
+            }
+            var memorization_spellbook_blueprint = __instance.Blueprint.GetComponent<GetKnownSpellsFromMemorizationSpellbook>()?.spellbook;
+            if (memorization_spellbook_blueprint == null || memorization_spellbook_blueprint.Spontaneous)
+            {
+                return;
+            }
+
+            var memorization_spellbook = __instance.Owner?.Spellbooks.Where(s => s.Blueprint == memorization_spellbook_blueprint).FirstOrDefault();
+            if (memorization_spellbook == null)
+            {
+                return;
+            }
+
+           
+            foreach (var s in __instance.GetAllKnownSpells().ToArray())
+            {
+                __instance.RemoveSpell(s.Blueprint);
+            }
+
+            var m_known_spells = Helpers.GetField<List<AbilityData>[]>(__instance, "m_KnownSpells");
+            var m_known_SpellLevels = Helpers.GetField<Dictionary<BlueprintAbility, int>>(__instance, "m_KnownSpellLevels");
+            foreach (var slot in memorization_spellbook.GetAllMemorizedSpells())
+            {
+                if (slot.Spell != null)
+                {
+                    var new_ability = new AbilityData(slot.Spell.Blueprint, __instance);
+                    if (slot.Spell.MetamagicData != null)
+                    {
+                        new_ability.MetamagicData = slot.Spell.MetamagicData.Clone();
+                    }
+                    var spell_level = memorization_spellbook.GetSpellLevel(slot.Spell.Blueprint);
+                    new_ability.DecorationBorderNumber = slot.Spell.DecorationBorderNumber;
+                    new_ability.DecorationColorNumber = slot.Spell.DecorationColorNumber;
+                    
+                    m_known_spells[spell_level].Add(new_ability);
+                    m_known_SpellLevels[slot.Spell.Blueprint] = spell_level;
+                    //EventBus.RaiseEvent<ILearnSpellHandler>((Action<ILearnSpellHandler>)(h => h.HandleLearnSpell()));
+                }
+            }
+        }
+    }
+
+
+    //make fake spell book return zero memorized spells
+    [Harmony12.HarmonyPatch(typeof(Spellbook))]
+    [Harmony12.HarmonyPatch("GetMemorizedSpells", Harmony12.MethodType.Normal)]
+    class Spellbook__GetMemorizedSpells__Patch
+    {
+        static void Postfix(Spellbook __instance, int spellLevel, ref IEnumerable<SpellSlot> __result)
+        {
+            if (__instance.Blueprint.GetComponent<CanNotUseSpells>() != null)
+            {
+                __result = new SpellSlot[0];
+            }
+        }
     }
 
 

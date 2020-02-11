@@ -180,6 +180,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixElementalWallsToAvoidDealingDamageTwiceOnTheFirstRound();
                     CallOfTheWild.Rebalance.fixArchonsAuraToEffectOnlyEnemies();
                     CallOfTheWild.Rebalance.fixDruidDomainUi();
+                    CallOfTheWild.Rebalance.fixLethalStance();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
@@ -211,6 +212,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Skald.test_mode = true;
                     CallOfTheWild.Warpriest.test_mode = true;
                     CallOfTheWild.Shaman.test_mode = true;
+                    CallOfTheWild.Arcanist.test_mode = true;
                     CallOfTheWild.HolyVindicator.test_mode = true;
                     CallOfTheWild.NewFeats.test_mode = true;
                     CallOfTheWild.VindicativeBastard.test_mode = true;
@@ -230,6 +232,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();
+                    CallOfTheWild.Arcanist.createArcanistClass();
 
                     CallOfTheWild.SharedSpells.load();
 

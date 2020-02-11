@@ -490,6 +490,14 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixLethalStance()
+        {
+            //it should be competence bonus instead of untyped
+            var buff = Main.library.Get<BlueprintBuff>("c6271b3183c48d54b8defd272bea0665");
+            buff.GetComponent<AttackTypeAttackBonus>().Descriptor = ModifierDescriptor.Competence;
+        }
+
+
         static internal void fixItemBondForSpontnaeousCasters()
         {
             var item_bond_spontaneous = library.CopyAndAdd<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1","ItemBondSpontaneousAbility" ,"");
