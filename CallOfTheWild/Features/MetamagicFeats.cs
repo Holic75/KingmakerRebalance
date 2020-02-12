@@ -66,7 +66,8 @@ namespace CallOfTheWild
             ElementalAcid = 0x00200000,
             Elemental = ElementalFire | ElementalCold | ElementalElectricity | ElementalAcid,
             BloodIntensity = 0x00100000,
-            IntensifiedGeneral = BloodIntensity | Intensified
+            IntensifiedGeneral = BloodIntensity | Intensified,
+            FreeMetamagic = BloodIntensity
         }
 
         static public bool test_mode = false;

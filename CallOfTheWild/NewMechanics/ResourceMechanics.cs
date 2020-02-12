@@ -106,4 +106,38 @@ namespace CallOfTheWild.ResourceMechanics
         }
     }
 
+
+    public class FakeResourceAmountFullRestore : BlueprintComponent
+    {
+        public BlueprintAbilityResource fake_resource;
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitAbilityResourceCollection))]
+    [Harmony12.HarmonyPatch("Restore", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintScriptableObject), typeof(int), typeof(bool) })]
+    class UnitAbilityResourceCollection__Restore__Patch
+    {
+        static bool Prefix(UnitAbilityResourceCollection __instance, BlueprintScriptableObject blueprint, int amount, bool restoreFull, UnitDescriptor ___m_Owner)
+        {
+            UnitAbilityResource resource = Harmony12.Traverse.Create(__instance).Method("GetResource", blueprint).GetValue<UnitAbilityResource>();
+            if (resource == null)
+            {
+                return true;
+            }
+
+            var fake_resource = resource.Blueprint?.GetComponent<FakeResourceAmountFullRestore>().fake_resource;
+            if (fake_resource == null || restoreFull)
+            {
+                return true;
+            }
+            else
+            {
+                int maxAmount = fake_resource.GetMaxAmount(___m_Owner);
+                resource.Amount = maxAmount;
+                return false;
+            }
+        }
+    }
+
 }

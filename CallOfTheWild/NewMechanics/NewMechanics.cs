@@ -267,6 +267,28 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class SpendResourceOnSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
+        {
+            public BlueprintAbilityResource resource;
+            public BlueprintSpellbook spellbook;
+            public int amount = 1;
+
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (spellbook == null || evt.Spell?.Spellbook?.Blueprint == spellbook)
+                {
+                    this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                }
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintBuff))]
         [ComponentName("Buffs/AddEffect/ContextFastHealing")]
         public class AddContextEffectFastHealing : BuffLogic, ITickEachRound, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
@@ -5619,6 +5641,91 @@ namespace CallOfTheWild
             }
 
             public override string GetUIText() => $"{UIStrings.Instance.Tooltips.CharacterLevel}: {level}";
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseAllSpellsDCForSpecificSpellbook : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+            public BlueprintSpellbook spellbook;
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spellbook?.Blueprint != spellbook)
+                {
+                    return;
+                }
+                evt.AddBonusDC(this.Value.Calculate(this.Context));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseAllSpellsCLForSpecificSpellbook : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+            public BlueprintSpellbook spellbook;
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spellbook?.Blueprint != spellbook)
+                {
+                    return;
+                }
+                evt.AddBonusCasterLevel(this.Value.Calculate(this.Context));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Spontaneous Spell Conversion to Spellbook")]
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnit))]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SpontaneousSpellConversionForSpellbook : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            [NotNull]
+            public BlueprintSpellbook spellbook;
+            public BlueprintAbility[] SpellsByLevel;
+
+            public override void OnTurnOn()
+            {
+                this.Owner.DemandSpellbook(this.spellbook).AddSpellConversionList(this.SpellsByLevel);
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.DemandSpellbook(this.spellbook).RemoveSpellConversionList(this.SpellsByLevel);
+            }
         }
     }
 }

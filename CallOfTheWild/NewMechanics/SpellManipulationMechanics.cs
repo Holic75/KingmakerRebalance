@@ -92,11 +92,71 @@ namespace CallOfTheWild
         }
 
 
+        public class UnitPartArcanistPreparedMetamagic : AdditiveUnitPart
+        {
+            [JsonProperty]
+            private Dictionary<string, List<Metamagic>> metamagic_without_casting_time_increase_map = new Dictionary<string, List<Metamagic>>();
+            public void add(BlueprintAbility ability, Metamagic metamagic)
+            {
+                if (!metamagic_without_casting_time_increase_map.ContainsKey(ability.AssetGuid))
+                {
+                    metamagic_without_casting_time_increase_map.Add(ability.AssetGuid, new List<Metamagic>());
+                }
+                metamagic_without_casting_time_increase_map[ability.AssetGuid].Add(metamagic);
+            }
+
+            public void clear()
+            {
+                metamagic_without_casting_time_increase_map.Clear();
+            }
+
+            public bool canBeUsedOn(BlueprintAbility ability, Metamagic metamagic)
+            {
+                bool is_ok = metamagic_without_casting_time_increase_map.ContainsKey(ability.AssetGuid) && metamagic_without_casting_time_increase_map[ability.AssetGuid].Contains(metamagic);
+
+                if (ability.Parent != null)
+                {
+                    is_ok = is_ok || metamagic_without_casting_time_increase_map.ContainsKey(ability.Parent.AssetGuid) && metamagic_without_casting_time_increase_map[ability.Parent.AssetGuid].Contains(metamagic);
+                }
+                return is_ok;
+            }
+        }
+
+
         public interface INoSpontnaeousMetamagicCastingTimeIncrease
         {
             bool canUseOnAbility(AbilityData ability);
+        }
 
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ArcanistPreparedMetamagicNoSpellCastingTimeIncrease : OwnedGameLogicComponent<UnitDescriptor>, INoSpontnaeousMetamagicCastingTimeIncrease
+        {
+            public BlueprintSpellbook spellbook;
+            public override void OnTurnOn()
+            {
+                this.Owner.Ensure<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>().addBuff(this.Fact);
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.Ensure<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>().removeBuff(this.Fact);
+            }
+
+            public bool canUseOnAbility(AbilityData ability)
+            {
+                if (ability.MetamagicData == null)
+                {
+                    return false;
+                }
+
+                if (ability.Spellbook.Blueprint != spellbook)
+                {
+                    return false;
+                }
+                return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().canBeUsedOn(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic);
+            }
         }
 
 
@@ -122,7 +182,7 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
+                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)));
                 return metamagic_count <= max_metamagics;
             }
         }
@@ -165,7 +225,7 @@ namespace CallOfTheWild
                 }
 
                 //Main.logger.Log("Checking metamagic");
-                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
+                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)));
                 if (metamagic_count > max_metamagics)
                 {
                     return false;

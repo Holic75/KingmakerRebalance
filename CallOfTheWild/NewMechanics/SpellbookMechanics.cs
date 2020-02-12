@@ -70,6 +70,7 @@ namespace CallOfTheWild.SpellbookMechanics
                 __instance.RemoveSpell(s.Blueprint);
             }
 
+            __instance.Owner.Ensure<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>().clear();
             var m_known_spells = Helpers.GetField<List<AbilityData>[]>(__instance, "m_KnownSpells");
             var m_known_SpellLevels = Helpers.GetField<Dictionary<BlueprintAbility, int>>(__instance, "m_KnownSpellLevels");
             foreach (var slot in memorization_spellbook.GetAllMemorizedSpells())
@@ -80,13 +81,15 @@ namespace CallOfTheWild.SpellbookMechanics
                     if (slot.Spell.MetamagicData != null)
                     {
                         new_ability.MetamagicData = slot.Spell.MetamagicData.Clone();
+                        __instance.Owner.Ensure<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>().add(new_ability.Blueprint, new_ability.MetamagicData.MetamagicMask);
                     }
                     var spell_level = memorization_spellbook.GetSpellLevel(slot.Spell.Blueprint);
                     new_ability.DecorationBorderNumber = slot.Spell.DecorationBorderNumber;
                     new_ability.DecorationColorNumber = slot.Spell.DecorationColorNumber;
                     
-                    m_known_spells[spell_level].Add(new_ability);
+                    m_known_spells[slot.Spell.SpellLevel].Add(new_ability);
                     m_known_SpellLevels[slot.Spell.Blueprint] = spell_level;
+                    EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
                     //EventBus.RaiseEvent<ILearnSpellHandler>((Action<ILearnSpellHandler>)(h => h.HandleLearnSpell()));
                 }
             }

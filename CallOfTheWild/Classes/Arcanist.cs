@@ -53,6 +53,15 @@ namespace CallOfTheWild
         static public BlueprintFeature arcanist_proficiencies;
         static public BlueprintFeature arcanist_cantrips;
 
+        static public BlueprintAbilityResource arcane_reservoir_resource;
+        static public BlueprintFeature arcane_reservoir;
+        static public BlueprintActivatableAbility arcane_reservoir_spell_dc_boost;
+        static public BlueprintActivatableAbility arcane_reservoir_caster_level_boost;
+        static public BlueprintFeature consume_spells;
+
+        static public BlueprintFeatureSelection arcane_exploits;
+        static public BlueprintFeature quick_study;
+
 
         internal static void createArcanistClass()
         {
@@ -76,7 +85,7 @@ namespace CallOfTheWild
             arcanist_class.ReflexSave = wizard_class.ReflexSave;
             arcanist_class.WillSave = wizard_class.WillSave;
             arcanist_class.Spellbook = createArcanistSpellbook();
-            arcanist_class.ClassSkills = wizard_class.ClassSkills;
+            arcanist_class.ClassSkills = wizard_class.ClassSkills.AddToArray(StatType.SkillUseMagicDevice);
             arcanist_class.IsDivineCaster = false;
             arcanist_class.IsArcaneCaster = true;
             arcanist_class.StartingGold = wizard_class.StartingGold;
@@ -96,10 +105,124 @@ namespace CallOfTheWild
             Helpers.RegisterClass(arcanist_class);
         }
 
+
+        static void createConsumeSpells()
+        {
+            var icon = library.Get<BlueprintFeature>("bfbaa0dd74b9909459e462cd8b091177").Icon;
+
+            List<BlueprintAbility> consume_abilities = new List<BlueprintAbility>();
+            consume_abilities.Add(null);
+
+            for (int i = 1; i <= 9; i++)
+            {
+                var ability = Helpers.CreateAbility($"ConsumeSpells{i}Ability",
+                                                    "Consume Spells " + Common.roman_id[i],
+                                                    "At 1st level, an arcanist can expend an available arcanist spell slot as a move action, making it unavailable for the rest of the day, just as if she had used it to cast a spell. She can use this ability a number of times per day equal to her Charisma modifier (minimum 1). Doing this adds a number of points to her arcane reservoir equal to the level of the spell slot consumed. She cannot consume cantrips (0 level spells) in this way. Points gained in excess of the reservoir’s maximum are lost.",
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Special,
+                                                    CommandType.Move,
+                                                    AbilityRange.Personal,
+                                                    "",
+                                                    "",
+                                                    Helpers.CreateRunActions(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.amount = 1; c.Resource = arcane_reservoir_resource; }))
+                                                    );
+                ability.setMiscAbilityParametersSelfOnly();
+                consume_abilities.Add(ability);
+            }
+
+            consume_spells = Helpers.CreateFeature("ConsumeSpellsFeature",
+                                                   "Consume Spells",
+                                                   consume_abilities[1].Description,
+                                                   "",
+                                                   icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<NewMechanics.SpontaneousSpellConversionForSpellbook>(s => { s.spellbook = arcanist_spellbook; s.SpellsByLevel = consume_abilities.ToArray(); })
+                                                   );
+        }
+
+
+        static void createArcaneReservoir()
+        {
+            arcane_reservoir_resource = Helpers.CreateAbilityResource("ArcaneReservoirFullResource", "", "", "", null);
+            arcane_reservoir_resource.SetIncreasedByStat(0, StatType.Charisma);
+            arcane_reservoir_resource.SetIncreasedByLevel(3, 1, getArcanistArray());
+
+
+            var arcane_reservoir_partial_resource = Helpers.CreateAbilityResource("ArcaneReservoirPartialResource", "", "", "", null);
+            arcane_reservoir_partial_resource.SetIncreasedByStat(0, StatType.Charisma);
+            arcane_reservoir_partial_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2,1, 0, 0.0f, getArcanistArray());
+            arcane_reservoir_resource.AddComponent(Helpers.Create<ResourceMechanics.FakeResourceAmountFullRestore>(f => f.fake_resource = arcane_reservoir_partial_resource));
+
+            var icon = library.Get<BlueprintFeature>("55edf82380a1c8540af6c6037d34f322").Icon; //elven magic
+
+            var dc_buff = Helpers.CreateBuff("ArcaneReservoirSpellDCBuff",
+                                             "Spell DC Increase",
+                                             "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
+                                             "",
+                                             icon,
+                                             null,
+                                             Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = 1; }),
+                                             Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; })
+                                             );
+            arcane_reservoir_spell_dc_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellDCToggleAbility",
+                                                                               dc_buff.Name,
+                                                                               dc_buff.Description,
+                                                                               "",
+                                                                               dc_buff.Icon,
+                                                                               dc_buff,
+                                                                               AbilityActivationType.Immediately,
+                                                                               CommandType.Free,
+                                                                               null,
+                                                                               Helpers.CreateActivatableResourceLogic(arcane_reservoir_resource, ResourceSpendType.Never)
+                                                                               );
+            arcane_reservoir_spell_dc_boost.Group = ActivatableAbilityGroupExtension.ArcanistArcaneReservoirSpellboost.ToActivatableAbilityGroup();
+            arcane_reservoir_spell_dc_boost.DeactivateImmediately = true;
+
+
+            var cl_buff = Helpers.CreateBuff("ArcaneReservoirSpellCLBuff",
+                                 "Spell Caster Level Increase",
+                                 "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
+                                 "",
+                                 icon,
+                                 null,
+                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = 1; }),
+                                 Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; })
+                                 );
+
+            arcane_reservoir_caster_level_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellCLToggleAbility",
+                                                                                   cl_buff.Name,
+                                                                                   cl_buff.Description,
+                                                                                   "",
+                                                                                   cl_buff.Icon,
+                                                                                   cl_buff,
+                                                                                   AbilityActivationType.Immediately,
+                                                                                   CommandType.Free,
+                                                                                   null,
+                                                                                   Helpers.CreateActivatableResourceLogic(arcane_reservoir_resource, ResourceSpendType.Never)
+                                                                                   );
+            arcane_reservoir_caster_level_boost.Group = ActivatableAbilityGroupExtension.ArcanistArcaneReservoirSpellboost.ToActivatableAbilityGroup();
+            arcane_reservoir_caster_level_boost.DeactivateImmediately = true;
+
+            arcane_reservoir = Helpers.CreateFeature("ArcaneReservoirFeature",
+                                                     "Arcane Reservoir",
+                                                     "An arcanist has an innate pool of magical energy that she can draw upon to fuel her arcanist exploits and enhance her spells. The arcanist’s arcane reservoir can hold a maximum amount of magical energy equal to 3 + the arcanist’s level. Each day, when preparing spells, the arcanist’s arcane reservoir fills with raw magical energy, gaining a number of points equal to 3 + 1/2 her arcanist level. Any points she had from the previous day are lost. She can also regain these points through the consume spells class feature and some arcanist exploits. The arcane reservoir can never hold more points than the maximum amount noted above; points gained in excess of this total are lost.\n"
+                                                     + "Points from the arcanist reservoir are used to fuel many of the arcanist’s powers. In addition, the arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
+                                                     "",
+                                                     icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddAbilityResource(arcane_reservoir_resource),
+                                                     Helpers.CreateAddFacts(arcane_reservoir_spell_dc_boost, arcane_reservoir_caster_level_boost)
+                                                     );
+        }
+
+
         static BlueprintCharacterClass[] getArcanistArray()
         {
             return new BlueprintCharacterClass[] { arcanist_class };
         }
+
+
         static void createArcanistProgression()
         {
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
@@ -109,7 +232,8 @@ namespace CallOfTheWild
                                                                arcanist_class.Description,
                                                                "",
                                                                arcanist_class.Icon,
-                                                               FeatureGroup.None);
+                                                               FeatureGroup.None,
+                                                               Helpers.Create<SpellManipulationMechanics.ArcanistPreparedMetamagicNoSpellCastingTimeIncrease>(a => a.spellbook = arcanist_spellbook));
             arcanist_progression.Classes = getArcanistArray();
 
             arcanist_proficiencies = library.CopyAndAdd<BlueprintFeature>("25c97697236ccf2479d0c6a4185eae7f", "ArcanistProficiencies", "");
@@ -121,12 +245,15 @@ namespace CallOfTheWild
             arcanist_cantrips.ReplaceComponent<LearnSpells>(l => l.CharacterClass = arcanist_class);
             arcanist_cantrips.ReplaceComponent<BindAbilitiesToClass>(b => { b.CharacterClass = arcanist_class; b.Stat = StatType.Intelligence; });
 
-
+            createArcaneReservoir();
+            createConsumeSpells();
 
             arcanist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, arcanist_proficiencies, detect_magic, arcanist_cantrips,
+                                                                                        arcane_reservoir,
+                                                                                        consume_spells,
                                                                                         library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
-                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
+                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),//touch calculate feature};
                                                                     Helpers.LevelEntry(2),
                                                                     Helpers.LevelEntry(3),
                                                                     Helpers.LevelEntry(4),
@@ -160,7 +287,7 @@ namespace CallOfTheWild
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
 
             memorization_spellbook = Helpers.Create<BlueprintSpellbook>();
-            memorization_spellbook.Name = Helpers.CreateString("ArcanistMemorizationSpellbook.Name", "Arcanist (Known Spells)");
+            memorization_spellbook.Name = Helpers.CreateString("ArcanistMemorizationSpellbook.Name", "Arcanist (Prepared)");
             memorization_spellbook.name = "ArcanistMemorizationSpellbook";
             library.AddAsset(memorization_spellbook, "ab76417567444a6cb87d9d53e9752955");
 
@@ -201,8 +328,8 @@ namespace CallOfTheWild
             memorization_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.NoSpellsPerDaySacaling>());
             memorization_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.CanNotUseSpells>());
 
-            var arcanist_spellbook = Helpers.Create<BlueprintSpellbook>();
-            arcanist_spellbook.Name = Helpers.CreateString("ArcanistSpellbook.Name", "Arcanist");
+            arcanist_spellbook = Helpers.Create<BlueprintSpellbook>();
+            arcanist_spellbook.Name = Helpers.CreateString("ArcanistSpellbook.Name", "Arcanist (Spontaneous)");
             arcanist_spellbook.name = "ArcanistSpellbook";
             library.AddAsset(arcanist_spellbook, "0c21cfcab6ce4395bd4df330ab3cf715");
 
