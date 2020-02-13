@@ -2,9 +2,11 @@
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
+using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.FactLogic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +85,10 @@ namespace CallOfTheWild.SpellbookMechanics
                         new_ability.MetamagicData = slot.Spell.MetamagicData.Clone();
                         __instance.Owner.Ensure<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>().add(new_ability.Blueprint, new_ability.MetamagicData.MetamagicMask);
                     }
+                    else
+                    {
+                        __instance.Owner.Ensure<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>().add(new_ability.Blueprint, (Metamagic)0);
+                    }
                     var spell_level = memorization_spellbook.GetSpellLevel(slot.Spell.Blueprint);
                     new_ability.DecorationBorderNumber = slot.Spell.DecorationBorderNumber;
                     new_ability.DecorationColorNumber = slot.Spell.DecorationColorNumber;
@@ -90,7 +96,6 @@ namespace CallOfTheWild.SpellbookMechanics
                     m_known_spells[slot.Spell.SpellLevel].Add(new_ability);
                     m_known_SpellLevels[slot.Spell.Blueprint] = spell_level;
                     EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
-                    //EventBus.RaiseEvent<ILearnSpellHandler>((Action<ILearnSpellHandler>)(h => h.HandleLearnSpell()));
                 }
             }
         }
@@ -157,4 +162,49 @@ namespace CallOfTheWild.SpellbookMechanics
             return false;
         }
     }
+
+
+    //disallow removing metamgic from arcanist prepared metamagic spells
+    [Harmony12.HarmonyPatch(typeof(SpellBookMetamagicMixer))]
+    [Harmony12.HarmonyPatch("HandleRemoveFromMixer", Harmony12.MethodType.Normal)]
+    class SpellBookMetamagicMixer__HandleRemoveFromMixer__Patch
+    {
+        static bool Prefix(SpellBookMetamagicMixer __instance, Kingmaker.UnitLogic.Feature feature, MetamagicBuilder ___m_MetamagicBuilder)
+        {
+            var unit = ___m_MetamagicBuilder?.Spellbook?.Owner;
+            if (unit == null)
+            {
+                return true;
+            }
+
+            var arcanist_part = unit.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>();
+
+            if (arcanist_part == null)
+            {
+                return true;
+            }
+
+            if (arcanist_part.spellbook != ___m_MetamagicBuilder.Spellbook.Blueprint)
+            {
+                return true;
+            }
+
+            var current_metamagic_data = __instance.CurrentTemporarySpell?.MetamagicData;
+            if (current_metamagic_data == null)
+            {
+                return true;
+            }
+
+            var metamagic = feature.Get<AddMetamagicFeat>().Metamagic;
+            var metaamgic_after_removal = current_metamagic_data.MetamagicMask & ~metamagic;
+
+            if (!arcanist_part.authorisedMetamagic(__instance.CurrentTemporarySpell.Blueprint, metaamgic_after_removal))
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
 }

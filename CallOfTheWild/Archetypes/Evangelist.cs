@@ -125,7 +125,6 @@ namespace CallOfTheWild.Archetypes
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             BlueprintAbility[] spells = new BlueprintAbility[]
             {
-                null,
                 NewSpells.command,
                 NewSpells.hypnotic_pattern,
                 library.Get<BlueprintAbility>("faabd2cc67efa4646ac58c7bb3e40fcc"), //prayer
@@ -147,9 +146,15 @@ namespace CallOfTheWild.Archetypes
                                                          description,
                                                          "",
                                                          library.Get<BlueprintAbility>("d316d3d94d20c674db2c24d7de96f6a7").Icon,
-                                                         FeatureGroup.None,
-                                                         Common.createSpontaneousSpellConversion(cleric, spells)
+                                                         FeatureGroup.None
                                                          );
+
+            var spells_array = Common.createSpelllistsForSpontaneousConversion(spells);
+
+            for (int i = 0; i < spells_array.Length; i++)
+            {
+                spontaneous_casting.AddComponent(Common.createSpontaneousSpellConversion(cleric, spells_array[i].ToArray()));
+            }
         }
 
 

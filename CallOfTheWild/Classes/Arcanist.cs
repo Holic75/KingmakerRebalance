@@ -109,6 +109,9 @@ namespace CallOfTheWild
         static void createConsumeSpells()
         {
             var icon = library.Get<BlueprintFeature>("bfbaa0dd74b9909459e462cd8b091177").Icon;
+            var resource = Helpers.CreateAbilityResource("ConsumeSpellsResource", "", "", "", null);
+            resource.AddComponent(Helpers.Create<ResourceMechanics.MinResourceAmount>(m => m.value = 1));
+            resource.SetIncreasedByStat(0, StatType.Charisma);
 
             List<BlueprintAbility> consume_abilities = new List<BlueprintAbility>();
             consume_abilities.Add(null);
@@ -125,7 +128,8 @@ namespace CallOfTheWild
                                                     AbilityRange.Personal,
                                                     "",
                                                     "",
-                                                    Helpers.CreateRunActions(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.amount = 1; c.Resource = arcane_reservoir_resource; }))
+                                                    Helpers.CreateRunActions(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.amount = 1; c.Resource = arcane_reservoir_resource; })),
+                                                    Helpers.CreateResourceLogic(resource)
                                                     );
                 ability.setMiscAbilityParametersSelfOnly();
                 consume_abilities.Add(ability);
@@ -137,6 +141,7 @@ namespace CallOfTheWild
                                                    "",
                                                    icon,
                                                    FeatureGroup.None,
+                                                   Helpers.CreateAddAbilityResource(resource),
                                                    Helpers.Create<NewMechanics.SpontaneousSpellConversionForSpellbook>(s => { s.spellbook = arcanist_spellbook; s.SpellsByLevel = consume_abilities.ToArray(); })
                                                    );
         }
@@ -145,13 +150,11 @@ namespace CallOfTheWild
         static void createArcaneReservoir()
         {
             arcane_reservoir_resource = Helpers.CreateAbilityResource("ArcaneReservoirFullResource", "", "", "", null);
-            arcane_reservoir_resource.SetIncreasedByStat(0, StatType.Charisma);
             arcane_reservoir_resource.SetIncreasedByLevel(3, 1, getArcanistArray());
 
 
             var arcane_reservoir_partial_resource = Helpers.CreateAbilityResource("ArcaneReservoirPartialResource", "", "", "", null);
-            arcane_reservoir_partial_resource.SetIncreasedByStat(0, StatType.Charisma);
-            arcane_reservoir_partial_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2,1, 0, 0.0f, getArcanistArray());
+            arcane_reservoir_partial_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getArcanistArray());
             arcane_reservoir_resource.AddComponent(Helpers.Create<ResourceMechanics.FakeResourceAmountFullRestore>(f => f.fake_resource = arcane_reservoir_partial_resource));
 
             var icon = library.Get<BlueprintFeature>("55edf82380a1c8540af6c6037d34f322").Icon; //elven magic
@@ -233,7 +236,7 @@ namespace CallOfTheWild
                                                                "",
                                                                arcanist_class.Icon,
                                                                FeatureGroup.None,
-                                                               Helpers.Create<SpellManipulationMechanics.ArcanistPreparedMetamagicNoSpellCastingTimeIncrease>(a => a.spellbook = arcanist_spellbook));
+                                                               Helpers.Create<SpellManipulationMechanics.ArcanistPreparedMetamagicNoSpellCastingTimeIncrease>());
             arcanist_progression.Classes = getArcanistArray();
 
             arcanist_proficiencies = library.CopyAndAdd<BlueprintFeature>("25c97697236ccf2479d0c6a4185eae7f", "ArcanistProficiencies", "");
@@ -247,31 +250,33 @@ namespace CallOfTheWild
 
             createArcaneReservoir();
             createConsumeSpells();
+            createArcaneExploits();
 
             arcanist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, arcanist_proficiencies, detect_magic, arcanist_cantrips,
                                                                                         arcane_reservoir,
                                                                                         consume_spells,
+                                                                                        arcane_exploits,
                                                                                         library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),//touch calculate feature};
                                                                     Helpers.LevelEntry(2),
-                                                                    Helpers.LevelEntry(3),
+                                                                    Helpers.LevelEntry(3, arcane_exploits),
                                                                     Helpers.LevelEntry(4),
-                                                                    Helpers.LevelEntry(5),
+                                                                    Helpers.LevelEntry(5, arcane_exploits),
                                                                     Helpers.LevelEntry(6),
-                                                                    Helpers.LevelEntry(7),
+                                                                    Helpers.LevelEntry(7, arcane_exploits),
                                                                     Helpers.LevelEntry(8),
-                                                                    Helpers.LevelEntry(9),
+                                                                    Helpers.LevelEntry(9, arcane_exploits),
                                                                     Helpers.LevelEntry(10),
-                                                                    Helpers.LevelEntry(11),
+                                                                    Helpers.LevelEntry(11, arcane_exploits),
                                                                     Helpers.LevelEntry(12),
-                                                                    Helpers.LevelEntry(13),
+                                                                    Helpers.LevelEntry(13, arcane_exploits),
                                                                     Helpers.LevelEntry(14),
-                                                                    Helpers.LevelEntry(15),
+                                                                    Helpers.LevelEntry(15, arcane_exploits),
                                                                     Helpers.LevelEntry(16),
-                                                                    Helpers.LevelEntry(17),
+                                                                    Helpers.LevelEntry(17, arcane_exploits),
                                                                     Helpers.LevelEntry(18),
-                                                                    Helpers.LevelEntry(19),
+                                                                    Helpers.LevelEntry(19, arcane_exploits),
                                                                     Helpers.LevelEntry(20)
                                                                     };
 
@@ -279,6 +284,61 @@ namespace CallOfTheWild
 
             arcanist_progression.UIGroups = new UIGroup[]  {
                                                            };
+        }
+
+
+        static void createArcaneExploits()
+        {
+            var icon = library.Get<BlueprintFeature>("30f20e6f850519b48aa59e8c0ff66ae9").Icon;
+            arcane_exploits = Helpers.CreateFeatureSelection("ArcaneExploitsFeatureSelection",
+                                                             "Arcanist Exploits",
+                                                             "By bending and sometimes even breaking the rules of magic, the arcanist learns to exploit gaps and exceptions in the laws of magic. Some of these exploits allow her to break down various forms of magic, adding their essence to her arcane reservoir. At 1st level and every 2 levels thereafter, the arcanist learns a new arcane exploit selected from the following list. An arcanist exploit cannot be selected more than once. Once an arcanist exploit has been selected, it cannot be changed. Most arcanist exploits require the arcanist to expend points from her arcane reservoir to function. Unless otherwise noted, the saving throw DC for an arcanist exploit is equal to 10 + 1/2 the arcanist’s level + the arcanist’s Charisma modifier.",
+                                                             "",
+                                                             icon,
+                                                             FeatureGroup.None);
+            createQuickStudy();
+
+
+            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study };
+        }
+
+
+        static void createQuickStudy()
+        {
+            var icon = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e").Icon;//detect magic
+
+            List<BlueprintAbility> study_abilities = new List<BlueprintAbility>();
+
+            for (int i = 1; i <= 9; i++)
+            {
+                var ability = Helpers.CreateAbility($"QuickStudy{i}Ability",
+                                                    "Quick Study " + Common.roman_id[i],
+                                                    "The arcanist can prepare a new all spells of the specified level in place of existing ones by expending 1 point from her arcane reservoir. Using this ability is a full-round action that provokes an attack of opportunity. The arcanist must be able to reference her spellbook when using this ability.",
+                                                    "",
+                                                    icon,
+                                                    AbilityType.SpellLike,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    "",
+                                                    "",
+                                                    Helpers.CreateRunActions(Helpers.Create<SpellManipulationMechanics.RefreshArcanistSpellLevel>(c => { c.spell_level = i; })),
+                                                    Helpers.CreateResourceLogic(arcane_reservoir_resource)
+                                                    );
+                Common.setAsFullRoundAction(ability);
+                ability.setMiscAbilityParametersSelfOnly();
+                study_abilities.Add(ability);
+            }
+            var quick_study_ability = Common.createVariantWrapper("QuickStudyAbility", "", study_abilities.ToArray());
+            quick_study_ability.SetName("Quick Study");
+
+            quick_study = Helpers.CreateFeature("QuickStudyFeature",
+                                                quick_study_ability.Name,
+                                                quick_study_ability.Description,
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFact(quick_study_ability)
+                                                );
         }
 
 

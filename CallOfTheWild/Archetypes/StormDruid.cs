@@ -146,45 +146,7 @@ namespace CallOfTheWild.Archetypes
                 var primary_domain = library.CopyAndAdd<BlueprintProgression>(d.AssetGuid, "StormLord" + d.name, "");
 
                 var spells = Common.getSpellsFromSpellList(spell_list);
-                int max_num_variants = 1;
-
-                foreach (var s in spells)
-                {
-                    if (s.HasVariants)
-                    {
-                        int num_variants = s.Variants.Length;
-                        max_num_variants = num_variants > max_num_variants ? num_variants : max_num_variants;
-                    }
-                }
-
-                var spells_array = new List<BlueprintAbility>[max_num_variants];
-                for (int i = 0; i < max_num_variants; i++)
-                {
-                    spells_array[i] = new List<BlueprintAbility>();
-                    spells_array[i].Add(null); //zero level spell
-                }
-
-                foreach (var s in spells)
-                {
-                    int entries_filled = 1;
-                    if (s.HasVariants)
-                    {
-                        for (int i = 0; i < s.Variants.Length; i++)
-                        {
-                            spells_array[i].Add(s.Variants[i]);
-                        }
-                        entries_filled = s.Variants.Length;
-                    }
-                    else
-                    {
-                        spells_array[0].Add(s);
-                    }
-
-                    for (int i = entries_filled; i < spells_array.Length; i++)
-                    {
-                        spells_array[i].Add(null);
-                    }
-                }
+                var spells_array = Common.createSpelllistsForSpontaneousConversion(spells);
 
                 for (int i = 0; i < spells_array.Length; i++)
                 {

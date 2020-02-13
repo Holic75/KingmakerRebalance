@@ -112,6 +112,10 @@ namespace CallOfTheWild.ResourceMechanics
         public BlueprintAbilityResource fake_resource;
     }
 
+    public class MinResourceAmount : BlueprintComponent
+    {
+        public int value;
+    }
 
     [Harmony12.HarmonyPatch(typeof(UnitAbilityResourceCollection))]
     [Harmony12.HarmonyPatch("Restore", Harmony12.MethodType.Normal)]
@@ -126,8 +130,8 @@ namespace CallOfTheWild.ResourceMechanics
                 return true;
             }
 
-            var fake_resource = resource.Blueprint?.GetComponent<FakeResourceAmountFullRestore>().fake_resource;
-            if (fake_resource == null || restoreFull)
+            var fake_resource = resource.Blueprint?.GetComponent<FakeResourceAmountFullRestore>()?.fake_resource;
+            if (fake_resource == null || !restoreFull)
             {
                 return true;
             }
@@ -136,6 +140,27 @@ namespace CallOfTheWild.ResourceMechanics
                 int maxAmount = fake_resource.GetMaxAmount(___m_Owner);
                 resource.Amount = maxAmount;
                 return false;
+            }
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(BlueprintAbilityResource))]
+    [Harmony12.HarmonyPatch("GetMaxAmount", Harmony12.MethodType.Normal)]
+    class BlueprintAbilityResource__GetMaxAmount__Patch
+    {
+        static void Postfix(BlueprintAbilityResource __instance, UnitDescriptor unit, ref int __result)
+        {
+            var min_resource_component = __instance.GetComponent<MinResourceAmount>();
+
+            if (min_resource_component == null)
+            {
+                return;
+            }
+
+            if (__result < min_resource_component.value)
+            {
+                __result = min_resource_component.value;
             }
         }
     }
