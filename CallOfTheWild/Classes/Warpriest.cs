@@ -721,11 +721,7 @@ namespace CallOfTheWild
         {
             var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
             var divine_weapon = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
-            var enchants = new BlueprintWeaponEnchantment[] {library.Get<BlueprintWeaponEnchantment>("d704f90f54f813043a525f304f6c0050"),
-                                                             library.Get<BlueprintWeaponEnchantment>("9e9bab3020ec5f64499e007880b37e52"),
-                                                             library.Get<BlueprintWeaponEnchantment>("d072b841ba0668846adeb007f623bd6c"),
-                                                             library.Get<BlueprintWeaponEnchantment>("6a6a0901d799ceb49b33d4851ff72132"),
-                                                             library.Get<BlueprintWeaponEnchantment>("746ee366e50611146821d61e391edf16") };
+            var enchants = WeaponEnchantments.temporary_enchants;
 
             var enhancement_buff = Helpers.CreateBuff("WarpriestSacredWeaponEnchancementBaseBuff",
                                          "",
@@ -920,68 +916,7 @@ namespace CallOfTheWild
                                                                            BlueprintItemEnchantment enchantment, int group_size, ActivatableAbilityGroup group,
                                                                            AlignmentMaskType alignment = AlignmentMaskType.Any)
         {
-            //create buff
-            //create activatable ability that gives buff
-            //on main buff in activate add corresponding enchantment
-            //create feature that gives activatable ability
-
-            BlueprintBuff buff;
-
-            if (enchantment is BlueprintWeaponEnchantment)
-            {
-                buff = Helpers.CreateBuff(name_prefix + "Buff",
-                                              display_name,
-                                              description,
-                                              "",
-                                              icon,
-                                              null,
-                                              Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true,
-                                                                                               new Kingmaker.Blueprints.Items.Weapons.BlueprintWeaponType[0],
-                                                                                               (BlueprintWeaponEnchantment)enchantment)
-                                                                                               );
-            }
-            else
-            {
-                buff = Helpers.CreateBuff(name_prefix + "Buff",
-                                              display_name,
-                                              description,
-                                              "",
-                                              icon,
-                                              null,
-                                              Common.createBuffContextEnchantArmor(Common.createSimpleContextValue(1), false, true,
-                                                                                               (BlueprintArmorEnchantment)enchantment)
-                                                                                               );
-            }
-            buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            var switch_buff = Helpers.CreateBuff(name_prefix + "SwitchBuff",
-                                  display_name,
-                                  description,
-                                  "",
-                                  icon,
-                                  null);
-            switch_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(sacred_buff, buff, switch_buff);
-
-            var ability = Helpers.CreateActivatableAbility(name_prefix + "ToggleAbility",
-                                                                        display_name,
-                                                                        description,
-                                                                        "",
-                                                                        icon,
-                                                                        switch_buff,
-                                                                        AbilityActivationType.Immediately,
-                                                                        CommandType.Free,
-                                                                        null
-                                                                        );
-            ability.WeightInGroup = group_size;
-            ability.Group = group;
-            ability.DeactivateImmediately = true;
-
-            if (alignment != AlignmentMaskType.Any)
-            {
-                ability.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = alignment));
-            }
-            return ability;
+            return Common.createEnchantmentAbility(name_prefix, display_name, description, icon, sacred_buff, enchantment, group_size, group, alignment);
         }
 
 

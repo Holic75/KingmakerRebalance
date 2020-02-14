@@ -139,12 +139,13 @@ namespace CallOfTheWild
 
             public bool authorisedMetamagic(BlueprintAbility ability, Metamagic metamagic)
             {
+                //check that there exist at least one prepared spell with metamagic mask which is subset of this one
                 if (!prepared_spells_with_metamagic.ContainsKey(ability.AssetGuid))
                 {
                     return false;
                 }
 
-                return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m & ~metamagic) == 0);
+                return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (metamagic | m) == metamagic);
             }
 
 
@@ -280,6 +281,22 @@ namespace CallOfTheWild
                     return false;
                 }
                 return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().canBeUsedOn(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class InitializeArcanistPart : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public BlueprintSpellbook spellbook;
+            public override void OnTurnOn()
+            {
+                this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().spellbook = spellbook;
+            }
+
+            public override void OnTurnOff()
+            {
+
             }
         }
 

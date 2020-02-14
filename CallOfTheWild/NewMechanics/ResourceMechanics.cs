@@ -1,11 +1,15 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using System;
 using System.Collections.Generic;
@@ -116,6 +120,25 @@ namespace CallOfTheWild.ResourceMechanics
     {
         public int value;
     }
+
+
+    public class ResourceCostFromBuffRank: BlueprintComponent, IAbilityResourceCostCalculator
+    {
+        public int base_value = 1;
+        public BlueprintBuff buff;
+
+        public int Calculate(AbilityData ability)
+        {
+            var fact = ability.Caster.Buffs.GetFact(buff);
+            if (fact == null)
+            {
+                return base_value;
+            }
+
+            return base_value + fact.GetRank();
+        }
+    }
+
 
     [Harmony12.HarmonyPatch(typeof(UnitAbilityResourceCollection))]
     [Harmony12.HarmonyPatch("Restore", Harmony12.MethodType.Normal)]

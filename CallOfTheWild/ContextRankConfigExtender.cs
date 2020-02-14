@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -19,7 +20,8 @@ namespace CallOfTheWild
         MasterMaxClassLevelWithArchetype, //MaxClassLevelWithArchetype or Master class level if pet
         MasterFeatureRank,
         SummClassLevelWithArchetypes,
-        MaxClassLevelWithArchetypes
+        MaxClassLevelWithArchetypes,
+        ClassLevelPlusStatValue,
     }
 
     public static partial class Extensions
@@ -97,7 +99,7 @@ namespace CallOfTheWild
             }
         }
 
-        static bool Prefix(ContextRankConfig __instance, MechanicsContext context, ContextRankBaseValueType ___m_BaseValueType,
+        static bool Prefix(ContextRankConfig __instance, MechanicsContext context, ContextRankBaseValueType ___m_BaseValueType, bool ___m_ExceptClasses, StatType ___m_Stat,
                            BlueprintFeature ___m_Feature, BlueprintCharacterClass[] ___m_Class, BlueprintArchetype ___Archetype,  ref int __result)
         {
             if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType()
@@ -119,6 +121,19 @@ namespace CallOfTheWild
                 {
                     __result = context.MaybeCaster.Descriptor.Progression.Features.GetRank(___m_Feature);
                 }
+                return false;
+            }
+            else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.ClassLevelPlusStatValue.ToContextRankBaseValueType())
+            {
+                int rankBonus1 = context.Params.RankBonus;
+                foreach (Kingmaker.UnitLogic.ClassData classData in context.MaybeCaster.Descriptor.Progression.Classes)
+                {
+                    if (___m_ExceptClasses && !((IList<BlueprintCharacterClass>)___m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass) || !___m_ExceptClasses && ((IList<BlueprintCharacterClass>)___m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass))
+                        rankBonus1 += classData.Level;
+                }
+                int? bonus = context.MaybeCaster.Descriptor.Stats.GetStat<ModifiableValueAttributeStat>(___m_Stat)?.Bonus;
+                rankBonus1 =  !bonus.HasValue ? rankBonus1 : rankBonus1 + bonus.Value;
+                __result = rankBonus1;
                 return false;
             }
             else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType())

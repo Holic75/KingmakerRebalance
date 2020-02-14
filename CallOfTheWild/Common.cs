@@ -56,6 +56,7 @@ using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.ResourceLinks;
 using Kingmaker.Items;
 using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Alignments;
 
 namespace CallOfTheWild
 {
@@ -2402,6 +2403,16 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValueIgnoreNegative(ContextValue value, params ActionList[] actions)
+        {
+            var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
+            r.value = value;
+            r.actions = actions;
+            r.no_action_on_negative_value = true;
+            return r;
+        }
+
+
         static public WeaponDamageAgainstAlignment createWeaponDamageAgainstAlignment(DamageEnergyType energy, DamageAlignment damage_alignment, AlignmentComponent enemy_alignment,
                                                                                         ContextDiceValue value)
         {
@@ -3478,6 +3489,75 @@ namespace CallOfTheWild
             }
 
             return spells_array;
+        }
+
+
+        static public BlueprintActivatableAbility createEnchantmentAbility(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintBuff base_buff,
+                                                                   BlueprintItemEnchantment enchantment, int group_size, ActivatableAbilityGroup group,
+                                                                   AlignmentMaskType alignment = AlignmentMaskType.Any)
+        {
+            //create buff
+            //create activatable ability that gives buff
+            //on main buff in activate add corresponding enchantment
+            //create feature that gives activatable ability
+
+            BlueprintBuff buff;
+
+            if (enchantment is BlueprintWeaponEnchantment)
+            {
+                buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                              display_name,
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true,
+                                                                                               new Kingmaker.Blueprints.Items.Weapons.BlueprintWeaponType[0],
+                                                                                               (BlueprintWeaponEnchantment)enchantment)
+                                                                                               );
+            }
+            else
+            {
+                buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                              display_name,
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Common.createBuffContextEnchantArmor(Common.createSimpleContextValue(1), false, true,
+                                                                                               (BlueprintArmorEnchantment)enchantment)
+                                                                                               );
+            }
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var switch_buff = Helpers.CreateBuff(name_prefix + "SwitchBuff",
+                                  display_name,
+                                  description,
+                                  "",
+                                  icon,
+                                  null);
+            switch_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(base_buff, buff, switch_buff);
+
+            var ability = Helpers.CreateActivatableAbility(name_prefix + "ToggleAbility",
+                                                                        display_name,
+                                                                        description,
+                                                                        "",
+                                                                        icon,
+                                                                        switch_buff,
+                                                                        AbilityActivationType.Immediately,
+                                                                        CommandType.Free,
+                                                                        null
+                                                                        );
+            ability.WeightInGroup = group_size;
+            ability.Group = group;
+            ability.DeactivateImmediately = true;
+
+            if (alignment != AlignmentMaskType.Any)
+            {
+                ability.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = alignment));
+            }
+            return ability;
         }
     }
 }

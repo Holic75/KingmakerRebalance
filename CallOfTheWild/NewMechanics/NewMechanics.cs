@@ -1745,12 +1745,17 @@ namespace CallOfTheWild
             public string Comment;
             public ContextValue value;
             public ActionList[] actions;
+            public bool no_action_on_negative_value = false;
 
             public override void RunAction()
             {
                 int action_id = value.Calculate(this.Context) - 1;
                 if (action_id < 0)
                 {
+                    if (no_action_on_negative_value)
+                    {
+                        return;
+                    }
                     action_id = 0;
                 }
                 if (action_id >= actions.Length)
@@ -3322,10 +3327,10 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class AbilityCasterPrimaryHandFree : BlueprintComponent, IAbilityCasterChecker
         {
-
+            public bool not;
             public bool CorrectCaster(UnitEntityData caster)
             {
-                return !caster.Body.PrimaryHand.HasItem;
+                return not == caster.Body.PrimaryHand.HasItem;
             }
 
             public string GetReason()
@@ -4946,6 +4951,21 @@ namespace CallOfTheWild
                 return ability.Caster.Progression.Features.HasFact((BlueprintFact)this.UnitFact) || ability.Caster.Buffs.HasFact(UnitFact);
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfHasClassLevel : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintCharacterClass character_class;
+            public int level;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                return ability.Caster.Progression.GetClassLevel(character_class) >= level;
+            }
+        }
+
+
 
         public class ContextConditionEngagedByCaster : ContextCondition
         {

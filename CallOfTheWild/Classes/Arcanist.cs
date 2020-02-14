@@ -12,6 +12,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
@@ -52,6 +53,7 @@ namespace CallOfTheWild
         static public BlueprintSpellbook arcanist_spellbook;
         static public BlueprintFeature arcanist_proficiencies;
         static public BlueprintFeature arcanist_cantrips;
+        static public BlueprintFeature arcanist_spellcasting;
 
         static public BlueprintAbilityResource arcane_reservoir_resource;
         static public BlueprintFeature arcane_reservoir;
@@ -60,7 +62,14 @@ namespace CallOfTheWild
         static public BlueprintFeature consume_spells;
 
         static public BlueprintFeatureSelection arcane_exploits;
+        static public BlueprintFeature greater_arcane_exploits;
         static public BlueprintFeature quick_study;
+        static public BlueprintFeature acid_jet;
+        static public BlueprintFeature lingering_acid;
+        static public BlueprintFeature arcane_barrier;
+        
+        static public BlueprintFeature arcane_weapon;
+        static public ActivatableAbilityGroup arcane_weapon_group = ActivatableAbilityGroupExtension.ArcanistArcaneWeapon.ToActivatableAbilityGroup();
 
 
         internal static void createArcanistClass()
@@ -248,11 +257,13 @@ namespace CallOfTheWild
             arcanist_cantrips.ReplaceComponent<LearnSpells>(l => l.CharacterClass = arcanist_class);
             arcanist_cantrips.ReplaceComponent<BindAbilitiesToClass>(b => { b.CharacterClass = arcanist_class; b.Stat = StatType.Intelligence; });
 
+            createArcanistSpellCasting();
             createArcaneReservoir();
             createConsumeSpells();
             createArcaneExploits();
 
-            arcanist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, arcanist_proficiencies, detect_magic, arcanist_cantrips,
+            arcanist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, arcanist_proficiencies, detect_magic, arcanist_cantrips, 
+                                                                                        arcanist_spellcasting,
                                                                                         arcane_reservoir,
                                                                                         consume_spells,
                                                                                         arcane_exploits,
@@ -268,7 +279,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(8),
                                                                     Helpers.LevelEntry(9, arcane_exploits),
                                                                     Helpers.LevelEntry(10),
-                                                                    Helpers.LevelEntry(11, arcane_exploits),
+                                                                    Helpers.LevelEntry(11, greater_arcane_exploits, arcane_exploits),
                                                                     Helpers.LevelEntry(12),
                                                                     Helpers.LevelEntry(13, arcane_exploits),
                                                                     Helpers.LevelEntry(14),
@@ -280,26 +291,318 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20)
                                                                     };
 
-            arcanist_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { arcanist_proficiencies, detect_magic, arcanist_cantrips };
+            arcanist_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { arcanist_proficiencies, detect_magic, arcanist_cantrips, arcanist_spellcasting };
 
-            arcanist_progression.UIGroups = new UIGroup[]  {
+            arcanist_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(arcane_reservoir, greater_arcane_exploits),
+                                                            Helpers.CreateUIGroup(arcane_exploits)
                                                            };
+        }
+
+
+        static void createArcanistSpellCasting()
+        {
+            arcanist_spellcasting = Helpers.CreateFeature("ArcanistSpellCastingFeature",
+                                                          "Arcanist Spell Casting",
+                                                          "An arcanist casts arcane spells drawn from the sorcerer/wizard spell list. An arcanist must prepare her spells ahead of time, but unlike a wizard, her spells are not expended when they’re cast. Instead, she can cast any spell that she has prepared consuming a spell slot of the appropriate level, assuming she hasn’t yet used up her spell slots per day for that level.\n"
+                                                          + "To learn, prepare, or cast a spell, the arcanist must have an Intelligence score equal to at least 10 + the spell’s level. The saving throw DC against an arcanist’s spell is 10 + the spell’s level + the arcanist’s Intelligence modifier.\n"
+                                                          + "An arcanist can only cast a certain number of spells of each spell level per day. In addition, she receives bonus spells per day if she has a high Intelligence score.\n"
+                                                          + "An arcanist may know any number of spells, but the number she can prepare each day is limited. Unlike the number of spells she can cast per day, the number of spells an arcanist can prepare each day is not affected by her Intelligence score. Feats and other effects that modify the number of spells known by a spellcaster instead affect the number of spells an arcanist can prepare.\n"
+                                                          + "Like a sorcerer, an arcanist can choose to apply any metamagic feats she knows to a prepared spell as she casts it, with the same increase in casting time (see Spontaneous Casting and Metamagic Feats). However, she may also prepare a spell with any metamagic feats she knows and cast it without increasing casting time like a wizard. She cannot combine these options—a spell prepared with metamagic feats cannot be further modified with another metamagic feat at the time of casting (unless she has the metamixing arcanist exploit).",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<SpellManipulationMechanics.InitializeArcanistPart>(i => i.spellbook = arcanist_spellbook)
+                                                          );
         }
 
 
         static void createArcaneExploits()
         {
             var icon = library.Get<BlueprintFeature>("30f20e6f850519b48aa59e8c0ff66ae9").Icon;
+            var greater_icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ArcaneExploit.png");
             arcane_exploits = Helpers.CreateFeatureSelection("ArcaneExploitsFeatureSelection",
                                                              "Arcanist Exploits",
                                                              "By bending and sometimes even breaking the rules of magic, the arcanist learns to exploit gaps and exceptions in the laws of magic. Some of these exploits allow her to break down various forms of magic, adding their essence to her arcane reservoir. At 1st level and every 2 levels thereafter, the arcanist learns a new arcane exploit selected from the following list. An arcanist exploit cannot be selected more than once. Once an arcanist exploit has been selected, it cannot be changed. Most arcanist exploits require the arcanist to expend points from her arcane reservoir to function. Unless otherwise noted, the saving throw DC for an arcanist exploit is equal to 10 + 1/2 the arcanist’s level + the arcanist’s Charisma modifier.",
                                                              "",
                                                              icon,
                                                              FeatureGroup.None);
+            greater_arcane_exploits = Helpers.CreateFeatureSelection("GreateArcaneExploitsFeature",
+                                                             "Greater Exploits",
+                                                             "At 11th level and every 2 levels thereafter, an arcanist can choose one of the greater exploits in place of an arcanist exploit.",
+                                                             "",
+                                                             greater_icon,
+                                                             FeatureGroup.None);
             createQuickStudy();
+            createAcidJetAndLingeringAcid();
+            createArcaneBarrier();
+            createArcaneWeapon();
 
 
-            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study };
+            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, arcane_barrier, arcane_weapon, acid_jet,
+                                                                   lingering_acid};
+        }
+
+
+        static void createAcidJetAndLingeringAcid()
+        {
+            var acid_arrow = library.Get<BlueprintAbility>("9a46dfd390f943647ab4395fc997936d");
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var apply_sickened = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1), dispellable: false);                                                                                                    
+            var extra_effect = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_sickened});
+
+            var acid_jet_ability = Helpers.CreateAbility("AcidJetExploitAbility",
+                                                        "Acid Jet",
+                                                        "The arcanist can unleash a jet of acid by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of acid damage + the arcanist’s Charisma modifier, plus an additional 1d6 points of acid damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target is also sickened for 1d4 rounds. It can attempt a Fortitude saving throw to negate the sickened condition.",
+                                                        "",
+                                                        acid_arrow.Icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Close,
+                                                        "",
+                                                        "Fortitude partial",
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                        acid_arrow.GetComponent<AbilityDeliverProjectile>(),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
+                                                        Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0) //extra damage
+                                                        );
+            acid_jet_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            acid_jet = Common.AbilityToFeature(acid_jet_ability);
+
+            //lingering buffs 5d6 -> 2d6 -> 1d6
+            //                4d6 -> 2d6 -> 1d6
+            //                3d6 -> 1d6
+            //                2d6 -> 1d6
+            //                1d6
+
+
+            lingering_acid = Helpers.CreateFeature("LingeringAcidExploitFeature",
+                                                   "Lingering Acid",
+                                                   "Whenever the arcanist uses the acid jet exploit, she can expend 2 points from her arcane reservoir instead of one. If she does, the target takes additional damage on the following rounds if it fails its saving throw. The target takes 1d6 points of acid damage on the following round for every 2d6 points of acid damage dealt by the initial attack. On subsequent rounds, the target continues to take 1d6 points of acid damage for every 2d6 points of acid damage dealt on the previous round. The damage continues until the amount of acid damage dealt on the previous round by this effect is 1d6. For example, a 9th level arcanist would deal 5d6 points of acid damage + the arcanist’s Charisma modifier, 2d6 points of acid damage on the following round, and 1d6 points of acid damage on the third and final round. The arcanist must have the acid jet exploit to select this exploit.",
+                                                   "",
+                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/LingeringAcid.png"),
+                                                   FeatureGroup.None,
+                                                   Helpers.PrerequisiteFeature(greater_arcane_exploits),
+                                                   Helpers.PrerequisiteFeature(acid_jet)
+                                                   );
+
+            var damage_buffs = new BlueprintBuff[5];
+            var apply_extra_damage_buff_actions = new ActionList[5];
+
+            for (int i = 0; i < 5; i++)
+            {
+                damage_buffs[i] = Helpers.CreateBuff($"LingeringAcidExploit{i + 1}Buff",
+                                                     lingering_acid.Name + $" ({i + 1}d6)",
+                                                     lingering_acid.Description,
+                                                     "",
+                                                     lingering_acid.Icon,
+                                                     null,
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Acid)
+                                                     );
+                if ((i + 1) / 2 > 0)
+                {
+                    var apply_extra_buff = Common.createContextActionApplyBuff(damage_buffs[(i + 1) / 2 - 1], Helpers.CreateContextDuration(1), dispellable: false);
+                    Helpers.CreateAddFactContextActions(deactivated: new GameAction[] { Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0)),
+                                                                                        apply_extra_buff });
+                }
+                else
+                {
+                    Helpers.CreateAddFactContextActions(deactivated: Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0)));
+                }
+                apply_extra_damage_buff_actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(damage_buffs[i], Helpers.CreateContextDuration(1), dispellable: false));
+            }
+
+            var lingering_effect = Common.createRunActionsDependingOnContextValueIgnoreNegative(Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative), apply_extra_damage_buff_actions);
+            var extra_lingering = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_sickened, lingering_effect });
+
+            var lingering_acid_ability = library.CopyAndAdd<BlueprintAbility>(acid_jet_ability.AssetGuid, "LingeringAcidExploitAbility", "");
+            lingering_acid_ability.SetNameDescriptionIcon(lingering_acid.Name, lingering_acid.Description, lingering_acid.Icon);
+            lingering_acid_ability.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDiceAlternative, baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.DelayedStartPlusDivStep, startLevel: 3, stepLevel: 4));
+            lingering_acid_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_lingering));
+            lingering_acid_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2));
+
+            lingering_acid.AddComponent(Helpers.CreateAddFact(lingering_acid));
+        }
+            
+
+
+        static void createArcaneWeapon()
+        {
+            var arcane_weapon_magus = library.Get<BlueprintAbility>("3c89dfc82c2a3f646808ea250eb91b91");
+            var enchants = WeaponEnchantments.temporary_enchants;
+
+            var enhancement_buff = Helpers.CreateBuff("ArcanistArcaneWeaponEnchancementBaseBuff",
+                                         "",
+                                         "",
+                                         "",
+                                         null,
+                                         null,
+                                         Common.createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(arcane_weapon_group,
+                                                                                                      false, true,
+                                                                                                      enchants
+                                                                                                      )
+                                         );
+            var arcane_weapon_enhancement_buff = Helpers.CreateBuff("ArcanistArcaneWeaponEnchancementSwitchBuff",
+                                                                 "Arcane Weapon",
+                                                                 "As a standard action, the arcanist can expend 1 point from her arcane reservoir to enhance her weapon. The weapon gains a +1 enhancement bonus, which increases by 1 for every 4 levels beyond 5th (to a maximum of +4 at 17th level). These bonuses can be added to the weapon, stacking with existing weapon bonuses to a maximum of +5. An arcanist can also use this exploit to add one of the following weapon special abilities: flaming, frost, keen, shock and speed. Adding these special abilities replaces an amount of enhancement bonus equal to the ability’s cost. Duplicate special abilities do not stack. The benefits are decided upon when the exploit is used, and they cannot be changed unless the exploit is used again. These benefits only apply to weapons wielded by the arcanist; if another creature attempts to wield the weapon, it loses these benefits, though they resume if the arcanist regains possession of the weapon. The arcanist cannot have more than one use of this ability active at a time. This effect lasts for a number of minutes equal to the arcanist’s Charisma modifier (minimum 1).",
+                                                                 "",
+                                                                 arcane_weapon_magus.Icon,
+                                                                 null,
+                                                                 Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(enhancement_buff, Helpers.CreateContextDuration(),
+                                                                                                                is_child: true, is_permanent: true, dispellable: false)
+                                                                                                     )
+                                                                 );
+            arcane_weapon_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var flaming = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancementFlaming",
+                                                                "Arcane Weapon - Flaming",
+                                                                "An arcanist can add the flaming property to her arcane weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\nA flaming weapon is sheathed in fire that deals an extra 1d6 points of fire damage on a successful hit. The fire does not harm the wielder.",
+                                                                library.Get<BlueprintActivatableAbility>("05b7cbe45b1444a4f8bf4570fb2c0208").Icon,
+                                                                arcane_weapon_enhancement_buff,
+                                                                library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121"),
+                                                                1, arcane_weapon_group);
+
+            var frost = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancementFrost",
+                                                            "Arcane Weapon - Frost",
+                                                            "An arcanist can add the frost property to her arcane weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\nA frost weapon is sheathed in a terrible, icy cold that deals an extra 1d6 points of cold damage on a successful hit. The cold does not harm the wielder.",
+                                                            library.Get<BlueprintActivatableAbility>("b338e43a8f81a2f43a73a4ae676353a5").Icon,
+                                                            arcane_weapon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b"),
+                                                            1, arcane_weapon_group);
+
+            var shock = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancemenShock",
+                                                            "Arcane Weapon - Shock",
+                                                            "An arcanist can add the shock property to her arcane weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\nA shock weapon is sheathed in crackling electricity that deals an extra 1d6 points of electricity damage on a successful hit. The electricity does not harm the wielder.",
+                                                            library.Get<BlueprintActivatableAbility>("a3a9e9a2f909cd74e9aee7788a7ec0c6").Icon,
+                                                            arcane_weapon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658"),
+                                                            1, arcane_weapon_group);
+
+            var keen = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancementKeen",
+                                                            "Arcane Weapon - Keen",
+                                                            "An arcanist can add the keen property to her arcane weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\nThe keen property doubles the threat range of a weapon. This benefit doesn't stack with any other effects that expand the threat range of a weapon (such as the keen edge spell or the Improved Critical feat).",
+                                                            library.Get<BlueprintActivatableAbility>("24fe1f546e07987418557837b0e0f8f5").Icon,
+                                                            arcane_weapon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0"),
+                                                            1, arcane_weapon_group);
+
+            var speed = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancementSpeed",
+                                                                    "Arcane Weapon - Disruption",
+                                                                    "An arcanist can add the speed property to her arcane weapon, but this consumes 3 points of enhancement bonus granted to this weapon.\nWhen making a full attack, the wielder of a speed weapon may make one extra attack with it. The attack uses the wielder's full base attack bonus, plus any modifiers appropriate to the situation. (This benefit is not cumulative with similar effects, such as a Haste spell.)",
+                                                                    library.Get<BlueprintActivatableAbility>("85742dd6788c6914f96ddc4628b23932").Icon,
+                                                                    arcane_weapon_enhancement_buff,
+                                                                    library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006"),
+                                                                    3, arcane_weapon_group);
+
+            var apply_buff = Common.createContextActionApplyBuff(arcane_weapon_enhancement_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+            var arcane_weapon_ability = Helpers.CreateAbility("ArcanistArcaneWeponAbility",
+                                                                         arcane_weapon_enhancement_buff.Name,
+                                                                         arcane_weapon_enhancement_buff.Description,
+                                                                         "",
+                                                                         arcane_weapon_enhancement_buff.Icon,
+                                                                         AbilityType.Supernatural,
+                                                                         CommandType.Standard,
+                                                                         AbilityRange.Personal,
+                                                                         "Charisma modifier minutes",
+                                                                         "",
+                                                                         Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                                         Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(a => a.not = true),
+                                                                         Helpers.CreateRunActions(apply_buff),
+                                                                         arcane_weapon_magus.GetComponent<AbilitySpawnFx>(),
+                                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1),
+                                                                         Helpers.PrerequisiteClassLevel(arcanist_class, 5)
+                                                                         );
+            arcane_weapon_ability.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
+            arcane_weapon_ability.NeedEquipWeapons = true;
+
+
+            arcane_weapon = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancementFeature",
+                                                  arcane_weapon_ability.name,
+                                                  arcane_weapon_ability.Description,
+                                                  "",
+                                                   arcane_weapon_ability.Icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.CreateAddFacts(arcane_weapon_ability, flaming, frost, shock, keen)
+                                                   );
+
+            var arcane_weapon2 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement2Featuree",
+                                                        "Arcane Weapon +2",
+                                                        arcane_weapon_ability.Description,
+                                                        "",
+                                                        arcane_weapon_ability.Icon,
+                                                        FeatureGroup.None,
+                                                        Common.createIncreaseActivatableAbilityGroupSize(arcane_weapon_group)
+                                                        );
+            var arcane_weapon3 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement3Featuree",
+                                            "Arcane Weapon +3",
+                                            arcane_weapon_ability.Description,
+                                            "",
+                                            arcane_weapon_ability.Icon,
+                                            FeatureGroup.None,
+                                            Helpers.CreateAddFacts(speed),
+                                            Common.createIncreaseActivatableAbilityGroupSize(arcane_weapon_group)
+                                            );
+
+            var arcane_weapon4 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement4Featuree",
+                                "Arcane Weapon +4",
+                                arcane_weapon_ability.Description,
+                                "",
+                                arcane_weapon_ability.Icon,
+                                FeatureGroup.None,
+                                Common.createIncreaseActivatableAbilityGroupSize(arcane_weapon_group)
+                                );
+
+            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon2, 9, getArcanistArray()));
+            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon3, 13, getArcanistArray()));
+            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon4, 17, getArcanistArray()));
+        }
+
+        static void createArcaneBarrier()
+        {
+            var arcane_barrier_cost_buff = Helpers.CreateBuff("ArcaneBarrierCostBuff",
+                                                               "",
+                                                               "",
+                                                               "",
+                                                               null,
+                                                               null
+                                                               );
+            arcane_barrier_cost_buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.HiddenInUi);
+            arcane_barrier_cost_buff.Stacking = StackingType.Stack;
+            var apply_cost_buff = Common.createContextActionApplyBuff(arcane_barrier_cost_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            var icon = library.Get<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445").Icon; //shield of faith
+            var buff = Helpers.CreateBuff("ArcaneBarrierBuff",
+                                          "Arcane Barrier",
+                                          "As a swift action, the arcanist can expend 1 point from her arcane reservoir to create a barrier of magic that protects her from harm. This barrier grants the arcanist a number of temporary hit points equal to her arcanist level + her Charisma modifier, and lasts for 1 minute per arcanist level or until all the temporary hit points have been lost. Each additional time per day the arcanist uses this ability, the number of arcane reservoir points she must spend to activate it increases by 1 (so the second time it is used, the arcanist must expend 2 points from her arcane reservoir, 3 points for the third time, and so on). The temporary hit points from this ability do not stack with themselves, but additional uses do cause the total number of temporary hit points and the duration to reset.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<TemporaryHitPointsFromAbilityValue>(t => { t.Value = Helpers.CreateContextValue(AbilityRankType.Default); t.RemoveWhenHitPointsEnd = true; }),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueTypeExtender.ClassLevelPlusStatValue.ToContextRankBaseValueType(),
+                                                                          classes: getArcanistArray(), stat: StatType.Charisma, min: 0)
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+
+            var ability = Helpers.CreateAbility("ArcaneBarrierAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff, apply_cost_buff),
+                                                library.Get<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445").GetComponent<AbilitySpawnFx>(),
+                                                Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
+                                                Helpers.Create<ResourceMechanics.ResourceCostFromBuffRank>(r => { r.buff = arcane_barrier_cost_buff; r.base_value = 1; }),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray())
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            arcane_barrier = Common.AbilityToFeature(ability, false);
         }
 
 
@@ -322,7 +625,8 @@ namespace CallOfTheWild
                                                     "",
                                                     "",
                                                     Helpers.CreateRunActions(Helpers.Create<SpellManipulationMechanics.RefreshArcanistSpellLevel>(c => { c.spell_level = i; })),
-                                                    Helpers.CreateResourceLogic(arcane_reservoir_resource)
+                                                    Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                    Helpers.Create<NewMechanics.AbilityShowIfHasClassLevel>(a => { a.character_class = arcanist_class; a.level = (i - 1) * 2; })
                                                     );
                 Common.setAsFullRoundAction(ability);
                 ability.setMiscAbilityParametersSelfOnly();
