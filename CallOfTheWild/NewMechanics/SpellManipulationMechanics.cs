@@ -98,6 +98,8 @@ namespace CallOfTheWild
             public BlueprintSpellbook spellbook = Arcanist.arcanist_spellbook;
             [JsonProperty]
             private Dictionary<string, List<Metamagic>> prepared_spells_with_metamagic = new Dictionary<string, List<Metamagic>>();
+
+            private int metamixing = 0;
             public void add(BlueprintAbility ability, Metamagic metamagic)
             {
                 if (!prepared_spells_with_metamagic.ContainsKey(ability.AssetGuid))
@@ -110,6 +112,22 @@ namespace CallOfTheWild
             public void clear()
             {
                 prepared_spells_with_metamagic.Clear();
+            }
+
+
+            public bool metamixingEnabled()
+            {
+                return metamixing > 0;
+            }
+
+            public void enableMetamixing()
+            {
+                metamixing++;
+            }
+
+            public void disableMetamaixing()
+            {
+                metamixing--;
             }
 
             public void remove(BlueprintAbility blueprint, Metamagic metamagic)
@@ -125,15 +143,34 @@ namespace CallOfTheWild
                 }
             }
 
-            public bool canBeUsedOn(BlueprintAbility ability, Metamagic metamagic)
+            public bool noCastingTimeIncreaseForMetamagic(BlueprintAbility ability, Metamagic metamagic)
             {
-                bool is_ok = prepared_spells_with_metamagic.ContainsKey(ability.AssetGuid) && prepared_spells_with_metamagic[ability.AssetGuid].Contains(metamagic);
+ 
+                bool is_ok = noCastingTimeIncreaseForMetamagicInternal(ability, metamagic);
 
                 if (ability.Parent != null)
                 {
-                    is_ok = is_ok || prepared_spells_with_metamagic.ContainsKey(ability.Parent.AssetGuid) && prepared_spells_with_metamagic[ability.Parent.AssetGuid].Contains(metamagic);
+                    is_ok = is_ok || noCastingTimeIncreaseForMetamagicInternal(ability.Parent, metamagic);
                 }
                 return is_ok;
+            }
+
+
+            private bool noCastingTimeIncreaseForMetamagicInternal(BlueprintAbility ability, Metamagic metamagic)
+            {
+                if (!prepared_spells_with_metamagic.ContainsKey(ability.AssetGuid))
+                {
+                    return false;
+                }
+
+                if (!metamixingEnabled())
+                {
+                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => m == metamagic);
+                }
+                else
+                {
+                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) <= 1);
+                }
             }
 
 
@@ -280,7 +317,7 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-                return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().canBeUsedOn(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic);
+                return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic);
             }
         }
 
@@ -297,6 +334,21 @@ namespace CallOfTheWild
             public override void OnTurnOff()
             {
 
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class Metamixing : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public override void OnTurnOn()
+            {
+                this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().enableMetamixing();
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().disableMetamaixing();
             }
         }
 

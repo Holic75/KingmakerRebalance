@@ -164,6 +164,7 @@ namespace CallOfTheWild.TeamworkMechanics
         public ActionList actions;
         public Feet Radius;
         public bool include_dead = false;
+        public bool ignore_target;
 
         public override string GetCaption()
         {
@@ -178,8 +179,12 @@ namespace CallOfTheWild.TeamworkMechanics
             }
 
 
-            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, this.Radius.Meters, true, include_dead))
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, this.Target.Unit.Corpulence + this.Radius.Meters, true, include_dead))
             {
+                if (unitEntityData == this.Target.Unit && ignore_target)
+                {
+                    continue;
+                }
                 using (this.Context.GetDataScope((TargetWrapper)unitEntityData))
                 {
                     this.actions.Run();

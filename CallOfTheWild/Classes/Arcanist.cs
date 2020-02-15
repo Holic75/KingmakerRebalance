@@ -73,6 +73,27 @@ namespace CallOfTheWild
         static public BlueprintFeature energy_shield;
         static public BlueprintFeature energy_absorption;
         static public Dictionary<DamageEnergyType, BlueprintBuff> energy_absorption_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
+        static public BlueprintFeature dimensional_slide;
+        static public BlueprintFeature familiar;
+        static public BlueprintFeature feral_shifting;
+        static public BlueprintFeature flame_arc;
+        static public BlueprintFeature burning_flame;
+        static public BlueprintFeature force_strike;
+        static public BlueprintFeature holy_water_jet;
+        static public BlueprintFeature ice_missile;
+        static public BlueprintFeature icy_tomb;
+        static public BlueprintFeature lightning_lance;
+        static public BlueprintFeature dancing_electricity;
+        static public BlueprintFeatureSelection metamagic_knowledge;
+        static public BlueprintFeatureSelection greater_metamagic_knowledge;
+        static public BlueprintFeature metamixing;
+        static public BlueprintFeature potent_magic;
+
+        static public BlueprintFeature sonic_blast;
+        static public BlueprintFeature spell_resistance;
+        static public BlueprintFeature greater_spell_resistance;
+        static public BlueprintFeature wooden_flesh;
+
 
 
         internal static void createArcanistClass()
@@ -140,7 +161,7 @@ namespace CallOfTheWild
                                                     AbilityRange.Personal,
                                                     "",
                                                     "",
-                                                    Helpers.CreateRunActions(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.amount = 1; c.Resource = arcane_reservoir_resource; })),
+                                                    Helpers.CreateRunActions(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.amount = i; c.Resource = arcane_reservoir_resource; })),
                                                     Helpers.CreateResourceLogic(resource)
                                                     );
                 ability.setMiscAbilityParametersSelfOnly();
@@ -159,7 +180,7 @@ namespace CallOfTheWild
         }
 
 
-        static void createArcaneReservoir()
+        static void createArcaneReservoirAndPotentMagic()
         {
             arcane_reservoir_resource = Helpers.CreateAbilityResource("ArcaneReservoirFullResource", "", "", "", null);
             arcane_reservoir_resource.SetIncreasedByLevel(3, 1, getArcanistArray());
@@ -171,14 +192,33 @@ namespace CallOfTheWild
 
             var icon = library.Get<BlueprintFeature>("55edf82380a1c8540af6c6037d34f322").Icon; //elven magic
 
+
+            arcane_reservoir = Helpers.CreateFeature("ArcaneReservoirFeature",
+                                                     "Arcane Reservoir",
+                                                     "An arcanist has an innate pool of magical energy that she can draw upon to fuel her arcanist exploits and enhance her spells. The arcanist’s arcane reservoir can hold a maximum amount of magical energy equal to 3 + the arcanist’s level. Each day, when preparing spells, the arcanist’s arcane reservoir fills with raw magical energy, gaining a number of points equal to 3 + 1/2 her arcanist level. Any points she had from the previous day are lost. She can also regain these points through the consume spells class feature and some arcanist exploits. The arcane reservoir can never hold more points than the maximum amount noted above; points gained in excess of this total are lost.\n"
+                                                     + "Points from the arcanist reservoir are used to fuel many of the arcanist’s powers. In addition, the arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
+                                                     "",
+                                                     icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddAbilityResource(arcane_reservoir_resource)
+                                                     );
+            potent_magic = Helpers.CreateFeature("PotentMagicExploitFeature",
+                                                 "Potent Magic",
+                                                 "Whenever the arcanist expends 1 point from her arcane reservoir to increase the caster level of a spell, the caster level increases by 2 instead of 1. Whenever she expends 1 point from her arcane reservoir to increase the spell’s DC, it increases by 2 instead of 1.",
+                                                 "",
+                                                 library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a").Icon, //dispel magic
+                                                 FeatureGroup.None
+                                                 );
+
             var dc_buff = Helpers.CreateBuff("ArcaneReservoirSpellDCBuff",
                                              "Spell DC Increase",
                                              "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
                                              "",
                                              icon,
                                              null,
-                                             Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = 1; }),
-                                             Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; })
+                                             Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                             Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
+                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {arcane_reservoir, potent_magic})
                                              );
             arcane_reservoir_spell_dc_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellDCToggleAbility",
                                                                                dc_buff.Name,
@@ -201,8 +241,9 @@ namespace CallOfTheWild
                                  "",
                                  icon,
                                  null,
-                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = 1; }),
-                                 Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; })
+                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                 Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
+                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] { arcane_reservoir, potent_magic })
                                  );
 
             arcane_reservoir_caster_level_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellCLToggleAbility",
@@ -219,16 +260,8 @@ namespace CallOfTheWild
             arcane_reservoir_caster_level_boost.Group = ActivatableAbilityGroupExtension.ArcanistArcaneReservoirSpellboost.ToActivatableAbilityGroup();
             arcane_reservoir_caster_level_boost.DeactivateImmediately = true;
 
-            arcane_reservoir = Helpers.CreateFeature("ArcaneReservoirFeature",
-                                                     "Arcane Reservoir",
-                                                     "An arcanist has an innate pool of magical energy that she can draw upon to fuel her arcanist exploits and enhance her spells. The arcanist’s arcane reservoir can hold a maximum amount of magical energy equal to 3 + the arcanist’s level. Each day, when preparing spells, the arcanist’s arcane reservoir fills with raw magical energy, gaining a number of points equal to 3 + 1/2 her arcanist level. Any points she had from the previous day are lost. She can also regain these points through the consume spells class feature and some arcanist exploits. The arcane reservoir can never hold more points than the maximum amount noted above; points gained in excess of this total are lost.\n"
-                                                     + "Points from the arcanist reservoir are used to fuel many of the arcanist’s powers. In addition, the arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
-                                                     "",
-                                                     icon,
-                                                     FeatureGroup.None,
-                                                     Helpers.CreateAddAbilityResource(arcane_reservoir_resource),
-                                                     Helpers.CreateAddFacts(arcane_reservoir_spell_dc_boost, arcane_reservoir_caster_level_boost)
-                                                     );
+
+            arcane_reservoir.AddComponent(Helpers.CreateAddFacts(arcane_reservoir_spell_dc_boost, arcane_reservoir_caster_level_boost));
         }
 
 
@@ -261,7 +294,7 @@ namespace CallOfTheWild
             arcanist_cantrips.ReplaceComponent<BindAbilitiesToClass>(b => { b.CharacterClass = arcanist_class; b.Stat = StatType.Intelligence; });
 
             createArcanistSpellCasting();
-            createArcaneReservoir();
+            createArcaneReservoirAndPotentMagic();
             createConsumeSpells();
             createArcaneExploits();
 
@@ -329,7 +362,7 @@ namespace CallOfTheWild
                                                              "",
                                                              icon,
                                                              FeatureGroup.None);
-            greater_arcane_exploits = Helpers.CreateFeatureSelection("GreateArcaneExploitsFeature",
+            greater_arcane_exploits = Helpers.CreateFeature("GreateArcaneExploitsFeature",
                                                              "Greater Exploits",
                                                              "At 11th level and every 2 levels thereafter, an arcanist can choose one of the greater exploits in place of an arcanist exploit.",
                                                              "",
@@ -339,14 +372,392 @@ namespace CallOfTheWild
             createArcaneBarrier();
             createArcaneWeapon();
             createEnergyShieldAndEnergyAbsorption();
-
             createAcidJetAndLingeringAcid();
+            createDimensionalSlide();
+            createFamiliar();
+            createFeralShifting();
+            createFlameArcAndBurningFlame();
+            createForceStrike();
+            createHolyWaterJet();
+            createIceMissileAndIcyTomb();
+            createLightningLanceAndDancingElectricity();
+            createMetamagicKnowledgeAndGreaterMetamgicKnowledge();
+            createMetamixing();
 
-
-            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, arcane_barrier, arcane_weapon, acid_jet, energy_shield,
-                                                                   energy_absorption, lingering_acid};
+            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
+                                                                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing,
+                                                                 energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge};
         }
 
+
+        static void createMetamixing()
+        {
+            metamixing = Helpers.CreateFeature("MetamixingExploitFeature",
+                                               "Metamixing",
+                                               "The arcanist can expend 1 point from her arcane reservoir to add a metamagic feat that she knows to a spell as she casts it without affecting the casting time (though using a higher-level spell slot as normal). She can use this ability to add a metamagic feat to a spell that she prepared using a metamagic feat, although she cannot add the same metamagic feat to a given spell more than once.",
+                                               "",
+                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
+                                               FeatureGroup.None,
+                                               Helpers.Create<SpellManipulationMechanics.Metamixing>()
+                                               );
+        }
+
+
+        static void createMetamagicKnowledgeAndGreaterMetamgicKnowledge()
+        {
+            var metamagic_feats = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null));
+
+            metamagic_knowledge = Helpers.CreateFeatureSelection("MetamagicKnowledgeExploitFeature",
+                                                                 "Metamagic Knowledge",
+                                                                 "The arcanist can select one metamagic feat as a bonus feat. She must meet the prerequisites of this feat.",
+                                                                 "",
+                                                                 null,
+                                                                 FeatureGroup.None);
+            metamagic_knowledge.AllFeatures = metamagic_feats.ToArray();
+
+            greater_metamagic_knowledge = library.CopyAndAdd<BlueprintFeatureSelection>(metamagic_knowledge.AssetGuid, "GreaterMetamagicKnowledgeExploit", "");
+            greater_metamagic_knowledge.SetName("Greater Metamagic Knowledge");
+
+
+            metamagic_knowledge.AddComponent(Helpers.PrerequisiteNoFeature(metamagic_knowledge));
+            greater_metamagic_knowledge.AddComponent(Helpers.PrerequisiteNoFeature(greater_metamagic_knowledge));
+            greater_metamagic_knowledge.AddComponent(Helpers.PrerequisiteFeature(metamagic_knowledge));
+            greater_metamagic_knowledge.AddComponent(Helpers.PrerequisiteFeature(greater_arcane_exploits));
+        }
+
+
+
+        static void createLightningLanceAndDancingElectricity()
+        {
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity,
+                                                 Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+            var outgoing_concealement_buff = Helpers.CreateBuff("LightningLanceBuff",
+                                                                "Lightning Lance Buff",
+                                                                "The arcanist can unleash a lance of lightning by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of electricity damage + the arcanist’s Charisma modifier, plus 1d6 points of electricity damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target’s vision is also impaired, causing the target to treat all creatures as if they had concealment (20%) for 1 round. It can attempt a Fortitude saving throw to negate the impaired vision.",
+                                                                "",
+                                                                library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f").Icon, //air domain base ability
+                                                                null,
+                                                                Helpers.CreateSpellDescriptor(SpellDescriptor.SightBased),
+                                                                Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(a => { a.Descriptor = ConcealmentDescriptor.InitiatorIsBlind; a.Concealment = Concealment.Partial; })
+                                                                );
+
+            var apply_buff = Common.createContextActionApplyBuff(outgoing_concealement_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var extra_effect = Helpers.CreateConditionalSaved(null, apply_buff);
+
+            var lightning_lance_ability = Helpers.CreateAbility("LightningLanceExploitAbility",
+                                                        outgoing_concealement_buff.Name,
+                                                        outgoing_concealement_buff.Description,
+                                                        "",
+                                                        outgoing_concealement_buff.Icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Close,
+                                                        "",
+                                                        "Fortitude partial",
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
+                                                        Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = new BlueprintFact[] { energy_absorption_buffs[DamageEnergyType.Electricity] }),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
+                                                        library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f").GetComponent<AbilityDeliverProjectile>(),
+                                                        Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Electricity]))))
+                                                        );
+            lightning_lance_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            lightning_lance = Common.AbilityToFeature(lightning_lance_ability, false);
+
+            var adjacent_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity,
+                                                 Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);
+            adjacent_damage.Half = true;
+
+            var adjacent_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(adjacent_damage));
+            var action = Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c =>
+                                                                                            {
+                                                                                                c.actions = Helpers.CreateActionList(adjacent_action);
+                                                                                                c.ignore_target = true;
+                                                                                                c.Radius = 5.Feet();
+                                                                                            }
+                                                                                            );
+
+            var dancing_electricity_ability = library.CopyAndAdd<BlueprintAbility>(lightning_lance_ability.AssetGuid, "DancingElectricityArcaneExploitAbility", "");
+
+            dancing_electricity_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2, cost_is_custom: true));
+            dancing_electricity_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect, action));
+            dancing_electricity_ability.SetNameDescriptionIcon("Dancing Electricity",
+                                                               "Whenever the arcanist uses the lightning lance exploit, she can expend 2 points from her arcane reservoir instead of one. If she does, all creatures adjacent to the target take an amount of damage equal to half the amount of electricity damage rolled. Adjacent creatures can attempt a Reflex saving throw to halve this damage. Whether or not the target makes its saving throw has no effect on adjacent targets. The arcanist must have the lightning lance exploit to select this exploit.",
+                                                               library.Get<BlueprintAbility>("2a9ef0e0b5822a24d88b16673a267456").Icon); //call lightning
+
+            dancing_electricity = Common.AbilityToFeature(dancing_electricity_ability, false);
+            dancing_electricity.AddComponent(Helpers.PrerequisiteFeature(greater_arcane_exploits));
+            dancing_electricity.AddComponent(Helpers.PrerequisiteFeature(lightning_lance));
+        }
+
+
+        static void createIceMissileAndIcyTomb()
+        {
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold,
+                                                             Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var apply_staggered = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1), dispellable: false);
+            var extra_effect = Helpers.CreateConditionalSaved(null, apply_staggered);
+            var icon = library.Get<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791").Icon; //ice ray from water domain
+            var ice_missile_ability = Helpers.CreateAbility("IceMissileExploitAbility",
+                                                        "Ice Missile",
+                                                        "The arcanist can unleash a freezing projectile by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of cold damage + the arcanist’s Charisma modifier, plus an additional 1d6 points of cold damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). In addition, the target is staggered for 1 round. It can attempt a Fortitude saving throw to negate the staggered condition.",
+                                                        "",
+                                                        icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Close,
+                                                        "",
+                                                        "Fortitude partial",
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
+                                                        Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = new BlueprintFact[] { energy_absorption_buffs[DamageEnergyType.Cold] }),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                                        library.Get<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791").GetComponent<AbilityDeliverProjectile>(),
+                                                        Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Cold]))))
+                                                        );
+            ice_missile_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            ice_missile = Common.AbilityToFeature(ice_missile_ability, false);
+
+            var ice_tomb_icon = library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931").Icon;
+            var entangle_buff = library.CopyAndAdd<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38", "IcyTombExploitBuff", "");
+            entangle_buff.SetNameDescriptionIcon("Icy Tomb",
+                                                 "Whenever the arcanist uses the ice missile exploit, she can expend 2 points from her arcane reservoir instead of one. If she does, the target is coated in rime if it fails its saving throw. As long as the ice remains (typically 1 minute per level in a warm area), the target is entangled (although not anchored) and takes 1 point of Dexterity damage at the start of each of its turns. The target can break free from the ice as a standard action by making a Strength check with a DC equal to 10 + the arcanist’s Charisma modifier. If the target takes more than 10 points of fire damage from a single attack, the ice melts and the effect ends. The arcanist must have the ice missile arcanist exploit to select this exploit.",
+                                                 ice_tomb_icon);
+
+            var dex_damage = Helpers.CreateActionDealDamage(StatType.Dexterity, Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1), IgnoreCritical: true);
+            entangle_buff.ReplaceComponent<AddFactContextActions>(a => a.NewRound = Helpers.CreateActionList(dex_damage, a.NewRound.Actions[0]));
+            entangle_buff.FxOnStart = library.Get<BlueprintBuff>("c53b286bb06a0544c85ca0f8bcc86950").FxOnStart; //icy prison
+            entangle_buff.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Cold));
+            entangle_buff.AddComponent(Helpers.Create<NewMechanics.ActionOnDamageReceived>(a =>
+                                                                                          {
+                                                                                              a.min_dmg = 10;
+                                                                                              a.energy = DamageEnergyType.Fire;
+                                                                                              a.action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(entangle_buff));
+                                                                                          }
+                                                                                          )
+                                      );
+
+            var apply_entangle = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(entangle_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Minutes), dispellable: false));
+            var icy_tomb_ability = library.CopyAndAdd<BlueprintAbility>(ice_missile_ability.AssetGuid, "IcyTombArcaneExploitAbility", "");
+
+            var extra_effect2 = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_staggered, apply_entangle });
+            icy_tomb_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2, cost_is_custom: true));
+            icy_tomb_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect2));
+            icy_tomb_ability.SetNameDescriptionIcon(entangle_buff.Name,
+                                                    entangle_buff.Description,
+                                                    entangle_buff.Icon);
+
+            icy_tomb = Common.AbilityToFeature(icy_tomb_ability, false);
+            icy_tomb.AddComponent(Helpers.PrerequisiteFeature(greater_arcane_exploits));
+            icy_tomb.AddComponent(Helpers.PrerequisiteFeature(ice_missile));
+        }
+
+
+        static void createForceStrike()
+        {
+            var force_missile = library.Get<BlueprintAbility>("3d55cc710cc497843bb51788057cd93f");
+            var magic_missile = library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2");
+
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
+            damage.DamageType = Common.createForceDamageDescription();
+
+            var ability = Helpers.CreateAbility("ForceStrikeExploitAbility",
+                                                "Force Strike",
+                                                "The arcanist can unleash a blast of force by expending 1 point from her arcane reservoir. This attack automatically strikes one target within close range (as magic missile) and deals 1d4 points of force damage, plus 1 point of damage per arcanist level. Spells and effects that negate magic missile also negate this effect.",
+                                                "",
+                                                force_missile.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Close,
+                                                "",
+                                                "",
+                                                force_missile.GetComponent<AbilityDeliverProjectile>(),
+                                                Helpers.CreateRunActions(damage),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray()),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
+                                                Helpers.CreateResourceLogic(arcane_reservoir_resource)
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            force_strike = Common.AbilityToFeature(ability, false);
+
+            var buffs = library.GetAllBlueprints().OfType<BlueprintBuff>();
+
+            //add immunity as for magic missile
+            foreach (var b in buffs)
+            {
+                var spell_immunities = b.GetComponents<AddSpellImmunity>().Where(a => a.Exceptions != null && a.Exceptions.Contains(magic_missile));
+
+                foreach (var si in spell_immunities)
+                {
+                    si.Exceptions = si.Exceptions.AddToArray(ability);
+                }
+            }
+        }
+
+
+        static void createHolyWaterJet()
+        {
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Holy,
+                                                             Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                             isAoE: true, halfIfSaved: true);
+            var damage = Helpers.CreateConditional(Common.createContextConditionHasFact(Common.undead),
+                                                   base_damage,
+                                                   Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFact(Common.outsider),
+                                                                                                                Helpers.CreateContextConditionAlignment(AlignmentComponent.Evil)),
+                                                                             base_damage
+                                                                            )
+                                                  );
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/HolyWaterJet.png");
+            var ability = Helpers.CreateAbility("HolyWaterJetExploitAbility",
+                                                        "Holy Water Jet",
+                                                        "The arcanist can unleash a jet of holy water by expending 1 point from her arcane reservoir. This creates a 30-foot line of water that deals damage equal to 1d8 points of damage plus the arcanist’s Charisma modifier, plus an additional 1d8 points of damage for every 2 levels beyond 1st (to a maximum of 10d8 at 19th level) to each target in the line that would normally take damage from holy water. Creatures in the area of effect can attempt a Reflex saving throw to halve the damage.",
+                                                        "",
+                                                        icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Projectile,
+                                                        "",
+                                                        Helpers.reflexHalfDamage,
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                        library.Get<BlueprintAbility>("3bbc16ca68378af4f88d33dbd364a9d9").GetComponent<AbilityDeliverProjectile>(), //charged water torrent
+                                                        Helpers.CreateRunActions(SavingThrowType.Reflex, damage),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma)
+                                                        );
+            ability.setMiscAbilityParametersRangedDirectional();
+            holy_water_jet = Common.AbilityToFeature(ability, false);
+        }
+
+
+        static void createFlameArcAndBurningFlame()
+        {
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, 
+                                                             Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                             isAoE: true, halfIfSaved: true);                                  
+            var icon = library.Get<BlueprintAbility>("ebade19998e1f8542a1b55bd4da766b3").Icon;
+            var flame_arc_ability = Helpers.CreateAbility("FlameArcExploitAbility",
+                                                        "Flame Arc",
+                                                        "The arcanist can unleash an arc of flame by expending 1 point from her arcane reservoir. This creates a 30-foot line of flame that deals 1d6 points of fire damage + the arcanist’s Charisma modifier, plus an additional 1d6 points of fire damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level) to each target in the line. Creatures in the area of effect may attempt a Reflex saving throw to halve the damage.",
+                                                        "",
+                                                        icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Projectile,
+                                                        "",
+                                                        Helpers.reflexHalfDamage,
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
+                                                        Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = new BlueprintFact[] { energy_absorption_buffs[DamageEnergyType.Fire] }),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
+                                                        library.Get<BlueprintAbility>("5e4c7cb990de4034bbee9fb99be2e15d").GetComponent<AbilityDeliverProjectile>(),
+                                                        Helpers.CreateRunActions(SavingThrowType.Reflex, base_damage),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Fire]))))
+                                                        );
+            flame_arc_ability.setMiscAbilityParametersRangedDirectional(test_mode);
+            flame_arc = Common.AbilityToFeature(flame_arc_ability, false);
+
+            var burn3d6 = library.CopyAndAdd<BlueprintBuff>("e92ecaa76b5db674fa5b0aaff5b21bc9", "ArcaneExploitBurningFlameBuff", "");
+            burn3d6.SetDescription("This creature is burning and takes 3d6 fire damage each turn.");
+
+            var burn_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire,
+                                                             Helpers.CreateContextDiceValue(DiceType.D6, 3, 0));
+            burn3d6.ReplaceComponent<AddFactContextActions>(a => a.NewRound = Helpers.CreateActionList(burn_damage, a.NewRound.Actions[1]));
+
+            var apply_burn = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(burn3d6, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
+
+            var burning_flame_ability = library.CopyAndAdd<BlueprintAbility>(flame_arc_ability.AssetGuid, "BurningFlameArcaneExploitAbility", "");
+
+            burning_flame_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2, cost_is_custom: true));
+            burning_flame_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Reflex, base_damage, apply_burn));
+            burning_flame_ability.SetNameDescriptionIcon("Burning Flame",
+                                                         "Whenever the arcanist uses the flame arc exploit, she can expend 2 points from her arcane reservoir instead of one. If she does, each target catches on fire if it fails its saving throw. Until the fire is extinguished, the target takes 3d6 points of fire damage at the start of each of its turns. The target can attempt a Reflex saving throw as a full-round action to extinguish the flames. Applying at least 1 gallon of water to the target automatically extinguishes the flames. The arcanist must have the flame arc exploit to select this exploit.",
+                                                         burn3d6.Icon);
+
+            burning_flame = Common.AbilityToFeature(burning_flame_ability, false);
+            burning_flame.AddComponent(Helpers.PrerequisiteFeature(greater_arcane_exploits));
+            burning_flame.AddComponent(Helpers.PrerequisiteFeature(flame_arc));
+        }
+
+
+        static void createDimensionalSlide()
+        {
+            var ability = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "DimensionalSlideExploitAbility", "");
+
+            ability.Type = AbilityType.Supernatural;
+            ability.ActionType = CommandType.Move;
+
+            ability.SetNameDescription("Dimensional Slide",
+                                       "The arcanist can expend 1 point from her arcane reservoir to create a dimensional crack that she can step through to reach another location. This ability is used as a move action, allowing her to move to any point within long range. She can only use this ability once per round. She does not provoke attacks of opportunity when moving in this way.");
+            ability.AddComponent(Helpers.CreateResourceLogic(arcane_reservoir_resource));
+
+            var cooldown_buff = Helpers.CreateBuff("DimensionalSlideExploitCooldownBuff",
+                                                   "Dimensional Slide: Cooldown",
+                                                   ability.Description,
+                                                   "",
+                                                   ability.Icon,
+                                                   null);
+            var apply_cooldown = Common.createContextActionApplyBuffToCaster(cooldown_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_cooldown)));
+            ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff));
+
+            dimensional_slide = Common.AbilityToFeature(ability, false);
+        }
+
+
+        static void createFamiliar()
+        {
+            familiar = library.CopyAndAdd<BlueprintFeature>("363cab72f77c47745bf3a8807074d183", "FamilairExploit", "");
+            familiar.Groups = new FeatureGroup[] { FeatureGroup.None };
+            familiar.ComponentsArray = new BlueprintComponent[0];
+            familiar.SetDescription("An arcanist with this exploit can acquire a familiar as the arcane bond wizard class feature.");
+            familiar.DlcType = DlcType.None;
+            familiar.IsClassFeature = false;
+        }
+
+
+        static void createFeralShifting()
+        {
+            var buff = Helpers.CreateBuff("FeralShiftingExploitBuff",
+                                               "Feral Shifting",
+                                               "As a swift action, the arcanist can spend 1 point from her arcane reservoir to gain a bite attack that deals 1d6 points of damage (1d4 points of damage if she is Small) for a number of minutes equal to her Charisma modifier (minimum 1). If used as part of a full attack, the bite attack is made at the arcanists's full base attack bonus –5.",
+                                               "",
+                                               library.Get<BlueprintFeature>("25954b1652bebc2409f9cb9d5728bceb").Icon, //animal fury
+                                               null,
+                                               Common.createAddSecondaryAttacks(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286")) //bite 1d6
+                                               );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+            var ability = Helpers.CreateAbility("FeralShiftingExploitAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Supernatural,
+                                                   CommandType.Swift,
+                                                   AbilityRange.Personal,
+                                                   "Charisma modifier minutes (minimum 1)",
+                                                   "",
+                                                   Helpers.CreateRunActions(apply_buff),
+                                                   Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1),
+                                                   Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                   Helpers.CreateResourceLogic(arcane_reservoir_resource)
+                                                   );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            feral_shifting = Common.AbilityToFeature(ability, false);
+        }
 
         static void createAcidJetAndLingeringAcid()
         {
@@ -373,9 +784,10 @@ namespace CallOfTheWild
                                                         Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma)
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Acid]))))
                                                         );
-            acid_jet_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
+            acid_jet_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             acid_jet = Common.AbilityToFeature(acid_jet_ability);
 
             //lingering buffs 5d6 -> 2d6 -> 1d6
@@ -411,13 +823,15 @@ namespace CallOfTheWild
                 if ((i + 1) / 2 > 0)
                 {
                     var apply_extra_buff = Common.createContextActionApplyBuff(damage_buffs[(i + 1) / 2 - 1], Helpers.CreateContextDuration(1), dispellable: false);
-                    Helpers.CreateAddFactContextActions(deactivated: new GameAction[] { Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0)),
-                                                                                        apply_extra_buff });
+                    damage_buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: new GameAction[] { Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0)),
+                                                                                        apply_extra_buff })
+                                                );
                 }
                 else
                 {
-                    Helpers.CreateAddFactContextActions(deactivated: Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0)));
+                    damage_buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0))));
                 }
+               
                 apply_extra_damage_buff_actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(damage_buffs[i], Helpers.CreateContextDuration(1), dispellable: false));
             }
 
@@ -428,9 +842,9 @@ namespace CallOfTheWild
             lingering_acid_ability.SetNameDescriptionIcon(lingering_acid.Name, lingering_acid.Description, lingering_acid.Icon);
             lingering_acid_ability.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDiceAlternative, baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.DelayedStartPlusDivStep, startLevel: 3, stepLevel: 4));
             lingering_acid_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_lingering));
-            lingering_acid_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2));
+            lingering_acid_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2, cost_is_custom: true));
 
-            lingering_acid.AddComponent(Helpers.CreateAddFact(lingering_acid));
+            lingering_acid.AddComponent(Helpers.CreateAddFact(lingering_acid_ability));
         }
 
 
@@ -451,6 +865,7 @@ namespace CallOfTheWild
             var energy = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Electricity, DamageEnergyType.Fire, DamageEnergyType.Sonic };
 
             BlueprintAbility[] energy_shield_variants = new BlueprintAbility[energy.Length];
+            GameAction[] remove_buffs = new GameAction[energy.Length];
 
             for (int i = 0; i < energy_shield_variants.Length; i++)
             {
@@ -497,10 +912,17 @@ namespace CallOfTheWild
                                                                   Helpers.CreateResourceLogic(arcane_reservoir_resource)
                                                                   );
                 energy_shield_variants[i].setMiscAbilityParametersSelfOnly();
+                remove_buffs[i] = Common.createContextActionRemoveBuff(buff);
+            }
+
+            for (int i = 0; i < energy_shield_variants.Length; i++)
+            {
+                energy_shield_variants[i].AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(remove_buffs)));
             }
 
             var energy_shield_wrapper = Common.createVariantWrapper("EnergyShieldExploitAbility", "", energy_shield_variants);
             energy_shield_wrapper.SetName("Energy Shield");
+            energy_shield_wrapper.SetIcon(resist_variants[0].Parent.Icon);
 
             energy_shield = Common.AbilityToFeature(energy_shield_wrapper);
             energy_absorption.AddComponent(Helpers.PrerequisiteFeature(energy_shield));
@@ -524,6 +946,7 @@ namespace CallOfTheWild
                                                                                                       enchants
                                                                                                       )
                                          );
+            enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             var arcane_weapon_enhancement_buff = Helpers.CreateBuff("ArcanistArcaneWeaponEnchancementSwitchBuff",
                                                                  "Arcane Weapon",
                                                                  "As a standard action, the arcanist can expend 1 point from her arcane reservoir to enhance her weapon. The weapon gains a +1 enhancement bonus, which increases by 1 for every 4 levels beyond 5th (to a maximum of +4 at 17th level). These bonuses can be added to the weapon, stacking with existing weapon bonuses to a maximum of +5. An arcanist can also use this exploit to add one of the following weapon special abilities: flaming, frost, keen, shock and speed. Adding these special abilities replaces an amount of enhancement bonus equal to the ability’s cost. Duplicate special abilities do not stack. The benefits are decided upon when the exploit is used, and they cannot be changed unless the exploit is used again. These benefits only apply to weapons wielded by the arcanist; if another creature attempts to wield the weapon, it loses these benefits, though they resume if the arcanist regains possession of the weapon. The arcanist cannot have more than one use of this ability active at a time. This effect lasts for a number of minutes equal to the arcanist’s Charisma modifier (minimum 1).",
@@ -534,7 +957,7 @@ namespace CallOfTheWild
                                                                                                                 is_child: true, is_permanent: true, dispellable: false)
                                                                                                      )
                                                                  );
-            arcane_weapon_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            //arcane_weapon_enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             var flaming = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancementFlaming",
                                                                 "Arcane Weapon - Flaming",
@@ -585,7 +1008,7 @@ namespace CallOfTheWild
                                                                          AbilityType.Supernatural,
                                                                          CommandType.Standard,
                                                                          AbilityRange.Personal,
-                                                                         "Charisma modifier minutes",
+                                                                         "Charisma modifier minutes (minimum 1)",
                                                                          "",
                                                                          Helpers.CreateResourceLogic(arcane_reservoir_resource),
                                                                          Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(a => a.not = true),
@@ -599,13 +1022,14 @@ namespace CallOfTheWild
 
 
             arcane_weapon = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancementFeature",
-                                                  arcane_weapon_ability.name,
+                                                  arcane_weapon_ability.Name,
                                                   arcane_weapon_ability.Description,
                                                   "",
-                                                   arcane_weapon_ability.Icon,
-                                                   FeatureGroup.None,
-                                                   Helpers.CreateAddFacts(arcane_weapon_ability, flaming, frost, shock, keen)
-                                                   );
+                                                  arcane_weapon_ability.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFacts(arcane_weapon_ability, flaming, frost, shock, keen),
+                                                  Helpers.PrerequisiteClassLevel(arcanist_class, 5)
+                                                  );
 
             var arcane_weapon2 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement2Feature",
                                                         "Arcane Weapon +2",
@@ -642,7 +1066,7 @@ namespace CallOfTheWild
         static void createArcaneBarrier()
         {
             var arcane_barrier_cost_buff = Helpers.CreateBuff("ArcaneBarrierCostBuff",
-                                                               "",
+                                                               "ArcaneBarrierIncreaseCost",
                                                                "",
                                                                "",
                                                                null,
@@ -706,7 +1130,7 @@ namespace CallOfTheWild
                                                     "",
                                                     Helpers.CreateRunActions(Helpers.Create<SpellManipulationMechanics.RefreshArcanistSpellLevel>(c => { c.spell_level = i; })),
                                                     Helpers.CreateResourceLogic(arcane_reservoir_resource),
-                                                    Helpers.Create<NewMechanics.AbilityShowIfHasClassLevel>(a => { a.character_class = arcanist_class; a.level = (i - 1) * 2; })
+                                                    Helpers.Create<NewMechanics.AbilityShowIfHasClassLevel>(a => { a.character_class = arcanist_class; a.level = (i == 1 ? 0 : i * 2); })
                                                     );
                 Common.setAsFullRoundAction(ability);
                 ability.setMiscAbilityParametersSelfOnly();

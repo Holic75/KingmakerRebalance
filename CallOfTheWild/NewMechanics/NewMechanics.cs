@@ -1673,18 +1673,12 @@ namespace CallOfTheWild
                 var cost = ability.Blueprint.GetComponent<AbilityResourceLogic>().Amount;
                 foreach (var f in cost_reducing_facts)
                 {
-                    if (ability.Caster.Buffs.HasFact(f))
-                    {
-                        cost-= ability.Caster.Buffs.GetFact(f).GetRank();
-                    }
+                    cost -= ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
                 }
 
                 foreach (var f in cost_increasing_facts)
                 {
-                    if (ability.Caster.Buffs.HasFact(f))
-                    {
-                        cost+= ability.Caster.Buffs.GetFact(f).GetRank();
-                    }
+                   cost += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
                 }
 
                 return cost < 0 ? 0 : cost;
@@ -3551,6 +3545,38 @@ namespace CallOfTheWild
                 }
 
                 if (original_damage > min_dmg)
+                {
+                    (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
+                }
+            }
+        }
+
+
+        public class ActionOnDamageReceived : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        {
+            public ActionList action;
+            public int min_dmg = 1;
+            public DamageEnergyType energy;
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                var damage = 0;
+
+                foreach (var d in evt.ResultDamage)
+                {
+                    var energy_damage = (d.Source as EnergyDamage);
+                    if (energy_damage == null || energy_damage.EnergyType != energy)
+                    {
+                        continue;
+                    }
+                    damage += (d.FinalValue);
+                }
+
+                if (damage > min_dmg)
                 {
                     (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
                 }
