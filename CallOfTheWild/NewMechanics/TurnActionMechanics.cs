@@ -302,7 +302,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
 
 
-            return abilities.Contains(ability.Blueprint) || abilities.Contains(ability.Blueprint.Parent);
+            return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
         }
     }
 
@@ -336,7 +336,30 @@ namespace CallOfTheWild.TurnActionMechanics
                 return;
             }
 
+            if (__result == CommandType.Standard && __instance.Blueprint.ActionType == CommandType.Swift)
+            {
+                //metamagic applied to swift action spells
+                var fast_metamagic = __instance.Caster.Get<SpellManipulationMechanics.UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>();
+                if (fast_metamagic == null)
+                {
+                    return;
+                }
 
+                if (!__instance.Blueprint.IsSpell)
+                {
+                    return;
+                }
+
+                if (__instance.MetamagicData.MetamagicMask == 0)
+                {
+                    return;
+                }
+
+                if (fast_metamagic.canBeUsedOnAbility(__instance))
+                {
+                    __result = CommandType.Swift;
+                }
+            }
         }
     }
 
@@ -421,7 +444,7 @@ namespace CallOfTheWild.TurnActionMechanics
                 return false;
             }
 
-            return abilities.Contains(ability.Blueprint) || abilities.Contains(ability.Blueprint.Parent);
+            return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
         }
     }
 

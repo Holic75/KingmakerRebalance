@@ -66,7 +66,6 @@ namespace CallOfTheWild
 {
     namespace SpellManipulationMechanics
     {
-
         public class UnitPartNoSpontnaeousMetamagicCastingTimeIncrease : AdditiveUnitPart
         {
             public bool canBeUsedOnAbility(AbilityData ability)
@@ -890,6 +889,72 @@ namespace CallOfTheWild
             public string GetReason()
             {
                 return "No spell stored";
+            }
+        }
+
+
+
+        
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class MagicalSupremacy : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
+        {
+            public int bonus;
+            public BlueprintAbilityResource resource;
+            private BlueprintAbility current_spell = null;
+            private int spell_level = -1;
+
+            
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+                if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
+                {
+                    spell_level = -1;
+                    return;
+                }
+            }
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                spell_level = -1;
+                int cost = 1 + evt.SpellLevel;
+                if (this.resource == null || this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
+                {
+                    return;
+                }
+                if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
+                {
+                    return;
+                }
+                evt.AddBonusCasterLevel(bonus);
+                evt.AddBonusDC(bonus);
+                current_spell = evt.Spell;
+                spell_level = evt.SpellLevel;
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (spell_level == -1)
+                {
+                    return;
+                }
+                if (evt.Spell.Blueprint != current_spell)
+                {
+                    return;
+                }
+                this.Owner.Resources.Spend(this.resource, spell_level + 1);
+                /*if (evt.Spell.Spellbook.Blueprint.Spontaneous)
+                {
+                    evt.Spell.Spellbook.RestoreSpontaneousSlots(spell_level, 1);
+                }*/
+                evt.Spell.Caster.Ensure<SpellbookMechanics.UnitPartDoNotSpendNextSpell>().active = true;
+                current_spell = null;
+                spell_level = -1;
             }
         }
 

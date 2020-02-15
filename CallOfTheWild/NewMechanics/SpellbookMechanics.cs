@@ -15,6 +15,11 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.SpellbookMechanics
 {
+    public class UnitPartDoNotSpendNextSpell : AdditiveUnitPart
+    {
+        public bool active;
+
+    }
 
     [AllowedOn(typeof(BlueprintSpellbook))]
     public class NoSpellsPerDaySacaling : BlueprintComponent
@@ -113,6 +118,22 @@ namespace CallOfTheWild.SpellbookMechanics
             {
                 __result = new SpellSlot[0];
             }
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(Spellbook))]
+    [Harmony12.HarmonyPatch("Spend", Harmony12.MethodType.Normal)]
+    class Spellbook__Spends__Patch
+    {
+        static bool Prefix(Spellbook __instance, AbilityData spell, bool excludeSpecial, ref bool __result)
+        {
+             if (__instance.Owner.Ensure<UnitPartDoNotSpendNextSpell>().active)
+             {
+                __instance.Owner.Ensure<UnitPartDoNotSpendNextSpell>().active = false;
+                __result = true;
+                return false;
+             }
+             return true;
         }
     }
 

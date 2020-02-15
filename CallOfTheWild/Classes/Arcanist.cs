@@ -23,6 +23,7 @@ using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
 using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -56,6 +57,7 @@ namespace CallOfTheWild
         static public BlueprintFeature arcanist_spellcasting;
 
         static public BlueprintAbilityResource arcane_reservoir_resource;
+        static public BlueprintAbilityResource arcane_reservoir_partial_resource;
         static public BlueprintFeature arcane_reservoir;
         static public BlueprintActivatableAbility arcane_reservoir_spell_dc_boost;
         static public BlueprintActivatableAbility arcane_reservoir_caster_level_boost;
@@ -88,12 +90,17 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection greater_metamagic_knowledge;
         static public BlueprintFeature metamixing;
         static public BlueprintFeature potent_magic;
-
+        
         static public BlueprintFeature sonic_blast;
         static public BlueprintFeature spell_resistance;
         static public BlueprintFeature greater_spell_resistance;
         static public BlueprintFeature wooden_flesh;
+        static public BlueprintFeature swift_consume;
 
+        static public BlueprintFeature magical_supremacy;
+
+        static public BlueprintFeature extra_reservoir;
+        static public BlueprintFeatureSelection extra_arcane_exploit;
 
 
         internal static void createArcanistClass()
@@ -136,10 +143,40 @@ namespace CallOfTheWild
             arcanist_class.Progression = arcanist_progression;
 
             Helpers.RegisterClass(arcanist_class);
+
+            createArcanistFeats();
         }
 
 
-        static void createConsumeSpells()
+
+        static void createArcanistFeats()
+        {
+            extra_reservoir = Helpers.CreateFeature("ExtraReservoirFeature",
+                                                    "Extra Reservoir",
+                                                    "You gain three more points in your arcane reservoir, and the maximum number of points in your arcane reservoir increases by that amount.\n"
+                                                    + "You can take this feat multiple times. Its effects stack.",
+                                                    "",
+                                                    arcane_reservoir.Icon,
+                                                    FeatureGroup.Feat,
+                                                    Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = arcane_reservoir_resource; i.Value = 3; }),
+                                                    Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = arcane_reservoir_partial_resource; i.Value = 3; }),
+                                                    Helpers.PrerequisiteClassLevel(arcanist_class, 1)
+                                                    );
+
+            extra_reservoir.Ranks = 10;
+            library.AddFeats(extra_reservoir);
+
+            extra_arcane_exploit = library.CopyAndAdd<BlueprintFeatureSelection>(arcane_exploits.AssetGuid, "ExtraArcaneExploitFeature", "");
+            extra_arcane_exploit.SetNameDescription("Extra Arcanist Exploit",
+                                                   "You gain one additional arcanist exploit. You must meet the prerequisites for this arcanist exploit.\n"
+                                                   + "Special: You can take this feat multiple times. Each time you do, you gain another arcanist exploit.");
+            extra_arcane_exploit.AddComponent(Helpers.PrerequisiteClassLevel(arcanist_class, 1));
+            extra_arcane_exploit.Ranks = 10;
+            library.AddFeats(extra_arcane_exploit);
+        }
+
+
+        static void createConsumeSpellsAndSwiftConsume()
         {
             var icon = library.Get<BlueprintFeature>("bfbaa0dd74b9909459e462cd8b091177").Icon;
             var resource = Helpers.CreateAbilityResource("ConsumeSpellsResource", "", "", "", null);
@@ -177,6 +214,16 @@ namespace CallOfTheWild
                                                    Helpers.CreateAddAbilityResource(resource),
                                                    Helpers.Create<NewMechanics.SpontaneousSpellConversionForSpellbook>(s => { s.spellbook = arcanist_spellbook; s.SpellsByLevel = consume_abilities.ToArray(); })
                                                    );
+
+
+            swift_consume = Helpers.CreateFeature("SwiftConsumeExploitFeature",
+                                                  "Swift Consume",
+                                                  "The arcanist can use the consume spells class feature or the consume magic items exploit as swift actions instead of as move actions.",
+                                                  "",
+                                                  null,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<TurnActionMechanics.UseAbilitiesAsSwiftAction>(u => u.abilities = consume_abilities.ToArray())
+                                                  );
         }
 
 
@@ -186,7 +233,7 @@ namespace CallOfTheWild
             arcane_reservoir_resource.SetIncreasedByLevel(3, 1, getArcanistArray());
 
 
-            var arcane_reservoir_partial_resource = Helpers.CreateAbilityResource("ArcaneReservoirPartialResource", "", "", "", null);
+            arcane_reservoir_partial_resource = Helpers.CreateAbilityResource("ArcaneReservoirPartialResource", "", "", "", null);
             arcane_reservoir_partial_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getArcanistArray());
             arcane_reservoir_resource.AddComponent(Helpers.Create<ResourceMechanics.FakeResourceAmountFullRestore>(f => f.fake_resource = arcane_reservoir_partial_resource));
 
@@ -295,8 +342,9 @@ namespace CallOfTheWild
 
             createArcanistSpellCasting();
             createArcaneReservoirAndPotentMagic();
-            createConsumeSpells();
+            createConsumeSpellsAndSwiftConsume();
             createArcaneExploits();
+            createMagicalSupremacy();
 
             arcanist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, arcanist_proficiencies, detect_magic, arcanist_cantrips, 
                                                                                         arcanist_spellcasting,
@@ -324,14 +372,41 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(17, arcane_exploits),
                                                                     Helpers.LevelEntry(18),
                                                                     Helpers.LevelEntry(19, arcane_exploits),
-                                                                    Helpers.LevelEntry(20)
+                                                                    Helpers.LevelEntry(20, magical_supremacy)
                                                                     };
 
             arcanist_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { arcanist_proficiencies, detect_magic, arcanist_cantrips, arcanist_spellcasting };
 
-            arcanist_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(arcane_reservoir, greater_arcane_exploits),
+            arcanist_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(arcane_reservoir, greater_arcane_exploits, magical_supremacy),
                                                             Helpers.CreateUIGroup(arcane_exploits)
                                                            };
+        }
+
+
+        static void createMagicalSupremacy()
+        {
+            var buff = Helpers.CreateBuff("MagicalSupremacyBuff",
+                                          "Magical Supremacy",
+                                          "At 20th level, the arcanist learns how to convert her arcane reservoir into spells and back again. She can cast any spell she has prepared by expending a number of points from her arcane reservoir equal to 1 + the level of the spell to be cast instead of expending a spell slot. When she casts a spell in this fashion, she treats her caster level as 2 higher than normal, and the DCs of any saving throws associated with the spell increase by 2. She cannot further expend points from her arcane reservoir to enhance a spell cast in this way.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/MagicalSupremacy.png"),
+                                          null,
+                                          Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m => { m.resource = arcane_reservoir_resource; m.bonus = 2; })
+                                          );
+            var ability = Helpers.CreateActivatableAbility("MagicalSupremacyActivatableAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(arcane_reservoir_resource, ResourceSpendType.Never)
+                                                           );
+            ability.DeactivateImmediately = true;
+            ability.Group = ActivatableAbilityGroupExtension.ArcanistArcaneReservoirSpellboost.ToActivatableAbilityGroup();
+            magical_supremacy = Common.ActivatableAbilityToFeature(ability, false);
         }
 
 
@@ -383,12 +458,168 @@ namespace CallOfTheWild
             createLightningLanceAndDancingElectricity();
             createMetamagicKnowledgeAndGreaterMetamgicKnowledge();
             createMetamixing();
-
+            createSonicBlast();
+            createSpellResistanceAndSpellResistanceGreater();
+            createWoodenFlesh();
+            
             arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
-                                                                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing,
-                                                                 energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge};
+                                                                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing, sonic_blast, swift_consume,
+                                                                 spell_resistance, wooden_flesh,
+                                                                 energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge,
+                                                                 greater_spell_resistance};
         }
 
+
+        static void createWoodenFlesh()
+        {
+            var icon = library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553").Icon; //barksin
+
+            var buff = Helpers.CreateBuff("WoodenFleshExploitBuff",
+                                          "Wooden Flesh",
+                                          "The arcanist infuses herself with the toughness of the plant life that she studies.The arcanist can spend 1 point from her arcane reservoir to gain a + 2 natural armor bonus and DR / slashing equal to her Charisma modifier(minimum 1) for 1 minute per arcanist level.While this ability is in effect, she counts as both her original creature type and a plant creature for the purpose of abilities and spells.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
+                                          Common.createContextFormDR(Helpers.CreateContextValue(AbilityRankType.Default), PhysicalDamageForm.Slashing),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1),
+                                          Helpers.CreateAddFact(Common.plant)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+
+            var ability = Helpers.CreateAbility("WoodenFleshExploitAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "Charisma modifier minutes (minimum 1)",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553").GetComponent<AbilitySpawnFx>(),
+                                                Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            wooden_flesh = Common.AbilityToFeature(ability, false);
+        }
+
+
+        static void createSpellResistanceAndSpellResistanceGreater()
+        {
+            var icon = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889").Icon; //spell resistance
+            spell_resistance = Helpers.CreateFeature("SpellResistanceExploitFeature",
+                                                     "Spell Resistance",
+                                                     "The arcanist can grant herself spell resistance for a number of minutes equal to her Charisma modifier (minimum 1) as a standard action by expending 1 point from her arcane reservoir. This spell resistance is equal to 6 + her arcanist level.",
+                                                     "",
+                                                     icon,
+                                                     FeatureGroup.None);
+
+            greater_spell_resistance = Helpers.CreateFeature("GreaterSpellResistanceExploitFeature",
+                                                             "Greater Spell Resistance",
+                                                             "Whenever the arcanist uses the spell resistance exploit, the spell resistance is equal to 11 + the arcanist’s level. The arcanist must have the spell resistance exploit to select this exploit.",
+                                                             "",
+                                                             null,
+                                                             FeatureGroup.None,
+                                                             Helpers.PrerequisiteFeature(greater_arcane_exploits),
+                                                             Helpers.PrerequisiteFeature(spell_resistance));
+
+            var buff = Helpers.CreateBuff("SpellResistanceExploitBuff",
+                                          spell_resistance.Name,
+                                          spell_resistance.Description,
+                                          "",
+                                          spell_resistance.Icon,
+                                          null,
+                                          Helpers.Create<AddSpellResistance>(a => a.Value = Helpers.CreateContextValue(AbilitySharedValue.StatBonus)),
+                                          Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.One,
+                                                                                                            Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                            Helpers.CreateContextValue(AbilityRankType.Default)
+                                                                                                            ),
+                                                                             sharedValue: AbilitySharedValue.StatBonus
+                                                                            ),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray()),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, type: AbilityRankType.StatBonus,
+                                                                          featureList: new BlueprintFeature[] { spell_resistance, greater_spell_resistance },
+                                                                          progression: ContextRankProgression.Custom,
+                                                                          customProgression: new (int, int)[2] { (1, 6), (2, 11) }
+                                                                          )
+                                         );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+            var ability = Helpers.CreateAbility("SpellResistanceExploitAbility",
+                                                spell_resistance.Name,
+                                                spell_resistance.Description,
+                                                "",
+                                                icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "Charisma modifier minutes (minimum 1)",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889").GetComponent<AbilitySpawnFx>(),
+                                                Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            spell_resistance.AddComponent(Helpers.CreateAddFact(ability));
+        }
+
+
+
+
+
+        static void createSonicBlast()
+        {
+            var icon = library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").Icon; //ear-piercing scream
+
+            var spell_failure = library.Get<BlueprintBuff>("ea5e7aad3f271b941abcdcd9814ddbe3").GetComponent<AddSpellFailureChance>().CreateCopy();
+            spell_failure.Chance = 20;
+
+            var buff = Helpers.CreateBuff("DeafenedBuff",
+                                          "Deafened",
+                                          " deafened character cannot hear. He takes a –4 penalty on initiative checks, automatically fails Perception checks based on sound, takes a –4 penalty on opposed Perception checks, and has a 20% chance of spell failure when casting spells with verbal components.",
+                                          "",
+                                          icon,
+                                          null,
+                                          spell_failure,
+                                          Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.Other),
+                                          Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.Other)
+                                          );
+
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic,
+                                     Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
+            var extra_effect = Helpers.CreateConditionalSaved(null, apply_buff);
+
+            var sonic_blast_ability = Helpers.CreateAbility("SonicBlastExploitAbility",
+                                                        "Sonic Blast",
+                                                        "The arcanist can loose a deafening blast of sonic energy by expending 1 point from her arcane reservoir at any one target within close range. The blast deals an amount of sonic damage equal to 1d6 + the arcanist’s Charisma modifier, plus an additional 1d6 points of sonic damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target is also deafened for 1 minute. The target can attempt a Fortitude save to halve the damage and negate the deafness.",
+                                                        "",
+                                                        icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Close,
+                                                        "",
+                                                        "Fortitude partial",
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
+                                                        Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = new BlueprintFact[] { energy_absorption_buffs[DamageEnergyType.Sonic] }),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic),
+                                                        library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").GetComponent<AbilitySpawnFx>(),
+                                                        Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Sonic]))))
+                                                        );
+            sonic_blast_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            sonic_blast = Common.AbilityToFeature(sonic_blast_ability, false);
+        }
 
         static void createMetamixing()
         {
@@ -432,7 +663,7 @@ namespace CallOfTheWild
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity,
                                                  Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             var outgoing_concealement_buff = Helpers.CreateBuff("LightningLanceBuff",
-                                                                "Lightning Lance Buff",
+                                                                "Lightning Lance",
                                                                 "The arcanist can unleash a lance of lightning by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of electricity damage + the arcanist’s Charisma modifier, plus 1d6 points of electricity damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target’s vision is also impaired, causing the target to treat all creatures as if they had concealment (20%) for 1 round. It can attempt a Fortitude saving throw to negate the impaired vision.",
                                                                 "",
                                                                 library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f").Icon, //air domain base ability
@@ -627,7 +858,7 @@ namespace CallOfTheWild
                                                         "",
                                                         Helpers.reflexHalfDamage,
                                                         Helpers.CreateResourceLogic(arcane_reservoir_resource),
-                                                        library.Get<BlueprintAbility>("3bbc16ca68378af4f88d33dbd364a9d9").GetComponent<AbilityDeliverProjectile>(), //charged water torrent
+                                                        library.Get<BlueprintAbility>("93cc42235edc6824fa7d54b83ed4e1fe").GetComponent<AbilityDeliverProjectile>(), // water torrent
                                                         Helpers.CreateRunActions(SavingThrowType.Reflex, damage),
                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
@@ -724,6 +955,7 @@ namespace CallOfTheWild
             familiar.SetDescription("An arcanist with this exploit can acquire a familiar as the arcane bond wizard class feature.");
             familiar.DlcType = DlcType.None;
             familiar.IsClassFeature = false;
+            familiar.AddComponent(Helpers.PrerequisiteNoFeature(familiar));
         }
 
 
