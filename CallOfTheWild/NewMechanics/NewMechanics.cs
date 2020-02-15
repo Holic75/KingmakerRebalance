@@ -1675,7 +1675,7 @@ namespace CallOfTheWild
                 {
                     if (ability.Caster.Buffs.HasFact(f))
                     {
-                        cost--;
+                        cost-= ability.Caster.Buffs.GetFact(f).GetRank();
                     }
                 }
 
@@ -1683,7 +1683,7 @@ namespace CallOfTheWild
                 {
                     if (ability.Caster.Buffs.HasFact(f))
                     {
-                        cost++;
+                        cost+= ability.Caster.Buffs.GetFact(f).GetRank();
                     }
                 }
 
@@ -3499,7 +3499,7 @@ namespace CallOfTheWild
 
 
 
-        public class ActionOnSpellDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        public class ActionOnSpellDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
         {
             public ActionList action;
             public int min_dmg = 1;
@@ -3519,6 +3519,41 @@ namespace CallOfTheWild
                 /*if (!this.action.HasActions)
                     return;
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, target);*/
+            }
+        }
+
+
+        public class ActionOnDamageAbsorbed : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
+        {
+            public ActionList action;
+            public int min_dmg = 1;
+            public DamageEnergyType energy;
+
+            public void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleDealDamage evt)
+            {
+                var original_damage = 0;
+                if (evt.IgnoreDamageReduction)
+                {
+                    return;
+                }
+                foreach (var d in evt.ResultDamage)
+                {
+                    var energy_damage = (d.Source as EnergyDamage);
+                    if (energy_damage == null || energy_damage.EnergyType != energy)
+                    {
+                        continue;
+                    }
+                    original_damage += (d.ValueWithoutReduction - d.FinalValue);
+                }
+
+                if (original_damage > min_dmg)
+                {
+                    (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
+                }
             }
         }
 

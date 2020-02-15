@@ -70,6 +70,9 @@ namespace CallOfTheWild
         
         static public BlueprintFeature arcane_weapon;
         static public ActivatableAbilityGroup arcane_weapon_group = ActivatableAbilityGroupExtension.ArcanistArcaneWeapon.ToActivatableAbilityGroup();
+        static public BlueprintFeature energy_shield;
+        static public BlueprintFeature energy_absorption;
+        static public Dictionary<DamageEnergyType, BlueprintBuff> energy_absorption_buffs = new Dictionary<DamageEnergyType, BlueprintBuff>();
 
 
         internal static void createArcanistClass()
@@ -332,14 +335,16 @@ namespace CallOfTheWild
                                                              "",
                                                              greater_icon,
                                                              FeatureGroup.None);
-            createQuickStudy();
-            createAcidJetAndLingeringAcid();
+            createQuickStudy();           
             createArcaneBarrier();
             createArcaneWeapon();
+            createEnergyShieldAndEnergyAbsorption();
+
+            createAcidJetAndLingeringAcid();
 
 
-            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, arcane_barrier, arcane_weapon, acid_jet,
-                                                                   lingering_acid};
+            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, arcane_barrier, arcane_weapon, acid_jet, energy_shield,
+                                                                   energy_absorption, lingering_acid};
         }
 
 
@@ -361,12 +366,14 @@ namespace CallOfTheWild
                                                         AbilityRange.Close,
                                                         "",
                                                         "Fortitude partial",
-                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource),
+                                                        Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
+                                                        Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = new BlueprintFact[] {energy_absorption_buffs[DamageEnergyType.Acid]}),
                                                         acid_arrow.GetComponent<AbilityDeliverProjectile>(),
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
                                                         Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
-                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0) //extra damage
+                                                        Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma)
                                                         );
             acid_jet_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             acid_jet = Common.AbilityToFeature(acid_jet_ability);
@@ -425,7 +432,80 @@ namespace CallOfTheWild
 
             lingering_acid.AddComponent(Helpers.CreateAddFact(lingering_acid));
         }
-            
+
+
+        static void createEnergyShieldAndEnergyAbsorption()
+        {
+            energy_absorption = Helpers.CreateFeature("EnergyAbsorptionExploitFeature",
+                                                      "Energy Absorption",
+                                                      "Whenever the arcanist is using the energy shield exploit, and the shield prevents 10 or more points of damage, she can absorb a portion of that energy and use it to fuel her exploits. After absorbing the damage, she can use any exploit that deals the same type of energy damage as the type her shield absorbed, reducing the cost to her arcane reservoir by 1 point. She must use this energy within 1 minute or it is lost. The arcanist does not gain more than one such use of energy per round, and she cannot store more than one use of this energy at a time. The arcanist must have the energy shield exploit to select this exploit.",
+                                                      "",
+                                                      library.Get<BlueprintActivatableAbility>("1452fb3e0e3e2f6488bee09050097b6f").Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.PrerequisiteFeature(greater_arcane_exploits)
+                                                      );
+
+            var resist_energy_base = library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b");
+
+            var resist_variants = resist_energy_base.Variants;
+            var energy = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Electricity, DamageEnergyType.Fire, DamageEnergyType.Sonic };
+
+            BlueprintAbility[] energy_shield_variants = new BlueprintAbility[energy.Length];
+
+            for (int i = 0; i < energy_shield_variants.Length; i++)
+            {
+                var absorption_buff = Helpers.CreateBuff("EnergyAbsorptionExploit" + energy[i].ToString() + "Buff",
+                                                         "Energy Absorption: " + energy[i].ToString(),
+                                                         energy_absorption.Description,
+                                                         "",
+                                                         energy_absorption.Icon,
+                                                         null);
+                energy_absorption_buffs.Add(energy[i], absorption_buff);
+                var apply_absorption_buff = Common.createContextActionApplyBuff(absorption_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
+
+                var buff = Helpers.CreateBuff("EnergyShieldExploit" + energy[i].ToString() + "Buff",
+                                              "Energy Shield: " + energy[i].ToString(),
+                                              "The arcanist can protect herself from energy damage as a standard action by expending 1 point from her arcane reservoir. She must pick one energy type and gains resistance 10 against that energy type for 1 minute per arcanist level. This protection increases by 5 for every 5 levels the arcanist possesses (up to a maximum of 30 at 20th level).",
+                                              "",
+                                              resist_variants[i].Icon,
+                                              null,
+                                              Common.createEnergyDRContextRank(energy[i], AbilityRankType.Default, 5),
+                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                               startLevel: -5, stepLevel: 5, max: 6, classes: getArcanistArray()),
+                                              Helpers.Create<NewMechanics.ActionOnDamageAbsorbed>(a =>
+                                              {
+                                                  a.min_dmg = 10;
+                                                  a.energy = energy[i];
+                                                  a.action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionHasFact(energy_absorption), apply_absorption_buff));
+                                              })
+                                              );
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+                energy_shield_variants[i] = Helpers.CreateAbility("EnergyShieldExploit" + energy[i].ToString() + "Ability",
+                                                                  buff.Name,
+                                                                  buff.Description,
+                                                                  "",
+                                                                  buff.Icon,
+                                                                  AbilityType.Supernatural,
+                                                                  CommandType.Standard,
+                                                                  AbilityRange.Personal,
+                                                                  "1 minute/ arcanist level",
+                                                                  "",
+                                                                  Helpers.CreateRunActions(apply_buff),
+                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray()),
+                                                                  resist_variants[i].GetComponent<AbilitySpawnFx>(),
+                                                                  Helpers.CreateResourceLogic(arcane_reservoir_resource)
+                                                                  );
+                energy_shield_variants[i].setMiscAbilityParametersSelfOnly();
+            }
+
+            var energy_shield_wrapper = Common.createVariantWrapper("EnergyShieldExploitAbility", "", energy_shield_variants);
+            energy_shield_wrapper.SetName("Energy Shield");
+
+            energy_shield = Common.AbilityToFeature(energy_shield_wrapper);
+            energy_absorption.AddComponent(Helpers.PrerequisiteFeature(energy_shield));
+        }
+
 
 
         static void createArcaneWeapon()
@@ -527,7 +607,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateAddFacts(arcane_weapon_ability, flaming, frost, shock, keen)
                                                    );
 
-            var arcane_weapon2 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement2Featuree",
+            var arcane_weapon2 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement2Feature",
                                                         "Arcane Weapon +2",
                                                         arcane_weapon_ability.Description,
                                                         "",
@@ -535,7 +615,7 @@ namespace CallOfTheWild
                                                         FeatureGroup.None,
                                                         Common.createIncreaseActivatableAbilityGroupSize(arcane_weapon_group)
                                                         );
-            var arcane_weapon3 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement3Featuree",
+            var arcane_weapon3 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement3Feature",
                                             "Arcane Weapon +3",
                                             arcane_weapon_ability.Description,
                                             "",
@@ -545,7 +625,7 @@ namespace CallOfTheWild
                                             Common.createIncreaseActivatableAbilityGroupSize(arcane_weapon_group)
                                             );
 
-            var arcane_weapon4 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement4Featuree",
+            var arcane_weapon4 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement4Feature",
                                 "Arcane Weapon +4",
                                 arcane_weapon_ability.Description,
                                 "",
@@ -597,7 +677,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(apply_buff, apply_cost_buff),
                                                 library.Get<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445").GetComponent<AbilitySpawnFx>(),
                                                 Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
-                                                Helpers.Create<ResourceMechanics.ResourceCostFromBuffRank>(r => { r.buff = arcane_barrier_cost_buff; r.base_value = 1; }),
+                                                Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => { r.cost_increasing_facts = new BlueprintFact[] { arcane_barrier_cost_buff }; }),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray())
                                                 );
             ability.setMiscAbilityParametersSelfOnly();

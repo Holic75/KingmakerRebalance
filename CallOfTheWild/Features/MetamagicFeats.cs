@@ -139,7 +139,7 @@ namespace CallOfTheWild
             var max_level = new string[] { "3rd", "6th", "9th " };
 
             var metamagic = feature.GetComponent<AddMetamagicFeat>().Metamagic;
-            var metamagic_cost = MetamagicHelper.DefaultCost(metamagic);
+            var metamagic_cost = calculateNewMetamagicCost(metamagic);
 
             string[] prototype_guids = new string[] {"1e7a5a4d257cf434a87e687c9ee7a872", "a02f06b63af839a448147dadff3724f2", "a02f06b63af839a448147dadff3724f2" };
 
@@ -435,13 +435,36 @@ namespace CallOfTheWild
                 __result = value;
                 bool intensified_allowed = Helpers.GetField<BlueprintFeature>(__instance, "m_Feature") == intensified_metamagic && intensify_watcher != 0;
                 if (Helpers.GetField<bool>(__instance, "m_UseMin"))
-                    __result = Math.Max(value, Helpers.GetField<int>(__instance, "m_Min"));
+                    __result = Math.Max(__result, Helpers.GetField<int>(__instance, "m_Min"));
                 if (Helpers.GetField<bool>(__instance, "m_UseMax"))
-                    __result = Math.Min(value, Helpers.GetField<int>(__instance, "m_Max") + (intensified_allowed ? intensify_watcher : 0));
+                    __result = Math.Min(__result, Helpers.GetField<int>(__instance, "m_Max") + (intensified_allowed ? intensify_watcher : 0));
 
                 return false;
             }
         }
+
+
+        static int calculateNewMetamagicCost(Metamagic metamagic)
+        {
+            switch ((MetamagicExtender)metamagic)
+            {
+                case MetamagicExtender.Dazing:
+                    return 3;
+                case MetamagicExtender.Persistent:
+                    return 2;
+                case MetamagicExtender.Rime:
+                case MetamagicExtender.Toppling:
+                case MetamagicExtender.Intensified:
+                case MetamagicExtender.ElementalFire:
+                case MetamagicExtender.ElementalCold:
+                case MetamagicExtender.ElementalElectricity:
+                case MetamagicExtender.ElementalAcid:
+                case MetamagicExtender.Selective:
+                    return 1;
+            }
+            return 0;
+        }
+
 
         [Harmony12.HarmonyPatch(typeof(MetamagicHelper))]
         [Harmony12.HarmonyPatch("DefaultCost", Harmony12.MethodType.Normal)]
@@ -514,14 +537,15 @@ namespace CallOfTheWild
                 if (__instance.Initiator.Descriptor.State.IsDead)
                     return;
 
-                var ability = __instance.Reason?.Ability;
+                var context2 = __instance.Reason?.Context;
+                //var ability = __instance.Reason?.;
 
-                if (ability == null)
+                if (context2 == null)
                 {
                     return;
                 }
 
-                if (!ability.HasMetamagic((Metamagic)MetamagicExtender.Persistent))
+                if (!context2.HasMetamagic((Metamagic)MetamagicExtender.Persistent))
                 {
                     return;
                 }
