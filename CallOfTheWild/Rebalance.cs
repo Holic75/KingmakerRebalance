@@ -709,6 +709,17 @@ namespace CallOfTheWild
         }
 
 
+        internal static void disallowMultipleFamiliars()
+        {
+            var familiar = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183");
+
+            foreach (var f in familiar.AllFeatures)
+            {
+               f.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(p => p.Features = familiar.AllFeatures.RemoveFromArray(f)));
+            }
+        }
+
+
         //forbid bard song overlap on bardic performance
         [Harmony12.HarmonyPatch(typeof(ActivatableAbility))]
         [Harmony12.HarmonyPatch("OnTurnOn", Harmony12.MethodType.Normal)]

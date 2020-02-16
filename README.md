@@ -3,12 +3,13 @@
 This is Pathfinder: Kingmaker mod.
 
 It introduces new classes:  
-- Hunter  with following archetypes: Divine Hunter, Forester and Feykiller,  
+- Hunter with following archetypes: Divine Hunter, Forester and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
+- Arcanist with following archetypes: School Savant, Blood Arcanist and Unlettered Arcanist,
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -80,7 +81,9 @@ New feats:
 - Spontaneous Metafocus,
 - Spell Perfection,
 - Mage's Tattoo,
-- Quicken Blessing.
+- Quicken Blessing,
+- Extra Reservoir,
+- Extra Exploit.
 
 New rage powers:
 - Terrifying Howl
@@ -127,7 +130,8 @@ New Wild Talents:
 
 Bloodline Mutations:
 - Blood Havoc,
-- Blood Intensity.
+- Blood Intensity,
+- Bloodline Familiar.
 
 
 New spells:

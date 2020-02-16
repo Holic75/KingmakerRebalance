@@ -102,6 +102,19 @@ namespace CallOfTheWild
         static public BlueprintFeature extra_reservoir;
         static public BlueprintFeatureSelection extra_arcane_exploit;
 
+        static public BlueprintArchetype school_savant_archetype;
+        static public BlueprintArchetype blood_arcanist_archetype;
+        static public BlueprintArchetype unlettered_arcanist_archetype;
+
+        static public BlueprintFeatureSelection school_focus;
+        static public BlueprintFeatureSelection bloodline_selection;
+        static public BlueprintSpellbook unlettered_arcanist_prepared_spellbook;
+        static public BlueprintSpellbook unlettered_arcanist_spontaneous_spellbook;
+        static public BlueprintFeature unlettered_arcanist_familiar;
+        static public BlueprintFeature unlettered_arcanist_spell_casting;
+        static public BlueprintFeature unlettered_arcanist_cantrips;
+
+        static public BlueprintBuff dc_buff, cl_buff;
 
         internal static void createArcanistClass()
         {
@@ -144,7 +157,196 @@ namespace CallOfTheWild
 
             Helpers.RegisterClass(arcanist_class);
 
+            createSchoolSavant();
+            createBloodArcanist();
+            createUnletteredArcanist();
+
+            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype };
             createArcanistFeats();
+            addToPrestigeClasses();
+        }
+
+
+        static void addToPrestigeClasses()
+        {
+            var dragon_disiciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, arcanist_class.Spellbook, "EldritchKnightArcanist",
+                                       Common.createPrerequisiteClassSpellLevel(arcanist_class, 3),
+                                       Common.prerequisiteNoArchetype(arcanist_class, unlettered_arcanist_archetype));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, arcanist_class.Spellbook, "ArcaneTricksterArcanist",
+                           Common.createPrerequisiteClassSpellLevel(arcanist_class, 2),
+                           Common.prerequisiteNoArchetype(arcanist_class, unlettered_arcanist_archetype));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, arcanist_class.Spellbook, "MysticTheurgeArcanist",
+                           Common.createPrerequisiteClassSpellLevel(arcanist_class, 2),
+                           Common.prerequisiteNoArchetype(arcanist_class, unlettered_arcanist_archetype));
+           /* Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, arcanist_class.Spellbook, "DragonDiscipleArcanist",
+                                       Common.createPrerequisiteClassSpellLevel(arcanist_class, 1),
+                                       Common.prerequisiteNoArchetype(arcanist_class, unlettered_arcanist_archetype));*/
+
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, unlettered_arcanist_archetype.ReplaceSpellbook, "EldritchKnightUnletteredArcanist",
+                           Common.createPrerequisiteClassSpellLevel(arcanist_class, 3),
+                           Common.createPrerequisiteArchetypeLevel(arcanist_class, unlettered_arcanist_archetype, 1));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, unlettered_arcanist_archetype.ReplaceSpellbook, "ArcaneTricksterUnletteredArcanist",
+                           Common.createPrerequisiteClassSpellLevel(arcanist_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(arcanist_class, unlettered_arcanist_archetype, 1));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, unlettered_arcanist_archetype.ReplaceSpellbook, "MysticTheurgeUnletteredArcanist",
+                           Common.createPrerequisiteClassSpellLevel(arcanist_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(arcanist_class, unlettered_arcanist_archetype, 1));
+
+            /*var allowed_bloodlines = dragon_disiciple.GetComponent<PrerequisiteMechanics.PrerequsiteOrAlternative>().alternative_prerequsite;
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, unlettered_arcanist_archetype.ReplaceSpellbook, "DragonDiscipleUnletteredArcanist",
+                           Common.createPrerequisiteClassSpellLevel(arcanist_class, 1),
+                           Common.createPrerequisiteArchetypeLevel(arcanist_class, unlettered_arcanist_archetype, 1),
+                           allowed_bloodlines);
+
+            dragon_disiciple.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                                                                        {
+                                                                                                            p.base_prerequsite = Common.prerequisiteNoArchetype(arcanist_class, unlettered_arcanist_archetype);
+                                                                                                            p.alternative_prerequsite = allowed_bloodlines;
+                                                                                                        }
+                                                                                                        )
+                                         );
+
+            //allow arcanist to qualify for dragon disciple
+            var prereq_spontaneous = dragon_disiciple.GetComponent<PrerequisiteCasterTypeSpellLevel>();
+            dragon_disiciple.ReplaceComponent(prereq_spontaneous,
+                                              Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                                                                              {
+                                                                                                                  p.base_prerequsite = prereq_spontaneous;
+                                                                                                                  p.alternative_prerequsite = Helpers.PrerequisiteClassLevel(arcanist_class, 1);
+                                                                                                              }
+                                                                                                            )
+                                              );*/
+        }
+
+
+        static void createSchoolSavant()
+        {
+            school_savant_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SchoolSavantArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "School Savant");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some arcanists specialize in a school of magic and trade flexibility for focus. School savants are able to prepare more spells per day than typical arcanists, but their selection is more limited.");
+            });
+            Helpers.SetField(school_savant_archetype, "m_ParentClass", arcanist_class);
+            library.AddAsset(school_savant_archetype, "");
+
+            school_focus = library.CopyAndAdd<BlueprintFeatureSelection>("5f838049069f1ac4d804ce0862ab5110", "SchoolSavantSchoolFocusFeatureSelection", "");
+            school_focus.SetNameDescription("School Focus",
+                                            "At 1st level, a school savant chooses a school of magic. The arcanist gains the abilities granted by that school, as the arcane school class feature of the wizard, treating her arcanist level as her wizard level for these abilities. She can also further specialize by selecting a subschool. In addition, the arcanist can prepare one additional spell per day of each level she can cast, but this spell must be chosen from the selected school.\n"
+                                            + "Finally, the arcanist must select two additional schools of magic as her opposition schools. Whenever she prepares spells from one of her opposition schools, the spell takes up two of her prepared spell slots. ");
+            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[] { school_savant_archetype }, ClassToProgression.DomainSpellsType.SpecialList, school_focus);
+
+            school_savant_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits) };
+            school_savant_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_focus) };
+
+            var wizard_class = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = wizard_class));
+            arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(school_focus);
+            wizard_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
+        }
+
+
+        static void createBloodArcanist()
+        {
+            blood_arcanist_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "BloodArcanistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Blood Arcanist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Though most arcanists possess only a rudimentary innate arcane gift, the blood arcanist has the full power of a bloodline to draw upon.");
+            });
+            Helpers.SetField(blood_arcanist_archetype, "m_ParentClass", arcanist_class);
+            library.AddAsset(blood_arcanist_archetype, "");
+
+            bloodline_selection = library.CopyAndAdd<BlueprintFeatureSelection>("24bef8d1bee12274686f6da6ccbc8914", "BloodArcanistBloodlineSelectionFeatureSelection", "");
+            List<BlueprintFeature> bloodlines = new List<BlueprintFeature>();
+
+            bloodline_selection.SetNameDescription("Bloodline",
+                                            "A blood arcanist selects one bloodline from those available through the sorcerer bloodline class feature. The blood arcanist gains the bloodline arcana and bloodline powers of that bloodline, treating her arcanist level as her sorcerer level. The blood arcanist does not gain bonus feats, or bonus spells from her bloodline.");
+            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[] { blood_arcanist_archetype }, ClassToProgression.DomainSpellsType.NoSpells, bloodline_selection);
+
+            foreach (var b in bloodline_selection.AllFeatures)
+            {
+                bloodlines.Add(Common.removeEntriesFromProgression(b as BlueprintProgression, "Arcanist" + b.name, f => f.name.Contains("ClassSkill") || f.name.Contains("SpellLevel") || f.name.Contains("NewArcanaSelection")));
+            }
+            bloodline_selection.AllFeatures = bloodlines.ToArray();
+
+            blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits)};
+            blood_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection) };
+            arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(bloodline_selection);
+
+            var sorcerer_class = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            var magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
+            arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = sorcerer_class));
+            sorcerer_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
+            arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = magus));
+            magus.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
+        }
+
+
+        static void createUnletteredArcanist()
+        {
+            unlettered_arcanist_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "UnletteredArcanistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Unlettered Arcanist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some arcanists store their spells as whispered secrets within familiars instead of on paper.");
+            });
+            Helpers.SetField(unlettered_arcanist_archetype, "m_ParentClass", arcanist_class);
+            library.AddAsset(unlettered_arcanist_archetype, "");
+            unlettered_arcanist_familiar = library.CopyAndAdd<BlueprintFeature>(familiar.AssetGuid, "UnletteredArcanistFamiliar", "");
+            unlettered_arcanist_familiar.SetDescription("An unlettered arcanist does not keep a spellbook. Instead, she gains a familiar in which she stores her spells as a witch does, though she does not gain a witch’s patron. Treat her arcanist level as her witch level for determining the abilities and benefits granted by the familiar. Anything that would allow an unlettered arcanist to add spells to her spellbook allows her to add spells to her familiar instead.");
+            familiar.AddComponent(Common.prerequisiteNoArchetype(arcanist_class, unlettered_arcanist_archetype));
+
+            createUnletteredArcanistSpellcasting();
+
+            unlettered_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcanist_cantrips, arcanist_spellcasting, consume_spells)};
+            unlettered_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, unlettered_arcanist_cantrips, unlettered_arcanist_spell_casting, consume_spells, unlettered_arcanist_familiar) };
+            arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(unlettered_arcanist_cantrips, unlettered_arcanist_spell_casting, unlettered_arcanist_familiar);
+            unlettered_arcanist_archetype.ReplaceSpellbook = unlettered_arcanist_prepared_spellbook;
+        }
+
+
+        static void createUnletteredArcanistSpellcasting()
+        {
+            unlettered_arcanist_prepared_spellbook = library.CopyAndAdd<BlueprintSpellbook>(memorization_spellbook.AssetGuid, "UnletteredArcanistPreparedSpellbook", "");
+
+            unlettered_arcanist_prepared_spellbook.Name = Helpers.CreateString("UnletteredArcanistPreparedSpellbook.Name", "Unlettered Arcanist (Prepared)");
+            unlettered_arcanist_prepared_spellbook.SpellList = Witch.witch_class.Spellbook.SpellList;
+
+            unlettered_arcanist_spontaneous_spellbook = library.CopyAndAdd<BlueprintSpellbook>(arcanist_spellbook.AssetGuid, "UnletteredArcanistSpontnaeousSpellbook", "");
+            unlettered_arcanist_spontaneous_spellbook.Name = Helpers.CreateString("UnletteredArcanistSpontnaeousSpellbook.Name", "Unlettered Arcanist (Spontaneous)");
+            unlettered_arcanist_spontaneous_spellbook.SpellList = unlettered_arcanist_prepared_spellbook.SpellList;
+
+            unlettered_arcanist_prepared_spellbook.ReplaceComponent<SpellbookMechanics.CompanionSpellbook>(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = unlettered_arcanist_spontaneous_spellbook));
+            unlettered_arcanist_spontaneous_spellbook.ReplaceComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(Helpers.Create<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(c => c.spellbook = unlettered_arcanist_prepared_spellbook));
+
+            dc_buff.AddComponents(Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = unlettered_arcanist_spontaneous_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = unlettered_arcanist_spontaneous_spellbook; s.resource = arcane_reservoir_resource; })
+                                  );
+            cl_buff.AddComponents(Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = unlettered_arcanist_spontaneous_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = unlettered_arcanist_spontaneous_spellbook; s.resource = arcane_reservoir_resource; })
+                                 );
+
+
+            unlettered_arcanist_spell_casting = Helpers.CreateFeature("WitchSpellsSpellCastingFeature",
+                                              "Witch Spells",
+                                              "An unlettered arcanist follows a different arcane tradition. She uses the witch spell list instead of the wizard/sorcerer spell list.",
+                                              "",
+                                              null,
+                                              FeatureGroup.None,
+                                              Helpers.Create<SpellManipulationMechanics.InitializeArcanistPart>(i => i.spellbook = unlettered_arcanist_spontaneous_spellbook)
+                                              );
+
+            var daze = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c");
+            unlettered_arcanist_cantrips = Common.createCantrips("UnletteredArcanistCantripsFeature",
+                                                                 "Cantrips",
+                                                                 "Unlettered arcanist uses witch cantrips.",
+                                                                 daze.Icon,
+                                                                 "532ce6fd6fad4e1d9316785bcc09b02f",
+                                                                 arcanist_class,
+                                                                 StatType.Intelligence,
+                                                                 Witch.witch_class.Spellbook.SpellList.SpellsByLevel[0].Spells.ToArray());
         }
 
 
@@ -212,7 +414,7 @@ namespace CallOfTheWild
                                                    icon,
                                                    FeatureGroup.None,
                                                    Helpers.CreateAddAbilityResource(resource),
-                                                   Helpers.Create<NewMechanics.SpontaneousSpellConversionForSpellbook>(s => { s.spellbook = arcanist_spellbook; s.SpellsByLevel = consume_abilities.ToArray(); })
+                                                   Helpers.Create<NewMechanics.SpontaneousSpellConversionForArcanistSpellbook>(s =>  s.SpellsByLevel = consume_abilities.ToArray())
                                                    );
 
 
@@ -257,7 +459,7 @@ namespace CallOfTheWild
                                                  FeatureGroup.None
                                                  );
 
-            var dc_buff = Helpers.CreateBuff("ArcaneReservoirSpellDCBuff",
+            dc_buff = Helpers.CreateBuff("ArcaneReservoirSpellDCBuff",
                                              "Spell DC Increase",
                                              "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
                                              "",
@@ -282,7 +484,7 @@ namespace CallOfTheWild
             arcane_reservoir_spell_dc_boost.DeactivateImmediately = true;
 
 
-            var cl_buff = Helpers.CreateBuff("ArcaneReservoirSpellCLBuff",
+            cl_buff = Helpers.CreateBuff("ArcaneReservoirSpellCLBuff",
                                  "Spell Caster Level Increase",
                                  "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
                                  "",
@@ -352,7 +554,7 @@ namespace CallOfTheWild
                                                                                         consume_spells,
                                                                                         arcane_exploits,
                                                                                         library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
-                                                                                        library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                                                        library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), //ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),//touch calculate feature};
                                                                     Helpers.LevelEntry(2),
                                                                     Helpers.LevelEntry(3, arcane_exploits),

@@ -186,6 +186,7 @@ namespace CallOfTheWild
                 }
             }
             dragon_disciple.AddComponent(Helpers.PrerequisiteNoFeature(non_dragon_bloodline));
+            
         }
 
         static void createBloodragerProgression()

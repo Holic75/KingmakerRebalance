@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.UnitLogic.Abilities;
@@ -24,6 +25,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature blood_havoc;
         static public BlueprintFeature blood_intensity;
+        static public BlueprintFeature bloodline_familiar;
 
         static internal void load()
         {
@@ -31,9 +33,37 @@ namespace CallOfTheWild
             fixBloodlinesUI();
             fixArcaneBloodline();
 
+            createBloodlineFamiliar();
             createBloodHavoc();
             createBloodIntensity();
             addBloodlineMutations();
+
+            fixDragonDisciplePrerequisites();
+        }
+
+
+        static void createBloodlineFamiliar()
+        {
+            bloodline_familiar = library.CopyAndAdd<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183", "BloodlineFamiliarFeatureSelection", "");
+            bloodline_familiar.SetNameDescription("Bloodline Familiar", "Those with an inherent connection to magic often attract creatures who feel a similar instinctive pull toward magical forces. At 1st level, a sorcerer, bloodrager or any other class with bloodline powers can choose to gain a bloodline familiar instead of 1st-level bloodline power.");
+            bloodline_familiar.Groups = new FeatureGroup[0];
+            bloodline_familiar.ComponentsArray = new BlueprintComponent[0];
+        }
+
+
+        static void fixDragonDisciplePrerequisites()
+        {
+            var dragon_disiciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+
+            var no_sorc = dragon_disciple.GetComponent<PrerequisiteNoFeature>();
+            var allowed_bloodlines = dragon_disciple.GetComponent<PrerequisiteFeaturesFromList>();
+
+            no_sorc.Group = Prerequisite.GroupType.All;
+            allowed_bloodlines.Group = Prerequisite.GroupType.All;
+            dragon_disciple.RemoveComponent(no_sorc);
+            dragon_disciple.RemoveComponent(allowed_bloodlines);
+            dragon_disciple.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p => { p.base_prerequsite = no_sorc; p.alternative_prerequsite = allowed_bloodlines; }));
+
         }
 
 
@@ -197,7 +227,7 @@ namespace CallOfTheWild
                                                                "",
                                                                ability1.Icon,
                                                                FeatureGroup.None);
-                selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc };
+                selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc, bloodline_familiar };
 
                 var selection3 = Helpers.CreateFeatureSelection(ability3.name + "Selection",
                                                ability3.Name,
@@ -218,8 +248,21 @@ namespace CallOfTheWild
 
             foreach (var b in Bloodrager.bloodlines.Values)
             {
+                var ability0 = b.progression.LevelEntries[0].Features[0] as BlueprintFeature;
                 var ability1 = b.progression.LevelEntries[1].Features[0] as BlueprintFeature;
                 var ability2 = b.progression.LevelEntries[3].Features[0] as BlueprintFeature;
+
+                var selection0 = Helpers.CreateFeatureSelection(ability0.name + "Selection",
+                                               ability0.Name,
+                                               ability0.Description,
+                                               "",
+                                               ability0.Icon,
+                                               FeatureGroup.None);
+                selection0.AllFeatures = new BlueprintFeature[] { ability0, bloodline_familiar };
+                b.progression.UIGroups[0].Features.Remove(ability0);
+                b.progression.UIGroups[0].Features.Add(selection0);
+                b.progression.LevelEntries[0].Features.Remove(ability0);
+                b.progression.LevelEntries[0].Features.Add(selection0);
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,
@@ -239,7 +282,7 @@ namespace CallOfTheWild
                                                "",
                                                ability2.Icon,
                                                FeatureGroup.None);
-                selection.AllFeatures = new BlueprintFeature[] { ability2, blood_intensity };
+                selection.AllFeatures = new BlueprintFeature[] { ability2, blood_intensity};
                 b.progression.UIGroups[0].Features.Remove(ability2);
                 b.progression.UIGroups[0].Features.Add(selection2);
                 b.progression.LevelEntries[3].Features.Remove(ability2);

@@ -181,6 +181,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixArchonsAuraToEffectOnlyEnemies();
                     CallOfTheWild.Rebalance.fixDruidDomainUi();
                     CallOfTheWild.Rebalance.fixLethalStance();
+                    CallOfTheWild.Rebalance.disallowMultipleFamiliars();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
@@ -200,9 +201,6 @@ namespace CallOfTheWild
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
                     
-
-
-
 
                     bool inquisitions_test = false;
 #if DEBUG
@@ -231,14 +229,18 @@ namespace CallOfTheWild
                     CallOfTheWild.Skald.createSkaldClass();
 
                     CallOfTheWild.Archetypes.StormDruid.create();
-                    CallOfTheWild.Shaman.createShamanClass();
+                    CallOfTheWild.Shaman.createShamanClass();                   
+                    CallOfTheWild.Bloodrager.createBloodragerClass();
+                    CallOfTheWild.BloodlinesFix.load();
+                    CallOfTheWild.Archetypes.PrimalSorcerer.create();
                     CallOfTheWild.Arcanist.createArcanistClass();
 
                     CallOfTheWild.SharedSpells.load();
 
-                    CallOfTheWild.Bloodrager.createBloodragerClass();
+                    
                     CallOfTheWild.Warpriest.createWarpriestClass();
 
+                    
                     CallOfTheWild.Archetypes.Evangelist.create();
                     CallOfTheWild.NewFeats.load();
 
@@ -250,8 +252,8 @@ namespace CallOfTheWild
 
                     CallOfTheWild.KineticistFix.load();
                     CallOfTheWild.MysticTheurgeFix.load();
-                    CallOfTheWild.BloodlinesFix.load();
-                    CallOfTheWild.Archetypes.PrimalSorcerer.create();
+                    
+                    
 
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();

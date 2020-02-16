@@ -108,12 +108,6 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection MysticTheurgeDivineSpellbookSelection = Main.library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
         static LibraryScriptableObject library => Main.library;
 
-        public enum DomainSpellsType
-        {
-            NoSpells = 1,
-            SpecialList = 2,
-            NormalList = 3
-        }
 
         public struct SpellId
         {
@@ -1071,255 +1065,6 @@ namespace CallOfTheWild
             feat.ValueMultiplier = Common.createSimpleContextValue(multiplier);
             return feat;
         }
-
-
-        public static void addClassToDomains(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureSelection domain_selection)
-        {
-            var domains = domain_selection.AllFeatures;
-            foreach (var domain_feature in domains)
-            {
-
-                BlueprintProgression domain = (BlueprintProgression)domain_feature;
-                domain.Classes = domain.Classes.AddToArray(class_to_add);
-                domain.Archetypes = domain.Archetypes.AddToArray(archetypes_to_add);
-
-                foreach (var entry in domain.LevelEntries)
-                {
-                    foreach (var feat in entry.Features)
-                    {
-                        addClassToFeat(class_to_add, archetypes_to_add, spells_type, feat);
-                    }
-                }
-
-                var spell_list = domain.GetComponent<Kingmaker.UnitLogic.FactLogic.LearnSpellList>()?.SpellList;
-                if (spells_type == DomainSpellsType.NormalList && spell_list != null)
-                {
-                    if (archetypes_to_add.Empty())
-                    {
-                        var learn_spells_fact = Helpers.Create<Kingmaker.UnitLogic.FactLogic.LearnSpellList>();
-                        learn_spells_fact.SpellList = spell_list;
-                        learn_spells_fact.CharacterClass = class_to_add;
-                        domain.AddComponent(learn_spells_fact);
-
-                    }
-                    else
-                    {
-                        foreach (var ar_type in archetypes_to_add)
-                        {
-                            var learn_spells_fact = Helpers.Create<Kingmaker.UnitLogic.FactLogic.LearnSpellList>();
-                            learn_spells_fact.SpellList = spell_list;
-                            learn_spells_fact.CharacterClass = class_to_add;
-                            learn_spells_fact.Archetype = ar_type;
-                            domain.AddComponent(learn_spells_fact);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        static void addClassToContextRankConfig(BlueprintCharacterClass class_to_add, ContextRankConfig c)
-        {
-            BlueprintCharacterClass cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-            var classes = Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class");
-            if (classes.Contains(cleric_class))
-            {
-                classes = classes.AddToArray(class_to_add);
-                Helpers.SetField(c, "m_Class", classes);
-            }
-        }
-
-
-        static void addClassToAreaEffect(BlueprintCharacterClass class_to_add, Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect a)
-        {
-            var components = a.ComponentsArray;
-            foreach (var c in components)
-            {
-                if (c is ContextRankConfig)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
-                    addClassToContextRankConfig(class_to_add, c_typed);
-                }
-                else if (c is Kingmaker.UnitLogic.Abilities.Components.AreaEffects.AbilityAreaEffectBuff)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Abilities.Components.AreaEffects.AbilityAreaEffectBuff)c;
-                    addClassToBuff(class_to_add, c_typed.Buff);
-                }
-            }
-        }
-
-
-        static void addClassToBuff(BlueprintCharacterClass class_to_add, BlueprintBuff b)
-        {
-            var components = b.ComponentsArray;
-            foreach (var c in components)
-            {
-                if (c is ContextRankConfig)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
-                    addClassToContextRankConfig(class_to_add, c_typed);
-                }
-                else if (c is Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect)c;
-                    addClassToAreaEffect(class_to_add, c_typed.AreaEffect);
-                }
-                else if (c is NewMechanics.ContextCalculateAbilityParamsBasedOnClasses)
-                {
-                    (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses = (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses.AddToArray(class_to_add);
-                }
-            }
-        }
-
-
-        static void addClassToAbility(BlueprintCharacterClass class_to_add, BlueprintAbility a)
-        {
-            var components = a.ComponentsArray;
-            foreach (var c in components)
-            {
-                if (c is Kingmaker.UnitLogic.Abilities.Components.AbilityVariants)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Abilities.Components.AbilityVariants)c;
-                    foreach (var v in c_typed.Variants)
-                    {
-                        addClassToAbility(class_to_add, v);
-                    }
-                }
-                else if (c is Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
-                    addClassToContextRankConfig(class_to_add, c_typed);
-                }
-                else if (c is AbilityEffectRunAction)
-                {
-                    var c_typed = (AbilityEffectRunAction)c;
-                    foreach (var aa in c_typed.Actions.Actions)
-                    {
-                        if (aa == null)
-                        {
-                            continue;
-                        }
-                        if (aa is Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)
-                        {
-                            var aa_typed = (Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff)aa;
-                            addClassToBuff(class_to_add, aa_typed.Buff);
-                        }
-                    }
-                }
-                else if (c is NewMechanics.ContextCalculateAbilityParamsBasedOnClasses)
-                {
-                    (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses = (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses.AddToArray(class_to_add);
-                }
-
-            }
-        }
-
-
-        static void addClassToFact(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintUnitFact f)
-        {
-            if (f is Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility)
-            {
-                var f_typed = (Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility)f;
-                addClassToAbility(class_to_add, f_typed);
-            }
-            else if (f is Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility)
-            {
-                var f_typed = (Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility)f;
-                addClassToBuff(class_to_add, f_typed.Buff);
-            }
-        }
-
-
-        static void addClassToResource(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, BlueprintAbilityResource rsc)
-        {
-            BlueprintCharacterClass cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
-            var amount = ExtensionMethods.getMaxAmount(rsc);
-            var classes = Helpers.GetField<BlueprintCharacterClass[]>(amount, "Class");
-            var archetypes = Helpers.GetField<BlueprintArchetype[]>(amount, "Archetypes");
-
-            if (classes.Contains(cleric_class))
-            {
-                classes = classes.AddToArray(class_to_add);
-                archetypes = archetypes.AddToArray(archetypes_to_add);
-                Helpers.SetField(amount, "Class", classes);
-                Helpers.SetField(amount, "Archetypes", archetypes);
-                ExtensionMethods.setMaxAmount(rsc, amount);
-            }
-
-        }
-
-
-        static void addClassToFeat(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureBase feat)
-        {
-            foreach (var c in feat.ComponentsArray)
-            {
-                if (c is Kingmaker.Designers.Mechanics.Buffs.IncreaseSpellDamageByClassLevel)
-                {
-                    var c_typed = (Kingmaker.Designers.Mechanics.Buffs.IncreaseSpellDamageByClassLevel)c;
-                    c_typed.AdditionalClasses = c_typed.AdditionalClasses.AddToArray(class_to_add);
-                    c_typed.Archetypes = c_typed.Archetypes.AddToArray(archetypes_to_add);
-                }
-                else if (c is Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel)
-                {
-                    var c_typed = (Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel)c;
-                    if (c_typed.Feature.ComponentsArray.Length > 0
-                          && c_typed.Feature.ComponentsArray[0] is Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList)
-                    {
-                        if (spells_type == DomainSpellsType.SpecialList)
-                        {
-                            //TODO: will need to make a copy of feature and replace CharacterClass in component with class_to_add
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-                    c_typed.AdditionalClasses = c_typed.AdditionalClasses.AddToArray(class_to_add);
-                    c_typed.Archetypes = c_typed.Archetypes.AddToArray(archetypes_to_add);
-                    addClassToFeat(class_to_add, archetypes_to_add, spells_type, c_typed.Feature);
-                }
-                else if (c is Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList && spells_type == DomainSpellsType.SpecialList)
-                {
-                    /*var c_typed = (Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList)c;
-                    if (c_typed.CharacterClass != class_to_add)
-                    {
-                        var c2 = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddSpecialSpellList>();
-                        c2.CharacterClass = class_to_add;
-                        c2.SpellList = c_typed.SpellList;
-                        feat.AddComponent(c2);
-                    }*/
-                }
-                else if (c is Kingmaker.UnitLogic.FactLogic.AddFacts)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.FactLogic.AddFacts)c;
-                    foreach (var f in c_typed.Facts)
-                    {
-                        addClassToFact(class_to_add, archetypes_to_add, spells_type, f);
-                    }
-                }
-                else if (c is Kingmaker.Designers.Mechanics.Facts.AddAbilityResources)
-                {
-                    var c_typed = (Kingmaker.Designers.Mechanics.Facts.AddAbilityResources)c;
-                    addClassToResource(class_to_add, archetypes_to_add, c_typed.Resource);
-                }
-                else if (c is Kingmaker.Designers.Mechanics.Facts.FactSinglify)
-                {
-                    var c_typed = (Kingmaker.Designers.Mechanics.Facts.FactSinglify)c;
-                    foreach (var f in c_typed.NewFacts)
-                    {
-                        addClassToFact(class_to_add, archetypes_to_add, spells_type, f);
-                    }
-                }
-                else if (c is Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)
-                {
-                    var c_typed = (Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig)c;
-                    addClassToContextRankConfig(class_to_add, c_typed);
-                }
-
-
-            }
-        }
-
 
         static public Kingmaker.UnitLogic.FactLogic.AddConditionImmunity createAddConditionImmunity(UnitCondition condition)
         {
@@ -3560,6 +3305,44 @@ namespace CallOfTheWild
                 ability.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = alignment));
             }
             return ability;
+        }
+
+
+        static public BlueprintProgression removeEntriesFromProgression(BlueprintProgression progression, string name, Predicate<BlueprintFeatureBase> predicate)
+        {
+            List<LevelEntry> level_entries = new List<LevelEntry>();
+
+            var new_progression = Helpers.CreateProgression(name,
+                                                            progression.Name,
+                                                            progression.Description,
+                                                            "",
+                                                            progression.Icon,
+                                                            FeatureGroup.None);
+            new_progression.UIGroups = progression.UIGroups;
+            new_progression.UIDeterminatorsGroup = progression.UIDeterminatorsGroup;
+            new_progression.Groups = progression.Groups;
+
+            new_progression.Classes = progression.Classes;
+            new_progression.Archetypes = progression.Archetypes;
+            new_progression.HideInCharacterSheetAndLevelUp = progression.HideInCharacterSheetAndLevelUp;
+            new_progression.ComponentsArray = progression.ComponentsArray;
+
+            for (int i = 0; i < progression.LevelEntries.Length; i++)
+            {
+                var new_entry = Helpers.LevelEntry(progression.LevelEntries[i].Level);
+
+                foreach (var f in progression.LevelEntries[i].Features.ToArray())
+                {
+                    if (!predicate(f))
+                    {
+                        new_entry.Features.Add(f);
+                    }
+                }
+                level_entries.Add(new_entry);
+
+            }
+            new_progression.LevelEntries = level_entries.ToArray();
+            return new_progression;
         }
     }
 }

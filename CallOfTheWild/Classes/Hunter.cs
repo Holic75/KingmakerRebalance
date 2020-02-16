@@ -682,7 +682,7 @@ namespace CallOfTheWild
             var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             //add divine_hunter to all domains
             //this will make hunter receive all domain bonuses starting from level 1 which will be a bit stronger than pnp version, but way simpler to implement
-            Common.addClassToDomains(hunter_class, new BlueprintArchetype[] { divine_hunter_archetype }, Common.DomainSpellsType.NormalList, domain_selection);
+            ClassToProgression.addClassToDomains(hunter_class, new BlueprintArchetype[] { divine_hunter_archetype }, ClassToProgression.DomainSpellsType.NormalList, domain_selection);
             createOtherWordlyCompanion();
 
             divine_hunter_archetype.ClassSkills = hunter_class.ClassSkills.AddToArray(StatType.SkillLoreReligion);

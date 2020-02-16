@@ -152,6 +152,27 @@ namespace CallOfTheWild.SpellbookMechanics
         }
     }
 
+
+    //fix loading spell on arcanist
+    [Harmony12.HarmonyPatch(typeof(Spellbook))]
+    [Harmony12.HarmonyPatch("PostLoad", Harmony12.MethodType.Normal)]
+    class Spellbook__PostLoad__Patch
+    {
+        static void Postfix(Spellbook __instance, List<AbilityData>[] ___m_KnownSpells, Dictionary<BlueprintAbility, int> ___m_KnownSpellLevels)
+        {
+            for (int index = 0; index < ___m_KnownSpells.Length; ++index)
+            {
+                foreach (AbilityData abilityData in ___m_KnownSpells[index])
+                {
+                    if (abilityData.MetamagicData != null)
+                    {
+                        ___m_KnownSpellLevels[abilityData.Blueprint] = index - abilityData.MetamagicData.SpellLevelCost; 
+                    }
+                }
+            }
+        }
+    }
+
     //fix for spellbooks with fixed number of spells per day iindependent of casting stat
     [Harmony12.HarmonyPatch(typeof(Spellbook))]
     [Harmony12.HarmonyPatch("GetSpellsPerDay", Harmony12.MethodType.Normal)]

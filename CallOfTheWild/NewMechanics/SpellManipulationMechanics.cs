@@ -142,34 +142,33 @@ namespace CallOfTheWild
                 }
             }
 
-            public bool noCastingTimeIncreaseForMetamagic(BlueprintAbility ability, Metamagic metamagic)
+            public bool noCastingTimeIncreaseForMetamagic(BlueprintAbility ability, Metamagic metamagic, int additional_free_metamagic = 0)
             {
  
-                bool is_ok = noCastingTimeIncreaseForMetamagicInternal(ability, metamagic);
+                bool is_ok = noCastingTimeIncreaseForMetamagicInternal(ability, metamagic, additional_free_metamagic);
 
                 if (ability.Parent != null)
                 {
-                    is_ok = is_ok || noCastingTimeIncreaseForMetamagicInternal(ability.Parent, metamagic);
+                    is_ok = is_ok || noCastingTimeIncreaseForMetamagicInternal(ability.Parent, metamagic, additional_free_metamagic);
                 }
                 return is_ok;
             }
 
 
-            private bool noCastingTimeIncreaseForMetamagicInternal(BlueprintAbility ability, Metamagic metamagic)
+            private bool noCastingTimeIncreaseForMetamagicInternal(BlueprintAbility ability, Metamagic metamagic, int additional_free_metamagic)
             {
                 if (!prepared_spells_with_metamagic.ContainsKey(ability.AssetGuid))
                 {
                     return false;
                 }
 
-                if (!metamixingEnabled())
+                int free_metamagics = additional_free_metamagic;
+                if (metamixingEnabled())
                 {
-                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => m == metamagic);
+                    free_metamagics++;
                 }
-                else
-                {
-                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) <= 1);
-                }
+
+                return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) <= free_metamagics);
             }
 
 
@@ -375,7 +374,17 @@ namespace CallOfTheWild
                     return false;
                 }
                 int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)));
-                return metamagic_count <= max_metamagics;
+                if (metamagic_count <= max_metamagics)
+                {
+                    return true;
+                }
+
+                var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
+                if (arcanist_part != null && ability.Spellbook.Blueprint == arcanist_part.spellbook)
+                {
+                    return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics);
+                }
+                return false;
             }
         }
 
@@ -424,7 +433,18 @@ namespace CallOfTheWild
                 }
 
                // Main.logger.Log("Checking correct spell");
-                return ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
+                var allowed =  ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
+                if (allowed)
+                {
+                    return true;
+                }
+
+                var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
+                if (arcanist_part != null && ability.Spellbook.Blueprint == arcanist_part.spellbook)
+                {
+                    return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics);
+                }
+                return false;
             }
         }
 

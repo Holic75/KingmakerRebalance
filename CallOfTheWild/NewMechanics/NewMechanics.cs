@@ -5808,5 +5808,51 @@ namespace CallOfTheWild
                 this.Owner.DemandSpellbook(this.spellbook).RemoveSpellConversionList(this.SpellsByLevel);
             }
         }
+
+        [ComponentName("Spontaneous Spell Conversion to arcanist Spellbook")]
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnit))]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SpontaneousSpellConversionForArcanistSpellbook : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public BlueprintAbility[] SpellsByLevel;
+
+            public override void OnTurnOn()
+            {
+                this.Owner.DemandSpellbook(this.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>().spellbook).AddSpellConversionList(this.SpellsByLevel);
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.DemandSpellbook(this.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>().spellbook).RemoveSpellConversionList(this.SpellsByLevel);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IntenseSpellsForClasses : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public BlueprintCharacterClass[] classes;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                BaseDamage baseDamage = evt.DamageBundle.FirstOrDefault<BaseDamage>();
+                AbilityData ability = evt.Reason.Ability;
+                if (ability == (AbilityData)null || ability.Blueprint.School != SpellSchool.Evocation || baseDamage == null || evt.ParentRule.Projectile != null && !evt.ParentRule.Projectile.IsFirstProjectile)
+                    return;
+
+                var lvl = 0;
+                foreach (var c in classes)
+                {
+                    lvl += this.Owner.Progression.GetClassLevel(c);
+                }
+                int bonusDamage = Math.Max(lvl / 2, 1);
+                baseDamage.AddBonus(bonusDamage);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
     }
 }
