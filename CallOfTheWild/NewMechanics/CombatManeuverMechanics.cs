@@ -239,6 +239,45 @@ namespace CallOfTheWild.CombatManeuverMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SpecificCombatManeuverBonusUnlessHasFacts : RuleInitiatorLogicComponent<RuleCalculateCMB>
+    {
+        public ContextValue Value;
+        public CombatManeuver maneuver_type;
+        public static List<BlueprintUnitFact> facts = new List<BlueprintUnitFact>();
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                MechanicsContext context = (this.Fact as Buff)?.Context;
+                if (context != null)
+                    return context;
+                return (this.Fact as Feature)?.Context;
+            }
+        }
+
+        public override void OnEventAboutToTrigger(RuleCalculateCMB evt)
+        {
+            if (evt.Type == maneuver_type)
+            {
+                foreach (var f in facts)
+                {
+                    if (evt.Initiator.Descriptor.HasFact(f))
+                    {
+                        return;
+                    }
+                }
+                evt.AddBonus(this.Value.Calculate(this.Context), this.Fact);
+            }
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateCMB evt)
+        {
+        }
+    }
+
+
     public class ApplyBuffOnHit : GameLogicComponent, ITargetRulebookHandler<RuleAttackWithWeapon>, IRulebookHandler<RuleAttackWithWeapon>, IInitiatorRulebookSubscriber
     {
         public bool apply_to_ranged = false;

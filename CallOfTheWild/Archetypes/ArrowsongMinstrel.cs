@@ -170,7 +170,7 @@ namespace CallOfTheWild.Archetypes
             arcane_achery = Helpers.CreateFeature("ArrowsongMinstrelArcaneArcheryFeature",
                                                   "Arcane Archery",
                                                   "An Arrowsong minstrel’s skill at ranged martial arts allows her to learn to cast a number of powerful, offensive spells that would otherwise be unavailable to her.\n"
-                                                  + "Arrowsong Minstrel adds following spells to her spell list: acid arrow, flame arrow, hurricane bow, greater magic weapon, magic weapon, protection from arrows, true strike, and sorcerer/wizard spells of the evocation school. An Arrowsong minstrel must still select these spells as spells known before she can cast them.\n"
+                                                  + "Arrowsong Minstrel adds following spells to her spell list: acid arrow, flame arrow, hurricane bow, greater magic weapon, magic weapon, protection from arrows, snowball, true strike, and sorcerer/wizard spells of the evocation school. An Arrowsong minstrel must still select these spells as spells known before she can cast them.\n"
                                                   + "In addition, for the purpose of meeting the requirements of combat feats and prestige classes, an Arrowsong minstrel treats her bard level as her base attack bonus (in addition to base attack bonuses gained from other classes and Hit Dice).\n"
                                                   + "An Arrowsong minstrel casts one fewer spell of each level than normal. If this reduces the number to 0, she can cast spells of that level only if her Charisma score allows bonus spells of that level.",
                                                   "",
@@ -250,6 +250,7 @@ namespace CallOfTheWild.Archetypes
 
             BlueprintAbility[] extra_spells = new BlueprintAbility[]
             {
+                 library.Get<BlueprintAbility>("9f10909f0be1f5141bf1c102041f93d9"), //snow ball
                  library.Get<BlueprintAbility>("3e9d1119d43d07c4c8ba9ebfd1671952"), //gravity bow
                  library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00"), //true strike
                  NewSpells.magic_weapon,

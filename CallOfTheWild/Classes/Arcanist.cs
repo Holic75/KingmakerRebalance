@@ -271,7 +271,7 @@ namespace CallOfTheWild
             }
             bloodline_selection.AllFeatures = bloodlines.ToArray();
 
-            blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits)};
+            blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
             blood_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection) };
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(bloodline_selection);
 
@@ -1426,7 +1426,7 @@ namespace CallOfTheWild
                                                             1, arcane_weapon_group);
 
             var speed = Common.createEnchantmentAbility("ArcanistArcaneWeaponEnchancementSpeed",
-                                                                    "Arcane Weapon - Disruption",
+                                                                    "Arcane Weapon - Speed",
                                                                     "An arcanist can add the speed property to her arcane weapon, but this consumes 3 points of enhancement bonus granted to this weapon.\nWhen making a full attack, the wielder of a speed weapon may make one extra attack with it. The attack uses the wielder's full base attack bonus, plus any modifiers appropriate to the situation. (This benefit is not cumulative with similar effects, such as a Haste spell.)",
                                                                     library.Get<BlueprintActivatableAbility>("85742dd6788c6914f96ddc4628b23932").Icon,
                                                                     arcane_weapon_enhancement_buff,

@@ -282,7 +282,7 @@ namespace CallOfTheWild
                                                "",
                                                ability2.Icon,
                                                FeatureGroup.None);
-                selection.AllFeatures = new BlueprintFeature[] { ability2, blood_intensity};
+                selection2.AllFeatures = new BlueprintFeature[] { ability2, blood_intensity};
                 b.progression.UIGroups[0].Features.Remove(ability2);
                 b.progression.UIGroups[0].Features.Add(selection2);
                 b.progression.LevelEntries[3].Features.Remove(ability2);

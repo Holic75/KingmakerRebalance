@@ -326,7 +326,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
-                var caster = evt.Reason.Caster;
+                var caster = evt.Reason?.Caster;
                 if (caster == null || caster.IsPlayersEnemy)
                     return;
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));

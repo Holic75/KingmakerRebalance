@@ -243,6 +243,7 @@ namespace CallOfTheWild
                     
                     CallOfTheWild.Archetypes.Evangelist.create();
                     CallOfTheWild.NewFeats.load();
+                    CallOfTheWild.MagusArcana.load();
 
                     CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();

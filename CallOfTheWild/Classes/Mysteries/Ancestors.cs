@@ -11,6 +11,7 @@ using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -265,7 +266,7 @@ namespace CallOfTheWild
             buff.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.enchant = keen; p.secondary_hand = false; }));
             buff.SetName(display_name);
             buff.SetDescription(description);
-
+            var transformation_buff = library.Get<BlueprintBuff>("287682389d2011b41b5a65195d9cbc84");
             var ability = Helpers.CreateActivatableAbility(name_prefix + "ActivatableAbility",
                                                            buff.Name,
                                                            buff.Description,
@@ -275,7 +276,8 @@ namespace CallOfTheWild
                                                            Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
                                                            CommandType.Standard,
                                                            null,
-                                                           Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
+                                                           Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.NewRound),
+                                                           Helpers.Create<RestrictionHasFact>(r => { r.Not = true; ; r.Feature = transformation_buff; }) //not under transformation
                                                           );
 
 

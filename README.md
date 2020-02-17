@@ -128,6 +128,11 @@ New Wild Talents:
 - Kinetic Whip,
 - Whip Hurricane.
 
+New Magus Arcana:
+- Familiar,
+- Maneuver Mastery,
+- Spell Blending.
+
 Bloodline Mutations:
 - Blood Havoc,
 - Blood Intensity,
