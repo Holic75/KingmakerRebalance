@@ -1678,7 +1678,7 @@ namespace CallOfTheWild
 
                 foreach (var f in cost_increasing_facts)
                 {
-                   cost += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    cost += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
                 }
 
                 return cost < 0 ? 0 : cost;
@@ -5852,6 +5852,41 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateDamage evt)
             {
+            }
+        }
+
+
+        public class ApplyActionToAllUnits: ContextAction
+        {
+            public bool apply_to_target;
+            public ActionList actions;
+
+            public override string GetCaption()
+            {
+                return "Apply Action To All Units";
+            }
+
+            public override void RunAction()
+            {
+                var caster = this.Context?.MaybeCaster;
+
+                foreach (var u in Game.Instance.State.Units)
+                {
+                    if (u == this.Target.Unit && !apply_to_target)
+                    {
+                        continue;
+                    }
+
+                    if (!u.IsEnemy(caster) && !u.IsAlly(caster))
+                    {
+                        continue;
+                    }
+
+                    using (this.Context.GetDataScope((TargetWrapper)u))
+                    {
+                        this.actions.Run();
+                    }
+                }
             }
         }
     }

@@ -762,6 +762,12 @@ namespace CallOfTheWild
                                                         "Time Sight",
                                                         "You can peer through the mists of time to see things as they truly are, as if using the true seeing spell.\n" +
                                                         "At 18th level, this functions like foresight. You can use this ability for a number of minutes per day equal to your oracle level, but these minutes do not need to be consecutive. You must be at least 11th level to select this revelation.");
+            var erase_from_time = mystery_engine.createEraseFromTime("EraseFromTimeShamanRevelation",
+                                                                     "Erase From Time",
+                                                                     "As a melee touch attack, you can temporarily remove a creature from time altogether. The target creature must make a Fortitude save or vanish completely for a number of rounds equal to 1/2 your shaman level (minimum 1 round). No magic or divinations can detect the creature during this time, as it exists outside of time and space—in effect, the creature ceases to exist for the duration of this ability. At the end of the duration, the creature reappears unharmed in the space it last occupied (or the nearest possible space, if the original space is now occupied). You can use this ability once per day, plus one additional time per day at 11th level.");
+            var ancestral_weapon = mystery_engine.createAncestralWeapon("AncestralWeaponShamanRevelation",
+                                                                     "Ancestral Wepon",
+                                                                     "The weapon you hold gains ghost touch weapon property. You can use this ability for a number of minutes per day equal to your shaman level. This duration does not need to be consecutive, but it must be used in 1-minute increments. The weapon disappears after 1 round if it leaves your grasp.");
 
             revelation_selection = Helpers.CreateFeatureSelection("RevelationPastSelection",
                                                                       "Revelations of the Past",
@@ -769,25 +775,31 @@ namespace CallOfTheWild
                                                                       "",
                                                                       null,
                                                                       FeatureGroup.None);
-            revelation_selection.AllFeatures = new BlueprintFeature[] {aging_touch, rewind_time, blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior, speed_or_slow_time,
+            revelation_selection.AllFeatures = new BlueprintFeature[] {aging_touch, rewind_time, blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior, speed_or_slow_time, erase_from_time,
                                                                        spirit_shield, storm_of_souls, temporal_celerity, time_flicker, time_hop, time_sight, spirit_walk};
 
-            var spells = new Common.ExtraSpellList(new Common.SpellId("2c38da66e5a599347ac95b3294acbe00",1), //true strike
+            var spells = new Common.ExtraSpellList(new Common.SpellId("14c90900b690cac429b229efdf416127", 1), //longstrider
+                                                   new Common.SpellId("2c38da66e5a599347ac95b3294acbe00", 1), //true strike
                                                    new Common.SpellId(NewSpells.force_sword.AssetGuid, 2), //force sword,
+                                                   new Common.SpellId("464a7193519429f48b4d190acb753cf0", 2), //grace,
                                                    new Common.SpellId("5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                                                    new Common.SpellId(SpellDuplicates.addDuplicateSpell(NewSpells.sands_of_time, "SpeakerForThePastSendsOfTimeAbility").AssetGuid, 3), //sands of time
                                                    new Common.SpellId("6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                                                    new Common.SpellId(NewSpells.threefold_aspect.AssetGuid, 4),
                                                    new Common.SpellId("90810e5cf53bf854293cbd5ea1066252", 5), //righteous might
+                                                   new Common.SpellId("41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
                                                    new Common.SpellId(NewSpells.contingency.AssetGuid, 6),
                                                    new Common.SpellId("e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
                                                    new Common.SpellId("4aa7942c3e62a164387a73184bca3fc1", 7), //disintegrate
+                                                   new Common.SpellId("98310a099009bbd4dbdf66bcef58b4cd", 7), //invisibility mass
+                                                   new Common.SpellId(NewSpells.temporal_stasis.AssetGuid, 8),//temporal stasis
                                                    new Common.SpellId("0e67fa8f011662c43934d486acc50253", 8),//predicition of failure
-                                                   new Common.SpellId("43740dab07286fe4aa00a6ee104ce7c1", 9) //heroic invocation
+                                                   new Common.SpellId("43740dab07286fe4aa00a6ee104ce7c1", 9), //heroic invocation
+                                                   new Common.SpellId(NewSpells.time_stop.AssetGuid, 9)//time stop
                                                );
             mysteries_of_the_past = Helpers.CreateFeature("MysteriesOfThePastSpeakerForThePastFeature",
                                                           "Mysteries of the past",
-                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Force Sword (2nd), Heroism (3rd), Sands of Time(3rd), Phantasmal Killer (4th), Threefold Aspect (4th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Prediction of Failure (8th), Heroic Invocation (9th).",
+                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Longstrider (1st), Force Sword (2nd), Grace (2nd), Heroism (3rd), Sands of Time(3rd), Phantasmal Killer (4th), Threefold Aspect (4th), Hold Monster(5th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Invisibility, Mass (7th), Prediction of Failure (8th), Temporal Stasis (8th), Heroic Invocation (9th), Time Stop (9th).",
                                                           "",
                                                           null,
                                                           FeatureGroup.None,

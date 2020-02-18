@@ -715,6 +715,12 @@ namespace CallOfTheWild
                     return false;
                 }
 
+                var time_stopped_part = target.Unit.Get<TImeStopMechanics.TimeStoppedUnitPart>();
+                if (time_stopped_part != null && time_stopped_part.active())
+                {
+                    return false;
+                }
+
                 return true;
             }
         }

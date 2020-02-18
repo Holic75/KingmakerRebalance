@@ -193,6 +193,9 @@ namespace CallOfTheWild
         static public BlueprintAbility threefold_aspect;
         static public BlueprintAbility sands_of_time;
 
+        static public BlueprintAbility temporal_stasis;
+        static public BlueprintAbility time_stop;
+
 
         static public void load()
         {
@@ -307,7 +310,102 @@ namespace CallOfTheWild
 
             createThreefoldAspect();
             createSandsOfTime();
+
+            createTemporalStasis();
+            createTimeStop();
         }
+
+
+        static void createTemporalStasis()
+        {
+            var buff = Helpers.CreateBuff("TemporalStasisBuff",
+                                          "Temporal Stasis",
+                                          "You must succeed on a melee touch attack. You place the subject into a state of suspended animation. For the creature, time ceases to flow, and its condition becomes fixed. The creature does not grow older. Its body functions virtually cease, and no force or effect can harm it. This state persists until the spell ends.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/TimeStop.png"),
+                                          Common.createPrefabLink("eb0e36f1de0c05347963262d56d90cf5"), //hold person
+                                          Helpers.Create<TImeStopMechanics.EraseFromTime>()
+                                          );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            var temporal_stasis_touch = Helpers.CreateAbility("TemporalStasisAbility",
+                                                                buff.Name,
+                                                                buff.Description,
+                                                                "",
+                                                                buff.Icon,
+                                                                AbilityType.Spell,
+                                                                UnitCommand.CommandType.Standard,
+                                                                AbilityRange.Touch,
+                                                                Helpers.roundsPerLevelDuration,
+                                                                Helpers.fortNegates,
+                                                                Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff)),
+                                                                Helpers.CreateContextRankConfig(),
+                                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                                Helpers.CreateDeliverTouch()
+                                                                );
+            temporal_stasis_touch.SpellResistance = true;
+            temporal_stasis_touch.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            temporal_stasis_touch.setMiscAbilityParametersTouchHarmful();
+
+            temporal_stasis = Helpers.CreateTouchSpellCast(temporal_stasis_touch);
+
+            temporal_stasis.AddToSpellList(Helpers.wizardSpellList, 8);
+            temporal_stasis.AddSpellAndScroll("4b2d0e65fb9775341b6c4f7c178f0fe5");
+        }
+
+
+        static void createTimeStop()
+        {
+            var buff = Helpers.CreateBuff("TimeStopTargetBuff",
+                                          "Time Stop",
+                                          "This spell seems to make time cease to flow for everyone but you. In fact, you speed up so greatly that all other creatures seem frozen, though they are actually still moving at their normal speeds. You are free to act for 1d4+1 rounds of apparent time. Normal and magical fire, cold, gas, and the like can still harm you. While the time stop is in effect, other creatures are invulnerable to your attacks and spells; you cannot target such creatures with any attack or spell. A spell that affects an area and has a duration longer than the remaining duration of the time stop have their normal effects on other creatures once the time stop ends. Most spellcasters use the additional time to improve their defenses, summon allies, or flee from combat.\n"
+                                          + "ou cannot move or harm items held, carried, or worn by a creature stuck in normal time, but you can affect any item that is not in another creature’s possession.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/TimeStop.png"),
+                                          Common.createPrefabLink("eb0e36f1de0c05347963262d56d90cf5"), //hold person
+                                          Helpers.Create<TImeStopMechanics.EraseFromTime>()
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            var caster_buff = Helpers.CreateBuff("TimeStopCasterBuff",
+                                                 buff.Name,
+                                                 buff.Description,
+                                                 "",
+                                                 buff.Icon,
+                                                 null
+                                                 );
+                                                 
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilitySharedValue.Duration)));
+            var apply_caster_buff = Common.createContextActionApplyBuff(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilitySharedValue.Duration)));
+
+
+
+            time_stop = Helpers.CreateAbility("TimeStopAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "1d4+1 rounds (apparent time)",
+                                                "",
+                                                Helpers.CreateRunActions(apply_caster_buff, 
+                                                                         Helpers.Create<NewMechanics.ApplyActionToAllUnits>(a => a.actions = Helpers.CreateActionList(apply_buff))
+                                                                        ),
+                                                Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, 1, 1), sharedValue: AbilitySharedValue.Duration),
+                                                Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                );
+            time_stop.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            time_stop.setMiscAbilityParametersSelfOnly();
+
+            time_stop.AddToSpellList(Helpers.wizardSpellList, 9);
+            time_stop.AddSpellAndScroll("4b2d0e65fb9775341b6c4f7c178f0fe5");
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("cc2d330bb0200e840aeb79140e770198"), time_stop, 4);
+        }
+
+
+
 
         static void createSandsOfTime()
         {

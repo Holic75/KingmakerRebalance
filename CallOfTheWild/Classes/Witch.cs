@@ -797,7 +797,7 @@ namespace CallOfTheWild
                                          SpellDuplicates.addDuplicateSpell("645558d63604747428d55f0dd3a4cb58", "WitchSpringPatronChainLightningAbility", "").AssetGuid, //chain lightning
                                          "26be70c4664d07446bdfe83504c1d757", //change staff
                                          "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
-                                         "d8144161e352ca846a73cf90e85bf9ac" //tsunami
+                                         NewSpells.time_stop.AssetGuid
                                         ),
                 createWitchPatronFeature("Strength", "6f859ba938f94132920eeb63a8c9af50", "8125ff1edafc4c5489ad2739a85d5386",
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor

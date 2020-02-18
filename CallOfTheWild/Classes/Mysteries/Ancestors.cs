@@ -294,6 +294,7 @@ namespace CallOfTheWild
             {
                 feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
             }
+            CombatManeuverMechanics.SpecificCombatManeuverBonusUnlessHasFacts.facts.Add(buff);
             return feature;
         }
 
@@ -349,6 +350,46 @@ namespace CallOfTheWild
             {
                 feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
             }
+            return feature;
+        }
+
+
+        public BlueprintFeature createAncestralWeapon(string name_prefix, string display_name, string description)
+        {
+            var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, classes);
+
+            var ghost_touch = library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f");
+            var buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          NewSpells.force_sword.Icon,
+                                          null,
+                                          Common.createBuffContextEnchantPrimaryHandWeapon(1, false, true, new BlueprintWeaponEnchantment[] { ghost_touch })
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
+
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                NewSpells.force_sword.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateResourceLogic(resource)
+                                                );
+            ability.NeedEquipWeapons = true;
+            ability.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
+
+            var feature = Common.AbilityToFeature(ability, false);
+            feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
             return feature;
         }
     }
