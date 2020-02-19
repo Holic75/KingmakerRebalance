@@ -767,7 +767,7 @@ namespace CallOfTheWild
                                                                      "As a melee touch attack, you can temporarily remove a creature from time altogether. The target creature must make a Fortitude save or vanish completely for a number of rounds equal to 1/2 your shaman level (minimum 1 round). No magic or divinations can detect the creature during this time, as it exists outside of time and space—in effect, the creature ceases to exist for the duration of this ability. At the end of the duration, the creature reappears unharmed in the space it last occupied (or the nearest possible space, if the original space is now occupied). You can use this ability once per day, plus one additional time per day at 11th level.");
             var ancestral_weapon = mystery_engine.createAncestralWeapon("AncestralWeaponShamanRevelation",
                                                                      "Ancestral Wepon",
-                                                                     "The weapon you hold gains ghost touch weapon property. You can use this ability for a number of minutes per day equal to your shaman level. This duration does not need to be consecutive, but it must be used in 1-minute increments. The weapon disappears after 1 round if it leaves your grasp.");
+                                                                     "The weapon you hold gains ghost touch weapon property. You can use this ability for a number of minutes per day equal to your shaman level. This duration does not need to be consecutive, but it must be used in 1-minute increments. The weapon loses ghost touch property if it leaves your grasp.");
 
             revelation_selection = Helpers.CreateFeatureSelection("RevelationPastSelection",
                                                                       "Revelations of the Past",
@@ -776,7 +776,7 @@ namespace CallOfTheWild
                                                                       null,
                                                                       FeatureGroup.None);
             revelation_selection.AllFeatures = new BlueprintFeature[] {aging_touch, rewind_time, blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior, speed_or_slow_time, erase_from_time,
-                                                                       spirit_shield, storm_of_souls, temporal_celerity, time_flicker, time_hop, time_sight, spirit_walk};
+                                                                       spirit_shield, storm_of_souls, temporal_celerity, time_flicker, time_hop, time_sight, spirit_walk, ancestral_weapon};
 
             var spells = new Common.ExtraSpellList(new Common.SpellId("14c90900b690cac429b229efdf416127", 1), //longstrider
                                                    new Common.SpellId("2c38da66e5a599347ac95b3294acbe00", 1), //true strike

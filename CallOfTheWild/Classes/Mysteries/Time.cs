@@ -330,7 +330,7 @@ namespace CallOfTheWild
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/TimeStop.png"),
                                           Common.createPrefabLink("eb0e36f1de0c05347963262d56d90cf5"), //hold person
-                                          Helpers.Create<TImeStopMechanics.EraseFromTime>(e => e.make_invisible = true)
+                                          Helpers.Create<TImeStopMechanics.EraseFromTime>()
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
             var erase_from_time_touch = Helpers.CreateAbility(name_prefix + "Ability",
@@ -344,9 +344,10 @@ namespace CallOfTheWild
                                                                 "1 round/ 2 levels",
                                                                 Helpers.fortNegates,
                                                                 Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff)),
-                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, 
-                                                                                                classes: classes,progression: ContextRankProgression.Div2),
-                                                                Helpers.CreateDeliverTouch()
+                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                classes: classes, progression: ContextRankProgression.Div2),
+                                                                Helpers.CreateDeliverTouch(),
+                                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
                                                                 );
             erase_from_time_touch.setMiscAbilityParametersTouchHarmful();
             var erase_from_time = Helpers.CreateTouchSpellCast(erase_from_time_touch);

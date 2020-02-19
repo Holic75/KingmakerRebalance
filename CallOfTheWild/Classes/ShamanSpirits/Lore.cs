@@ -109,7 +109,7 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("9f5ada581af3db4419b54db77f44e430"), //owls wisdom mass
                     library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //greater restoration
                     library.Get<BlueprintAbility>("0e67fa8f011662c43934d486acc50253"), //prediction of failure
-                    library.Get<BlueprintAbility>("1f01a098d737ec6419aedc4e7ad61fdd"), //foresight
+                    NewSpells.time_stop
                 };
 
                 return new Shaman.Spirit("Lore",

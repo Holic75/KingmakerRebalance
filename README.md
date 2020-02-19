@@ -227,10 +227,12 @@ New spells:
 - Blood Mist,
 - Incendiary Cloud,
 - Irresistible Dance,
+- Temporal Stasis,
 - Meteor Swarm,
 - Hold Monster, Mass,
 - Shapechange,
 - Suffocate Mass,
+- Time Stop,
 - Winds of Vengeance. 
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
