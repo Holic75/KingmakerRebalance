@@ -152,6 +152,10 @@ namespace CallOfTheWild
                 {
                     (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses = (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses.AddToArray(class_to_add);
                 }
+                else if (c is AbilityEffectStickyTouch)
+                {
+                    addClassToAbility(class_to_add, archetypes_to_add, (c as AbilityEffectStickyTouch).TouchDeliveryAbility);
+                }
             }
         }
 

@@ -1087,14 +1087,15 @@ namespace CallOfTheWild
             var transformation_buff = library.Get<BlueprintBuff>("287682389d2011b41b5a65195d9cbc84");
             warpriest_aspect_of_war_buff = Helpers.CreateBuff("WarpriestAspectOfWarBuff",
                                           "Aspect of War",
-                                          "At 20th level, the warpriest can channel an aspect of war, growing in power and martial ability. Once per day as a swift action, a warpriest can treat his level as his base attack bonus, gains DR 10/—, and can move at his full speed regardless of the armor he is wearing. In addition, the blessings he calls upon don’t count against his daily limit during this time. This ability lasts for 1 minute.",
+                                          "At 20th level, the warpriest can channel an aspect of war, growing in power and martial ability. Once per day as a swift action, a warpriest can treat his level as his base attack bonus, gains DR 10/—, and can move at his full speed regardless of the armor he is wearing or his encumbrance. In addition, the blessings he calls upon don’t count against his daily limit during this time. This ability lasts for 1 minute.",
                                           "",
                                           rage.Icon,
                                           transformation_buff.FxOnStart,
                                           Common.createPhysicalDR(10),
                                           Helpers.Create<RaiseBAB>(c => c.TargetValue = Common.createSimpleContextValue(20)),
                                           Helpers.CreateAddFact(remove_armor_speed_penalty_feature),
-                                          Helpers.CreateAddFact(remove_armor_speed_penalty_feature)
+                                          Helpers.CreateAddFact(remove_armor_speed_penalty_feature),
+                                          Helpers.Create<EncumbranceMechanics.IgnoreEncumbrence>()
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(warpriest_aspect_of_war_buff,

@@ -201,6 +201,7 @@ namespace CallOfTheWild
                                                                             }
                                                                                                 )
                                           );
+                ChannelEnergyEngine.addChannelResitance(undead_feature1);
 
                 var undead_feature2 = Helpers.CreateFeature(prefix + "DeathlyBeingUndead2Feature",
                                                           "",
@@ -219,6 +220,7 @@ namespace CallOfTheWild
                                                                                           customProgression: new (int, int)[2] {(15, 1), (20, 3) }, type: AbilityRankType.StatBonus)
                                                           );
                 undead_feature2.HideInCharacterSheetAndLevelUp = true;
+                ChannelEnergyEngine.addChannelResitance(undead_feature2);
 
 
                 var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");

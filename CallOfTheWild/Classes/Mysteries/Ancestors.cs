@@ -392,5 +392,68 @@ namespace CallOfTheWild
 
             return feature;
         }
+
+
+        public BlueprintFeature createSpiritShield(string name_prefix, string display_name, string description)
+        {
+            var mage_armor = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568");
+            var buff = Helpers.CreateBuff(name_prefix + "MysteryBuff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          mage_armor.Icon,
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Armor, rankType: AbilityRankType.Default, multiplier: 2),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                          classes: classes, stepLevel: 4, startLevel: -1, min: 2)
+                                         );
+            var buff2 = Helpers.CreateBuff(name_prefix + "Mystery2Buff",
+                              display_name,
+                              description,
+                              "",
+                              buff.Icon,
+                              null,
+                              Helpers.Create<AddConcealment>(c => {
+                                  c.CheckWeaponRangeType = true;
+                                  c.RangeType = AttackTypeAttackBonus.WeaponRangeType.Ranged;
+                                  c.Concealment = Concealment.Total;
+                                  c.Descriptor = ConcealmentDescriptor.Fog;
+                              }
+                                                            )
+                             );
+            buff2.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
+            var apply_buff2 = Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
+            var resource = Helpers.CreateAbilityResource(name_prefix + "MysteryResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, classes);
+
+            var ability = Helpers.CreateAbility(name_prefix + "MysteryAbility",
+                                                display_name,
+                                                description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "One hour",
+                                                "",
+                                                mage_armor.GetComponent<AbilitySpawnFx>(),
+                                                Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                                        Helpers.CreateActionList(apply_buff),
+                                                                                                                        Helpers.CreateActionList(apply_buff, apply_buff2)
+                                                                                                                        )
+                                                                        ),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes,
+                                                                                type: AbilityRankType.StatBonus, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                stepLevel: 13),
+                                                Helpers.CreateResourceLogic(resource)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            var feature = Common.AbilityToFeature(ability);
+            feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
+            return feature;
+        }
     }
 }

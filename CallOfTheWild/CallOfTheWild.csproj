@@ -131,6 +131,7 @@
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\Oracle.cs" />
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Features\MagusArcana.cs" />
     <Compile Include="Features\MetamagicFeats.cs" />
@@ -179,7 +180,9 @@
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\CustomAbilities.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
+    <Compile Include="NewMechanics\EncumbranceMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
+    <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
     <Compile Include="NewMechanics\TImeStopMechanics.cs" />
     <Compile Include="NewMechanics\TravelMap.cs" />
     <Compile Include="NewMechanics\TurnActionMechanics.cs" />

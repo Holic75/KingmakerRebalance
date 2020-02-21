@@ -95,6 +95,17 @@ namespace CallOfTheWild
         public static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
         public static BlueprintFeature plant = library.Get<BlueprintFeature>("706e61781d692a042b35941f14bc41c5");
 
+        public static BlueprintBuff deafened = Helpers.CreateBuff("DeafenedBuff",
+                                                                "Deafened",
+                                                                " deafened character cannot hear. He takes a –4 penalty on initiative checks, automatically fails Perception checks based on sound, takes a –4 penalty on opposed Perception checks, and has a 20% chance of spell failure when casting spells with verbal components.",
+                                                                "",
+                                                                library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").Icon,
+                                                                null,
+                                                                Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.Other),
+                                                                Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.Other),
+                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20)
+                                                                );
+
         static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
         static readonly Type ContextActionSavingThrow_ConditionalDCIncrease = Harmony12.AccessTools.Inner(typeof(ContextActionSavingThrow), "ConditionalDCIncrease");
 
@@ -1752,6 +1763,24 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintFeature AbilityToFeature(string prefix, BlueprintAbility ability, bool hide = true, string guid = "")
+        {
+            var feature = Helpers.CreateFeature(prefix + ability.name + "Feature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     guid,
+                                                     ability.Icon,
+                                                     FeatureGroup.None
+                                                     );
+            feature.AddComponent(Common.createAddFeatureIfHasFact(ability, ability, not: true));
+            if (hide)
+            {
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+            }
+            return feature;
+        }
+
         static public BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",
@@ -3343,6 +3372,25 @@ namespace CallOfTheWild
             }
             new_progression.LevelEntries = level_entries.ToArray();
             return new_progression;
+        }
+
+
+        static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null)
+        {
+            var ability = library.CopyAndAdd<BlueprintAbility>(spell.AssetGuid, prefix + spell.name, "");
+            ability.RemoveComponents<SpellListComponent>();
+            ability.Type = AbilityType.SpellLike;
+            ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
+
+            var resource2 = resource;
+            if (resource2 == null)
+            {
+                resource2 = Helpers.CreateAbilityResource(prefix + spell.name + "Resource", "", "", "", null);
+                resource2.SetFixedResource(1);
+            }
+
+            ability.AddComponent(Helpers.CreateResourceLogic(resource2));
+            return ability;
         }
     }
 }

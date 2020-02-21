@@ -779,19 +779,7 @@ namespace CallOfTheWild
         {
             var icon = library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").Icon; //ear-piercing scream
 
-            var spell_failure = library.Get<BlueprintBuff>("ea5e7aad3f271b941abcdcd9814ddbe3").GetComponent<AddSpellFailureChance>().CreateCopy();
-            spell_failure.Chance = 20;
-
-            var buff = Helpers.CreateBuff("DeafenedBuff",
-                                          "Deafened",
-                                          " deafened character cannot hear. He takes a –4 penalty on initiative checks, automatically fails Perception checks based on sound, takes a –4 penalty on opposed Perception checks, and has a 20% chance of spell failure when casting spells with verbal components.",
-                                          "",
-                                          icon,
-                                          null,
-                                          spell_failure,
-                                          Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.Other),
-                                          Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.Other)
-                                          );
+            var buff = Common.deafened;
 
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic,
                                      Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);

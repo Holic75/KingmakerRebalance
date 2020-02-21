@@ -38,7 +38,7 @@ namespace CallOfTheWild
             createBloodIntensity();
             addBloodlineMutations();
 
-            fixDragonDisciplePrerequisites();
+            //fixDragonDisciplePrerequisites();
         }
 
 

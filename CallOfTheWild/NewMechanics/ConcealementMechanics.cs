@@ -11,6 +11,7 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
@@ -31,6 +32,26 @@ namespace CallOfTheWild.ConcealementMechanics
         }
     }
 
+    public class UnitPartVisibilityLimit : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+
+
+        public float getMaxDistance()
+        {
+            float max_distance = 1000;
+
+            foreach (var b in buffs)
+            {
+                max_distance = Math.Min(max_distance, b.Blueprint.GetComponent<SetVisibilityLimit>().visibility_limit.Meters);
+            }
+
+            return max_distance;
+        }
+    }
 
 
     public class UnitPartOutgoingConcealment : UnitPart
@@ -277,8 +298,57 @@ namespace CallOfTheWild.ConcealementMechanics
         {
             this.Owner.Ensure<UnitPartIgnoreFogConcealement>().removeBuff(this.Fact);
         }
-
     }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SetVisibilityLimit : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public Feet visibility_limit;
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartVisibilityLimit>().addBuff(this.Fact);
+        }
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartVisibilityLimit>().removeBuff(this.Fact);
+        }
+    }
+
+
+
+    [Harmony12.HarmonyPatch(typeof(AbilityData), "GetVisualDistance")]
+    static class AbilityData_GetVisualDistance_Patch
+    {
+        static void Postfix(AbilityData __instance, ref float __result)
+        {
+            AbilityData_GetApproachDistance_Patch.Postfix(__instance, null, ref __result);
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(AbilityData), "GetApproachDistance")]
+    static class AbilityData_GetApproachDistance_Patch
+    {
+        internal static void Postfix(AbilityData __instance, UnitEntityData target, ref float __result)
+        {
+            try
+            {
+                var caster = __instance.Caster;
+                var part = caster.Get<UnitPartVisibilityLimit>();
+                if (part != null && part.active())
+                {
+                    __result = Math.Min(part.getMaxDistance(), __result);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
+        }
+    }
+
+
 
 
 
