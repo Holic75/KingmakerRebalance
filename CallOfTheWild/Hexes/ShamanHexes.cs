@@ -1077,7 +1077,7 @@ namespace CallOfTheWild
                                                            AbilityType.Supernatural,
                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                            AbilityRange.Medium,
-                                                           "Instant",
+                                                           "",
                                                            "",
                                                            Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(buff)),
                                                            Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] {buff})

@@ -211,7 +211,7 @@ namespace CallOfTheWild
             }
 
 
-             void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {
                 var icon = library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140").Icon;
                 greater_spirit_ability = Helpers.CreateFeature(prefix + "HealersTouchFeature",

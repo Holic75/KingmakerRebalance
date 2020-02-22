@@ -73,6 +73,13 @@ namespace CallOfTheWild
         static public BlueprintProgression ancestor_mystery;
         static public BlueprintProgression flame_mystery;
         static public BlueprintProgression battle_mystery;
+        static public BlueprintProgression life_mystery;
+        static public BlueprintProgression wind_mystery;
+        //stone
+        //frost or winter
+        //dragon 
+        //bones
+        //nature or lunar?
 
 
         static BlueprintCharacterClass[] getOracleArray()
@@ -236,8 +243,146 @@ namespace CallOfTheWild
             createAncestorsMystery();
             createFlameMystery();
             createBattleMystery();
+            createLifeMystery();
+            createWindMystery();
 
-            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery };
+            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery};
+        }
+
+
+        static void createWindMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                library.Get<BlueprintAbility>("ab395d2335d3f384e99dddee8562978f"), //shocking grasp
+                library.Get<BlueprintAbility>("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
+                library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73"), //lightning bolt
+                NewSpells.river_of_wind,
+                library.Get<BlueprintAbility>("16fff43f034133a4a86e914a523e021f"), //summon elemental large air
+                library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c"), //sirocco
+                NewSpells.scouring_winds,
+                library.Get<BlueprintAbility>("333efbf776ab61c4da53e9622751d95f"), //summon elemental elder air
+                NewSpells.winds_of_vengeance
+            };
+
+            var air_barrier = mystery_engine.createSpiritShield("AirBarrierOracleRevelation",
+                                                                "Air Barrier",
+                                                                "You can create an invisible shell of air that grants you a +4 armor bonus. At 7th level, and every four levels thereafter, this bonus increases by +2. At 13th level, this barrier causes incoming arrows, rays, and other ranged attacks requiring an attack roll against you to have a 50% miss chance. You can use this barrier for 1 hour per day per oracle level. This duration does not need to be consecutive, but it must be spent in 1-hour increments.");
+            var invisibility = mystery_engine.createInvisibility("InvisibilityOracleRevelation",
+                                                                "Invisibility",
+                                                                "As a standard action, you can become invisible (as per the invisibility spell). You can remain invisible for 1 minute per day per oracle level. This duration does not need to be consecutive, but it must be spent in 1-minute increments. Starting at 9th level, each time you activate this ability you can treat it as greater invisibility, though each round spent this way counts as 1 minute of your normal invisibility duration. You must be at least 3rd level to select this revelation.");
+            var lightning_breath = mystery_engine.createLightningBreath("LightningBreathOracleRevelation",
+                                                               "Lightning Breath",
+                                                               "As a standard action, you can breathe a 30-foot line of electricity. This line deals 1d4 points of electricity damage per oracle level. A Reflex save halves this damage. You can use this ability once per day, plus one additional time per day at 5th level and every five levels thereafter.");
+            var thunderburst = mystery_engine.createThunderburst("ThunderBurstOracleRevelation",
+                                                                 "Thunderburst",
+                                                                 "As a standard action, you can create a blast of air accompanied by a loud peal of thunder. The blast has a medium range and has a 20-foot radius. Creatures in the area take 1d6 points of bludgeoning damage per oracle level and are deafened for 1 hour, with a Fortitude save resulting in half damage and no deafness. You must be at least 7th level to select this revelation. You can use this ability once per day, plus one additional time per day at 11th level and every four levels thereafter.");
+            var touch_of_electricity = mystery_engine.createTouchOfElectricity("TouchOfElectricityOracleRevelation",
+                                                                             "Touch of Electricity",
+                                                                             "As a standard action, you can perform a melee touch attack that deals 1d6 points of electricity damage +1 point for every two oracle levels you possess. You can use this ability a number of times per day equal to 3 + your Charisma modifier. At 11th level, any weapon that you wield is treated as a shock weapon.");
+            var vortex_spells = mystery_engine.createVortexSpells("VortexSpellsOracleRevelation",
+                                                                 "Vortex Spells",
+                                                                 "Whenever you score a critical hit against an opponent with an attack spell, the target is staggered for 1 round. At 11th level, the duration increases to 1d4 rounds.");
+            var spark_skin = mystery_engine.createSparkSkin("SparkSkinOracleRevelation",
+                                                            "Spark Skin",
+                                                            "You gain resist electricity 5. This resistance increases to 10 at 5th level and 20 at 11th level. At 17th level, you gain immunity to electricity.");
+            var wings_of_air = mystery_engine.CreateWingsOfAir("WingsOfAirOracleRevelation",
+                                                                "Wings of Air",
+                                                                "You gain a pair of wings that grant a +3 dodge bonus to AC against melee attacks and an immunity to ground based effects, such as difficult terrain. You must be at least 7th level to select this revelation.");
+
+            var final_revelation = Helpers.CreateFeature("FinalRevelationWindMystery",
+                                                         "Final Revelation",
+                                                          "Upon reaching 20th level, you become a master of air and electricity. You can apply any one of the following feats to any air or electricity spell without increasing the level or casting time: Reach Spell or Extend Spell.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None);
+
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "");
+            extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "");
+            reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
+            final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
+
+            wind_mystery = createMystery("Wind", "Wind", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon, //sirocco
+                                         final_revelation,
+                                         new StatType[] { StatType.SkillLoreNature },
+                                         spells,
+                                         air_barrier, invisibility, lightning_breath, thunderburst,
+                                         touch_of_electricity, vortex_spells, spark_skin, wings_of_air
+                                         );
+        }
+
+
+        static void createLifeMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140"), //remove sickness
+                library.Get<BlueprintAbility>("e84fc922ccf952943b5240293669b171"), //lesser restoration
+                SpellDuplicates.addDuplicateSpell("e7240516af4241b42b2cd819929ea9da", "ShamanLifeSpiritNeutralizePoison", ""), //neutralzie poison
+                library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830"), //restoration
+                library.Get<BlueprintAbility>("d5847cad0b0e54c4d82d6c59a3cda6b0"), //breath of life
+                library.Get<BlueprintAbility>("5da172c4c89f9eb4cbb614f3a67357d3"), //heal
+                library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //greater restoration
+                SpellDuplicates.addDuplicateSpell("867524328b54f25488d371214eea0d90", "shamanLifeSpiritMassHeal", ""), //mass heal
+                SpellDuplicates.addDuplicateSpell("80a1a388ee938aa4e90d427ce9a7a3e9", "shamanLifeSpiritResurrection", ""), //resurrection
+            };
+
+            var channel = mystery_engine.createChannel("ChannelOracleRevelation",
+                                                           "Channel",
+                                                           "You can channel positive energy like a cleric, using your oracle level as your effective cleric level when determining the amount of damage healed (or caused to undead) and the DC. You can use this ability a number of times per day equal to 1 + your Charisma modifier.");
+            var combat_healer = mystery_engine.createCombatHealer("CombatHealerLifeMysteryOracleRevelation",
+                                                                   "Combat Healer",
+                                                                   "Whenever you cast a cure spell (a spell with “cure” in its name), you can cast it as a swift action, as if using the Quicken Spell feat, by expending two spell slots. This does not increase the level of the spell. You can use this ability once per day at 7th level and one additional time per day for every four levels beyond 7th. You must be at least 7th level to select this revelation (as the battle mystery revelation.)");
+            var energy_body = mystery_engine.createEnergyBody("EnergyOracleRevelation",
+                                                       "Energy Body",
+                                                       " As a standard action, you can transform your body into pure life energy, resembling a golden-white fire elemental. In this form, you gain the elemental subtype. Any undead creature striking you with its body or a handheld weapon deals normal damage, but at the same time the attacker takes 1d6 points of positive energy damage + 1 point per oracle level. Creatures wielding melee weapons with reach are not subject to this damage if they attack you. At the beginning of your turn your heal all allied adjacent creatures for 1d6 hit points + 1 per oracle level. You may return to your normal form as a free action. You may remain in energy body form for a number of rounds per day equal to your oracle level.");
+
+            var enhanced_cures = mystery_engine.createEnchancedCures("EnhancedCuresOracleRevelation",
+                                                                     "Enhanced Cures",
+                                                                     "Whenever you cast a cure spell, the maximum number of hit points healed is based on your oracle level, not the limit based on the spell. For example, an 11th-level oracle of life with this revelation may cast cure light wounds to heal 1d8+11 hit points instead of the normal 1d8+5 maximum.");
+            var healing_hands = mystery_engine.createHealingHands("HealingHandsOracleRevelation",
+                                                         "Healing Hands",
+                                                         "You gain a +3 bonus to religion skill.");
+            var life_link = mystery_engine.createLifeLink("LifeLinkOracleRevelation",
+                                                          "Life Link",
+                                                          "As a standard action, you may create a bond between yourself and another creature within 30 feet.  Each round at the start of your turn, if the bonded creature is wounded for 5 or more hit points below its maximum hit points, it heals 5 hit points and you take 5 hit points of damage. You may have one bond active per oracle level. This bond continues until the bonded creature dies, you die or you end it as a free action.");
+            var safe_curing = mystery_engine.createSafeCuring("SafeCuringOracleRevelation",
+                                             "Safe Curing",
+                                             "Whenever you cast a spell that cures the target of hit point damage, you do not provoke attacks of opportunity for spellcasting.");
+            var spirit_boost = mystery_engine.createSpiritBoost("SpiritBoostOracleRevelation",
+                                                                 "Spirit Boost",
+                                                                 "Whenever your healing spells heal a target up to its maximum hit points, any excess points persist for 1 round per level as temporary hit points (up to a maximum number of temporary hit points equal to your oracle level).");
+
+            var conditions = SpellDescriptor.Bleed | SpellDescriptor.Death | SpellDescriptor.Exhausted | SpellDescriptor.Fatigue | SpellDescriptor.Nauseated | SpellDescriptor.Sickened;
+
+            var final_revelation = Helpers.CreateFeature("FinalRevelationLifeMystery",
+                                                         "Final Revelation",
+                                                          "Upon reaching 20th level, you become a perfect channel for life energy. You become immune to bleed, death attacks, exhaustion, fatigue, nausea effects, negative levels, and sickened effects. Ability damage and drain cannot reduce you below 1 in any ability score. You also receive diehard feat for free.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Common.createBuffDescriptorImmunity(conditions),
+                                                          Common.createSpellImmunityToSpellDescriptor(conditions),
+                                                          UnitCondition.Exhausted.CreateImmunity(),
+                                                          UnitCondition.Fatigued.CreateImmunity(),
+                                                          UnitCondition.Nauseated.CreateImmunity(),
+                                                          UnitCondition.Paralyzed.CreateImmunity(),
+                                                          UnitCondition.Sickened.CreateImmunity(),
+                                                          Helpers.Create<AddImmunityToEnergyDrain>(),
+                                                          Helpers.Create<HealingMechanics.StatsCannotBeReducedBelow1>(),
+                                                          Common.createAddFeatureIfHasFact(library.Get<BlueprintFeature>("c99f3405d1ef79049bd90678a666e1d7"), //diehard
+                                                                                           library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad"),
+                                                                                           not: true)
+                                                          );
+
+            life_mystery = createMystery("Life", "Life", Helpers.GetIcon("be2062d6d85f4634ea4f26e9e858c3b8"), // cleanse
+                                         final_revelation,
+                                         new StatType[] { StatType.SkillLoreNature },
+                                         spells,
+                                         channel, combat_healer, energy_body, enhanced_cures,
+                                         healing_hands, life_link, safe_curing, spirit_boost
+                                         );
         }
 
 

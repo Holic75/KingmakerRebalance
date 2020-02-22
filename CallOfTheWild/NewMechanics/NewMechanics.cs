@@ -5935,5 +5935,29 @@ namespace CallOfTheWild
                 return Helpers.GetMechanicsContext()?.SourceAbilityContext?.SpellLevel ?? 0;
             }
         }
+
+
+        public class ImmuneToAttackOfOpportunityForSpells : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public SpellDescriptorWrapper Descriptor;
+
+            public static ImmuneToAttackOfOpportunityForSpells Create(SpellDescriptor descriptor = SpellDescriptor.None)
+            {
+                var i = Helpers.Create<ImmuneToAttackOfOpportunityForSpells>();
+                i.Descriptor = descriptor;
+                return i;
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spell.Type == AbilityType.Spell &&
+                    (Descriptor == SpellDescriptor.None || (evt.Spell.SpellDescriptor & Descriptor) != 0))
+                {
+                    evt.AddBonusConcentration(1000);
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt) { }
+        }
     }
 }

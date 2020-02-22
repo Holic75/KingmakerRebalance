@@ -141,7 +141,8 @@ namespace CallOfTheWild
                                                 Common.createAbilityAoERadius(area.Size, Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, ContextRankProgression.AsIs, stat: stat),
-                                                Helpers.CreateRunActions(spawn_area)
+                                                Helpers.CreateRunActions(spawn_area),
+                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
                                                 );
 
             ability.setMiscAbilityParametersRangedDirectional();
@@ -233,7 +234,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2,
                                                                                 min: 1, classes: classes),
                                                 resource.CreateResourceLogic(),
-                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
+                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
             ability.setMiscAbilityParametersSelfOnly();
 
             var feature = Common.AbilityToFeature(ability, false);
@@ -245,11 +247,6 @@ namespace CallOfTheWild
         public BlueprintFeature createMoltenSkin(string name_prefix, string display_name, string description)
         {
             var icon = Helpers.GetIcon("ddfb4ac970225f34dbff98a10a4a8844");
-            var feat = Helpers.CreateFeature("FlamesMoltenSkin", "Molten Skin",
-                "You gain resist fire 5. This resistance increases to 10 at 5th level and 20 at 11th level. At 17th level, you gain immunity to fire.",
-                "9fc56e88f4dc4733bc99fad0be185ad5",
-                Helpers.GetIcon("ddfb4ac970225f34dbff98a10a4a8844"),
-                FeatureGroup.None);
 
             var feature = Helpers.CreateFeature(name_prefix + "Feature",
                                                    display_name,

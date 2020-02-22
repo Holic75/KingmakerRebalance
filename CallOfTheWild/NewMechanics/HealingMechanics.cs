@@ -13,6 +13,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Actions;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.Utility;
@@ -439,6 +440,37 @@ namespace CallOfTheWild.HealingMechanics
                     stat.Damage -= adjust;
                 }
             }
+        }
+    }
+
+    public class HealingWithOverflowToTemporaryHp : RuleInitiatorLogicComponent<RuleHealDamage>
+    {
+        public BlueprintBuff temporary_hp_buff;
+        public AbilitySharedValue hp_value_to_update;
+        public ContextValue duration;
+
+
+        public override void OnEventAboutToTrigger(RuleHealDamage evt)
+        {
+            var context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+            var spell = context?.SourceAbility;
+
+            if (spell != null && spell.Type == AbilityType.Spell &&
+                (spell.SpellDescriptor & SpellDescriptor.RestoreHP) != 0)
+            {
+                int temporary_hp = evt.Bonus - evt.Target.Damage;
+                if (temporary_hp > 0)
+                {
+                    context[hp_value_to_update] = temporary_hp;
+                    var duration_seconds = duration.Calculate(this.Fact.MaybeContext).Rounds().Seconds;
+                    evt.Target.Buffs.AddBuff(temporary_hp_buff, context, duration_seconds);
+                }
+            }
+        }
+
+        public override void OnEventDidTrigger(RuleHealDamage evt)
+        {
+
         }
     }
 }
