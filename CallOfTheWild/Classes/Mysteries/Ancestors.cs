@@ -397,7 +397,7 @@ namespace CallOfTheWild
         public BlueprintFeature createSpiritShield(string name_prefix, string display_name, string description)
         {
             var mage_armor = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568");
-            var buff = Helpers.CreateBuff(name_prefix + "MysteryBuff",
+            var buff = Helpers.CreateBuff(name_prefix + "Buff",
                                           display_name,
                                           description,
                                           "",
@@ -407,7 +407,7 @@ namespace CallOfTheWild
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                                           classes: classes, stepLevel: 4, startLevel: -1, min: 2)
                                          );
-            var buff2 = Helpers.CreateBuff(name_prefix + "Mystery2Buff",
+            var buff2 = Helpers.CreateBuff(name_prefix + "2Buff",
                               display_name,
                               description,
                               "",
@@ -425,10 +425,10 @@ namespace CallOfTheWild
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             var apply_buff2 = Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
-            var resource = Helpers.CreateAbilityResource(name_prefix + "MysteryResource", "", "", "", null);
+            var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
             resource.SetIncreasedByLevel(0, 1, classes);
 
-            var ability = Helpers.CreateAbility(name_prefix + "MysteryAbility",
+            var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
                                                 description,
                                                 "",

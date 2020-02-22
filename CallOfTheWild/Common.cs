@@ -3125,7 +3125,7 @@ namespace CallOfTheWild
 
 
         public static void runActionOnDamageDealt(RuleDealDamage evt,  ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
-                                                  SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false)
+                                                  SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false, bool only_on_save = false)
         {
             Buff context_buff = null;
             if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
@@ -3171,7 +3171,12 @@ namespace CallOfTheWild
 
             var dc = spellContext.Params.DC;
 
-            if (save_type != SavingThrowType.Unknown)
+            if (only_on_save && spellContext.SavingThrow == null)
+            {
+                return;
+            }
+
+            if (save_type != SavingThrowType.Unknown || only_on_save || use_existing_save)
             {
                 RuleSavingThrow rule_saving_throw = null;
 
@@ -3381,6 +3386,7 @@ namespace CallOfTheWild
             ability.RemoveComponents<SpellListComponent>();
             ability.Type = AbilityType.SpellLike;
             ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
+            ability.MaterialComponent = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").MaterialComponent; //fireball (empty)
 
             var resource2 = resource;
             if (resource2 == null)
@@ -3390,6 +3396,16 @@ namespace CallOfTheWild
             }
 
             ability.AddComponent(Helpers.CreateResourceLogic(resource2));
+            return ability;
+        }
+
+        static public BlueprintAbility convertToSuperNatural(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null)
+        {
+            var ability = convertToSpellLike(spell, prefix, classes, stat, resource);
+            ability.Type = AbilityType.Supernatural;
+            ability.SpellResistance = false;
+            ability.RemoveComponents<SpellComponent>();
+
             return ability;
         }
     }

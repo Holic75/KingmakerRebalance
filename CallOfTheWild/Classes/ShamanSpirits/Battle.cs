@@ -204,7 +204,7 @@ namespace CallOfTheWild
             }
 
 
-             void createSpiritAbility()
+            void createSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "BattleSpiritResource", "", "", "", null);
                 resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
@@ -231,7 +231,7 @@ namespace CallOfTheWild
             }
 
 
-             void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "EnemiesBaneResource", "", "", "", null);
                 resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);

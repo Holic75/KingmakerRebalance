@@ -358,9 +358,8 @@ namespace CallOfTheWild
             public BlueprintAbilityResource resource = null;
             public int amount;
             public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
-            private int cost_to_pay;
-
-
+            private int cost_to_pay = -1;
+            public bool consume_extra_spell_slot = false;
 
             private int calculate_cost(UnitEntityData caster)
             {
@@ -374,7 +373,6 @@ namespace CallOfTheWild
                 }
                 return cost < 0 ? 0 : cost;
             }
-
 
             public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
             {
@@ -391,6 +389,12 @@ namespace CallOfTheWild
                     return false;
                 }
 
+
+                if (consume_extra_spell_slot && (!data.Spellbook.Blueprint.Spontaneous || data.Spellbook.GetSpontaneousSlots(data.SpellLevel) < 2))
+                {
+                    return false;
+                }
+
                 int cost = calculate_cost(this.Owner.Unit);
                 if (resource != null && this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
                 {
@@ -403,7 +407,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
-                cost_to_pay = 0;
+                cost_to_pay = -1;
                 if (!CanBeUsedOn(evt.Spell, evt.AbilityData))
                 {
                     return;
@@ -418,9 +422,9 @@ namespace CallOfTheWild
 
             public void OnEventAboutToTrigger(RuleCastSpell evt)
             {
-                if (cost_to_pay == 0 || evt.Spell.SourceItem != null)
+                if (cost_to_pay == -1 || evt.Spell.SourceItem != null)
                 {
-                    cost_to_pay = 0;
+                    cost_to_pay = -1;
                     return;
                 }
             }
@@ -428,12 +432,16 @@ namespace CallOfTheWild
             public void OnEventDidTrigger(RuleCastSpell evt)
             {
 
-                if (cost_to_pay == 0)
+                if (cost_to_pay == -1)
                 {
                     return;
                 }
                 this.Owner.Resources.Spend(resource, cost_to_pay);
-                cost_to_pay = 0;
+                if (consume_extra_spell_slot)
+                {
+                    evt.Spell.Spellbook.Spend(evt.Spell);
+                }
+                cost_to_pay = -1;
             }
         }
 

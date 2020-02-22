@@ -175,7 +175,7 @@ namespace CallOfTheWild
             }
 
 
-             void createSpiritAbility()
+            void createSpiritAbility()
             {
                 var icon = library.Get<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038").Icon; //burning hands
                 var resource = Helpers.CreateAbilityResource(prefix + "TouchOfFlamesResource", "", "", "", null);
@@ -220,7 +220,7 @@ namespace CallOfTheWild
             }
 
 
-             void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {
                 var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FierySoul.png");
 

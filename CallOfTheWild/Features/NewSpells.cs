@@ -322,7 +322,7 @@ namespace CallOfTheWild
                                           "Temporal Stasis",
                                           "You must succeed on a melee touch attack. You place the subject into a state of suspended animation. For the creature, time ceases to flow, and its condition becomes fixed. The creature does not grow older. Its body functions virtually cease, and no force or effect can harm it. This state persists until the spell ends.",
                                           "",
-                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/TimeStop.png"),
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/TemporalStasis.png"),
                                           Common.createPrefabLink("eb0e36f1de0c05347963262d56d90cf5"), //hold person
                                           Helpers.Create<TImeStopMechanics.EraseFromTime>()
                                           );

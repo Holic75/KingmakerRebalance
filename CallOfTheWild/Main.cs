@@ -227,6 +227,7 @@ namespace CallOfTheWild
                     CallOfTheWild.HexEngine.Initialize();
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
+                    CallOfTheWild.Oracle.createOracleClass();
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();                   

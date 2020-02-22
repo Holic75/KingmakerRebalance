@@ -71,6 +71,8 @@ namespace CallOfTheWild
 
         static public BlueprintProgression time_mystery;
         static public BlueprintProgression ancestor_mystery;
+        static public BlueprintProgression flame_mystery;
+        static public BlueprintProgression battle_mystery;
 
 
         static BlueprintCharacterClass[] getOracleArray()
@@ -213,6 +215,14 @@ namespace CallOfTheWild
         {
             mystery_engine = new MysteryEngine(getOracleArray(), StatType.Charisma);
 
+            oracle_mysteries = Helpers.CreateFeatureSelection("OracleMysteriesSelection",
+                                                              "Mystery",
+                                                              "Each oracle draws upon a divine mystery to grant her spells and powers. This mystery also grants additional class skills and other special abilities. This mystery can represent a devotion to one ideal, prayers to deities that support the concept, or a natural calling to champion a cause. For example, an oracle with the waves mystery might have been born at sea and found a natural calling to worship the gods of the oceans, rivers, and lakes, be they benign or malevolent. Regardless of its source, the mystery manifests in a number of ways as the oracle gains levels. An oracle must pick one mystery upon taking her first level of oracle. Once made, this choice cannot be changed.\n"
+                                                              + "At 2nd level, and every two levels thereafter, an oracle learns an additional spell derived from her mystery.",
+                                                              "",
+                                                              null,
+                                                              FeatureGroup.Domain);
+
             revelation_selection = Helpers.CreateFeatureSelection("OracleRevelationSelection",
                                                                   "Revelation",
                                                                   "At 1st level, 3rd level, and every four levels thereafter (7th, 11th, and so on), an oracle uncovers a new secret about her mystery that grants her powers and abilities. The oracle must select a revelation from the list of revelations available to her mystery (see FAQ at right). If a revelation is chosen at a later level, the oracle gains all of the abilities and bonuses granted by that revelation based on her current level. Unless otherwise noted, activating the power of a revelation is a standard action.\n"
@@ -224,9 +234,134 @@ namespace CallOfTheWild
 
             createTimeMystery();
             createAncestorsMystery();
+            createFlameMystery();
+            createBattleMystery();
+
+            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery };
+        }
 
 
-            revelation_selection.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery };
+        static void createBattleMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039"), //enlarge person
+                library.Get<BlueprintAbility>("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
+                library.Get<BlueprintAbility>("2d4263d80f5136b4296d6eb43a221d7d"), //magical vestment,
+                NewSpells.wall_of_fire,
+                library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252"), //righteous might
+                library.Get<BlueprintAbility>("6a234c6dcde7ae94e94e9c36fd1163a7"), //bulls strength mass
+                library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28"), //legendary proportions
+                library.Get<BlueprintAbility>("7cfbefe0931257344b2cb7ddc4cdff6f"), //stormbolts
+                library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6"), //clashing rocks
+            };
+
+            var battlecry = mystery_engine.createBattleCry("BattlecryOracleRevelation",
+                                                           "Battlecry",
+                                                           "As a standard action, you can unleash an inspiring battlecry. All allies within 50 feet who hear your cry gain a +1 morale bonus on attack rolls, skill checks, and saving throws for a number of rounds equal to your Charisma modifier. At 10th level, this bonus increases to +2. You can use this ability once per day, plus one additional time per day at 5th level and for every five levels thereafter.");
+            var combat_healer = mystery_engine.createCombatHealer("CombatHealerOracleRevelation",
+                                                                  "Combat Healer",
+                                                                  "Whenever you cast a cure spell (a spell with “cure” in its name), you can cast it as a swift action, as if using the Quicken Spell feat, by expending two spell slots. This does not increase the level of the spell. You can use this ability once per day at 7th level and one additional time per day for every four levels beyond 7th. You must be at least 7th level to select this revelation.");
+            var iron_skin = mystery_engine.createIronSkin("IronSkinOracleRevelation",
+                                                          "Iron Skin",
+                                                          "Once per day, your skin hardens and takes on the appearance of iron, granting you DR 10/adamantine. This functions as stoneskin, using your oracle level as the caster level. At 15th level, you can use this ability twice per day. You must be at least 11th level to select this revelation.");
+            var maneuver_mastery = mystery_engine.createManeuverMastery("ManeuverMasteryOracleRevelation",
+                                              "Maneuver Mastery",
+                                              "Select one type of combat maneuver. When performing the selected maneuver, you treat your oracle level as your base attack bonus when determining your CMB. At 7th level, you gain the Improved feat (such as Improved Trip) that grants you a bonus when performing that maneuver. At 11th level, you gain the Greater feat (such as Greater Trip) that grants you a bonus when performing that maneuver. You do not need to meet the prerequisites to receive these feats.");
+            var skill_at_arms = mystery_engine.createSkillAtArms("SkillAtArmsOracleRevelation",
+                                                                 "Skill at Arms",
+                                                                 "You gain proficiency in all martial weapons and heavy armor.");
+            var surprising_charge = mystery_engine.createSurprisingCharge("SurprisingChargeOracleRevelation",
+                                                                          "Surprising Charge",
+                                                                          "Once per day you can spend a swift action to gain pounce ability for one round. You can use this ability one additional time per day at 7th level and 15th level.");
+            var war_sight = mystery_engine.createTemporalCelerity("WarSightOracleRevelation",
+                                                                  "War Sight",
+                                                                  "Whenever you roll for initiative, you can roll twice and take either result. At 7th level, you can always act in the surprise round, but if you fail to notice the ambush, you act last, regardless of your initiative result (you act in the normal order in following rounds). At 11th level, you can roll for initiative three times and take any one of the results.");
+            var weapon_mastery = mystery_engine.createWeaponMastery("WeaponMasteryOracleRevelation",
+                                                                  "Weapon Mastery",
+                                                                  "Select one weapon with which you are proficient. You gain Weapon Focus with that weapon. At 8th level, you gain Improved Critical with that weapon. At 12th level, you gain Greater Weapon Focus with that weapon. You do not need to meet the prerequisites to receive these feats.");
+
+            var final_revelation = Helpers.CreateFeature("FinalRevelationBattleMystery",
+                                                          "Final Revelation",
+                                                          "Upon reaching 20th level, you become an avatar of battle. You gain pounce ability and diehard Feat. Whenever you score a critical hit, the attack ignores damage reduction. You gain a +4 insight bonus to AC for the purposes of confirming critical hits against you.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Common.createCriticalConfirmationACBonus(4),
+                                                          library.Get<BlueprintFeature>("1a8149c09e0bdfc48a305ee6ac3729a8").GetComponent<AddMechanicsFeature>(), //pounce
+                                                          Helpers.Create<IgnoreDamageReductionOnCriticalHit>(),
+                                                          Common.createAddFeatureIfHasFact(library.Get<BlueprintFeature>("c99f3405d1ef79049bd90678a666e1d7"), //diehard
+                                                                                           library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad"),
+                                                                                           not: true)
+                                                          );
+            battle_mystery = createMystery("Battle", "Battle", Helpers.GetIcon("c78506dd0e14f7c45a599990e4e65038"), //charge
+                             final_revelation,
+                             new StatType[] { StatType.SkillAthletics },
+                             spells,
+                             battlecry, combat_healer, iron_skin, maneuver_mastery,
+                             skill_at_arms, surprising_charge, war_sight, weapon_mastery
+                             );
+        }
+
+        static void createFlameMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                    library.Get<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038"), //burning hands
+                    library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
+                    library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3"), //fireball
+                    NewSpells.wall_of_fire,
+                    library.Get<BlueprintAbility>("b3a203742191449458d2544b3f442194"), //summon elemental large fire
+                    NewSpells.fire_seeds,
+                    SpellDuplicates.addDuplicateSpell("e3d0dfe1c8527934294f241e0ae96a8d", "FireStormShamanFlameSpiritAbility"),
+                    NewSpells.incendiary_cloud,
+                    library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39"), //fiery body
+            };
+
+            var burning_magic = mystery_engine.createBurningMagic("BurningMagicOracleRevelation",
+                                                                  "Burning Magic",
+                                                                  "Whenever a creature fails a saving throw and takes fire damage from one of your spells, it catches on fire. This fire deals 1 point of fire damage per spell level at the beginning of the burning creature’s turn. The fire lasts for 1d4 rounds, but it can be extinguished as a move action if the creature succeeds at a Reflex save (using the spell’s DC). Spells that do not grant a save do not cause a creature to catch on fire.");
+            var cinder_dance = mystery_engine.createCinderDance("CinderDanceOracleRevelation",
+                                                                "Cinder Dance",
+                                                                "Your base speed increases by 10 feet. At 10th level, you can ignore difficult terrain when moving.");
+            var fire_breath = mystery_engine.createFireBreath("FireBreathOracleRevelation",
+                                                                          "Fire Breath",
+                                                                          "As a standard action, you can unleash a 15-foot cone of flame from your mouth. This flame deals 1d4 points of fire damage per level. A Reflex save halves this damage. You can use this ability once per day, plus one additional time per day at 5th level and every five levels thereafter. The save DC is Charisma-based.");
+            var firestorm = mystery_engine.CreateFirestorm("FirestormOracleRevelation",
+                                                           "Firestorm",
+                                                           "As a standard action, you can cause fire to erupt in 20-foot radius burst in any point within close range.  Any creature caught in these flames takes 1d6 points of fire damage per oracle level, with a Reflex save resulting in half damage. This fire lasts for a number of rounds equal to your Charisma modifier. You can use this ability once per day. You must be at least 11th level to select this revelation.");
+            var form_of_flame = mystery_engine.createFormOfFlame("FormOfFlameOracleRevelation",
+                                                                "Form of Flame",
+                                                                "As a standard action, you can assume the form of a Small fire elemental, as elemental body I. At 9th level, you can assume the form of a Medium fire elemental, as elemental body II. At 11th level, you can assume the form of a Large fire elemental, as elemental body III. At 13th level, you can assume the form of a Huge fire elemental, as elemental body IV. You can use this ability once per day, but the duration is 1 hour/level. You must be at least 7th level to select this revelation.");
+            var heat_aura = mystery_engine.createHeatAura("HeatAuraOracleRevelation",
+                                                        "Heat Aura",
+                                                        "As a swift action, you can cause waves of heat to radiate from your body. This heat deals 1d4 points of fire damage per two oracle levels (minimum 1d4) to all creatures within 10 feet. A Reflex save halves the damage. In addition, your form wavers and blurs, granting you 20% concealment until your next turn. You can use this ability once per day, plus one additional time per day at 5th level and every five levels thereafter.");
+            var touch_of_flame = mystery_engine.createTouchOfFlame("TouchOfFlameOracleRevelation",
+                                                            "Toouch of Flame",
+                                                            "As a standard action, you can perform a melee touch attack that deals 1d6 points of fire damage +1 point for every two oracle levels you possess. You can use this ability a number of times per day equal to 3 + your Charisma modifier. At 11th level, any weapon that you wield is treated as a flaming weapon.");
+            var molten_skin = mystery_engine.createMoltenSkin("MoltenSkinOracleRevelation",
+                                                                     "Molten Skin",
+                                                                     "You gain resist fire 5. This resistance increases to 10 at 5th level and 20 at 11th level. At 17th level, you gain immunity to fire.");
+
+            var final_revelation = Helpers.CreateFeature("FinalRevelationFlameMystery",
+                                                  "Final Revelation",
+                                                  "Upon reaching 20th level, you become a master of fire. You can apply any one of the following feats to any fire spell you cast without increasing the spell’s level or casting time: Reach Spell, Extend Spell. You do not need to possess these feats to use this ability.",
+                                                  "",
+                                                  null,
+                                                  FeatureGroup.None);
+
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Fire)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Fire, "", "");
+            extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Fire)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Fire, "", "");
+            reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
+            final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
+
+            flame_mystery = createMystery("Flame", "Flame", NewSpells.wall_of_fire.Icon, final_revelation,
+                                         new StatType[] { StatType.SkillAthletics, StatType.SkillMobility },
+                                         spells,
+                                         burning_magic, cinder_dance, fire_breath, firestorm,
+                                         form_of_flame, heat_aura, touch_of_flame, molten_skin
+                                         );
         }
 
 
@@ -347,7 +482,8 @@ namespace CallOfTheWild
                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma),
                                                          Helpers.Create<IncreaseSpellSchoolCasterLevel>(i => { i.School = SpellSchool.Divination; i.BonusLevel = 4; }),
                                                          Helpers.CreateAddFact(heroic_invocation),
-                                                         Helpers.CreateAddAbilityResource(heroic_invocation.GetComponent<AbilityResourceLogic>().RequiredResource)
+                                                         Helpers.CreateAddAbilityResource(heroic_invocation.GetComponent<AbilityResourceLogic>().RequiredResource),
+                                                         Common.createBlindsense(60)
                                                          );
             ancestor_mystery = createMystery("Ancestor", "Ancestor", library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5").Icon, final_revelation,
                              new StatType[] { StatType.SkillLoreNature },
@@ -463,7 +599,7 @@ namespace CallOfTheWild
                                               Helpers.Create<AddEnergyImmunity>(a => a.Type = DamageEnergyType.NegativeEnergy)
                                               );
 
-            var curse5 = Helpers.CreateFeature("OracleCurseVampirism",
+            var curse5 = Helpers.CreateFeature("OracleCurse5Vampirism",
                                                "ChannelResistance",
                                                "At 5th level, you gain channel resistance +4.",
                                                "",
@@ -517,7 +653,7 @@ namespace CallOfTheWild
                                               Helpers.Create<AddEnergyImmunity>(a => a.Type = DamageEnergyType.NegativeEnergy)
                                               );
 
-            var curse5 = Helpers.CreateFeature("OracleCurseLich",
+            var curse5 = Helpers.CreateFeature("OracleCurse5Lich",
                                                "Ghoul Touch",
                                                "At 5th level, you add ghoul touch to your list of 2nd-level oracle spells known.",
                                                "",
@@ -678,7 +814,7 @@ namespace CallOfTheWild
             var vanish = library.Get<BlueprintAbility>("f001c73999fb5a543a199f890108d936");
             var glitterdust = library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9");
             var hideous_laughter = library.Get<BlueprintAbility>("fd4d9fd7f87575d47aafe2a64a6e2d8d");
-            var confusion = library.Get<BlueprintAbility>("886c7407dc629dc499b9f1465ff382df");
+            var confusion = library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949");
             var mass_invisibility = library.Get<BlueprintAbility>("98310a099009bbd4dbdf66bcef58b4cd");
             var curse = Helpers.CreateFeature("OracleCursePranked",
                                               "Pranked",
@@ -730,7 +866,7 @@ namespace CallOfTheWild
                                               "Wasting",
                                               "You take a –4 penalty on Charisma-based skill checks, except for Intimidate. You gain a +4 competence bonus on saves made against disease.",
                                               "",
-                                              Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), // sickened
+                                              NewSpells.fleshworm_infestation.Icon, // sickened
                                               FeatureGroup.None,
                                               Helpers.CreateAddStatBonus(StatType.CheckDiplomacy, -4, ModifierDescriptor.Penalty),
                                               Helpers.CreateAddStatBonus(StatType.CheckBluff, -4, ModifierDescriptor.Penalty),
@@ -834,6 +970,7 @@ namespace CallOfTheWild
                                               "",
                                               burning_hands.Icon,
                                               FeatureGroup.None,
+                                              burning_hands.CreateAddKnownSpell(oracle_class, 1),
                                               Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Other),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, classes: getOracleArray(),
                                                                               progression: ContextRankProgression.Custom,
@@ -848,7 +985,7 @@ namespace CallOfTheWild
                                                scorching_ray.Icon,
                                                FeatureGroup.None,
                                                scorching_ray.CreateAddKnownSpell(oracle_class, 2),
-                                               burning_hands.CreateAddKnownSpell(oracle_class, 2)
+                                               burning_arc.CreateAddKnownSpell(oracle_class, 2)
                                                );
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Blackened",

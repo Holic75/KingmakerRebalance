@@ -131,6 +131,8 @@
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\Mysteries\Battle.cs" />
+    <Compile Include="Classes\Mysteries\Flame.cs" />
     <Compile Include="Classes\Oracle.cs" />
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Features\MagusArcana.cs" />

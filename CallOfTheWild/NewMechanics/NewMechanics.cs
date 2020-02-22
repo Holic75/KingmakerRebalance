@@ -3502,6 +3502,7 @@ namespace CallOfTheWild
             public SavingThrowType save_type = SavingThrowType.Unknown;
             public SpellDescriptorWrapper descriptor;
             public bool use_existing_save;
+            public bool action_only_on_save;
 
             public void OnEventAboutToTrigger(RuleDealDamage evt)
             {
@@ -5914,6 +5915,24 @@ namespace CallOfTheWild
                 m_Modifier?.Remove();
                 m_Modifier = null;
                 base.OnTurnOff();
+            }
+        }
+
+
+        class SpellLevelPropertyGetter : PropertyValueGetter
+        {
+            internal static readonly Lazy<BlueprintUnitProperty> Blueprint = new Lazy<BlueprintUnitProperty>(() =>
+            {
+                var p = Helpers.Create<BlueprintUnitProperty>();
+                p.name = "SpellLevelCustomProperty";
+                Main.library.AddAsset(p, "a01545ff992d404181e050a119a35a61");
+                p.SetComponents(Helpers.Create<SpellLevelPropertyGetter>());
+                return p;
+            });
+
+            public override int GetInt(UnitEntityData unit)
+            {
+                return Helpers.GetMechanicsContext()?.SourceAbilityContext?.SpellLevel ?? 0;
             }
         }
     }
