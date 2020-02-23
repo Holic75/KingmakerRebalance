@@ -1300,6 +1300,7 @@ namespace CallOfTheWild
                 /*WarDomainGreaterFeatSelection*/
                 "79c6421dbdb028c4fa0c31b8eea95f16",
                 Warpriest.fighter_feat.AssetGuid,
+                Oracle.fighter_feat.AssetGuid,
                 "c5158a6622d0b694a99efb1d0025d2c1", //combat trick
             };
             foreach (var id in featSelectionIds)

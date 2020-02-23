@@ -947,6 +947,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "b48674cef2bff5e478a007cf57d8345b", 3), //remove curse
                 new Common.SpellId( "4093d5a0eb5cae94e909eb1e0e1a6b36", 3), //remove disease
                 new Common.SpellId( "1a36c8b9ed655c249a9f9e8d4731f001", 3), //soothing mud
+                new Common.SpellId( NewSpells.sleet_storm.AssetGuid, 3),
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 3),
                 new Common.SpellId( "fdcf7e57ec44f704591f11b45f4acf61", 3), //summon nature ally III

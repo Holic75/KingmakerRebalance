@@ -505,6 +505,32 @@ namespace CallOfTheWild
         }
 
 
+        public class ReduceMetamagicCostForSpecifiedSpells : RuleInitiatorLogicComponent<RuleApplyMetamagic>
+        {
+            public int reduction;
+            public BlueprintAbility[] spells;
+
+            public override void OnEventAboutToTrigger(RuleApplyMetamagic evt)
+            {
+                var spellbook = evt.Spellbook;
+                if (spellbook == null || !spells.Contains(evt.Spell))
+                {
+                    return;
+                }
+                if (evt.AppliedMetamagics.Count == 0) return;
+
+                evt.ReduceCost(reduction);
+            }
+
+
+            public override void OnEventDidTrigger(RuleApplyMetamagic evt)
+            {
+            }
+
+
+        }
+
+
         [Harmony12.HarmonyPatch(typeof(AutoMetamagic))]
         [Harmony12.HarmonyPatch("ShouldApplyTo", Harmony12.MethodType.Normal)]
         class AutoMetamagic__ShouldApplyTo__Patch

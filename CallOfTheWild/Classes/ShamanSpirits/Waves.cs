@@ -106,9 +106,9 @@ namespace CallOfTheWild
                 {
                     NewSpells.frost_bite,
                     library.Get<BlueprintAbility>("b6010dda6333bcf4093ce20f0063cd41"), //frigid touch
-                    library.Get<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826"), //stinking cloud
+                    NewSpells.sleet_storm,
                     library.Get<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9"), //ice storm
-                    library.Get<BlueprintAbility>("9374c81817be79f4e92b48a4aa5ded6e"), //summon elemental large water
+                    library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931"), //icy prison
                     NewSpells.fluid_form, 
                     NewSpells.ice_body, 
                     library.Get<BlueprintAbility>("7ef49f184922063499b8f1346fb7f521"), //seamantle

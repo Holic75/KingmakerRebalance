@@ -16,9 +16,11 @@ namespace CallOfTheWild.SpellFailureMechanics
 
         public void OnEventAboutToTrigger(RuleCastSpell evt)
         {
+            //Main.logger.Log("Checking " + evt.Spell.Name);
             if ((evt.Spell?.SourceItemUsableBlueprint == null) || (evt.Spell.StickyTouch != null))
-                return;
+                return;                   
             evt.SpellFailureChance = Math.Max(evt.SpellFailureChance, this.chance);
+            //Main.logger.Log("Ok " + evt.SpellFailureChance.ToString());
         }
 
         public void OnEventDidTrigger(RuleCastSpell evt)

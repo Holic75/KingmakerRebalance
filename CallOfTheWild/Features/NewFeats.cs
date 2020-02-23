@@ -228,7 +228,7 @@ namespace CallOfTheWild
                 NewFeats.mages_tattoo,
                 Witch.witch_knife,
                 library.Get<BlueprintFeature>("9093ceeefe9b84746a5993d619d7c86f"), //allied spell caster
-        };
+            };
             spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures); //other spell specializations
             spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("bb24cc01319528849b09a3ae8eec0b31").AllFeatures); //elemental foci
 

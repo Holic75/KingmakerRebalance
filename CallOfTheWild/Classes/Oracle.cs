@@ -43,7 +43,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class Oracle
+    public class Oracle
     {
         static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;
@@ -55,6 +55,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection oracle_mysteries;
         static public BlueprintFeatureSelection revelation_selection;
         static public BlueprintFeatureSelection cure_inflict_spells_selection;
+        static public BlueprintFeature mystery_skills;
 
         static public BlueprintProgression clouded_vision;
         static public BlueprintProgression blackened;
@@ -75,17 +76,50 @@ namespace CallOfTheWild
         static public BlueprintProgression battle_mystery;
         static public BlueprintProgression life_mystery;
         static public BlueprintProgression wind_mystery;
+        static public List<BlueprintProgression> dragon_mysteries = new List<BlueprintProgression>();
+        static public BlueprintProgression waves_mystery;
         //stone
-        //frost or winter
-        //dragon 
         //bones
-        //nature or lunar?
+        //nature + lunar?
+        //heavens + lunar?
 
+        static Dictionary<BlueprintProgression, BlueprintAbility[]> mystery_spells_map = new Dictionary<BlueprintProgression, BlueprintAbility[]>();
+        static public BlueprintArchetype seeker_archetype;
+        static public BlueprintFeature tinkering, seeker_lore, seeker_magic;
+        static public BlueprintArchetype warsighted_archetype;
+        static public BlueprintFeatureSelection fighter_feat;
+        static public BlueprintArchetype spirit_guide_archetype;
+
+        public class DragonInfo
+        {
+            public string name;
+            public BlueprintAbility breath_weapon_prototype;
+            public UnityEngine.Sprite resist_icon;
+            public string[] dragon_form_id;
+            public string breath_weapon_area;
+            public DamageEnergyType energy;
+            public BlueprintActivatableAbility wings;
+
+            public DragonInfo(string dragon_name, string breath_area, DamageEnergyType damage_energy)
+            {
+                name = dragon_name;
+                breath_weapon_prototype = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("BloodlineDraconic" + name + "BreathWeaponAbility")).FirstOrDefault();
+                wings = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.name == ("AbilityWingsDraconic" + name)).FirstOrDefault();
+                resist_icon = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("Resist" + damage_energy.ToString())).FirstOrDefault().Icon;
+                dragon_form_id = new string[3];
+                dragon_form_id[0] = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("FormOfTheDragonI" + name)).FirstOrDefault().AssetGuid;
+                dragon_form_id[1] = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("FormOfTheDragonII" + name)).FirstOrDefault().AssetGuid;
+                dragon_form_id[2] = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("FormOfTheDragonIII" + name)).FirstOrDefault().AssetGuid;
+                energy = damage_energy;
+                breath_weapon_area = breath_area;
+            }
+        }
 
         static BlueprintCharacterClass[] getOracleArray()
         {
             return new BlueprintCharacterClass[] { oracle_class };
         }
+
 
 
         internal static void createOracleClass()
@@ -128,15 +162,147 @@ namespace CallOfTheWild
 
             createOracleProgression();
             oracle_class.Progression = oracle_progression;
-            //createSeeker();
+            createSeeker();
+            createWarsighted();
             //createSpiritGuide();
-            //createWarsighted();
-            oracle_class.Archetypes = new BlueprintArchetype[] { };
+
+            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype};
             Helpers.RegisterClass(oracle_class);
-            //createExtraRevelationFeat();
+            createExtraRevelationFeat();
 
             Common.addMTDivineSpellbookProgression(oracle_class, oracle_class.Spellbook, "MysticTheurgeOracle",
                                                      Common.createPrerequisiteClassSpellLevel(oracle_class, 2));
+        }
+
+
+        static void createWarsighted()
+        {
+            warsighted_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "WarsightedArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Warsighted");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A warsighted’s unique gifts are not in strange magical revelations, but in her ability to adapt in the midst of a battle with new fighting techniques. The warsighted is a master of combat, as dedicated as a fighter and as flexible as a brawler.");
+            });
+            Helpers.SetField(warsighted_archetype, "m_ParentClass", oracle_class);
+            library.AddAsset(warsighted_archetype, "");
+
+            fighter_feat = library.CopyAndAdd<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "WarsightedBonusFeat", "");
+            fighter_feat.SetDescription("At 1st, 7th, 11th and 15th a warsighted gains a bonus feat in addition to those gained from normal advancement. These bonus feats must be selected from those listed as combat feats. ");
+
+            warsighted_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, revelation_selection), Helpers.LevelEntry(7, revelation_selection), Helpers.LevelEntry(11, revelation_selection), Helpers.LevelEntry(15, revelation_selection) };
+            warsighted_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, fighter_feat), Helpers.LevelEntry(7, fighter_feat), Helpers.LevelEntry(11, fighter_feat), Helpers.LevelEntry(15, fighter_feat)};
+        }
+
+
+        static void createSeeker()
+        {
+            seeker_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SeekerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Seeker");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Oracles gain their magical powers through strange and mysterious ways, be they chosen by fate or blood. While most might be content with their strange powers, some oracles join the Pathfinders specifically to find out more about their mysteries and determine the genesis and history of their eldritch talents. These spellcasters are known among the Spells as seekers, after their obsession with researching ancient texts and obscure ruins for any clues they can find about their heritage and histories.");
+            });
+            Helpers.SetField(seeker_archetype, "m_ParentClass", oracle_class);
+            library.AddAsset(seeker_archetype, "");
+
+            createTinkering();
+            createSeekerLore();
+            createSeekerMagic();
+
+            seeker_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, mystery_skills), Helpers.LevelEntry(3, revelation_selection), Helpers.LevelEntry(15, revelation_selection) };
+            seeker_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, tinkering), Helpers.LevelEntry(3, seeker_lore), Helpers.LevelEntry(15, seeker_magic) };
+
+            oracle_class.Progression.UIGroups = oracle_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(tinkering, seeker_lore, seeker_magic));
+        }
+
+
+        static void createSeekerMagic()
+        {
+            seeker_magic = Helpers.CreateFeature("SeekerMagicFeature",
+                                                 "Seeker Magic",
+                                                 "At 15th level, a seeker becomes skilled at modifying his mystery spells with metamagic. When a seeker applies a metamagic feat to any bonus spells granted by his mystery, he reduces the metamagic feat’s spell level adjustment by 1. Thus, applying a Metamagic feat like Still Spell to a spell does not change its effective spell level at all, while applying Quicken Spell only increases the spell’s effective spell level by 3 instead of by 4. This reduction to the spell level adjustment for Metamagic feats does not stack with similar reductions from other abilities.",
+                                                 "",
+                                                 Helpers.GetIcon("3524a71d57d99bb4b835ad20582cf613"),
+                                                 FeatureGroup.None);
+
+            foreach (var kv in mystery_spells_map)
+            {
+                var feature = Helpers.CreateFeature(kv.Key.name + "SeekerMagicFeature",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None,
+                                                    Helpers.Create<NewMechanics.MetamagicMechanics.ReduceMetamagicCostForSpecifiedSpells>(r => { r.reduction = 1; r.spells = kv.Value; })
+                                                    );
+                feature.HideInCharacterSheetAndLevelUp = true;
+                seeker_magic.AddComponent(Common.createAddFeatureIfHasFact(kv.Key, feature));
+            }
+        }
+
+
+        static void createTinkering()
+        {
+            tinkering = library.CopyAndAdd<BlueprintFeature>("dbb6b3bffe6db3547b31c3711653838e", "SeekerTinkeringFeature", "");
+            tinkering.SetNameDescription("Tinkering",
+                                         "Seekers often look to ancient devices, old tomes, and strange magical items in order to learn more about their oracle mysteries. As a result of this curiosity and thanks to an innate knack at deciphering the strange and weird, a seeker gains Disable Device as a class skill. In addition, at 1st level, a seeker adds half his oracle level on Perception checks made to locate traps and on all Disable Device skill checks (minimum +1). A seeker can use Disable Device to disarm magical traps. If the seeker also possesses levels in rogue or another class that provides the trapfinding ability, those levels stack with his oracle levels for determining his overall bonus on these skill checks.\n"
+                                         + "This ability replaces all of the bonus class skills he would otherwise normally gain from his mystery.\n"
+                                         );
+            var context_rank_config = tinkering.GetComponent<ContextRankConfig>();
+            Helpers.SetField(context_rank_config, "m_BaseValueType", ContextRankBaseValueType.SummClassLevelWithArchetype);
+            Helpers.SetField(context_rank_config, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(context_rank_config, "m_Class").AddToArray(oracle_class));
+            Helpers.SetField(context_rank_config, "Archetype", seeker_archetype);
+            tinkering.AddComponent(Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillThievery));
+        }
+
+
+        static void createSeekerLore()
+        {
+            seeker_lore = Helpers.CreateFeature("SeekerLoreFeature",
+                                                "Seeker Lore",
+                                                "By 3rd level, a seeker has already learned much about his mystery, and is more comfortable using the bonus spells gained by that mystery. He gains a +4 bonus on all concentration checks and on caster level checks made to overcome spell resistance.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None);
+            foreach (var kv in mystery_spells_map)
+            {
+                var feature = Helpers.CreateFeature(kv.Key.name + "SeekerLoreFeature",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None,
+                                                    Helpers.Create<NewMechanics.CasterLevelChecksBonusForSpecifiedSpells>(c => { c.value = 4; c.spells = kv.Value; })
+                                                    );
+                feature.HideInCharacterSheetAndLevelUp = true;
+                seeker_lore.AddComponent(Common.createAddFeatureIfHasFact(kv.Key, feature));
+            }
+        }
+
+
+        static void createExtraRevelationFeat()
+        {
+            var extra_revelation = Helpers.CreateFeatureSelection("ExtraRevelationOracleFeat",
+                                                                  "Extra Revelation",
+                                                                  "You gain one additional revelation. You must meet all of the prerequisites for this revelation.\n"
+                                                                  + "Special: You can gain Extra Revelation up to 2 times.",
+                                                                  "",
+                                                                  null,
+                                                                  FeatureGroup.Feat,
+                                                                  Helpers.PrerequisiteFeature(revelation_selection)
+                                                                  );
+            extra_revelation.AddComponent(Helpers.Create<CallOfTheWild.NewMechanics.PrerequisiteFeatureFullRank>(p =>
+                                                                                                                {
+                                                                                                                    p.divisor = 3;
+                                                                                                                    p.Feature = extra_revelation;
+                                                                                                                    p.checked_feature = extra_revelation;
+                                                                                                                    p.not = true;
+                                                                                                                }
+                                                                                                                )
+                                         );
+            extra_revelation.AllFeatures = revelation_selection.AllFeatures;
+            extra_revelation.Ranks = 2;
+            library.AddFeats(extra_revelation);
         }
 
 
@@ -184,6 +350,7 @@ namespace CallOfTheWild
             oracle_progression.Classes = getOracleArray();
 
             oracle_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, oracle_proficiencies, detect_magic, oracle_orisons,
+                                                                                        mystery_skills,
                                                                                         oracle_curses,
                                                                                         oracle_mysteries,
                                                                                         cure_inflict_spells_selection,
@@ -212,7 +379,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20)
                                                                     };
 
-            oracle_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { oracle_proficiencies, detect_magic, oracle_orisons, oracle_curses, cure_inflict_spells_selection, oracle_mysteries};
+            oracle_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { oracle_proficiencies, detect_magic, oracle_orisons, oracle_curses, cure_inflict_spells_selection, oracle_mysteries, mystery_skills };
 
             oracle_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(revelation_selection)};
         }
@@ -220,6 +387,15 @@ namespace CallOfTheWild
 
         static void createMysteries()
         {
+
+            mystery_skills = Helpers.CreateFeature("OracleMysterySkills",
+                                                   "Additional Class Skilss",
+                                                   "Oracle gains additional class skills based on his mystery.",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None);
+            //mystery_skills.HideInCharacterSheetAndLevelUp = true;
+            
             mystery_engine = new MysteryEngine(getOracleArray(), StatType.Charisma);
 
             oracle_mysteries = Helpers.CreateFeatureSelection("OracleMysteriesSelection",
@@ -245,8 +421,159 @@ namespace CallOfTheWild
             createBattleMystery();
             createLifeMystery();
             createWindMystery();
+            createDragonMysteries();
+            createWavesMystery();
 
-            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery};
+            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery, waves_mystery};
+            oracle_mysteries.AllFeatures = oracle_mysteries.AllFeatures.AddToArray(dragon_mysteries);
+        }
+
+
+        static void createWavesMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                    NewSpells.frost_bite,
+                    library.Get<BlueprintAbility>("b6010dda6333bcf4093ce20f0063cd41"), //frigid touch
+                    NewSpells.sleet_storm,
+                    library.Get<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9"), //ice storm
+                    library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931"), //icy prison
+                    NewSpells.fluid_form,
+                    NewSpells.ice_body,
+                    library.Get<BlueprintAbility>("7ef49f184922063499b8f1346fb7f521"), //seamantle
+                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
+            };
+
+            var blizzard = mystery_engine.createBlizzard("BlizzardOracleRevelation",
+                                                             "Blizzard",
+                                                             "As a standard action, you can create a blizzard of snow and ice. You can create 20-foot radius blizzard storm within close range. Any creature caught in the blizzard takes 1d4 points of cold damage per oracle level, with a Reflex save resulting in half damage. The storm lasts for a number of rounds equal to your Charisma modifier; the ground remains icy (+5 to Acrobatics DCs) as long as local conditions permit. The blizzard obscures sight beyond 5 feet, providing total concealment. A creature within 5 feet has concealment. You can use this ability once per day. You must be 11th level to select this revelation.");
+            var fluid_nature = mystery_engine.createFluidNature("FluidNatureOracleRevelation",
+                                                             "Fluid Nature",
+                                                             "You receive a +4 bonus to your Combat Maneuver Defense against bull rush, grapple, and trip attempts. A creature trying to confirm a critical hit against you has a –4 penalty on its confirmation roll. At 5th level, you gain Dodge as a bonus feat. You do not need to meet the prerequisite to gain this feat.");
+            var freezing_spells = mystery_engine.createFreezingSpells("FreezingSpellsOracleRevelation",
+                                                               "Freezing Spells",
+                                                               "Whenever a creature fails a saving throw and takes cold damage from one of your spells, it is slowed (as the slow spell) for 1 round. Spells that do not allow a save do not slow creatures. At 11th level, the duration increases to 1d4 rounds.");
+            var ice_armor = mystery_engine.createIceArmor("IceArmorOracleRevelation",
+                                                          "Ice Armor",
+                                                          "You can conjure armor of ice that grants you a +4 armor bonus. At 7th level, and every four levels thereafter, this bonus increases by +2. At 13th level, this armor grants you DR 5/piercing. You can use this armor for 1 hour per day per oracle level. This duration does not need to be consecutive, but it must be spent in 1-hour increments.");
+            var icy_skin = mystery_engine.createIcySkin("IcySkinOracleRevelation",
+                                                       "Icy Skin",
+                                                       "You gain resist cold 5. This resistance increases to 10 at 5th level and 20 at 11th level. At 17th level, you gain immunity to cold.");
+            var water_form = mystery_engine.createWaterForm("WaterFormOracleRevelation",
+                                                            "Water Form",
+                                                            "As a standard action, you can assume the form of a Small water elemental, as elemental body I. At 9th level, you can assume the form of a Medium water elemental, as elemental body II. At 11th level, you can assume the form of a Large water elemental, as elemental body III. At 13th level, you can assume the form of a Huge water elemental, as elemental body IV. You can use this ability once per day, but the duration is 1 hour/level. You must be at least 7th level to select this revelation.");
+            var wintry_touch = mystery_engine.createWintryTouch("WintryTouchOracleRevelation",
+                                                            "Wintry Touch",
+                                                            "As a standard action, you can perform a melee touch attack that deals 1d6 points of cold damage + 1 point for every two oracle levels you possess. You can use the wintry touch ability a number of times per day equal to 3 + your Charisma modifier. At 11th level, any weapon that you wield is treated as a frost weapon.");
+            var punitive_transformation = mystery_engine.createPunitiveTransformation("PunitiveTransformationOracleRevelation",
+                                                            "Punitive Transformation",
+                                                            "You can transform an opponent into a harmless animal as if using baleful polymorph. This transformation lasts 1 round per oracle level. Transforming another creature causes the first to immediately revert to normal. You may use this ability a number of times per day equal to your Charisma modifier. You must be at least 7th level before selecting this revelation.");
+
+            var final_revelation = Helpers.CreateFeature("FinalRevelationWavesMystery",
+                                                         "Final Revelation",
+                                                         "Upon reaching 20th level, you become a master of cold. You can apply any one of the following feats to any cold spell without increasing the level or casting time: Reach Spell or Extend Spell.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None);
+
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
+            extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
+            reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
+            final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
+
+            waves_mystery = createMystery("WavesOracleMystery", "Waves", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon, //charged blast
+                                         final_revelation,
+                                         new StatType[] { StatType.SkillLoreNature, StatType.SkillMobility},
+                                         spells,
+                                         blizzard, fluid_nature, freezing_spells, ice_armor,
+                                         icy_skin, water_form, wintry_touch, punitive_transformation
+                                         );
+        }
+
+
+        static void createDragonMysteries()
+        {
+            List<DragonInfo> dragon_info = new List<DragonInfo>();
+            dragon_info.Add(new DragonInfo("Black", "60-foot line", DamageEnergyType.Acid));
+            dragon_info.Add(new DragonInfo("Blue",  "60-foot line", DamageEnergyType.Electricity));
+            dragon_info.Add(new DragonInfo("Brass", "60-foot line", DamageEnergyType.Fire));
+            dragon_info.Add(new DragonInfo("Bronze", "60-foot line", DamageEnergyType.Electricity));
+            dragon_info.Add(new DragonInfo("Copper", "60-foot line", DamageEnergyType.Acid));
+            dragon_info.Add(new DragonInfo("Gold", "30-foot cone", DamageEnergyType.Fire));
+            dragon_info.Add(new DragonInfo("Green", "30-foot cone", DamageEnergyType.Acid));
+            dragon_info.Add(new DragonInfo("Red", "30-foot cone", DamageEnergyType.Fire));
+            dragon_info.Add(new DragonInfo("Silver", "30-foot cone", DamageEnergyType.Cold));
+            dragon_info.Add(new DragonInfo("White", "30-foot cone", DamageEnergyType.Cold));
+
+
+            var spells = new BlueprintAbility[9]
+            {
+                library.Get<BlueprintAbility>("bd81a3931aa285a4f9844585b5d97e51"), //cause fear
+                library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
+                NewSpells.fly,
+                library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889"), //spell resistance
+                library.Get<BlueprintAbility>("f0f761b808dc4b149b08eaf44b99f633"), //dispel magic greater
+                library.Get<BlueprintAbility>("4cf3d0fae3239ec478f51e86f49161cb"), //true seeing
+                library.Get<BlueprintAbility>("1cdc4ad4c208246419b98a35539eafa6"), //form of the dragon 3
+                library.Get<BlueprintAbility>("41cf93453b027b94886901dbfc680cb9") //overwhelming presence
+            };
+
+
+            var dragon_magic = mystery_engine.createDragonMagic("DragonMagicOracleRevelation",
+                                                                    "Dragon Magic",
+                                                                    "Your draconic power grants you a limited form of access to arcane magic. Add one spell to your spells known from the sorcerer/wizard spell list that is 2 levels lower than the highest-level spell you can cast.");
+            var dragon_senses = mystery_engine.createDragonSenses("DragonSensesOracleRevelation",
+                                                                  "Dragon Senses",
+                                                                  "Your senses take on a keen draconic edge. You gain a +2 bonus on Perception checks. At 5th level this bonus increases to +4. At 11th level, you gain blindsense with a range of 30 feet. At the 15th level, your blindsense range increases to 60 feet.");
+            var presence_of_dragon = mystery_engine.createPresenceOfDragons("PresenceOfDragonsOracleRevelation",
+                                                                            "Presence of Dragons",
+                                                                            "Those who would oppose you must overcome their fear of dragons or be struck with terror at your draconic majesty. As a swift action, you can manifest an aura of draconic might around yourself. Enemies within 30 feet who can see you when you activate this ability must attempt a Will save. Success means that the creature is immune to this ability for the following 24 hours. On a failed save, the opponent is shaken for 2d6 rounds. This is a mind-affecting fear effect. You can use this ability once per day at 1st level, plus one additional time per day at 5th level and for every 5 levels beyond 5th.");
+            var scaled_toughness = mystery_engine.createScaledToughness("ScaledToughnessOracleRevelation",
+                                                                        "Scaled Toughness",
+                                                                        "You can manifest the scaly toughness of dragonkind. Once per day as a swift action, you can harden your skin, giving it a scaly appearance and granting you DR 10/magic. During this time, you are also immune to paralysis and sleep effects. This effect lasts for a number of rounds equal to your oracle level. At 13th level, you can use this ability twice per day. You must be at least 7th level to select this revelation.");
+
+            foreach (var di in dragon_info)
+            {
+                var breath_weapon = mystery_engine.createBreathWeapon($"BreathWeapon{di.name}OracleRevelation",
+                                                                      "Breath Weapon",
+                                                                      "The primal power of dragonkind seethes within you. You gain a breath weapon. This breath weapon deals 1d6 points of damage of your energy type per 2 oracle levels you have (minimum 1d6; Reflex half ). The shape of the breath weapon is either a 30-foot cone or a 60- foot line, depending on the dragon type. You can use this ability once per day at 1st level, plus one additional time at 5th level and one additional time per day for every 5 levels beyond 5th.",
+                                                                      di.breath_weapon_prototype);
+
+                var draconic_resistances = mystery_engine.createDraconicResistance($"DraconicResistances{di.name}OracleRevelation",
+                                                                                  "Draconic Resistances",
+                                                                                  "Like the great dragons, you are not easily harmed by common means of attack. You gain resistance 5 against your chosen energy type and a +1 natural armor bonus. At 9th level, your energy resistance increases to 10 and your natural armor bonus increases to +2. At 15th level, your energy resistance increases to 20 and your natural armor bonus increases to +4.",
+                                                                                  di.energy,
+                                                                                  di.resist_icon);
+                var form_of_the_dragon = mystery_engine.createFormOfTheDragon($"FormOfTheDragon{di.name}OracleRevelation",
+                                                                              "Form of the Dragon",
+                                                                              "Your kinship with dragonkind allows you to take on the form of a dragon. As a standard action, you can assume the form of a Medium dragon, as per form of the dragon I. At 15th level, you can assume the form of a Large dragon, as per form of the dragon II. At 19th level, you can assume the form of a Huge dragon, as per form of the dragon III. You can use this ability once per day, but the duration is 10 minutes per oracle level. If you are at least 15th level and choose to have this ability function as per form of the dragon I, the duration is instead 1 hour per oracle level. You must be at least 11th level to select this revelation.",
+                                                                              di.dragon_form_id[0], di.dragon_form_id[1], di.dragon_form_id[2]);
+                var wings_of_the_dragon = mystery_engine.createWingsOfDragon($"WingsOfTheDragon{di.name}OracleRevelation",
+                                                                              di.wings);
+
+                var final_revelation = Helpers.CreateFeature($"FinalRevelationDragon{di.name}Mystery",
+                                                            "Final Revelation",
+                                                            "Upon reaching 20th level, your draconic destiny unfolds. You gain immunity to paralysis, sleep, and damage of your energy type. You count as a dragon for the purposes of spells and magical effects. If you have the breath weapon revelation, you can use your breath weapon an unlimited number of times per day, though no more often than once every 1d4+1 rounds.",
+                                                            "",
+                                                            null,
+                                                            FeatureGroup.None,
+                                                            Helpers.CreateAddFact(Common.dragon),
+                                                            Helpers.Create<AddEnergyDamageImmunity>(a => a.EnergyType = di.energy)
+                                                            );
+                var dragon_mystery = createMystery("Dragon" + di.name + "OracleMystery",$"Dragon ({di.name})", Helpers.GetIcon(di.dragon_form_id[0]),
+                                                 final_revelation,
+                                                 new StatType[] { StatType.SkillPerception },
+                                                 spells,
+                                                 dragon_magic, dragon_senses, presence_of_dragon, scaled_toughness,
+                                                 breath_weapon, draconic_resistances, form_of_the_dragon, wings_of_the_dragon
+                                                 );
+                dragon_mystery.SetDescription("Energy type: " + di.energy.ToString().ToLower() + ".\n"
+                                              + "Breath weapon shape: " + di.breath_weapon_area + ".\n"
+                                              + dragon_mystery.Description);
+                dragon_mysteries.Add(dragon_mystery);
+            }
         }
 
 
@@ -297,13 +624,13 @@ namespace CallOfTheWild
                                                           null,
                                                           FeatureGroup.None);
 
-            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "");
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon);
             extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "");
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon);
             reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
             final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
 
-            wind_mystery = createMystery("Wind", "Wind", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon, //sirocco
+            wind_mystery = createMystery("WindOracleMystery", "Wind", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon, //sirocco
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature },
                                          spells,
@@ -376,7 +703,7 @@ namespace CallOfTheWild
                                                                                            not: true)
                                                           );
 
-            life_mystery = createMystery("Life", "Life", Helpers.GetIcon("be2062d6d85f4634ea4f26e9e858c3b8"), // cleanse
+            life_mystery = createMystery("LifeOracleMystery", "Life", Helpers.GetIcon("be2062d6d85f4634ea4f26e9e858c3b8"), // cleanse
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature },
                                          spells,
@@ -439,7 +766,7 @@ namespace CallOfTheWild
                                                                                            library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad"),
                                                                                            not: true)
                                                           );
-            battle_mystery = createMystery("Battle", "Battle", Helpers.GetIcon("c78506dd0e14f7c45a599990e4e65038"), //charge
+            battle_mystery = createMystery("BattleOracleMystery", "Battle", Helpers.GetIcon("c78506dd0e14f7c45a599990e4e65038"), //charge
                              final_revelation,
                              new StatType[] { StatType.SkillAthletics },
                              spells,
@@ -482,7 +809,7 @@ namespace CallOfTheWild
                                                         "Heat Aura",
                                                         "As a swift action, you can cause waves of heat to radiate from your body. This heat deals 1d4 points of fire damage per two oracle levels (minimum 1d4) to all creatures within 10 feet. A Reflex save halves the damage. In addition, your form wavers and blurs, granting you 20% concealment until your next turn. You can use this ability once per day, plus one additional time per day at 5th level and every five levels thereafter.");
             var touch_of_flame = mystery_engine.createTouchOfFlame("TouchOfFlameOracleRevelation",
-                                                            "Toouch of Flame",
+                                                            "Touch of Flame",
                                                             "As a standard action, you can perform a melee touch attack that deals 1d6 points of fire damage +1 point for every two oracle levels you possess. You can use this ability a number of times per day equal to 3 + your Charisma modifier. At 11th level, any weapon that you wield is treated as a flaming weapon.");
             var molten_skin = mystery_engine.createMoltenSkin("MoltenSkinOracleRevelation",
                                                                      "Molten Skin",
@@ -495,13 +822,13 @@ namespace CallOfTheWild
                                                   null,
                                                   FeatureGroup.None);
 
-            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Fire)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Fire, "", "");
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Fire)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Fire, "", "", NewSpells.wall_of_fire.Icon);
             extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Fire)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Fire, "", "");
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Fire)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Fire, "", "", NewSpells.wall_of_fire.Icon);
             reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
             final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
 
-            flame_mystery = createMystery("Flame", "Flame", NewSpells.wall_of_fire.Icon, final_revelation,
+            flame_mystery = createMystery("FlameOracleMystery", "Flame", NewSpells.wall_of_fire.Icon, final_revelation,
                                          new StatType[] { StatType.SkillAthletics, StatType.SkillMobility },
                                          spells,
                                          burning_magic, cinder_dance, fire_breath, firestorm,
@@ -565,7 +892,7 @@ namespace CallOfTheWild
                                                          Helpers.CreateAddAbilityResource(time_stop.GetComponent<AbilityResourceLogic>().RequiredResource)
                                                          );
 
-            time_mystery = createMystery("Time", "Time", time_stop.Icon, final_revelation,
+            time_mystery = createMystery("TimeOracleMystery", "Time", time_stop.Icon, final_revelation,
                                          new StatType[] { StatType.SkillMobility, StatType.SkillPerception, StatType.SkillUseMagicDevice },
                                          spells,
                                          aging_touch, rewind_time, speed_or_slow_time, temporal_celerity,
@@ -630,7 +957,7 @@ namespace CallOfTheWild
                                                          Helpers.CreateAddAbilityResource(heroic_invocation.GetComponent<AbilityResourceLogic>().RequiredResource),
                                                          Common.createBlindsense(60)
                                                          );
-            ancestor_mystery = createMystery("Ancestor", "Ancestor", library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5").Icon, final_revelation,
+            ancestor_mystery = createMystery("AncestorOracleMystery", "Ancestor", library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5").Icon, final_revelation,
                              new StatType[] { StatType.SkillLoreNature },
                              spells,
                              blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior,
@@ -664,10 +991,17 @@ namespace CallOfTheWild
                                                     "",
                                                     icon,
                                                     FeatureGroup.Domain);
-            foreach (var s in class_skills)
-            {
-                mystery.AddComponent(Helpers.Create<AddClassSkill>(a => a.Skill = s));
-            }
+
+            var skills_feature = Helpers.CreateProgression(name + "SkillsFeature",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.Domain);
+            skills_feature.HideInCharacterSheetAndLevelUp = true;
+
+            mystery.AddComponent(Common.createAddFeatureIfHasFact(mystery_skills, skills_feature));
+
 
             mystery.Classes = getOracleArray();
             mystery.LevelEntries = new LevelEntry[spells.Length + 1];
@@ -702,6 +1036,7 @@ namespace CallOfTheWild
 
             revelation_selection.AllFeatures = revelation_selection.AllFeatures.AddToArray(mystery_revelation_selection);
 
+            mystery_spells_map.Add(mystery, spells);
             return mystery;
         }
 
@@ -975,7 +1310,7 @@ namespace CallOfTheWild
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Pranked",
                                                "Pranked",
-                                               "At 5th level, you add glitterdust and minor image to your list of spells known.",
+                                               "At 5th level, you add glitterdust and hideous laughter to your list of spells known.",
                                                "",
                                                glitterdust.Icon,
                                                FeatureGroup.None,
@@ -1117,7 +1452,7 @@ namespace CallOfTheWild
                                               FeatureGroup.None,
                                               burning_hands.CreateAddKnownSpell(oracle_class, 1),
                                               Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Other),
-                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, classes: getOracleArray(),
+                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (9, -4), (20, -2) }
                                                                               )
@@ -1144,7 +1479,7 @@ namespace CallOfTheWild
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Blackened", 
                                                 curse.Name,
-                                                "At 15th level, add delayed blast fireball to your list of spells known.",
+                                                "At 15th level, add firebrand to your list of spells known.",
                                                 "",
                                                 firebrand.Icon,
                                                 FeatureGroup.None,
@@ -1166,7 +1501,7 @@ namespace CallOfTheWild
                                               FeatureGroup.None,
                                               Helpers.CreateAddContextStatBonus(StatType.Initiative, ModifierDescriptor.Other),
                                               Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.Other),
-                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, classes: getOracleArray(),
+                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (4, -4), (9, -2), (20, 0) }
                                                                               ),

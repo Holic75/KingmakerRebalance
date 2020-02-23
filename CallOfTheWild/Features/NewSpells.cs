@@ -196,6 +196,8 @@ namespace CallOfTheWild
         static public BlueprintAbility temporal_stasis;
         static public BlueprintAbility time_stop;
 
+        static public BlueprintAbility sleet_storm;
+
 
         static public void load()
         {
@@ -313,6 +315,96 @@ namespace CallOfTheWild
 
             createTemporalStasis();
             createTimeStop();
+
+            createSleetStorm();
+        }
+
+
+        static void createSleetStorm()
+        {
+            var invisibility = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SleetStorm.png");
+
+            var buff = Helpers.CreateBuff("SleetStormBuff",
+                              "Sleet Storm",
+                              "Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Acrobatics check. Failure means it can’t move in that round.\n"
+                              + "Ranged attacks are impossible in the area.",
+                              "",
+                              icon,
+                              null,
+                              Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
+                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                              Common.createBuffDescriptorImmunity(SpellDescriptor.SightBased),
+                              Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; }),
+                              Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; }),
+                              Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                              Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged })
+                              );
+            buff.FxOnStart = invisibility.FxOnStart;
+            buff.FxOnRemove = invisibility.FxOnRemove;
+
+
+            var can_not_move_buff = Helpers.CreateBuff("SleetStormCanNotMoveBuff",
+                                                      "Sleet Storm (Can Not Move)",
+                                                      "You can not move through the storm.",
+                                                      "",
+                                                      icon,
+                                                      null,
+                                                      Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove)
+                                                      );
+
+            can_not_move_buff.Stacking = StackingType.Replace;
+
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("6ea87a0ff5df41c459d641326f9973d5", "SleetStormArea", "");
+
+            var apply_can_not_move = Common.createContextActionApplyBuff(can_not_move_buff, Helpers.CreateContextDuration(1), dispellable: false, is_child: true);
+
+            var check_movement = Helpers.CreateConditional(new Condition[]{Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
+                                                                           Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
+                                                           Common.createContextActionSkillCheck(StatType.Strength,
+                                                                                                failure: Helpers.CreateActionList(apply_can_not_move),
+                                                                                                custom_dc: 10)
+                                                           );
+
+            var actions = Helpers.CreateActionList(check_movement);
+            area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a =>
+                {
+                    a.UnitEnter = actions;
+                    a.Round = actions;
+                    a.FirstRound = actions;
+                }),
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
+            };
+
+
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+
+
+            sleet_storm = Helpers.CreateAbility("SleetStormAbility",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     icon,
+                                                     AbilityType.Spell,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Long,
+                                                     Helpers.roundsPerLevelDuration,
+                                                     "",
+                                                     Helpers.CreateRunActions(spawn_area),
+                                                     Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                     Helpers.CreateContextRankConfig()
+                                                     );
+            sleet_storm.setMiscAbilityParametersRangedDirectional();
+            sleet_storm.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+
+            sleet_storm.AddToSpellList(Helpers.druidSpellList, 3);
+            sleet_storm.AddToSpellList(Helpers.magusSpellList, 3);
+            sleet_storm.AddToSpellList(Helpers.wizardSpellList, 3);
+            sleet_storm.AddSpellAndScroll("c17e4bd5028d6534a8c8d317cd8244ca");
         }
 
 
@@ -774,9 +866,10 @@ namespace CallOfTheWild
                               icon,
                               null,
                               Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
-                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Blindness),
+                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
                               Common.createBuffDescriptorImmunity(SpellDescriptor.SightBased),
-                              Helpers.Create<BuffInvisibility>(b => { b.NotDispellAfterOffensiveAction = true; b.m_StealthBonus = 100; }),
+                              Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; }),
+                              Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; }),
                               Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
                               Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged })
                               );
@@ -785,7 +878,7 @@ namespace CallOfTheWild
 
 
             var can_not_move_buff = Helpers.CreateBuff("ScouringWindsCanNotMoveBuff",
-                                                      "Scouring Winds (Can not move)",
+                                                      "Scouring Winds (Can Not Move)",
                                                       "You can not move through the wind.",
                                                       "",
                                                       icon,
@@ -2845,6 +2938,7 @@ namespace CallOfTheWild
                                           null,
                                           Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.StatBonus)),
                                           Helpers.Create<AddImmunityToPrecisionDamage>(),
+                                          Helpers.Create<AddImmunityToCriticalHits>(),
                                           Common.createBuffDescriptorImmunity(SpellDescriptor.Bleed),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Bleed),
                                           Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus, progression: ContextRankProgression.StartPlusDivStep, startLevel: 5, stepLevel: 5)

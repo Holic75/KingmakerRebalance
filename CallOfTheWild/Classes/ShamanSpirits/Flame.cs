@@ -185,6 +185,7 @@ namespace CallOfTheWild
                 touch_of_flames.RemoveComponents<SpellComponent>();
                 touch_of_flames.RemoveComponents<AbilityResourceLogic>();
                 touch_of_flames.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateDeliverTouch());
+                touch_of_flames.AddComponent(Common.createAbilitySpawnFx("316c51cc84afcfc4facc9ada44ff47c1", anchor: AbilitySpawnFxAnchor.SelectedTarget));
                 touch_of_flames.setMiscAbilityParametersTouchHarmful();
                 touch_of_flames.Range = AbilityRange.Touch;
                 touch_of_flames.Type = AbilityType.Supernatural;

@@ -90,6 +90,7 @@ namespace CallOfTheWild
     public class Common
     {
         public static BlueprintFeature undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
+        public static BlueprintFeature dragon = library.Get<BlueprintFeature>("455ac88e22f55804ab87c2467deff1d6");
         public static BlueprintFeature construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
         public static BlueprintFeature elemental = library.Get<BlueprintFeature>("198fd8924dabcb5478d0f78bd453c586");
         public static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
@@ -2940,14 +2941,15 @@ namespace CallOfTheWild
 
 
         public static BlueprintActivatableAbility CreateMetamagicAbility(BlueprintFeature feat, String name, String display_name, Metamagic metamagic, SpellDescriptor descriptor, 
-                                                                  String buff_id, String ability_id)
+                                                                  String buff_id, String ability_id, UnityEngine.Sprite ability_icon = null)
         {
+            var icon = ability_icon == null ? feat.Icon : ability_icon;
             var buff = Helpers.CreateBuff($"{feat.name}{name}Buff", display_name, feat.Description,
-                buff_id, feat.Icon, null,
+                buff_id, icon, null,
                 Helpers.Create<AutoMetamagic>(a => { a.Metamagic = metamagic; a.Descriptor = descriptor; }));
 
             var ability = Helpers.CreateActivatableAbility($"{feat.name}{name}ToggleAbility", display_name, feat.Description,
-                ability_id, feat.Icon, buff, AbilityActivationType.Immediately,
+                ability_id, icon, buff, AbilityActivationType.Immediately,
                 CommandType.Free, null);
             ability.DeactivateImmediately = true;
             return ability;
@@ -3396,6 +3398,7 @@ namespace CallOfTheWild
             }
 
             ability.AddComponent(Helpers.CreateResourceLogic(resource2));
+            ability.Parent = null;
             return ability;
         }
 
