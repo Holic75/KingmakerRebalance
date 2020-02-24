@@ -269,8 +269,12 @@ namespace CallOfTheWild
             {
                 spirirt_boost_hp_buff = library.CopyAndAdd<BlueprintBuff>("4814db563c105e64d948161162715661", "LifeMysterySpiritBoostTemporaryHpBuff", "");
                 spirirt_boost_hp_buff.SetNameDescriptionIcon("", "", Helpers.GetIcon("7792da00c85b9e042a0fdfc2b66ec9a8")); //break enchantment
-                                                                          
+                spirirt_boost_hp_buff.ComponentsArray = new BlueprintComponent[]
+                {
+                    Helpers.Create<HealingMechanics.TemporaryHpBonusInternal>(h => h.RemoveWhenHitPointsEnd = true)
+                };             
             }
+
             return Helpers.CreateFeature(name_prefix + "Feature",
                                          display_name,
                                          description,
@@ -279,8 +283,8 @@ namespace CallOfTheWild
                                          FeatureGroup.None,
                                          Helpers.Create<HealingMechanics.HealingWithOverflowToTemporaryHp>(h =>
                                                                                                           { h.temporary_hp_buff = spirirt_boost_hp_buff;
-                                                                                                              h.hp_value_to_update = Kingmaker.UnitLogic.Abilities.AbilitySharedValue.Heal;
                                                                                                               h.duration = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                              h.max_hp = Helpers.CreateContextValue(AbilityRankType.Default);
                                                                                                            }
                                                                                                           ),
                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes)

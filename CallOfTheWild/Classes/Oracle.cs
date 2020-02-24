@@ -992,13 +992,17 @@ namespace CallOfTheWild
                                                     icon,
                                                     FeatureGroup.Domain);
 
-            var skills_feature = Helpers.CreateProgression(name + "SkillsFeature",
+            var skills_feature = Helpers.CreateFeature(name + "SkillsFeature",
                                                     "",
                                                     "",
                                                     "",
                                                     null,
                                                     FeatureGroup.Domain);
             skills_feature.HideInCharacterSheetAndLevelUp = true;
+            foreach (var s in class_skills)
+            {
+                skills_feature.AddComponent(Helpers.Create<AddClassSkill>(a => a.Skill = s));
+            }
 
             mystery.AddComponent(Common.createAddFeatureIfHasFact(mystery_skills, skills_feature));
 
