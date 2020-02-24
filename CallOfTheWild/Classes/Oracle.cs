@@ -608,9 +608,9 @@ namespace CallOfTheWild
                                                           null,
                                                           FeatureGroup.None);
 
-            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Cold, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
             extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Cold, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
             reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
             final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
 
@@ -1216,7 +1216,7 @@ namespace CallOfTheWild
                                               );
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Vampirism",
-                                               "ChannelResistance",
+                                               "Channel Resistance",
                                                "At 5th level, you gain channel resistance +4.",
                                                "",
                                                Helpers.GetIcon("89df18039ef22174b81052e2e419c728"),
@@ -1237,7 +1237,7 @@ namespace CallOfTheWild
                                                 "",
                                                 vampiric_touch.Icon,
                                                 FeatureGroup.None,
-                                                vampiric_touch.CreateAddKnownSpell(oracle_class, 2),
+                                                vampiric_touch.CreateAddKnownSpell(oracle_class, 3),
                                                 vampiric_shadow_shield.CreateAddKnownSpell(oracle_class, 5)
                                                 );
 

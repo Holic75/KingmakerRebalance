@@ -82,7 +82,7 @@ namespace CallOfTheWild
                     NewSpells.wall_of_fire,
                     library.Get<BlueprintAbility>("b3a203742191449458d2544b3f442194"), //summon elemental large fire
                     NewSpells.fire_seeds,
-                    library.Get<BlueprintAbility>("e3d0dfe1c8527934294f241e0ae96a8d"),
+                    SpellDuplicates.addDuplicateSpell("e3d0dfe1c8527934294f241e0ae96a8d", "FireStormShamanFlameSpiritAbility"),//firestorm
                     NewSpells.incendiary_cloud,
                     library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39"), //fiery body
                 };

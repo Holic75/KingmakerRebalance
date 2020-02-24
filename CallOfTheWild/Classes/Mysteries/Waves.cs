@@ -93,7 +93,8 @@ namespace CallOfTheWild
                     a.Round = actions;
                     a.FirstRound = actions;
                 }),
-                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }),
+                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes, type: AbilityRankType.DamageDice),
             };
 
 
@@ -114,7 +115,6 @@ namespace CallOfTheWild
                                                      Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: stat),
-                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes, type: AbilityRankType.DamageDice),
                                                      Helpers.CreateResourceLogic(resource),
                                                      Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
                                                      );
@@ -371,7 +371,7 @@ namespace CallOfTheWild
 
                 var new_actions = Common.changeAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, c => c.DurationValue = Helpers.CreateContextDuration(c.DurationValue.BonusValue, DurationRate.Hours));
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
-
+                ability.LocalizedDuration = Helpers.CreateString(ability.name + ".Duration", Helpers.hourPerLevelDuration);
                 if (i == 0)
                 {
                     feature.AddComponent(Helpers.CreateAddFact(ability));
@@ -401,11 +401,13 @@ namespace CallOfTheWild
             touch.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateDeliverTouch());
             touch.setMiscAbilityParametersTouchHarmful();
             touch.Type = AbilityType.Supernatural;
+            touch.Range = AbilityRange.Touch;
             touch.SpellResistance = false;
             touch.AddComponent(Common.createAbilitySpawnFx("274fbd84b4c9d794bb5fe677472292b1", anchor: AbilitySpawnFxAnchor.SelectedTarget));
-            touch.SetNameDescription(display_name,
-                                     description
-                                     );
+            touch.SetNameDescriptionIcon(display_name,
+                                         description,
+                                         Helpers.GetIcon("c83447189aabc72489164dfc246f3a36") //frigid touch
+                                         );
             touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", classes));
             var touch_sticky = Helpers.CreateTouchSpellCast(touch, resource);
             

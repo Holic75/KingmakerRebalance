@@ -185,7 +185,8 @@ namespace CallOfTheWild
                 
                 var new_actions = Common.changeAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, c => c.DurationValue = Helpers.CreateContextDuration(c.DurationValue.BonusValue, DurationRate.Hours));
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
-               
+                ability.LocalizedDuration = Helpers.CreateString(ability.name + ".Duration", Helpers.hourPerLevelDuration);
+
                 if (i == 0)
                 {
                     feature.AddComponent(Helpers.CreateAddFact(ability));

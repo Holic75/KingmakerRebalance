@@ -10,6 +10,7 @@ It introduces new classes:
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Arcanist with following archetypes: School Savant, Blood Arcanist and Unlettered Arcanist,
+- Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -83,7 +84,8 @@ New feats:
 - Mage's Tattoo,
 - Quicken Blessing,
 - Extra Reservoir,
-- Extra Exploit.
+- Extra Exploit,
+- Extra Revelation.
 
 New rage powers:
 - Terrifying Howl
@@ -192,6 +194,7 @@ New spells:
 - Keen Edge,
 - Resinous Skin,
 - Sheet Lightning,
+- Sleet Storm,
 - Stunning Barrier, Greater,
 - Air Walk and Air Walk, Communal,
 - Archon's Trumpet,
