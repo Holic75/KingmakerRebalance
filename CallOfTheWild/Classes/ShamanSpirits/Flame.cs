@@ -62,6 +62,42 @@ namespace CallOfTheWild
             string prefix;
             bool test_mode;
 
+
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038"), //burning hands
+                    library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
+                    library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3"), //fireball
+                    NewSpells.wall_of_fire,
+                    library.Get<BlueprintAbility>("b3a203742191449458d2544b3f442194"), //summon elemental large fire
+                    NewSpells.fire_seeds,
+                    library.Get<BlueprintAbility>("e3d0dfe1c8527934294f241e0ae96a8d"),
+                    NewSpells.incendiary_cloud,
+                    library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39"), //fiery body
+                };
+                return new Oracle.Spirit("Flame",
+                                         "Flame",
+                                         "A shaman who selects the flame spirit has a radiant light behind her eyes and the faint smell of smoke about her. When she calls upon one of this spirit’s abilities, a hungry spectral flame dances around her body.",
+                                         library.Get<BlueprintAbility>("19309b5551a28d74288f4b6f7d8d838d").Icon, //wall of fire
+                                         "",
+                                         spirit_ability,
+                                         greater_spirit_ability,
+                                         spells,
+                                         hexes);
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

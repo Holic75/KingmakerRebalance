@@ -175,7 +175,7 @@ namespace CallOfTheWild.Archetypes
             wind_spirit = new SpiritsEngine.WindSpirit();
 
 
-            spirits.Add("Battle", battle_spirit.createSpirirtWhispererSpirit(hex_engine, "SpiritWhisperer", "SpiritWhisperer", test_mode));
+            spirits.Add("Battle", battle_spirit.createSpiritWhispererSpirit(hex_engine, "SpiritWhisperer", "SpiritWhisperer", test_mode));
             spirits.Add("Bones", bones_spirit.createSpiritWhispererSpirit(hex_engine, "SpiritWhisperer", "SpiritWhisperer", test_mode));
             spirits.Add("Flame", flame_spirit.createSpiritWhispererSpirit(hex_engine, "SpiritWhisperer", test_mode));
             spirits.Add("Stone", stone_spirit.createSpiritWhispererSpirit(hex_engine, "SpiritWhisperer", test_mode));
@@ -188,7 +188,7 @@ namespace CallOfTheWild.Archetypes
 
             spirit_selection = Helpers.CreateFeatureSelection("SpiritWhispererSpiritLink",
                                                "Spirit Link",
-                                               "At 1st level, a spirit whisperer forms a mystical bond with a spirit. The spirit whisperer picks a spirit from the shaman’s list of spirits. At 1st level, he gains a spirit ability granted by that spirit. At 8th level, he gains the greater spirit ability granted by that spirit (or true spirit ability for Lore spirit). At 20th level, the spirit whisperer gains the manifestation ability granted by the spirit. He uses his wizard level as his shaman level for determining the effects and DCs of abilities granted by the spirit. In addition, he uses his Intelligence modifier in place of his Wisdom modifier for these abilities. He does not gain hexes, spirit magic spells, or the true spirit ability typically granted to a shaman by these spirits",
+                                               "At 1st level, a spirit whisperer forms a mystical bond with a spirit. The spirit whisperer picks a spirit from the shaman’s list of spirits. At 1st level, he gains a spirit ability granted by that spirit. At 8th level, he gains the greater spirit ability granted by that spirit (or true spirit ability for Lore spirit). At 20th level, the spirit whisperer gains the manifestation ability granted by the spirit. He uses his wizard level as his shaman level for determining the effects and DCs of abilities granted by the spirit. In addition, he uses his Intelligence modifier in place of his Wisdom modifier for these abilities. He does not gain hexes, spirit magic spells, or the true spirit ability typically granted to a shaman by these spirits.",
                                                "",
                                                null,
                                                FeatureGroup.None);

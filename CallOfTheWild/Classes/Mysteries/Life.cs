@@ -15,6 +15,7 @@ using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
@@ -269,10 +270,12 @@ namespace CallOfTheWild
             {
                 spirirt_boost_hp_buff = library.CopyAndAdd<BlueprintBuff>("4814db563c105e64d948161162715661", "LifeMysterySpiritBoostTemporaryHpBuff", "");
                 spirirt_boost_hp_buff.SetNameDescriptionIcon("", "", Helpers.GetIcon("7792da00c85b9e042a0fdfc2b66ec9a8")); //break enchantment
-                spirirt_boost_hp_buff.ComponentsArray = new BlueprintComponent[]
+                spirirt_boost_hp_buff.RemoveComponents<ContextCalculateSharedValue>();
+                //spirirt_boost_hp_buff.ReplaceComponent<TemporaryHitPointsFromAbilityValue>(t => t.Value = Helpers.CreateContextValue((AbilitySharedValue)100));
+                /*spirirt_boost_hp_buff.ComponentsArray = new BlueprintComponent[]
                 {
                     Helpers.Create<HealingMechanics.TemporaryHpBonusInternal>(h => h.RemoveWhenHitPointsEnd = true)
-                };             
+                }*/;             
             }
 
             return Helpers.CreateFeature(name_prefix + "Feature",
@@ -285,6 +288,7 @@ namespace CallOfTheWild
                                                                                                           { h.temporary_hp_buff = spirirt_boost_hp_buff;
                                                                                                               h.duration = Helpers.CreateContextValue(AbilityRankType.Default);
                                                                                                               h.max_hp = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                              h.shared_value_type = AbilitySharedValue.Heal;
                                                                                                            }
                                                                                                           ),
                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes)

@@ -64,6 +64,41 @@ namespace CallOfTheWild
             bool test_mode;
 
 
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("ab395d2335d3f384e99dddee8562978f"), //shocking grasp
+                    library.Get<BlueprintAbility>("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
+                    library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73"), //lightning bolt
+                    NewSpells.river_of_wind,
+                    library.Get<BlueprintAbility>("16fff43f034133a4a86e914a523e021f"), //summon elemental large air
+                    library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c"), //sirocco
+                    NewSpells.scouring_winds,
+                    library.Get<BlueprintAbility>("333efbf776ab61c4da53e9622751d95f"), //summon elemental elder air
+                    NewSpells.winds_of_vengeance
+                };
+
+                return new Oracle.Spirit("Wind",
+                                         "Wind",
+                                         "A shaman who selects the wind spirit appears windswept, and her movements seem lithe and carefree.",
+                                         library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon,//sirocco
+                                         "",
+                                         spirit_ability,
+                                         greater_spirit_ability,
+                                         spells,
+                                         hexes);
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

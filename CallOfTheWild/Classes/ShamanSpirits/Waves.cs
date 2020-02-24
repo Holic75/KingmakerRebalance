@@ -64,6 +64,44 @@ namespace CallOfTheWild
             bool test_mode;
 
 
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+
+                spells = new BlueprintAbility[9]
+                {
+                    NewSpells.frost_bite,
+                    library.Get<BlueprintAbility>("b6010dda6333bcf4093ce20f0063cd41"), //frigid touch
+                    NewSpells.sleet_storm,
+                    library.Get<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9"), //ice storm
+                    library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931"), //icy prison
+                    NewSpells.fluid_form,
+                    NewSpells.ice_body,
+                    library.Get<BlueprintAbility>("7ef49f184922063499b8f1346fb7f521"), //seamantle
+                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
+                };
+
+
+                return new Oracle.Spirit("Waves",
+                                         "Waves",
+                                         "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
+                                         library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon,//charged blast
+                                         "",
+                                         spirit_ability,
+                                         greater_spirit_ability,
+                                         spells,
+                                         hexes.Skip(1).ToArray()
+                                         );
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

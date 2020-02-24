@@ -36,6 +36,15 @@ namespace CallOfTheWild
 
         public static BlueprintAbility addDuplicateSpell(BlueprintAbility prototype, string name, string guid = "")
         {
+            if (duplicate_spells.ContainsKey(prototype.AssetGuid))
+            {
+                var spell = duplicate_spells[prototype.AssetGuid].Find(a => a.name == name);
+                if (spell != null)
+                {
+                    return spell;
+                }
+            }
+
             BlueprintAbility new_spell = library.CopyAndAdd<BlueprintAbility>(prototype, name, guid);
             if (!duplicate_spells.ContainsKey(prototype.AssetGuid))
             {

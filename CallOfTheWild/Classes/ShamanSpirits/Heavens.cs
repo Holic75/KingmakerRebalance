@@ -64,6 +64,41 @@ namespace CallOfTheWild
             bool test_mode;
 
 
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("91da41b9793a4624797921f221db653c"), //color sparay
+                    NewSpells.hypnotic_pattern,
+                    SpellDuplicates.addDuplicateSpell(library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9"), "ShamanHeavensGlitterdust", ""), //glitterdust
+                    library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow pattern
+                    NewSpells.overland_flight,
+                    library.Get<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58"), //chain lightning
+                    library.Get<BlueprintAbility>("b22fd434bdb60fb4ba1068206402c4cf"), //prismatic spray
+                    library.Get<BlueprintAbility>("e96424f70ff884947b06f41a765b7658"), //sunburst
+                    NewSpells.meteor_swarm
+                };
+
+                return new Oracle.Spirit("Heavens",
+                                        "Heavens",
+                                        "A shaman who selects the heavens spirit has eyes that sparkle like starlight, exuding an aura of otherworldliness to those she is around. When she calls upon one of this spirit’s abilities, her eyes turn pitch black and the colors around her drain for a brief moment.",
+                                        library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9").Icon,//glitterdust
+                                        "",
+                                        spirit_ability,
+                                        greater_spirit_ability,
+                                        spells,
+                                        hexes);
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

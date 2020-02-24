@@ -63,6 +63,42 @@ namespace CallOfTheWild
             bool test_mode;
 
 
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+
+                createHexes();
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("85067a04a97416949b5d1dbf986d93f3"), //stone fist
+                    library.Get<BlueprintAbility>("5181c2ed0190fc34b8a1162783af5bf4"), //stone call
+                    library.Get<BlueprintAbility>("1a36c8b9ed655c249a9f9e8d4731f001"), //soothing mud
+                    library.Get<BlueprintAbility>("d1afa8bc28c99104da7d784115552de5"), //spike stones
+                    library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b"), //stoneskin
+                    library.Get<BlueprintAbility>("989d3ed13d27d054ea2d26ab4956d075"), //summon elemental huge earth
+                    library.Get<BlueprintAbility>("facdc8851a0b3f44a8bed50f0199b83c"), //elemental body IV earth
+                    library.Get<BlueprintAbility>("65254c7a2cf18944287207e1de3e44e8"), //summon elemental elder earth
+                    library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6"), //clashing rocks
+                };
+
+                return new Oracle.Spirit("Stone",
+                                         "Stone",
+                                          "The skin of a shaman who selects the stone spirit takes on a rough, stony appearance. When the shaman calls upon one of this spirit’s abilities, tiny gemstones underneath her flesh pulse with a bright glow, like phosphorescent geodes glittering in a dark cave.",
+                                          library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6").Icon,//clashing rocks
+                                          "",
+                                          spirit_ability,
+                                          greater_spirit_ability,
+                                          spells,
+                                          hexes
+                                          );
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

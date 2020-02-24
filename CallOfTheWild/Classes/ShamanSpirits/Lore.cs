@@ -63,6 +63,43 @@ namespace CallOfTheWild
             bool test_mode;
 
 
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, string spell_list_asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                spell_list_prefix = spell_list_asset_prefix;
+
+                createHexes();
+                createSpiritAbility();
+                createGreaterSpiritAbility(true, 15);
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00"), //true strike
+                    library.Get<BlueprintAbility>("f0455c9295b53904f9e02fc571dd2ce1"), //owls wisdom
+                    library.Get<BlueprintAbility>("1a045f845778dc54db1c2be33a8c3c0a"), //see invisibility communal
+                    library.Get<BlueprintAbility>("e9cc9378fd6841f48ad59384e79e9953"), //death ward
+                    library.Get<BlueprintAbility>("4cf3d0fae3239ec478f51e86f49161cb"), //true seeing
+                    library.Get<BlueprintAbility>("9f5ada581af3db4419b54db77f44e430"), //owls wisdom mass
+                    library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //greater restoration
+                    library.Get<BlueprintAbility>("0e67fa8f011662c43934d486acc50253"), //prediction of failure
+                    NewSpells.time_stop
+                };
+
+                return new Oracle.Spirit("Lore",
+                                         "Lore",
+                                         "A shaman who selects the lore spirit appears far wiser and knowing that her age would suggest. Though she can seem unassuming, her eyes give the impression she is peering deep into all she looks at, seeing the secrets of the essential merely by concentrating.",
+                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png"),
+                                         "",
+                                         spirit_ability,
+                                         greater_spirit_ability,
+                                         spells,
+                                         hexes
+                                         );
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;
@@ -207,7 +244,7 @@ namespace CallOfTheWild
             }
 
 
-            void createGreaterSpiritAbility(bool need_secondary)
+            void createGreaterSpiritAbility(bool need_secondary, int start_level = 12)
             {
                 var icon = library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830").Icon; //restoration
                 BlueprintFeatureSelection learn_selection = Helpers.CreateFeatureSelection(prefix + "ArcaneEnlightenmentFeatureSelection",
@@ -248,7 +285,7 @@ namespace CallOfTheWild
                                                                    FeatureGroup.None);
         
                 var entries = new List<LevelEntry>();
-                for (int i = 8; i <= 20; i = i + 2)
+                for (int i = start_level; i <= 20; i = i + 2)
                 {
                     entries.Add(Helpers.LevelEntry(i, learn_selection));
                 }

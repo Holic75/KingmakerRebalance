@@ -66,6 +66,44 @@ namespace CallOfTheWild
             bool test_mode;
 
 
+            public Oracle.Spirit createOracleSpirit(HexEngine associated_hex_engine, string asset_prefix, string extra_channel_asset_prefix, string extra_channel_asset_name, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                extra_channel_prefix = extra_channel_asset_prefix;
+                extra_channel_name = extra_channel_asset_name;
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+
+                createHexes();
+
+                spells = new BlueprintAbility[9]
+                {
+                    library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140"), //remove sickness
+                    library.Get<BlueprintAbility>("e84fc922ccf952943b5240293669b171"), //lesser restoration
+                    library.Get<BlueprintAbility>("e7240516af4241b42b2cd819929ea9da"), //neutralzie poison
+                    library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830"), //restoration
+                    library.Get<BlueprintAbility>("d5847cad0b0e54c4d82d6c59a3cda6b0"), //breath of life
+                    library.Get<BlueprintAbility>("5da172c4c89f9eb4cbb614f3a67357d3"), //heal
+                    library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //greater restoration
+                    SpellDuplicates.addDuplicateSpell("867524328b54f25488d371214eea0d90", "shamanLifeSpiritMassHeal", ""), //mass heal
+                    SpellDuplicates.addDuplicateSpell("80a1a388ee938aa4e90d427ce9a7a3e9", "shamanLifeSpiritResurrection", ""), //resurrection
+                };
+
+                return new Oracle.Spirit("Life",
+                                         "Life",
+                                         "A shaman who selects the life spirit appears more vibrant than most mortals. Her skin seems to glow, and her teeth are a pearly white. When she calls upon one of this spirit’s abilities, her eyes and hair shimmer in the light.",
+                                         Helpers.GetIcon("be2062d6d85f4634ea4f26e9e858c3b8"), // cleanse
+                                         "",
+                                         spirit_ability,
+                                         greater_spirit_ability,
+                                         spells,
+                                         hexes);
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, string extra_channel_asset_prefix, string extra_channel_asset_name, bool test = false)
             {
                 test_mode = test;
@@ -225,7 +263,7 @@ namespace CallOfTheWild
             }
 
 
-             void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
                 var healing_spells = new BlueprintAbility[]
                 {

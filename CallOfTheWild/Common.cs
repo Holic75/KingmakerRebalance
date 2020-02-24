@@ -142,12 +142,23 @@ namespace CallOfTheWild
             }
 
 
+
             public ExtraSpellList(params string[] list_spell_guids)
             {
                 spells = new SpellId[list_spell_guids.Length];
                 for (int i = 0; i < list_spell_guids.Length; i++)
                 {
                     spells[i] = new SpellId(list_spell_guids[i], i + 1);
+                }
+            }
+
+
+            public ExtraSpellList(params BlueprintAbility[] spells_array)
+            {
+                spells = new SpellId[spells_array.Length];
+                for (int i = 0; i < spells_array.Length; i++)
+                {
+                    spells[i] = new SpellId(spells_array[i].AssetGuid, i + 1);
                 }
             }
 

@@ -67,7 +67,7 @@ namespace CallOfTheWild
                                                 $"1 round/{stat.ToString()} modifier",
                                                 "",
                                                 bless.GetComponent<AbilitySpawnFx>(),
-                                                Common.createAbilityAoERadius(50.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Ally),
+                                                Helpers.CreateAbilityTargetsAround(50.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Ally),
                                                 Helpers.CreateResourceLogic(resource),
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: stat)
@@ -108,7 +108,7 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellList>(m =>
                                                                                                               {
-                                                                                                                  m.Abilities = cure_spells.ToList();
+                                                                                                                  m.spell_list = cure_spells;
                                                                                                                   m.Metamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
                                                                                                                   m.resource = resource;
                                                                                                                   m.consume_extra_spell_slot = true;
@@ -335,7 +335,7 @@ namespace CallOfTheWild
                                                         Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, classes),
                                                         Helpers.Create<PrerequisiteProficiency>(p => p.WeaponProficiencies = new WeaponCategory[] { category })
                                                         );
-                feature.AllFeatures = feature.AllFeatures.AddToArray(feature);
+                feature.AllFeatures = feature.AllFeatures.AddToArray(ws_feature);
             }
 
             return feature;

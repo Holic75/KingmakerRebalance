@@ -89,6 +89,62 @@ namespace CallOfTheWild
         static public BlueprintArchetype warsighted_archetype;
         static public BlueprintFeatureSelection fighter_feat;
         static public BlueprintArchetype spirit_guide_archetype;
+        static public BlueprintFeatureSelection spirit_guide_spirit_selection;
+
+        public class Spirit
+        {
+            public BlueprintProgression progression;
+            public BlueprintAbility[] spells;
+            public BlueprintFeatureSelection hex_selection;
+
+            public Spirit(string name, string display_name, string description, UnityEngine.Sprite icon, string guid, 
+                           BlueprintFeature spirit_ability, BlueprintFeature greater_spirit_ability, BlueprintAbility[] spells, BlueprintFeature[] hexes)
+            {
+                hex_selection = Helpers.CreateFeatureSelection(name + "SpiritGuideHexFeatureSelection",
+                                                               "Hex",
+                                                               "At 3rd level, spirit guide gains one hex of her choice from the list of hexes available from that spirit. She uses her oracle level as her shaman level, and she switches Wisdom for Charisma and vice versa for the purpose of determining the hex’s effects.",
+                                                               "",
+                                                               null,
+                                                               FeatureGroup.None);
+                hex_selection.AllFeatures = hexes;
+
+                string spells_description = display_name + "bonded spirit grants spirit guide the following spells: ";
+             
+                for (int i = 0; i < spells.Length; i++)
+                {
+                    spells_description += spells[i].Name + ((i == (spells.Length - 1)) ? "" : ", ");
+                }
+                spells_description += ".";
+
+                var learn_spells = Helpers.CreateFeature(name + "SpiritGuideSpellsFeature",
+                                                         "Bonded Spirit Spells",
+                                                         spells_description,
+                                                         "",
+                                                         Helpers.GetIcon("a8e7e315b5a241b47ad526771eee19b7"), //destruction judgement
+                                                         FeatureGroup.None,
+                                                         (new Common.ExtraSpellList(spells)).createLearnSpellList(name + "SpirirtGuideSpellList", "", oracle_class)
+                                                         );
+
+
+
+                var entries = new LevelEntry[] { Helpers.LevelEntry(3, hex_selection),
+                                                 Helpers.LevelEntry(4, learn_spells),
+                                                 Helpers.LevelEntry(7, spirit_ability),
+                                                 Helpers.LevelEntry(15, greater_spirit_ability)
+                                               };
+
+
+                progression = Helpers.CreateProgression(name + "SpiritGuideProgression",
+                                                        display_name + " Spirit",
+                                                        description,
+                                                        "",
+                                                        icon,
+                                                        FeatureGroup.None
+                                                        );
+                progression.LevelEntries = entries.ToArray();
+                progression.UIGroups = Helpers.CreateUIGroups(hex_selection, learn_spells, spirit_ability, greater_spirit_ability);
+            }
+        }
 
         public class DragonInfo
         {
@@ -164,14 +220,90 @@ namespace CallOfTheWild
             oracle_class.Progression = oracle_progression;
             createSeeker();
             createWarsighted();
-            //createSpiritGuide();
+            createSpiritGuide();
 
-            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype};
+            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype};
             Helpers.RegisterClass(oracle_class);
             createExtraRevelationFeat();
 
             Common.addMTDivineSpellbookProgression(oracle_class, oracle_class.Spellbook, "MysticTheurgeOracle",
                                                      Common.createPrerequisiteClassSpellLevel(oracle_class, 2));
+        }
+
+
+        static void createSpiritGuide()
+        {
+            spirit_guide_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SpirirtGuideArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Spirit Guide");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Through her exploration of the universe’s mysteries, a spirit guide opens connections to the spirit world and forms bonds with the entities that inhabit it.");
+            });
+            Helpers.SetField(spirit_guide_archetype, "m_ParentClass", oracle_class);
+            library.AddAsset(spirit_guide_archetype, "");
+
+
+            var class_skills = Helpers.CreateFeature("ClassSkillsSpiritGuideFeature",
+                                                     "Class Skilss",
+                                                     "A spirit guide gains all Knowledge skills as class skills. This replaces the bonus class skills gained from the oracle’s mystery.",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.Domain,
+                                                     Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillLoreNature)
+                                                     );
+            createSpiritGuideSpiritSelection();
+
+            spirit_guide_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, mystery_skills), Helpers.LevelEntry(3, revelation_selection), Helpers.LevelEntry(7, revelation_selection), Helpers.LevelEntry(15, revelation_selection) };
+            spirit_guide_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, class_skills), Helpers.LevelEntry(3, spirit_guide_spirit_selection)};
+            oracle_class.Progression.UIGroups = oracle_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(class_skills, spirit_guide_spirit_selection));
+        }
+
+
+        static void createSpiritGuideSpiritSelection()
+        {
+            var hex_engine = new HexEngine(new BlueprintCharacterClass[] { oracle_class }, StatType.Charisma, StatType.Wisdom, spirit_guide_archetype);
+
+            bool test_mode = false;
+            var spirits_engine = new SpiritsEngine(hex_engine);
+
+            var battle_spirit = new SpiritsEngine.BattleSpirit();
+            var bones_spirit = new SpiritsEngine.BonesSpirit();
+            var flame_spirit = new SpiritsEngine.FlameSpirit();
+            var heavens_spirit = new SpiritsEngine.HeavensSpirit();
+            var life_spirit = new SpiritsEngine.LifeSpirit();
+            var lore_spirit = new SpiritsEngine.LoreSpirit();
+            var nature_spirit = new SpiritsEngine.NatureSpirit();
+            var stone_spirit = new SpiritsEngine.StoneSpirit();
+            var waves_spirit = new SpiritsEngine.WavesSpirit();
+            var wind_spirit = new SpiritsEngine.WindSpirit();
+
+            List<Spirit> spirits = new List<Spirit>();
+
+
+            spirits.Add(battle_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(bones_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", "OracleSpiritGuide", test_mode));
+            spirits.Add(flame_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(stone_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(waves_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(wind_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(nature_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(lore_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", "OracleSpiritGuide", test_mode));
+            spirits.Add(heavens_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", test_mode));
+            spirits.Add(life_spirit.createOracleSpirit(hex_engine, "OracleSpiritGuide", "OracleSpiritGuide", "Extra Channel (Spirit Guide Life Spirit)", test_mode));
+
+            spirit_guide_spirit_selection = Helpers.CreateFeatureSelection("SpiritGuideBondedSpirit",
+                                               "Bonded Spirit",
+                                               "At 3rd level, a spirit guide can form a bond with a spirit, as the shaman’s wandering spirit class feature.\n"
+                                               + "A spirit guide gains one hex of her choice from the list of hexes available from that spirit. She uses her oracle level as her shaman level, and she switches Wisdom for Charisma and vice versa for the purpose of determining the hex’s effects.\n"
+                                               + "At 4th level, she adds the bonded spirit’s spirit magic spells to her oracle spells known. At 7th level, she gains the spirit ability of her bonded spirit. At 15th level, she gains the greater spirit ability of her bonded spirit.",
+                                               "",
+                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritCall.png"),
+                                               FeatureGroup.None);
+
+            foreach (var s in spirits)
+            {
+                spirit_guide_spirit_selection.AllFeatures = spirit_guide_spirit_selection.AllFeatures.AddToArray(s.progression);
+            }
         }
 
 
