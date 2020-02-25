@@ -1720,7 +1720,7 @@ namespace CallOfTheWild
                                                 Helpers.GetIcon("4cf3d0fae3239ec478f51e86f49161cb"), // true seeing
                                                 FeatureGroup.None,
                                                 Helpers.Create<Blindsense>(b => { b.Range = 15.Feet(); b.Blindsight = true; }));
-            clouded_vision = createOracleCurseProgression("OracleCloudedVisionCurseProgression", "Clouded Vision", "Your eyes are obscured, making it difficult for you to see.",
+            clouded_vision = createOracleCurseProgression("OracleCloudedVisionCurseProgression", "Clouded Vision", "",
                                                           curse, curse5, curse10, curse15);                
         }
 

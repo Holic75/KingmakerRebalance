@@ -244,7 +244,7 @@ namespace CallOfTheWild
             }
 
 
-            void createGreaterSpiritAbility(bool need_secondary, int start_level = 12)
+            void createGreaterSpiritAbility(bool need_secondary, int start_level = 8)
             {
                 var icon = library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830").Icon; //restoration
                 BlueprintFeatureSelection learn_selection = Helpers.CreateFeatureSelection(prefix + "ArcaneEnlightenmentFeatureSelection",
@@ -292,7 +292,7 @@ namespace CallOfTheWild
                 (greater_spirit_ability as BlueprintProgression).LevelEntries = entries.ToArray();
 
                 entries = new List<LevelEntry>();
-                for (int i = 12; i <= 20; i = i + 2)
+                for (int i = start_level + 4; i <= 20; i = i + 2)
                 {
                     entries.Add(Helpers.LevelEntry(i, learn_selection));
                 }
