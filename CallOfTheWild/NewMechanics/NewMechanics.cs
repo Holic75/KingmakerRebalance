@@ -3498,6 +3498,8 @@ namespace CallOfTheWild
             public ActionList action;
             public int min_dmg = 1;
             public bool only_critical;
+            public bool use_energy;
+            public DamageEnergyType energy;
 
             public SavingThrowType save_type = SavingThrowType.Unknown;
             public SpellDescriptorWrapper descriptor;
@@ -3510,7 +3512,7 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
-                Common.runActionOnDamageDealt(evt, action, min_dmg, only_critical, save_type, descriptor, use_existing_save, action_only_on_save);
+                Common.runActionOnDamageDealt(evt, action, min_dmg, only_critical, save_type, descriptor, use_existing_save, action_only_on_save, energy, use_energy);
                 /*if (!this.action.HasActions)
                     return;
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, target);*/

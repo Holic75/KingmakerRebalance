@@ -3138,7 +3138,7 @@ namespace CallOfTheWild
 
 
         public static void runActionOnDamageDealt(RuleDealDamage evt,  ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
-                                                  SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false, bool only_on_save = false)
+                                                  SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false, bool only_on_save = false, DamageEnergyType energy = DamageEnergyType.Divine, bool use_energy = false)
         {
             Buff context_buff = null;
             if (only_critical && (evt.AttackRoll == null || !evt.AttackRoll.IsCriticalConfirmed))
@@ -3179,6 +3179,15 @@ namespace CallOfTheWild
             if (evt.Damage <= min_dmg)
             {
                 return;
+            }
+
+            if (use_energy)
+            {
+                int dmg = evt.ResultDamage.Where(d => (d.Source.Type == DamageType.Energy) && (d.Source as EnergyDamage)?.EnergyType == energy).Aggregate(0, (s, next) => s += next.FinalValue);
+                if (dmg <= min_dmg)
+                {
+                    return;
+                }
             }
 
 

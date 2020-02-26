@@ -412,7 +412,7 @@ namespace CallOfTheWild
                 dmg_action = dmg_action.CreateCopy();
                 dmg_action.Value = Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.Zero, bonus: 1);
 
-                context_actions.NewRound = Helpers.CreateActionList(new GameAction[] { dmg_action }.AddToArray(context_actions.NewRound.Actions));
+                context_actions.NewRound = Helpers.CreateActionList(new GameAction[] { Helpers.CreateConditional(Common.createContextConditionHasFact(buff), dmg_action) }.AddToArray(context_actions.NewRound.Actions));
             }
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
             var ability = Helpers.CreateAbility(name_prefix + "Ability",

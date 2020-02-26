@@ -197,6 +197,7 @@ namespace CallOfTheWild
         static public BlueprintAbility time_stop;
 
         static public BlueprintAbility sleet_storm;
+        static public BlueprintAbility control_undead;
 
 
         static public void load()
@@ -317,6 +318,44 @@ namespace CallOfTheWild
             createTimeStop();
 
             createSleetStorm();
+            createControlUndead();
+        }
+
+
+        static void createControlUndead()
+        {
+            var icon = Helpers.GetIcon("1a5e7191279e7cd479b17a6ca438498c"); //undead arcana
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f", "ControlUndeadBuff", "");
+            buff.SetNameDescriptionIcon("Control Undead",
+                                        "This spell enables you to control undead creature for a short period of time. You command it by voice and it understands you, no matter what language you speak. Even if vocal communication is impossible, the controlled undead does not attack you. At the end of the spell, the subject reverts to its normal behavior.",
+                                        icon);
+            buff.RemoveComponents<SpellDescriptorComponent>();
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            var effect = Helpers.CreateConditionalSaved(null, apply_buff);
+            control_undead = Helpers.CreateAbility("ControlUndeadAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Close,
+                                                   Helpers.minutesPerLevelDuration,
+                                                   Helpers.willNegates,
+                                                   Helpers.CreateRunActions(SavingThrowType.Will, effect),
+                                                   Common.createAbilityTargetHasFact(false, Common.undead),
+                                                   Common.createAbilityTargetHasFact(true, library.Get<BlueprintBuff>("8728e884eeaa8b047be04197ecf1a0e4")),
+                                                   Common.createAbilitySpawnFx("09f795c3900b21b47a1254bcb3f263c8", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                   Helpers.CreateContextRankConfig()
+                                                   );
+            control_undead.setMiscAbilityParametersSingleTargetRangedHarmful();
+            control_undead.SpellResistance = true;
+            control_undead.AddToSpellList(Helpers.wizardSpellList, 7);
+            control_undead.AddSpellAndScroll("bc0180b8b29abf9468dea1a24332d159");
         }
 
 

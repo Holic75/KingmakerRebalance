@@ -13,6 +13,7 @@ using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
@@ -28,6 +29,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
@@ -81,7 +83,7 @@ namespace CallOfTheWild
         static public BlueprintProgression waves_mystery;
         static public BlueprintProgression nature_mystery;
         static public BlueprintFeatureSelection animal_companion;
-        //stone ?
+        static public BlueprintProgression bones_mystery;
 
         static Dictionary<BlueprintProgression, BlueprintAbility[]> mystery_spells_map = new Dictionary<BlueprintProgression, BlueprintAbility[]>();
         static public BlueprintArchetype seeker_archetype;
@@ -556,9 +558,91 @@ namespace CallOfTheWild
             createDragonMysteries();
             createWavesMystery();
             createNatureMystery();
+            createBonesMystery();
 
-            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery, waves_mystery, nature_mystery};
+            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery, waves_mystery, nature_mystery, bones_mystery};
             oracle_mysteries.AllFeatures = oracle_mysteries.AllFeatures.AddToArray(dragon_mysteries);
+        }
+
+
+        static void createBonesMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                library.Get<BlueprintAbility>("bd81a3931aa285a4f9844585b5d97e51"), //cause fear
+                library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762"), //false life
+                library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27"), //animate dead
+                library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                library.Get<BlueprintAbility>("4fbd47525382517419c66fb548fe9a67"), //slay living
+                library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"), //circle of death
+                library.Get<BlueprintAbility>("76a11b460be25e44ca85904d6806e5a3"), //create undead
+                library.Get<BlueprintAbility>("08323922485f7e246acb3d2276515526"), //horrid witling
+                library.Get<BlueprintAbility>("b24583190f36a8442b212e45226c54fc"), //wail of banshee
+            };
+
+
+            var armor_of_bones = mystery_engine.createArmorOfBones("ArmorOfBonesOracleRevelation",
+                                                                   "Armor of Bones ",
+                                                                   "You can conjure armor made of bones that grants you a +4 armor bonus. At 7th level, and every four levels thereafter, this bonus increases by +2. At 13th level, this armor grants you Damage Reduction 5/bludgeoning. You can use this armor for 1 hour per day per oracle level. This duration does not need to be consecutive, but it must be spent in 1-hour increments.");
+            var bleeding_wounds = mystery_engine.createBleedingWounds("BleedingWoundsOracleRevelation",
+                                                                      "Bleeding Wounds ",
+                                                                      "Whenever a creature takes damage from one of your spells that causes negative energy damage (such as inflict light wounds), it begins to bleed, taking 1d4 points of damage each round. At 10th level, it increases to 1d6 points of damage each round. At 20th level, it increases to 2d6 points of damage each round. The bleeding can be stopped by a DC 15 Heal check or any effect that heals damage.");
+            var deaths_touch = mystery_engine.createDeathsTouch("DeathsTouchOracleRevelation",
+                                                                "Death’s Touch",
+                                                                "You can cause terrible wounds to appear on a creature with a melee touch attack. This attack deals 1d6 points of negative energy damage +1 point for every two oracle levels you possess. If used against an undead creature, it heals damage and grants a +2 channel resistance for 1 minute. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+            var near_death = mystery_engine.createNearDeath("NearDeathOracleRevelation",
+                                                            "Near Death",
+                                                            "You gain a +2 insight bonus on saves against diseases, mind-affecting effects, and poisons. At 7th level, this bonus also applies on saves against death effects, sleep effects, and stunning. At 11th level, the bonus increases to +4.");
+            var raise_the_dead = mystery_engine.createRaiseTheDead("RaiseTheDeadOracleRevelation",
+                                                                   "Raise the Dead",
+                                                                   "As a standard action, you can summon skeletons as per animate dead spell. They remains under your control for a number of rounds equal to your Charisma modifier. At 15th level, you can summon one grave knight or living armor instead. You can use this ability once per day plus one additional time per day at 10th level.");
+            var resist_life = mystery_engine.createResistLife("ResistLifeOracleRevelation",
+                                                              "Resist Life",
+                                                              "You are treated as an undead creature when you are targeted by positive or negative energy. You are not subject to Turn Undead or Command Undead (or any other effect that specifically targets undead), unless you are actually an undead creature. At 7th level, you receive channel resistance +2. This bonus increases by +2 at 11th and 15th level.");
+            var soul_siphon = mystery_engine.createSoulSiphon("SoulSiphonOrcalRevelation",
+                                                              "Soul Siphon",
+                                                              "As a ranged touch attack, you can unleash a ray that causes a target to gain one negative level. The ray has a range of 25 feet. This negative level lasts for a number of minutes equal to your Charisma modifier. Whenever this ability gives a target a negative level, you heal a number of hit points equal to your oracle level. You can use this ability once per day, plus one additional time at 11th level and every four levels thereafter. You must be at least 7th level to select this revelation.");
+            var undead_servitude = mystery_engine.createUndeadServitude("UndeadServitudeOracleRevelation",
+                                                                        "Undead Servitude",
+                                                                        "You can control undead, as per the spell using your oracle level as caster level. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+
+            var animate_dead = library.CopyAndAdd<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27", "BonesManifestationAnimateDeadAbility", "");
+            animate_dead.Type = AbilityType.Supernatural;
+            animate_dead.RemoveComponents<SpellListComponent>();
+            animate_dead.RemoveComponents<SpellComponent>();
+            animate_dead.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getOracleArray()));
+
+            var power_word_kill = library.CopyAndAdd<BlueprintAbility>("2f8a67c483dfa0f439b293e094ca9e3c", "BonesOracleFinalRevelationPowerWordKillAbility", "");
+            power_word_kill.RemoveComponents<SpellListComponent>();
+            power_word_kill.RemoveComponents<SpellComponent>();
+            power_word_kill.Type = AbilityType.Supernatural;
+            power_word_kill.SetDescription(power_word_kill.Description.Replace("101", "151"));
+            power_word_kill.ReplaceComponent<AbilityTargetHPCondition>(a => a.CurrentHPLessThan = 151);
+            var new_actions = Common.changeAction<Conditional>(power_word_kill.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                                                               c => c.ConditionsChecker = Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionCompareTargetHP>(h => h.Value = 151))
+                                                               );
+            power_word_kill.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+            var resource = Helpers.CreateAbilityResource("BonesOracleFinalRevelationResource", "", "", "", null);
+            resource.SetFixedResource(1);
+            power_word_kill.AddComponent(Helpers.CreateResourceLogic(resource));
+
+            var final_revelation = Helpers.CreateFeature("BonesFinalRevelationFeature",
+                                                  "Final Revelation",
+                                                  "Upon reaching 20th level, you become a master of death. You can cast animate dead at will without paying a material component cost, although you are still subject to the usual Hit Dice control limit. Once per day, you can cast power word kill, but the spell can target a creature with 150 hit points or fewer.",
+                                                  "",
+                                                  null,
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFacts(animate_dead, power_word_kill),
+                                                  Helpers.CreateAddAbilityResource(resource)
+                                                  );
+
+            bones_mystery = createMystery("BonesOracleMystery", "Bones", Helpers.GetIcon("a1a8bf61cadaa4143b2d4966f2d1142e"), //undead bloodline
+                             final_revelation,
+                             new StatType[] { StatType.SkillStealth},
+                             spells,
+                             armor_of_bones, bleeding_wounds, deaths_touch, near_death,
+                             raise_the_dead, resist_life, soul_siphon, undead_servitude
+                             );
         }
 
 

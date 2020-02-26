@@ -181,7 +181,7 @@ namespace CallOfTheWild
         static AbilityDeliverProjectile negative_cone_projectile;
         static AbilityDeliverProjectile positive_cone_projectile;
 
-        static BlueprintFeature[] channel_resistances = new BlueprintFeature[] { library.Get<BlueprintFeature>("a9ac84c6f48b491438f91bb237bc9212") };
+        static BlueprintUnitFact[] channel_resistances = new BlueprintFeature[] { library.Get<BlueprintFeature>("a9ac84c6f48b491438f91bb237bc9212") };
 
         static public BlueprintFeature swift_positive_channel;
         static public BlueprintAbilityResource swift_positve_channel_resource;
@@ -367,7 +367,7 @@ namespace CallOfTheWild
 
 
 
-        static public void addChannelResitance(BlueprintFeature new_cr)
+        static public void addChannelResitance(BlueprintUnitFact new_cr)
         {
             channel_resistances = channel_resistances.AddToArray(new_cr);
             foreach (var c in channel_entires)
@@ -908,7 +908,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static void addToSpecificChannelResistance(ChannelEntry entry, BlueprintFeature cr)
+        internal static void addToSpecificChannelResistance(ChannelEntry entry, BlueprintUnitFact cr)
         {
             if (!entry.channel_type.isStrictlyOf(ChannelType.Positive | ChannelType.Harm))
             {
@@ -916,7 +916,7 @@ namespace CallOfTheWild
             }
 
             var comp = cr.GetComponent<SavingThrowBonusAgainstSpecificSpells>();
-            if (comp != null && !comp.Spells.Contains (entry.ability))
+            if (comp != null && !comp.Spells.Contains(entry.ability))
             {
                 comp.Spells = comp.Spells.AddToArray(entry.ability);
             }

@@ -83,7 +83,7 @@ namespace CallOfTheWild
                     library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0"), //fear
                     library.Get<BlueprintAbility>("4fbd47525382517419c66fb548fe9a67"), //slay living
                     library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"), //circle of death
-                    library.Get<BlueprintAbility>("76a11b460be25e44ca85904d6806e5a3"), //create undead
+                    NewSpells.control_undead,
                     library.Get<BlueprintAbility>("08323922485f7e246acb3d2276515526"), //horrid witling
                     library.Get<BlueprintAbility>("b24583190f36a8442b212e45226c54fc"), //wail of banshee
                 };
@@ -293,8 +293,8 @@ namespace CallOfTheWild
                 resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
                 var inflict_light_wounds = library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
 
-                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)));
-                var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)));
+                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
+                var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
 
                 var effect = Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(), heal, dmg);
 

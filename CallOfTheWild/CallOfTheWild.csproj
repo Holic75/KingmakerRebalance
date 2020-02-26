@@ -132,6 +132,7 @@
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Arcanist.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
+    <Compile Include="Classes\Mysteries\Bones.cs" />
     <Compile Include="Classes\Mysteries\Dragon.cs" />
     <Compile Include="Classes\Mysteries\Flame.cs" />
     <Compile Include="Classes\Mysteries\Life.cs" />
