@@ -225,6 +225,7 @@ New spells:
 - Ice Body,
 - Wind Walk,
 - Giant Form I and II,
+- Control Undead,
 - Hold Person, Mass, 
 - Particulate Form,
 - Blood Mist,
