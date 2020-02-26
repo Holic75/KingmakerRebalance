@@ -980,7 +980,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
-                new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict serious wounds
+                new Common.SpellId( "bd5da98859cf2b3418f6d68ea66cabbe", 4), //inflict serious wounds
                 new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "2a6eda8ef30379142a4b75448fb214a3", 4), //poison

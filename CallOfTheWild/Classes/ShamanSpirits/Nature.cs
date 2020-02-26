@@ -374,7 +374,7 @@ namespace CallOfTheWild
                                                                     "",
                                                                     Helpers.CreateRunActions(apply_plant),
                                                                     Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(precast_actions)),
-                                                                    Common.createAbilitySpawnFx("b5fc8209a9e75ff47acfd132540e0ba6", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                                    Common.createAbilitySpawnFx("814caa282b28ef04e8b651551c782a88", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                                     Common.createAbilityCasterHasNoFacts(plant_fact),
                                                                     Helpers.CreateResourceLogic(resource)
                                                                     );
@@ -390,7 +390,6 @@ namespace CallOfTheWild
                                                                     "Permanent",
                                                                     "",
                                                                     Helpers.CreateRunActions(precast_actions),
-                                                                    Common.createAbilitySpawnFx("b5fc8209a9e75ff47acfd132540e0ba6", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                                     Common.createAbilityCasterHasFacts(plant_fact, animal_fact),
                                                                     Helpers.CreateResourceLogic(resource)
                                                                     );

@@ -135,6 +135,7 @@
     <Compile Include="Classes\Mysteries\Dragon.cs" />
     <Compile Include="Classes\Mysteries\Flame.cs" />
     <Compile Include="Classes\Mysteries\Life.cs" />
+    <Compile Include="Classes\Mysteries\Nature.cs" />
     <Compile Include="Classes\Mysteries\Waves.cs" />
     <Compile Include="Classes\Mysteries\Wind.cs" />
     <Compile Include="Classes\Oracle.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="NewMechanics\EncumbranceMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
     <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
+    <Compile Include="NewMechanics\StatReplacementMechanics.cs" />
     <Compile Include="NewMechanics\TImeStopMechanics.cs" />
     <Compile Include="NewMechanics\TravelMap.cs" />
     <Compile Include="NewMechanics\TurnActionMechanics.cs" />

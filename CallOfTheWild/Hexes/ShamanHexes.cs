@@ -1318,6 +1318,7 @@ namespace CallOfTheWild
         {
             var icon = library.Get<BlueprintAbility>("c6147854641924442a3bb736080cfeb6").Icon; //change shape beast
             var spontnaeous_summon = library.Get<BlueprintFeature>("b296531ffe013c8499ad712f8ae97f6b");
+            var animal = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
 
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                       display_name,
@@ -1337,12 +1338,17 @@ namespace CallOfTheWild
                                           Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Sacred),
                                           Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Sacred),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: hex_secondary_stat,
-                                                                          min: 0)
+                                                                          min: 0),
+                                          Helpers.CreateAddFactContextActions(newRound: Helpers.CreateConditional(Common.createContextConditionHasFact(animal), 
+                                                                                                                  null,
+                                                                                                                  Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                  )
+                                                                             )
                                          );
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", name_prefix + "HexArea", "");
             area.Size = 30.Feet();
-            var animal = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
+            
             area.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFact(animal)); });
 
             var aura_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", name_prefix + "HexAuraBuff", "");

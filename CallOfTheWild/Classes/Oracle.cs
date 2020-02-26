@@ -30,6 +30,7 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -78,10 +79,9 @@ namespace CallOfTheWild
         static public BlueprintProgression wind_mystery;
         static public List<BlueprintProgression> dragon_mysteries = new List<BlueprintProgression>();
         static public BlueprintProgression waves_mystery;
-        //stone
-        //bones
-        //nature + lunar?
-        //heavens + lunar?
+        static public BlueprintProgression nature_mystery;
+        static public BlueprintFeatureSelection animal_companion;
+        //stone ?
 
         static Dictionary<BlueprintProgression, BlueprintAbility[]> mystery_spells_map = new Dictionary<BlueprintProgression, BlueprintAbility[]>();
         static public BlueprintArchetype seeker_archetype;
@@ -555,9 +555,159 @@ namespace CallOfTheWild
             createWindMystery();
             createDragonMysteries();
             createWavesMystery();
+            createNatureMystery();
 
-            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery, waves_mystery};
+            oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery, waves_mystery, nature_mystery};
             oracle_mysteries.AllFeatures = oracle_mysteries.AllFeatures.AddToArray(dragon_mysteries);
+        }
+
+
+        static void createNatureMystery()
+        {
+            var spells = new BlueprintAbility[9]
+            {
+                    library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33"), //Magic Fang
+                    library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553"), //barkskin
+                    library.Get<BlueprintAbility>("754c478a2aa9bb54d809e648c3f7ac0e"), //dominate animal
+                    library.Get<BlueprintAbility>("e418c20c8ce362943a8025d82c865c1c"), //cape of wasps
+                    library.Get<BlueprintAbility>("6d1d48a939ce475409f06e1b376bc386"), //vinetrap
+                    library.Get<BlueprintAbility>("7c5d556b9a5883048bf030e20daebe31"), //stone skin communal
+                    library.Get<BlueprintAbility>("b974af13e45639a41a04843ce1c9aa12"), //creeping doom
+                    library.Get<BlueprintAbility>("7cfbefe0931257344b2cb7ddc4cdff6f"), //stormbolts
+                    library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
+            };
+
+
+            animal_companion = mystery_engine.createAnimalCompanion("AnimalCompanionOracleRevelation",
+                                                                    "Animal Companion",
+                                                                    "You gain the service of a faithful animal. This animal functions as a druid’s animal companion, using your oracle level as your effective druid level.");
+            var erosion_touch = mystery_engine.createErosionTouch("ErosionTouchOracleRevelation",
+                                                                  "Erosion Touch",
+                                                                  "As a melee touch attack, you can deal 1d6 points of damage per level to construct. You can use this ability once per day, plus one time per day for every three levels you possess.");
+            var friend_to_animals = mystery_engine.createFriendToAnimals("FriendToAnimalsOracleRevelation",
+                                                                         "Friend to Animals",
+                                                                         "Add all summon nature’s ally spells to your spell list. You must still select these spells using your allotment of spells known. Animals within 30 feet of you receive a bonus on all saving throws equal to your Charisma modifier.");
+            var life_leach = mystery_engine.createLifeLich("LifeLichOracleRevelation",
+                                                           "Life Lich",
+                                                           "You can draw life force from the bodies of enemies and channel it into yourself. As a standard action, you can drain the life essence from one living target within 30 feet. The target takes 1d6 points of damage per two levels you possess (maximum 10d6). You gain temporary hit points equal to the damage you deal. You can’t gain more than the target’s current hit points + the target’s Constitution score (which is enough to kill the subject). The temporary hit points last a number of hours equal to your Charisma modifier. The target receives a Fortitude save to halve the damage (and the temporary hit points you gain). You may use this ability once per day at 7th level, plus one additional time per day for every 4 levels you possess beyond 7th. You must be at least 7th level before selecting this revelation.");
+            var natures_whispers = mystery_engine.createNaturesWhispers("NatureWhispersOracleRevelation",
+                                                                        "Nature’s Whispers",
+                                                                        "You have become so attuned to the whispers of the natural world, from the croaking of frogs to the groaning of great boulders, that your surroundings constantly keep you preternaturally aware of danger. You may add your Charisma modifier, instead of your Dexterity modifier, to your Armor Class and CMD. Any condition that would cause you to lose your Dexterity modifier to your Armor Class instead causes you to lose your Charisma modifier to your Armor Class.");
+            var spirit_of_nature = mystery_engine.createSpiritOfNature("SpiritOfNatureOracleRevelation",
+                                                                       "Spirit of Nature",
+                                                                       "Whenever the shaman is reduced to below 25% hit points, she gains fast healing 1 for 1d4 rounds. At 15th level, this increases to fast healing 3.");
+            var form_of_the_beast = mystery_engine.createFormOfTheBeast("FormOfTheBeastOracleRevelation",
+                                                                        "Form of the Beast",
+                                                                        "As a standard action, you can assume the form of an animal, as beast shape I. At 9th level, it works as beast shape II. At 11th level, as beast shape III. At 13th level, you can assume a form of magical beast as beast shape IV. You can use this ability once per day, but the duration is 1 hour/level. You must be at least 7th level to select this revelation.");
+            var gift_of_claw_and_horn = mystery_engine.createGiftOfClawAndHorn("GiftOfClawAndHornOracleRevelation",
+                                                                               "Gift of Claw and Horn",
+                                                                               "As a swift action, you gain a natural weapon.The natural weapon lasts for a number of rounds equal to half your oracle level(minimum 1).You must choose a bite, claw, or gore attack.These attacks deal the normal damage for a creature of your size.At 5th level, your natural weapon gains a + 1 enhancement bonus.This bonus increases by + 1 at 10th, 15th, and 20th level.At 11th level, you gain two natural weapons at a time.You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+
+
+
+
+            var resource = Helpers.CreateAbilityResource("NatureOracleFinalRevelationResource", "", "", "", null);
+            resource.SetFixedResource(1);
+            var friend_to_animals_buff = friend_to_animals.GetComponent<AuraFeatureComponent>().Buff.GetComponent<AddAreaEffect>().AreaEffect.GetComponent<AbilityAreaEffectBuff>().Buff;
+            var apply_friend_to_animals = Common.createContextActionApplyBuff(friend_to_animals_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+
+            var animal_fact = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
+            var plant_fact = library.Get<BlueprintFeature>("706e61781d692a042b35941f14bc41c5");
+
+            var animal_buff = Helpers.CreateBuff("NatureOracleFinalRevelationAnimalBuff",
+                                                 "Nature Final Revelation: Animal",
+                                                 "At 20th level, you have discovered the intrinsic secrets of life itself, granting you incredible control over your own body. Once per day, she can change her type to plant, animal, or humanoid, and gain superficial physical characteristics of the chosen type as appropriate. She must choose a type that is different from her current type. This change doesn’t alter her Hit Dice, hit points, saving throws, skill ranks, class skills, or proficiencies.",
+                                                 "",
+                                                 library.Get<BlueprintAbility>("de7a025d48ad5da4991e7d3c682cf69d").Icon, //cat's grace
+                                                 null,
+                                                 Helpers.CreateAddFact(animal_fact),
+                                                 Helpers.CreateAddFactContextActions(Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(friend_to_animals), apply_friend_to_animals),
+                                                                                     Common.createContextActionRemoveBuff(friend_to_animals_buff))
+                                                 );
+            var apply_animal = Common.createContextActionApplyBuff(animal_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            var plant_buff = Helpers.CreateBuff("NatureOracleFinalRevelationPlantBuff",
+                                                 "Nature Final Revelation: Plant",
+                                                 animal_buff.Description,
+                                                 "",
+                                                 library.Get<BlueprintAbility>("0fd00984a2c0e0a429cf1a911b4ec5ca").Icon, //entnagle
+                                                 null,
+                                                 Helpers.CreateAddFact(plant_fact)
+                                                 );
+            var apply_plant = Common.createContextActionApplyBuff(plant_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            var precast_actions = Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(animal_buff), Common.createContextActionRemoveBuff(plant_buff));
+
+
+            var manifestation_animal = Helpers.CreateAbility("NatureOracleFinaleRevelationAnimalAbility",
+                                                            animal_buff.Name,
+                                                            animal_buff.Description,
+                                                            "",
+                                                            animal_buff.Icon,
+                                                            AbilityType.Supernatural,
+                                                            CommandType.Standard,
+                                                            AbilityRange.Personal,
+                                                            "Permanent",
+                                                            "",
+                                                            Helpers.CreateRunActions(apply_animal),
+                                                            Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(precast_actions)),
+                                                            Common.createAbilitySpawnFx("b5fc8209a9e75ff47acfd132540e0ba6", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                            Common.createAbilityCasterHasNoFacts(animal_fact),
+                                                            Helpers.CreateResourceLogic(resource)
+                                                            );
+            Common.setAsFullRoundAction(manifestation_animal);
+            var manifestation_plant = Helpers.CreateAbility("NatureOracleFinalRevelationPlantAbility",
+                                                            plant_buff.Name,
+                                                            plant_buff.Description,
+                                                            "",
+                                                            plant_buff.Icon,
+                                                            AbilityType.Supernatural,
+                                                            CommandType.Standard,
+                                                            AbilityRange.Personal,
+                                                            "Permanent",
+                                                            "",
+                                                            Helpers.CreateRunActions(apply_plant),
+                                                            Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(precast_actions)),
+                                                            Common.createAbilitySpawnFx("814caa282b28ef04e8b651551c782a88", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                            Common.createAbilityCasterHasNoFacts(plant_fact),
+                                                            Helpers.CreateResourceLogic(resource)
+                                                            );
+            Common.setAsFullRoundAction(manifestation_plant);
+            var manifestation_humanoid = Helpers.CreateAbility("NatureOracleFinalRevelationHumanoidAbility",
+                                                                "Nature Final Revelation: Humanoid",
+                                                                plant_buff.Description,
+                                                                "",
+                                                                library.Get<BlueprintAbility>("bd09b025ee2a82f46afab922c4decca9").Icon, //turn back
+                                                                AbilityType.Supernatural,
+                                                                CommandType.Standard,
+                                                                AbilityRange.Personal,
+                                                                "Permanent",
+                                                                "",
+                                                                Helpers.CreateRunActions(precast_actions),
+                                                                Common.createAbilityCasterHasFacts(plant_fact, animal_fact),
+                                                                Helpers.CreateResourceLogic(resource)
+                                                                );
+            Common.setAsFullRoundAction(manifestation_humanoid);
+
+            var wrapper = Common.createVariantWrapper("NatureOracleFinalRevelationAbility", "", manifestation_animal, manifestation_humanoid, manifestation_plant);
+            wrapper.SetName("Nature Final Revelation");
+            wrapper.SetIcon(manifestation_plant.Icon);
+
+            var final_revelation = Helpers.CreateFeature("NatureFinalRevelationFeature",
+                                                          wrapper.Name,
+                                                          wrapper.Description,
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFact(wrapper),
+                                                          Helpers.CreateAddAbilityResource(resource)
+                                                          );
+
+            nature_mystery = createMystery("NatureOracleMystery", "Nature", wrapper.Icon, //charged blast
+                                         final_revelation,
+                                         new StatType[] { StatType.SkillLoreNature, StatType.SkillMobility },
+                                         spells,
+                                         animal_companion, erosion_touch, friend_to_animals, life_leach,
+                                         natures_whispers, spirit_of_nature, form_of_the_beast, gift_of_claw_and_horn
+                                         );
         }
 
 
@@ -1730,7 +1880,10 @@ namespace CallOfTheWild
             var curse_description = base_description;
             foreach (var f in features)
             {
-                curse_description += "\n";
+                if (!curse_description.Empty())
+                {
+                    curse_description += "\n";
+                }
                 curse_description += f.Description;
             }
             var curse = Helpers.CreateProgression(name,

@@ -3419,6 +3419,15 @@ namespace CallOfTheWild
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
             ability.RemoveComponents<SpellComponent>();
+            ability.AvailableMetamagic = (Metamagic)0;
+
+            //make buffs non dispellable
+            var actions = ability.GetComponent<AbilityEffectRunAction>();
+            if (actions!= null)
+            {
+                var new_actions = changeAction<ContextActionApplyBuff>(actions.Actions.Actions, c => c.IsNotDispelable = true);
+                ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
+            }
 
             return ability;
         }
