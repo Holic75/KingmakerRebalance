@@ -4721,7 +4721,7 @@ namespace CallOfTheWild
             buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_bleed), critical_hit: true, weapon_category: WeaponCategory.Bite));
 
             var roar = library.CopyAndAdd<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb", "SavageMawRoarAbility", "");//dazzling display
-            roar.RemoveComponents<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>(); //remove weapon requirement added by rebalance
+            roar.RemoveComponents<NewMechanics.AbilityCasterEquippedWeaponCheckHasParametrizedFeature>(); //remove weapon requirement added by rebalance
             roar.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift;
             roar.SetNameDescriptionIcon("Savage Maw: Roar",
                                         "Your teeth extend and sharpen, transforming your mouth into a maw of razor-sharp fangs. You gain a secondary bite attack that deals 1d4 points of damage plus your Strength modifier. If you confirm a critical hit with this attack, it also deals 1d4 bleed damage. You can end this spell before its normal duration by making a bestial roar as a swift action. When you do, you can make an Intimidate check to demoralize all foes within a 30-foot radius that can hear the roar.",

@@ -117,7 +117,7 @@ namespace CallOfTheWild
 
             
             var dazzling_display = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb");
-            dazzling_display.GetComponent<NewMechanics.AbilityCasterMainWeaponCheckHasParametrizedFeature>().alternative = feature;
+            dazzling_display.GetComponent<NewMechanics.AbilityCasterEquippedWeaponCheckHasParametrizedFeature>().alternative = feature;
 
             return feature;
         }

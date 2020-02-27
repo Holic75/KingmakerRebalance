@@ -1442,6 +1442,55 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
+        public class AbilityCasterEquippedWeaponCheckHasParametrizedFeature : BlueprintComponent, IAbilityCasterChecker
+        {
+            public BlueprintParametrizedFeature feature = null;
+            public BlueprintFeature alternative = null;
+
+            private bool checkFeature(UnitEntityData caster, WeaponCategory category)
+            {
+                if (feature == null)
+                {
+                    return false;
+                }
+                return caster.Descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == category);
+            }
+
+            private bool checkAlternative(UnitEntityData caster)
+            {
+                if (alternative == null)
+                {
+                    return false;
+                }
+                return caster.Descriptor.Progression.Features.HasFact(alternative);
+            }
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                var weapon1 = caster.Body.PrimaryHand.HasWeapon ? caster.Body.PrimaryHand.MaybeWeapon : caster.Body.EmptyHandWeapon;
+                if (weapon1 != null && checkFeature(caster, weapon1.Blueprint.Category) || checkAlternative(caster))
+                {
+                    return true;
+                }
+
+                var weapon2 = caster.Body.SecondaryHand.HasWeapon ? caster.Body.SecondaryHand.MaybeWeapon : null;
+                if (weapon2 == null)
+                {
+                    return false;
+                }
+
+                return checkFeature(caster, weapon2.Blueprint.Category) || checkAlternative(caster); ;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
         public class AbilityCasterMainWeaponCheckHasParametrizedFeature : BlueprintComponent, IAbilityCasterChecker
         {
             public BlueprintParametrizedFeature feature = null;
