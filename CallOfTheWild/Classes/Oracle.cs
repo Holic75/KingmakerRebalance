@@ -382,10 +382,7 @@ namespace CallOfTheWild
                                          "Seekers often look to ancient devices, old tomes, and strange magical items in order to learn more about their oracle mysteries. As a result of this curiosity and thanks to an innate knack at deciphering the strange and weird, a seeker gains Disable Device as a class skill. In addition, at 1st level, a seeker adds half his oracle level on Perception checks made to locate traps and on all Disable Device skill checks (minimum +1). A seeker can use Disable Device to disarm magical traps. If the seeker also possesses levels in rogue or another class that provides the trapfinding ability, those levels stack with his oracle levels for determining his overall bonus on these skill checks.\n"
                                          + "This ability replaces all of the bonus class skills he would otherwise normally gain from his mystery.\n"
                                          );
-            var context_rank_config = tinkering.GetComponent<ContextRankConfig>();
-            Helpers.SetField(context_rank_config, "m_BaseValueType", ContextRankBaseValueType.SummClassLevelWithArchetype);
-            Helpers.SetField(context_rank_config, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(context_rank_config, "m_Class").AddToArray(oracle_class));
-            Helpers.SetField(context_rank_config, "Archetype", seeker_archetype);
+            tinkering.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getOracleArray()));
             tinkering.AddComponent(Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillThievery));
         }
 

@@ -2611,7 +2611,7 @@ namespace CallOfTheWild
                                                              library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113").Icon, //divine favor
                                                              null,
                                                              Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
-                                                                                                        DamageEnergyType.Fire,
+                                                                                                        b.energy_type,
                                                                                                         AttackType.Melee, AttackType.Touch)                                                 
                                                              //Common.createAddInitiatorAttackWithWeaponTrigger(bonus_damage_action, check_weapon_range_type: true,
                                                              //                                                 range_type: AttackTypeAttackBonus.WeaponRangeType.Melee)
