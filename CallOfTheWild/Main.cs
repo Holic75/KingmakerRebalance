@@ -228,6 +228,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Oracle.createOracleClass();
+                    CallOfTheWild.Investigator.createInvestigatorClass();
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();                   
@@ -237,7 +238,6 @@ namespace CallOfTheWild
                     CallOfTheWild.Arcanist.createArcanistClass();
 
                     CallOfTheWild.SharedSpells.load();
-
                     
                     CallOfTheWild.Warpriest.createWarpriestClass();
 
@@ -256,7 +256,6 @@ namespace CallOfTheWild
                     CallOfTheWild.MysticTheurgeFix.load();
                     
                     
-
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();

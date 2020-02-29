@@ -1206,6 +1206,57 @@ namespace CallOfTheWild
 
             if (hex_stat == StatType.Wisdom)
             {
+                feature.AddComponents(Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillKnowledgeArcana;
+                                                                                                                        s.NewBaseStatType = StatType.Wisdom; }),
+                                        Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                         s.StatTypeToReplaceBastStatFor = StatType.SkillKnowledgeWorld;
+                                                                                                                         s.NewBaseStatType = StatType.Wisdom;
+                                                                                                                    }),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                     );
+            }
+            else if (hex_stat == StatType.Intelligence)
+            {
+                feature.AddComponents(Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillLoreNature;
+                                                                                                                        s.NewBaseStatType = StatType.Intelligence;
+                                                                                                                    }),
+                                      Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillLoreReligion;
+                                                                                                                        s.NewBaseStatType = StatType.Intelligence;
+                                                                                                                    }),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                     );
+            }
+            else if (hex_stat == StatType.Charisma)
+            {
+                feature.AddComponents(Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillLoreNature;
+                                                                                                                        s.NewBaseStatType = StatType.Charisma;
+                                                                                                                    }),
+                                      Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillLoreReligion;
+                                                                                                                        s.NewBaseStatType = StatType.Charisma;
+                                                                                                                    }),
+                                      Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillKnowledgeArcana;
+                                                                                                                        s.NewBaseStatType = StatType.Charisma;
+                                                                                                                    }),
+                                      Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                                        s.StatTypeToReplaceBastStatFor = StatType.SkillKnowledgeWorld;
+                                                                                                                        s.NewBaseStatType = StatType.Charisma;
+                                                                                                                    }),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                     );
+            }
+
+            /*if (hex_stat == StatType.Wisdom)
+            {
 
                 feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Wisdom; }),
                                       Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Wisdom; }),
@@ -1231,7 +1282,7 @@ namespace CallOfTheWild
                                       Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
                                       Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
                                       );
-            }
+            }*/
 
 
             feature.Ranks = 1;

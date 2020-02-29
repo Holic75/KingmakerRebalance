@@ -1420,6 +1420,15 @@ namespace CallOfTheWild
             return result;
         }
 
+
+        public static AddFacts CreateAddFactsNoRestore(params BlueprintUnitFact[] facts)
+        {
+            var result = Create<AddFacts>();
+            result.Facts = facts;
+            result.DoNotRestoreMissingFacts = true;
+            return result;
+        }
+
         public static AddKnownSpell CreateAddKnownSpell(this BlueprintAbility spell, BlueprintCharacterClass @class, int level, BlueprintArchetype archetype = null)
         {
             var addSpell = Create<AddKnownSpell>();
@@ -1761,6 +1770,18 @@ namespace CallOfTheWild
             result.Facts = new BlueprintUnitFact[] { fact };
             return result;
         }
+
+
+        public static AddFacts CreateAddFactNoRestore(this BlueprintUnitFact fact)
+        {
+            var result = Create<AddFacts>();
+            result.name = $"AddFacts${fact.name}";
+            result.Facts = new BlueprintUnitFact[] { fact };
+            result.DoNotRestoreMissingFacts = true;
+            return result;
+        }
+
+
 
 
 

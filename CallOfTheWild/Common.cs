@@ -657,7 +657,7 @@ namespace CallOfTheWild
         }
 
 
-        static public RemoveFeatureOnApply createRemoveFeatureOnApply(BlueprintFeature feature)
+        static public RemoveFeatureOnApply createRemoveFeatureOnApply(BlueprintUnitFact feature)
         {
             var c = Helpers.Create<RemoveFeatureOnApply>();
             c.Feature = feature;
@@ -3439,6 +3439,21 @@ namespace CallOfTheWild
             }
 
             return ability;
+        }
+
+
+        static public BlueprintFeature buffToFeature(BlueprintBuff buff)
+        {
+            var feature = Helpers.CreateFeature(buff.name + "Feature",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                buff.ComponentsArray
+                                                );
+            feature.HideInCharacterSheetAndLevelUp = true;
+            return feature;
         }
     }
 }

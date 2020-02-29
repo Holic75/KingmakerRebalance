@@ -29,6 +29,8 @@ namespace CallOfTheWild
             ThreefoldAspect,
             ArcanistArcaneReservoirSpellboost,
             ArcanistArcaneWeapon,
+            InvestigatorStudiedCombat,
+            InvestigatorStudiedStrike
         }
 
         public static partial class Extensions

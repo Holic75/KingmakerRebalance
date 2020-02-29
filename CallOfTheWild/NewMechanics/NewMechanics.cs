@@ -4976,7 +4976,7 @@ namespace CallOfTheWild
                 bool flag2 = this.CheckCasterFriend && maybeCaster != null && evt.Target.GroupId == maybeCaster.GroupId && evt.Target != maybeCaster;
                 if (!flag1 && !flag2)
                     return;
-                if (!evt.Target.Descriptor.HasFact(checked_fact))
+                if (checked_fact != null && !evt.Target.Descriptor.HasFact(checked_fact))
                 {
                     return;
                 }
@@ -6018,6 +6018,7 @@ namespace CallOfTheWild
             public ContextDiceValue bonus;
             public AttackType[] attack_types;
             public bool only_from_caster = false;
+            public BlueprintFeature attacker_fact = null;
 
             private MechanicsContext Context
             {
@@ -6032,6 +6033,10 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
+                if (attacker_fact != null && !evt.Initiator.Descriptor.HasFact(attacker_fact))
+                {
+                    return;
+                }
                 if (evt.DamageBundle.Empty())
                 {
                     return;
@@ -6226,13 +6231,15 @@ namespace CallOfTheWild
                 var dice_id = dice_type.Calculate(this.Fact.MaybeContext) - 1;
                 dice_id = Math.Max(0, Math.Min(dices.Length - 1, dice_id));
                 DiceFormula dice_formula = new DiceFormula(dice_count.Calculate(this.Fact.MaybeContext), dices[dice_id]);
+                //Main.logger.Log("Dice: " + dice_formula.Dice.ToString());
+                //Main.logger.Log("Rolls: " + dice_formula.Rolls.ToString());
                 RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-
+                //Main.logger.Log("Skill bonus: " + result.ToString());
                 evt.Bonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable);
             }
 
@@ -6305,13 +6312,15 @@ namespace CallOfTheWild
             var dice_id = dice_type.Calculate(this.Fact.MaybeContext) - 1;
             dice_id = Math.Max(0, Math.Min(dices.Length - 1, dice_id));
             DiceFormula dice_formula = new DiceFormula(dice_count.Calculate(this.Fact.MaybeContext), dices[dice_id]);
+            //Main.logger.Log("Dice: " + dice_formula.Dice.ToString());
+            //Main.logger.Log("Rolls: " + dice_formula.Rolls.ToString());
             RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
             int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
             if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
             {
                 result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
             }
-
+            //Main.logger.Log("Attack bonus: " + result.ToString());
             evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.Other));
         }
 
@@ -6405,6 +6414,37 @@ namespace CallOfTheWild
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
                 will_spend = 0;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SpecificSavingThrowBonusAgainstSchool : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public SavingThrowType type;
+            public SpellSchool School;
+            public ModifierDescriptor ModifierDescriptor;
+            public ContextValue Value;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                if (evt.Reason.Context == null)
+                    return;
+                SpellSchool? school = evt.Reason.Context?.SourceAbility?.School;
+                if ((school.GetValueOrDefault() != this.School ? 0 : (school.HasValue ? 1 : 0)) == 0)
+                    return;
+                if (evt.Type != type)
+                {
+                    return;
+                }
+                int bonus = this.Value.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
             }
         }
     }
