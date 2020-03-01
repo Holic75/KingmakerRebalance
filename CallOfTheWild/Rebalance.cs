@@ -325,6 +325,37 @@ namespace CallOfTheWild
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
             jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
 
+            var varn_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e83a03d50fedd35449042ce73f1b6908");
+            var varn_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("2babd2d4687b5ee428966322eccfe4b6");
+            varn_companion.Dexterity = 18;
+            varn_companion.Intelligence = 14;
+            varn_companion.Wisdom = 8;
+            varn_companion.Charisma = 12;
+            var varn_class_levels = varn_feature.GetComponent<AddClassLevels>();
+            varn_class_levels.Skills = new StatType[] { StatType.SkillMobility, StatType.SkillThievery, StatType.SkillPerception, StatType.SkillStealth, StatType.SkillPersuasion, StatType.SkillUseMagicDevice };
+
+            var cephales_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("77c5eb949dffb9f45abcc7a78a2d281f");
+            var cephales_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d152b07305353474ba15d750015d99ee");
+            cephales_companion.Strength = 8;
+            cephales_companion.Constitution = 12;
+            cephales_companion.Dexterity = 14;
+            cephales_companion.Intelligence = 18;
+            cephales_companion.Wisdom = 12;
+            cephales_companion.Charisma = 12;
+            var cephales_class_levels = cephales_feature.GetComponent<AddClassLevels>();
+            cephales_class_levels.Selections[0].Features[0] = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74"); //improved initiative
+            cephales_class_levels.Selections[0].Features[1] = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"); //spell focus (necromancy
+            cephales_class_levels.Selections = cephales_class_levels.Selections.AddToArray(new SelectionEntry()
+                                                                                            {
+                                                                                                Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
+                                                                                                Features = new BlueprintFeature[] { BloodlinesFix.blood_havoc },
+                                                                                                ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"),
+                                                                                                ParamSpellSchool = SpellSchool.Necromancy,
+                                                                                                IsParametrizedFeature = true
+                                                                                            }
+                                                                                            );
+            cephales_class_levels.Selections[0].Features[3] = library.Get<BlueprintParametrizedFeature>("5b04b45b228461c43bad768eb0f7c7bf");
+            cephales_class_levels.Selections[0].Features[4] = library.Get<BlueprintFeature>("f180e72e4a9cbaa4da8be9bc958132ef");
         }
 
 
