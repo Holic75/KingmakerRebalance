@@ -3402,25 +3402,36 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null)
+        static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
+                                                          bool no_resource = false,
+                                                          bool no_scaling = false,
+                                                          string guid = "")
         {
-            var ability = library.CopyAndAdd<BlueprintAbility>(spell.AssetGuid, prefix + spell.name, "");
+            var ability = library.CopyAndAdd<BlueprintAbility>(spell.AssetGuid, prefix + spell.name, guid);
             ability.RemoveComponents<SpellListComponent>();
             ability.Type = AbilityType.SpellLike;
-            ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
+            if (!no_scaling)
+            {
+                ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
+            }
             ability.MaterialComponent = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").MaterialComponent; //fireball (empty)
 
-            var resource2 = resource;
-            if (resource2 == null)
+            if (!no_resource)
             {
-                resource2 = Helpers.CreateAbilityResource(prefix + spell.name + "Resource", "", "", "", null);
-                resource2.SetFixedResource(1);
+                var resource2 = resource;
+                if (resource2 == null)
+                {
+                    resource2 = Helpers.CreateAbilityResource(prefix + spell.name + "Resource", "", "", "", null);
+                    resource2.SetFixedResource(1);
+                }
+                ability.AddComponent(Helpers.CreateResourceLogic(resource2));
             }
 
-            ability.AddComponent(Helpers.CreateResourceLogic(resource2));
+           
             ability.Parent = null;
             return ability;
         }
+
 
         static public BlueprintAbility convertToSuperNatural(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null)
         {
@@ -3432,7 +3443,7 @@ namespace CallOfTheWild
 
             //make buffs non dispellable
             var actions = ability.GetComponent<AbilityEffectRunAction>();
-            if (actions!= null)
+            if (actions != null)
             {
                 var new_actions = changeAction<ContextActionApplyBuff>(actions.Actions.Actions, c => c.IsNotDispelable = true);
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));

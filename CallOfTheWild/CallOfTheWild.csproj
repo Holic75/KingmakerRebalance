@@ -144,6 +144,7 @@
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Features\MagusArcana.cs" />
     <Compile Include="Features\MetamagicFeats.cs" />
+    <Compile Include="Features\RogueTalents.cs" />
     <Compile Include="MechanicsFixes\BloodlinesFix.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />

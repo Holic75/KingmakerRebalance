@@ -131,15 +131,15 @@ namespace CallOfTheWild.Archetypes
                 library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61"), //domiante person
                 NewSpells.command_greater,
                 library.Get<BlueprintAbility>("d316d3d94d20c674db2c24d7de96f6a7"), //serenity
-                library.Get<BlueprintAbility>("7f71a70d822af94458dc1a235507e972"), //cloack of dreams
+                library.Get<BlueprintAbility>("7f71a70d822af94458dc1a235507e972"), //cloak of dreams
                 library.Get<BlueprintAbility>("cbf3bafa8375340498b86a3313a11e2f"), //euphoric tranquility
                 library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757") //dominate monster
             };
 
             var description = "An evangelist does not gain the ability to spontaneously cast cure or inflict spells by sacrificing prepared spells.However, an evangelist can spontaneously cast the following splls, by sacrificing a prepared spell of the noted level: ";
-            for (int i = 1; i < spells.Length; i++)
+            for (int i = 0; i < spells.Length; i++)
             {
-                description += spells[i].Name + $" ({i}{Common.getNumExtension(i)})" +   ((i + 1) == spells.Length ? "." : ", ");
+                description += spells[i].Name + $" ({i+1}{Common.getNumExtension(i+1)})" +   ((i + 1) == spells.Length ? "." : ", ");
             }
             spontaneous_casting = Helpers.CreateFeature("EvangelistSpontaneousCasting",
                                                          "Spontaneous Casting",

@@ -91,6 +91,7 @@ namespace CallOfTheWild
         static public BlueprintFeature tenacious_inspiration;
         static public BlueprintFeature toppling_strike;
         static public BlueprintFeature underworld_inspiration;
+        static public BlueprintFeature prolonged_study;
 
         static public BlueprintFeature ranged_study;
         static public BlueprintFeature extra_investigator_talent;
@@ -101,6 +102,9 @@ namespace CallOfTheWild
         static public BlueprintArchetype questioner_archetype;
         static public BlueprintSpellbook questioner_spellbook;
         static public BlueprintFeature inspiration_for_subterfuge, questioner_spellcasting, know_it_all;
+        static public BlueprintArchetype jinyiwei_archetype;
+        static public BlueprintFeature divine_inspiration, celestial_insight;
+        static public BlueprintSpellbook jinyiwei_spellbook;
 
 
 
@@ -147,8 +151,9 @@ namespace CallOfTheWild
             investigator_class.Progression = investigator_progression;
             createEmpiricistArchetype();
             createQuestioner();
+            createJynyiwei();
 
-            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype}; //empiricist, questioner
+            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype};
             Helpers.RegisterClass(investigator_class);
             addToPrestigeClasses(); 
             createFeats();
@@ -162,10 +167,90 @@ namespace CallOfTheWild
                                         Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 2));
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, questioner_spellbook, "MysticTheurgeQuestioner",
                                         Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeDivineSpellbookSelection, jinyiwei_spellbook, "MysticTheurgeJinyiwei",
+                                        Common.createPrerequisiteArchetypeLevel(investigator_class, jinyiwei_archetype, 2));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, questioner_spellbook, "DragonDiscipleQuestioner",
                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1));
         }
 
+
+        static void createJynyiwei()
+        {
+            jinyiwei_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "JinyiweiArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Jinyiwei");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Jinyiwei seek out and eliminate corruption wherever they find it, claiming they act under the celestial government’s mandate.");
+            });
+            Helpers.SetField(jinyiwei_archetype, "m_ParentClass", investigator_class);
+            library.AddAsset(jinyiwei_archetype, "");
+
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+            createDivineInspiration();
+            createCelestialInsight();
+
+            jinyiwei_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration),
+                                                                   Helpers.LevelEntry(3, trap_sense),
+                                                                   Helpers.LevelEntry(6, trap_sense),
+                                                                   Helpers.LevelEntry(9, trap_sense),
+                                                                   Helpers.LevelEntry(12, trap_sense),
+                                                                   Helpers.LevelEntry(15, trap_sense),
+                                                                   Helpers.LevelEntry(18, trap_sense) };
+            jinyiwei_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, detect_magic, divine_inspiration),
+                                                                  Helpers.LevelEntry(3, celestial_insight) };
+
+            jinyiwei_archetype.ReplaceSpellbook = jinyiwei_spellbook;
+            investigator_class.Progression.UIDeterminatorsGroup = investigator_class.Progression.UIDeterminatorsGroup.AddToArray(detect_magic, divine_inspiration);
+            infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
+            mutagen.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
+        }
+
+
+        static void createDivineInspiration()
+        {
+            divine_inspiration = library.CopyAndAdd<BlueprintFeature>(inspiration, "DivineInspirationJinyiweiFeature", "");
+            divine_inspiration.SetNameDescriptionIcon("Divine Inspiration",
+                                                      "A jinyiwei follows a mandate to combat corruption in the mortal world. A jinyiwei adds her Wisdom modifier to her inspiration pool, rather than her Intelligence modifier. Additionally, rather than dabbling in the arcane arts of alchemy, a jinyiwei is empowered by the forces of celestial bureaucracy. She casts spells as an inquisitor of the same level.",
+                                                      Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96")//good hope
+                                                      );
+            divine_inspiration.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount ,baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 1));
+            divine_inspiration.ReplaceComponent<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom);
+            divine_inspiration.AddComponents(library.Get<BlueprintFeature>("4f898e6a004b2a84686c1fbd0ffe950e").ComponentsArray);//cantrips
+            divine_inspiration.ReplaceComponent<LearnSpells>(l => l.CharacterClass = investigator_class);
+            divine_inspiration.ReplaceComponent<BindAbilitiesToClass>(b => b.CharacterClass = investigator_class);
+            jinyiwei_spellbook = library.CopyAndAdd<BlueprintSpellbook>("57fab75111f377248810ece84193a5a5", "JynyiweySpellbook", "");
+            jinyiwei_spellbook.Name = Helpers.CreateString("JynyiweySpellbook.Name", "Jynyiwey");
+        }
+
+
+        static void createCelestialInsight()
+        {
+            celestial_insight = Helpers.CreateFeature("CelestialInsightJynyiweyFeature",
+                                                      "Celestial Insight",
+                                                      "At 3rd level, a jinyiwei learns to see through the types of magic that often lead others astray. She gains a +1 competence bonus on saving throws to resist enchantment and illusion effects. At 6th level and every 3 levels thereafter, these bonuses increase by 1 (to a maximum of +6 at 18th level).",
+                                                      "",
+                                                      Helpers.GetIcon("75a10d5a635986641bfbcceceec87217"),
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<SavingThrowBonusAgainstSchoolAbilityValue>(s =>
+                                                                                                                  {
+                                                                                                                      s.ModifierDescriptor = ModifierDescriptor.Competence;
+                                                                                                                      s.Value = 0;
+                                                                                                                      s.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                      s.School = SpellSchool.Enchantment;
+                                                                                                                  }
+                                                                                                                ),
+                                                       Helpers.Create<SavingThrowBonusAgainstSchoolAbilityValue>(s =>
+                                                                                                                {
+                                                                                                                    s.ModifierDescriptor = ModifierDescriptor.Competence;
+                                                                                                                    s.Value = 0;
+                                                                                                                    s.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                    s.School = SpellSchool.Illusion;
+                                                                                                                }
+                                                                                                                ),
+                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
+                                                                                       progression: ContextRankProgression.DivStep, stepLevel: 3)
+                                                       );
+        }
 
         static void createQuestioner()
         {
@@ -183,7 +268,7 @@ namespace CallOfTheWild
             createQuestionerSpellcasting();
             createKnowItAll();
 
-            questioner_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration), Helpers.LevelEntry(2, poison_resistance)};
+            questioner_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration)};
             questioner_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, detect_magic, questioner_spellcasting, inspiration_for_subterfuge),
                                                                   Helpers.LevelEntry(2, know_it_all) };
 
@@ -231,6 +316,9 @@ namespace CallOfTheWild
                                                                                                 ArmorProficiencyGroup.HeavyShield,
                                                                                                 ArmorProficiencyGroup.TowerShield)
                                                             );
+            questioner_spellcasting.AddComponents(library.Get<BlueprintFeature>("4f422e8490ec7d94592a8069cce47f98").ComponentsArray);//cantrips
+            questioner_spellcasting.ReplaceComponent<LearnSpells>(l => l.CharacterClass = investigator_class);
+            questioner_spellcasting.ReplaceComponent<BindAbilitiesToClass>(b => { b.CharacterClass = investigator_class; b.Stat = StatType.Intelligence; });
         }
 
 
@@ -368,7 +456,7 @@ namespace CallOfTheWild
                                                       inspiration.Icon,
                                                       FeatureGroup.Feat,
                                                       Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = inspiration_resource; i.Value = 3; }),
-                                                      Helpers.PrerequisiteFeature(inspiration)
+                                                      Helpers.PrerequisiteFeature(inspiration_base)
                                                       );
             extra_inspiration.Ranks = 10;
             library.AddFeats(extra_investigator_talent, extra_inspiration);
@@ -460,7 +548,7 @@ namespace CallOfTheWild
                 mutagen.ReplaceComponent(c, new_c);
             }
 
-            createQuickStudy();
+            createQuickAndProlongedStudy();
             createSappingOffensive();
             createSickeningOffensive();
             createTopplingStrike();
@@ -486,6 +574,7 @@ namespace CallOfTheWild
                 infusion,
                 mutagen,
                 quick_study,
+                prolonged_study,
                 sapping_offensive,
                 sickening_offensive,
                 toppling_strike,
@@ -705,7 +794,7 @@ namespace CallOfTheWild
         }
 
 
-        static void createQuickStudy()
+        static void createQuickAndProlongedStudy()
         {
             var icon = Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"); //true seeing
             var quick_study_ability = library.CopyAndAdd<BlueprintAbility>(studied_combat_ability, "QuickStudyStudiedCombatAbility", "");
@@ -731,6 +820,27 @@ namespace CallOfTheWild
             variants_component.Variants = variants_component.Variants.AddToArray(quick_study_ability, quick_study_ignore_cooldown);
 
             quick_study.AddComponent(Helpers.PrerequisiteFeature(studied_combat));
+
+
+            prolonged_study = Helpers.CreateFeature("ProlongedStudyInvestigatorTalentFeature",
+                                                    "Prolonged Study",
+                                                    "The investigator can study his opponents for long periods of time. The effects of his studied combat ability last for a number of rounds equal to twice his Intelligence modifier (minimum 2) or until he deals damage with a studied strike, whichever comes first.",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None,
+                                                    Helpers.PrerequisiteClassLevel(investigator_class, 13),
+                                                    Helpers.Create<AutoMetamagic>(a =>
+                                                                                    {
+                                                                                        a.Metamagic = Metamagic.Extend;
+                                                                                        Helpers.SetField(a, "m_AllowedAbilities", 3);
+                                                                                        a.Abilities = new List<BlueprintAbility>();
+                                                                                        a.Abilities.Add(studied_combat_ability);
+                                                                                        a.Abilities.Add(studied_combat_ability_ignore_cooldown);
+                                                                                        a.Abilities.Add(quick_study_ability);
+                                                                                        a.Abilities.Add(quick_study_ignore_cooldown);
+                                                                                    }
+                                                                                  )
+                                                    );
         }
 
 
@@ -738,10 +848,10 @@ namespace CallOfTheWild
         {
             inspiration_resource = Helpers.CreateAbilityResource("InvestigatorInspirationResource", "", "", "", null);
             inspiration_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, getInvestigatorArray());
-            inspiration_resource.SetIncreasedByStat(0, StatType.Intelligence);
+            //inspiration_resource.SetIncreasedByStat(0, StatType.Intelligence);
 
             inspiration_base = Helpers.CreateFeature("InvestigatorInspirationBase",
-                                                     "",
+                                                     "Inspiration",
                                                      "",
                                                      "",
                                                      null,
@@ -767,7 +877,15 @@ namespace CallOfTheWild
                                                 Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"),
                                                 FeatureGroup.None,
                                                 Helpers.CreateAddFact(inspiration_base),
-                                                inspiration_resource.CreateAddAbilityResource()
+                                                inspiration_resource.CreateAddAbilityResource(),
+                                                Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(c =>
+                                                                                                                {
+                                                                                                                    c.Value = Helpers.CreateContextValue(AbilityRankType.ProjectilesCount);
+                                                                                                                    c.Resource = inspiration_resource;
+                                                                                                                }
+                                                                                                                ),
+                                                Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, min: 1),
+                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
                                                 );
             createTrueInspiration();
             createTenaciousInspiration();
@@ -1209,8 +1327,10 @@ namespace CallOfTheWild
                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
                                                                                      progression: ContextRankProgression.Div2)
                                                          );
-            var apply_attack = Common.createContextActionApplyBuff(studied_attack_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_child: true, dispellable: false);
-            var apply_defense = Common.createContextActionApplyBuff(studied_defense_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_child: true, dispellable: false);
+            var apply_attack = Common.createContextActionApplyBuff(studied_attack_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                                                      is_child: true, dispellable: false);
+            var apply_defense = Common.createContextActionApplyBuff(studied_defense_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                                                        is_child: true, dispellable: false);
             studied_target_buff = Helpers.CreateBuff("InvestigatorStudiedTargetBuff",
                                                          "",
                                                          "",

@@ -11,7 +11,7 @@ It introduces new classes:
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Arcanist with following archetypes: School Savant, Blood Arcanist and Unlettered Arcanist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
-- Investigator with following archetypes: Empiricist, Questioner.
+- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner.
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -132,6 +132,10 @@ New Wild Talents:
 - Blade Rush,
 - Kinetic Whip,
 - Whip Hurricane.
+
+New Rogue Talents:
+- Minor Magic,
+- Major Magic.
 
 New Magus Arcana:
 - Familiar,
