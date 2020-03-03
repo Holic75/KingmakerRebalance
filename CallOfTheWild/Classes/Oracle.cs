@@ -1818,7 +1818,7 @@ namespace CallOfTheWild
                                               burning_hands.Icon,
                                               FeatureGroup.None,
                                               burning_hands.CreateAddKnownSpell(oracle_class, 1),
-                                              Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Other),
+                                              Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = Helpers.CreateContextValue(AbilityRankType.Default)),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (9, -4), (20, -2) }

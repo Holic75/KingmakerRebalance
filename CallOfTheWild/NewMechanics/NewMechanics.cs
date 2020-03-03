@@ -6462,5 +6462,34 @@ namespace CallOfTheWild
                 evt.ReplaceSpellLevel = new int?(fixed_level);
             }
         }
+
+
+        [ComponentName("Weapon parameters attack bonus")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class WeaponsOnlyAttackBonus : RuleInitiatorLogicComponent<RuleCalculateAttackBonusWithoutTarget>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                if (evt.Weapon == null)
+                    return;
+               if (evt.Weapon.Blueprint.IsNatural || evt.Weapon.Blueprint.IsUnarmed)
+               {
+                    return;
+               }
+
+               if (evt.Weapon.Blueprint.Category == WeaponCategory.Ray || evt.Weapon.Blueprint.Category == WeaponCategory.Touch)
+               {
+                   return;
+               }
+                evt.AddBonus(value.Calculate(this.Fact.MaybeContext), this.Fact);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+            }
+        }
     }
 }

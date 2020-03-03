@@ -151,7 +151,7 @@ namespace CallOfTheWild
             investigator_class.Progression = investigator_progression;
             createEmpiricistArchetype();
             createQuestioner();
-            createJynyiwei();
+            createJinyiwei();
 
             investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype};
             Helpers.RegisterClass(investigator_class);
@@ -174,7 +174,7 @@ namespace CallOfTheWild
         }
 
 
-        static void createJynyiwei()
+        static void createJinyiwei()
         {
             jinyiwei_archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
@@ -219,7 +219,7 @@ namespace CallOfTheWild
             divine_inspiration.ReplaceComponent<LearnSpells>(l => l.CharacterClass = investigator_class);
             divine_inspiration.ReplaceComponent<BindAbilitiesToClass>(b => b.CharacterClass = investigator_class);
             jinyiwei_spellbook = library.CopyAndAdd<BlueprintSpellbook>("57fab75111f377248810ece84193a5a5", "JynyiweySpellbook", "");
-            jinyiwei_spellbook.Name = Helpers.CreateString("JynyiweySpellbook.Name", "Jynyiwey");
+            jinyiwei_spellbook.Name = Helpers.CreateString("JynyiweySpellbook.Name", "Jinyiwey");
         }
 
 
@@ -1286,7 +1286,7 @@ namespace CallOfTheWild
         {
             ranged_study = Helpers.CreateFeature("RangedStudyFeature",
                                                "Ranged Study",
-                                               "You gain the bonuses for studied combat with ranged weapons and can use studied strike with ranged_weapons as long as the target of your studied strike is within 30 feet of you.\n"
+                                               "You gain the bonuses for studied combat with ranged weapons and can use studied strike with ranged weapons as long as the target of your studied strike is within 30 feet of you.\n"
                                                + "Normal: You gain the bonuses for studied combat and can use studied strike only with melee weapons.",
                                                "",
                                                null,
