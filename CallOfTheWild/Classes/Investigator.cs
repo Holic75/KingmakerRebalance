@@ -92,6 +92,8 @@ namespace CallOfTheWild
         static public BlueprintFeature toppling_strike;
         static public BlueprintFeature underworld_inspiration;
         static public BlueprintFeature prolonged_study;
+        static public BlueprintFeature extend_potion;
+        static public BlueprintFeature enhance_potion;
 
         static public BlueprintFeature ranged_study;
         static public BlueprintFeature extra_investigator_talent;
@@ -203,6 +205,8 @@ namespace CallOfTheWild
             investigator_class.Progression.UIDeterminatorsGroup = investigator_class.Progression.UIDeterminatorsGroup.AddToArray(detect_magic, divine_inspiration);
             infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
             mutagen.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
+            enhance_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
+            extend_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
         }
 
 
@@ -268,7 +272,7 @@ namespace CallOfTheWild
             createQuestionerSpellcasting();
             createKnowItAll();
 
-            questioner_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration)};
+            questioner_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration), Helpers.LevelEntry(2, poison_resistance), Helpers.LevelEntry(11, poison_immunity) };
             questioner_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, detect_magic, questioner_spellcasting, inspiration_for_subterfuge),
                                                                   Helpers.LevelEntry(2, know_it_all) };
 
@@ -277,6 +281,8 @@ namespace CallOfTheWild
             investigator_class.Progression.UIDeterminatorsGroup = investigator_class.Progression.UIDeterminatorsGroup.AddToArray(detect_magic, questioner_spellcasting, inspiration_for_subterfuge);
             infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, questioner_archetype));
             mutagen.AddComponent(Common.prerequisiteNoArchetype(investigator_class, questioner_archetype));
+            enhance_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, questioner_archetype));
+            extend_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, questioner_archetype));
         }
 
 
@@ -556,6 +562,12 @@ namespace CallOfTheWild
             createConfusingStrike();
 
 
+            extend_potion = library.Get<BlueprintFeature>("1db8e126b77e71d4d89dcfa50fe87e93");
+            enhance_potion = library.CopyAndAdd<BlueprintFeature>("2673ccdd6df742d42a8c94977c76a984", "InvestigatorEnhancePotionFeature", "");
+            enhance_potion.ReplaceComponent<EnhancePotion>(e => e.SpecializedClass = investigator_class);
+
+
+
 
             investigator_talent_selection.AllFeatures = new BlueprintFeature[]
             {
@@ -573,6 +585,8 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("4cd06a915daa74f4094952f2b3314b3b"), //terrain mastery
                 infusion,
                 mutagen,
+                extend_potion,
+                enhance_potion,
                 quick_study,
                 prolonged_study,
                 sapping_offensive,
