@@ -251,6 +251,11 @@ namespace CallOfTheWild
                 }
                 current_spell = null;
 
+                if (evt.Spell.MetamagicData == null)
+                {
+                    return;
+                }
+
                 int metamagic_count = Helpers.PopulationCount((int)(evt.Spell.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
                 if (metamagic_count > 1)
                 {
@@ -273,6 +278,7 @@ namespace CallOfTheWild
             public BlueprintAbilityResource resource;
             public BlueprintSpellbook spellbook;
             public int amount = 1;
+            public bool used_for_reducing_metamagic_cast_time = false;
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
@@ -281,7 +287,25 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCastSpell evt)
             {
-                if (spellbook == null || evt.Spell?.Spellbook?.Blueprint == spellbook)
+                var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
+                if (spellbook_blueprint == null)
+                {
+                    return;
+                }
+
+                if (evt.Spell.StickyTouch != null)
+                {
+                    return;
+                }
+
+                if (used_for_reducing_metamagic_cast_time &&
+                    (evt.Spell.MetamagicData == null || (evt.Spell.MetamagicData.MetamagicMask != 0 && (evt.Spell.MetamagicData.MetamagicMask & Metamagic.Quicken) != 0))
+                    )
+                {
+                    return;
+                }
+                 
+                if (spellbook == null || spellbook_blueprint == spellbook)
                 {
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
                 }

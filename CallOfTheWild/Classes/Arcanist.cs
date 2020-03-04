@@ -813,14 +813,37 @@ namespace CallOfTheWild
 
         static void createMetamixing()
         {
+            var buff = Helpers.CreateBuff("MetamixingExploitBuff",
+                                            "Metamixing",
+                                            "The arcanist can expend 1 point from her arcane reservoir to add a metamagic feat that she knows to a spell as she casts it without affecting the casting time (though using a higher-level spell slot as normal). She can use this ability to add a metamagic feat to a spell that she prepared using a metamagic feat, although she cannot add the same metamagic feat to a given spell more than once.",
+                                            "",
+                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
+                                            null,
+                                            Helpers.Create<SpellManipulationMechanics.Metamixing>(),
+                                            Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => {s.spellbook = null; s.resource = arcane_reservoir_resource; s.used_for_reducing_metamagic_cast_time = true; }));
+
+            var ability = Helpers.CreateActivatableAbility("MetamixingExplotToggleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           AbilityActivationType.Immediately,
+                                                           CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(arcane_reservoir_resource, ResourceSpendType.Never)
+                                                           );
+            ability.DeactivateImmediately = true;
+
             metamixing = Helpers.CreateFeature("MetamixingExploitFeature",
-                                               "Metamixing",
-                                               "The arcanist can expend 1 point from her arcane reservoir to add a metamagic feat that she knows to a spell as she casts it without affecting the casting time (though using a higher-level spell slot as normal). She can use this ability to add a metamagic feat to a spell that she prepared using a metamagic feat, although she cannot add the same metamagic feat to a given spell more than once.",
+                                               ability.Name,
+                                               ability.Description,
                                                "",
-                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
+                                               ability.Icon,
                                                FeatureGroup.None,
-                                               Helpers.Create<SpellManipulationMechanics.Metamixing>()
+                                               Helpers.CreateAddFact(ability)
                                                );
+
         }
 
 
