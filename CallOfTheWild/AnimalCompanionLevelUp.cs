@@ -34,8 +34,8 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
             var tr = Harmony12.Traverse.Create(__instance);
 
             int pet_level = tr.Method("GetPetLevel").GetValue<int>();
-            Main.logger.Log("Pet level: " + __instance.SpawnedPet.Descriptor.Progression.CharacterLevel.ToString());
-            Main.logger.Log("Should be: " + pet_level.ToString());
+            //Main.logger.Log("Pet level: " + __instance.SpawnedPet.Descriptor.Progression.CharacterLevel.ToString());
+            //Main.logger.Log("Should be: " + pet_level.ToString());
 
             if (pet_level > __instance.SpawnedPet.Descriptor.Progression.CharacterLevel)
             {
