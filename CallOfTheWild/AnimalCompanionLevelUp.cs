@@ -22,6 +22,10 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     {
         internal static bool Prefix(AddPet __instance)
         {
+            if (!__instance.Owner.IsPlayerFaction)
+            {
+                return true;
+            }
             if (__instance.SpawnedPet == null)
                 return false;
             AddClassLevels component = __instance.SpawnedPet.Blueprint.GetComponent<AddClassLevels>();
