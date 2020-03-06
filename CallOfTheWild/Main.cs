@@ -146,7 +146,8 @@ namespace CallOfTheWild
                         Main.logger.Log("Fixing Ecclesitheurge");
                         CallOfTheWild.Rebalance.fixEcclesitheurge();
                     }
-
+                    CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
+                    CallOfTheWild.Rebalance.fixTransmutionSchoolPhysicalEnhancement();
                     CallOfTheWild.Rebalance.fixSylvanSorcerorAnimalCompanion();
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();

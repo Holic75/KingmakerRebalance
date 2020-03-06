@@ -253,17 +253,17 @@ namespace CallOfTheWild
 
             planar_focus_fire = createToggleFocus("PlanarFocusFire",
                                                  "Planar Focus: Fire",
-                                                 "Your natural attacks and melee weapons deal 1d4 points of fire damage for every 5 class levels you possess.",
+                                                 "Your natural attacks and melee weapons deal 1d3 points of fire damage for every 4 class levels you possess.",
                                                  "",
                                                  "",
                                                  library.Get<BlueprintActivatableAbility>("7902941ef70a0dc44bcfc174d6193386").Icon, //weapon bond flaming
-                                                 Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+                                                 Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D3, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
                                                                                             DamageEnergyType.Fire,
                                                                                             AttackType.Melee, AttackType.Touch),
                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(),
                                                                                  ContextRankProgression.DivStep,
                                                                                  AbilityRankType.DamageDice,
-                                                                                 stepLevel: 5,
+                                                                                 stepLevel: 4,
                                                                                  classes: allowed_classes, archetype: sacred_huntsmaster_archetype)
                                                );
 

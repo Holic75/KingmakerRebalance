@@ -30,7 +30,8 @@ namespace CallOfTheWild
             ArcanistArcaneReservoirSpellboost,
             ArcanistArcaneWeapon,
             InvestigatorStudiedCombat,
-            InvestigatorStudiedStrike
+            InvestigatorStudiedStrike,
+            EidolonEvolution,
         }
 
         public static partial class Extensions

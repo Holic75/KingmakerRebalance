@@ -22,7 +22,6 @@ namespace CallOfTheWild
             }
         }
 
-
         public void removeBuff(Fact buff)
         {
             buffs.Remove(buff);

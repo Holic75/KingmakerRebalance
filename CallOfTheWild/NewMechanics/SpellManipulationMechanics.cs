@@ -434,9 +434,9 @@ namespace CallOfTheWild
 
                // Main.logger.Log("Checking correct spell");
                 var allowed =  ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
-                if (allowed)
+                if (!allowed)
                 {
-                    return true;
+                    return false;
                 }
 
                 var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();

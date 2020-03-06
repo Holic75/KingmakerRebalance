@@ -488,6 +488,10 @@ namespace CallOfTheWild
 
                 bool same_spells = evt.Spell.Parent == null ? SpellDuplicates.isDuplicate(evt.Spell, spell) : SpellDuplicates.isDuplicate(evt.Spell.Parent, spell);
 
+                if (!same_spells)
+                {
+                    return;
+                }
                 var spellbook = evt.Spellbook;
                 if (spellbook == null || spellbook.GetSpellLevel(spell) > max_spell_level)
                 {

@@ -52,6 +52,29 @@ namespace CallOfTheWild
             library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
         }
 
+
+
+        internal static void fixTransmutionSchoolPhysicalEnhancement()
+        {
+            var physical_ehancment_feature = library.Get<BlueprintFeature>("93919f8ce64dc5a4cbf058a486a44a1b");
+            var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            foreach (var f in physical_ehancment_feature.GetComponent<AddFacts>().Facts)
+            {
+                var toggle = f as BlueprintActivatableAbility;
+                var buff = toggle.Buff;
+                var comp = buff.GetComponent<AddStatBonusScaled>();
+                var stat = comp.Stat;
+                var descriptor = comp.Descriptor;
+
+                buff.ComponentsArray = new BlueprintComponent[]
+                {
+                    Helpers.CreateAddContextStatBonus(stat, descriptor),
+                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                    classes: new BlueprintCharacterClass[]{wizard}, stepLevel: 5)
+                };
+            }
+        }
+
         internal static void fixAnimalCompanion()
         {
             //animal companion rebalance
@@ -59,13 +82,18 @@ namespace CallOfTheWild
             var natural_armor = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1");
             var natural_armor_value = natural_armor.GetComponent<AddStatBonus>();
             natural_armor_value.Value = 2;
-            //set stat bonus to str and dex as per pnp, set con to the same values to compensate for bonus ability points
+            //set stat bonus to str and dex as per pnp, 
             var stat_bonuses = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0c80276018694f24fbaf59ec7b841f2b");
             var stat_bonuses_value = stat_bonuses.GetComponents<AddStatBonus>();
             foreach (var stat_bonus_value in stat_bonuses_value)
             {
                 stat_bonus_value.Value = 1;
+                if (stat_bonus_value.Stat == StatType.Constitution)
+                {
+                    stat_bonus_value.Value = 0;
+                }
             }
+            stat_bonuses.SetDescription("Animal companions receive +1 bonus to their Strength and Dexterity.");
             //remove enchanced attacks
             var enchanced_attacks_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("71d6955fe81a9a34b97390fef1104362");
             enchanced_attacks_feature.HideInCharacterSheetAndLevelUp = true;
@@ -149,6 +177,7 @@ namespace CallOfTheWild
             class_skill_map.Add(new KeyValuePair<string, int>("ba34257984f4c41408ce1dc2004e342e", 1));//wizard
             class_skill_map.Add(new KeyValuePair<string, int>("c75e0971973957d4dbad24bc7957e4fb", 2));//slayer
             class_skill_map.Add(new KeyValuePair<string, int>("90e4d7da3ccd1a8478411e07e91d5750", 2));//swordlord
+            class_skill_map.Add(new KeyValuePair<string, int>("4cd1757a0eea7694ba5c933729a53920", 3));//animal
             foreach (var class_skill in class_skill_map)
             {
                 var current_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>(class_skill.Key);

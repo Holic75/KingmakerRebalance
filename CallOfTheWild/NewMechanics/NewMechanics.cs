@@ -6515,5 +6515,28 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        public class IncreaseActivatableAbilityGroupSizeForPet : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public ActivatableAbilityGroup Group;
+            public int amount = 1;
+
+            public override void OnTurnOn()
+            {
+                for (int i = 0; i < amount; i++)
+                {
+                    this.Owner.Pet?.Ensure<UnitPartActivatableAbility>().IncreaseGroupSize(this.Group);
+                }
+            }
+
+            public override void OnTurnOff()
+            {
+                for (int i = 0; i < amount; i++)
+                {
+                    this.Owner.Pet?.Ensure<UnitPartActivatableAbility>().DecreaseGroupSize(this.Group);
+                }
+            }
+        }
     }
 }

@@ -125,12 +125,14 @@
     <Compile Include="ActivatableGroupExtender.cs" />
     <Compile Include="AiFix.cs" />
     <Compile Include="AnimalCompanionInventory.cs" />
+    <Compile Include="AnimalCompanionLevelUp.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\Evangelist.cs" />
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\Evolutions.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
     <Compile Include="Classes\Mysteries\Bones.cs" />
@@ -191,6 +193,7 @@
     <Compile Include="NewMechanics\CustomAbilities.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\EncumbranceMechanics.cs" />
+    <Compile Include="NewMechanics\EvolutionMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
     <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
     <Compile Include="NewMechanics\StatReplacementMechanics.cs" />
