@@ -116,7 +116,8 @@ New features:
 - Share Spell for animal companions,
 - Druids can use armor while in wild shape (optional),
 - Animal companions can now equip belts, bracers, capes and amulets,
-- Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log.
+- Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log,
+- Animal companions are now level-upped manually.
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,
