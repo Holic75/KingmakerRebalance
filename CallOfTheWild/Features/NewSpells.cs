@@ -1719,7 +1719,7 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Helpers.CreateAddStatBonus(StatType.Reach, 5, ModifierDescriptor.UntypedStackable)
+                                          Helpers.CreateAddStatBonus(StatType.Reach, 5, ModifierDescriptor.Enhancement)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
@@ -3118,7 +3118,7 @@ namespace CallOfTheWild
                                             icon,
                                             Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
                                             Common.createContextFormDR(10, PhysicalDamageForm.Slashing),
-                                            Helpers.CreateAddStatBonus(StatType.Reach, 10, ModifierDescriptor.UntypedStackable),
+                                            Helpers.CreateAddStatBonus(StatType.Reach, 8, ModifierDescriptor.Enhancement),
                                             Helpers.CreateAddFact(water_subtype)
                                             );
 

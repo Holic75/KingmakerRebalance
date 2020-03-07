@@ -22,7 +22,7 @@ namespace CallOfTheWild
 
         [Harmony12.HarmonyPatch(typeof(ActionBarGroupSlot))]
         [Harmony12.HarmonyPatch("Initialize", Harmony12.MethodType.Normal)]
-        class HUDLayout__Initialize__Patch
+        class ActionBarGroupSlot__Initialize__Patch
         {
             static void Postfix(ActionBarGroupSlot __instance)
             {
@@ -45,7 +45,6 @@ namespace CallOfTheWild
                     var grid = subgroup.gameObject.AddComponent<GridLayoutGroupWorkaround>();
                 }
             }
-
         }
 
         //fix resource count for converted abilities

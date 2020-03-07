@@ -59,6 +59,7 @@ namespace CallOfTheWild
         static public BlueprintArchetype feykiller_archetype;
         static public BlueprintArchetype divine_hunter_archetype;
         static public BlueprintFeatureSelection hunter_otherwordly_companion;
+        static public BlueprintArchetype primal_companion_hunter;
 
         static public BlueprintFeature ac_smite_good_feature;
         static public BlueprintFeature ac_smite_evil_feature;
@@ -146,7 +147,8 @@ namespace CallOfTheWild
             createDivineHunterArchetype();
             createForesterArchetype();
             createFeykillerArchetype();
-            hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype };
+            createPrimalCompanionHunterArchetype();
+            hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype, primal_companion_hunter };
             Helpers.RegisterClass(hunter_class);
 
             Common.addMTDivineSpellbookProgression(hunter_class, hunter_class.Spellbook, "MysticTheurgeHunter",
@@ -167,6 +169,80 @@ namespace CallOfTheWild
                 }
             };
             SaveGameFix.save_game_actions.Add(save_game_fix);
+        }
+
+
+        static void createPrimalCompanionHunterArchetype()
+        {
+            primal_companion_hunter = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PrimalCOmpanionHunterHunterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Primal Companion");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Most hunters are skilled at awakening the primal beasts inside themselves. However, some can instead activate the primal essence within their animal companion. These primal companion hunters bestow upon their companions the ability to suddenly manifest new and terrifying powers—throwbacks to long-extinct beasts, bizarre mutations from extreme environments, or new abilities crafted from generations of selective breeding."
+                                                              );
+
+            });
+            Helpers.SetField(primal_companion_hunter, "m_ParentClass", hunter_class);
+            library.AddAsset(primal_companion_hunter, "008d810f24624b8d88da439715416204");
+
+            primal_companion_hunter.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, animal_focus, animal_focus_ac),
+                                                                        Helpers.LevelEntry(8, animal_focus_additional_use, animal_focus_additional_use_ac),
+                                                                        Helpers.LevelEntry(20, animal_focus_additional_use2, animal_focus_additional_use_ac2)
+                                                                       };
+            var evolution_points = Helpers.CreateFeature($"EvolutionPoolFeature",
+                                                                "Evolution Pool",
+                                                                "Evolution Pool",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None,
+                                                                Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(i => i.amount = 10));
+            var test_selection = Helpers.CreateFeatureSelection("TestFeatureSelection",
+                                                                "Test",
+                                                                "Test",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None);
+            test_selection.HideInCharacterSheetAndLevelUp = true;
+            BlueprintFeature[] test_features = new BlueprintFeature[10];
+            for (int i = 0; i < 10; i++)
+            {
+                var test_evolution  = Helpers.CreateFeature($"TestEvolutionFeature{i}",
+                                                            $"Test Evolution {i+1}",
+                                                            "Test Evolution",
+                                                            "",
+                                                            null,
+                                                            FeatureGroup.None);
+
+                test_features[i] = Helpers.CreateFeature($"TestFeature{i}",
+                                                                $"Test {i + 1}",
+                                                                "Test",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None,
+                                                                Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = i + 1; a.Feature = test_evolution; })
+                                                                );
+                test_features[i].AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => { p.amount = i + 1; p.feature = test_features[i]; }));
+                test_features[i].AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = test_selection));
+
+            }
+            test_selection.AllFeatures = test_features;
+
+            BlueprintFeature[] initiate_features = new BlueprintFeature[10];
+            for (int i = 0; i < 10; i++)
+            {
+                initiate_features[i] = Helpers.CreateFeature($"InitiateEvolutionFeature{i}",
+                                                            $"Initiate Evolution {i + 1}",
+                                                            "Test Evolution",
+                                                            "",
+                                                            null,
+                                                            FeatureGroup.None,
+                                                            Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
+            }
+
+            primal_companion_hunter.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, evolution_points, initiate_features[0], test_selection),
+                                                                    Helpers.LevelEntry(2, initiate_features[1], test_selection),
+                                                                    Helpers.LevelEntry(3, initiate_features[2], test_selection)
+                                                                   };
         }
 
 

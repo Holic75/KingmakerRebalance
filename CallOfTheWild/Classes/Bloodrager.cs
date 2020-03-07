@@ -929,7 +929,7 @@ namespace CallOfTheWild
                                                              "a2594e07ae5b489aaca41c6375a6d847",
                                                              polymorph.Icon,
                                                              null,
-                                                             Helpers.CreateAddStatBonus(StatType.Reach, 5, ModifierDescriptor.None)
+                                                             Helpers.CreateAddStatBonus(StatType.Reach, 5, ModifierDescriptor.Enhancement)
                                                              );
                 abnormal_reach = Helpers.CreateFeature(prefix + "AbnormalReachFeature",
                                                abnormal_reach_buff.Name,

@@ -2,7 +2,9 @@
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.LevelUp;
@@ -17,6 +19,48 @@ using UnityEngine;
 
 namespace CallOfTheWild.AnimalCompanionLevelUp
 {
+
+    [Harmony12.HarmonyPatch(typeof(UnitDescriptor), "Dispose")]
+    static class UnitDescriptor_Dispose_Patch
+    {
+        internal static bool Prefix(UnitDescriptor __instance, UnitPartsManager ___m_Parts, Dictionary<BlueprintSpellbook, Spellbook> ___m_Spellbooks)
+        {
+            __instance.Abilities.Dispose();
+            __instance.ActivatableAbilities.Dispose();
+            __instance.Logic.Dispose();
+            __instance.Buffs.Dispose();
+            __instance.Body.Dispose();
+            __instance.Progression.Dispose();
+            foreach (Spellbook spellbook in ___m_Spellbooks.Values)
+                spellbook.Dispose();
+            if (!__instance.IsPlayerFaction)
+                __instance.Inventory.Dispose();
+            /*if (__instance.Master.Value != null)
+                __instance.Master.Value.Descriptor.m_Pet = (UnitReference)((UnitEntityData)null);*/ //not sure if it will not break anything ???
+            ___m_Parts.Dispose();
+
+            return false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitDescriptor), "SetMaster")]
+    static class UnitDescriptor_SetMaster_Patch
+    {
+        internal static bool Prefix(UnitDescriptor __instance, UnitEntityData master, ref UnitReference ___m_Pet)
+        {
+            if (__instance.Master == null || master == null || __instance.Master == (UnitEntityData)new UnitReference())
+            {
+                return true;
+            }
+            Harmony12.Traverse.Create(master.Descriptor).Field("m_Pet").SetValue(null);
+
+            return true;
+        }
+    }
+
+
+
     [Harmony12.HarmonyPatch(typeof(AddPet), "TryLevelUpPet")]
     static class AddPet_TryLevelUpPet_Patch
     {
@@ -43,9 +87,8 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                 {
                     component.LevelUp(__instance.SpawnedPet.Descriptor, 1);
                 }
-                var exp = Game.Instance.BlueprintRoot.Progression.XPTable.GetBonus(pet_level)
-                                                                        - Game.Instance.BlueprintRoot.Progression.XPTable.GetBonus(__instance.SpawnedPet.Descriptor.Progression.CharacterLevel);
-                Harmony12.Traverse.Create(__instance.SpawnedPet.Descriptor.Progression).Property("Experience").SetValue(__instance.SpawnedPet.Descriptor.Progression.Experience + exp);
+                var exp = Game.Instance.BlueprintRoot.Progression.XPTable.GetBonus(pet_level);
+                Harmony12.Traverse.Create(__instance.SpawnedPet.Descriptor.Progression).Property("Experience").SetValue(exp);
                 EventBus.RaiseEvent<IUnitGainExperienceHandler>((Action<IUnitGainExperienceHandler>)(h => h.HandleUnitGainExperience(__instance.SpawnedPet.Descriptor, exp)));
             }
                               

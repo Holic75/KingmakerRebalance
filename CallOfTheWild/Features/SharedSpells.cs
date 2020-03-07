@@ -137,6 +137,10 @@ namespace CallOfTheWild
             var mirror_image = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564");
             (mirror_image.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).ToCaster = false;
 
+
+            var fire_belly = library.Get<BlueprintAbility>("b065231094a21d14dbf1c3832f776871");
+            (fire_belly.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionApplyBuff).ToCaster = false;
+
             //fix anchors
             //shield
             library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4").GetComponent<AbilitySpawnFx>().Anchor = AbilitySpawnFxAnchor.SelectedTarget;

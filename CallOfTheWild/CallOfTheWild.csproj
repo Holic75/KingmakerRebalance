@@ -194,6 +194,7 @@
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\EncumbranceMechanics.cs" />
     <Compile Include="NewMechanics\EvolutionMechanics.cs" />
+    <Compile Include="NewMechanics\LevelUpMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
     <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
     <Compile Include="NewMechanics\StatReplacementMechanics.cs" />

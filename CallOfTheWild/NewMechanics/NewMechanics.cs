@@ -2586,12 +2586,17 @@ namespace CallOfTheWild
             public ContextDiceValue dice_value;
             public DamageEnergyType Element;
             public AttackType[] range_types;
+            public WeaponCategory[] categories = new WeaponCategory[0];
 
             public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
                 if (evt.Weapon == null && !this.range_types.Contains(evt.Weapon.Blueprint.AttackType))
                     return;
 
+                if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
                 DiceFormula dice_formula = new DiceFormula(this.dice_value.DiceCountValue.Calculate(this.Context), this.dice_value.DiceType);
                 int bonus = this.dice_value.BonusValue.Calculate(this.Context);
 
@@ -6538,5 +6543,29 @@ namespace CallOfTheWild
                 }
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class WeaponCategorySizeChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public WeaponCategory category;
+            public int SizeCategoryChange = 1;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon.Blueprint.Category != category || this.SizeCategoryChange == 0)
+                    return;
+                if (this.SizeCategoryChange > 0)
+                    evt.IncreaseWeaponSize();
+                else
+                    evt.DecreaseWeaponSize();
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
     }
 }

@@ -1,6 +1,10 @@
-﻿using Kingmaker.Blueprints;
+﻿using Kingmaker;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
@@ -11,6 +15,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Newtonsoft.Json;
@@ -24,231 +29,195 @@ namespace CallOfTheWild.EvolutionMechanics
 {
     public class UnitPartEvolution : UnitPart
     {
-        [JsonProperty]
-        List<BlueprintActivatableAbility> evolutions_selection_toggles = new List<BlueprintActivatableAbility>();
-        [JsonProperty]
-        Dictionary<string, BlueprintBuff> evolutions = new Dictionary<string, BlueprintBuff>(); //id of feature and reference to buff (might be null)
-        Dictionary<string, BlueprintBuff> preselected_evolutions = new Dictionary<string, BlueprintBuff>(); //id of feature and reference to buff (might be null)
-
-        [JsonProperty]
-        BlueprintAbility activate_persistent_evolutions;
-        [JsonProperty]
-        bool persistent_evolutions_selected = false;
-
-        public void initialize(BlueprintAbility activate_persistent_evolutions_ability)
+        public class EvolutionEntry
         {
-            activate_persistent_evolutions = activate_persistent_evolutions_ability;
-        }
+            public Fact buff;
+            public int cost;
 
-        public void addEvolutionSelections(BlueprintActivatableAbility[] selections)
-        {
-            evolutions_selection_toggles.AddRange(selections);
-        }
-
-
-        public void removeEvolutionSelections(BlueprintActivatableAbility[] selections)
-        {
-            foreach (var s in selections)
+            public EvolutionEntry(Fact parent_buff, int evolution_cost)
             {
-                evolutions_selection_toggles.Remove(s);
-            }
-        }
-
-
-        public void activateEvolutionSelection()
-        {
-            foreach (var s in evolutions_selection_toggles)
-            {
-                if (!this.Owner.HasFact(s))
-                {
-                    this.Owner.AddFact(s);
-                }
+                buff = parent_buff;
+                cost = evolution_cost;
             }
 
 
-            unlockPersistentEvolutions();
-        }
-
-
-        public void deactivateEvolutionSelection()
-        {
-            foreach (var s in evolutions_selection_toggles)
+            public EvolutionEntry()
             {
-                this.Owner.RemoveFact(s);
+                buff = null;
+                cost = 0;
             }
-            lockPersistentEvolutions();
+        }
+
+        [JsonProperty]
+        Dictionary<string, EvolutionEntry> temporary_evolutions = new Dictionary<string, EvolutionEntry>(); //id of feature and reference to buff (might be null)
+        Dictionary<string, EvolutionEntry> permanent_evolutions = new Dictionary<string, EvolutionEntry>(); //id of feature and reference to buff (null)
+        [JsonProperty]
+        private int num_evolution_points;
+
+
+        public int getNumEvolutionPoints()
+        {
+            return num_evolution_points;
+        }
+
+        public void increaseNumberOfEvolutionPoints(int bonus)
+        {
+            num_evolution_points += bonus;
+        }
+
+        public void addTemporaryEvolution(BlueprintFeature feature, int cost, Fact buff = null)
+        {
+            removeTemporaryEvolution(feature, buff);
+            temporary_evolutions[feature.AssetGuid] = new EvolutionEntry(buff, cost);
+            num_evolution_points -= temporary_evolutions[feature.AssetGuid].cost;
         }
 
 
-
-
-
-
-        public void addEvolution(BlueprintFeature feature, BlueprintBuff buff = null)
+        public void addPermanentEvolution(BlueprintFeature feature)
         {
-            evolutions[feature.AssetGuid] = buff;
-        }
-
-
-        public void addPreselectedEvolution(BlueprintFeature feature, BlueprintBuff buff = null)
-        {
-            preselected_evolutions[feature.AssetGuid] = buff;
+            permanent_evolutions[feature.AssetGuid] = null;
         }
 
 
         public bool hasEvolution(BlueprintFeature feature)
         {
-            return evolutions.ContainsKey(feature.AssetGuid);
+            return temporary_evolutions.ContainsKey(feature.AssetGuid) || permanent_evolutions.ContainsKey(feature.AssetGuid);
         }
 
 
-        public bool hasPreselectedEvolution(BlueprintFeature feature)
+        private void removeTemporaryEvolutionInternal(string feature_id, Fact buff)
         {
-            return preselected_evolutions.ContainsKey(feature.AssetGuid);
-        }
-
-
-        public bool removePreselectedEvolution(BlueprintFeature feature)
-        {
-            return preselected_evolutions.Remove(feature.AssetGuid);
-        }
-
-
-        public void removeEvolution(BlueprintFeature feature, BlueprintBuff buff)
-        {
-            if (evolutions.ContainsKey(feature.AssetGuid) && evolutions[feature.AssetGuid] == buff)
+            if (temporary_evolutions.ContainsKey(feature_id) && temporary_evolutions[feature_id].buff == buff)
             {
-                evolutions.Remove(feature.AssetGuid);
+                num_evolution_points += temporary_evolutions[feature_id].cost;
+                temporary_evolutions.Remove(feature_id);
             }
         }
 
 
-        public void lockPersistentEvolutions()
+        public void removeTemporaryEvolution(BlueprintFeature feature, Fact buff)
         {
-            this.Owner.RemoveFact(activate_persistent_evolutions);
-            persistent_evolutions_selected = true;
+            removeTemporaryEvolutionInternal(feature.AssetGuid, buff);
         }
 
 
-        public void unlockPersistentEvolutions()
+        public void removePermanentEvolution(BlueprintFeature feature)
         {
-            if (!this.Owner.HasFact(activate_persistent_evolutions))
-            {
-                this.Owner.AddFact(activate_persistent_evolutions);
-            }
-            persistent_evolutions_selected = false;
-        }
-
-        public bool persistentEvolutionsSelected()
-        {
-            return persistent_evolutions_selected;
+            permanent_evolutions.Remove(feature.AssetGuid);
         }
 
 
-        public void removePersistentAndTemporaryEvolutions()
+        public void removeTemporaryEvolutions()
         {
-            foreach (var kv in evolutions.ToArray())
-            {
-                if (kv.Value != null)
+            foreach (var kv in temporary_evolutions.ToArray())
+            {                
+                if (kv.Value.buff != null)
                 {
-                    this.Owner.Buffs.RemoveFact(kv.Value);
-                    evolutions.Remove(kv.Key);
+                    this.Owner.RemoveFact(kv.Value.buff);
                 }
             }
         }
-
     }
 
 
-    [AllowedOn(typeof(BlueprintUnitFact))]
-    public class AddPreselectedEvolutions : OwnedGameLogicComponent<UnitDescriptor>
-    {
-        public BlueprintBuff buff;
-        public BlueprintFeature evolution;
-
-        public override void OnFactActivate()
-        {
-            this.Owner.Ensure<UnitPartEvolution>().addPreselectedEvolution(evolution, buff);
-        }
-
-        public override void OnFactDeactivate()
-        {
-            this.Owner.Ensure<UnitPartEvolution>().removePreselectedEvolution(evolution);
-        }
-    }
-
 
     [AllowedOn(typeof(BlueprintUnitFact))]
-    public class AddEvolutionTogglesToEidolon : OwnedGameLogicComponent<UnitDescriptor>
+    public class AddTemporaryEvolution : AddFeatureToCompanion
     {
-        public BlueprintActivatableAbility[] toggles;
-
-        public override void OnFactActivate()
-        {
-            this.Owner.Pet?.Ensure<UnitPartEvolution>().addEvolutionSelections(toggles);
-        }
-
-        public override void OnFactDeactivate()
-        {
-            this.Owner.Pet?.Ensure<UnitPartEvolution>().removeEvolutionSelections(toggles);
-        }
-    }
-
-
-    [AllowedOn(typeof(BlueprintUnitFact))]
-    public class AddEvolutions : AddFacts
-    {
-        public BlueprintBuff buff;
+        public int cost = 0;
 
         public override void OnFactActivate()
         {
             base.OnFactActivate();
-            foreach (var f in this.Facts)
-            {
-                this.Owner.Ensure<UnitPartEvolution>().addEvolution(f as BlueprintFeature, buff);
-            }
+            this.Owner.Ensure<UnitPartEvolution>().addTemporaryEvolution(Feature, cost, this.Fact);
+        }
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            this.Owner.Ensure<UnitPartEvolution>().addTemporaryEvolution(Feature, cost, this.Fact);
+        }
+
+        public override void OnTurnOff()
+        {          
+            base.OnFactDeactivate();
+            this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolution(Feature, this.Fact);
+        }
+
+
+        public override void OnFactDeactivate()
+        {         
+            base.OnFactDeactivate();
+            this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolution(Feature, this.Fact);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddPermanentEvolution : AddFeatureToCompanion
+    {
+        public override void OnFactActivate()
+        {
+            base.OnFactActivate();
+            this.Owner.Ensure<UnitPartEvolution>().addPermanentEvolution(Feature);
+        }
+
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            this.Owner.Ensure<UnitPartEvolution>().addPermanentEvolution(Feature);
+        }
+
+        public override void OnTurnOff()
+        {
+            base.OnFactDeactivate();
+            this.Owner.Ensure<UnitPartEvolution>().removePermanentEvolution(Feature);
+        }
+
+        public override void OnFactDeactivate()
+        {
+            base.OnFactDeactivate();
+            this.Owner.Ensure<UnitPartEvolution>().removePermanentEvolution(Feature);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncreaseEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public int amount = 1;
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(amount);
         }
 
 
         public override void OnFactDeactivate()
         {
-            base.OnFactDeactivate();
-            foreach (var f in this.Facts)
-            {
-                this.Owner.Ensure<UnitPartEvolution>().removeEvolution(f as BlueprintFeature, buff);
-            }
+            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(-amount);
         }
     }
 
 
-    public class RestrictionHasEvolution : ActivatableAbilityRestriction
+
+    [AllowMultipleComponents]
+    public class PrerequisiteEnoughEvolutionPoints : Prerequisite
     {
-        public bool not;
-        public bool allow_preselected = true;
-        public BlueprintFeature evolution;
-        public override bool IsAvailable()
+        public int amount;
+        public BlueprintFeature feature;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
         {
-            bool has_evolution = this.Owner.Ensure<UnitPartEvolution>().hasEvolution(evolution);
-
-            if (allow_preselected)
-            {
-                has_evolution = has_evolution || this.Owner.Ensure<UnitPartEvolution>().hasPreselectedEvolution(evolution);
-            }
-            return has_evolution != not;
-        }
-    }
-
-
-    public class RemoveEvolutionSelection : ContextAction
-    {
-        public override string GetCaption()
-        {
-            return "Deactivate persistent evolution selection.";
+                return unit.Ensure<UnitPartEvolution>().getNumEvolutionPoints() >= amount || unit.Progression.Features.HasFact((BlueprintFact)this.feature);
         }
 
-        public override void RunAction()
+        public override string GetUIText()
         {
-            this.Target.Unit?.Ensure<UnitPartEvolution>().deactivateEvolutionSelection();
+            return $"At least {amount} unused evolution point{(amount == 1 ? "" : "s")}.";
         }
     }
 
@@ -271,43 +240,94 @@ namespace CallOfTheWild.EvolutionMechanics
     }
 
 
-    [AllowedOn(typeof(BlueprintAbility))]
-    [AllowMultipleComponents]
-    public class AbilityCasterEidolonEvolutionsLocked : BlueprintComponent, IAbilityCasterChecker
+
+    public abstract class ComponentAppliedOnceOnLevelUp : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
     {
-        public bool not = false;
-        public bool CorrectCaster(UnitEntityData caster)
+        public override void OnFactActivate()
         {
-            if (caster.Descriptor.Pet == null)
+            try
             {
-                return false;
+
+                // If we're in the level-up UI, apply the component
+                var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                {
+                    Apply(levelUp.State);
+                }
             }
-            return caster.Descriptor.Pet.Ensure<UnitPartEvolution>().persistentEvolutionsSelected() != not;
+            catch (Exception e)
+            {
+                Main.logger.Log(e.ToString());
+            }
         }
 
-        public string GetReason()
+        // Optionally remove this fact to free some memory; useful if the fact is already applied
+        // and there is no reason to track its overall rank.
+        protected virtual bool RemoveAfterLevelUp => false;
+
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
         {
-            return $"Eidolon evolutions must {(not ? "not " : "")}be activated.";
+
+        }
+
+        protected abstract void Apply(LevelUpState state);
+    }
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class RefreshEvolutionsOnLevelUp : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+    {
+        public override void OnFactActivate()
+        {
+            try
+            {
+                // If we're in the level-up UI, apply the component
+                var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                {                   
+                    this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolutions();
+                }
+            }
+            catch (Exception e)
+            {
+                Main.logger.Log(e.ToString());
+            }
+        }
+
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+        {
+
         }
     }
 
 
-    [ComponentName("Add feature on class level")]
-    [AllowMultipleComponents]
-    [AllowedOn(typeof(BlueprintUnitFact))]
-    public class RefreshEidolonEvolutionsOnLevelUp : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+    public class addEvolutionSelection : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
     {
-        BlueprintCharacterClass character_class;
+        public BlueprintFeatureSelection selection;
 
-        public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
         {
-            if (character_class != @class)
-            {
-                return;
-            }
+        }
 
-            this.Owner.Pet?.Ensure<UnitPartEvolution>().removePersistentAndTemporaryEvolutions();
-            this.Owner.Pet?.Ensure<UnitPartEvolution>().activateEvolutionSelection();
+        public override void OnFactActivate()
+        {
+            try
+            {
+                var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                {
+                    if (this.Owner.Ensure<UnitPartEvolution>().getNumEvolutionPoints() > 0)
+                    {
+                        int index = levelUp.State.Selections.Count<FeatureSelectionState>((Func<FeatureSelectionState, bool>)(s => s.Selection == selection));
+                        FeatureSelectionState featureSelectionState = new FeatureSelectionState(null, null, selection, index, 0);
+                        levelUp.State.Selections.Add(featureSelectionState);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Main.logger.Error(e.ToString());
+            }
         }
     }
 }
