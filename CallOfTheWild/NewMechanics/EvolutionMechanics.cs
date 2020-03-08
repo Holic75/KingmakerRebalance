@@ -85,6 +85,12 @@ namespace CallOfTheWild.EvolutionMechanics
         }
 
 
+        public bool hasPermanentEvolution(BlueprintFeature feature)
+        {
+            return permanent_evolutions.ContainsKey(feature.AssetGuid);
+        }
+
+
         private void removeTemporaryEvolutionInternal(string feature_id, Fact buff)
         {
             if (temporary_evolutions.ContainsKey(feature_id) && temporary_evolutions[feature_id].buff == buff)
@@ -184,6 +190,33 @@ namespace CallOfTheWild.EvolutionMechanics
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddFakeEvolution : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        BlueprintFeature Feature;
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartEvolution>().addPermanentEvolution(Feature);
+        }
+
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartEvolution>().addPermanentEvolution(Feature);
+        }
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartEvolution>().removePermanentEvolution(Feature);
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartEvolution>().removePermanentEvolution(Feature);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
     public class IncreaseEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>
     {
         public int amount = 1;
@@ -223,7 +256,7 @@ namespace CallOfTheWild.EvolutionMechanics
 
 
     [AllowedOn(typeof(BlueprintAbility))]
-    public class AbilityShowIfEidolonHasEvolution : BlueprintComponent, IAbilityVisibilityProvider
+    public class AbilityShowIfHasEvolution : BlueprintComponent, IAbilityVisibilityProvider
     {
         public BlueprintFeature evolution;
         public bool not;
@@ -235,7 +268,77 @@ namespace CallOfTheWild.EvolutionMechanics
                 return false;
             }
 
-            return ability.Caster.Pet.Ensure<UnitPartEvolution>().hasEvolution(evolution) != not;
+            return ability.Caster.Ensure<UnitPartEvolution>().hasEvolution(evolution) != not;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class PrerequisiteEvolution : Prerequisite
+    {
+        public BlueprintFeature evolution;
+        public bool not;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return unit.Ensure<UnitPartEvolution>().hasEvolution(evolution) != not; ;
+        }
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if ((UnityEngine.Object)this.evolution == (UnityEngine.Object)null)
+            {
+                UberDebug.LogError((object)("Empty Feature field in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.evolution.Name))
+                    UberDebug.LogError((object)string.Format("{0} has no Display Name", (object)this.evolution.name), (object[])Array.Empty<object>());
+                stringBuilder.Append(this.evolution.Name);
+            }
+            if (!not)
+            {
+                return "Has Evolution: " + stringBuilder.ToString();
+            }
+            else
+            {
+                return "No Evolution: " + stringBuilder.ToString();
+            }
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class PrerequisiteNoPermanentEvolution : Prerequisite
+    {
+        public BlueprintFeature evolution;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return !unit.Ensure<UnitPartEvolution>().hasPermanentEvolution(evolution);
+        }
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if ((UnityEngine.Object)this.evolution == (UnityEngine.Object)null)
+            {
+                UberDebug.LogError((object)("Empty Feature field in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.evolution.Name))
+                    UberDebug.LogError((object)string.Format("{0} has no Display Name", (object)this.evolution.name), (object[])Array.Empty<object>());
+                stringBuilder.Append(this.evolution.Name);
+            }
+            return "No Permanent Evolution: " + stringBuilder.ToString();
         }
     }
 

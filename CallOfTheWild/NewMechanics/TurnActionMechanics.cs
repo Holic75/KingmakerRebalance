@@ -300,12 +300,25 @@ namespace CallOfTheWild.TurnActionMechanics
                 return false;
             }
 
-
-
             return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
         }
     }
 
+
+    public class UseAbilitiesAsFreeAction : FreeActionAbilityUseBase
+    {
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+
+            return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
+        }
+    }
 
 
     [Harmony12.HarmonyPatch(typeof(AbilityData))]

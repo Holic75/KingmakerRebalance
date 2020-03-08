@@ -49,6 +49,19 @@ namespace CallOfTheWild
     {
         static LibraryScriptableObject library => Main.library;
 
+        static BlueprintFeature bear = library.Get<BlueprintFeature>("f6f1cdcc404f10c4493dc1e51208fd6f");
+        static BlueprintFeature boar = library.Get<BlueprintFeature>("afb817d80b843cc4fa7b12289e6ebe3d");
+        static BlueprintFeature centipede = library.Get<BlueprintFeature>("f9ef7717531f5914a9b6ecacfad63f46");
+        static BlueprintFeature dog = library.Get<BlueprintFeature>("f894e003d31461f48a02f5caec4e3359");
+        static BlueprintFeature elk = library.Get<BlueprintFeature>("aa92fea676be33d4dafd176d699d7996");
+        static BlueprintFeature leopard = library.Get<BlueprintFeature>("2ee2ba60850dd064e8b98bf5c2c946ba");
+        static BlueprintFeature mammoth = library.Get<BlueprintFeature>("6adc3aab7cde56b40aa189a797254271");
+        static BlueprintFeature monitor = library.Get<BlueprintFeature>("ece6bde3dfc76ba4791376428e70621a");
+        static BlueprintFeature smilodon = library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895");
+        static BlueprintFeature wolf = library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea");
+
+
+        static public BlueprintFeature claws;
         static public BlueprintFeature bite;
         static public BlueprintFeature[] improved_natural_attacks;
         static public BlueprintFeature[] improved_natural_armor;
@@ -73,6 +86,9 @@ namespace CallOfTheWild
         static public BlueprintFeature spell_resistance; //summoner scaling
         static public BlueprintFeature[] size_increase;
 
+        static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
+
+
         public class EvolutionEntry
         {
             public BlueprintFeature[] required_evolutions;
@@ -80,29 +96,358 @@ namespace CallOfTheWild
             public BlueprintFeature[] subtypes;
             public int cost;
             public int summoner_level;
+            public int upgrade_level;
             public bool is_final;
-            public int next_level_cost;
+            public int upgrade_cost;
             public string group;
 
-            BlueprintFeature evolution;
+            public BlueprintFeature evolution;
+            public BlueprintFeature permanent_evolution;
             public BlueprintFeature selection_feature;
             public BlueprintBuff buff;
+
+
+            public EvolutionEntry(BlueprintFeature evolution_feature, int evolution_cost, int min_level, BlueprintFeature[] required_evolution_features,
+                                  BlueprintFeature[] conflicting_evolution_features, BlueprintFeature[] authorised_subtypes,
+                                  int next_level_cost = 0, string evolution_group = "", int next_level = 0
+                                  )
+            {
+                evolution = evolution_feature;
+                cost = evolution_cost;
+                summoner_level = min_level;
+                conflicting_evolutions = conflicting_evolution_features;
+                required_evolutions = required_evolution_features;
+                subtypes = authorised_subtypes;
+                is_final = next_level_cost == 0;
+                upgrade_cost = next_level_cost;
+                upgrade_level = next_level;
+                group = evolution_group;
+
+                selection_feature = Helpers.CreateFeature("Select" + evolution.name,
+                                                          evolution.Name + $" ({cost} E. P.)",
+                                                          evolution.Description,
+                                                          "",
+                                                          evolution.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = cost; a.Feature = evolution; }),
+                                                          Helpers.Create<EvolutionMechanics.PrerequisiteNoPermanentEvolution>(p => p.evolution = evolution)
+                                                          );
+                selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => { p.amount = cost; p.feature = selection_feature;}));
+
+                foreach (var e in required_evolutions)
+                {
+                    selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEvolution>(p => p.evolution = e));
+                }
+                foreach (var e in conflicting_evolutions)
+                {
+                    selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEvolution>(p => { p.evolution = e; p.not = true; }));
+                }
+                if (!subtypes.Empty())
+                {
+                    selection_feature.AddComponent(Helpers.PrerequisiteFeaturesFromList(subtypes));
+                }
+                if (summoner_level > 0)
+                {
+                    selection_feature.AddComponent(Helpers.Create<NewMechanics.PrerequisiteMinimumFeatureRank>(p => { p.Feature = summoner_rank; p.value = summoner_level; }));
+                }
+
+
+                permanent_evolution = Helpers.CreateFeature("Permanent" + evolution.name,
+                                                          evolution.Name + $" (Permanent)",
+                                                          evolution.Description,
+                                                          "",
+                                                          evolution.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => {a.Feature = evolution; }));
+
+                buff = Helpers.CreateBuff(evolution.name +"Buff",
+                                            "",
+                                            "",
+                                            "",
+                                            evolution.Icon,
+                                            null,
+                                            Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = cost; a.Feature = evolution; }));
+            }
         }
 
         static List<EvolutionEntry> evolution_entries = new List<EvolutionEntry>();
         static public BlueprintFeatureSelection evolution_selection;
 
-        /*static public BlueprintAbility getTemporaryEvolutionAbilities(int max_cost, string name_prefix, string display_name,
-                                                                      string description,
-                                                                      UnityEngine.Sprite icon,
-                                                                      AbilityType type,
-                                                                      UnitCommand.CommandType command_type,
-                                                                      Metamagic avaialble_metamagic,
-                                                                      string duration,
-                                                                      params BlueprintComponent[] components);*/
-
-        static void initialize()
+        static public BlueprintAbility getGrantTemporaryEvolutionAbility(int max_cost, 
+                                                                          bool remove_buffs,
+                                                                          string name_prefix, string display_name,
+                                                                          string description,
+                                                                          UnityEngine.Sprite icon,
+                                                                          AbilityType ability_type,
+                                                                          UnitCommand.CommandType command_type,
+                                                                          string duration,
+                                                                          params BlueprintComponent[] components)
         {
+            List<BlueprintAbility> abilities = new List<BlueprintAbility>();
+            List<ContextActionRemoveBuff> buffs_to_remove = new List<ContextActionRemoveBuff>();
+            if (remove_buffs)
+            {
+                foreach (var ee in evolution_entries)
+                {
+                    buffs_to_remove.Add(Common.createContextActionRemoveBuff(ee.buff));
+                }
+            }
+            var fx = Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Common.createContextActionSpawnFx(Common.createPrefabLink("352469f228a3b1f4cb269c7ab0409b8e"))));
+            foreach (var ee in evolution_entries)
+            {
+                if (ee.cost <= max_cost 
+                    && (ee.is_final || ee.upgrade_cost > max_cost || ee.upgrade_level != 0))
+                {
+                   var apply_buff = Common.createContextActionApplyBuffToCaster(ee.buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                                 dispellable: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike);
+
+                   var ability = Helpers.CreateAbility(name_prefix + ee.buff.name + "Ability",
+                                                        display_name + " (" + ee.evolution.Name +")",
+                                                        description + "\n" + ee.evolution.Name + ": " + ee.evolution.Description,
+                                                        "",
+                                                        ee.buff.Icon,
+                                                        ability_type,
+                                                        command_type,
+                                                        AbilityRange.Personal,
+                                                        duration,
+                                                        Helpers.savingThrowNone,
+                                                        Helpers.CreateRunActions(buffs_to_remove.ToArray<GameAction>().AddToArray(apply_buff).AddToArray(fx)));
+                    ability.AddComponents(components);
+                    foreach (var e in ee.required_evolutions)
+                    {
+                        ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityShowIfHasEvolution>(a => a.evolution = e));
+                    }
+                    foreach (var e in ee.conflicting_evolutions)
+                    {
+                        ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityShowIfHasEvolution>(a => {a.evolution = e; a.not = true; }));
+                    }
+                    ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityShowIfHasEvolution>(a => { a.evolution = ee.evolution; a.not = true; }));
+                    if (!ee.subtypes.Empty())
+                    {
+                        ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfCasterHasFactsFromList>(a => a.UnitFacts = ee.subtypes));
+                    }
+                    if (ee.summoner_level > 0 || (ee.upgrade_level > 0 && ee.upgrade_cost <= max_cost))
+                    {
+                        ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfHasFeatureRank>(a =>
+                                                                                                      {
+                                                                                                          a.Feature = summoner_rank;
+                                                                                                          a.min_value = ee.summoner_level;
+                                                                                                          a.max_value = (ee.upgrade_level > 0 && ee.upgrade_cost <= max_cost) ? ee.upgrade_level : 1000;
+                                                                                                      }));
+                    }
+                    ability.setMiscAbilityParametersSelfOnly();
+                    ability.AddComponent(Helpers.Create<SharedSpells.CannotBeShared>());
+                    if (ability_type == AbilityType.Spell)
+                    {
+                        ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+                    }
+                    abilities.Add(ability);
+
+                }
+            }
+            var wrapper = Common.createVariantWrapper(name_prefix + "BaseAbility", "", abilities.ToArray());
+            wrapper.SetName(display_name);
+            wrapper.SetDescription(description);
+            wrapper.SetIcon(icon);
+            return wrapper;
+        }
+
+        public static void initialize()
+        {
+            createEvolutions();
+            createEvolutionEntries();
+            createEvolutionSelection();
+        }
+
+
+        static void createEvolutionSelection()
+        {
+            evolution_selection = Helpers.CreateFeatureSelection("EvolutionFeatureSelection",
+                                                                 "Evolution Selection",
+                                                                 "Summoner gains a pool of evalution points based on her class level, that can be used to give the primal comapnion or eidolon different abilities and powers. Whenever the summoner gains a level, he must decide how these points are spent, and they are set until he gains another level of summoner.",
+                                                                 "",
+                                                                 null,
+                                                                 FeatureGroup.None);
+            Dictionary<String, List<BlueprintFeature>> evolutions_selections_map = new Dictionary<string, List<BlueprintFeature>>();
+            foreach (var ee in evolution_entries)
+            {
+                if (!evolutions_selections_map.ContainsKey(ee.group))
+                {
+                    evolutions_selections_map.Add(ee.group, new List<BlueprintFeature>());
+                }
+                evolutions_selections_map[ee.group].Add(ee.selection_feature);
+                ee.selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = evolution_selection));
+            }
+
+            foreach (var key in evolutions_selections_map.Keys)
+            {
+                if (key == "")
+                {
+                    evolution_selection.AllFeatures = evolution_selection.AllFeatures.AddToArray(evolutions_selections_map[key]);
+                }
+                else
+                {
+                    var key_evolution_selection = Helpers.CreateFeatureSelection(key.Replace(" ", "") + "EvolutionFeatureSelection",
+                                                                             key,
+                                                                             evolutions_selections_map[key][0].Description,
+                                                                             "",
+                                                                             null,
+                                                                             FeatureGroup.None);
+                    key_evolution_selection.AllFeatures = evolutions_selections_map[key].ToArray();
+                    key_evolution_selection.Obligatory = true;
+                    evolution_selection.AllFeatures = evolution_selection.AllFeatures.AddToArray(key_evolution_selection);
+                }
+            }
+        }
+
+
+
+        static void createEvolutionEntries()
+        {
+            evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+                                                     new BlueprintFeature[] { boar, dog, elk, mammoth, monitor, wolf }));
+
+            foreach (var e in improved_natural_attacks)
+            {
+                evolution_entries.Add(new EvolutionEntry(e, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0], 
+                                                         evolution_group: "Improved Damage"));
+            }
+
+            evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+                                         new BlueprintFeature[] {boar, elk, mammoth}));
+
+            for (int i = 0; i < improved_natural_armor.Length; i++)
+            {
+                bool is_last = (i + 1) == improved_natural_armor.Length;
+                evolution_entries.Add(new EvolutionEntry(improved_natural_armor[i], i + 1,  i * 5, new BlueprintFeature[0],
+                                                         improved_natural_armor.RemoveFromArray(improved_natural_armor[i]), new BlueprintFeature[0],
+                                                         next_level_cost: is_last ? 0 : i + 2, evolution_group: "Improved Natural Armor",
+                                                         next_level: is_last ? 0 : (i + 1) * 5)
+                                                         );
+            }
+
+            evolution_entries.Add(new EvolutionEntry(reach, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
+
+            foreach (var e in resistance)
+            {
+                evolution_entries.Add(new EvolutionEntry(e, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0],
+                                                         evolution_group: "Resistance"));
+            }
+
+            foreach (var e in skilled)
+            {
+                evolution_entries.Add(new EvolutionEntry(e, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0],
+                                                         evolution_group: "Skilled"));
+            }
+
+            evolution_entries.Add(new EvolutionEntry(wing_buffet, 1, 0, new BlueprintFeature[] {flight}, new BlueprintFeature[0],
+                                         new BlueprintFeature[0]));
+
+            for (int i = 0; i < ability_increase.Length; i++)
+            {
+                bool is_last = (i + 1) == ability_increase.Length;
+                for (int j = 0; j < ability_increase[i].Length; j++)
+                {
+                    var same_ability_increase = new List<BlueprintFeature>(); ;
+                    for (int k = 0; k < ability_increase.Length; k++)
+                    {
+                        if (k != i)
+                        {
+                            same_ability_increase.Add(ability_increase[k][j]);
+                        }
+                    }
+
+                    evolution_entries.Add(new EvolutionEntry(ability_increase[i][j], 2*(i + 1), i * 6, new BlueprintFeature[0],
+                                                             same_ability_increase.ToArray(), 
+                                                             new BlueprintFeature[0],
+                                                             next_level_cost: is_last ? 0 : 2*(i + 2), evolution_group: "Ability Increase",
+                                                             next_level: is_last ? 0 : (i + 1) * 6)
+                                                             );
+                }
+            }
+
+            for (int i = 0; i < energy_attacks.Length; i++)
+            {
+                evolution_entries.Add(new EvolutionEntry(energy_attacks[i], 2, 5, new BlueprintFeature[0],
+                                                         energy_attacks.RemoveFromArray(energy_attacks[i]), new BlueprintFeature[0],
+                                                         evolution_group: "Energy Attacks")
+                                                         );
+            }
+
+            evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
+            evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+                                         new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede }));
+
+            foreach (var e in immunity)
+            {
+                evolution_entries.Add(new EvolutionEntry(e, 2, 7, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0],
+                                                         evolution_group: "Immunity"));
+            }
+
+            evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
+                             new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar}));
+
+            evolution_entries.Add(new EvolutionEntry(trip, 2, 4, new BlueprintFeature[] { bite }, new BlueprintFeature[0],
+                 new BlueprintFeature[0]));
+
+            for (int i = 0; i < weapon_training.Length; i++)
+            {
+                bool is_last = (i + 1) == weapon_training.Length;
+                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2*(i+1), 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0],
+                                                         evolution_group: "Weapon Training",
+                                                         next_level_cost: is_last ? 0 : 2 * (i + 2))
+                                                         );
+            }
+
+            evolution_entries.Add(new EvolutionEntry(blindsense, 3, 9, new BlueprintFeature[0], new BlueprintFeature[0],
+                                                    new BlueprintFeature[0]));
+
+            evolution_entries.Add(new EvolutionEntry(pounce, 3, 7, new BlueprintFeature[0], new BlueprintFeature[0],
+                                        new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar })
+                                        );
+            evolution_entries.Add(new EvolutionEntry(amorphous, 4, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+                                        new BlueprintFeature[0]));
+
+            evolution_entries.Add(new EvolutionEntry(blindsight, 4, 11, new BlueprintFeature[] {blindsense}, new BlueprintFeature[0],
+                                        new BlueprintFeature[0]));
+
+            for (int i = 0; i < fast_healing.Length; i++)
+            {
+                bool is_last = (i + 1) == fast_healing.Length;
+                evolution_entries.Add(new EvolutionEntry(fast_healing[i], 4 + 2*i, 11, new BlueprintFeature[0], fast_healing.RemoveFromArray(fast_healing[i]), new BlueprintFeature[0],
+                                                         evolution_group: "Fast Healing",
+                                                         next_level: 0,
+                                                         next_level_cost: is_last ? 0 : 6 + 2*i)
+                                                         );
+            }
+
+            evolution_entries.Add(new EvolutionEntry(size_increase[0], 4, 8, new BlueprintFeature[0], new BlueprintFeature[] { size_increase[1] },
+                                                     new BlueprintFeature[0]));
+            evolution_entries.Add(new EvolutionEntry(size_increase[1], 10, 13, new BlueprintFeature[0], new BlueprintFeature[] { size_increase[0] },
+                                                     new BlueprintFeature[0]));
+
+            var breath_weapon_flat = new BlueprintFeature[0];
+            foreach (var bw in breath_weapon)
+            {
+                breath_weapon_flat = breath_weapon_flat.AddToArray(bw);
+            }
+            for (int i = 0; i < breath_weapon.Length; i++)
+            {
+                bool is_last = (i + 1) == ability_increase.Length;
+                for (int j = 0; j < ability_increase[i].Length; j++)
+                {
+                    evolution_entries.Add(new EvolutionEntry(breath_weapon[i][j], 4 + i, 9, new BlueprintFeature[0],
+                                                             breath_weapon_flat.RemoveFromArray(breath_weapon[i][j]),
+                                                             new BlueprintFeature[0],
+                                                             next_level_cost: is_last ? 0 : 5 + i, evolution_group: "Breath Weapon")
+                                                             );
+                }
+            }
+        }
+
+        static void createEvolutions()
+        {
+            createClaws();
             createImprovedNaturalAttacks();
             createBite();
             createImprovedNaturalArmor();
@@ -134,17 +479,17 @@ namespace CallOfTheWild
 
         static void createWingBuffet()
         {
-            var icon = Helpers.GetIcon("13143852b74718144ac4267b949615f0"); //wings
+            var icon = Helpers.GetIcon("13143852b74718144ac4267b949615f0"); //righteous might
             var wing1d4 = library.Get<BlueprintItemWeapon>("864e29d3e07ad4a4f96d576b366b4a86");
 
             wing_buffet = Helpers.CreateFeature("WingBuffetEvolutionFeature",
-                             "Wing Buffet",
-                             "The eidolon learns to use its wings to batter foes, granting it two wing buffet attacks. These attacks are secondary attacks. The wing buffets deal 1d4 points of damage (1d6 if Large, 1d8 if Huge). ",
-                             "",
-                             icon,
-                             FeatureGroup.None,
-                             Common.createAddSecondaryAttacks(wing1d4, wing1d4)
-                             );
+                                         "Wing Buffet",
+                                         "he eidolon learns to use its wings to batter foes, granting it two wing buffet attacks. These attacks are secondary attacks. The wing buffets deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                                         "",
+                                         icon,
+                                         FeatureGroup.None,
+                                         Common.createAddSecondaryAttacks(wing1d4, wing1d4)
+                                         );
         }
 
 
@@ -184,6 +529,23 @@ namespace CallOfTheWild
         }
 
 
+        static void createClaws()
+        {
+            var icon = Helpers.GetIcon("120e51788082260498a961a38a4fa617"); //dragon calws
+            var claw1d6 = library.Get<BlueprintItemWeapon>("65eb73689b94d894080d33a768cdf645");
+
+            claws = Helpers.CreateFeature("ClawsEvolutionFeature",
+                                         "Claw",
+                                         "The eidolon has a pair of vicious claws at the ends of its limbs, giving it two claw attacks. These attacks are primary attacks. The claws deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                                         "",
+                                         icon,
+                                         FeatureGroup.None,
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d6),
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d6)
+                                         );
+        }
+
+
         static void createImprovedNaturalArmor()
         {
             var icon = library.Get<BlueprintAbility>("7bc8e27cba24f0e43ae64ed201ad5785").Icon; //resistance
@@ -191,7 +553,7 @@ namespace CallOfTheWild
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
                 improved_natural_armor[i] = Helpers.CreateFeature($"ImprovedNaturalArmor{i + 1}EvolutionFeature",
-                                                                  $"Improved Natural Armor ({Common.roman_id[i + 1]})",
+                                                                  $"Improved Natural Armor {Common.roman_id[i + 1]}",
                                                                    "The eidolon’s hide grows thick fur, rigid scales, or bony plates, giving it a +2 bonus to its natural armor. For every 5 levels the summoner possesses, summoner can spend 2 additional evolution points to increase armor bonus by 2.",
                                                                    "",
                                                                    icon,
@@ -232,8 +594,8 @@ namespace CallOfTheWild
                                                       Helpers.GetIcon(icon_ids[i]),
                                                       FeatureGroup.None,
                                                       Common.createEnergyDRContextRank(energies[i], multiplier: 5),
-                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(),
-                                                                                      classes: new BlueprintCharacterClass[0],
+                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueTypeExtender.MasterFeatureRank.ToContextRankBaseValueType(),
+                                                                                      feature: summoner_rank,
                                                                                       type: AbilityRankType.StatBonus,
                                                                                       progression: ContextRankProgression.OnePlusDivStep,
                                                                                       stepLevel: 5, max: 3)
@@ -369,7 +731,7 @@ namespace CallOfTheWild
 
         static void createRake()
         {
-            var icon = library.Get<BlueprintProgression>("f68af48f9ebf32549b5f9fdc4edfd475").Icon; //claws
+            var icon = Helpers.GetIcon("f68af48f9ebf32549b5f9fdc4edfd475"); //claws
             var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
 
             rake = Helpers.CreateFeature("RakeEvolutionFeature",
@@ -493,7 +855,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < fast_healing.Length; i++)
             {
-                var buff = Helpers.CreateBuff("FastHealing{i+1}EvolutionBuff",
+                var buff = Helpers.CreateBuff($"FastHealing{i+1}EvolutionBuff",
                                                 "Fast Healing " + Common.roman_id[i + 1],
                                                 "The eidolon’s body gains the ability to heal wounds very quickly, giving it fast healing 1. The eidolon heals 1 point of damage per round, just like via natural healing. Fast healing does not restore hit points lost due to starvation, thirst, or suffocation, nor does it allow the eidolon to regrow lost body parts (or to reattach severed parts). Fast healing functions as long as the eidolon is alive. This fast healing does not function when the eidolon is not on the same plane as its summoner. This healing can be increased by 1 point per round for every 2 additional evolution points spent (to a maximum of 5 points per round).",
                                                 "",
@@ -502,7 +864,7 @@ namespace CallOfTheWild
                                                 Common.createAddContextEffectFastHealing(i + 1)
                                                 );
 
-                var fast_healing_ability = Helpers.CreateActivatableAbility("FastHealing{i+1}EvolutionToggleAbility",
+                var fast_healing_ability = Helpers.CreateActivatableAbility($"FastHealing{i+1}EvolutionToggleAbility",
                                                                             buff.Name,
                                                                             buff.Description,
                                                                             "",
@@ -529,8 +891,8 @@ namespace CallOfTheWild
                                                icon,
                                                FeatureGroup.None,
                                                Helpers.Create<AddSpellResistance>(a => a.Value = Helpers.CreateContextValue(AbilitySharedValue.StatBonus)),
-                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(),
-                                                                                classes: new BlueprintCharacterClass[0]
+                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueTypeExtender.MasterFeatureRank.ToContextRankBaseValueType(),
+                                                                                feature: summoner_rank
                                                                                 ),
                                                Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.One, Helpers.CreateContextValue(AbilityRankType.Default), 11))
                                               );
@@ -550,20 +912,20 @@ namespace CallOfTheWild
                                                      Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
                                                      Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Size),
                                                      Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
-                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Size)
+                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Other)
                                                      );
             size_increase[1] = Helpers.CreateFeature("SizeIncreaseHugeEvolutionFeature",
-                                         "Size Increase: Huge",
-                                         "The eidolon grows in size, becoming Huge. The eidolon gains a +8 bonus to Strength, a +4 bonus to Constitution, and a +5 bonus to its natural armor. It takes a –4 penalty to Dexterity.",
-                                         "",
-                                         Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
-                                         FeatureGroup.None,
-                                         Common.createChangeUnitSize(Size.Large),
-                                         Helpers.CreateAddStatBonus(StatType.Strength, 8, ModifierDescriptor.Size),
-                                         Helpers.CreateAddStatBonus(StatType.Constitution, 4, ModifierDescriptor.Size),
-                                         Helpers.CreateAddStatBonus(StatType.AC, 5, ModifierDescriptor.NaturalArmor),
-                                         Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.Size)
-                                         );
+                                                     "Size Increase: Huge",
+                                                     "The eidolon grows in size, becoming Huge. The eidolon gains a +8 bonus to Strength, a +4 bonus to Constitution, and a +5 bonus to its natural armor. It takes a –4 penalty to Dexterity.",
+                                                     "",
+                                                     Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
+                                                     FeatureGroup.None,
+                                                     Common.createChangeUnitSize(Size.Huge),
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 8, ModifierDescriptor.Size),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 4, ModifierDescriptor.Size),
+                                                     Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.NaturalArmor),
+                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.Other)
+                                                     );
         }
 
 
@@ -588,7 +950,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < dragon_info.Count; i++)
             {
-                var prototype = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("BloodlineDraconic" + dragon_info[i].Item2 + "BreathWeaponAbility")).FirstOrDefault();
+                var prototype = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("BloodlineDraconic" + dragon_info[i].Item1 + "BreathWeaponAbility")).FirstOrDefault();
                 var ability = library.CopyAndAdd<BlueprintAbility>(prototype, dragon_info[i].Item1 + "BreathWeaponEvolutionAbility", "");
                 ability.SetName("Breath Weapon " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
                 ability.SetDescription(description);
@@ -613,8 +975,10 @@ namespace CallOfTheWild
 
 
                 breath_weapon[1][i] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[0][i], breath_weapon[0][i].name + "2", "");
+                breath_weapon[1][i].SetName("Breath Weapon II " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
                 breath_weapon[1][i].AddComponent(Helpers.CreateIncreaseResourceAmount(resource, 1));
-                breath_weapon[2][i] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[0][i], breath_weapon[0][i].name + "2", "");               
+                breath_weapon[2][i] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[0][i], breath_weapon[0][i].name + "3", "");
+                breath_weapon[2][i].SetName("Breath Weapon III " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
                 breath_weapon[2][i].AddComponent(Helpers.CreateIncreaseResourceAmount(resource, 2));
             }
 

@@ -2581,14 +2581,26 @@ namespace CallOfTheWild
         }
 
 
-        public class AddWeaponEnergyDamageDice : BuffLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        public class AddWeaponEnergyDamageDice : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
             public ContextDiceValue dice_value;
             public DamageEnergyType Element;
             public AttackType[] range_types;
             public WeaponCategory[] categories = new WeaponCategory[0];
 
-            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
                 if (evt.Weapon == null && !this.range_types.Contains(evt.Weapon.Blueprint.AttackType))
                     return;
@@ -2613,7 +2625,7 @@ namespace CallOfTheWild
                 evt.DamageDescription.Add(damageDescription);
             }
 
-            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
             }
         }
@@ -3339,6 +3351,25 @@ namespace CallOfTheWild
                     }
                 }
                 return true;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterHasFactsFromList : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintUnitFact[] UnitFacts;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                foreach (var fact in UnitFacts)
+                {
+                    if (ability.Caster.Progression.Features.HasFact(fact))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
 
@@ -6144,6 +6175,81 @@ namespace CallOfTheWild
             public void OnEventDidTrigger(RuleSpellResistanceCheck evt)
             {
 
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        public class PrerequisiteMinimumFeatureRank : Prerequisite
+        {
+            [NotNull]
+            public BlueprintFeature Feature;
+            public bool not;
+            public int value;
+
+
+            public override bool Check(
+              FeatureSelectionState selectionState,
+              UnitDescriptor unit,
+              LevelUpState state)
+            {
+                var feat = unit.Progression.Features.GetFact(this.Feature);
+
+                if (feat == null)
+                {
+                    return not;
+                }
+                else
+                {
+                    return (feat.GetRank() >= value) != not;
+                }
+            }
+
+            public override string GetUIText()
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                if ((UnityEngine.Object)this.Feature == (UnityEngine.Object)null)
+                {
+                    UberDebug.LogError((object)("Empty Feature fild in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(this.Feature.Name))
+                        UberDebug.LogError((object)string.Format("{0} has no Display Name", (object)this.Feature.name), (object[])Array.Empty<object>());
+                    stringBuilder.Append(this.Feature.Name);
+                }
+
+                if (not)
+                {
+                    return $"{stringBuilder.ToString()} rank less than: {value}";
+                }
+                else
+                {
+                    return $"{stringBuilder.ToString()} rank: {value}";
+                }
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfHasFeatureRank : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public int min_value;
+            public int max_value = 1000;
+            public BlueprintFeature Feature;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                var feat = ability.Caster.Progression.Features.GetFact(this.Feature);
+
+                if (feat == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return (feat.GetRank() >= min_value) && (feat.GetRank() <= max_value);
+                }
             }
         }
 

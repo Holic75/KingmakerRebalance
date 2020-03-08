@@ -177,7 +177,7 @@ namespace CallOfTheWild
             primal_companion_hunter = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "PrimalCOmpanionHunterHunterArchetype";
-                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Primal Companion");
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Primal Companion Hunter");
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Most hunters are skilled at awakening the primal beasts inside themselves. However, some can instead activate the primal essence within their animal companion. These primal companion hunters bestow upon their companions the ability to suddenly manifest new and terrifying powers—throwbacks to long-extinct beasts, bizarre mutations from extreme environments, or new abilities crafted from generations of selective breeding."
                                                               );
 
@@ -189,60 +189,75 @@ namespace CallOfTheWild
                                                                         Helpers.LevelEntry(8, animal_focus_additional_use, animal_focus_additional_use_ac),
                                                                         Helpers.LevelEntry(20, animal_focus_additional_use2, animal_focus_additional_use_ac2)
                                                                        };
-            var evolution_points = Helpers.CreateFeature($"EvolutionPoolFeature",
-                                                                "Evolution Pool",
-                                                                "Evolution Pool",
-                                                                "",
-                                                                null,
-                                                                FeatureGroup.None,
-                                                                Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(i => i.amount = 10));
-            var test_selection = Helpers.CreateFeatureSelection("TestFeatureSelection",
-                                                                "Test",
-                                                                "Test",
-                                                                "",
-                                                                null,
-                                                                FeatureGroup.None);
-            test_selection.HideInCharacterSheetAndLevelUp = true;
-            BlueprintFeature[] test_features = new BlueprintFeature[10];
-            for (int i = 0; i < 10; i++)
+
+
+            var resource = Helpers.CreateAbilityResource("PrimalSurgePrimalCompanionResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 20, 1, 20, 0, 0, 0, new BlueprintCharacterClass[] { hunter_class });
+
+            var primal_surge_ability = Evolutions.getGrantTemporaryEvolutionAbility(4, false,
+                                                                                    "PrimalSurgePrimalCompanion",
+                                                                                    "Primal Surge",
+                                                                                    "At 8th level, once per day as a swift action, a primal companion hunter can touch her animal companion and grant it one evolution that costs up to 4 evolution points. The companion must meet the prerequisites of the selected evolution. Unlike the evolutions from primal transformation, this evolution is not set; it can be changed each time the hunter uses this ability.\n"
+                                                                                    + "This ability can grant an evolution that allows additional evolution points to be spent to upgrade that evolution, and any points left over can be spent on such upgrades. This ability cannot be used to grant an upgrade to an evolution that the companion already possesses.",
+                                                                                    Helpers.GetIcon("7bdb6a9fb6b37614e96f155748ae50c6"), //aspect of the falcon
+                                                                                    AbilityType.Supernatural,
+                                                                                    CommandType.Swift,
+                                                                                    Helpers.minutesPerLevelDuration,
+                                                                                    Helpers.CreateResourceLogic(resource),
+                                                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                                    classes: new BlueprintCharacterClass[] { hunter_class }
+                                                                                                                    )
+                                                                                    );
+
+            var primal_surge = Common.AbilityToFeature(primal_surge_ability, false);
+            primal_surge_ability.AddComponent(Helpers.CreateAddAbilityResource(resource));
+
+            var primal_master = Helpers.CreateFeature("PrimalMasterFeature",
+                                                      "Primal Master",
+                                                      "At 20th level, a primal companion hunter becomes in tune with his primal nature. She can use primal surge as a free action up to 2 times per day.",
+                                                      "",
+                                                      Helpers.GetIcon("d99dfc9238a8a6646b32be09057c1729"), //beast totem
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<TurnActionMechanics.UseAbilitiesAsFreeAction>(u => u.abilities = new BlueprintAbility[] { primal_surge_ability })
+                                                      );
+
+            LevelEntry[] level_entries = new LevelEntry[20];
+            List<BlueprintFeature> primal_transformations = new List<BlueprintFeature>();
+            for (int lvl = 1; lvl <= 20; lvl++)
             {
-                var test_evolution  = Helpers.CreateFeature($"TestEvolutionFeature{i}",
-                                                            $"Test Evolution {i+1}",
-                                                            "Test Evolution",
-                                                            "",
-                                                            null,
-                                                            FeatureGroup.None);
+                var feature = Helpers.CreateFeature($"PrimalTransformation{lvl}Feature",
+                                                    "Primal Transformation",
+                                                    "At first level, a primal companion hunter awakens a primal creature from within his animal companion. The animal companion gains a pool of 2 evolution points that can be used to give the companion evolutions as if it were an eidolon. A primal companion hunter uses her hunter level to determine her effective summoner level for the purpose of qualifying for evolutions and determining their effects. At 8th level, the number of evolution points in her pool increases to 4, and at 15th level, it increases to 6.\n"
+                                                    + "Whenever Primal Hunter Companion gains a level she may redistribute evolution points spent previously.",
+                                                    "",
+                                                    Helpers.GetIcon("56923211d2ac95e43b8ac5031bab74d8"),
+                                                    FeatureGroup.None);
+                if (lvl == 1 || lvl == 8 || lvl == 15)
+                {
+                    feature.AddComponent(Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(n => n.amount = 2));
+                }
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.evolution_selection));
 
-                test_features[i] = Helpers.CreateFeature($"TestFeature{i}",
-                                                                $"Test {i + 1}",
-                                                                "Test",
-                                                                "",
-                                                                null,
-                                                                FeatureGroup.None,
-                                                                Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = i + 1; a.Feature = test_evolution; })
-                                                                );
-                test_features[i].AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => { p.amount = i + 1; p.feature = test_features[i]; }));
-                test_features[i].AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = test_selection));
-
-            }
-            test_selection.AllFeatures = test_features;
-
-            BlueprintFeature[] initiate_features = new BlueprintFeature[10];
-            for (int i = 0; i < 10; i++)
-            {
-                initiate_features[i] = Helpers.CreateFeature($"InitiateEvolutionFeature{i}",
-                                                            $"Initiate Evolution {i + 1}",
-                                                            "Test Evolution",
-                                                            "",
-                                                            null,
-                                                            FeatureGroup.None,
-                                                            Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
+                if (lvl == 8)
+                {
+                    level_entries[lvl - 1] = Helpers.LevelEntry(lvl, feature, primal_surge);
+                }
+                else if (lvl == 20)
+                {
+                    level_entries[lvl - 1] = Helpers.LevelEntry(lvl, feature, primal_master);
+                }
+                else
+                {
+                    level_entries[lvl - 1] = Helpers.LevelEntry(lvl, feature);
+                }
+                primal_transformations.Add(feature);
             }
 
-            primal_companion_hunter.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, evolution_points, initiate_features[0], test_selection),
-                                                                    Helpers.LevelEntry(2, initiate_features[1], test_selection),
-                                                                    Helpers.LevelEntry(3, initiate_features[2], test_selection)
-                                                                   };
+
+            primal_companion_hunter.AddFeatures = level_entries;
+            hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_transformations.ToArray()));
+            hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_surge, primal_master));
         }
 
 

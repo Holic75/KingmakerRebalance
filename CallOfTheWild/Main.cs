@@ -217,6 +217,7 @@ namespace CallOfTheWild
                     CallOfTheWild.VindicativeBastard.test_mode = true;
                     inquisitions_test = true;
 #endif
+                    CallOfTheWild.Evolutions.initialize();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.VindicativeBastard.createClass();
                     CallOfTheWild.Hunter.createHunterClass();

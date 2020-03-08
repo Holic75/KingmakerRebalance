@@ -353,6 +353,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateContextRankConfig()
                                                    );
             control_undead.setMiscAbilityParametersSingleTargetRangedHarmful();
+            control_undead.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
             control_undead.SpellResistance = true;
             control_undead.AddToSpellList(Helpers.wizardSpellList, 7);
             control_undead.AddSpellAndScroll("bc0180b8b29abf9468dea1a24332d159");
