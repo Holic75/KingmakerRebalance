@@ -87,7 +87,7 @@ namespace CallOfTheWild
         static public BlueprintFeature[] size_increase;
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
-
+        static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
 
         public class EvolutionEntry
         {
@@ -257,6 +257,42 @@ namespace CallOfTheWild
             createEvolutions();
             createEvolutionEntries();
             createEvolutionSelection();
+            createExtraEvolutionFeat();
+        }
+
+        static void createExtraEvolutionFeat()
+        {
+            for (int i = 0; i < extra_evolution.Length; i++)
+            {
+                extra_evolution[i] = Helpers.CreateFeature($"ExtraEvolution{i + 1}Feature",
+                                                           "Extra Evolution " + Common.roman_id[i + 1],
+                                                           "Your eidolon’s evolution pool increases by 1.",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.Feat,
+                                                           Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(p => p.amount = 1));
+                if (i > 0)
+                {
+                    extra_evolution[i].AddComponent(Helpers.PrerequisiteFeature(extra_evolution[i - 1]));
+                }
+            }
+            library.AddFeats(extra_evolution);
+        }
+
+
+        static public void addClassToExtraEvalution(BlueprintCharacterClass character_class, BlueprintArchetype archetype = null)
+        {
+            for (int i = 0; i < extra_evolution.Length; i++)
+            {
+                if (archetype != null)
+                {
+                    extra_evolution[i].AddComponent(Common.createPrerequisiteArchetypeLevel(character_class, archetype, i == 0 ? 1 : i*5, any: true));
+                }
+                else
+                {
+                    extra_evolution[i].AddComponent(Helpers.PrerequisiteClassLevel(character_class, i == 0 ? 1 : i * 5, any: true));
+                }
+            }
         }
 
 
@@ -724,7 +760,7 @@ namespace CallOfTheWild
                              "",
                              icon,
                              FeatureGroup.None,
-                             Helpers.CreateAddFact(silver_dragon_wings)
+                             Common.createAuraFeatureComponent(silver_dragon_wings.Buff)
                              );
         }
 
@@ -864,18 +900,14 @@ namespace CallOfTheWild
                                                 Common.createAddContextEffectFastHealing(i + 1)
                                                 );
 
-                var fast_healing_ability = Helpers.CreateActivatableAbility($"FastHealing{i+1}EvolutionToggleAbility",
+                fast_healing[i] = Helpers.CreateFeature($"FastHealing{i + 1}EvolutionFeature",
                                                                             buff.Name,
                                                                             buff.Description,
                                                                             "",
                                                                             icon,
-                                                                            buff,
-                                                                            AbilityActivationType.Immediately,
-                                                                            CommandType.Free,
-                                                                            null);
-                fast_healing_ability.IsOnByDefault = true;
-
-                fast_healing[i] = Common.ActivatableAbilityToFeature(fast_healing_ability, false);
+                                                                            FeatureGroup.None,
+                                                                            Common.createAuraFeatureComponent(buff)
+                                                                            );
             }
         }
 

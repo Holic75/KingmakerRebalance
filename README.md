@@ -3,7 +3,7 @@
 This is Pathfinder: Kingmaker mod.
 
 It introduces new classes:  
-- Hunter with following archetypes: Divine Hunter, Forester and Feykiller,  
+- Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
 - Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
@@ -88,7 +88,8 @@ New feats:
 - Extra Exploit,
 - Extra Revelation,
 - Extra Investigator Talent,
-- Extra Inspiration.
+- Extra Inspiration,
+- Extra Evolution.
 
 New rage powers:
 - Terrifying Howl

@@ -258,6 +258,8 @@ namespace CallOfTheWild
             primal_companion_hunter.AddFeatures = level_entries;
             hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_transformations.ToArray()));
             hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_surge, primal_master));
+
+            Evolutions.addClassToExtraEvalution(hunter_class, primal_companion_hunter);
         }
 
 

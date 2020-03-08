@@ -132,6 +132,7 @@
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\Eidolons\Eidolon.cs" />
     <Compile Include="Classes\Evolutions.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
