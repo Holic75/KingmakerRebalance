@@ -1498,15 +1498,15 @@ namespace CallOfTheWild
                     return true;
                 }
 
+                if (allow_kinetic_blast && checkFeature(caster, WeaponCategory.KineticBlast))
+                {
+                    return true;
+                }
+
                 var weapon2 = caster.Body.SecondaryHand.HasWeapon ? caster.Body.SecondaryHand.MaybeWeapon : null;
                 if (weapon2 == null)
                 {
                     return false;
-                }
-
-                if (allow_kinetic_blast && checkFeature(caster, WeaponCategory.KineticBlast))
-                {
-                    return true;
                 }
 
                 return checkFeature(caster, weapon2.Blueprint.Category) || checkAlternative(caster);
