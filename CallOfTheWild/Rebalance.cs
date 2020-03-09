@@ -718,15 +718,25 @@ namespace CallOfTheWild
         }
 
 
-        internal static void fixChannelNegativeEnergyHeal()
+        internal static void fixChannelEnergyHeal()
         {
-            //in vanilla it uses shared value for unknown reason, to make it uniform with other abilities we replace heal amount with context value
-            var negative_heal = library.Get<BlueprintAbility>("9be3aa47a13d5654cbcb8dbd40c325f2");
+            //in vanilla it uses shared value for healing same amount to everyone, to make it uniform with other abilities we replace heal amount with context value
+            var heals = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("9be3aa47a13d5654cbcb8dbd40c325f2"), //negative cleric
+                library.Get<BlueprintAbility>("f5fc9a1a2a3c1a946a31b320d1dd31b2"), //cleric
+                library.Get<BlueprintAbility>("6670f0f21a1d7f04db2b8b115e8e6abf"), //paladin
+                library.Get<BlueprintAbility>("0c0cf7fcb356d2448b7d57f2c4db3c0c"), //hospitalier
+                library.Get<BlueprintAbility>("574cf074e8b65e84d9b69a8c6f1af27b"), //empyreal
+            };
 
-            var new_actions = Common.changeAction<ContextActionHealTarget>(negative_heal.GetComponent<AbilityEffectRunAction>().Actions.Actions,
-                                                                           c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+            foreach (var h in heals)
+            {
+                var new_actions = Common.changeAction<ContextActionHealTarget>(h.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                                                               c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
 
-            negative_heal.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(new_actions));
+                h.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(new_actions));
+            }
         }
 
         internal static void fixVitalStrike()
@@ -841,7 +851,7 @@ namespace CallOfTheWild
             //require holding weapon with weapon focus
             var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
             var dazzling_display = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb");
-            dazzling_display.AddComponent(Helpers.Create<NewMechanics.AbilityCasterEquippedWeaponCheckHasParametrizedFeature>(a => a.feature = weapon_focus));
+            dazzling_display.AddComponent(Helpers.Create<NewMechanics.AbilityCasterEquippedWeaponCheckHasParametrizedFeature>(a => { a.feature = weapon_focus; a.allow_kinetic_blast = true; }));
         }
 
 

@@ -271,7 +271,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Personal,
                                                 "2d6 rounds",
                                                 Helpers.willNegates,
-                                                Helpers.CreateRunActions(effect),
+                                                Helpers.CreateRunActions(SavingThrowType.Will, effect),
                                                 Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Fear | SpellDescriptor.MindAffecting),
                                                 Helpers.CreateResourceLogic(resource),

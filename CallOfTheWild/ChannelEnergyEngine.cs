@@ -335,9 +335,9 @@ namespace CallOfTheWild
                                                                 "8994cd3223f741248e64685248e715a3",
                                                                  cleric_positive_harm.Icon,
                                                                  FeatureGroup.None);
-            feature_favored_all.Ranks = 10;
+            feature_favored_undead.Ranks = 10;
 
-            var cleric_channels = new BlueprintAbility[] { cleric_negative_heal, cleric_positive_harm, cleric_negative_heal, cleric_negative_harm };
+            var cleric_channels = new BlueprintAbility[] { cleric_negative_heal, cleric_positive_harm, cleric_positive_heal, cleric_negative_harm };
 
             foreach (var ch in cleric_channels)
             {

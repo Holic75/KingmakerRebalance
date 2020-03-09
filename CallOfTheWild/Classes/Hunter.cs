@@ -251,13 +251,19 @@ namespace CallOfTheWild
                 {
                     level_entries[lvl - 1] = Helpers.LevelEntry(lvl, feature);
                 }
+
+                if (lvl != 1)
+                {
+                    feature.HideInCharacterSheetAndLevelUp = true;
+                    feature.HideInUI = true;
+                }
                 primal_transformations.Add(feature);
             }
 
 
             primal_companion_hunter.AddFeatures = level_entries;
-            hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_transformations.ToArray()));
-            hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_surge, primal_master));
+            //hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_transformations.ToArray()));
+            hunter_class.Progression.UIGroups = hunter_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_transformations[0], primal_surge, primal_master));
 
             Evolutions.addClassToExtraEvalution(hunter_class, primal_companion_hunter);
         }

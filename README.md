@@ -258,9 +258,9 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 
 
 In addition mod also makes some changes to existing features to make them closer to pnp:
-- nerfs animal compnions to make them closer to pnp : reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
-enchanced attacks (optional),
-- sets base skill points of every classes to 1/2 of pnp value, and gives bonus skill points to humans and half-orcs only at even levels, since most skills in the game correspond to 2 skills in pnp (optional),
+- nerfs animal compnions to make their stats same as in pnp : reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
+enchanced attacks,
+- sets base skill points of every classes to 1/2 of pnp value (as per consolidated skill rules), and gives bonus skill points to humans and half-orcs only at even levels, since most skills in the game correspond to 2 skills in pnp (optional),
 - replaces favored enemy for Sacred Huntsmaster with animal focus as per pnp (optional),
 - fixes Magic Vestment spell to work as per pnp rules,  
 - Rangers now should get improvement of their favored terrain bonuses,
@@ -320,7 +320,7 @@ Mod also changes stats of some npcs (optional)
 - Nok-Nok to 9/22/14/12/10/8
 
 
-NOTE: Changes to animal companion bonuses, npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,
+NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,
 in your_game_folder/Mods/CallOfTheWild/settings.json)
 
 Install

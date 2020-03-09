@@ -1470,6 +1470,7 @@ namespace CallOfTheWild
         {
             public BlueprintParametrizedFeature feature = null;
             public BlueprintFeature alternative = null;
+            public bool allow_kinetic_blast = false;
 
             private bool checkFeature(UnitEntityData caster, WeaponCategory category)
             {
@@ -1503,7 +1504,12 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                return checkFeature(caster, weapon2.Blueprint.Category) || checkAlternative(caster); ;
+                if (allow_kinetic_blast && checkFeature(caster, WeaponCategory.KineticBlast))
+                {
+                    return true;
+                }
+
+                return checkFeature(caster, weapon2.Blueprint.Category) || checkAlternative(caster);
             }
 
             public string GetReason()

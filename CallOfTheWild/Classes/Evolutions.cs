@@ -88,6 +88,7 @@ namespace CallOfTheWild
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
+        static BlueprintFeature eidolon;
 
         public class EvolutionEntry
         {
@@ -254,6 +255,12 @@ namespace CallOfTheWild
 
         public static void initialize()
         {
+            eidolon = Helpers.CreateFeature("BipedEidolonFeature",
+                                            "Biped Eidolon",
+                                            "",
+                                            "",
+                                            null,
+                                            FeatureGroup.None);
             createEvolutions();
             createEvolutionEntries();
             createEvolutionSelection();
@@ -429,7 +436,7 @@ namespace CallOfTheWild
             for (int i = 0; i < weapon_training.Length; i++)
             {
                 bool is_last = (i + 1) == weapon_training.Length;
-                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2*(i+1), 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0],
+                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2*(i+1), 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[] { eidolon },
                                                          evolution_group: "Weapon Training",
                                                          next_level_cost: is_last ? 0 : 2 * (i + 2))
                                                          );
@@ -458,9 +465,9 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(size_increase[0], 4, 8, new BlueprintFeature[0], new BlueprintFeature[] { size_increase[1] },
-                                                     new BlueprintFeature[0]));
+                                                     new BlueprintFeature[] { eidolon }));
             evolution_entries.Add(new EvolutionEntry(size_increase[1], 10, 13, new BlueprintFeature[0], new BlueprintFeature[] { size_increase[0] },
-                                                     new BlueprintFeature[0]));
+                                                     new BlueprintFeature[] { eidolon }));
 
             var breath_weapon_flat = new BlueprintFeature[0];
             foreach (var bw in breath_weapon)

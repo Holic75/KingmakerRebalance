@@ -17,6 +17,7 @@ using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Newtonsoft.Json;
 using System;
@@ -52,24 +53,35 @@ namespace CallOfTheWild.EvolutionMechanics
         Dictionary<string, EvolutionEntry> temporary_evolutions = new Dictionary<string, EvolutionEntry>(); //id of feature and reference to buff (might be null)
         Dictionary<string, EvolutionEntry> permanent_evolutions = new Dictionary<string, EvolutionEntry>(); //id of feature and reference to buff (null)
         [JsonProperty]
-        private int num_evolution_points;
+        Dictionary<Fact, int> evolution_points = new Dictionary<Fact, int>();
+        private int evolution_points_spent = 0;
 
 
         public int getNumEvolutionPoints()
         {
-            return num_evolution_points;
+            int amount = 0;
+            foreach (var kv in evolution_points)
+            {
+                amount += kv.Value;
+            }
+            return amount - evolution_points_spent;
         }
 
-        public void increaseNumberOfEvolutionPoints(int bonus)
+        public void increaseNumberOfEvolutionPoints(int bonus, Fact fact)
         {
-            num_evolution_points += bonus;
+            evolution_points[fact] = bonus;
+        }
+
+        public void removeEvolutionPointsIncrease(Fact fact)
+        {
+            evolution_points.Remove(fact);
         }
 
         public void addTemporaryEvolution(BlueprintFeature feature, int cost, Fact buff = null)
         {
             removeTemporaryEvolution(feature, buff);
             temporary_evolutions[feature.AssetGuid] = new EvolutionEntry(buff, cost);
-            num_evolution_points -= temporary_evolutions[feature.AssetGuid].cost;
+            evolution_points_spent += temporary_evolutions[feature.AssetGuid].cost;
         }
 
 
@@ -95,7 +107,7 @@ namespace CallOfTheWild.EvolutionMechanics
         {
             if (temporary_evolutions.ContainsKey(feature_id) && temporary_evolutions[feature_id].buff == buff)
             {
-                num_evolution_points += temporary_evolutions[feature_id].cost;
+                evolution_points_spent -= temporary_evolutions[feature_id].cost;
                 temporary_evolutions.Remove(feature_id);
             }
         }
@@ -219,16 +231,16 @@ namespace CallOfTheWild.EvolutionMechanics
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class IncreaseEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>
     {
-        public int amount = 1;
+        public ContextValue amount;
         public override void OnFactActivate()
         {
-            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(amount);
+            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(amount.Calculate(this.Fact.MaybeContext), this.Fact);
         }
 
 
         public override void OnFactDeactivate()
         {
-            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(-amount);
+            this.Owner.Ensure<UnitPartEvolution>().removeEvolutionPointsIncrease(this.Fact);
         }
     }
 
