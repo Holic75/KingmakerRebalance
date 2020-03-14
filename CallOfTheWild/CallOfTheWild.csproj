@@ -144,6 +144,7 @@
     <Compile Include="Classes\Mysteries\Waves.cs" />
     <Compile Include="Classes\Mysteries\Wind.cs" />
     <Compile Include="Classes\Oracle.cs" />
+    <Compile Include="Classes\Summoner.cs" />
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Features\MagusArcana.cs" />
     <Compile Include="Features\MetamagicFeats.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="NewMechanics\StickyTouchMechanics.cs" />
     <Compile Include="NewMechanics\TeamworkMechanics.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
+    <Compile Include="NewMechanics\UnitDataBase.cs" />
     <Compile Include="NewMechanics\UnitViewMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />

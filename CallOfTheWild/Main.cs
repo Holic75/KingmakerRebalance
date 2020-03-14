@@ -213,6 +213,7 @@ namespace CallOfTheWild
                     CallOfTheWild.VindicativeBastard.test_mode = true;
                     inquisitions_test = true;
 #endif
+                    CallOfTheWild.Summoner.createSummonerClass();
                     CallOfTheWild.Evolutions.initialize();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.VindicativeBastard.createClass();
@@ -254,7 +255,7 @@ namespace CallOfTheWild
                     CallOfTheWild.KineticistFix.load();
                     CallOfTheWild.MysticTheurgeFix.load();
 
-                    //CallOfTheWild.Eidolon.create();
+                    CallOfTheWild.Eidolon.create();
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();

@@ -1,0 +1,352 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items;
+using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Equipment;
+using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
+using Kingmaker.Enums.Damage;
+using Kingmaker.Localization;
+using Kingmaker.ResourceLinks;
+using Kingmaker.RuleSystem;
+using Kingmaker.UI.Common;
+using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
+using Kingmaker.Utility;
+using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
+using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
+
+namespace CallOfTheWild
+{
+    class Summoner
+    {
+        static LibraryScriptableObject library => Main.library;
+        internal static bool test_mode = false;
+        static public BlueprintCharacterClass summoner_class;
+        static public BlueprintProgression summoner_progression;
+        static public BlueprintFeature summoner_proficiencies;
+        static public BlueprintFeature summoner_cantrips;
+
+        internal static void createSummonerClass()
+        {
+            Main.logger.Log("Summoner class test mode: " + test_mode.ToString());
+            var magus_class = library.TryGet<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
+
+            summoner_class = Helpers.Create<BlueprintCharacterClass>();
+            summoner_class.name = "SummonerClass";
+            library.AddAsset(summoner_class, "");
+
+            summoner_class.LocalizedName = Helpers.CreateString("Summoner.Name", "Summoner");
+            summoner_class.LocalizedDescription = Helpers.CreateString("Summoner.Description",
+                                                                         "There are those who take a different path when pursuing the arcane arts, reaching across the boundaries of the world to the far-f lung planes to call forth all manner of creatures to do their bidding. Known as summoners, these arcane practitioners form close bonds with particular outsiders, known as eidolons, which increase in power along with their callers. In the end, summoners and their eidolons become linked, sharing shards of the same souls.\n"
+                                                                         + "Role: Summoners spend much of their time exploring the arcane arts alongside their eidolons. While their power comes from within, they rely heavily on their eidolon companions in dangerous situations. While a summoner and his eidolon function as individuals, their true power lies in what they can accomplish together."
+                                                                         );
+            summoner_class.m_Icon = magus_class.Icon;
+            summoner_class.SkillPoints = magus_class.SkillPoints;
+            summoner_class.HitDie = DiceType.D8;
+            summoner_class.BaseAttackBonus = magus_class.BaseAttackBonus;
+            summoner_class.FortitudeSave = magus_class.ReflexSave;
+            summoner_class.ReflexSave = magus_class.ReflexSave;
+            summoner_class.WillSave = magus_class.WillSave;
+            summoner_class.Spellbook = createSummonerSpellbook();
+            summoner_class.ClassSkills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion,
+                                                         StatType.SkillUseMagicDevice};
+            summoner_class.IsDivineCaster = false;
+            summoner_class.IsArcaneCaster = true;
+            summoner_class.StartingGold = magus_class.StartingGold;
+            summoner_class.PrimaryColor = magus_class.PrimaryColor;
+            summoner_class.SecondaryColor = magus_class.SecondaryColor;
+            summoner_class.RecommendedAttributes = new StatType[] { StatType.Charisma };
+            summoner_class.NotRecommendedAttributes = new StatType[0];
+            summoner_class.EquipmentEntities = magus_class.EquipmentEntities;
+            summoner_class.MaleEquipmentEntities = magus_class.MaleEquipmentEntities;
+            summoner_class.FemaleEquipmentEntities = magus_class.FemaleEquipmentEntities;
+            summoner_class.ComponentsArray = magus_class.ComponentsArray;
+            summoner_class.StartingItems = new BlueprintItem[]
+            {
+                library.Get<BlueprintItemArmor>("afbe88d27a0eb544583e00fa78ffb2c7"), //studied leather
+                library.Get<BlueprintItemWeapon>("ada85dae8d12eda4bbe6747bb8b5883c"), //quarterstaff
+                library.Get<BlueprintItemWeapon>("511c97c1ea111444aa186b1a58496664"), //light crossbow
+                library.Get<BlueprintItemEquipmentUsable>("807763fd874989e4d96eb2d8e234139e"), //shield scroll
+                library.Get<BlueprintItemEquipmentUsable>("affbadb670f599b4084029e5ad784cb7"), //enlarge scroll
+                library.Get<BlueprintItemEquipmentUsable>("a4fbba95ffa58144ca7189bc350ed622") //grease scroll
+            };
+
+            createSummonerProgression();
+            summoner_class.Progression = summoner_progression;
+            summoner_class.Archetypes = new BlueprintArchetype[] {  };
+            Helpers.RegisterClass(summoner_class);
+        }
+
+
+        static BlueprintCharacterClass[] getSummonerArray()
+        {
+            return new BlueprintCharacterClass[] { summoner_class }; 
+        }
+
+
+        static void createSummonerProgression()
+        {
+            createSummonerProficiencies();
+            createSummonerCantrips();
+            //createEidolon();
+            //createLifeLink();
+            //createSummonMonster();
+            //createShieldAllyAndGreaterSheildAlly();
+            //createTransposition();
+            //createMakersCall();
+            //createTransposition();
+            //createAspectAndGreaterAspect();
+            //createLifeBond();
+            //createMergeForms();
+            //createTwinEidolon();
+
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+
+            summoner_progression = Helpers.CreateProgression("SummonerProgression",
+                                                              summoner_class.Name,
+                                                              summoner_class.Description,
+                                                              "",
+                                                              summoner_class.Icon,
+                                                              FeatureGroup.None);
+            summoner_progression.Classes = getSummonerArray();
+
+            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips,
+                                                                                        library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
+                                                                    Helpers.LevelEntry(2),
+                                                                    Helpers.LevelEntry(3),
+                                                                    Helpers.LevelEntry(4),
+                                                                    Helpers.LevelEntry(5),
+                                                                    Helpers.LevelEntry(6),
+                                                                    Helpers.LevelEntry(7),
+                                                                    Helpers.LevelEntry(8),
+                                                                    Helpers.LevelEntry(9),
+                                                                    Helpers.LevelEntry(10),
+                                                                    Helpers.LevelEntry(11),
+                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(13),
+                                                                    Helpers.LevelEntry(14),
+                                                                    Helpers.LevelEntry(15),
+                                                                    Helpers.LevelEntry(16),
+                                                                    Helpers.LevelEntry(17),
+                                                                    Helpers.LevelEntry(18),
+                                                                    Helpers.LevelEntry(19),
+                                                                    Helpers.LevelEntry(20)
+                                                                    };
+
+            summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips };
+            /*summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(),
+                                                                Helpers.CreateUIGroup(),
+                                                                Helpers.CreateUIGroup(),
+                                                                Helpers.CreateUIGroup()
+                                                           };*/
+        }
+
+
+        static void createSummonerProficiencies()
+        {
+            summoner_proficiencies = library.CopyAndAdd<BlueprintFeature>("25c97697236ccf2479d0c6a4185eae7f", //sorcerer proficiencies
+                                                                "SummonerProficiencies",
+                                                                "de926c4e29de4550931b959bcd41e280");
+            summoner_proficiencies.SetName("Summoner Proficiencies");
+            summoner_proficiencies.SetDescription("Summoners are proficient with all simple weapons and light armor. A summoner can cast summoner spells while wearing light armor without incurring the normal arcane spell failure chance. Like any other arcane spellcaster, a summoner wearing medium or heavy armor, or using a shield, incurs a chance of arcane spell failure if the spell in question has a somatic component.");
+            summoner_proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { a.Facts[0], library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132") });
+            summoner_proficiencies.AddComponent(Common.createArcaneArmorProficiency(ArmorProficiencyGroup.Light));
+        }
+
+
+        static void createSummonerCantrips()
+        {
+            var daze = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c");
+            summoner_cantrips = Common.createCantrips("SummonerCantripsFeature",
+                                                   "Cantrips",
+                                                   "Summoners can cast a number of cantrips, or 0-level spells. These spells are cast like any other spell, but they are not expended when cast and may be used again.",
+                                                   daze.Icon,
+                                                   "98914f0079234c06b9a3c5064e06665b",
+                                                   summoner_class,
+                                                   StatType.Charisma,
+                                                   summoner_class.Spellbook.SpellList.SpellsByLevel[0].Spells.ToArray());
+        }
+
+
+        static BlueprintSpellbook createSummonerSpellbook()
+        {
+            var bard_class = library.TryGet<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
+            var summoner_spellbook = Helpers.Create<BlueprintSpellbook>();
+            summoner_spellbook.name = "SummonerSpellbook";
+            library.AddAsset(summoner_spellbook, "20f4a4b890204302ae9895fdc45bb20c");
+            summoner_spellbook.Name = summoner_class.LocalizedName;
+            summoner_spellbook.SpellsPerDay = bard_class.Spellbook.SpellsPerDay;
+            summoner_spellbook.SpellsKnown = bard_class.Spellbook.SpellsKnown;
+            summoner_spellbook.Spontaneous = true;
+            summoner_spellbook.IsArcane = true;
+            summoner_spellbook.AllSpellsKnown = false;
+            summoner_spellbook.CanCopyScrolls = false;
+            summoner_spellbook.CastingAttribute = StatType.Charisma;
+            summoner_spellbook.CharacterClass = summoner_class;
+            summoner_spellbook.CasterLevelModifier = 0;
+            summoner_spellbook.CantripsType = CantripsType.Cantrips;
+            summoner_spellbook.SpellsPerLevel = bard_class.Spellbook.SpellsPerLevel;
+
+            summoner_spellbook.SpellList = Helpers.Create<BlueprintSpellList>();
+            summoner_spellbook.SpellList.name = "SummonerSpellList";
+            library.AddAsset(summoner_spellbook.SpellList, "972048af37924e59b174653974b255a5");
+            summoner_spellbook.SpellList.SpellsByLevel = new SpellLevelList[10];
+            for (int i = 0; i < summoner_spellbook.SpellList.SpellsByLevel.Length; i++)
+            {
+                summoner_spellbook.SpellList.SpellsByLevel[i] = new SpellLevelList(i);
+
+            }
+
+            Common.SpellId[] spells = new Common.SpellId[]
+            {
+                new Common.SpellId( "0c852a2405dd9f14a8bbcfaf245ff823", 0), //acid_splash
+                new Common.SpellId( "55f14bc84d7c85446b07a1b5dd6b2b4c", 0), //daze
+                new Common.SpellId( "c3a8f31778c3980498d8f00c980be5f5", 0), //guidance
+                new Common.SpellId( "95f206566c5261c42aa5b3e7e0d1e36c", 0), //mage light
+                new Common.SpellId( "7bc8e27cba24f0e43ae64ed201ad5785", 0), //resistance
+
+                new Common.SpellId( "95810d2829895724f950c8c4086056e7", 1), //corrosive touch
+                new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
+                new Common.SpellId( "4f8181e7a7f1d904fbaea64220e83379", 1), //expeditious retreat
+                new Common.SpellId( "95851f6e85fe87d4190675db0419d112", 1), //grease
+                new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),
+                //life link
+                new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
+                new Common.SpellId( "403cf599412299a4f9d5d925c7b9fb33", 1), //magic fang
+                new Common.SpellId( NewSpells.obscuring_mist.AssetGuid, 1),
+                new Common.SpellId( "433b1faf4d02cc34abb0ade5ceda47c4", 1), //protection from alignment
+                new Common.SpellId( "fa3078b9976a5b24caf92e20ee9c0f54", 1), //ray of sickening
+                new Common.SpellId( "4e0e9aba6447d514f88eff1464cc4763", 1), //reduce person
+                //rejuvenate eidolon, lesser
+                new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //shield
+                new Common.SpellId( "8fd74eddd9b6c224693d9ab241f25e84", 1), //summon monster 1
+
+                new Common.SpellId( NewSpells.aggressive_thundercloud.AssetGuid, 2),
+                new Common.SpellId( "5b77d7cc65b8ab74688e74a37fc2f553", 2), //barksin
+                new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
+                new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
+                new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
+                new Common.SpellId( "4c3d08935262b6544ae97599b3a9556d", 2), //bull's strength
+                new Common.SpellId( "de7a025d48ad5da4991e7d3c682cf69d", 2), //cat's grace
+                new Common.SpellId( "29ccc62632178d344ad0be0865fd3113", 2), //create pit
+                new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagle's splendor
+                //evolution surge, lesser
+                new Common.SpellId( "ae4d3ad6a8fda1542acf2e9bbc13d113", 2), //fox cunning
+                new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
+                new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
+                new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
+                new Common.SpellId( "2cadf6c6350e4684baa109d067277a45", 2), //protection from alignment
+                new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows
+                new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
+                //restore eidolon, lesser
+                new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
+                new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
+                new Common.SpellId( "6c7467f0344004d48848a43d8c078bf8", 2), //sickening entanglement
+                new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
+
+                new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
+                new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement
+                //evoution surge
+                new Common.SpellId( NewSpells.fly.AssetGuid, 3),
+                new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
+                new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                //life conduit improved
+                new Common.SpellId( "f1100650705a69c4384d3edd88ba0f52", 3), //magic fang greater
+                 new Common.SpellId( "96c9d98b6a9a7c249b6c4572e4977157", 3), //protection from arrows communal
+                new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
+                new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
+                //rejuvenate eidolon
+                new Common.SpellId( "7bb0c402f7f789d4d9fae8ca87b4c7e2", 3), //resist energy communal
+
+                new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
+                new Common.SpellId( "46097f610219ac445b4d6403fc596b9f", 3), //spiked pit
+                new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
+                new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 3), //summon monster 4
+
+                new Common.SpellId( "1407fb5054d087d47a4c40134c809f12", 4), //acid pit
+                new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimension door
+                new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass
+                //evolution surge greater
+                new Common.SpellId( NewSpells.fire_shield.AssetGuid, 4),
+                new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater
+                new Common.SpellId( "e48638596c955a74c8a32dbc90b518c1", 4), //obsidian flow          
+                new Common.SpellId( "76a629d019275b94184a1a8733cac45e", 4), //protection from energy communal
+                new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass
+                new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
+                new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
+                new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 4), //summon monster 5
+                new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 4),
+
+                new Common.SpellId( "3105d6e9febdc3f41a08d2b7dda1fe74", 5), //baleful polymorph
+                new Common.SpellId( "548d339ba87ee56459c98e80167bdf10", 5), //cloudkill
+                new Common.SpellId( "95f7cdcec94e293489a85afdf5af1fd7", 5), //dismissal
+                new Common.SpellId( "f0f761b808dc4b149b08eaf44b99f633", 5), //dispel magic greater
+                new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
+                new Common.SpellId( "f63f4d1806b78604a952b3958892ce1c", 5), //hungry pit
+                //life conduit, greater
+                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
+                //rejuvenate eidolon greater
+                new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin communal
+                new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 5), //summon monster 6
+              
+
+                new Common.SpellId( "dbf99b00cd35d0a4491c6cc9e771b487", 6), //acid fog
+                new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
+                new Common.SpellId( "6a234c6dcde7ae94e94e9c36fd1163a7", 6), //bull strength mass
+                new Common.SpellId( "1f6c94d56f178b84ead4c02f1b1e1c48", 6), //cat grace mass
+                new Common.SpellId( "b974af13e45639a41a04843ce1c9aa12", 6), //creeping doom
+                new Common.SpellId( "2caa607eadda4ab44934c5c9875e01bc", 6), //eagles splendor mass
+                new Common.SpellId( "2b24159ad9907a8499c2313ba9c0f615", 6), //fox cunning mass
+                new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
+                new Common.SpellId( "98310a099009bbd4dbdf66bcef58b4cd", 6), //invisibility mass
+                new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass             
+                new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 6), //summon monster 7
+                new Common.SpellId( "7d700cdf260d36e48bb7af3a8ca5031f", 6), //tar pool
+                new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 6), //true seeing
+
+                new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 7), //summon monster 3
+                new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 7), //summon monster 8
+                new Common.SpellId( "52b5df2a97df18242aec67610616ded0", 7), //summon monster 9              
+            };
+
+            foreach (var spell_id in spells)
+            {
+                var spell = library.Get<BlueprintAbility>(spell_id.guid);
+                spell.AddToSpellList(summoner_spellbook.SpellList, spell_id.level);
+            }
+
+            return summoner_spellbook;
+        }
+    }
+}

@@ -1461,6 +1461,8 @@ namespace CallOfTheWild
 
         static void createStudiedStrike()
         {
+            var remove_studied_strike = Common.createContextActionRemoveBuffFromCaster(studied_target_buff);
+            var remove_studied_strike_ranged = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(ranged_study), remove_studied_strike);
             var icon = Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87");
             studied_strike_buff = Helpers.CreateBuff("InvestigatorStudiedStrikeBuff",
                                           "Studied Strike",
@@ -1486,8 +1488,11 @@ namespace CallOfTheWild
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
                                                                                      progression: ContextRankProgression.StartPlusDivStep, 
                                                                                      startLevel: 4, stepLevel: 2),
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(studied_target_buff)),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike),
                                                                                            check_weapon_range_type: true, wait_for_attack_to_resolve: true),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike_ranged),
+                                                                                           check_weapon_range_type: true, wait_for_attack_to_resolve: true, 
+                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
                                           Common.createContextCalculateAbilityParamsBasedOnClass(investigator_class, StatType.Intelligence)
                                           );
             var toggle = Helpers.CreateActivatableAbility("InvestigatorStudiedStrikeToggleAbility",

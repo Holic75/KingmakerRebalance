@@ -2,6 +2,8 @@
 using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.EntitySystem;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.ResourceLinks;
 using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
@@ -22,13 +24,8 @@ using UnityEngine;
 using UnityEngine.Playables;
 using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
 
-/*namespace CallOfTheWild.UnitViewMechanics
+namespace CallOfTheWild.UnitViewMechanics
 {
-
-    public class UnitPartReplaceView : UnitPart
-    {
-        public BlueprintFact buff;
-    }
 
     [Harmony12.HarmonyPatch(typeof(DollRoom), "CreateAvatar")]
     class DollRoom_CreateAvatar_Patch
@@ -46,7 +43,7 @@ using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
                 Action<Character> callback = (Character c) => AccessTools.Method(__instance.GetType(), "OnCharacterUpdated").Invoke(__instance, new object[] { c });
                 character.OnUpdated += callback;
                 //Copy BakedCharacter
-                character.BakedCharacter = originalAvatar.BakedCharacter;
+                character.BakedCharacter = originalAvatar.BakedCharacter;                
                 character.CopyEquipmentFrom(originalAvatar);
                 character.Start();
                 character.Animator.gameObject.AddComponent<UnitAnimationCallbackReceiver>();
@@ -71,29 +68,48 @@ using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
     }
 
 
-    [Harmony12.HarmonyPatch(typeof(UnitEntityView), "CreateView")]
-    class UnitEntityView_CreateView_Patch
+    [Harmony12.HarmonyPatch(typeof(EntityDataBase), "AttachToViewOnLoad")]
+    class EntityDataBase_CreateView_Patch
     {
-        static bool Prefix(Character originalAvatar, string dollName, DollRoom __instance, ref Character __result, Transform ___m_CharacterPlaceholder)
+        static void Postfix(EntityDataBase __instance, EntityViewBase view)
         {
+            if (view != null)
+            {
+                return;
+            }
+
+            var unit_entity_data = __instance as UnitEntityData;
+            if (unit_entity_data == null)
+            {
+                return;
+            }
+            if (unit_entity_data.GetActivePolymorph() != null)
+            {
+                return;
+            }
+            var replace_view = unit_entity_data.Descriptor?.Get<UnitPartViewReplacement>()?.buff?.Blueprint.GetComponent<ReplaceUnitView>();
+            if (replace_view != null)
+            {
+                Helpers.TryReplaceView(unit_entity_data.Descriptor, replace_view.view);
+            }
         }
     }
 
 
-    public class ReplaceUnitViewOnApply: OwnedGameLogicComponent<UnitDescriptor>
+    public class UnitPartViewReplacement : UnitPart
     {
-        public UnitViewLink prefab;
+        [JsonProperty]
+        public Fact buff;
+    }
+
+    public class ReplaceUnitView : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public UnitEntityView view;
 
         public override void OnFactActivate()
         {
-           this.Owner.Ensure<UnitPartReplaceView>().buff = this.Fact.Blueprint;
-           Helpers.TryReplaceView(this.Owner, prefab);
-        }
-
-
-        public override void OnFactDeactivate()
-        {
-            this.Owner.Ensure<UnitPartReplaceView>().buff = null;
+            this.Owner.Ensure<UnitPartViewReplacement>().buff = this.Fact;
+            Helpers.TryReplaceView(this.Owner, view);
         }
     }
 
@@ -101,17 +117,17 @@ using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
 
     class Helpers
     {
-        static public UnitEntityView TryReplaceView(UnitDescriptor Owner, UnitViewLink Prefab)
+        static public UnitEntityView TryReplaceView(UnitDescriptor Owner, UnitEntityView unitEntityView)
         {
             if (!Owner.Unit.View)
             {
-                Main.DebugLog("No View");
+                Main.logger.Log("No View");
                 return null;
             }
-            UnitEntityView unitEntityView = Prefab.Load(true);
+            //UnitEntityView unitEntityView = Prefab.Load(true);
             if (unitEntityView == null)
             {
-                Main.DebugLog("Could not load prefab");
+                Main.logger.Log("Could not load prefab");
                 return null;
             }
             foreach (Buff buff in Owner.Buffs)
@@ -146,6 +162,21 @@ using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
             UnityEngine.Object.Destroy(oldView.gameObject);
             return newView;
         }
+
+
+        static public void maybeAddCharacter(UnitEntityView original)
+        {
+            var character = original.GetComponent<Character>();
+            if (character == null)
+            {
+                character = original.gameObject.AddComponent<Character>();
+                //BlueprintRoot.Instance.CharGen.FemaleDoll
+                var drow = ResourcesLibrary.TryGetResource<UnitEntityView>("a65d9da806faa8f4ca078dfe942bf458", true);
+                CloneMonobehaviour(drow.GetComponentInChildren<Character>(), character);
+                character.BakedCharacter = CreateBakedCharacter(original.gameObject);
+            }
+        }
+
 
 
         static BakedCharacter CreateBakedCharacter(GameObject source)
@@ -188,4 +219,4 @@ using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
             }
         }
     }
-}*/
+}

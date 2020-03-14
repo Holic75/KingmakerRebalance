@@ -2430,11 +2430,12 @@ namespace CallOfTheWild
             return r;
         }
 
-        public static BlueprintPortrait createPortrait(string portrait_folder, string guid)
+        public static BlueprintPortrait createPortrait(string name, string portrait_folder, string guid)
         {
             PortraitData portraitData = new PortraitData("CallOfTheWild" + portrait_folder);
             BlueprintPortrait portrait = Helpers.Create<BlueprintPortrait>();
             portrait.Data = portraitData;
+            portrait.name = name;
             Main.library.AddAsset(portrait, guid);
             return portrait;
         }

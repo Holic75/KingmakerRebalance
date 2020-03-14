@@ -464,6 +464,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
                 new Common.SpellId( "42a65895ba0cb3a42b6019039dd2bff1", 2), //molten orb
                 new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image
+                new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows
                 new Common.SpellId( "cdb106d53c65bbc4086183d54c3b97c7", 2), //scorching ray
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "5181c2ed0190fc34b8a1162783af5bf4", 2), //stone call

@@ -2881,7 +2881,7 @@ namespace CallOfTheWild
                 var base_weapon_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.Damage : evt.Weapon.Blueprint.ScaleDamage(wielder_size);
                 DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : evt.WeaponDamageDiceOverride.Value;
 
-
+                
                 if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
                 {
                     //double damage dice
@@ -2890,7 +2890,14 @@ namespace CallOfTheWild
                 }
                 else
                 {
-                    evt.WeaponDamageDiceOverride = new DiceFormula?(WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, wielder_size, evt.Weapon.Blueprint));
+                    var new_dice = WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, wielder_size, evt.Weapon.Blueprint);
+                    if (new_dice == baseDice)
+                    {
+                        //no scaling available
+                        new_dice = new DiceFormula(2 * baseDice.Rolls, baseDice.Dice);
+                    }
+
+                    evt.WeaponDamageDiceOverride = new DiceFormula?(new_dice);
                 }
             }
 

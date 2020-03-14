@@ -71,6 +71,8 @@ namespace CallOfTheWild
                                              null,
                                              Common.createPrefabLink("f5eaec10b715dbb46a78890db41fa6a0"));
             fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+            var dryad = ResourcesLibrary.TryGetResource<UnitEntityView>("7cc1c50366f08814eb5a5e7c47c71a2a");
+            //var fire_elemental_view = UnityEngine.Object.Instantiate(dryad).GetComponent<UnitEntityView>();
 
             var fx_feature = Helpers.CreateFeature("FireElementalEidolonFxFeature",
                                                    "",
@@ -78,8 +80,8 @@ namespace CallOfTheWild
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Common.createAuraFeatureComponent(fx_buff)/*,
-                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitViewOnApply>(r => r.prefab = Common.createUnitViewLink("7cc1c50366f08814eb5a5e7c47c71a2a"))*/);
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.view = dryad),
+                                                   Common.createAuraFeatureComponent(fx_buff));
             fx_feature.HideInCharacterSheetAndLevelUp = true;
             fx_feature.HideInUI = true;
 
@@ -88,13 +90,15 @@ namespace CallOfTheWild
             fire_elemental_eidolon = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "FireElementalEidolonUnit", "");
             fire_elemental_eidolon.Color = fire_elemental.Color;
 
-           // var dryad = ResourcesLibrary.TryGetResource<UnitEntityView>("7cc1c50366f08814eb5a5e7c47c71a2a");
-            
-           // var octavia = ResourcesLibrary.TryGetResource<UnitEntityView>("77db32ef997a1274485750825a17c1aa");
 
-           // GetCopyOf(dryad.gameObject.AddComponent<Character>(), octavia.GetComponentInChildren<Character>());
+            //var azata = ResourcesLibrary.TryGetResource<UnitEntityView>("f59e51021e055b1459b0260a76cc4e54");
+            //UnitViewMechanics.Helpers.maybeAddCharacter(azata);
 
-            //fire_elemental_eidolon.Prefab = Common.createUnitViewLink("7cc1c50366f08814eb5a5e7c47c71a2a");
+            // var octavia = ResourcesLibrary.TryGetResource<UnitEntityView>("77db32ef997a1274485750825a17c1aa");
+
+            // GetCopyOf(dryad.gameObject.AddComponent<Character>(), octavia.GetComponentInChildren<Character>());
+
+            //fire_elemental_eidolon.Prefab = Common.createUnitViewLink("f59e51021e055b1459b0260a76cc4e54");
             fire_elemental_eidolon.Visual = fire_elemental.Visual;
             fire_elemental_eidolon.LocalizedName = fire_elemental_eidolon.LocalizedName.CreateCopy();
             fire_elemental_eidolon.LocalizedName.String = Helpers.CreateString(fire_elemental_eidolon.name + ".Name", "Fire Elemental Eidolon");
@@ -117,10 +121,10 @@ namespace CallOfTheWild
                                                                       a.CharacterClass = eidolon_class;
                                                                       a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
                                                                     });
-            fire_elemental_eidolon.AddComponent(Helpers.Create<EidolonComponent>());
+            fire_elemental_eidolon.AddComponents(Helpers.Create<EidolonComponent>());
 
 
-            Helpers.SetField(fire_elemental_eidolon, "m_Portrait", Helpers.createPortrait("FireElemental", ""));
+            Helpers.SetField(fire_elemental_eidolon, "m_Portrait", Helpers.createPortrait("EidolonFireElementalProtrait", "FireElemental", ""));
 
             BlueprintFeature fire_elemental_eidolon_feature = library.CopyAndAdd<BlueprintFeature>("126712ef923ab204983d6f107629c895", "FireElementalEidolonProgression", "");
             fire_elemental_eidolon_feature.ReplaceComponent<AddPet>(a => a.Pet = fire_elemental_eidolon);

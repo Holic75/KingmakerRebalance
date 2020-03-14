@@ -425,26 +425,26 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                //Main.logger.Log("Checking metamagic");
-                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)));
-                if (metamagic_count > max_metamagics)
-                {
-                    return false;
-                }
-
-               // Main.logger.Log("Checking correct spell");
-                var allowed =  ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
+                // Main.logger.Log("Checking correct spell");
+                var allowed = ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
                 if (!allowed)
                 {
                     return false;
                 }
 
-                var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
-                if (arcanist_part != null && ability.Spellbook.Blueprint == arcanist_part.spellbook)
+                //Main.logger.Log("Checking metamagic");
+                int metamagic_count = Helpers.PopulationCount((int)(ability.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)));
+                if (metamagic_count > max_metamagics)
                 {
-                    return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics);
+                    var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
+                    if (arcanist_part != null && ability.Spellbook.Blueprint == arcanist_part.spellbook)
+                    {
+                        return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics);
+                    }
+                    return false;
                 }
-                return false;
+
+                return true;
             }
         }
 
