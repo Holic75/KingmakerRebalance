@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Harmony12;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,22 @@ namespace CallOfTheWild
                 texture.LoadImage(bytes);
                 return Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(0, 0));
             }
+        }
+    }
+
+
+    [HarmonyPatch(typeof(CustomPortraitsManager), "GetPortraitFolderPath", typeof(string))]
+    static class GetPortraitFolderPath_Patch
+    {
+        private static bool Prefix(CustomPortraitsManager __instance, string id, ref string __result)
+        {
+            if (id.Contains("CallOfTheWild"))
+            {
+                __result = Path.Combine(Directory.GetCurrentDirectory(), "Mods/CallOfTheWild/Icons/Portraits", id.Replace("CallOfTheWild", ""));
+                return false;
+            }
+
+            return true;
         }
     }
 }

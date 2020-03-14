@@ -262,9 +262,10 @@ namespace CallOfTheWild.HealingMechanics
                 int bonus = __instance.Value.Calculate(context);
                 var bonus_to_dice = __instance.Value.BonusValue.Calculate(context);
 
-                var hp_bonus_to_caster_level = target.Get<UnitPartExtendHpBonusToCasterLevel>();
+                var hp_bonus_to_caster_level = context.MaybeCaster.Get<UnitPartExtendHpBonusToCasterLevel>();
+                
                 if (hp_bonus_to_caster_level != null && hp_bonus_to_caster_level.active(context.SourceAbility) && context.Params != null)
-                {                    
+                {
                     var additional_hp = context.Params.CasterLevel - bonus_to_dice;
                     //Main.logger.Log("Additional Hp: " + additional_hp.ToString());
                     if (additional_hp < 0)

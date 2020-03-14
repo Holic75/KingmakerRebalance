@@ -916,7 +916,7 @@ namespace CallOfTheWild
                     return Guid.NewGuid().ToString("N");
                 }
                 else
-                { 
+                {
                     throw Main.Error($"Missing AssetId for: {name}"); //ensure that no guids generated in release mode
                 }
             }
@@ -1968,7 +1968,7 @@ namespace CallOfTheWild
 
         public static ContextActionConditionalSaved CreateConditionalSaved(GameAction success, GameAction failed)
         {
-            return CreateConditionalSaved(success == null ? new GameAction[0] : new GameAction[] { success }, failed == null? new GameAction[0] : new GameAction[] { failed });
+            return CreateConditionalSaved(success == null ? new GameAction[0] : new GameAction[] { success }, failed == null ? new GameAction[0] : new GameAction[] { failed });
         }
 
         public static Conditional CreateConditional(Condition condition, GameAction ifTrue, GameAction ifFalse = null)
@@ -2428,6 +2428,15 @@ namespace CallOfTheWild
             r.Descriptor = descriptor;
             r.Scaling = scaling;
             return r;
+        }
+
+        public static BlueprintPortrait createPortrait(string portrait_folder, string guid)
+        {
+            PortraitData portraitData = new PortraitData("CallOfTheWild" + portrait_folder);
+            BlueprintPortrait portrait = Helpers.Create<BlueprintPortrait>();
+            portrait.Data = portraitData;
+            Main.library.AddAsset(portrait, guid);
+            return portrait;
         }
 
         public static void AddSpell(BlueprintAbility spell)

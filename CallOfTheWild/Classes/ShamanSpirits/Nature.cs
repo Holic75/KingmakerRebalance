@@ -57,6 +57,8 @@ namespace CallOfTheWild
             public BlueprintFeature storm_walker;
             public BlueprintAbility[] spells;
             public BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -68,6 +70,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
 
@@ -105,6 +109,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -127,6 +133,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -197,7 +205,7 @@ namespace CallOfTheWild
             {
                 var icon = library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon; //sirocco
                 var resource = Helpers.CreateAbilityResource(prefix + "StormBurstResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var buff = Helpers.CreateBuff(prefix + "StormBurstBuff",
                                               "Storm Burst",
                                               "As a standard action, the shaman causes a small storm of swirling wind and rain to form around one creature within 30 feet. This storm causes the target to treat all foes as if they had concealment, suffering a 20% miss chance for 1 round plus 1 round for every 4 shaman levels she possesses. The shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",

@@ -54,6 +54,8 @@ namespace CallOfTheWild
             public  BlueprintFeature hampering_hex;
             public  BlueprintAbility[] spells;
             public  BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -66,6 +68,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -103,6 +107,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 manifestation_prefix = manifestation_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -128,7 +134,9 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 manifestation_prefix = manifestation_asset_prefix;
-                
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
+
                 createSpiritAbility();
                 createGreaterSpiritAbility();
                 createTrueSpiritAbility();
@@ -168,7 +176,7 @@ namespace CallOfTheWild
                 createBattleMasterHex();
                 battle_ward_hex = hex_engine.createBattleWardHex(prefix + "BattleWard",
                                                  "Battle Ward",
-                                                 "The shaman touches a willing creature (including herself ) and grants a battle ward. The next time a foe makes an attack roll against the target, the ward activates and grants a +3 deflection bonus to the warded creature’s AC. Each subsequent time she’s attacked, the defection bonus reduces by 1 (to +2 for the second time she’s attacked and +1 for the third). The ward fades when the bonus is reduced to +0 or after 24 hours, whichever comes first. At 8th level, the ward’s starting bonus increases to +4. At 16th level, it increases to +5. A creature affected by this hex cannot be affected by it again for 24 hours."
+                                                 "The shaman touches a willing creature (including herself) and grants a battle ward. The next time a foe makes an attack roll against the target, the ward activates and grants a +3 deflection bonus to the warded creature’s AC. Each subsequent time she’s attacked, the defection bonus reduces by 1 (to +2 for the second time she’s attacked and +1 for the third). The ward fades when the bonus is reduced to +0 or after 24 hours, whichever comes first. At 8th level, the ward’s starting bonus increases to +4. At 16th level, it increases to +5. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                  );
 
                 curse_of_suffering_hex = hex_engine.createCurseOfSuffering(prefix + "CurseOfSuffering",
@@ -243,7 +251,7 @@ namespace CallOfTheWild
             void createSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "BattleSpiritResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var rage = library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b");
                 var buff = Helpers.CreateBuff(prefix + "BattleSpiritEffectBuff",
                                               "Batle Spirit",
@@ -270,7 +278,7 @@ namespace CallOfTheWild
             void createGreaterSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "EnemiesBaneResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
 
                 var bane_enchant = library.Get<BlueprintWeaponEnchantment>("1a93ab9c46e48f3488178733be29342a");
                 var icon = library.Get<BlueprintFeature>("4a24abda0d564f94094e55ef117fc5b2").Icon; // bane
@@ -308,7 +316,7 @@ namespace CallOfTheWild
              void createTrueSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "ParagonOfBattleResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
 
                 var enlarge_buff = library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb");
 

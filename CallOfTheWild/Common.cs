@@ -633,7 +633,7 @@ namespace CallOfTheWild
             for (int lvl = 0; lvl < new_levels.Length; lvl++)
             {
                 var count = base_spell_table.Levels[lvl].Count;
-                var new_count = new int [count.Length];
+                var new_count = new int[count.Length];
                 for (int i = 0; i < count.Length; i++)
                 {
                     new_count[i] = count[i] + increase;
@@ -899,7 +899,7 @@ namespace CallOfTheWild
             smite_feature.SetIcon(icon);
 
             smite_feature.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.AddFacts>(Helpers.CreateAddFact(smite_ability));
-            
+
 
 
             smite_ability.SetName(smite_feature.Name);
@@ -911,7 +911,7 @@ namespace CallOfTheWild
             smite_ability.ReplaceComponent(old_context_rank_config, new_context_rank_config);
 
             var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
-                   
+
             var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
             var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false), old_conditional.ConditionsChecker.Conditions[1] };
 
@@ -919,7 +919,7 @@ namespace CallOfTheWild
             //make buff take icon and name from parent ability
             smite_buff.SetIcon(null);
             smite_buff.SetName("");
-            var new_smite_action =  Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
+            var new_smite_action = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
             smite_ability.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
             smite_feature.GetComponent<AddAbilityResources>().RestoreAmount = true;
             return smite_feature;
@@ -936,7 +936,7 @@ namespace CallOfTheWild
                 cnd.ConditionsChecker.Conditions = cnd.ConditionsChecker.Conditions.AddToArray(new_condtion);
 
             }
-            
+
         }
 
 
@@ -1356,7 +1356,7 @@ namespace CallOfTheWild
             feature.SetDescription(selection.Description);
             feature.ComponentsArray = components;
             feature.Spellbook = spellbook;
-            
+
             library.AddAsset(feature, Helpers.GuidStorage.hasStoredGuid(feature.name) ? "" : Helpers.MergeIds(selection.AssetGuid, spellbook.AssetGuid)); //fix to ensure that classes of other mods will also work
             feature.Groups = new FeatureGroup[] { selection.Group };
             selection.AllFeatures = selection.AllFeatures.AddToArray(feature);
@@ -1447,7 +1447,7 @@ namespace CallOfTheWild
             features1.Add(selection2);
 
             return features1;
-            
+
         }
 
 
@@ -1838,7 +1838,7 @@ namespace CallOfTheWild
         }
 
 
-        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action, bool as_duplicates, 
+        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action, bool as_duplicates,
                                                                       params BlueprintAbility[] variants)
         {
             var clear_variants = variants.Distinct().ToArray();
@@ -1846,7 +1846,7 @@ namespace CallOfTheWild
 
             foreach (var v in clear_variants)
             {
-                
+
                 var variants_comp = v.GetComponent<AbilityVariants>();
 
                 if (variants_comp != null)
@@ -2065,7 +2065,7 @@ namespace CallOfTheWild
                                                                                                            bool only_non_magical, bool lock_slot,
                                                                                                            params BlueprintArmorEnchantment[] enchantments)
         {
-            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor > ();
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor>();
             b.only_non_magical = only_non_magical;
             b.lock_slot = lock_slot;
             b.enchantments = enchantments;
@@ -2376,7 +2376,7 @@ namespace CallOfTheWild
         }
 
 
-        public static NewMechanics.AddWeaponEnergyDamageDiceIfHasFact createAddWeaponEnergyDamageDiceBuffIfHasFact(ContextDiceValue dice_value, DamageEnergyType energy, BlueprintUnitFact checked_fact, 
+        public static NewMechanics.AddWeaponEnergyDamageDiceIfHasFact createAddWeaponEnergyDamageDiceBuffIfHasFact(ContextDiceValue dice_value, DamageEnergyType energy, BlueprintUnitFact checked_fact,
                                                                                                                     params AttackType[] attack_types)
         {
             var a = Helpers.Create<NewMechanics.AddWeaponEnergyDamageDiceIfHasFact>();
@@ -2400,7 +2400,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void addFeaturePrerequisiteOr(BlueprintFeature feature,  BlueprintFeature prerequisite)
+        public static void addFeaturePrerequisiteOr(BlueprintFeature feature, BlueprintFeature prerequisite)
         {
             var features_from_list = feature.GetComponent<PrerequisiteFeaturesFromList>();
             if (features_from_list == null)
@@ -2538,7 +2538,7 @@ namespace CallOfTheWild
         }
 
 
-        
+
 
         public static void addSpellbooksToSpellSelection(string name, int spell_level,
                                                         BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true)
@@ -2552,7 +2552,7 @@ namespace CallOfTheWild
                 var alternative_spellbook_archetypes = c.Archetypes.Where(a => a.ReplaceSpellbook != null || a.RemoveSpellbook).ToArray();
                 if (c == wizard)
                 {
-                    alternative_spellbook_archetypes =  alternative_spellbook_archetypes.AddToArray(thassilonian_specialist);
+                    alternative_spellbook_archetypes = alternative_spellbook_archetypes.AddToArray(thassilonian_specialist);
                 }
                 List<BlueprintComponent> components = new List<BlueprintComponent>();
                 components.Add(Common.createPrerequisiteClassSpellLevel(c, spell_level));
@@ -2623,7 +2623,7 @@ namespace CallOfTheWild
         }
 
 
-        public static AbilityExecuteActionOnCast createAbilityExecuteActionOnCast(ActionList actions, ConditionsChecker  condition = null)
+        public static AbilityExecuteActionOnCast createAbilityExecuteActionOnCast(ActionList actions, ConditionsChecker condition = null)
         {
             var a = Helpers.Create<AbilityExecuteActionOnCast>();
             if (condition != null)
@@ -2784,7 +2784,7 @@ namespace CallOfTheWild
 
         }
 
-   
+
         public static ContextActionSpawnAreaEffect createContextActionSpawnAreaEffect(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration)
         {
             return Helpers.Create<ContextActionSpawnAreaEffect>(c => { c.AreaEffect = area_effect; c.DurationValue = duration; });
@@ -2804,7 +2804,7 @@ namespace CallOfTheWild
             Helpers.SetField(data, "Value", value);
 
             var data_array = Array.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease, 1);
-            
+
             data_array.SetValue(data, 0);
             Helpers.SetField(context_action_savingthrow, "m_ConditionalDCIncrease", data_array);
         }
@@ -2817,8 +2817,15 @@ namespace CallOfTheWild
             return link;
         }
 
+        public static UnitViewLink createUnitViewLink(string asset_id)
+        {
+            var link = new UnitViewLink();
+            link.AssetId = asset_id;
+            return link;
+        }
 
-        public static AbilitySpawnFx createAbilitySpawnFx(string asset_id, AbilitySpawnFxAnchor position_anchor = AbilitySpawnFxAnchor.None, 
+
+        public static AbilitySpawnFx createAbilitySpawnFx(string asset_id, AbilitySpawnFxAnchor position_anchor = AbilitySpawnFxAnchor.None,
                                                                            AbilitySpawnFxAnchor orientation_anchor = AbilitySpawnFxAnchor.None,
                                                                            AbilitySpawnFxAnchor anchor = AbilitySpawnFxAnchor.None)
         {
@@ -2882,7 +2889,7 @@ namespace CallOfTheWild
             new_ability.Type = new_type;
             new_ability.SpellResistance = spell_resistance;
             new_ability.SetNameDescription(new_display_name, new_description);
-            
+
             var primary_ability = library.CopyAndAdd<BlueprintAbility>(spell.StickyTouch.TouchDeliveryAbility, new_name + "Cast", guid_primary);
             new_ability.ReplaceComponent<AbilityEffectStickyTouch>(s => s.TouchDeliveryAbility = primary_ability);
             primary_ability.SetNameDescription(new_display_name, new_description);
@@ -2951,7 +2958,7 @@ namespace CallOfTheWild
 
 
 
-        public static BlueprintActivatableAbility CreateMetamagicAbility(BlueprintFeature feat, String name, String display_name, Metamagic metamagic, SpellDescriptor descriptor, 
+        public static BlueprintActivatableAbility CreateMetamagicAbility(BlueprintFeature feat, String name, String display_name, Metamagic metamagic, SpellDescriptor descriptor,
                                                                   String buff_id, String ability_id, UnityEngine.Sprite ability_icon = null)
         {
             var icon = ability_icon == null ? feat.Icon : ability_icon;
@@ -3040,7 +3047,7 @@ namespace CallOfTheWild
             ability.NeedEquipWeapons = true;
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
 
-            return ability;                                   
+            return ability;
         }
 
 
@@ -3052,7 +3059,7 @@ namespace CallOfTheWild
 
 
 
-        public static BlueprintFeature  createAddFeatToAnimalCompanion(BlueprintFeature feat, string guid)
+        public static BlueprintFeature createAddFeatToAnimalCompanion(BlueprintFeature feat, string guid)
         {
             var add_feat_ac = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion>();
             add_feat_ac.Feature = feat;
@@ -3088,10 +3095,10 @@ namespace CallOfTheWild
                 for (int i = 0; i < spell_list_i.SpellsByLevel.Length; i++)
                 {
                     foreach (var s in spell_list_i.SpellsByLevel[i].Spells)
-                    if (!spell_guid_level_map.ContainsKey(s.AssetGuid) || spell_guid_level_map[s.AssetGuid] > spell_list_i.SpellsByLevel[i].SpellLevel)
-                    {
+                        if (!spell_guid_level_map.ContainsKey(s.AssetGuid) || spell_guid_level_map[s.AssetGuid] > spell_list_i.SpellsByLevel[i].SpellLevel)
+                        {
                             spell_guid_level_map[s.AssetGuid] = spell_list_i.SpellsByLevel[i].SpellLevel;
-                    }
+                        }
                 }
             }
 
@@ -3137,7 +3144,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void runActionOnDamageDealt(RuleDealDamage evt,  ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
+        public static void runActionOnDamageDealt(RuleDealDamage evt, ActionList action, int min_dmg = 1, bool only_critical = false, SavingThrowType save_type = SavingThrowType.Unknown,
                                                   SpellDescriptor descriptor = SpellDescriptor.None, bool use_existing_save = false, bool only_on_save = false, DamageEnergyType energy = DamageEnergyType.Divine, bool use_energy = false)
         {
             Buff context_buff = null;
@@ -3164,7 +3171,7 @@ namespace CallOfTheWild
             {
                 return;
             }
-        
+
             if (!spellContext.SourceAbility.IsSpell)
             {
                 return;
@@ -3427,7 +3434,7 @@ namespace CallOfTheWild
                 ability.AddComponent(Helpers.CreateResourceLogic(resource2));
             }
 
-           
+
             ability.Parent = null;
             return ability;
         }
@@ -3465,6 +3472,12 @@ namespace CallOfTheWild
                                                 );
             feature.HideInCharacterSheetAndLevelUp = true;
             return feature;
+        }
+
+
+        public class MyLink: PrefabLink
+        {
+
         }
     }
 }

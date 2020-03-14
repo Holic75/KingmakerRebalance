@@ -57,6 +57,8 @@ namespace CallOfTheWild
             public BlueprintFeature ward_of_flames;
             public BlueprintAbility[] spells;
             public BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -68,6 +70,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
 
@@ -103,6 +107,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -128,6 +134,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -215,7 +223,7 @@ namespace CallOfTheWild
             {
                 var icon = library.Get<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038").Icon; //burning hands
                 var resource = Helpers.CreateAbilityResource(prefix + "TouchOfFlamesResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var touch_of_flames = library.CopyAndAdd<BlueprintAbility>("4ecdf240d81533f47a5279f5075296b9", prefix + "TouchOfFlamesAbility", ""); //fire domain fire bolt 
                 touch_of_flames.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
                 touch_of_flames.RemoveComponents<SpellComponent>();
@@ -278,7 +286,7 @@ namespace CallOfTheWild
                 fiery_soul.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes));
                 fiery_soul.AddComponents(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                          Helpers.CreateResourceLogic(resource),
-                                         Common.createContextCalculateAbilityParamsBasedOnClass(hex_engine.hex_classes[0], hex_engine.hex_stat),
+                                         Common.createContextCalculateAbilityParamsBasedOnClass(hex_engine.hex_classes[0], primary_stat),
                                          Common.createAbilityCasterHasNoFacts(cooldown_buff)
                                         );
                 fiery_soul.SetNameDescriptionIcon("Fiery Soul", cooldown_buff.Description, cooldown_buff.Icon);

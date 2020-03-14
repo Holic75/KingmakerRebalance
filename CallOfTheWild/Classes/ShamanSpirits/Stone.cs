@@ -57,6 +57,8 @@ namespace CallOfTheWild
             public BlueprintFeature ward_of_stone;
             public BlueprintAbility[] spells;
             public BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -68,6 +70,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -104,6 +108,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -126,6 +132,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -193,7 +201,7 @@ namespace CallOfTheWild
             {
                 var icon = library.Get<BlueprintAbility>("97d0a51ca60053047afb9aca900fb71b").Icon; //burning hands acid
                 var resource = Helpers.CreateAbilityResource(prefix + "TouchOfAcidResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var touch_of_acid = library.CopyAndAdd<BlueprintAbility>("3ff40918d33219942929f0dbfe5d1dee", prefix + "TouchOfAcidAbility", ""); //earth domain acid dart
                 touch_of_acid.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Acid));
                 touch_of_acid.RemoveComponents<SpellComponent>();
@@ -272,7 +280,7 @@ namespace CallOfTheWild
                                                                                                classes: hex_engine.hex_classes),
                                                                Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any),
                                                                Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster),
-                                                               Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
+                                                               Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, primary_stat),
                                                                Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                                                Common.createAbilityCasterHasNoFacts(cooldown_buff),
                                                                Helpers.CreateResourceLogic(resource)

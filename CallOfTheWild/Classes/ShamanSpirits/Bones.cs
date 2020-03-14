@@ -56,6 +56,8 @@ namespace CallOfTheWild
             public  BlueprintFeature fearful_gaze_hex;
             public  BlueprintAbility[] spells;
             public  BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -69,6 +71,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 touch_of_the_grave_prefix = touch_of_the_grave_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
 
@@ -107,6 +111,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 touch_of_the_grave_prefix = touch_of_the_grave_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -132,6 +138,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 touch_of_the_grave_prefix = touch_of_the_grave_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -290,7 +298,7 @@ namespace CallOfTheWild
             void createSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(touch_of_the_grave_prefix + "TouchOfTheGraveResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var inflict_light_wounds = library.Get<BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
 
                 var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
@@ -376,7 +384,7 @@ namespace CallOfTheWild
                                                                                                classes: hex_engine.hex_classes),
                                                                Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any),
                                                                Common.createAbilitySpawnFx("2644dac00cee8b840a35f2445c4dffd9", anchor: AbilitySpawnFxAnchor.Caster),
-                                                               Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
+                                                               Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, primary_stat),
                                                                Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                                                Common.createAbilityCasterHasNoFacts(cooldown_buff),
                                                                Helpers.CreateResourceLogic(resource)

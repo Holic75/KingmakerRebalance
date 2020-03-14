@@ -1,4 +1,5 @@
-﻿using Kingmaker.EntitySystem.Entities;
+﻿using Kingmaker.Blueprints;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UI.GenericSlot;
 using Kingmaker.UI.Group;
 using Kingmaker.UI.ServiceWindow;
@@ -46,7 +47,9 @@ namespace CallOfTheWild
         class CharDollBase__SetupInfo__Patch
         {
 
-            static EquipSlotBase.SlotType[] allowed_slots = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders };
+            static EquipSlotBase.SlotType[] allowed_slots_animal = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders };
+            static EquipSlotBase.SlotType[] allowed_slots_eidolon = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.PrimaryHand, EquipSlotBase.SlotType.SecondaryHand,
+                                                                                                   EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
             static bool Prefix(CharDollBase __instance, UnitEntityData player)
             {
                 var tr = Harmony12.Traverse.Create(__instance);
@@ -61,6 +64,15 @@ namespace CallOfTheWild
                     slot.SetupInfo(player.Body);
                     if (player.Descriptor.IsPet)
                     {
+                        EquipSlotBase.SlotType[] allowed_slots;
+                        if (player.Blueprint.GetComponent<Eidolon.EidolonComponent>() == null)
+                        {
+                            allowed_slots = allowed_slots_animal;
+                        }
+                        else
+                        {
+                            allowed_slots = allowed_slots_eidolon;
+                        }
                         if (!allowed_slots.Contains(slot.Type))
                         {
                             if (!slot.Slot.Lock)
@@ -88,7 +100,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                if (player.Descriptor.IsPet)
+                if (player.Descriptor.IsPet && player.Blueprint.GetComponent<Eidolon.EidolonComponent>() == null)
                 {//remove additional weapon sets
                     for (int i = 1; i < player.Body.HandsEquipmentSets.Count; i++)
                     {

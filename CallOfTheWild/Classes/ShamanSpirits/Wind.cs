@@ -58,6 +58,8 @@ namespace CallOfTheWild
             public BlueprintFeature wind_ward;
             public BlueprintAbility[] spells;
             public BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -69,6 +71,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -104,6 +108,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -127,6 +133,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -196,7 +204,7 @@ namespace CallOfTheWild
             {
                 var icon = library.Get<BlueprintAbility>("ab395d2335d3f384e99dddee8562978f").Icon; //shocking grasp
                 var resource = Helpers.CreateAbilityResource(prefix + "ShockingTOuchResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, StatType.Charisma);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var shocking_touch = library.CopyAndAdd<BlueprintAbility>("b3494639791901e4db3eda6117ad878f", prefix + "ShockingTouchAbility", ""); //air domain arck of lightning 
                 shocking_touch.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity));
                 shocking_touch.RemoveComponents<SpellComponent>();
@@ -268,7 +276,7 @@ namespace CallOfTheWild
                                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                                            Helpers.CreateResourceLogic(resource),
                                                            library.Get<BlueprintAbility>("c073af2846b8e054fb28e6f72bc02749").GetComponent<AbilityDeliverProjectile>(),//kinetic thunderstorm torrent,
-                                                           Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
+                                                           Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, primary_stat),
                                                            Common.createAbilityCasterHasNoFacts(cooldown_buff),
                                                            Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown)))
                                                            );

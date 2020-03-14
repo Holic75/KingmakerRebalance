@@ -220,6 +220,7 @@
     <Compile Include="NewMechanics\StickyTouchMechanics.cs" />
     <Compile Include="NewMechanics\TeamworkMechanics.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
+    <Compile Include="NewMechanics\UnitViewMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />
     <Compile Include="NewMechanics\WeatherMechanics.cs" />

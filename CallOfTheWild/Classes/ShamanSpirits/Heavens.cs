@@ -58,6 +58,8 @@ namespace CallOfTheWild
             public  BlueprintFeature starburn;
             public  BlueprintAbility[] spells;
             public  BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -69,6 +71,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
                 createHexes();
 
                 createSpiritAbility();
@@ -104,6 +108,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
                 createHexes();
 
                 createSpiritAbility();
@@ -126,6 +132,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
                 createHexes();
 
                 createSpiritAbility();
@@ -196,7 +204,7 @@ namespace CallOfTheWild
             {
                 var icon = library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9").Icon; //glitterdust
                 var resource = Helpers.CreateAbilityResource(prefix + "StardustResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
 
                 var buff = library.CopyAndAdd<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54", prefix + "StardustBuff", "");
                 buff.SetNameDescription("Stardust",
@@ -265,7 +273,7 @@ namespace CallOfTheWild
                 ability.Type = AbilityType.SpellLike;
 
                 ability.RemoveComponents<SpellListComponent>();
-                ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat));
+                ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, primary_stat));
                 ability.AddComponent(Helpers.CreateResourceLogic(resource));
 
                 true_spirit_ability = Helpers.CreateFeature(prefix + "HeavensPrismaticSprayFeature",
@@ -295,7 +303,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.UntypedStackable),
                                                       Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.UntypedStackable),
                                                       Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.UntypedStackable),
-                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: hex_engine.hex_stat)
+                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: primary_stat)
                                                       );
             }
 

@@ -56,6 +56,8 @@ namespace CallOfTheWild
             public BlueprintFeature mental_acuity;
             public BlueprintAbility[] spells;
             public BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -69,6 +71,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 spell_list_prefix = spell_list_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -106,6 +110,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 spell_list_prefix = "";
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -129,6 +135,8 @@ namespace CallOfTheWild
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
                 spell_list_prefix = spell_list_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 createSpiritAbility();
@@ -197,7 +205,7 @@ namespace CallOfTheWild
             void createSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "MonstrousInsightResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
                 var icon = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e").Icon; //detect magic
 
                 var lore_action = Helpers.Create<NewMechanics.MonsterLore.ContextMonsterLoreCheck>(c =>
@@ -267,7 +275,7 @@ namespace CallOfTheWild
                     learn_spell.SpellList = wizard_spell_list;
                     learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = wizard_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = hex_engine.hex_classes[0]; });
                     learn_spell.AddComponents(Helpers.PrerequisiteStatValue(StatType.Intelligence, 10 + i),
-                                              Helpers.PrerequisiteStatValue(hex_engine.hex_secondary_stat, 10 + i),
+                                              Helpers.PrerequisiteStatValue(secondary_stat, 10 + i),
                                               Common.createPrerequisiteClassSpellLevel(hex_engine.hex_classes[0], i)
                                               );
                     learn_spell.SetName(Helpers.CreateString(prefix + $"ArcaneEnlightenmentParametrizedFeature{i + 1}.Name", "Arcane Enlightenment " + $"(level {i})"));
@@ -339,7 +347,7 @@ namespace CallOfTheWild
                                                                            allow_metamagic: false,
                                                                            allow_spells_with_material_components: false,
                                                                            resource: resource,
-                                                                           additional_components: new BlueprintComponent[] {Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat)}
+                                                                           additional_components: new BlueprintComponent[] {Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, primary_stat)}
                                                                            );
 
                 manifestation = Helpers.CreateFeature(prefix + "LoreManifestationFeature",

@@ -58,6 +58,8 @@ namespace CallOfTheWild
             public BlueprintFeature crashing_waves;
             public BlueprintAbility[] spells;
             public BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             HexEngine hex_engine;
             string prefix;
@@ -69,6 +71,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createHexes();
 
@@ -107,6 +111,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
 
@@ -132,6 +138,8 @@ namespace CallOfTheWild
                 test_mode = test;
                 hex_engine = associated_hex_engine;
                 prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createHexes();
                 
@@ -210,7 +218,7 @@ namespace CallOfTheWild
             void createSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "IceSplinterResource", "", "", "", null);
-                resource.SetIncreasedByStat(3, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(3, secondary_stat);
 
                 var ice_splinter = library.CopyAndAdd<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791", prefix + "IceSplinterAbility", ""); //water domain icicle 
                 ice_splinter.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
@@ -277,7 +285,7 @@ namespace CallOfTheWild
                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                          Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))),
                                                          Helpers.CreateResourceLogic(resource),
-                                                         Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_stat),
+                                                         Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, primary_stat),
                                                          Common.createAbilityCasterHasNoFacts(cooldown_buff)
                                                          );
                 frigid_blast.setMiscAbilityParametersRangedDirectional();

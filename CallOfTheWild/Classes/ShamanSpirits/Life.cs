@@ -54,6 +54,8 @@ namespace CallOfTheWild
             public  BlueprintFeature life_sight;
             public  BlueprintAbility[] spells;
             public  BlueprintFeature[] hexes;
+            public StatType primary_stat;
+            public StatType secondary_stat;
 
             public  BlueprintFeature extra_channel;
             public  BlueprintAbility heal_living;
@@ -73,6 +75,8 @@ namespace CallOfTheWild
                 prefix = asset_prefix;
                 extra_channel_prefix = extra_channel_asset_prefix;
                 extra_channel_name = extra_channel_asset_name;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
 
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -111,6 +115,8 @@ namespace CallOfTheWild
                 prefix = asset_prefix;
                 extra_channel_prefix = extra_channel_asset_prefix;
                 extra_channel_name = extra_channel_asset_name;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -138,6 +144,8 @@ namespace CallOfTheWild
                 prefix = asset_prefix;
                 extra_channel_prefix = extra_channel_asset_prefix;
                 extra_channel_name = extra_channel_asset_name;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
 
                 createSpiritAbility();
                 createGreaterSpiritAbility();
@@ -207,12 +215,12 @@ namespace CallOfTheWild
             void createSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "ChannelResource", "", "", "", null);
-                resource.SetIncreasedByStat(1, hex_engine.hex_secondary_stat);
+                resource.SetIncreasedByStat(1, secondary_stat);
 
                 var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
                 var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
                                                                                       type: AbilityRankType.Default, classes: hex_engine.hex_classes, startLevel: 1, stepLevel: 2);
-                var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, hex_engine.hex_secondary_stat);
+                var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(hex_engine.hex_classes, secondary_stat);
                 spirit_ability = Helpers.CreateFeature(prefix + "LifeSpiritChannelPositiveEnergyFeature",
                                                        "Channel Positive Energy",
                                                        "Shaman channels positive energy and can choose to deal damage to undead creatures or to heal living creatures.\nChanneling energy causes a burst that either heals all living creatures or damages all undead creatures in a 30-foot radius centered on the shaman. The amount of damage dealt or healed is equal to 1d6 points of damage plus 1d6 points of damage for every two shaman levels beyond 1st (2d6 at 3rd, 3d6 at 5th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the shaman's level + the shaman's Charisma modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. A shaman may channel energy a number of times per day equal to 1 + her Charisma modifier. This is a standard action that does not provoke an attack of opportunity. A shaman can choose whether or not to include herself in this effect.",

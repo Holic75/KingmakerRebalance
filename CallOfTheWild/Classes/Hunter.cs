@@ -228,7 +228,7 @@ namespace CallOfTheWild
                 var feature = Helpers.CreateFeature($"PrimalTransformation{lvl}Feature",
                                                     "Primal Transformation",
                                                     "At first level, a primal companion hunter awakens a primal creature from within his animal companion. The animal companion gains a pool of 2 evolution points that can be used to give the companion evolutions as if it were an eidolon. A primal companion hunter uses her hunter level to determine her effective summoner level for the purpose of qualifying for evolutions and determining their effects. At 8th level, the number of evolution points in her pool increases to 4, and at 15th level, it increases to 6.\n"
-                                                    + "Whenever Primal Hunter Companion gains a level she may redistribute evolution points spent previously.",
+                                                    + "Whenever Primal Companion Hunter gains a level, she may redistribute evolution points spent previously.",
                                                     "",
                                                     Helpers.GetIcon("56923211d2ac95e43b8ac5031bab74d8"),
                                                     FeatureGroup.None);

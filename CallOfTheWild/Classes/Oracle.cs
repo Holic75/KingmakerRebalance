@@ -246,7 +246,7 @@ namespace CallOfTheWild
 
 
             var class_skills = Helpers.CreateFeature("ClassSkillsSpiritGuideFeature",
-                                                     "Class Skilss",
+                                                     "Class Skills",
                                                      "A spirit guide gains all Knowledge skills as class skills. This replaces the bonus class skills gained from the oracle’s mystery.",
                                                      "",
                                                      null,

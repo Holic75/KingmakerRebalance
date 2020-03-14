@@ -348,7 +348,7 @@ namespace CallOfTheWild
         static void createEvolutionEntries()
         {
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     new BlueprintFeature[] { boar, dog, elk, mammoth, monitor, wolf }));
+                                                     new BlueprintFeature[] { boar, dog, mammoth, monitor, wolf }));
 
             foreach (var e in improved_natural_attacks)
             {
