@@ -116,7 +116,8 @@ namespace CallOfTheWild
                                                                                    library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c"), //sylvan sorcerer
                                                                                    Shaman.nature_spirit.true_spirit_ability as BlueprintFeatureSelection,
                                                                                    Shaman.nature_spirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
-                                                                                   Oracle.animal_companion
+                                                                                   Oracle.animal_companion,
+                                                                                   Summoner.eidolon_selection
                                                                                    };
         public static BlueprintFeatureSelection familiar_selection = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183"); //rogue familiar
                                                                                                      

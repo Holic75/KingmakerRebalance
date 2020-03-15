@@ -13,6 +13,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.RuleSystem;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -47,22 +48,321 @@ namespace CallOfTheWild
         static public BlueprintCharacterClass eidolon_class;
         static public bool test_mode = false;
 
-
-        static public BlueprintUnit fire_elemental_eidolon;
-
-
         static public BlueprintProgression eidolon_progression;
+        static public BlueprintProgression angel_eidolon; //ok
+        static public BlueprintProgression azata_eidolon; //ok
+        static public BlueprintProgression fire_elemental_eidolon; //ok
+        static public BlueprintProgression water_elemental_eidolon;
+        static public BlueprintProgression air_elemental_eidolon;
+        static public BlueprintProgression earth_elemental_eidolon;
+        static public BlueprintProgression demon_eidolon;
+        static public BlueprintProgression daemon_eidolon;
+        static public BlueprintProgression devil_eidolon;
+        static public BlueprintProgression fey_eidolon; //ok
+        static public BlueprintProgression inevitable_eidolon;
+        static public BlueprintArchetype fey_archetype;
+
 
 
         static public void create()
         {
-            createEidolonClass();
-
-            createFireElemental();
+            createEidolonClass();         
+            createEidolonUnits();
+            Evolutions.initialize();
+            //fillEidolonProgressions();
         }
 
 
-        static void createFireElemental()
+        static void createEidolonUnits()
+        {
+            createFireElementalUnit();
+            createWaterElementalUnit();
+            createAirElementalUnit();
+            createAngelUnit();
+            createAzataUnit();
+            createFeyUnit();
+            createInevitableUnit();
+        }
+
+
+        static void createFeyEidolonArchetype()
+        {
+            fey_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "FeyEidolonArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Fey Eidolon");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Fey eidolons are whimsical and mysterious creatures, prone to flights of fancy, odd compulsions, and alien humor. While some creatures from the faerie realms have truly unusual shapes, the ones close enough to the human mind to serve as eidolons tend to look like idealized humanoids with unusual features that set them apart, such as pointed ears or gossamer wings.");
+            });
+            Helpers.SetField(fey_archetype, "m_ParentClass", eidolon_class);
+            library.AddAsset(fey_archetype, "");
+            fey_archetype.ReplaceClassSkills = true;
+            fey_archetype.ClassSkills = new StatType[] { StatType.SkillMobility, StatType.SkillPersuasion, StatType.SkillLoreNature, StatType.SkillThievery, StatType.SkillUseMagicDevice };
+            fey_archetype.RemoveFeatures = new LevelEntry[0];
+            fey_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1) };
+        }
+
+
+        static void createFeyUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("FeyEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("7cc1c50366f08814eb5a5e7c47c71a2a")));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var dryad_unit = library.Get<BlueprintUnit>("20660a3d7ef5ec54a9c1f08b0b58d753");
+            var fey_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "FeyEidolonUnit", "");
+            fey_unit.Color = dryad_unit.Color;
+
+            fey_unit.Visual = dryad_unit.Visual;
+            fey_unit.LocalizedName = dryad_unit.LocalizedName.CreateCopy();
+            fey_unit.LocalizedName.String = Helpers.CreateString(fey_unit.name + ".Name", "Fey Eidolon");
+
+            fey_unit.Strength = 16;
+            fey_unit.Dexterity = 12;
+            fey_unit.Constitution = 13;
+            fey_unit.Intelligence = 7;
+            fey_unit.Wisdom = 10;
+            fey_unit.Charisma = 11;
+            fey_unit.Speed = 30.Feet();
+            fey_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            fey_unit.Body = fey_unit.Body.CloneObject();
+            fey_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            fey_unit.Body.PrimaryHand = null;
+            fey_unit.Body.SecondaryHand = null;
+            fey_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            fey_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[] { fey_archetype };
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillMobility, StatType.SkillLoreNature, StatType.SkillUseMagicDevice };
+            });
+            fey_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(fey_unit, "m_Portrait", Helpers.createPortrait("EidolonFeyProtrait", "Fey", ""));
+
+            fey_eidolon = Helpers.CreateProgression("FeyEidolonProgression",
+                                                    "Fey Eidolon",
+                                                    "Fey eidolons usually choose to bond with mortals for their own mysterious reasons that vary as much as their disparate temperaments; occasionally, their need may be immediate, such as when a dryad whose tree is dying decides to bond with a summoner instead and become something new. On the other hand, a redcap just looking for bloodshed might connect with an equally sadistic summoner. Whatever their reasons, they tend to have strong bonds of loyalty to their summoners entangled with equally strong emotional attachments, even evil fey eidolons.",
+                                                    "",
+                                                    Helpers.GetIcon("e8445256abbdc45488c2d90373f7dae8"),
+                                                    FeatureGroup.AnimalCompanion,
+                                                    library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                    );
+            fey_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            fey_eidolon.ReplaceComponent<AddPet>(a => a.Pet = fey_unit);
+            fey_eidolon.IsClassFeature = true;
+            fey_eidolon.ReapplyOnLevelUp = true;
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fey_eidolon);
+        }
+
+
+        static void createInevitableUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("InevitableEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("c9f3318f6aa6a3a4a9ce476989a07df5")), //adamantine golem
+                                                   Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Medium)); 
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var axiomite = library.Get<BlueprintUnit>("a97cc6e80fe9a454db9c0fb519fa4087");
+            var inevitable_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "InevitableEidolonUnit", "");
+            inevitable_unit.Color = axiomite.Color;
+
+            inevitable_unit.Visual = axiomite.Visual;
+            inevitable_unit.LocalizedName = inevitable_unit.LocalizedName.CreateCopy();
+            inevitable_unit.LocalizedName.String = Helpers.CreateString(inevitable_unit.name + ".Name", "Inevitable Eidolon");
+
+            inevitable_unit.Alignment = Alignment.LawfulNeutral;
+            inevitable_unit.Strength = 16;
+            inevitable_unit.Dexterity = 12;
+            inevitable_unit.Constitution = 13;
+            inevitable_unit.Intelligence = 7;
+            inevitable_unit.Wisdom = 10;
+            inevitable_unit.Charisma = 11;
+            inevitable_unit.Speed = 30.Feet();
+            inevitable_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            inevitable_unit.Body = inevitable_unit.Body.CloneObject();
+            inevitable_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            inevitable_unit.Body.PrimaryHand = null;
+            inevitable_unit.Body.SecondaryHand = null;
+            inevitable_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            inevitable_unit.Size = Size.Huge;
+            inevitable_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+            });
+            inevitable_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(inevitable_unit, "m_Portrait", Helpers.createPortrait("EidolonInevitableProtrait", "Golem", ""));
+            inevitable_eidolon = Helpers.CreateProgression("InevitableEidolonProgression",
+                                        "Inevitable Eidolon",
+                                        "Implacable and ceaseless in their fight against chaos and those who break natural laws, inevitables make loyal, if literal-minded, companions for lawful summoners. Summoners of inevitables generally get along well with axiomites, who share their understanding of the process of forging and modifying an inevitable. Inevitable eidolons appear as a mixture between clockwork constructs and idealized humanoid statues.",
+                                        "",
+                                        Helpers.GetIcon("c66e86905f7606c4eaa5c774f0357b2b"), //stone_skin
+                                        FeatureGroup.AnimalCompanion,
+                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                        );
+            inevitable_eidolon.IsClassFeature = true;
+            inevitable_eidolon.ReapplyOnLevelUp = true;
+            inevitable_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            inevitable_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Lawful | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            inevitable_eidolon.ReplaceComponent<AddPet>(a => a.Pet = inevitable_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(inevitable_eidolon);
+        }
+
+
+
+        static void createAzataUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("AzataEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("255c1c746b1c31b40b16add1bb6b783e")));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var azata = library.Get<BlueprintUnit>("d6fdf2d1776817b4bab5d4a43d9ea708");
+            var azata_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AzataEidolonUnit", "");
+            azata_unit.Color = azata.Color;
+
+            azata_unit.Visual = azata.Visual;
+            azata_unit.LocalizedName = azata.LocalizedName.CreateCopy();
+            azata_unit.LocalizedName.String = Helpers.CreateString(azata_unit.name + ".Name", "Azata Eidolon");
+
+            azata_unit.Alignment = Alignment.ChaoticGood;
+            azata_unit.Strength = 16;
+            azata_unit.Dexterity = 12;
+            azata_unit.Constitution = 13;
+            azata_unit.Intelligence = 7;
+            azata_unit.Wisdom = 10;
+            azata_unit.Charisma = 11;
+            azata_unit.Speed = 30.Feet();
+            azata_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            azata_unit.Body = azata_unit.Body.CloneObject();
+            azata_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            azata_unit.Body.PrimaryHand = null;
+            azata_unit.Body.SecondaryHand = null;
+            azata_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            azata_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+            });
+            azata_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(azata_unit, "m_Portrait", Helpers.createPortrait("EidolonAzataProtrait", "Azata", ""));
+            azata_eidolon = Helpers.CreateProgression("AzataEidolonProgression",
+                                        "Azata Eidolon",
+                                        "Embodiments of the untamable beauty and noble passion of Elysium, azata eidolons have wild and beautiful features. They often take graceful forms reminiscent of elves or fey, but they occasionally appear like lillends, with serpentine tails. Azata eidolons are flighty and independent, and they often have their own ideas about how to defeat evil or have a good time. Thus, an azata eidolon is likely to balk if its summoner commands it to perform offensive or nefarious actions. On the other hand, an azata eidolon in sync with its summoner is a passionate and devoted companion.",
+                                        "",
+                                        Helpers.GetIcon("90810e5cf53bf854293cbd5ea1066252"), //righteous might
+                                        FeatureGroup.AnimalCompanion,
+                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                        );
+            azata_eidolon.IsClassFeature = true;
+            azata_eidolon.ReapplyOnLevelUp = true;
+            azata_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            azata_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Chaotic | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood));
+            azata_eidolon.ReplaceComponent<AddPet>(a => a.Pet = azata_unit);
+          
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(azata_eidolon);
+        }
+
+
+        static void createAngelUnit()
+        {
+            var fx_buff = Helpers.CreateBuff("AngelEidolonFxBuff",
+                                 "",
+                                 "",
+                                 "",
+                                 null,
+                                 Common.createPrefabLink("20832f2c72b574d4cb42ee82fc244d78")); //aasimar halo
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+            var fx_feature = Helpers.CreateFeature("AngelEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("db4e061c2d26e01408a264cc7c569daf")), //ghaele
+                                                   Common.createAuraFeatureComponent(fx_buff));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var azata = library.Get<BlueprintUnit>("d6fdf2d1776817b4bab5d4a43d9ea708");
+            var angel_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AngelEidolonUnit", "");
+            angel_unit.Color = azata.Color;
+
+            angel_unit.Visual = azata.Visual;
+            angel_unit.LocalizedName = azata.LocalizedName.CreateCopy();
+            angel_unit.LocalizedName.String = Helpers.CreateString(angel_unit.name + ".Name", "Angel Eidolon");
+
+            angel_unit.Alignment = Alignment.NeutralGood;
+            angel_unit.Strength = 16;
+            angel_unit.Dexterity = 12;
+            angel_unit.Constitution = 13;
+            angel_unit.Intelligence = 7;
+            angel_unit.Wisdom = 10;
+            angel_unit.Charisma = 11;
+            angel_unit.Speed = 30.Feet();
+            angel_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            angel_unit.Body = angel_unit.Body.CloneObject();
+            angel_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            angel_unit.Body.PrimaryHand = null;
+            angel_unit.Body.SecondaryHand = null;
+            angel_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            angel_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+            });
+            angel_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+            Helpers.SetField(angel_unit, "m_Portrait", Helpers.createPortrait("EidolonAngelProtrait", "Angel", ""));
+            angel_eidolon = Helpers.CreateProgression("AngelEidolonProgression",
+                                                        "Angel Eidolon",
+                                                        "Hailing from the higher planes, angel eidolons are creatures of exquisite beauty. They usually appear in idealized humanoid forms, with smooth skin, shining hair, and bright eyes. Angel eidolons are impeccably honorable, trustworthy, and diplomatic, but they do not shy away from confrontation when facing off against evil and its minions.",
+                                                        "",
+                                                        Helpers.GetIcon("75a10d5a635986641bfbcceceec87217"), //angelic aspect
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            angel_eidolon.IsClassFeature = true;
+            angel_eidolon.ReapplyOnLevelUp = true;
+            angel_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            angel_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            angel_eidolon.ReplaceComponent<AddPet>(a => a.Pet = angel_unit);
+            
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(angel_eidolon);
+        }
+
+
+        static void createFireElementalUnit()
         {
             var fx_buff = Helpers.CreateBuff("FireElementalEidolonFxBuff",
                                              "",
@@ -71,8 +371,6 @@ namespace CallOfTheWild
                                              null,
                                              Common.createPrefabLink("f5eaec10b715dbb46a78890db41fa6a0"));
             fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
-            var dryad = ResourcesLibrary.TryGetResource<UnitEntityView>("7cc1c50366f08814eb5a5e7c47c71a2a");
-            //var fire_elemental_view = UnityEngine.Object.Instantiate(dryad).GetComponent<UnitEntityView>();
 
             var fx_feature = Helpers.CreateFeature("FireElementalEidolonFxFeature",
                                                    "",
@@ -80,56 +378,214 @@ namespace CallOfTheWild
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.view = dryad),
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("7cc1c50366f08814eb5a5e7c47c71a2a")),
                                                    Common.createAuraFeatureComponent(fx_buff));
             fx_feature.HideInCharacterSheetAndLevelUp = true;
             fx_feature.HideInUI = true;
 
             var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
             var fire_elemental = library.Get<BlueprintUnit>("37b3eb7ca48264247b3247c732007aef");
-            fire_elemental_eidolon = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "FireElementalEidolonUnit", "");
-            fire_elemental_eidolon.Color = fire_elemental.Color;
+            var fire_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "FireElementalEidolonUnit", "");
+            fire_elemental_unit.Color = fire_elemental.Color;
+
+            fire_elemental_unit.Visual = fire_elemental.Visual;
+            fire_elemental_unit.LocalizedName = fire_elemental_unit.LocalizedName.CreateCopy();
+            fire_elemental_unit.LocalizedName.String = Helpers.CreateString(fire_elemental_unit.name + ".Name", "Elemental Eidolon (Fire)");
+
+            fire_elemental_unit.Strength = 16;
+            fire_elemental_unit.Dexterity = 12;
+            fire_elemental_unit.Constitution = 13;
+            fire_elemental_unit.Intelligence = 7;
+            fire_elemental_unit.Wisdom = 10;
+            fire_elemental_unit.Charisma = 11;
+            fire_elemental_unit.Speed = 30.Feet();
+            fire_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature}; // { natural_armor2, fx_feature };
+            fire_elemental_unit.Body = fire_elemental_unit.Body.CloneObject();
+            fire_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            fire_elemental_unit.Body.PrimaryHand = null;
+            fire_elemental_unit.Body.SecondaryHand = null;
+            fire_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            fire_elemental_unit.ReplaceComponent<AddClassLevels>(a => 
+                                                                { a.Archetypes = new BlueprintArchetype[0];
+                                                                    a.CharacterClass = eidolon_class;
+                                                                    a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                                                                    a.DoNotApplyAutomatically = true;
+                                                                });
+            fire_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
 
-            //var azata = ResourcesLibrary.TryGetResource<UnitEntityView>("f59e51021e055b1459b0260a76cc4e54");
-            //UnitViewMechanics.Helpers.maybeAddCharacter(azata);
+            Helpers.SetField(fire_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonFireElementalProtrait", "FireElemental", ""));
 
-            // var octavia = ResourcesLibrary.TryGetResource<UnitEntityView>("77db32ef997a1274485750825a17c1aa");
-
-            // GetCopyOf(dryad.gameObject.AddComponent<Character>(), octavia.GetComponentInChildren<Character>());
-
-            //fire_elemental_eidolon.Prefab = Common.createUnitViewLink("f59e51021e055b1459b0260a76cc4e54");
-            fire_elemental_eidolon.Visual = fire_elemental.Visual;
-            fire_elemental_eidolon.LocalizedName = fire_elemental_eidolon.LocalizedName.CreateCopy();
-            fire_elemental_eidolon.LocalizedName.String = Helpers.CreateString(fire_elemental_eidolon.name + ".Name", "Fire Elemental Eidolon");
-
-            fire_elemental_eidolon.Strength = 16;
-            fire_elemental_eidolon.Dexterity = 12;
-            fire_elemental_eidolon.Constitution = 13;
-            fire_elemental_eidolon.Intelligence = 7;
-            fire_elemental_eidolon.Wisdom = 10;
-            fire_elemental_eidolon.Charisma = 11;
-            fire_elemental_eidolon.Speed = 30.Feet();
-            fire_elemental_eidolon.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature}; // { natural_armor2, fx_feature };
-            fire_elemental_eidolon.Body = fire_elemental_eidolon.Body.CloneObject();
-            fire_elemental_eidolon.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
-            fire_elemental_eidolon.Body.PrimaryHand = null;
-            fire_elemental_eidolon.Body.SecondaryHand = null;
-            fire_elemental_eidolon.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
-            fire_elemental_eidolon.ReplaceComponent<AddClassLevels>(a => 
-                                                                    { a.Archetypes = new BlueprintArchetype[0];
-                                                                      a.CharacterClass = eidolon_class;
-                                                                      a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
-                                                                    });
-            fire_elemental_eidolon.AddComponents(Helpers.Create<EidolonComponent>());
+            fire_elemental_eidolon = Helpers.CreateProgression("FireElementalEidolonProgression",
+                                                        "Elemental Eidolon (Fire)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            fire_elemental_eidolon.IsClassFeature = true;
+            fire_elemental_eidolon.ReapplyOnLevelUp = true;
+            fire_elemental_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            fire_elemental_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            fire_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = fire_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fire_elemental_eidolon);
+        }
 
 
-            Helpers.SetField(fire_elemental_eidolon, "m_Portrait", Helpers.createPortrait("EidolonFireElementalProtrait", "FireElemental", ""));
+        static void createWaterElementalUnit()
+        {
+            var fx_buff = Helpers.CreateBuff("WaterElementalEidolonFxBuff",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             Common.createPrefabLink("191b45b04a55aef4fa8b0d63992dbb16"));
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
 
-            BlueprintFeature fire_elemental_eidolon_feature = library.CopyAndAdd<BlueprintFeature>("126712ef923ab204983d6f107629c895", "FireElementalEidolonProgression", "");
-            fire_elemental_eidolon_feature.ReplaceComponent<AddPet>(a => a.Pet = fire_elemental_eidolon);
-            fire_elemental_eidolon_feature.SetNameDescriptionIcon("Fire Elemental", "Test", Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"));
-            Hunter.hunter_animal_companion.AllFeatures = Hunter.hunter_animal_companion.AllFeatures.AddToArray(fire_elemental_eidolon_feature);
+            var fx_feature = Helpers.CreateFeature("WaterElementalEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("f5e1fc6f049cd55478fd31ace4d35ca1")),
+                                                   Common.createAuraFeatureComponent(fx_buff));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var water_elemental = library.Get<BlueprintUnit>("9922c4c5d1ec4cf409cf3b4742c90b51");
+            var water_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "WaterElementalEidolonUnit", "");
+            water_elemental_unit.Color = water_elemental.Color;
+
+            water_elemental_unit.Visual = water_elemental.Visual;
+            water_elemental_unit.LocalizedName = water_elemental_unit.LocalizedName.CreateCopy();
+            water_elemental_unit.LocalizedName.String = Helpers.CreateString(water_elemental_unit.name + ".Name", "Elemental Eidolon (Water)");
+
+            water_elemental_unit.Strength = 16;
+            water_elemental_unit.Dexterity = 12;
+            water_elemental_unit.Constitution = 13;
+            water_elemental_unit.Intelligence = 7;
+            water_elemental_unit.Wisdom = 10;
+            water_elemental_unit.Charisma = 11;
+            water_elemental_unit.Speed = 30.Feet();
+            water_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            water_elemental_unit.Body = water_elemental_unit.Body.CloneObject();
+            water_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            water_elemental_unit.Body.PrimaryHand = null;
+            water_elemental_unit.Body.SecondaryHand = null;
+            water_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            water_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+            });
+            water_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(water_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonWaterElementalProtrait", "WaterElemental", ""));
+
+            water_elemental_eidolon = Helpers.CreateProgression("WaterElementalEidolonProgression",
+                                                        "Elemental Eidolon (Water)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            water_elemental_eidolon.IsClassFeature = true;
+            water_elemental_eidolon.ReapplyOnLevelUp = true;
+            water_elemental_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            water_elemental_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            water_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = water_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(water_elemental_eidolon);
+        }
+
+
+        static void createAirElementalUnit()
+        {
+            var fx_buff = Helpers.CreateBuff("AirElementalEidolonFxBuff",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             Common.createPrefabLink("6dc97e33e73b5ec49bd03b90c2345d7f"));
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+
+            var fx_feature = Helpers.CreateFeature("AirElementalEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("f5e1fc6f049cd55478fd31ace4d35ca1")),
+                                                   Common.createAuraFeatureComponent(fx_buff));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var air_elemental = library.Get<BlueprintUnit>("f739047597b7a2849b14def122e1ee0d");
+            var air_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AirElementalEidolonUnit", "");
+            air_elemental_unit.Color = air_elemental.Color;
+
+            air_elemental_unit.Visual = air_elemental.Visual;
+            air_elemental_unit.LocalizedName = air_elemental_unit.LocalizedName.CreateCopy();
+            air_elemental_unit.LocalizedName.String = Helpers.CreateString(air_elemental_unit.name + ".Name", "Elemental Eidolon (Air)");
+
+            air_elemental_unit.Strength = 16;
+            air_elemental_unit.Dexterity = 12;
+            air_elemental_unit.Constitution = 13;
+            air_elemental_unit.Intelligence = 7;
+            air_elemental_unit.Wisdom = 10;
+            air_elemental_unit.Charisma = 11;
+            air_elemental_unit.Speed = 30.Feet();
+            air_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            air_elemental_unit.Body = air_elemental_unit.Body.CloneObject();
+            air_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            air_elemental_unit.Body.PrimaryHand = null;
+            air_elemental_unit.Body.SecondaryHand = null;
+            air_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            air_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+            });
+            air_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(air_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonAirElementalProtrait", "AirElemental", ""));
+
+            air_elemental_eidolon = Helpers.CreateProgression("AirElementalEidolonProgression",
+                                                        "Elemental Eidolon (Air)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            air_elemental_eidolon.IsClassFeature = true;
+            air_elemental_eidolon.ReapplyOnLevelUp = true;
+            air_elemental_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            air_elemental_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            air_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = air_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(air_elemental_eidolon);
         }
 
 
@@ -151,7 +607,7 @@ namespace CallOfTheWild
                 + "The eidolon’s physical appearance is up to the summoner, but it always appears as some sort of fantastical creature appropriate to its subtype. This control is not fine enough to make the eidolon appear like a specific creature."
                 );
             eidolon_class.m_Icon = druid_class.Icon;
-            eidolon_class.SkillPoints = druid_class.SkillPoints;
+            eidolon_class.SkillPoints = druid_class.SkillPoints + 1;
             eidolon_class.HitDie = DiceType.D10;
             eidolon_class.BaseAttackBonus = fighter_class.BaseAttackBonus;
             eidolon_class.FortitudeSave = druid_class.ReflexSave;
@@ -174,7 +630,8 @@ namespace CallOfTheWild
             createEidolonProgression();
             eidolon_class.Progression = eidolon_progression;
 
-            eidolon_class.Archetypes = new BlueprintArchetype[] {};
+            createFeyEidolonArchetype();
+            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype};
             Helpers.RegisterClass(eidolon_class);
         }
 
@@ -242,32 +699,41 @@ namespace CallOfTheWild
 
         public class EidolonComponent : BlueprintComponent
         {
+            public static readonly int[] rank_to_level = new int[21]
+                                                        {
+                                                            0,
+                                                            1,
+                                                            2,
+                                                            3,
+                                                            3,
+                                                            4,
+                                                            5,
+                                                            6,
+                                                            6,
+                                                            7,
+                                                            8,
+                                                            9,
+                                                            9,
+                                                            10,
+                                                            11,
+                                                            12,
+                                                            12,
+                                                            13,
+                                                            14,
+                                                            15,
+                                                            15,
+                                                        };
 
-        }
-        public static T GetCopyOf<T>(Component comp, T other) where T : Component
-        {
-            Type type = comp.GetType();
-            if (type != other.GetType()) return null; // type mis-match
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
-            /*PropertyInfo[] pinfos = type.GetProperties(flags);
-            foreach (var pinfo in pinfos)
+            public int getEidolonLevel(AddPet add_pet_component)
             {
-                if (pinfo.CanWrite)
-                {
-                    try
-                    {
-                        pinfo.SetValue(comp, pinfo.GetValue(other, null), null);
-                    }
-                    catch { } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
-                }
-            }*/
-            FieldInfo[] finfos = type.GetFields(flags);
-            foreach (var finfo in finfos)
-            {
-                finfo.SetValue(comp, finfo.GetValue(other));
+                if (add_pet_component.LevelRank == null)
+                    return 1;
+                int? rank = add_pet_component.Owner.GetFact(add_pet_component.LevelRank)?.GetRank();
+                int index = Mathf.Min(20, !rank.HasValue ? 0 : rank.Value);
+                return EidolonComponent.rank_to_level[index];
             }
-            return comp as T;
         }
+
     }
 
 

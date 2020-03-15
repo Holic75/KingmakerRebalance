@@ -73,11 +73,20 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
             if (__instance.SpawnedPet == null)
                 return false;
             AddClassLevels component = __instance.SpawnedPet.Blueprint.GetComponent<AddClassLevels>();
-            if (!(bool)((UnityEngine.Object)component))
+            if (component == null)
                 return false;
-            var tr = Harmony12.Traverse.Create(__instance);
 
-            int pet_level = tr.Method("GetPetLevel").GetValue<int>();
+            int pet_level = 0;
+            var eidolon = __instance.SpawnedPet.Blueprint.GetComponent<Eidolon.EidolonComponent>();
+            if (eidolon == null)
+            {
+                var tr = Harmony12.Traverse.Create(__instance);
+                pet_level = tr.Method("GetPetLevel").GetValue<int>();
+            }
+            else
+            {
+                pet_level = eidolon.getEidolonLevel(__instance);
+            }
             //Main.logger.Log("Pet level: " + __instance.SpawnedPet.Descriptor.Progression.CharacterLevel.ToString());
             //Main.logger.Log("Should be: " + pet_level.ToString());
 
@@ -90,8 +99,13 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                 var exp = Game.Instance.BlueprintRoot.Progression.XPTable.GetBonus(pet_level);
                 Harmony12.Traverse.Create(__instance.SpawnedPet.Descriptor.Progression).Property("Experience").SetValue(exp);
                 EventBus.RaiseEvent<IUnitGainExperienceHandler>((Action<IUnitGainExperienceHandler>)(h => h.HandleUnitGainExperience(__instance.SpawnedPet.Descriptor, exp)));
+                //Main.logger.Log("Pet level now: " + __instance.SpawnedPet.Descriptor.Progression.CharacterLevel.ToString());
             }
-                              
+            
+            if (eidolon != null)
+            {//no upgrade for eidolon, since they are performed through summoner
+                return false;
+            }
             int? rank = __instance.Owner.GetFact((BlueprintUnitFact)__instance.LevelRank)?.GetRank();
             if (Mathf.Min(20, !rank.HasValue ? 0 : rank.Value) < __instance.UpgradeLevel)
                 return false;

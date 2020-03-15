@@ -55,6 +55,9 @@ namespace CallOfTheWild
         static public BlueprintProgression summoner_progression;
         static public BlueprintFeature summoner_proficiencies;
         static public BlueprintFeature summoner_cantrips;
+        static public BlueprintFeatureSelection eidolon_selection;
+        static List<BlueprintFeature> evolution_distribution = new List<BlueprintFeature>();
+
 
         internal static void createSummonerClass()
         {
@@ -118,7 +121,7 @@ namespace CallOfTheWild
         {
             createSummonerProficiencies();
             createSummonerCantrips();
-            //createEidolon();
+            createEidolon();
             //createLifeLink();
             //createSummonMonster();
             //createShieldAllyAndGreaterSheildAlly();
@@ -140,9 +143,9 @@ namespace CallOfTheWild
                                                               FeatureGroup.None);
             summoner_progression.Classes = getSummonerArray();
 
-            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips,
+            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips, eidolon_selection,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
-                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
+                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature};                                                                                       
                                                                     Helpers.LevelEntry(2),
                                                                     Helpers.LevelEntry(3),
                                                                     Helpers.LevelEntry(4),
@@ -163,13 +166,58 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(19),
                                                                     Helpers.LevelEntry(20)
                                                                     };
+            for (int i = 0; i < 20; i++)
+            {
+                summoner_progression.LevelEntries[i].Features.Add(evolution_distribution[i]);
+            }
 
-            summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips };
+            summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips, eidolon_selection };
             /*summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(),
                                                                 Helpers.CreateUIGroup(),
                                                                 Helpers.CreateUIGroup(),
                                                                 Helpers.CreateUIGroup()
                                                            };*/
+        }
+
+
+        static void createEidolon()
+        {
+            var summoner_eidolon_rank_progression = library.CopyAndAdd<BlueprintProgression>("125af359f8bc9a145968b5d8fd8159b8", "SummonerEidolonProgression", "");
+            summoner_eidolon_rank_progression.Classes = getSummonerArray();
+            eidolon_selection = Helpers.CreateFeatureSelection("EidolonFeatureSelection",
+                                                                  "Eidolon",
+                                                                  "A summoner begins play with the ability to summon to his side a powerful outsider called an eidolon. The eidolon forms a link with the summoner, who forever after summons an aspect of the same creature. Each eidolon has a subtype, chosen when the eidolon is first summoned, that determines its origin and many of its abilities. An eidolon must be within one alignment step of the summoner who calls it (so a neutral good summoner can call a neutral, lawful good, or chaotic good eidolon) and can speak all of his languages. An eidolon is treated as a summoned creature, except it is not sent back to its home plane until reduced to a number of negative hit points equal to or greater than its Constitution score. In addition, due to its tie to its summoner, an eidolon can touch and attack creatures warded by protection from evil and similar effects that prevent contact with summoned creatures.\n"
+                                                                  + "The eidolon takes a form shaped by the summoner’s desires. The eidolon’s Hit Dice, saving throws, skills, feats, and abilities are tied to the summoner’s class level and increase as the summoner gains levels. In addition, each eidolon gains a pool of evolution points based on the summoner’s class level that can be used to give the eidolon different abilities and powers. Whenever the summoner gains a level, he must decide how these points are spent, and they are set until he gains another level of summoner.\n"
+                                                                  + "The eidolon’s physical appearance is up to the summoner, but it always appears as some sort of fantastical creature appropriate to its subtype. This control is not fine enough to make the eidolon appear like a specific creature.",
+                                                                  "",
+                                                                  null,
+                                                                  FeatureGroup.AnimalCompanion,
+                                                                  Helpers.Create<AddFeatureOnApply>(a => a.Feature = summoner_eidolon_rank_progression),
+                                                                  Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d"))
+                                                                  );
+            eidolon_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
+            Eidolon.create();
+            for (int lvl = 1; lvl <= 20; lvl++)
+            {
+                var feature = Helpers.CreateFeature($"SummonerEvolutionDistribution{lvl}Feature",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None);
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
+                int bonus_ep = Eidolon.EidolonComponent.rank_to_level[lvl] - Eidolon.EidolonComponent.rank_to_level[lvl - 1];
+                if (bonus_ep > 0)
+                {
+                    feature.AddComponent(Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(n => n.amount = bonus_ep));
+                }
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.evolution_selection));
+
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+
+                evolution_distribution.Add(feature);
+            }
         }
 
 

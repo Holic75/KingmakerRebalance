@@ -90,7 +90,7 @@ namespace CallOfTheWild.UnitViewMechanics
             var replace_view = unit_entity_data.Descriptor?.Get<UnitPartViewReplacement>()?.buff?.Blueprint.GetComponent<ReplaceUnitView>();
             if (replace_view != null)
             {
-                Helpers.TryReplaceView(unit_entity_data.Descriptor, replace_view.view);
+                Helpers.TryReplaceView(unit_entity_data.Descriptor, replace_view.prefab);
             }
         }
     }
@@ -104,12 +104,12 @@ namespace CallOfTheWild.UnitViewMechanics
 
     public class ReplaceUnitView : OwnedGameLogicComponent<UnitDescriptor>
     {
-        public UnitEntityView view;
+        public UnitViewLink prefab;
 
         public override void OnFactActivate()
         {
             this.Owner.Ensure<UnitPartViewReplacement>().buff = this.Fact;
-            Helpers.TryReplaceView(this.Owner, view);
+            Helpers.TryReplaceView(this.Owner, prefab);
         }
     }
 
@@ -117,18 +117,18 @@ namespace CallOfTheWild.UnitViewMechanics
 
     class Helpers
     {
-        static public UnitEntityView TryReplaceView(UnitDescriptor Owner, UnitEntityView unitEntityView)
+        static public void TryReplaceView(UnitDescriptor Owner, UnitViewLink Prefab)
         {
             if (!Owner.Unit.View)
             {
-                Main.logger.Log("No View");
-                return null;
+                Main.DebugLog("No View");
+                return;
             }
-            //UnitEntityView unitEntityView = Prefab.Load(true);
+            UnitEntityView unitEntityView = Prefab.Load(true);
             if (unitEntityView == null)
             {
-                Main.logger.Log("Could not load prefab");
-                return null;
+                Main.DebugLog("Could not load prefab");
+                return;
             }
             foreach (Buff buff in Owner.Buffs)
             {
@@ -140,7 +140,7 @@ namespace CallOfTheWild.UnitViewMechanics
             newView.transform.SetParent(oldView.transform.parent, false);
             newView.transform.position = oldView.transform.position;
             newView.transform.rotation = oldView.transform.rotation;
-            newView.DisableSizeScaling = true;
+            newView.DisableSizeScaling = false;
             newView.Blueprint = Owner.Blueprint;
             var character = newView.GetComponent<Character>();
             if (character == null)
@@ -158,9 +158,7 @@ namespace CallOfTheWild.UnitViewMechanics
             {
                 selectionManager.ForceCreateMarks();
             }
-
             UnityEngine.Object.Destroy(oldView.gameObject);
-            return newView;
         }
 
 

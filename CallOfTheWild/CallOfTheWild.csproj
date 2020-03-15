@@ -198,6 +198,7 @@
     <Compile Include="NewMechanics\EvolutionMechanics.cs" />
     <Compile Include="NewMechanics\LevelUpMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
+    <Compile Include="NewMechanics\SizeMechanics.cs" />
     <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
     <Compile Include="NewMechanics\StatReplacementMechanics.cs" />
     <Compile Include="NewMechanics\TImeStopMechanics.cs" />
