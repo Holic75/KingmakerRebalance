@@ -45,6 +45,12 @@ namespace CallOfTheWild.UnitViewMechanics
                 //Copy BakedCharacter
                 character.BakedCharacter = originalAvatar.BakedCharacter;                
                 character.CopyEquipmentFrom(originalAvatar);
+
+                var inventory_scale = __instance?.Unit?.Blueprint?.GetComponent<ChangeUnitScaleForInventory>();
+                if (inventory_scale != null)
+                {
+                    character.transform.localScale = originalAvatar.transform.localScale * inventory_scale.scale_factor;
+                }
                 character.Start();
                 character.Animator.gameObject.AddComponent<UnitAnimationCallbackReceiver>();
                 character.Animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
@@ -111,6 +117,13 @@ namespace CallOfTheWild.UnitViewMechanics
             this.Owner.Ensure<UnitPartViewReplacement>().buff = this.Fact;
             Helpers.TryReplaceView(this.Owner, prefab);
         }
+    }
+
+
+    public class ChangeUnitScaleForInventory : BlueprintComponent
+    {
+        public float scale_factor;
+
     }
 
 
