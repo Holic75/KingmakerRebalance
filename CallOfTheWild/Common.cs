@@ -1284,6 +1284,32 @@ namespace CallOfTheWild
         }
 
 
+        static public AuraFeatureComponent createAuraEffectFeatureComponentCustom( BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        {
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", buff.name + "AreaEffect", "");
+            area_effect.Size = radius;
+            area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = conditions; });
+
+            var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "Area" + buff.name, "");
+            return Common.createAuraFeatureComponent(area_buff);
+        }
+
+
+        static public BlueprintFeature createAuraEffectFeature(string display_name, string description, UnityEngine.Sprite icon, BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        {
+            var aura_feature_component = createAuraEffectFeatureComponentCustom(buff, radius, conditions);
+            var feature = Helpers.CreateFeature(buff.name + "Feature",
+                                                 display_name,
+                                                 description,
+                                                 "",
+                                                 icon,
+                                                 FeatureGroup.None,
+                                                 aura_feature_component
+                                                 );
+            return feature;
+        }
+
+
         static public Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();

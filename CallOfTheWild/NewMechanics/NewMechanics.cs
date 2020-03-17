@@ -2219,6 +2219,21 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextConditionIsMaster : ContextCondition
+        {
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                return (this.Target?.Unit == this.Context?.MaybeCaster?.Descriptor?.Master.Value);
+            }
+        }
+
+
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddFeatureIfKnownSpellAquired : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber

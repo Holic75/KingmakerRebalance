@@ -32,6 +32,7 @@ namespace CallOfTheWild
             InvestigatorStudiedCombat,
             InvestigatorStudiedStrike,
             EidolonEvolution,
+            EidolonLifeLink,
         }
 
         public static partial class Extensions

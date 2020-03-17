@@ -204,7 +204,7 @@ namespace CallOfTheWild.EvolutionMechanics
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class AddFakeEvolution : OwnedGameLogicComponent<UnitDescriptor>
     {
-        BlueprintFeature Feature;
+        public BlueprintFeature Feature;
         public override void OnFactActivate()
         {
             this.Owner.Ensure<UnitPartEvolution>().addPermanentEvolution(Feature);

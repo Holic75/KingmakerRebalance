@@ -97,11 +97,10 @@ namespace CallOfTheWild
             public BlueprintFeature[] subtypes;
             public int cost;
             public int summoner_level;
-            public int upgrade_level;
-            public bool is_final;
-            public int upgrade_cost;
             public string group;
-
+            public bool has_upgrade;
+            public int upgrade_cost;
+            public BlueprintFeature[] base_evolutions;
             public BlueprintFeature evolution;
             public BlueprintFeature permanent_evolution;
             public BlueprintFeature selection_feature;
@@ -109,9 +108,8 @@ namespace CallOfTheWild
 
 
             public EvolutionEntry(BlueprintFeature evolution_feature, int evolution_cost, int min_level, BlueprintFeature[] required_evolution_features,
-                                  BlueprintFeature[] conflicting_evolution_features, BlueprintFeature[] authorised_subtypes,
-                                  int next_level_cost = 0, string evolution_group = "", int next_level = 0
-                                  )
+                                  BlueprintFeature[] conflicting_evolution_features, BlueprintFeature[] authorised_subtypes, string evolution_group = "",
+                                  bool upgradeable = false, int next_level_total_cost = 0, BlueprintFeature[] previous_evolutions = null)
             {
                 evolution = evolution_feature;
                 cost = evolution_cost;
@@ -119,9 +117,9 @@ namespace CallOfTheWild
                 conflicting_evolutions = conflicting_evolution_features;
                 required_evolutions = required_evolution_features;
                 subtypes = authorised_subtypes;
-                is_final = next_level_cost == 0;
-                upgrade_cost = next_level_cost;
-                upgrade_level = next_level;
+                has_upgrade = upgradeable;
+                upgrade_cost = next_level_total_cost;
+                base_evolutions = previous_evolutions ?? new BlueprintFeature[0];
                 group = evolution_group;
 
                 selection_feature = Helpers.CreateFeature("Select" + evolution.name,
@@ -160,14 +158,18 @@ namespace CallOfTheWild
                                                           evolution.Icon,
                                                           FeatureGroup.None,
                                                           Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => {a.Feature = evolution; }));
-
+              
                 buff = Helpers.CreateBuff(evolution.name +"Buff",
                                             "",
                                             "",
                                             "",
                                             evolution.Icon,
                                             null,
-                                            Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = cost; a.Feature = evolution; }));
+                                            Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = 0; a.Feature = evolution; }));
+                foreach (var be in base_evolutions)
+                {
+                    buff.AddComponent(Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = 0; a.Feature = be; }));
+                }
             }
         }
 
@@ -196,8 +198,7 @@ namespace CallOfTheWild
             var fx = Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Common.createContextActionSpawnFx(Common.createPrefabLink("352469f228a3b1f4cb269c7ab0409b8e"))));
             foreach (var ee in evolution_entries)
             {
-                if (ee.cost <= max_cost 
-                    && (ee.is_final || ee.upgrade_cost > max_cost || ee.upgrade_level != 0))
+                if (ee.cost <= max_cost && (!ee.has_upgrade || ee.upgrade_cost > max_cost))
                 {
                    var apply_buff = Common.createContextActionApplyBuffToCaster(ee.buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
                                                                                  dispellable: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike);
@@ -222,20 +223,21 @@ namespace CallOfTheWild
                     {
                         ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityShowIfHasEvolution>(a => {a.evolution = e; a.not = true; }));
                     }
+                    if (ee.base_evolutions.Length > 0)
+                    {
+                        ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityShowIfHasEvolution>(a => { a.evolution = ee.base_evolutions[0]; a.not = true; }));
+                    }
                     ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityShowIfHasEvolution>(a => { a.evolution = ee.evolution; a.not = true; }));
                     if (!ee.subtypes.Empty())
                     {
                         ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfCasterHasFactsFromList>(a => a.UnitFacts = ee.subtypes));
                     }
-                    if (ee.summoner_level > 0 || (ee.upgrade_level > 0 && ee.upgrade_cost <= max_cost))
-                    {
-                        ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfHasFeatureRank>(a =>
+                    ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfHasFeatureRank>(a =>
                                                                                                       {
                                                                                                           a.Feature = summoner_rank;
                                                                                                           a.min_value = ee.summoner_level;
-                                                                                                          a.max_value = (ee.upgrade_level > 0 && ee.upgrade_cost <= max_cost) ? ee.upgrade_level : 1000;
+                                                                                                          a.max_value = 1000;
                                                                                                       }));
-                    }
                     ability.setMiscAbilityParametersSelfOnly();
                     ability.AddComponent(Helpers.Create<SharedSpells.CannotBeShared>());
                     if (ability_type == AbilityType.Spell)
@@ -362,10 +364,9 @@ namespace CallOfTheWild
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
                 bool is_last = (i + 1) == improved_natural_armor.Length;
-                evolution_entries.Add(new EvolutionEntry(improved_natural_armor[i], i + 1,  i * 5, new BlueprintFeature[0],
-                                                         improved_natural_armor.RemoveFromArray(improved_natural_armor[i]), new BlueprintFeature[0],
-                                                         next_level_cost: is_last ? 0 : i + 2, evolution_group: "Improved Natural Armor",
-                                                         next_level: is_last ? 0 : (i + 1) * 5)
+                evolution_entries.Add(new EvolutionEntry(improved_natural_armor[i], 1,  i * 5, improved_natural_armor.Take(i).ToArray(),
+                                                         new BlueprintFeature[0], new BlueprintFeature[0], evolution_group: "Improved Natural Armor"
+                                                         )
                                                          );
             }
 
@@ -388,24 +389,14 @@ namespace CallOfTheWild
 
             for (int i = 0; i < ability_increase.Length; i++)
             {
-                bool is_last = (i + 1) == ability_increase.Length;
                 for (int j = 0; j < ability_increase[i].Length; j++)
                 {
-                    var same_ability_increase = new List<BlueprintFeature>(); ;
-                    for (int k = 0; k < ability_increase.Length; k++)
-                    {
-                        if (k != i)
-                        {
-                            same_ability_increase.Add(ability_increase[k][j]);
-                        }
-                    }
-
-                    evolution_entries.Add(new EvolutionEntry(ability_increase[i][j], 2*(i + 1), i * 6, new BlueprintFeature[0],
-                                                             same_ability_increase.ToArray(), 
+                    evolution_entries.Add(new EvolutionEntry(ability_increase[i][j], 2, j * 6, ability_increase[i].Take(j).ToArray(),
+                                                             new BlueprintFeature[0], 
                                                              new BlueprintFeature[0],
-                                                             next_level_cost: is_last ? 0 : 2*(i + 2), evolution_group: "Ability Increase",
-                                                             next_level: is_last ? 0 : (i + 1) * 6)
-                                                             );
+                                                             evolution_group: "Ability Increase"
+                                                             )
+                                         );
                 }
             }
 
@@ -435,11 +426,13 @@ namespace CallOfTheWild
 
             for (int i = 0; i < weapon_training.Length; i++)
             {
-                bool is_last = (i + 1) == weapon_training.Length;
-                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2*(i+1), 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[] { eidolon },
+                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], new BlueprintFeature[] { eidolon },
                                                          evolution_group: "Weapon Training",
-                                                         next_level_cost: is_last ? 0 : 2 * (i + 2))
-                                                         );
+                                                         upgradeable: i + 1 != weapon_training.Length,
+                                                         next_level_total_cost: 4 + i*2,
+                                                         previous_evolutions: weapon_training.Take(i).ToArray()
+                                                         )
+                                     );
             }
 
             evolution_entries.Add(new EvolutionEntry(blindsense, 3, 9, new BlueprintFeature[0], new BlueprintFeature[0],
@@ -457,32 +450,42 @@ namespace CallOfTheWild
             for (int i = 0; i < fast_healing.Length; i++)
             {
                 bool is_last = (i + 1) == fast_healing.Length;
-                evolution_entries.Add(new EvolutionEntry(fast_healing[i], 4 + 2*i, 11, new BlueprintFeature[0], fast_healing.RemoveFromArray(fast_healing[i]), new BlueprintFeature[0],
+                evolution_entries.Add(new EvolutionEntry(fast_healing[i], i == 0 ? 4 : 2, 11, fast_healing.Take(i).ToArray(), new BlueprintFeature[0], new BlueprintFeature[0],
                                                          evolution_group: "Fast Healing",
-                                                         next_level: 0,
-                                                         next_level_cost: is_last ? 0 : 6 + 2*i)
-                                                         );
+                                                         upgradeable: i + 1 != fast_healing.Length,
+                                                         next_level_total_cost: 6 + 2 * i,
+                                                         previous_evolutions: fast_healing.Take(i).ToArray()
+                                                         )
+                                     );
             }
 
-            evolution_entries.Add(new EvolutionEntry(size_increase[0], 4, 8, new BlueprintFeature[0], new BlueprintFeature[] { size_increase[1] },
-                                                     new BlueprintFeature[] { eidolon }));
-            evolution_entries.Add(new EvolutionEntry(size_increase[1], 10, 13, new BlueprintFeature[0], new BlueprintFeature[] { size_increase[0] },
-                                                     new BlueprintFeature[] { eidolon }));
+            evolution_entries.Add(new EvolutionEntry(size_increase[0], 4, 8, new BlueprintFeature[0], new BlueprintFeature[0],
+                                                     new BlueprintFeature[] { eidolon }, 
+                                                     upgradeable: true,
+                                                     next_level_total_cost: 10
+                                                     ));
+            evolution_entries.Add(new EvolutionEntry(size_increase[1], 6, 13, new BlueprintFeature[] { size_increase[0] }, new BlueprintFeature[0],
+                                                     new BlueprintFeature[] { eidolon },
+                                                     previous_evolutions: new BlueprintFeature[] { size_increase[0] }));
 
-            var breath_weapon_flat = new BlueprintFeature[0];
-            foreach (var bw in breath_weapon)
+
+            var bw1 = new BlueprintFeature[breath_weapon.Length];
+            for (int i = 0; i < breath_weapon.Length; i++)
             {
-                breath_weapon_flat = breath_weapon_flat.AddToArray(bw);
+                bw1[i] = breath_weapon[i][0];
             }
             for (int i = 0; i < breath_weapon.Length; i++)
             {
-                bool is_last = (i + 1) == ability_increase.Length;
-                for (int j = 0; j < ability_increase[i].Length; j++)
+                for (int j = 0; j < breath_weapon[i].Length; j++)
                 {
-                    evolution_entries.Add(new EvolutionEntry(breath_weapon[i][j], 4 + i, 9, new BlueprintFeature[0],
-                                                             breath_weapon_flat.RemoveFromArray(breath_weapon[i][j]),
+                    evolution_entries.Add(new EvolutionEntry(breath_weapon[i][j], j == 0 ? 4 : 1, 9, breath_weapon[i].Take(i).ToArray(),
+                                                             bw1.RemoveFromArray(breath_weapon[i][0]),
                                                              new BlueprintFeature[0],
-                                                             next_level_cost: is_last ? 0 : 5 + i, evolution_group: "Breath Weapon")
+                                                             evolution_group: "Breath Weapon",
+                                                             upgradeable: i + 1 != breath_weapon[i].Length,
+                                                             next_level_total_cost: 5 + i,
+                                                             previous_evolutions: breath_weapon[i].Take(i).ToArray()
+                                                             )
                                                              );
                 }
             }
@@ -600,10 +603,13 @@ namespace CallOfTheWild
                                                                    "The eidolon’s hide grows thick fur, rigid scales, or bony plates, giving it a +2 bonus to its natural armor. For every 5 levels the summoner possesses, summoner can spend 2 additional evolution points to increase armor bonus by 2.",
                                                                    "",
                                                                    icon,
-                                                                   FeatureGroup.None,
-                                                                   Helpers.CreateAddStatBonus(StatType.AC, 2 * (i + 1), ModifierDescriptor.NaturalArmor)
+                                                                   FeatureGroup.None
                                                                    );                                                                  
             }
+            improved_natural_armor[0].AddComponents(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
+                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, featureList: improved_natural_armor),
+                                                    Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = improved_natural_armor)
+                                                    );
         }
 
 
@@ -696,22 +702,27 @@ namespace CallOfTheWild
                                           "f0455c9295b53904f9e02fc571dd2ce1", "446f7bf201dc1934f96ac0a26e324803"};
             var stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution, StatType.Intelligence, StatType.Wisdom, StatType.Charisma };
 
-            ability_increase = new BlueprintFeature[4][];
-            for (int i = 0; i < 4; i++)
+            ability_increase = new BlueprintFeature[stats.Length][];
+            for (int j = 0; j < stats.Length; j++)
             {
-                int bonus = (i + 1) * 2;
-                ability_increase[i] = new BlueprintFeature[stats.Length];
-                for (int j = 0; j < stats.Length; j++)
+                
+                ability_increase[j] = new BlueprintFeature[4];
+                for (int i = 0; i < 4; i++)
                 {
-                    ability_increase[i][j] = Helpers.CreateFeature(stats[j].ToString() + bonus.ToString() + "AbilityIncreaseFeature",
-                                                                   "Ability Increase: " + stats[j].ToString() + $" (+{bonus})",
+                    int bonus = (i + 1) * 2;
+                    ability_increase[j][i] = Helpers.CreateFeature(stats[j].ToString() + bonus.ToString() + "AbilityIncreaseFeature",
+                                                                   "Ability Increase: " + stats[j].ToString() + $" ({Common.roman_id[i+1]})",
                                                                    "The eidolon grows larger muscles, gains faster reflexes, achieves greater intelligence, or acquires another increase to one of its abilities. Increase one of the eidolon’s ability scores by 2. This evolution can be selected more than once. It can be applied only once to an individual ability score. For every 6 levels summoner can spend 2 additional evolutions points to increase bonus by 2.",
                                                                    "",
                                                                    Helpers.GetIcon(icon_ids[j]),
-                                                                   FeatureGroup.None,
-                                                                   Helpers.CreateAddStatBonus(stats[j], (i + 1) * 2, ModifierDescriptor.Inherent)
+                                                                   FeatureGroup.None
                                                                    );
                 }
+                ability_increase[j][0].AddComponents(Helpers.CreateAddContextStatBonus(stats[j], ModifierDescriptor.Inherent, multiplier: 2),
+                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                   featureList: ability_increase[j]),
+                                                     Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[j])
+                                                    );
             }
         }
 
@@ -824,7 +835,7 @@ namespace CallOfTheWild
                                          "",
                                          martial_wp.Icon,
                                          FeatureGroup.None,
-                                         Helpers.CreateAddFacts(simple_wp, martial_wp)
+                                         Helpers.CreateAddFacts(martial_wp)
                                          );
         }
 
@@ -895,27 +906,27 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("4093d5a0eb5cae94e909eb1e0e1a6b36"); //remove disiease
 
             fast_healing = new BlueprintFeature[5];
+            var buff = Helpers.CreateBuff("FastHealingEvolutionBuff",
+                                        "Fast Healing",
+                                        "The eidolon’s body gains the ability to heal wounds very quickly, giving it fast healing 1. The eidolon heals 1 point of damage per round, just like via natural healing. Fast healing does not restore hit points lost due to starvation, thirst, or suffocation, nor does it allow the eidolon to regrow lost body parts (or to reattach severed parts). Fast healing functions as long as the eidolon is alive. This fast healing does not function when the eidolon is not on the same plane as its summoner. This healing can be increased by 1 point per round for every 2 additional evolution points spent (to a maximum of 5 points per round).",
+                                        "",
+                                        icon,
+                                        null,
+                                        Common.createAddContextEffectFastHealing(Helpers.CreateContextValue(AbilityRankType.Default))
+                                        );
 
             for (int i = 0; i < fast_healing.Length; i++)
             {
-                var buff = Helpers.CreateBuff($"FastHealing{i+1}EvolutionBuff",
-                                                "Fast Healing " + Common.roman_id[i + 1],
-                                                "The eidolon’s body gains the ability to heal wounds very quickly, giving it fast healing 1. The eidolon heals 1 point of damage per round, just like via natural healing. Fast healing does not restore hit points lost due to starvation, thirst, or suffocation, nor does it allow the eidolon to regrow lost body parts (or to reattach severed parts). Fast healing functions as long as the eidolon is alive. This fast healing does not function when the eidolon is not on the same plane as its summoner. This healing can be increased by 1 point per round for every 2 additional evolution points spent (to a maximum of 5 points per round).",
-                                                "",
-                                                icon,
-                                                null,
-                                                Common.createAddContextEffectFastHealing(i + 1)
-                                                );
-
                 fast_healing[i] = Helpers.CreateFeature($"FastHealing{i + 1}EvolutionFeature",
-                                                                            buff.Name,
-                                                                            buff.Description,
-                                                                            "",
-                                                                            icon,
-                                                                            FeatureGroup.None,
-                                                                            Common.createAuraFeatureComponent(buff)
-                                                                            );
+                                                        "Fast Healing " + Common.roman_id[i+1],
+                                                        buff.Description,
+                                                        "",
+                                                        icon,
+                                                        FeatureGroup.None
+                                                        );
             }
+            fast_healing[0].AddComponent(Common.createAuraFeatureComponent(buff));
+            buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, featureList: fast_healing));
         }
 
 
@@ -948,8 +959,8 @@ namespace CallOfTheWild
                                                      Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                      FeatureGroup.None,
                                                      Common.createChangeUnitSize(Size.Large),
-                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
-                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Size),
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Other),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Other),
                                                      Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
                                                      Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Other)
                                                      );
@@ -960,10 +971,10 @@ namespace CallOfTheWild
                                                      Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                      FeatureGroup.None,
                                                      Common.createChangeUnitSize(Size.Huge),
-                                                     Helpers.CreateAddStatBonus(StatType.Strength, 8, ModifierDescriptor.Size),
-                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 4, ModifierDescriptor.Size),
-                                                     Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.NaturalArmor),
-                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.Other)
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Other),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Other),
+                                                     Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
+                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Other)
                                                      );
         }
 
@@ -982,13 +993,11 @@ namespace CallOfTheWild
             dragon_info.Add(("Silver", "30-foot Cone", "Cold"));
             var description = "The eidolon learns to exhale a cone or line of magical energy, gaining a breath weapon. Select acid, cold, electricity, or fire. The eidolon can breathe a 30-foot cone (or 60-foot line) that deals 1d6 points of damage of the selected type per Hit Dice it possesses. Those caught in the breath weapon can attempt a Reflex save for half damage. The DC is equal to 10 + 1/2 the eidolon’s Hit Dice + the eidolon’s Constitution modifier. The eidolon can use this ability once per day. The eidolon can gain additional uses of this ability per day by spending 1 evolution point per additional use (to a maximum of three total uses per day).";
 
-            breath_weapon = new BlueprintFeature[3][];
-            breath_weapon[0] = new BlueprintFeature[dragon_info.Count];
-            breath_weapon[1] = new BlueprintFeature[dragon_info.Count];
-            breath_weapon[2] = new BlueprintFeature[dragon_info.Count];
+            breath_weapon = new BlueprintFeature[dragon_info.Count][];
 
             for (int i = 0; i < dragon_info.Count; i++)
             {
+                breath_weapon[i] = new BlueprintFeature[3];
                 var prototype = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("BloodlineDraconic" + dragon_info[i].Item1 + "BreathWeaponAbility")).FirstOrDefault();
                 var ability = library.CopyAndAdd<BlueprintAbility>(prototype, dragon_info[i].Item1 + "BreathWeaponEvolutionAbility", "");
                 ability.SetName("Breath Weapon " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
@@ -1008,17 +1017,20 @@ namespace CallOfTheWild
                                           c.SpellLevel = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                                       })
                                       );
-                breath_weapon[0][i] = Common.AbilityToFeature(ability, false);
-                breath_weapon[0][i].AddComponent(Helpers.CreateAddAbilityResource(resource));
-                breath_weapon[0][i].SetName("Breath Weapon I " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
+                breath_weapon[i][0] = Common.AbilityToFeature(ability, false);
+                breath_weapon[i][0].AddComponent(Helpers.CreateAddAbilityResource(resource));
+                breath_weapon[i][0].SetName("Breath Weapon I " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
 
 
-                breath_weapon[1][i] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[0][i], breath_weapon[0][i].name + "2", "");
-                breath_weapon[1][i].SetName("Breath Weapon II " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
-                breath_weapon[1][i].AddComponent(Helpers.CreateIncreaseResourceAmount(resource, 1));
-                breath_weapon[2][i] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[0][i], breath_weapon[0][i].name + "3", "");
-                breath_weapon[2][i].SetName("Breath Weapon III " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
-                breath_weapon[2][i].AddComponent(Helpers.CreateIncreaseResourceAmount(resource, 2));
+                breath_weapon[i][1] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[i][0], breath_weapon[i][0].name + "2", "");
+                breath_weapon[i][1].SetName("Breath Weapon II " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
+                breath_weapon[i][1].ComponentsArray = new BlueprintComponent[0];
+                breath_weapon[i][1].AddComponent(Helpers.CreateIncreaseResourceAmount(resource, 1));
+                
+                breath_weapon[i][2] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[i][0], breath_weapon[i][0].name + "3", "");
+                breath_weapon[i][2].SetName("Breath Weapon III " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
+                breath_weapon[i][2].ComponentsArray = new BlueprintComponent[0];
+                breath_weapon[i][2].AddComponent(Helpers.CreateIncreaseResourceAmount(resource, 1));
             }
 
         }

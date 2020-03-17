@@ -17,6 +17,7 @@ using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.Designers.Mechanics.Recommendations;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -57,6 +58,15 @@ namespace CallOfTheWild
         static public BlueprintFeature summoner_cantrips;
         static public BlueprintFeatureSelection eidolon_selection;
         static List<BlueprintFeature> evolution_distribution = new List<BlueprintFeature>();
+
+        static public BlueprintFeature life_link;
+        static public BlueprintFeature life_bond;
+        static public BlueprintFeature shield_ally;
+        static public BlueprintFeature greater_shield_ally;
+
+        static public BlueprintAbilityResource makers_call_resource;
+        static public BlueprintFeature makers_call;
+        static public BlueprintFeature transposition;
 
 
         internal static void createSummonerClass()
@@ -122,15 +132,13 @@ namespace CallOfTheWild
             createSummonerProficiencies();
             createSummonerCantrips();
             createEidolon();
-            //createLifeLink();
+            createLifeLink();
+            createLifeBond();
+            createShieldAllyAndGreaterSheildAlly();
+            createMakersCallAndTranspostion();
             //createSummonMonster();
-            //createShieldAllyAndGreaterSheildAlly();
-            //createTransposition();
-            //createMakersCall();
-            //createTransposition();
             //createAspectAndGreaterAspect();
-            //createLifeBond();
-            //createMergeForms();
+            //createMergeForms();???
             //createTwinEidolon();
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
@@ -143,22 +151,22 @@ namespace CallOfTheWild
                                                               FeatureGroup.None);
             summoner_progression.Classes = getSummonerArray();
 
-            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips, eidolon_selection,
+            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips, eidolon_selection, life_link,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
-                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature};                                                                                       
+                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
                                                                     Helpers.LevelEntry(2),
                                                                     Helpers.LevelEntry(3),
-                                                                    Helpers.LevelEntry(4),
+                                                                    Helpers.LevelEntry(4, shield_ally),
                                                                     Helpers.LevelEntry(5),
-                                                                    Helpers.LevelEntry(6),
+                                                                    Helpers.LevelEntry(6, makers_call),
                                                                     Helpers.LevelEntry(7),
-                                                                    Helpers.LevelEntry(8),
+                                                                    Helpers.LevelEntry(8, transposition),
                                                                     Helpers.LevelEntry(9),
                                                                     Helpers.LevelEntry(10),
                                                                     Helpers.LevelEntry(11),
-                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(12, greater_shield_ally),
                                                                     Helpers.LevelEntry(13),
-                                                                    Helpers.LevelEntry(14),
+                                                                    Helpers.LevelEntry(14, life_bond),
                                                                     Helpers.LevelEntry(15),
                                                                     Helpers.LevelEntry(16),
                                                                     Helpers.LevelEntry(17),
@@ -172,11 +180,200 @@ namespace CallOfTheWild
             }
 
             summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips, eidolon_selection };
-            /*summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(),
-                                                                Helpers.CreateUIGroup(),
-                                                                Helpers.CreateUIGroup(),
-                                                                Helpers.CreateUIGroup()
-                                                           };*/
+            summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(life_link, shield_ally, makers_call, transposition, life_bond, greater_shield_ally),
+                                                           };
+        }
+
+
+        static void createMakersCallAndTranspostion()
+        {
+            makers_call_resource = Helpers.CreateAbilityResource("MakersCallResource", "", "", "", null);
+            makers_call_resource.SetIncreasedByLevelStartPlusDivStep(0, 6, 1, 4, 1, 0, 0.0f, getSummonerArray());
+
+
+            var ability = library.CopyAndAdd<BlueprintAbility>("5bdc37e4acfa209408334326076a43bc", "MakersCallAbility", "");
+
+            ability.Type = AbilityType.Supernatural;
+            ability.Parent = null;
+            ability.Range = AbilityRange.Personal;
+            ability.RemoveComponents<SpellComponent>();
+            ability.RemoveComponents<SpellListComponent>();
+            ability.RemoveComponents<RecommendationNoFeatFromGroup>();
+            ability.SetNameDescriptionIcon("Maker’s Call",
+                                           "At 6th level, as a standard action, a summoner can call his eidolon to his side. This functions as dimension door, using the summoner’s caster level. When this ability is used, the eidolon appears adjacent to the summoner (or as close as possible if all adjacent spaces are occupied). If the eidolon is out of range, the ability is wasted. The summoner can use this ability once per day at 6th level, plus one additional time per day for every four levels beyond 6th.",
+                                           Helpers.GetIcon("a5ec7892fb1c2f74598b3a82f3fd679f")); //stunning barrier
+
+            var dimension_door_component = ability.GetComponent<AbilityCustomDimensionDoor>();
+
+            var dimension_door_call = Helpers.Create<NewMechanics.CustomAbilities.AbilityCustomMoveCompanionToTarget>(a =>
+            {
+                a.CasterAppearFx = dimension_door_component.CasterAppearFx;
+                a.CasterAppearProjectile = dimension_door_component.CasterAppearProjectile;
+                a.CasterDisappearFx = dimension_door_component.CasterDisappearFx;
+                a.CasterDisappearProjectile = dimension_door_component.CasterDisappearProjectile;
+                a.PortalBone = dimension_door_component.PortalBone;
+                a.PortalFromPrefab = dimension_door_component.PortalFromPrefab;
+                a.Radius = 10.Feet();
+                a.SideAppearFx = dimension_door_component.SideAppearFx;
+                a.SideAppearProjectile = dimension_door_component.SideAppearProjectile;
+                a.SideDisappearFx = dimension_door_component.SideDisappearFx;
+                a.SideDisappearProjectile = dimension_door_component.SideDisappearProjectile;
+            }
+            );
+            ability.ReplaceComponent(dimension_door_component, dimension_door_call);
+            ability.AddComponent(makers_call_resource.CreateResourceLogic());
+            ability.setMiscAbilityParametersSelfOnly();
+
+            makers_call = Common.AbilityToFeature(ability, false);
+            makers_call.AddComponent(Helpers.CreateAddAbilityResource(makers_call_resource));
+
+            var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
+            var ability2 = Helpers.CreateAbility("SummonerTranspositionAbility",
+                                                      "Transpostion",
+                                                      "At 8th level, a summoner can use his maker’s call ability to swap locations with his eidolon. If the eidolon occupies more squares than the summoner, the summoner can appear in any square occupied by the eidolon. The eidolon must occupy the square that was occupied by the summoner if able, or as close as possible if it is not able.",
+                                                      "",
+                                                      dimension_door.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      "",
+                                                      "",
+                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = ability),
+                                                                               Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionCastSpell>(ca => ca.Spell = dimension_door)))
+                                                                               ),
+                                                      makers_call_resource.CreateResourceLogic()
+                                                     );
+            transposition = Common.AbilityToFeature(ability2, false);
+        }
+
+
+        static void createShieldAllyAndGreaterSheildAlly()
+        {
+            var buff1 = Helpers.CreateBuff("SummonerShieldAllyBuff",
+                                              "",
+                                              "",
+                                              "",
+                                              null,
+                                              null,
+                                              Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.Shield),
+                                              Helpers.CreateAddStatBonus(StatType.SaveFortitude, 2, ModifierDescriptor.Circumstance),
+                                              Helpers.CreateAddStatBonus(StatType.SaveReflex, 2, ModifierDescriptor.Circumstance),
+                                              Helpers.CreateAddStatBonus(StatType.SaveWill, 2, ModifierDescriptor.Circumstance)
+                                              );
+            var buff11 = library.CopyAndAdd<BlueprintBuff>(buff1, "SummonerGreaterShieldAllyAllyBuff", "");
+            var buff2 = Helpers.CreateBuff("SummonerGreaterShieldAllyBuff",
+                                  "",
+                                  "",
+                                  "",
+                                  null,
+                                  null, //shield spell
+                                  Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.Shield),
+                                  Helpers.CreateAddStatBonus(StatType.SaveFortitude, 4, ModifierDescriptor.Circumstance),
+                                  Helpers.CreateAddStatBonus(StatType.SaveReflex, 4, ModifierDescriptor.Circumstance),
+                                  Helpers.CreateAddStatBonus(StatType.SaveWill, 4, ModifierDescriptor.Circumstance)
+                                  );
+
+            var shield_ally_eidolon = Common.createAuraEffectFeature("Shield Ally",
+                                                                     "At 4th level, whenever a summoner is within his eidolon’s reach, the summoner gains a +2 shield bonus to his Armor Class and a +2 circumstance bonus on his saving throws. This bonus does not apply if the eidolon is grappled, helpless, paralyzed, stunned, or unconscious.",
+                                                                     Helpers.GetIcon("ef768022b0785eb43a18969903c537c4"),
+                                                                     buff1,
+                                                                     10.Feet(),
+                                                                     Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.ContextConditionIsMaster>())
+                                                                     );
+
+            var add_shield_ally = Common.createAddFeatToAnimalCompanion(shield_ally_eidolon, "");
+            add_shield_ally.HideInCharacterSheetAndLevelUp = true;
+
+            shield_ally = Helpers.CreateFeature("SummonerShieldAllyFeature",
+                                                shield_ally_eidolon.Name,
+                                                shield_ally_eidolon.Description,
+                                                "",
+                                                shield_ally_eidolon.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFeatureOnClassLevel(add_shield_ally, 12, getSummonerArray(), before: true)
+                                                );
+
+            var greater_shield_ally_eidolon = Common.createAuraEffectFeature("Greater Shield Ally",
+                                                         "At 12th level, whenever an ally is within reach of the summoner’s eidolon, the ally gains a +2 shield bonus to its Armor Class and a +2 circumstance bonus on its saving throws. If this ally is the summoner, these bonuses increase to +4. This bonus does not apply if the eidolon is grappled, helpless, paralyzed, stunned, or unconscious.",
+                                                         Helpers.GetIcon("ef768022b0785eb43a18969903c537c4"),
+                                                         buff11,
+                                                         10.Feet(),
+                                                         Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(), Helpers.Create<NewMechanics.ContextConditionIsMaster>(c => c.Not = true))
+                                                         );
+            greater_shield_ally_eidolon.AddComponent(Common.createAuraEffectFeatureComponentCustom(buff2, 
+                                                                                                   10.Feet(),
+                                                                                                   Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.ContextConditionIsMaster>())));
+
+            greater_shield_ally = Helpers.CreateFeature("SummonerGreaterShieldAllyFeature",
+                                                        greater_shield_ally_eidolon.Name,
+                                                        greater_shield_ally_eidolon.Description,
+                                                        "",
+                                                        greater_shield_ally_eidolon.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.Create<AddFeatureToCompanion>(a => a.Feature = greater_shield_ally)
+                                                        );
+        }
+
+
+        static void createLifeLink()
+        {
+            var life_link_eidolon_feature = Helpers.CreateFeature("SummonerLifeLinkEidolonFeature",
+                                                                  "Life Link",
+                                                                  "At 1st level, a summoner forms a close bond with his eidolon. Whenever the eidolon takes enough damage to send it back to its home plane, as a reaction to the damage, the summoner can sacrifice any number of hit points he has without using an action. Each hit point sacrificed in this way prevents 1 point of damage dealt to the eidolon. This can prevent the eidolon from being sent back to its home plane.",
+                                                                  "",
+                                                                  Helpers.GetIcon("d5847cad0b0e54c4d82d6c59a3cda6b0"), //breath of life
+                                                                  FeatureGroup.None,
+                                                                  Helpers.Create<CompanionMechanics.TransferDamageToMaster>()
+                                                                  );
+
+
+            var buff = Helpers.CreateBuff("SummonerLifeLinkBuff",
+                                          life_link_eidolon_feature.Name,
+                                          life_link_eidolon_feature.Description,
+                                          "",
+                                          life_link_eidolon_feature.Icon,
+                                          null,
+                                          Helpers.Create<AddFeatureToCompanion>(a => a.Feature = life_link_eidolon_feature)
+                                          );
+
+            var toggle = Helpers.CreateActivatableAbility("SummonerLifeLinkToggleAbility",
+                                                          life_link_eidolon_feature.Name,
+                                                          life_link_eidolon_feature.Description,
+                                                          "",
+                                                          life_link_eidolon_feature.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          CommandType.Free,
+                                                          null);
+            toggle.DeactivateImmediately = true;
+            toggle.Group = ActivatableAbilityGroupExtension.EidolonLifeLink.ToActivatableAbilityGroup();
+            life_link = Common.ActivatableAbilityToFeature(toggle, false);
+        }
+
+
+        static void createLifeBond()
+        {
+            var buff = Helpers.CreateBuff("SummonerLifeBondBuff",
+                                          "Life Bond",
+                                          "At 14th level, the summoner’s life becomes linked to his eidolon’s. As long as the eidolon has 1 or more hit points, the summoner is protected from harm. Damage in excess of that which would reduce the summoner to 0 hit points is instead transferred to the eidolon. This damage is transferred 1 point at a time, meaning that as soon as the eidolon is reduced to a number of negative hit points equal to its Constitution score, all excess damage remains with the summoner. Effects that cause death but don’t deal damage are unaffected by this ability. This ability does not affect spells such as baleful polymorph, flesh to stone, imprisonment, or other spells that don’t deal damage.",
+                                          "",
+                                          Helpers.GetIcon("7792da00c85b9e042a0fdfc2b66ec9a8"), //break enchantment
+                                          null,
+                                          Helpers.Create<CompanionMechanics.TransferDamageAfterThresholdToPet>(a => a.threshold = 1)
+                                          );
+
+            var toggle = Helpers.CreateActivatableAbility("SummonerLifeBondToggleAbility",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          CommandType.Free,
+                                                          null);
+            toggle.DeactivateImmediately = true;
+            toggle.Group = ActivatableAbilityGroupExtension.EidolonLifeLink.ToActivatableAbilityGroup();
+            life_bond = Common.ActivatableAbilityToFeature(toggle, false);
         }
 
 
