@@ -290,6 +290,22 @@ namespace CallOfTheWild
             return wrapper;
         }
 
+
+        public static BlueprintFeature[] getPermanenetEvolutions(Predicate<BlueprintFeature> evolution_filter)
+        {
+            List<BlueprintFeature> evolutions = new List<BlueprintFeature>();
+
+            foreach (var ee in evolution_entries)
+            {
+                var pe = ee.permanent_evolution.GetComponent<EvolutionMechanics.AddPermanentEvolution>();
+                if (evolution_filter(pe.Feature))
+                {
+                    evolutions.Add(ee.permanent_evolution);
+                }
+            }
+            return evolutions.ToArray();
+        }
+
         public static void initialize()
         {
             eidolon = Helpers.CreateFeature("BipedEidolonFeature",
@@ -310,6 +326,9 @@ namespace CallOfTheWild
                 evolutions_list.Add(ee.evolution);
             }
         }
+
+
+
 
         static void createExtraEvolutionFeat()
         {
@@ -374,7 +393,7 @@ namespace CallOfTheWild
                 }
                 else
                 {
-                    var key_evolution_selection = Helpers.CreateFeatureSelection(key.Replace(" ", "") + "EvolutionFeatureSelection",
+                    var key_evolution_selection = Helpers.CreateFeatureSelection(key.Replace(" ", "") + "SelfEvolutionFeatureSelection",
                                                                              key,
                                                                              evolutions_selections_map[key][0].Description,
                                                                              "",
@@ -912,14 +931,48 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Fly.png");
             var silver_dragon_wings = library.Get<BlueprintActivatableAbility>("7679910a16368cc43b496cef2babe1cb");
+            var angel_wings = library.Get<BlueprintActivatableAbility>("13143852b74718144ac4267b949615f0");
+            var devil_wings = library.Get<BlueprintActivatableAbility>("9ae14c50ef7a28e468b585c673b5c48f");
+
+            var flight_devil = Helpers.CreateFeature("FlightDevilEvolutionFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Common.createAuraFeatureComponent(devil_wings.Buff)
+                                                   );
+            flight_devil.HideInCharacterSheetAndLevelUp = true;
+            var flight_angel = Helpers.CreateFeature("FlightAngelEvolutionFeature",
+                                       "",
+                                       "",
+                                       "",
+                                       null,
+                                       FeatureGroup.None,
+                                       Common.createAuraFeatureComponent(angel_wings.Buff)
+                                       );
+            flight_angel.HideInCharacterSheetAndLevelUp = true;
+            var flight_dragon = Helpers.CreateFeature("FlightDragonEvolutionFeature",
+                                                       "",
+                                                       "",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.None,
+                                                       Common.createAuraFeatureComponent(silver_dragon_wings.Buff)
+                                                       );
+            flight_dragon.HideInCharacterSheetAndLevelUp = true;
+
+
             flight = Helpers.CreateFeature("FlightEvolutionFeature",
-                             "Flight",
-                             "The eidolon grows large wings, like those of a bat, bird, insect, or dragon, gaining the ability to fly.",
-                             "",
-                             icon,
-                             FeatureGroup.None,
-                             Common.createAuraFeatureComponent(silver_dragon_wings.Buff)
-                             );
+                                           "Flight",
+                                           "The eidolon grows large wings, like those of a bat, bird, insect, or dragon, gaining the ability to fly.",
+                                           "",
+                                           icon,
+                                           FeatureGroup.None,
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_angel; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon }; }),
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_devil; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon }; }),
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_dragon; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon }; })
+                                           );
         }
 
 

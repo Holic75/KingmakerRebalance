@@ -70,6 +70,9 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection aspect;
         static public BlueprintFeatureSelection greater_aspect;
         static public BlueprintFeature twin_eidolon;
+        static public BlueprintFeature[] summon_monster = new BlueprintFeature[9];
+        static public BlueprintSummonPool summon_pool;
+        static public BlueprintAbilityResource summon_resource;
 
 
         internal static void createSummonerClass()
@@ -124,7 +127,7 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintCharacterClass[] getSummonerArray()
+        static public BlueprintCharacterClass[] getSummonerArray()
         {
             return new BlueprintCharacterClass[] { summoner_class }; 
         }
@@ -141,7 +144,7 @@ namespace CallOfTheWild
             createMakersCallAndTranspostion();
             createAspect();
             createGreaterAspect();
-            //createSummonMonster();
+            createSummonMonster();
             //createMergeForms();???
             createTwinEidolon();
 
@@ -183,10 +186,84 @@ namespace CallOfTheWild
                 summoner_progression.LevelEntries[i].Features.Add(evolution_distribution[i]);
             }
 
+            for (int i = 0; i < 9; i++)
+            {
+                summoner_progression.LevelEntries[i*2].Features.Add(summon_monster[i]);
+            }
+
             summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips, eidolon_selection };
             summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(life_link, shield_ally, makers_call, transposition, life_bond, greater_shield_ally, twin_eidolon),
-                                                            Helpers.CreateUIGroup(aspect, greater_aspect)
+                                                            Helpers.CreateUIGroup(aspect, greater_aspect),
+                                                            Helpers.CreateUIGroup(summon_monster)
                                                            };
+        }
+
+        static void createSummonMonster()
+        {
+            var mt_feats = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("c19f6f34ed0bc364cbdec88b49a54f67"),
+                library.Get<BlueprintFeature>("45e466127a8961d40bb3030816ed245b"),
+                library.Get<BlueprintFeature>("ea26b3a3acb98074fa34f80fcc4e497d"),
+                library.Get<BlueprintFeature>("03168f4f13ff26f429d912085e88baba"),
+                library.Get<BlueprintFeature>("00fda605a917fcc4e89612dd31683bdd"),
+                library.Get<BlueprintFeature>("9b14b05456142914888a48354a0eec17"),
+                library.Get<BlueprintFeature>("667fd017406abd548b89292edd7dbfb7"),
+                library.Get<BlueprintFeature>("20d72612311ba914aaba5cc8a4cf312c"),
+                library.Get<BlueprintFeature>("f63d23b4e41b3264fa6aa2be8079d28d")
+            };
+
+            summon_resource = Helpers.CreateAbilityResource("SummonnerSummonResource", "", "", "", null);
+            summon_resource.SetIncreasedByStat(3, StatType.Charisma);
+            var description = "At 1st level, a summoner can cast summon monster I as a spell-like ability a number of times per day equal to 3 + his Charisma modifier. Drawing on this ability uses up the same power that the summoner uses to call his eidolon. As a result, he can use this ability only when his eidolon is not summoned. He can cast this spell as a standard action, and the creatures remain for 1 minute per level (instead of 1 round per level). At 3rd level, and every 2 levels thereafter, the power of this ability increases by 1 spell level, allowing him to summon more powerful creatures (to a maximum of summon monster IX at 17th level). If used as gate, the summoner must pay any required material components. A summoner cannot have more than one summon monster or gate spell active in this way at one time. If this ability is used again, any existing summon monster or gate from this spell-like ability immediately ends. These summon spells are considered to be part of the summoner’s spell list for the purposes of spell trigger and spell completion items.";
+            summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "SummonerSummonPool", "");
+
+            for (int i = 0; i < mt_feats.Length; i++)
+            {
+                List<BlueprintAbility> summon_spells = new List<BlueprintAbility>();
+                foreach (var f in mt_feats[i].GetComponent<AddFacts>().Facts)
+                {
+                    var ability = library.CopyAndAdd<BlueprintAbility>(f.AssetGuid, f.name.Replace("MonsterTactician", "Summoner"), "");
+                    ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = summon_resource);
+                    foreach (var c in ability.GetComponents<ContextRankConfig>())
+                    {
+                        if (c.IsBasedOnClassLevel)
+                        {
+                            var new_c = c.CreateCopy(crc => Helpers.SetField(crc, "m_Class", getSummonerArray()));
+                            ability.ReplaceComponent(c, new_c);
+                        }
+                    }
+                    var new_actions = Common.changeAction<ContextActionClearSummonPool>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, a => a.SummonPool = summon_pool);
+                    ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+                    ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
+                    summon_spells.Add(ability);
+                }
+
+                BlueprintAbility summon_base = null;
+                if (summon_spells.Count == 1)
+                {
+                    summon_base = summon_spells[0];
+                }
+                else
+                {
+                    summon_base = Common.createVariantWrapper($"SummonerSummon{i + 1}Base", "", summon_spells.ToArray());
+                    summon_base.SetNameDescription("Summon Monster " + Common.roman_id[i + 1], description);
+                }
+
+                summon_monster[i] = Helpers.CreateFeature($"SummonerSummonMonster{i + 1}Feature",
+                                                          "Summon Monster " + Common.roman_id[i + 1],
+                                                          description,
+                                                          "",
+                                                          summon_spells[0].Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFact(summon_base)
+                                                          );
+                if (i == 0)
+                {
+                    summon_monster[i].AddComponent(summon_resource.CreateAddAbilityResource());
+                }
+            }
+
         }
 
 
@@ -205,7 +282,7 @@ namespace CallOfTheWild
             twinned_eidolon_evolution.HideInCharacterSheetAndLevelUp = true;
 
             var buff = Helpers.CreateBuff("TwinnedEidolonBuff",
-                                          "Twinned Eidolon",
+                                          "Twin Eidolon",
                                           "At 20th level, a summoner and his eidolon share a true connection. As a standard action, the summoner can assume the shape of his eidolon, copying all of its evolutions, form, and abilities. His Strength, Dexterity, and Constitution scores change to match the base scores of his eidolon. He can choose to have any gear that he carries become absorbed by his new form, as with spells from the polymorph subschool. Items with continuous effects continue to function while absorbed in this way. The summoner loses his natural attacks and all racial traits (except bonus feats, skills, and languages) in favor of the abilities granted by his eidolon’s evolutions. The summoner retains all of his class features. The summoner can keep this form for a number of minutes per day equal to his summoner level. This duration does not need to be consecutive, but it must be spent in 1-minute increments.",
                                           "",
                                           icon,
@@ -244,7 +321,7 @@ namespace CallOfTheWild
 
         static void createAspect()
         {            
-            BlueprintFeature[] apsect_selection = new BlueprintFeature[3];
+            BlueprintFeature[] aspect_selection = new BlueprintFeature[3];
 
             for (int i = 0; i < 3; i++)
             {
@@ -270,24 +347,24 @@ namespace CallOfTheWild
                     aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => p.amount = i));
                 }
                 aspect_entry.HideInCharacterSheetAndLevelUp = true;
-                apsect_selection[i] = aspect_entry;
+                aspect_selection[i] = aspect_entry;
             }
 
             aspect = Helpers.CreateFeatureSelection("SummonerAspectFeatureSelection",
                                                     "Aspect",
-                                                    apsect_selection[0].Description,
+                                                    aspect_selection[0].Description,
                                                     "",
-                                                    null,
+                                                    aspect_selection[0].Icon,
                                                     FeatureGroup.None
                                                     );
-            aspect.AllFeatures = apsect_selection;
+            aspect.AllFeatures = aspect_selection;
         }
 
 
         static void createGreaterAspect()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/GreaterAspect.png");
-            BlueprintFeature[] apsect_selection = new BlueprintFeature[3];
+            BlueprintFeature[] aspect_selection = new BlueprintFeature[4];
 
             for (int i = 0; i < 4; i++)
             {
@@ -299,7 +376,7 @@ namespace CallOfTheWild
                                                    FeatureGroup.None,
                                                    Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(ep => ep.amount = -i)
                                                    );
-                var aspect_entry = Helpers.CreateFeature($"SummonerAspect{i}Feature",
+                var aspect_entry = Helpers.CreateFeature($"SummoneGreaterAspect{i}Feature",
                                                          aspect_i.Name,
                                                          aspect_i.Description,
                                                          "",
@@ -313,17 +390,17 @@ namespace CallOfTheWild
                     aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => p.amount = i));
                 }
                 aspect_entry.HideInCharacterSheetAndLevelUp = true;
-                apsect_selection[i] = aspect_entry;
+                aspect_selection[i] = aspect_entry;
             }
 
             greater_aspect = Helpers.CreateFeatureSelection("SummonerGreaterAspectFeatureSelection",
                                                     "Greater Aspect",
-                                                    apsect_selection[0].Description,
+                                                    aspect_selection[0].Description,
                                                     "",
-                                                    null,
+                                                    aspect_selection[0].Icon,
                                                     FeatureGroup.None
                                                     );
-            greater_aspect.AllFeatures = apsect_selection;
+            greater_aspect.AllFeatures = aspect_selection;
         }
 
 

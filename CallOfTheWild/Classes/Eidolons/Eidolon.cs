@@ -61,6 +61,9 @@ namespace CallOfTheWild
         static public BlueprintProgression fey_eidolon; //ok
         static public BlueprintProgression inevitable_eidolon;//ok
         static public BlueprintArchetype fey_archetype;
+        static public BlueprintFeatureSelection extra_class_skills;
+
+        static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
 
 
 
@@ -69,7 +72,16 @@ namespace CallOfTheWild
             createEidolonClass();         
             createEidolonUnits();
             Evolutions.initialize();
-            //fillEidolonProgressions();
+            fillEidolonProgressions();
+        }
+
+
+        static void fillEidolonProgressions()
+        {
+            fillAngelProgression();
+            fillAzataProgression();
+            fillDevilProgression();
+            fillInevitableProgression();
         }
 
 
@@ -102,7 +114,10 @@ namespace CallOfTheWild
             fey_archetype.ReplaceClassSkills = true;
             fey_archetype.ClassSkills = new StatType[] { StatType.SkillMobility, StatType.SkillPersuasion, StatType.SkillLoreNature, StatType.SkillThievery, StatType.SkillUseMagicDevice };
             fey_archetype.RemoveFeatures = new LevelEntry[0];
-            fey_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1) };
+            var fey_type = library.Get<BlueprintFeature>("018af8005220ac94a9a4f47b3e9c2b4e");
+            fey_type.HideInUI = true;
+            fey_type.HideInCharacterSheetAndLevelUp = true;
+            fey_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, fey_type) };
         }
 
 
@@ -907,6 +922,8 @@ namespace CallOfTheWild
 
         static void createEidolonProgression()
         {
+            outsider.HideInCharacterSheetAndLevelUp = true;
+            outsider.HideInUI = true;
             //devotion
             //evasion
             //natural armor
@@ -926,6 +943,7 @@ namespace CallOfTheWild
             var str_dex_bonus = library.CopyAndAdd<BlueprintFeature>("0c80276018694f24fbaf59ec7b841f2b", "EidolonStrDexIncreaseFeature", "");
             str_dex_bonus.SetNameDescription("Physical Prowess", "Eidolon receives +1 bonus to their Strength and Dexterity.");
 
+            createExtraClassSkill();
             eidolon_progression = Helpers.CreateProgression("EidolonProgression",
                                                    eidolon_class.Name,
                                                    eidolon_class.Description,
@@ -934,10 +952,11 @@ namespace CallOfTheWild
                                                    FeatureGroup.None);
             eidolon_progression.Classes = new BlueprintCharacterClass[] { eidolon_class };
 
-            eidolon_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
-                                                                                       library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa"),  // touch calculate feature
+            eidolon_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, outsider,
+                                                                                       library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                                                       library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa"),  //touch calculate feature
                                                                                        library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee")), //inside the storm
-                                                                    Helpers.LevelEntry(2, natural_armor, evasion, str_dex_bonus),
+                                                                    Helpers.LevelEntry(2, natural_armor, evasion, str_dex_bonus, extra_class_skills, extra_class_skills),
                                                                     Helpers.LevelEntry(3),
                                                                     Helpers.LevelEntry(4, natural_armor, str_dex_bonus),
                                                                     Helpers.LevelEntry(5, devotion),
@@ -957,6 +976,8 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(19),
                                                                     Helpers.LevelEntry(20)
                                                                     };
+
+
             eidolon_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(evasion, devotion, improved_evasion),
                                                            Helpers.CreateUIGroup(natural_armor),
                                                            Helpers.CreateUIGroup(str_dex_bonus),
@@ -964,6 +985,35 @@ namespace CallOfTheWild
         }
 
 
+        static void createExtraClassSkill()
+        {
+            var skill_foci = library.Get<BlueprintFeatureSelection>("c9629ef9eebb88b479b2fbc5e836656a").AllFeatures;
+            BlueprintFeature[] skills = new BlueprintFeature[skill_foci.Length];
+            for (int i = 0; i < skill_foci.Length; i++)
+            {
+                StatType stat = skill_foci[i].GetComponent<AddContextStatBonus>().Stat;
+                string name = LocalizedTexts.Instance.Stats.GetText(stat);
+
+                skills[i] = Helpers.CreateFeature(stat.ToString() + "ExtraEidolonSkillFeature",
+                                                   "Extra Class Skill: " + name,
+                                                   "The Eidolon can choose 2 additional skills as its class skills.",
+                                                   "",
+                                                   skill_foci[i].Icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<AddClassSkill>(a => a.Skill = stat),
+                                                   Helpers.Create<NewMechanics.PrerequisiteNoClassSkill>(p => p.skill = stat)
+                                                   );
+            }
+
+
+            extra_class_skills = Helpers.CreateFeatureSelection("EidolonExtraClassSkill",
+                                                               "Extra Class Skill",
+                                                               skills[0].Description,
+                                                               "",
+                                                               null,
+                                                               FeatureGroup.None);
+            extra_class_skills.AllFeatures = skills;
+        }
 
 
         public class EidolonComponent : BlueprintComponent

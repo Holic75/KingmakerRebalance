@@ -3279,6 +3279,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddFeatureIfHasFactsFromList : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
         {
+            public bool not = false;
             public BlueprintUnitFact[] CheckedFacts;
             public BlueprintUnitFact Feature;
             public int amount = 1;
@@ -3320,7 +3321,68 @@ namespace CallOfTheWild
                     }
                 }
 
-                if (facts_found >= amount)
+                if ((facts_found == amount) != not)
+                {
+                    this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+                }
+            }
+        }
+
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfMasterHasFactsFromList : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public bool not = false;
+            public BlueprintUnitFact[] CheckedFacts;
+            public BlueprintUnitFact Feature;
+            public int amount = 1;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null)
+                    return;
+
+                int facts_found = 0;
+                var unit = this.Owner.IsPet ? this.Owner.Master.Value?.Descriptor : this.Owner;
+
+                if (unit == null)
+                {
+                    return;
+                }
+
+                foreach (var f in CheckedFacts)
+                {
+                    if (facts_found == amount)
+                    {
+                        break;
+                    }
+                    if (unit.HasFact(f))
+                    {
+                        facts_found++;
+                    }
+                }
+
+                if ((facts_found == amount) != not)
                 {
                     this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
                 }
@@ -3466,6 +3528,24 @@ namespace CallOfTheWild
             public string GetReason()
             {
                 return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterCompanionDead : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool not;
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                var pet = caster?.Descriptor?.Pet;
+                return not != (pet == null || pet.Descriptor.State.IsDead);
+            }
+
+            public string GetReason()
+            {
+                return "Companion is alive";
             }
         }
 
@@ -5861,6 +5941,18 @@ namespace CallOfTheWild
             }
 
             public override string GetUIText() => $"{UIStrings.Instance.Tooltips.CharacterLevel}: {level}";
+        }
+
+
+        public class PrerequisiteNoClassSkill : Prerequisite
+        {
+            public StatType skill;
+            public override bool Check(FeatureSelectionState selectionState, UnitDescriptor unit, LevelUpState state)
+            {
+                return !(bool)unit.Stats.GetStat<ModifiableValueSkill>(skill).ClassSkill;
+            }
+
+            public override string GetUIText() => $"No class skill: {LocalizedTexts.Instance.Stats.GetText(skill)}";
         }
 
 
