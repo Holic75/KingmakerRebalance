@@ -1,8 +1,15 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Facts;
+using Kingmaker.EntitySystem.Entities;
+using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Damage;
+using Kingmaker.UnitLogic;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +37,7 @@ namespace CallOfTheWild.CompanionMechanics
                 return;
             }
 
-            if (evt.Target.HPLeft <=0)
+            if (evt.Target.HPLeft <= 0)
             {
                 return;
             }
@@ -50,7 +57,7 @@ namespace CallOfTheWild.CompanionMechanics
 
             int transfer_damage = Math.Min(max_can_transfer, max_need_transfer);
             transfer_damage = Math.Min(transfer_damage, evt.Target.Damage);
-            if (transfer_damage <=0 )
+            if (transfer_damage <= 0)
             {
                 return;
             }
@@ -102,4 +109,75 @@ namespace CallOfTheWild.CompanionMechanics
             var rule = this.Fact.MaybeContext.TriggerRule(new RuleDealDamage(evt.Target, master, damage_bundle));
         }
     }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class GrabFeaturesFromCompanion : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public BlueprintFeature[] Features;
+        [JsonProperty]
+        private List<Fact> m_AppliedFacts = new List<Fact>();
+
+
+        public override void OnTurnOn()
+        {
+            this.m_AppliedFacts.Clear();
+            base.OnTurnOn();
+            UnitEntityData pet = this.Owner.Pet;
+            if (pet == null)
+                return;
+
+            foreach (BlueprintFeature feature in this.Features)
+            {
+                if (pet.Descriptor.Progression.Features.HasFact((BlueprintFact)feature) && !this.Owner.HasFact((BlueprintUnitFact)feature))
+                {
+                    var added_fact = this.Owner.Progression.Features.AddFact((BlueprintFact)feature, null);
+                    if (added_fact != null)
+                    {
+                        m_AppliedFacts.Add(added_fact);
+                    }
+                }
+            }
+        }
+
+        public override void OnTurnOff()
+        {
+            base.OnTurnOff();
+            this.m_AppliedFacts.ForEach(new Action<Fact>((this.Owner).RemoveFact));
+            this.m_AppliedFacts.Clear();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SetPhysicalStatsToAnimalCompanionStats : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        [JsonProperty]
+        private readonly List<ModifiableValue.Modifier> m_AppliedModifiers = new List<ModifiableValue.Modifier>();
+
+        public override void OnFactActivate()
+        {
+            UnitEntityData pet = this.Owner.Pet;
+            if (pet == null)
+                return;
+
+            var stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution };
+            m_AppliedModifiers.Clear();
+            foreach (var s in stats)
+            {
+                int bonus = pet.Stats.GetStat(s).BaseValue + pet.Stats.GetStat(s).GetDescriptorBonus(ModifierDescriptor.Racial);
+                bonus -= this.Owner.Stats.GetStat(s).BaseValue + this.Owner.Stats.GetStat(s).GetDescriptorBonus(ModifierDescriptor.Racial);
+                this.m_AppliedModifiers.Add(this.Owner.Stats.Strength.AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.Other));
+            }
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            this.m_AppliedModifiers.ForEach((Action<ModifiableValue.Modifier>)(m => m.Remove()));
+            m_AppliedModifiers.Clear();
+        }
+    }
+
 }

@@ -137,6 +137,10 @@ namespace CallOfTheWild.EvolutionMechanics
         }
     }
 
+    public class UnitPartSelfEvolution : UnitPartEvolution
+    {
+
+    }
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
@@ -171,6 +175,42 @@ namespace CallOfTheWild.EvolutionMechanics
     }
 
 
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddTemporarySelfEvolution : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+    {
+        public BlueprintFeature Feature;
+        public int cost;
+        [JsonProperty]
+        private Fact m_AppliedFact;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+            this.Owner.Ensure<UnitPartSelfEvolution>().addTemporaryEvolution(Feature, cost, this.Fact);
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartSelfEvolution>().removeTemporaryEvolution(Feature, this.Fact);
+            this.Owner.RemoveFact(this.m_AppliedFact);
+            this.m_AppliedFact = null;
+        }
+
+        public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+        {
+            this.Apply();
+        }
+
+        private void Apply()
+        {
+            if (this.m_AppliedFact != null)
+                return;
+            this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class AddPermanentEvolution : AddFeatureToCompanion
     {
@@ -197,6 +237,42 @@ namespace CallOfTheWild.EvolutionMechanics
         {
             base.OnFactDeactivate();
             this.Owner.Ensure<UnitPartEvolution>().removePermanentEvolution(Feature);
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddPermanentSelfEvolution : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+    {
+        public BlueprintFeature Feature;
+        public int cost;
+        [JsonProperty]
+        private Fact m_AppliedFact;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+            this.Owner.Ensure<UnitPartSelfEvolution>().addPermanentEvolution(Feature);
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartSelfEvolution>().removePermanentEvolution(Feature);
+            this.Owner.RemoveFact(this.m_AppliedFact);
+            this.m_AppliedFact = null;           
+        }
+
+        public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+        {
+            this.Apply();
+        }
+
+        private void Apply()
+        {
+            if (this.m_AppliedFact != null)
+                return;
+            this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
         }
     }
 
@@ -245,6 +321,23 @@ namespace CallOfTheWild.EvolutionMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncreaseSelfEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public ContextValue amount;
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure < UnitPartSelfEvolution>().increaseNumberOfEvolutionPoints(amount.Calculate(this.Fact.MaybeContext), this.Fact);
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartSelfEvolution>().removeEvolutionPointsIncrease(this.Fact);
+        }
+    }
+
+
 
     [AllowMultipleComponents]
     public class PrerequisiteEnoughEvolutionPoints : Prerequisite
@@ -263,6 +356,27 @@ namespace CallOfTheWild.EvolutionMechanics
         public override string GetUIText()
         {
             return $"At least {amount} unused evolution point{(amount == 1 ? "" : "s")}.";
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    public class PrerequisiteEnoughSelfEvolutionPoints : Prerequisite
+    {
+        public int amount;
+        public BlueprintFeature feature;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return unit.Ensure<UnitPartSelfEvolution>().getNumEvolutionPoints() >= amount || unit.Progression.Features.HasFact((BlueprintFact)this.feature);
+        }
+
+        public override string GetUIText()
+        {
+            return $"At least {amount} unused diverted evolution point {(amount == 1 ? "" : "s")}.";
         }
     }
 
@@ -318,6 +432,45 @@ namespace CallOfTheWild.EvolutionMechanics
             else
             {
                 return "No Evolution: " + stringBuilder.ToString();
+            }
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class PrerequisiteSelfEvolution : Prerequisite
+    {
+        public BlueprintFeature evolution;
+        public bool not;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return unit.Ensure<UnitPartSelfEvolution>().hasEvolution(evolution) != not; ;
+        }
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if ((UnityEngine.Object)this.evolution == (UnityEngine.Object)null)
+            {
+                UberDebug.LogError((object)("Empty Feature field in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.evolution.Name))
+                    UberDebug.LogError((object)string.Format("{0} has no Display Name", (object)this.evolution.name), (object[])Array.Empty<object>());
+                stringBuilder.Append(this.evolution.Name);
+            }
+            if (!not)
+            {
+                return "Has Personal Evolution: " + stringBuilder.ToString();
+            }
+            else
+            {
+                return "No Personal Evolution: " + stringBuilder.ToString();
             }
         }
     }
@@ -401,6 +554,34 @@ namespace CallOfTheWild.EvolutionMechanics
                 if (Owner == levelUp.Preview || Owner == levelUp.Unit)
                 {                   
                     this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolutions();
+                }
+            }
+            catch (Exception e)
+            {
+                Main.logger.Log(e.ToString());
+            }
+        }
+
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+        {
+
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class RefreshSelfEvolutionsOnLevelUp : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+    {
+        public override void OnFactActivate()
+        {
+            try
+            {
+                // If we're in the level-up UI, apply the component
+                var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                {
+                    this.Owner.Ensure<UnitPartSelfEvolution>().removeTemporaryEvolutions();
                 }
             }
             catch (Exception e)

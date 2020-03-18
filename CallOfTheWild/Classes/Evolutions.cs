@@ -62,6 +62,8 @@ namespace CallOfTheWild
 
 
         static public BlueprintFeature claws;
+        static public BlueprintFeature claws_biped;
+        static public BlueprintFeature slam_biped;
         static public BlueprintFeature bite;
         static public BlueprintFeature[] improved_natural_attacks;
         static public BlueprintFeature[] improved_natural_armor;
@@ -85,10 +87,13 @@ namespace CallOfTheWild
         static public BlueprintFeature[][] breath_weapon; //eidolon scaling
         static public BlueprintFeature spell_resistance; //summoner scaling
         static public BlueprintFeature[] size_increase;
+        static public BlueprintFeature damage_reduction;
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
         static BlueprintFeature eidolon;
+
+        static public List<BlueprintFeature> evolutions_list = new List<BlueprintFeature>();
 
         public class EvolutionEntry
         {
@@ -103,6 +108,7 @@ namespace CallOfTheWild
             public BlueprintFeature[] base_evolutions;
             public BlueprintFeature evolution;
             public BlueprintFeature permanent_evolution;
+            public BlueprintFeature self_selection_feature;
             public BlueprintFeature selection_feature;
             public BlueprintBuff buff;
 
@@ -121,6 +127,35 @@ namespace CallOfTheWild
                 upgrade_cost = next_level_total_cost;
                 base_evolutions = previous_evolutions ?? new BlueprintFeature[0];
                 group = evolution_group;
+
+
+                self_selection_feature = Helpers.CreateFeature("SelfSelect" + evolution.name,
+                                          evolution.Name + $" ({cost} E. P., Personal)",
+                                          evolution.Description,
+                                          "",
+                                          evolution.Icon,
+                                          FeatureGroup.None,
+                                          Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = cost; a.Feature = evolution; }),
+                                          Helpers.Create<EvolutionMechanics.PrerequisiteNoPermanentEvolution>(p => p.evolution = evolution)
+                                          );
+                self_selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughSelfEvolutionPoints>(p => { p.amount = cost; p.feature = selection_feature; }));
+
+                foreach (var e in required_evolutions)
+                {
+                    self_selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteSelfEvolution>(p => p.evolution = e));
+                }
+                foreach (var e in conflicting_evolutions)
+                {
+                    self_selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteSelfEvolution>(p => { p.evolution = e; p.not = true; }));
+                }
+                if (!subtypes.Empty())
+                {
+                    self_selection_feature.AddComponent(Helpers.PrerequisiteFeaturesFromList(subtypes));
+                }
+                if (summoner_level > 0)
+                {
+                    self_selection_feature.AddComponent(Helpers.Create<NewMechanics.PrerequisiteMinimumFeatureRank>(p => { p.Feature = summoner_rank; p.value = summoner_level; }));
+                }
 
                 selection_feature = Helpers.CreateFeature("Select" + evolution.name,
                                                           evolution.Name + $" ({cost} E. P.)",
@@ -175,7 +210,7 @@ namespace CallOfTheWild
 
         static List<EvolutionEntry> evolution_entries = new List<EvolutionEntry>();
         static public BlueprintFeatureSelection evolution_selection;
-
+        static public BlueprintFeatureSelection self_evolution_selection;
         static public BlueprintAbility getGrantTemporaryEvolutionAbility(int max_cost, 
                                                                           bool remove_buffs,
                                                                           string name_prefix, string display_name,
@@ -266,7 +301,14 @@ namespace CallOfTheWild
             createEvolutions();
             createEvolutionEntries();
             createEvolutionSelection();
+            createSelfEvolutionSelection();
             createExtraEvolutionFeat();
+
+            //put all possible evolutions inside the list to simplify usage
+            foreach (var ee in evolution_entries)
+            {
+                evolutions_list.Add(ee.evolution);
+            }
         }
 
         static void createExtraEvolutionFeat()
@@ -300,6 +342,47 @@ namespace CallOfTheWild
                 else
                 {
                     extra_evolution[i].AddComponent(Helpers.PrerequisiteClassLevel(character_class, i == 0 ? 1 : i * 5, any: true));
+                }
+            }
+        }
+
+
+        static void createSelfEvolutionSelection()
+        {
+            self_evolution_selection = Helpers.CreateFeatureSelection("SelfEvolutionFeatureSelection",
+                                                                 "Personal Evolution Selection",
+                                                                 "Summoner can divert a number of evolution points from her Eidolon and spend them to apply evolutions to herself.",
+                                                                 "",
+                                                                 null,
+                                                                 FeatureGroup.None);
+            Dictionary<String, List<BlueprintFeature>> evolutions_selections_map = new Dictionary<string, List<BlueprintFeature>>();
+            foreach (var ee in evolution_entries)
+            {
+                if (!evolutions_selections_map.ContainsKey(ee.group))
+                {
+                    evolutions_selections_map.Add(ee.group, new List<BlueprintFeature>());
+                }
+                evolutions_selections_map[ee.group].Add(ee.self_selection_feature);
+                ee.selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = self_evolution_selection));
+            }
+
+            foreach (var key in evolutions_selections_map.Keys)
+            {
+                if (key == "")
+                {
+                    self_evolution_selection.AllFeatures = self_evolution_selection.AllFeatures.AddToArray(evolutions_selections_map[key]);
+                }
+                else
+                {
+                    var key_evolution_selection = Helpers.CreateFeatureSelection(key.Replace(" ", "") + "EvolutionFeatureSelection",
+                                                                             key,
+                                                                             evolutions_selections_map[key][0].Description,
+                                                                             "",
+                                                                             null,
+                                                                             FeatureGroup.None);
+                    key_evolution_selection.AllFeatures = evolutions_selections_map[key].ToArray();
+                    key_evolution_selection.Obligatory = true;
+                    self_evolution_selection.AllFeatures = self_evolution_selection.AllFeatures.AddToArray(key_evolution_selection);
                 }
             }
         }
@@ -349,8 +432,18 @@ namespace CallOfTheWild
 
         static void createEvolutionEntries()
         {
+            var eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
+                                                   Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
+                                                   Eidolon.fey_eidolon, Eidolon.inevitable_eidolon,
+                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
+            var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
+                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      new BlueprintFeature[] { boar, dog, mammoth, monitor, wolf }));
+            evolution_entries.Add(new EvolutionEntry(claws_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+                                         new BlueprintFeature[] {Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon,
+                                                                 Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon}));
+            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons));
 
             foreach (var e in improved_natural_attacks)
             {
@@ -359,7 +452,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                         new BlueprintFeature[] {boar, elk, mammoth}));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth})));
 
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
@@ -410,7 +503,7 @@ namespace CallOfTheWild
 
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
             evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                         new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede }));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede })));
 
             foreach (var e in immunity)
             {
@@ -419,14 +512,14 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
-                             new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar}));
+                                                     new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar}));
 
             evolution_entries.Add(new EvolutionEntry(trip, 2, 4, new BlueprintFeature[] { bite }, new BlueprintFeature[0],
-                 new BlueprintFeature[0]));
+                                                     new BlueprintFeature[0]));
 
             for (int i = 0; i < weapon_training.Length; i++)
             {
-                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], new BlueprintFeature[] { eidolon },
+                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], eidolons,
                                                          evolution_group: "Weapon Training",
                                                          upgradeable: i + 1 != weapon_training.Length,
                                                          next_level_total_cost: 4 + i*2,
@@ -460,12 +553,12 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(size_increase[0], 4, 8, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     new BlueprintFeature[] { eidolon }, 
+                                                     eidolons, 
                                                      upgradeable: true,
                                                      next_level_total_cost: 10
                                                      ));
             evolution_entries.Add(new EvolutionEntry(size_increase[1], 6, 13, new BlueprintFeature[] { size_increase[0] }, new BlueprintFeature[0],
-                                                     new BlueprintFeature[] { eidolon },
+                                                     eidolons,
                                                      previous_evolutions: new BlueprintFeature[] { size_increase[0] }));
 
 
@@ -489,11 +582,18 @@ namespace CallOfTheWild
                                                              );
                 }
             }
+
+            evolution_entries.Add(new EvolutionEntry(damage_reduction, 15, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+                                         new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
+                                                                   Eidolon.earth_elemental_eidolon,
+                                                                   Eidolon.fey_eidolon, Eidolon.inevitable_eidolon,
+                                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon}));
         }
 
         static void createEvolutions()
         {
             createClaws();
+            createSlam();
             createImprovedNaturalAttacks();
             createBite();
             createImprovedNaturalArmor();
@@ -520,6 +620,21 @@ namespace CallOfTheWild
             createSpellResistance();
             createSizeIncrease();
             createBreathWeapon();
+            createDamageReduction();
+        }
+
+
+        static void createDamageReduction()
+        {
+            var icon = Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"); //mage armor
+
+            damage_reduction = Helpers.CreateFeature("DamageReductionEvolutionFeature",
+                                         "Damage Reduction",
+                                         "The eidolon’s body becomes more resistant to harm. Increase the damage reduction granted by the eidolon’s subtype by 5.",
+                                         "",
+                                         icon,
+                                         FeatureGroup.None
+                                         );
         }
 
 
@@ -578,7 +693,7 @@ namespace CallOfTheWild
         static void createClaws()
         {
             var icon = Helpers.GetIcon("120e51788082260498a961a38a4fa617"); //dragon calws
-            var claw1d6 = library.Get<BlueprintItemWeapon>("65eb73689b94d894080d33a768cdf645");
+            var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
 
             claws = Helpers.CreateFeature("ClawsEvolutionFeature",
                                          "Claw",
@@ -586,8 +701,33 @@ namespace CallOfTheWild
                                          "",
                                          icon,
                                          FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d6),
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d6)
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4),
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4)
+                                         );
+
+            claws_biped = Helpers.CreateFeature("ClawsBipedEvolutionFeature",
+                                         "Claw",
+                                         "The eidolon has a pair of vicious claws at the ends of its limbs, giving it two claw attacks. These attacks are primary attacks. The claws deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                                         "",
+                                         icon,
+                                         FeatureGroup.None,
+                                         Common.createEmptyHandWeaponOverride(claw1d4)
+                                         );
+        }
+
+
+        static void createSlam()
+        {
+            var icon = Helpers.GetIcon("247a4068296e8be42890143f451b4b45"); //basic feat
+            var slam1d8 = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2");
+
+            slam_biped = Helpers.CreateFeature("SlamBipedEvolutionFeature",
+                                         "Slam",
+                                         "The eidolon can deliver a devastating slam attack. This attack is a primary attack. The slam deals 1d8 points of damage (2d6 if Large, 2d8 if Huge). The eidolon must have the limbs (arms) evolution to take this evolution. Alternatively, the eidolon can replace the claws from its base form with this slam attack (this still costs 1 evolution point).",
+                                         "",
+                                         icon,
+                                         FeatureGroup.None,
+                                         Common.createEmptyHandWeaponOverride(slam1d8)
                                          );
         }
 
@@ -599,7 +739,7 @@ namespace CallOfTheWild
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
                 improved_natural_armor[i] = Helpers.CreateFeature($"ImprovedNaturalArmor{i + 1}EvolutionFeature",
-                                                                  $"Improved Natural Armor {Common.roman_id[i + 1]}",
+                                                                  $"Improved Natural Armor" + (i == 0 ? "" : $" {Common.roman_id[i + 1]}"),
                                                                    "The eidolon’s hide grows thick fur, rigid scales, or bony plates, giving it a +2 bonus to its natural armor. For every 5 levels the summoner possesses, summoner can spend 2 additional evolution points to increase armor bonus by 2.",
                                                                    "",
                                                                    icon,
@@ -711,7 +851,7 @@ namespace CallOfTheWild
                 {
                     int bonus = (i + 1) * 2;
                     ability_increase[j][i] = Helpers.CreateFeature(stats[j].ToString() + bonus.ToString() + "AbilityIncreaseFeature",
-                                                                   "Ability Increase: " + stats[j].ToString() + $" ({Common.roman_id[i+1]})",
+                                                                   "Ability Increase: " + stats[j].ToString() + (i == 0 ? "" : $" {Common.roman_id[i+1]}"),
                                                                    "The eidolon grows larger muscles, gains faster reflexes, achieves greater intelligence, or acquires another increase to one of its abilities. Increase one of the eidolon’s ability scores by 2. This evolution can be selected more than once. It can be applied only once to an individual ability score. For every 6 levels summoner can spend 2 additional evolutions points to increase bonus by 2.",
                                                                    "",
                                                                    Helpers.GetIcon(icon_ids[j]),
@@ -918,7 +1058,7 @@ namespace CallOfTheWild
             for (int i = 0; i < fast_healing.Length; i++)
             {
                 fast_healing[i] = Helpers.CreateFeature($"FastHealing{i + 1}EvolutionFeature",
-                                                        "Fast Healing " + Common.roman_id[i+1],
+                                                        "Fast Healing" + (i == 0 ? "" : $" Common.roman_id[i+1]"),
                                                         buff.Description,
                                                         "",
                                                         icon,
@@ -1019,7 +1159,7 @@ namespace CallOfTheWild
                                       );
                 breath_weapon[i][0] = Common.AbilityToFeature(ability, false);
                 breath_weapon[i][0].AddComponent(Helpers.CreateAddAbilityResource(resource));
-                breath_weapon[i][0].SetName("Breath Weapon I " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
+                breath_weapon[i][0].SetName("Breath Weapon " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
 
 
                 breath_weapon[i][1] = library.CopyAndAdd<BlueprintFeature>(breath_weapon[i][0], breath_weapon[i][0].name + "2", "");

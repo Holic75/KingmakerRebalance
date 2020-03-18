@@ -67,6 +67,9 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource makers_call_resource;
         static public BlueprintFeature makers_call;
         static public BlueprintFeature transposition;
+        static public BlueprintFeatureSelection aspect;
+        static public BlueprintFeatureSelection greater_aspect;
+        static public BlueprintFeature twin_eidolon;
 
 
         internal static void createSummonerClass()
@@ -136,10 +139,11 @@ namespace CallOfTheWild
             createLifeBond();
             createShieldAllyAndGreaterSheildAlly();
             createMakersCallAndTranspostion();
+            createAspect();
+            createGreaterAspect();
             //createSummonMonster();
-            //createAspectAndGreaterAspect();
             //createMergeForms();???
-            //createTwinEidolon();
+            createTwinEidolon();
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
 
@@ -164,15 +168,15 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(9),
                                                                     Helpers.LevelEntry(10),
                                                                     Helpers.LevelEntry(11),
-                                                                    Helpers.LevelEntry(12, greater_shield_ally),
-                                                                    Helpers.LevelEntry(13),
-                                                                    Helpers.LevelEntry(14, life_bond),
-                                                                    Helpers.LevelEntry(15),
-                                                                    Helpers.LevelEntry(16),
-                                                                    Helpers.LevelEntry(17),
-                                                                    Helpers.LevelEntry(18),
-                                                                    Helpers.LevelEntry(19),
-                                                                    Helpers.LevelEntry(20)
+                                                                    Helpers.LevelEntry(12, greater_shield_ally, aspect),
+                                                                    Helpers.LevelEntry(13, aspect),
+                                                                    Helpers.LevelEntry(14, life_bond, aspect),
+                                                                    Helpers.LevelEntry(15, aspect),
+                                                                    Helpers.LevelEntry(16, aspect),
+                                                                    Helpers.LevelEntry(17, aspect),
+                                                                    Helpers.LevelEntry(18, greater_aspect),
+                                                                    Helpers.LevelEntry(19, greater_aspect),
+                                                                    Helpers.LevelEntry(20, greater_aspect, twin_eidolon)
                                                                     };
             for (int i = 0; i < 20; i++)
             {
@@ -180,8 +184,146 @@ namespace CallOfTheWild
             }
 
             summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips, eidolon_selection };
-            summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(life_link, shield_ally, makers_call, transposition, life_bond, greater_shield_ally),
+            summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(life_link, shield_ally, makers_call, transposition, life_bond, greater_shield_ally, twin_eidolon),
+                                                            Helpers.CreateUIGroup(aspect, greater_aspect)
                                                            };
+        }
+
+
+        static void createTwinEidolon()
+        {
+            var icon = Helpers.GetIcon("1bc83efec9f8c4b42a46162d72cbf494"); //burst of glory
+            var twinned_eidolon_evolution = Helpers.CreateFeature("TwinnedEidolonEvolution",
+                                                                    "",
+                                                                    "",
+                                                                    "",
+                                                                    null,
+                                                                    FeatureGroup.None,
+                                                                    Helpers.Create<CompanionMechanics.SetPhysicalStatsToAnimalCompanionStats>(),
+                                                                    Helpers.Create<CompanionMechanics.GrabFeaturesFromCompanion>(g => g.Features = Evolutions.evolutions_list.ToArray())
+                                                                    );
+            twinned_eidolon_evolution.HideInCharacterSheetAndLevelUp = true;
+
+            var buff = Helpers.CreateBuff("TwinnedEidolonBuff",
+                                          "Twinned Eidolon",
+                                          "At 20th level, a summoner and his eidolon share a true connection. As a standard action, the summoner can assume the shape of his eidolon, copying all of its evolutions, form, and abilities. His Strength, Dexterity, and Constitution scores change to match the base scores of his eidolon. He can choose to have any gear that he carries become absorbed by his new form, as with spells from the polymorph subschool. Items with continuous effects continue to function while absorbed in this way. The summoner loses his natural attacks and all racial traits (except bonus feats, skills, and languages) in favor of the abilities granted by his eidolon’s evolutions. The summoner retains all of his class features. The summoner can keep this form for a number of minutes per day equal to his summoner level. This duration does not need to be consecutive, but it must be spent in 1-minute increments.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<EvolutionMechanics.AddTemporarySelfEvolution>(a => { a.cost = 0; a.Feature = twinned_eidolon_evolution; }),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph)
+                                          );
+
+            var resource = Helpers.CreateAbilityResource("TwinnedEidolonResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, getSummonerArray());
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var ability = Helpers.CreateAbility("TwinnedEidolonAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                resource.CreateResourceLogic(),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                                Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph))),
+                                                Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            twin_eidolon = Common.AbilityToFeature(ability, false);
+            twin_eidolon.AddComponent(resource.CreateAddAbilityResource());
+            //stats set to eidolons
+            //all evolutions are copied
+        }
+
+
+        static void createAspect()
+        {            
+            BlueprintFeature[] apsect_selection = new BlueprintFeature[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                var aspect_i = Helpers.CreateFeature($"SummonerAspect{i}EvolutionFeature",
+                                                   $"Aspect ({i} E.P.)",
+                                                   "At 10th level, a summoner can divert up to 2 points from his eidolon’s evolution pool to add evolutions to himself. He cannot select any evolution that the eidolon could not possess, and he must be able to meet the requirements as well (except for subtype requirements, so long as his eidolon meets the subtype requirement). He cannot select the ability increase evolution through this ability. Any points spent in this way are taken from the eidolon’s evolution pool (reducing the total number available to the eidolon). The summoner can change the evolutions granted by these points anytime he can change the eidolon’s evolutions.",
+                                                   "",
+                                                   Helpers.GetIcon("489c8c4a53a111d4094d239054b26e32"), //abyssal strength
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(ep => ep.amount = -i)
+                                                   );
+                var aspect_entry = Helpers.CreateFeature($"SummonerAspect{i}Feature",
+                                                         aspect_i.Name,
+                                                         aspect_i.Description,
+                                                         "",
+                                                         aspect_i.Icon,
+                                                         FeatureGroup.None,
+                                                         Helpers.Create<EvolutionMechanics.AddTemporarySelfEvolution>(a => { a.cost = -i; a.Feature = aspect_i; })
+                                                         );
+                if (i > 0)
+                {
+                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.self_evolution_selection));
+                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => p.amount = i));
+                }
+                aspect_entry.HideInCharacterSheetAndLevelUp = true;
+                apsect_selection[i] = aspect_entry;
+            }
+
+            aspect = Helpers.CreateFeatureSelection("SummonerAspectFeatureSelection",
+                                                    "Aspect",
+                                                    apsect_selection[0].Description,
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None
+                                                    );
+            aspect.AllFeatures = apsect_selection;
+        }
+
+
+        static void createGreaterAspect()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/GreaterAspect.png");
+            BlueprintFeature[] apsect_selection = new BlueprintFeature[3];
+
+            for (int i = 0; i < 4; i++)
+            {
+                var aspect_i = Helpers.CreateFeature($"SummonerGreaterAspect{i}EvolutionFeature",
+                                                   $"Greater Aspect ({i} E.P.)",
+                                                   "At 18th level, a summoner can divert more of his eidolon’s evolutions to himself. This ability functions as the aspect ability, but the maximum number of evolution points the summoner can divert increases to 6. In addition, the eidolon loses 1 point from its evolution pool for every 2 points (or fraction thereof ) diverted to the summoner instead of losing 1 point from the evolution pool for each point diverted.",
+                                                   "",
+                                                   icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(ep => ep.amount = -i)
+                                                   );
+                var aspect_entry = Helpers.CreateFeature($"SummonerAspect{i}Feature",
+                                                         aspect_i.Name,
+                                                         aspect_i.Description,
+                                                         "",
+                                                         aspect_i.Icon,
+                                                         FeatureGroup.None,
+                                                         Helpers.Create<EvolutionMechanics.AddTemporarySelfEvolution>(a => { a.cost = -2*i; a.Feature = aspect_i; })
+                                                         );
+                if (i > 0)
+                {
+                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.self_evolution_selection));
+                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => p.amount = i));
+                }
+                aspect_entry.HideInCharacterSheetAndLevelUp = true;
+                apsect_selection[i] = aspect_entry;
+            }
+
+            greater_aspect = Helpers.CreateFeatureSelection("SummonerGreaterAspectFeatureSelection",
+                                                    "Greater Aspect",
+                                                    apsect_selection[0].Description,
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None
+                                                    );
+            greater_aspect.AllFeatures = apsect_selection;
         }
 
 
@@ -403,6 +545,7 @@ namespace CallOfTheWild
                                                     null,
                                                     FeatureGroup.None);
                 feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshSelfEvolutionsOnLevelUp>());
                 int bonus_ep = Eidolon.EidolonComponent.rank_to_level[lvl] - Eidolon.EidolonComponent.rank_to_level[lvl - 1];
                 if (bonus_ep > 0)
                 {
