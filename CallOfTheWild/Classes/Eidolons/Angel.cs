@@ -95,7 +95,13 @@ namespace CallOfTheWild
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel12AddFeature",
-                                                                                                  Common.createAlignmentDR(5, DamageAlignment.Evil),
+                                                                                                  Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Evil),
+                                                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                                  progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                                  stepLevel: 10,
+                                                                                                                                  min: 5,
+                                                                                                                                  featureList: new BlueprintFeature[] {Evolutions.damage_reduction}
+                                                                                                                                  ),                                                                                                                                
                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified))
                                                   );

@@ -84,6 +84,10 @@ namespace CallOfTheWild
             fillDemonProgression();
             fillDevilProgression();
             fillInevitableProgression();
+            fillFireElementalProgression();
+            fillAirElementalProgression();
+            fillWaterElementalProgression();
+            fillEarthElementalProgression();
         }
 
 

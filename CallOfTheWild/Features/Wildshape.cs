@@ -528,7 +528,7 @@ namespace CallOfTheWild
         static void fixAirElementalDC()
         {
             var dc = Helpers.Create<ContextCalculateAbilityParams>();
-            dc.StatType = StatType.Strength;
+            dc.StatType = StatType.Constitution;
             
             var effects = new BlueprintAbilityAreaEffect[]{library.Get<BlueprintAbilityAreaEffect>("91f4541e0eb353b4681289cc9615a79d"),
                                                   library.Get<BlueprintAbilityAreaEffect>("ebd2fe081029a6b438aed873607e6375"),
@@ -536,8 +536,8 @@ namespace CallOfTheWild
                                                   library.Get<BlueprintAbilityAreaEffect>("0fb8d185085539e41b11b780bc7d9b9e")
                                                  };
 
-            var dc2 = Helpers.Create<ContextCalculateAbilityParams>();
-            dc2.StatType = StatType.Constitution;
+            /*var dc2 = Helpers.Create<ContextCalculateAbilityParams>();
+            dc2.StatType = StatType.Constitution;*/
             var features = new BlueprintBuff[] {
                                                 library.Get<BlueprintBuff>("335dbee275613e946a4de1aaf574d7d9"),
                                                 library.Get<BlueprintBuff>("23fafce3910c9df41b64343a2b3acbd1"),
@@ -557,7 +557,7 @@ namespace CallOfTheWild
             foreach (var f in features)
             {    //dc is only computed based on druid class, changed to be based on character level
                 f.RemoveComponents<ContextCalculateAbilityParamsBasedOnClass>();
-                f.AddComponent(dc2);
+                f.AddComponent(dc);
             }
         }
 

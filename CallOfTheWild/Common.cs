@@ -1029,6 +1029,16 @@ namespace CallOfTheWild
         }
 
 
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextAlignmentDR(ContextValue value, DamageAlignment alignment)
+        {
+            var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();
+            feat.Alignment = alignment;
+            feat.BypassedByAlignment = true;
+            feat.Value = value;
+            return feat;
+        }
+
+
         public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createMaterialDR(ContextValue value, PhysicalDamageMaterial material)
         {
             var feat = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical>();

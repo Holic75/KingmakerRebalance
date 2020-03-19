@@ -814,7 +814,7 @@ namespace CallOfTheWild
 
         static void createImmunity()
         {
-            var energies = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Fire, DamageEnergyType.Electricity };
+            var energies = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Electricity, DamageEnergyType.Fire };
             var icon_ids = new string[] { "3d77ee3fc4913c44b9df7c5bbcdc4906", "021d39c8e0eec384ba69140f4875e166", "3f9605134d34e1243b096e1f6cb4c148", "e24ce0c3e8eaaaf498d3656b534093df"};
 
             immunity = new BlueprintFeature[energies.Length];
@@ -888,7 +888,7 @@ namespace CallOfTheWild
 
         static void createEnergyAttacks()
         {
-            var energies = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Fire, DamageEnergyType.Electricity };
+            var energies = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Electricity, DamageEnergyType.Fire };
             var icon_ids = new string[] { "97d0a51ca60053047afb9aca900fb71b", "83ed16546af22bb43bd08734a8b51941", "4783c3709a74a794dbe7c8e7e0b1b038", "728b3daffb1d9fd45958c6e60876b7a9" };
 
             energy_attacks = new BlueprintFeature[energies.Length];

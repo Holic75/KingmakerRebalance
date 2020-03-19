@@ -97,7 +97,13 @@ namespace CallOfTheWild
                                                     Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                     FeatureGroup.None,
                                                     Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel12AddFeature",
-                                                                                                    Common.createAlignmentDR(5, DamageAlignment.Good),
+                                                                                                  Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
+                                                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                                  progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                                  stepLevel: 10,
+                                                                                                                                  min: 5,
+                                                                                                                                  featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                                  ),
                                                                                                     Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
                                                                                                     Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)
                                                                                                     )
