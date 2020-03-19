@@ -148,13 +148,13 @@ namespace CallOfTheWild
                                                                              library.TryGet<BlueprintAbility>("a7469ef84ba50ac4cbf3d145e3173f8e")
                                                                             };
 
-            foreach (var c in classes)
+            /*foreach (var c in classes)
             {
                 for (int i = 0; i < summon_nature_ally.Length; i++)
                 {
                     feature.AddComponents(Helpers.CreateAddKnownSpell(summon_nature_ally[i], c, i + 1));
                 }
-            }
+            }*/
 
             
 

@@ -2874,6 +2874,20 @@ namespace CallOfTheWild
         }
 
 
+        public static AbilitySpawnFx createAbilitySpawnFxDestroyOnCast(string asset_id, AbilitySpawnFxAnchor position_anchor = AbilitySpawnFxAnchor.None,
+                                                                   AbilitySpawnFxAnchor orientation_anchor = AbilitySpawnFxAnchor.None,
+                                                                   AbilitySpawnFxAnchor anchor = AbilitySpawnFxAnchor.None)
+        {
+            var a = Helpers.Create<AbilitySpawnFx>();
+            a.PrefabLink = createPrefabLink(asset_id);
+            a.PositionAnchor = position_anchor;
+            a.OrientationAnchor = orientation_anchor;
+            a.Anchor = anchor;
+            a.DestroyOnCast = true;
+            return a;
+        }
+
+
         static public AbilityDeliverProjectile createAbilityDeliverProjectile(AbilityProjectileType type, BlueprintProjectile projectile, Feet length, Feet width)
         {
             var a = Helpers.Create<AbilityDeliverProjectile>();

@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
@@ -60,7 +61,9 @@ namespace CallOfTheWild
         static public BlueprintProgression devil_eidolon;//ok
         static public BlueprintProgression fey_eidolon; //ok
         static public BlueprintProgression inevitable_eidolon;//ok
+        static public BlueprintProgression infernal_eidolon;
         static public BlueprintArchetype fey_archetype;
+        static public BlueprintArchetype infernal_archetype;
         static public BlueprintFeatureSelection extra_class_skills;
 
         static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
@@ -124,6 +127,33 @@ namespace CallOfTheWild
             fey_type.HideInUI = true;
             fey_type.HideInCharacterSheetAndLevelUp = true;
             fey_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, fey_type) };
+        }
+
+
+        static void createInfernalEidolonArchetype()
+        {
+            infernal_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "InfernalEidolonArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Infernal Eidolon");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The devil binder’s eidolon never increases its maximum number of attacks, and its base attack bonus is equal to half its Hit Dice. At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.");
+            });
+            Helpers.SetField(infernal_archetype, "m_ParentClass", eidolon_class);
+            library.AddAsset(infernal_archetype, "");
+            infernal_archetype.RemoveFeatures = new LevelEntry[0];
+            infernal_archetype.BaseAttackBonus = library.Get<BlueprintStatProgression>("0538081888b2d8c41893d25d098dee99"); //low bab
+            var charisma_bonus = Helpers.CreateFeature("InfernalEidolonCharismaBonus",
+                                                       "Eidolon Charisma Bonus",
+                                                       "At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.None,
+                                                       Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Other, multiplier: 2)
+                                                       );
+            charisma_bonus.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, progression: ContextRankProgression.AsIs,
+                                                                                       feature: charisma_bonus));
+            charisma_bonus.Ranks = 10;
+            infernal_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1)};
         }
 
 
@@ -378,6 +408,18 @@ namespace CallOfTheWild
             devil_eidolon.ReplaceComponent<AddPet>(a => a.Pet = devil_unit);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(devil_eidolon);
+
+
+            var infernal_unit = library.CopyAndAdd<BlueprintUnit>(devil_unit, "InfernalEidolonUnit", "");
+            infernal_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[] { infernal_archetype };
+            });
+            infernal_eidolon = library.CopyAndAdd<BlueprintProgression>(devil_eidolon, "InfernalEidolonProgression", "");
+            infernal_eidolon.SetNameDescription("Infernal Binding",
+                                                "A devil binder must select an eidolon of the devil subtype. The devil binder’s eidolon never increases its maximum number of attacks, and its base attack bonus is equal to half its Hit Dice. At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.");
+            infernal_eidolon.ReplaceComponent<AddPet>(a => a.Pet = infernal_unit);
+            infernal_eidolon.ReplaceComponent<PrerequisiteAlignment>(p => p.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulEvil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral);
         }
 
 
@@ -533,7 +575,7 @@ namespace CallOfTheWild
             fx_feature.HideInUI = true;
 
             var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
-            var azata = library.Get<BlueprintUnit>("d6fdf2d1776817b4bab5d4a43d9ea708");
+            var azata = library.Get<BlueprintUnit>("bc8ca1437c0f48948b317b7e64febf0d");
             var angel_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AngelEidolonUnit", "");
             angel_unit.Color = azata.Color;
 
@@ -921,7 +963,8 @@ namespace CallOfTheWild
             eidolon_class.Progression = eidolon_progression;
 
             createFeyEidolonArchetype();
-            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype};
+            createInfernalEidolonArchetype();
+            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype, infernal_archetype};
             Helpers.RegisterClass(eidolon_class);
         }
 

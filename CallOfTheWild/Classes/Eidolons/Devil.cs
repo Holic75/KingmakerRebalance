@@ -146,6 +146,9 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             devil_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+
+            infernal_eidolon.LevelEntries = devil_eidolon.LevelEntries;
+            infernal_eidolon.UIGroups = devil_eidolon.UIGroups;
         }
     }
 }

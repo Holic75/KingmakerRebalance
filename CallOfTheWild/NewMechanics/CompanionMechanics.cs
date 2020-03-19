@@ -47,13 +47,9 @@ namespace CallOfTheWild.CompanionMechanics
                 return;
             }
 
-            if (evt.Target.HPLeft + evt.Target.Damage > 0)
-            {
-                return;
-            }
 
             int max_can_transfer = pet.HPLeft + pet.Stats.Constitution - 1;
-            int max_need_transfer = (evt.Target.Damage - evt.Target.HPLeft) + threshold;
+            int max_need_transfer =  threshold - evt.Target.HPLeft;
 
             int transfer_damage = Math.Min(max_can_transfer, max_need_transfer);
             transfer_damage = Math.Min(transfer_damage, evt.Target.Damage);
@@ -89,14 +85,11 @@ namespace CallOfTheWild.CompanionMechanics
                 return;
             }
 
-            if (evt.Target.HPLeft + evt.Target.Damage > 0)
-            {
-                return;
-            }
-
+            //Main.logger.Log($"{evt.Target.Damage}, {evt.Target.HPLeft}");
             int max_can_transfer = master.HPLeft - 1;
-            int max_need_transfer = (evt.Target.Damage - evt.Target.HPLeft) - evt.Target.Stats.Constitution + 1;
+            int max_need_transfer = (-evt.Target.HPLeft) - evt.Target.Stats.Constitution + 1;
 
+            
             int transfer_damage = Math.Min(max_can_transfer, max_need_transfer);
             transfer_damage = Math.Min(transfer_damage, evt.Target.Damage);
             if (transfer_damage <= 0)

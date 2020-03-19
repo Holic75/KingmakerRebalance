@@ -1578,6 +1578,38 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterPetIsAlive : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return caster.Descriptor.Pet != null && !caster.Descriptor.Pet.Descriptor.State.IsDead;
+            }
+
+            public string GetReason()
+            {
+                return "Companion is dead";
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMasterIsAlive : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return caster.Descriptor.Master.Value != null && !caster.Descriptor.Master.Value.Descriptor.State.IsDead;
+            }
+
+            public string GetReason()
+            {
+                return "Companion is dead";
+            }
+        }
+
+
         public class ActivatableAbilityMainWeaponHasParametrizedFeatureRestriction : ActivatableAbilityRestriction
         {
             public BlueprintParametrizedFeature[] features;
@@ -4843,6 +4875,44 @@ namespace CallOfTheWild
                 var caster_hd = caster.Descriptor.Progression.CharacterLevel;
 
                 return caster_hd >= target_hd + difference;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityTargetIsPet : BlueprintComponent, IAbilityTargetChecker
+        {
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                return caster.Descriptor.Pet != null && caster.Descriptor.Pet == target.Unit;
+            }
+        }
+
+
+
+        public class ContextActionsOnMaster : ContextAction
+        {
+            public ActionList Actions;
+
+            public override void RunAction()
+            {
+                if (this.Target.Unit == null)
+                {
+                    UberDebug.LogError((object)"Target unit is missing", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    if (this.Target.Unit.Descriptor.Master.Value == null)
+                        return;
+                    using (this.Context.GetDataScope((TargetWrapper)this.Target.Unit.Descriptor.Master.Value))
+                        this.Actions.Run();
+                }
+            }
+
+            public override string GetCaption()
+            {
+                return "Run actions on targets pet";
             }
         }
 

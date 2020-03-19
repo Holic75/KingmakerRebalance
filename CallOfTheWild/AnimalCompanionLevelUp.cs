@@ -4,6 +4,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Root;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
@@ -123,6 +124,15 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
             kineticist.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
             Helpers.RegisterClass(animal_calss);
             animal_calss.HideIfRestricted = false;
+
+
+            foreach (var c in BlueprintRoot.Instance.Progression.CharacterClasses)
+            {
+                if (c != Eidolon.eidolon_class)
+                {
+                    c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Eidolon.eidolon_class));
+                }
+            }
         }
     }
 }

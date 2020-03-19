@@ -11,7 +11,8 @@ It introduces new classes:
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Arcanist with following archetypes: School Savant, Blood Arcanist and Unlettered Arcanist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
-- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner.
+- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner,
+- Summoner,
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -159,10 +160,12 @@ New spells:
 - Hex Vulnerability,
 - Ill Omen,
 - Lend Judgment and Lend Judgment, Greater,
+- Life Conduit, Life Conduit, Improved and Life Conduit, Greater,
 - Long Arm,
 - Magic Weapon, Magic Weapon, Greater
 - Obscuring Mist,
 - Produce Flame,
+- Rejuvenate Eidolon, Lesser, Rejuvenate Eidolon and Rejuvenate Eidolon, Greater,
 - Sanctuary,
 - Sense Spirit Magic,
 - Shillelagh,
@@ -173,6 +176,7 @@ New spells:
 - Blood Armor,
 - Bone Fists,
 - Burst of Radiance,
+- Evolution Surge, Lesser, Evolution Surge and Evolution Surge, Greater,
 - Fiery Runes,
 - Flame Blade,
 - Flames of the Faithful,

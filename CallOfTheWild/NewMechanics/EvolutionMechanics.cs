@@ -626,4 +626,35 @@ namespace CallOfTheWild.EvolutionMechanics
             }
         }
     }
+
+
+    public class addSelfEvolutionSelection : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+    {
+        public BlueprintFeatureSelection selection;
+
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+        {
+        }
+
+        public override void OnFactActivate()
+        {
+            try
+            {
+                var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                {
+                    if (this.Owner.Ensure<UnitPartSelfEvolution>().getNumEvolutionPoints() > 0)
+                    {
+                        int index = levelUp.State.Selections.Count<FeatureSelectionState>((Func<FeatureSelectionState, bool>)(s => s.Selection == selection));
+                        FeatureSelectionState featureSelectionState = new FeatureSelectionState(null, null, selection, index, 0);
+                        levelUp.State.Selections.Add(featureSelectionState);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Main.logger.Error(e.ToString());
+            }
+        }
+    }
 }

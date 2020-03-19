@@ -122,8 +122,12 @@ namespace CallOfTheWild
 
             createSummonerProgression();
             summoner_class.Progression = summoner_progression;
-            summoner_class.Archetypes = new BlueprintArchetype[] {  };
+            summoner_class.Archetypes = new BlueprintArchetype[] {  }; //devil binder, twinned summoner?, master summoner, spirit summoner 
             Helpers.RegisterClass(summoner_class);
+
+            Evolutions.addClassToExtraEvalution(summoner_class);
+
+            createSummonerSpells();
         }
 
 
@@ -234,6 +238,7 @@ namespace CallOfTheWild
                         }
                     }
                     var new_actions = Common.changeAction<ContextActionClearSummonPool>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, a => a.SummonPool = summon_pool);
+                    new_actions = Common.changeAction<ContextActionSpawnMonster>(new_actions, a => a.SummonPool = summon_pool);
                     ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
                     ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
                     summon_spells.Add(ability);
@@ -343,7 +348,7 @@ namespace CallOfTheWild
                                                          );
                 if (i > 0)
                 {
-                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.self_evolution_selection));
+                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.addSelfEvolutionSelection>(a => a.selection = Evolutions.self_evolution_selection));
                     aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => p.amount = i));
                 }
                 aspect_entry.HideInCharacterSheetAndLevelUp = true;
@@ -386,7 +391,7 @@ namespace CallOfTheWild
                                                          );
                 if (i > 0)
                 {
-                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.self_evolution_selection));
+                    aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.addSelfEvolutionSelection>(a => a.selection = Evolutions.self_evolution_selection));
                     aspect_entry.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughEvolutionPoints>(p => p.amount = i));
                 }
                 aspect_entry.HideInCharacterSheetAndLevelUp = true;
@@ -706,7 +711,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4f8181e7a7f1d904fbaea64220e83379", 1), //expeditious retreat
                 new Common.SpellId( "95851f6e85fe87d4190675db0419d112", 1), //grease
                 new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),
-                //life link
+                //life conduit
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "403cf599412299a4f9d5d925c7b9fb33", 1), //magic fang
                 new Common.SpellId( NewSpells.obscuring_mist.AssetGuid, 1),
@@ -752,6 +757,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 //rejuvenate eidolon
+                //restore eidolon
                 new Common.SpellId( "7bb0c402f7f789d4d9fae8ca87b4c7e2", 3), //resist energy communal
 
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
@@ -813,5 +819,184 @@ namespace CallOfTheWild
 
             return summoner_spellbook;
         }
+
+
+        static void createSummonerSpells()
+        {
+            createEvolutionSurge();
+            createRejuvenateEidolon();
+            //createRestoreEidolon();
+            createLifeConduit();
+        }
+
+
+        static void createEvolutionSurge()
+        {
+            var icon = Helpers.GetIcon("93d9d74dac46b9b458d4d2ea7f4b1911"); //polymoph
+
+            var spell_levels = new int[] { 2, 3, 4 };
+            var max_evolution_cost = new int[] { 2, 4, 6};
+            var names = new string[] { "Evolution Surge, Lesser", "Evolution Surge", "Evolution Surge, Greater" };
+
+            for (int i = 0; i < spell_levels.Length; i++)
+            {
+                var ability = Evolutions.getGrantTemporaryEvolutionAbility(max_evolution_cost[i], true,
+                                                                           names[i].Replace(" ", "").Replace(",", ""),
+                                                                           names[i],
+                                                                           "This spell causes your eidolon to take on new characteristics.\n"
+                                                                           + $"You can grant the eidolon any evolution whose total cost does not exceed {max_evolution_cost[i]} evolution points. You may only grant one evolution with this spell, even if that evolution can be taken multiple times.\n"
+                                                                           + "You can grant an evolution that allows you to spend additional evolution points to upgrade that evolution. This spell cannot be used to grant an upgrade to an evolution that the eidolon already possesses. The eidolon must meet any prerequisites of the selected evolution.",
+                                                                           icon,
+                                                                           AbilityType.Spell,
+                                                                           CommandType.Standard,
+                                                                           Helpers.minutesPerLevelDuration,
+                                                                           Helpers.CreateContextRankConfig(),
+                                                                           Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+                ability.AddToSpellList(summoner_class.Spellbook.SpellList, spell_levels[i]);
+                
+                Helpers.AddSpell(ability);
+            }
+        }
+
+
+        static void createRejuvenateEidolon()
+        {
+            var icons = new UnityEngine.Sprite[]{Helpers.GetIcon("47808d23c67033d4bbab86a1070fd62f"), //cure light wounds
+                                                 Helpers.GetIcon("6e81a6679a0889a429dec9cedcf3729c"), //cure serious wounds
+                                                 Helpers.GetIcon("0d657aa811b310e4bbd8586e60156a2d") //cure critical wounds
+                                                };
+            var prefabs = new string[] { "61602c5b0ac793d489c008e9cb58f631", "d95f8959c2e167d4b899de4eea00b60c", "474cb5ac1a1048d4a9ee6ae62474d196" };
+            var max_hp = new int[] { 5, 10, 20 };
+            var names = new string[] { "Rejuvenate Eidolon, Lesser", "Rejuvenate Eidolon", "Rejuvenate Eidolon, Greater" };
+            for (int i = 0; i < 3; i++)
+            {
+                var ability = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "Ability",
+                                                    names[i],
+                                                    $"By laying your hand upon an eidolon, you cause its wounds to close and its form to solidify. This spell cures {1 + 2 * i}d10 points of damage +1 point per caster level (maximum +{max_hp[i]}).",
+                                                    "",
+                                                    icons[i],
+                                                    AbilityType.Spell,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Touch,
+                                                    "",
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D10, 2 * i + 1, Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                    Common.createAbilitySpawnFxDestroyOnCast(prefabs[i], anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP | SpellDescriptor.Cure),
+                                                    Helpers.Create<NewMechanics.AbilityTargetIsPet>(),
+                                                    Helpers.CreateDeliverTouch(),
+                                                    Helpers.CreateContextRankConfig(max: max_hp[i])
+                                                    );
+                ability.setMiscAbilityParametersTouchFriendly();
+                ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Reach;
+                var spell = ability.CreateTouchSpellCast();
+                spell.AddComponent(Helpers.Create<NewMechanics.AbilityTargetIsPet>());
+                spell.AddToSpellList(summoner_class.Spellbook.SpellList, 2 * i + 1);
+                Helpers.AddSpell(spell);
+            }
+        }
+
+
+        static void createLifeConduit()
+        {
+            var icon = Helpers.GetIcon("017afe6934e10c3489176e759a5f01b0"); //touch of good
+            var prefabs = new string[] { "61602c5b0ac793d489c008e9cb58f631", "d95f8959c2e167d4b899de4eea00b60c", "474cb5ac1a1048d4a9ee6ae62474d196" };
+            var names = new string[] { "Life Conduit", "Life_bond Conduit, Improved", "Life Conduit, Greater" };
+
+            for (int i = 0; i <3; i++)
+            {
+                var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal)));
+                var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal)));
+                damage.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
+                var config = Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0), AbilitySharedValue.Heal);
+                var heal_master = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "MasterAbility",
+                                                        names[i],
+                                                        $"You utilize life conduit to share hit points with your eidolon. While this spell is active, you can spend a swift action to transfer {i + 1}d6 hit points between you and your eidolon, either taking damage yourself and healing your eidolon or healing yourself and damaging your eidolon.",
+                                                        "",
+                                                        icon,
+                                                        AbilityType.SpellLike,
+                                                        CommandType.Swift,
+                                                        AbilityRange.Personal,
+                                                        "",
+                                                        "",
+                                                        Helpers.Create<NewMechanics.AbilityCasterPetIsAlive>(),
+                                                        Helpers.CreateRunActions(heal, Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(damage))),
+                                                        Common.createAbilitySpawnFxDestroyOnCast(prefabs[i], anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                        Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP | SpellDescriptor.Cure),
+                                                        config
+                                                        );
+                heal_master.setMiscAbilityParametersSelfOnly();
+                heal_master.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower;
+
+                var heal_pet = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "PetAbility",
+                                        names[i],
+                                        $"You utilize life conduit to share hit points with your eidolon. While this spell is active, you can spend a swift action to transfer {i + 1}d6 hit points between you and your eidolon, either taking damage yourself and healing your eidolon or healing yourself and damaging your eidolon.",
+                                        "",
+                                        icon,
+                                        AbilityType.SpellLike,
+                                        CommandType.Swift,
+                                        AbilityRange.Personal,
+                                        "",
+                                        "",
+                                        Helpers.Create<NewMechanics.AbilityCasterMasterIsAlive>(),
+                                        Helpers.CreateRunActions(heal, Helpers.Create<NewMechanics.ContextActionsOnMaster>(c => c.Actions = Helpers.CreateActionList(damage))),
+                                        Common.createAbilitySpawnFxDestroyOnCast(prefabs[i], anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                        Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                        Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP | SpellDescriptor.Cure),
+                                        config
+                                        );
+                heal_pet.setMiscAbilityParametersSelfOnly();
+                heal_pet.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower;
+
+                var master_buff = Helpers.CreateBuff(names[i].Replace(" ", "").Replace(",", "") + "MasterBuff",
+                                                     heal_master.Name,
+                                                     heal_master.Description,
+                                                     "",
+                                                     heal_master.Icon,
+                                                     null,
+                                                     Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = heal_master),
+                                                     Helpers.CreateAddFact(heal_master)
+                                                     );
+
+                var pet_buff = Helpers.CreateBuff(names[i].Replace(" ", "").Replace(",", "") + "PetBuff",
+                                     heal_pet.Name,
+                                     heal_pet.Description,
+                                     "",
+                                     heal_pet.Icon,
+                                     null,
+                                     Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = heal_pet),
+                                     Helpers.CreateAddFact(heal_pet)
+                                     );
+
+                var apply_master_buff = Common.createContextActionApplyBuff(master_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+                var apply_pet_buff = Common.createContextActionApplyBuff(pet_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+
+                var ability = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "Ability",
+                                                    heal_master.Name,
+                                                    heal_master.Description,
+                                                    "",
+                                                    heal_master.Icon,
+                                                    AbilityType.Spell,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(apply_master_buff, Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(apply_pet_buff))),
+                                                    Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP | SpellDescriptor.Cure),
+                                                    Helpers.CreateContextRankConfig(),
+                                                    Helpers.Create<SharedSpells.CannotBeShared>()
+                                                    );
+                ability.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | Metamagic.Extend;
+                ability.setMiscAbilityParametersSelfOnly();
+                ability.AddToSpellList(summoner_class.Spellbook.SpellList, 2 * i + 1);
+                Helpers.AddSpell(ability);
+            }
+        }
     }
+
+
 }

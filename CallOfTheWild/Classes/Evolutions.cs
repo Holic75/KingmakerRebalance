@@ -59,6 +59,7 @@ namespace CallOfTheWild
         static BlueprintFeature monitor = library.Get<BlueprintFeature>("ece6bde3dfc76ba4791376428e70621a");
         static BlueprintFeature smilodon = library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895");
         static BlueprintFeature wolf = library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea");
+        static BlueprintFeature[] animals = new BlueprintFeature[] { bear, boar, centipede, dog, elk, leopard, mammoth, monitor, smilodon, wolf };
 
 
         static public BlueprintFeature claws;
@@ -382,7 +383,7 @@ namespace CallOfTheWild
                     evolutions_selections_map.Add(ee.group, new List<BlueprintFeature>());
                 }
                 evolutions_selections_map[ee.group].Add(ee.self_selection_feature);
-                ee.selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = self_evolution_selection));
+                ee.self_selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.addSelfEvolutionSelection>(a => a.selection = self_evolution_selection));
             }
 
             foreach (var key in evolutions_selections_map.Keys)
@@ -454,9 +455,9 @@ namespace CallOfTheWild
             var eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                    Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon,
-                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
+                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon};
             var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
-                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
+                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon};
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      new BlueprintFeature[] { boar, dog, mammoth, monitor, wolf }));
             evolution_entries.Add(new EvolutionEntry(claws_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
@@ -471,7 +472,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth})));
+                                                     devil_elemental.RemoveFromArray(Eidolon.infernal_eidolon).AddToArray(new BlueprintFeature[] {boar, elk, mammoth})));
 
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
@@ -497,7 +498,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(wing_buffet, 1, 0, new BlueprintFeature[] {flight}, new BlueprintFeature[0],
-                                         new BlueprintFeature[0]));
+                                         eidolons.AddToArray(animals).RemoveFromArray(Eidolon.infernal_eidolon)));
 
             for (int i = 0; i < ability_increase.Length; i++)
             {
@@ -765,7 +766,7 @@ namespace CallOfTheWild
                                                                    FeatureGroup.None
                                                                    );                                                                  
             }
-            improved_natural_armor[0].AddComponents(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
+            improved_natural_armor[0].AddComponents(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, multiplier: 2),
                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, featureList: improved_natural_armor),
                                                     Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = improved_natural_armor)
                                                     );

@@ -6400,6 +6400,10 @@ namespace CallOfTheWild
 
             foreach (var spellbook in spellbooks)
             {
+                if (spellbook == Summoner.summoner_class.Spellbook)
+                {
+                    continue;
+                }
                 int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_sepllbook_level;
                 max_level = Math.Min(max_level, (int)spellbook.SpellList?.SpellsByLevel?.Length - 1);
                 for (int i = 1; i <= max_level; i++)
