@@ -72,8 +72,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createEnergyDR(10, DamageEnergyType.Cold),
-                                                  Common.createEnergyDR(10, DamageEnergyType.Fire)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel4AddFeature",
+                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Cold),
+                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Fire))
                                                   );
 
             var feature8 = Helpers.CreateFeature("AzataEidolonLevel8Feature",
@@ -91,9 +92,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAlignmentDR(5, DamageAlignment.Evil),
-                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
-                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel12AddFeature",
+                                                                                                  Common.createAlignmentDR(5, DamageAlignment.Evil),
+                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified))
                                                   );
 
 
@@ -139,12 +141,13 @@ namespace CallOfTheWild
                                                            );
 
             var feature20 = Helpers.CreateFeature("AzataEidolonLevel20Feature",
-                                                  "Protective Aura",
-                                                  "At 20th level, angel eidolons gain the protective aura ability.",
+                                                  "Energy Form",
+                                                  "At 20th level, an azata eidolon gains the ability to switch between its normal form and an energy form as a standard action. In its energy form, an azata eidolon is incorporeal and doubles its fly speed, but it can’t make natural or manufactured weapon attacks; it can, however, activate any spell-like ability evolutions it possesses.",
                                                   "",
                                                   buff.Icon,
                                                   FeatureGroup.None,
-                                                  Helpers.CreateAddFact(ability)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel20AddFeature",
+                                                                                                  Helpers.CreateAddFact(ability))                                              
                                                   );
 
             azata_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

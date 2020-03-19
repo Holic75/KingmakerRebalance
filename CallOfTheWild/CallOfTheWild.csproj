@@ -134,6 +134,8 @@
     <Compile Include="Classes\Arcanist.cs" />
     <Compile Include="Classes\Eidolons\Angel.cs" />
     <Compile Include="Classes\Eidolons\Azata.cs" />
+    <Compile Include="Classes\Eidolons\Daemon.cs" />
+    <Compile Include="Classes\Eidolons\Demon.cs" />
     <Compile Include="Classes\Eidolons\Devil.cs" />
     <Compile Include="Classes\Eidolons\Eidolon.cs" />
     <Compile Include="Classes\Eidolons\Inevitable.cs" />

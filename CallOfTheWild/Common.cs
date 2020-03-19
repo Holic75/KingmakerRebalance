@@ -3102,6 +3102,23 @@ namespace CallOfTheWild
         }
 
 
+        public static AddFeatureToCompanion createAddFeatComponentsToAnimalCompanion(string name, params BlueprintComponent[] components)
+        {
+            var feature = Helpers.CreateFeature(name,
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                components);
+            feature.HideInCharacterSheetAndLevelUp = true;
+
+            var add_feat_ac = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion>();
+            add_feat_ac.Feature = feature;
+            return add_feat_ac;
+        }
+
+
         public static BlueprintSpellList combineSpellLists(string name, params BlueprintSpellList[] spell_lists)
         {
             var spell_list = Helpers.Create<BlueprintSpellList>();

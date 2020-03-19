@@ -62,7 +62,8 @@ namespace CallOfTheWild
                                                   "",
                                                   angel_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison),
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel1AddFeature",
+                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -73,8 +74,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createEnergyDR(10, DamageEnergyType.Electricity),
-                                                  Common.createEnergyDR(10, DamageEnergyType.Fire)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel4AddFeature",
+                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Electricity),
+                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Fire))
                                                   );
 
             var feature8 = Helpers.CreateFeature("AngelEidolonLevel8Feature",
@@ -92,9 +94,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAlignmentDR(5, DamageAlignment.Evil),
-                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
-                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel12AddFeature",
+                                                                                                  Common.createAlignmentDR(5, DamageAlignment.Evil),
+                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified))
                                                   );
 
             var feature16 = Helpers.CreateFeature("AngelEidolonLevel16Feature",
@@ -114,7 +117,8 @@ namespace CallOfTheWild
                                                   "",
                                                   protective_aura_toggle.Icon,
                                                   FeatureGroup.None,
-                                                  Helpers.CreateAddFact(protective_aura_toggle)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel16AddFeature",
+                                                                                                  Helpers.CreateAddFact(protective_aura_toggle))                                                
                                                   );
 
             angel_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

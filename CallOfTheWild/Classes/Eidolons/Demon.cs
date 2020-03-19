@@ -44,102 +44,96 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
-        static void fillDevilProgression()
+        static void fillDemonProgression()
         {
-            var base_evolutions = Helpers.CreateFeature("DevilEidolonBaseEvolutionsFeature",
+            var base_evolutions = Helpers.CreateFeature("DemonEidolonBaseEvolutionsFeature",
                                                         "",
                                                         "",
                                                         "",
                                                         null,
                                                         FeatureGroup.None,
+                                                        Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.resistance[2]),
                                                         Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.resistance[3])
                                                         );
             base_evolutions.HideInCharacterSheetAndLevelUp = true;
-            var feature1 = Helpers.CreateFeature("DevilEidolonLevel1Feature",
+            var feature1 = Helpers.CreateFeature("DemonEidolonLevel1Feature",
                                                   "Base Evolutions",
-                                                  "Starting at 1st level, devil eidolons gain the claws evolution, resistance (fire) evolution and the skilled (Persuation) evolution. They also gain a +4 bonus on saving throws against poison.",
+                                                  "Starting at 1st level, demon eidolons gain the claws,  resistance (electricity) and resistance (fire) evolutions as well as a +4 bonus on saving throws against poison.",
                                                   "",
-                                                  devil_eidolon.Icon,
+                                                  demon_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel1AddFeature",
+                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel1AddFeature",
                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison)
                                                                                                   ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws_biped),
-                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.skilled[1]),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
 
-            var feature4 = Helpers.CreateFeature("DevilEidolonLevel4Feature",
+            var feature4 = Helpers.CreateFeature("DemonEidolonLevel4Feature",
                                                   "Resistance",
-                                                  "At 4th level, devil eidolons gain acid resistance 10 and cold resistance 10.",
+                                                  "At 4th level, demon eidolons gain acid resistance 10 and cold resistance 10.",
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel4AddFeature",
+                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel4AddFeature",
                                                                                                   Common.createEnergyDR(10, DamageEnergyType.Acid),
                                                                                                   Common.createEnergyDR(10, DamageEnergyType.Cold)
                                                                                                   )
                                                   );
 
-            var feature8 = Helpers.CreateFeature("DevilEidolonLevel8Feature",
+            var feature8 = Helpers.CreateFeature("DemonEidolonLevel8Feature",
                                                   "Poison Immunity",
-                                                  "At 8th level, devil eidolons gain the skilled (Diplomacy) evolution and gain immunity to poison.",
+                                                  "At 8th level, demon eidolons lose the +4 bonus on saving throws against poison and gain immunity to poison. They also add 1 point to their evolution pools.",
                                                   "",
                                                   Helpers.GetIcon("b48b4c5ffb4eab0469feba27fc86a023"), //delay poison
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel8AddFeature",
+                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel8AddFeature",
                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison),
                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Poison)
-                                                                                                  )
+                                                                                                  ),
+                                                  Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(i => i.amount = 1)
                                                   );
 
-            var feature12 = Helpers.CreateFeature("DevilEidolonLevel12Feature",
-                                                  "Damage Reduction",
-                                                  "At 12th level, devil eidolons gain DR 5/good.",
-                                                  "",
-                                                  Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
-                                                  FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel12AddFeature",
-                                                                                                  Common.createAlignmentDR(5, DamageAlignment.Good)
-                                                                                                  )
-                                                  );
+            var feature12 = Helpers.CreateFeatureSelection("DemonEidolonLevel12Feature",
+                                                          "Damage Reduction",
+                                                          "At 12th level, demon eidolons gain DR 5/good. They also gain the ability increase evolution in an ability score of the summoner’s choice.",
+                                                          "",
+                                                          Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
+                                                          FeatureGroup.None,
+                                                          Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel12AddFeature",
+                                                                                                          Common.createAlignmentDR(5, DamageAlignment.Good)
+                                                                                                          )
+                                                          );
+            feature12.AllFeatures = Evolutions.getPermanenetEvolutions(e => Evolutions.ability_increase.Any(ai => ai[0] == e));
 
-            var feature16 = Helpers.CreateFeature("DevilEidolonLevel16Feature",
-                                                  "Fire Immunity",
-                                                  "At 16th level, devil eidolons lose the resistance (fire) evolution, and instead gain the immunity (fire) evolution.",
+            var feature16 = Helpers.CreateFeature("DemonEidolonLevel16Feature",
+                                                  "Elictricity Immunity",
+                                                  "At 16th level, demon eidolons lose the resistance (electricity) evolution, and instead gain the immunity (electricity) evolution.",
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                   FeatureGroup.None,
-                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[3])
+                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[2])
                                                   );
 
-            var regeneration_buff = Helpers.CreateBuff("DevilEidolonRegenerationBuff",
-                                                       "",
-                                                       "",
-                                                       "",
-                                                       null,
-                                                       null,
-                                                       Helpers.Create<AddEffectRegeneration>(a => { a.Heal = 5; a.CancelDamageAlignmentTypes = new DamageAlignment[] { DamageAlignment.Good }; })
-                                                       );
-            var feature20 = Helpers.CreateFeature("DevilEidolonLevel20Feature",
+            var feature20 = Helpers.CreateFeature("DemonEidolonLevel20Feature",
                                                   "Regeneration",
-                                                  "At 20th level, devil eidolons gain regeneration 5 (good weapons, good spells). They are still banished to Hell as normal for eidolons if they take enough damage.",
+                                                  "At 20th level, demon eidolons gain true seeing as a constant ability.",
                                                   "",
-                                                  Helpers.GetIcon("b6afdc50876e08149b1f9fdcdb2a308c"), //fiend of the pit = rage
+                                                  Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel20AddFeature",
-                                                                                                  Common.createAuraFeatureComponent(regeneration_buff)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel20AddFeature",
+                                                                                                  Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.TrueSeeing)
                                                                                                   )
                                                   );
 
-            devil_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),
+            demon_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),
                                                            Helpers.LevelEntry(4, feature4),
                                                            Helpers.LevelEntry(8, feature8),
                                                            Helpers.LevelEntry(12, feature12),
                                                            Helpers.LevelEntry(16, feature16),
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
-            devil_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+            demon_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
         }
     }
 }

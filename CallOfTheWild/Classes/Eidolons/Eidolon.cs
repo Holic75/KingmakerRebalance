@@ -80,6 +80,8 @@ namespace CallOfTheWild
         {
             fillAngelProgression();
             fillAzataProgression();
+            fillDaemonProgression();
+            fillDemonProgression();
             fillDevilProgression();
             fillInevitableProgression();
         }
@@ -149,7 +151,7 @@ namespace CallOfTheWild
             fey_unit.Wisdom = 10;
             fey_unit.Charisma = 11;
             fey_unit.Speed = 30.Feet();
-            fey_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            fey_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             fey_unit.Body = fey_unit.Body.CloneObject();
             fey_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             fey_unit.Body.PrimaryHand = null;
@@ -178,7 +180,7 @@ namespace CallOfTheWild
             fey_eidolon.ReplaceComponent<AddPet>(a => a.Pet = fey_unit);
             fey_eidolon.IsClassFeature = true;
             fey_eidolon.ReapplyOnLevelUp = true;
-            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fey_eidolon);
+            //Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fey_eidolon);
         }
 
 
@@ -212,9 +214,9 @@ namespace CallOfTheWild
             demon_unit.Wisdom = 10;
             demon_unit.Charisma = 11;
             demon_unit.Speed = 30.Feet();
-            demon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            demon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             demon_unit.Body = demon_unit.Body.CloneObject();
-            demon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"); //claws 1d4
+            demon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74"); //claws 1d4
             demon_unit.Body.PrimaryHand = null;
             demon_unit.Body.SecondaryHand = null;
             demon_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -274,9 +276,9 @@ namespace CallOfTheWild
             daemon_unit.Wisdom = 10;
             daemon_unit.Charisma = 11;
             daemon_unit.Speed = 30.Feet();
-            daemon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            daemon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             daemon_unit.Body = daemon_unit.Body.CloneObject();
-            daemon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"); //claws 1d4
+            daemon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74"); //claws 1d4
             daemon_unit.Body.PrimaryHand = null;
             daemon_unit.Body.SecondaryHand = null;
             daemon_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -342,7 +344,7 @@ namespace CallOfTheWild
             devil_unit.Speed = 30.Feet();
             devil_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
             devil_unit.Body = devil_unit.Body.CloneObject();
-            devil_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"); //claw 1d4
+            devil_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             devil_unit.Body.PrimaryHand = null;
             devil_unit.Body.SecondaryHand = null;
             devil_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -405,9 +407,9 @@ namespace CallOfTheWild
             inevitable_unit.Wisdom = 10;
             inevitable_unit.Charisma = 11;
             inevitable_unit.Speed = 30.Feet();
-            inevitable_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            inevitable_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             inevitable_unit.Body = inevitable_unit.Body.CloneObject();
-            inevitable_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            inevitable_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             inevitable_unit.Body.PrimaryHand = null;
             inevitable_unit.Body.SecondaryHand = null;
             inevitable_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -472,7 +474,7 @@ namespace CallOfTheWild
             azata_unit.Wisdom = 10;
             azata_unit.Charisma = 11;
             azata_unit.Speed = 30.Feet();
-            azata_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            azata_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2,  fx_feature }; // { natural_armor2, fx_feature };
             azata_unit.Body = azata_unit.Body.CloneObject();
             azata_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             azata_unit.Body.PrimaryHand = null;
@@ -543,7 +545,7 @@ namespace CallOfTheWild
             angel_unit.Wisdom = 10;
             angel_unit.Charisma = 11;
             angel_unit.Speed = 30.Feet();
-            angel_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            angel_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             angel_unit.Body = angel_unit.Body.CloneObject();
             angel_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             angel_unit.Body.PrimaryHand = null;
@@ -606,9 +608,9 @@ namespace CallOfTheWild
             earth_elemental_unit.Wisdom = 10;
             earth_elemental_unit.Charisma = 11;
             earth_elemental_unit.Speed = 30.Feet();
-            earth_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            earth_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             earth_elemental_unit.Body = earth_elemental_unit.Body.CloneObject();
-            earth_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            earth_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             earth_elemental_unit.Body.PrimaryHand = null;
             earth_elemental_unit.Body.SecondaryHand = null;
             earth_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -683,9 +685,9 @@ namespace CallOfTheWild
             fire_elemental_unit.Wisdom = 10;
             fire_elemental_unit.Charisma = 11;
             fire_elemental_unit.Speed = 30.Feet();
-            fire_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature}; // { natural_armor2, fx_feature };
+            fire_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature}; // { natural_armor2, fx_feature };
             fire_elemental_unit.Body = fire_elemental_unit.Body.CloneObject();
-            fire_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            fire_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             fire_elemental_unit.Body.PrimaryHand = null;
             fire_elemental_unit.Body.SecondaryHand = null;
             fire_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -758,9 +760,9 @@ namespace CallOfTheWild
             water_elemental_unit.Wisdom = 10;
             water_elemental_unit.Charisma = 11;
             water_elemental_unit.Speed = 30.Feet();
-            water_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            water_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             water_elemental_unit.Body = water_elemental_unit.Body.CloneObject();
-            water_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            water_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             water_elemental_unit.Body.PrimaryHand = null;
             water_elemental_unit.Body.SecondaryHand = null;
             water_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
@@ -834,9 +836,9 @@ namespace CallOfTheWild
             air_elemental_unit.Wisdom = 10;
             air_elemental_unit.Charisma = 11;
             air_elemental_unit.Speed = 30.Feet();
-            air_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            air_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             air_elemental_unit.Body = air_elemental_unit.Body.CloneObject();
-            air_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("5ea80d97dcfc81f46a1b9b2f256340f2"); //slam 1d8
+            air_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             air_elemental_unit.Body.PrimaryHand = null;
             air_elemental_unit.Body.SecondaryHand = null;
             air_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];

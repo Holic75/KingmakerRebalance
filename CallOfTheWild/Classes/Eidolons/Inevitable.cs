@@ -52,9 +52,11 @@ namespace CallOfTheWild
                                                   "",
                                                   inevitable_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Size, SpellDescriptor.Poison | SpellDescriptor.Death 
-                                                                                                                                     | SpellDescriptor.Disease | SpellDescriptor.Paralysis
-                                                                                                                                     | SpellDescriptor.Sleep | SpellDescriptor.Stun)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel1AddFeature",
+                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Size, SpellDescriptor.Poison | SpellDescriptor.Death 
+                                                                                                                                                                                     | SpellDescriptor.Disease | SpellDescriptor.Paralysis
+                                                                                                                                                                                     | SpellDescriptor.Sleep | SpellDescriptor.Stun)
+                                                                                                 )
                                                   );
 
             var feature4 = Helpers.CreateFeature("InevitableEidolonLevel4Feature",
@@ -63,11 +65,13 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("2a6a2f8e492ab174eb3f01acf5b7c90a"), //defensive stance
                                                   FeatureGroup.None,
-                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.MindAffecting),
-                                                  Common.createAddConditionImmunity(UnitCondition.Fatigued),
-                                                  Common.createAddConditionImmunity(UnitCondition.Exhausted),
-                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Fatigue | SpellDescriptor.Exhausted),
-                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Exhausted | SpellDescriptor.Fatigue)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel4AddFeature",
+                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.MindAffecting),
+                                                                                                  Common.createAddConditionImmunity(UnitCondition.Fatigued),
+                                                                                                  Common.createAddConditionImmunity(UnitCondition.Exhausted),
+                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Fatigue | SpellDescriptor.Exhausted),
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Exhausted | SpellDescriptor.Fatigue)
+                                                                                                  )
                                                   );
 
             var feature8 = Helpers.CreateFeature("InevitableEidolonLevel8Feature",
@@ -76,8 +80,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("0413915f355a38146bc6ad40cdf27b3f"), //death ward
                                                   FeatureGroup.None,
-                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Disease | SpellDescriptor.Poison),
-                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Death | SpellDescriptor.Disease | SpellDescriptor.Poison)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel8AddFeature",
+                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Disease | SpellDescriptor.Poison),
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Death | SpellDescriptor.Disease | SpellDescriptor.Poison)
+                                                                                                  )
                                                   );
 
             var feature12 = Helpers.CreateFeature("InevitableEidolonLevel12Feature",
@@ -86,8 +92,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAlignmentDR(5, DamageAlignment.Chaotic),
-                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Sleep)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel12AddFeature",
+                                                                                                  Common.createAlignmentDR(5, DamageAlignment.Chaotic),
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Sleep)
+                                                                                                  )
                                                   );
 
             var feature16 = Helpers.CreateFeature("InevitableEidolonLevel16Feature",
@@ -96,8 +104,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                   FeatureGroup.None,
-                                                  Helpers.Create<AddImmunityToAbilityScoreDamage>(a => a.Drain = true),
-                                                  Helpers.Create<AddImmunityToEnergyDrain>()
+                                                  Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel16AddFeature",
+                                                                                                  Helpers.Create<AddImmunityToAbilityScoreDamage>(a => a.Drain = true),
+                                                                                                  Helpers.Create<AddImmunityToEnergyDrain>()
+                                                                                                  )
                                                   );
 
             var feature20 = Helpers.CreateFeature("InevitableEidolonLevel20Feature",
@@ -106,11 +116,13 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"), //spell resistance
                                                   FeatureGroup.None,
-                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Stun),
-                                                  Common.createAddConditionImmunity(UnitCondition.Paralyzed),
-                                                  Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                  Helpers.CreateAddStatBonus(StatType.SaveFortitude, 100, ModifierDescriptor.Other),
-                                                  Helpers.Create<Evasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
+                                                  Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel20AddFeature",
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Stun),
+                                                                                                  Common.createAddConditionImmunity(UnitCondition.Paralyzed),
+                                                                                                  Common.createAddConditionImmunity(UnitCondition.Stunned),
+                                                                                                  Helpers.CreateAddStatBonus(StatType.SaveFortitude, 100, ModifierDescriptor.Other),
+                                                                                                  Helpers.Create<Evasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
+                                                                                                  )
                                                   );
 
             inevitable_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

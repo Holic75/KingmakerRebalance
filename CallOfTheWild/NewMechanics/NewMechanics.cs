@@ -3390,6 +3390,20 @@ namespace CallOfTheWild
         }
 
 
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetRecentlyDead : BlueprintComponent, IAbilityTargetChecker
+        {
+            public BlueprintBuff RecentlyDeadBuff;
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                bool flag1 = target.Unit != null && ((target.Unit.Descriptor.State.IsDead || target.Unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)) && target.Unit.Descriptor.HasFact((BlueprintUnitFact)this.RecentlyDeadBuff)) && !target.Unit.Descriptor.State.HasCondition(UnitCondition.Petrified);
+                return flag1;
+            }
+        }
+
+
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddFeatureIfHasFactAndNotHasFact : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
@@ -3849,6 +3863,30 @@ namespace CallOfTheWild
                     }
                     this.Target?.Unit?.Descriptor.Stats.GetStat(stat).UpdateValue();
                 }
+            }
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class WriteTargetHDtoSharedValue : ContextAction
+        {
+            public AbilitySharedValue shared_value;
+            public int divisor = 1;
+
+            public override string GetCaption()
+            {
+                return "";
+            }
+
+            public override void RunAction()
+            {
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return;
+                }
+                this.Context[this.shared_value] = unit.Descriptor.Progression.CharacterLevel / divisor;
             }
         }
 
