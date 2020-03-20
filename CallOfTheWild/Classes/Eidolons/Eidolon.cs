@@ -942,7 +942,7 @@ namespace CallOfTheWild
             eidolon_class.SkillPoints = druid_class.SkillPoints + 1;
             eidolon_class.HitDie = DiceType.D10;
             eidolon_class.BaseAttackBonus = fighter_class.BaseAttackBonus;
-            eidolon_class.FortitudeSave = druid_class.ReflexSave;
+            eidolon_class.FortitudeSave = druid_class.FortitudeSave;
             eidolon_class.ReflexSave = druid_class.ReflexSave;
             eidolon_class.WillSave = druid_class.WillSave;
             eidolon_class.Spellbook = null;

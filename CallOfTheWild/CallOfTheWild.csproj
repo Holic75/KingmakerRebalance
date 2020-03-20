@@ -143,7 +143,7 @@
     <Compile Include="Classes\Eidolons\FireElemental.cs" />
     <Compile Include="Classes\Eidolons\Inevitable.cs" />
     <Compile Include="Classes\Eidolons\WaterElemental.cs" />
-    <Compile Include="Classes\Evolutions.cs" />
+    <Compile Include="Classes\Eidolons\Evolutions.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
     <Compile Include="Classes\Mysteries\Bones.cs" />

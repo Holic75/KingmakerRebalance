@@ -722,7 +722,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //shield
                 new Common.SpellId( "8fd74eddd9b6c224693d9ab241f25e84", 1), //summon monster 1
 
-                new Common.SpellId( NewSpells.aggressive_thundercloud.AssetGuid, 2),
                 new Common.SpellId( "5b77d7cc65b8ab74688e74a37fc2f553", 2), //barksin
                 new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
                 new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
@@ -741,8 +740,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 //restore eidolon, lesser
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
-                new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
-                new Common.SpellId( "6c7467f0344004d48848a43d8c078bf8", 2), //sickening entanglement
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
 
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
@@ -853,7 +850,9 @@ namespace CallOfTheWild
                                                                            Helpers.CreateContextRankConfig(),
                                                                            Helpers.CreateSpellComponent(SpellSchool.Transmutation));
                 ability.AddToSpellList(summoner_class.Spellbook.SpellList, spell_levels[i]);
-                
+                ability.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+
+
                 Helpers.AddSpell(ability);
             }
         }
@@ -902,7 +901,7 @@ namespace CallOfTheWild
         {
             var icon = Helpers.GetIcon("017afe6934e10c3489176e759a5f01b0"); //touch of good
             var prefabs = new string[] { "61602c5b0ac793d489c008e9cb58f631", "d95f8959c2e167d4b899de4eea00b60c", "474cb5ac1a1048d4a9ee6ae62474d196" };
-            var names = new string[] { "Life Conduit", "Life_bond Conduit, Improved", "Life Conduit, Greater" };
+            var names = new string[] { "Life Conduit", "Life Conduit, Improved", "Life Conduit, Greater" };
 
             for (int i = 0; i <3; i++)
             {

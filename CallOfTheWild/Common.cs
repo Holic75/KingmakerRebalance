@@ -1301,6 +1301,7 @@ namespace CallOfTheWild
             area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = conditions; });
 
             var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "Area" + buff.name, "");
+            area_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area_effect);
             return Common.createAuraFeatureComponent(area_buff);
         }
 

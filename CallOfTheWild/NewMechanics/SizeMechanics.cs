@@ -16,6 +16,20 @@ namespace CallOfTheWild.SizeMechanics
 {
     public class UnitPartSizeOverride : AdditiveUnitPart
     {
+        public new void addBuff(Fact buff)
+        {
+            base.addBuff(buff);
+            this.Owner.Ensure<UnitPartSizeModifier>().Remove(null);
+        }
+
+
+        public new void removeBuff(Fact buff)
+        {
+            base.removeBuff(buff);
+            this.Owner.Ensure<UnitPartSizeModifier>().Remove(null);
+        }
+
+
         public Size getSize()
         {
             if (buffs.Empty())
@@ -38,14 +52,14 @@ namespace CallOfTheWild.SizeMechanics
         public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartSizeOverride>().addBuff(this.Fact);
-            this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
+            //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
         }
 
 
         public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartSizeOverride>().removeBuff(this.Fact);
-            this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
+            //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
         }
     }
 

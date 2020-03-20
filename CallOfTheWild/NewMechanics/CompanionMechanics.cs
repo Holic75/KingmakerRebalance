@@ -9,6 +9,10 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -49,7 +53,7 @@ namespace CallOfTheWild.CompanionMechanics
 
 
             int max_can_transfer = pet.HPLeft + pet.Stats.Constitution - 1;
-            int max_need_transfer =  threshold - evt.Target.HPLeft;
+            int max_need_transfer = threshold - evt.Target.HPLeft;
 
             int transfer_damage = Math.Min(max_can_transfer, max_need_transfer);
             transfer_damage = Math.Min(transfer_damage, evt.Target.Damage);
@@ -89,7 +93,7 @@ namespace CallOfTheWild.CompanionMechanics
             int max_can_transfer = master.HPLeft - 1;
             int max_need_transfer = (-evt.Target.HPLeft) - evt.Target.Stats.Constitution + 1;
 
-            
+
             int transfer_damage = Math.Min(max_can_transfer, max_need_transfer);
             transfer_damage = Math.Min(transfer_damage, evt.Target.Damage);
             if (transfer_damage <= 0)
@@ -173,4 +177,26 @@ namespace CallOfTheWild.CompanionMechanics
         }
     }
 
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityTargetHasFactUnlessPet : BlueprintComponent, IAbilityTargetChecker
+    {
+        public BlueprintUnitFact[] CheckedFacts;
+        public bool Inverted;
+
+        public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+        {
+            UnitEntityData unit = target.Unit;
+            if (unit == null)
+                return false;
+            bool flag = false;
+            foreach (BlueprintUnitFact checkedFact in this.CheckedFacts)
+            {
+                flag = unit.Descriptor.HasFact(checkedFact);
+                if (flag)
+                    break;
+            }
+            return (flag != this.Inverted) || (caster.Descriptor.Pet != null && caster.Descriptor.Pet == target.Unit);
+        }
+    }
 }

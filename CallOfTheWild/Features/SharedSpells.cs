@@ -9,6 +9,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.Utility;
@@ -150,6 +151,16 @@ namespace CallOfTheWild
 
             //make spells unsharaeable
             library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67").AddComponent(Helpers.Create<SharedSpells.CannotBeShared>()); //acid maw
+
+            var spells_ids_to_allow_working_on_pets = new string[] { "c60969e7f264e6d4b84a1499fdcf9039", //enlarge
+                                                                     "4e0e9aba6447d514f88eff1464cc4763" }; //reduce 
+
+            foreach (var s in spells_ids_to_allow_working_on_pets)
+            {
+                var spell = library.Get<BlueprintAbility>(s);
+                var check_component = spell.GetComponent<AbilityTargetHasFact>();
+                spell.ReplaceComponent(check_component, Helpers.Create<CompanionMechanics.AbilityTargetHasFactUnlessPet>(a => { a.CheckedFacts = check_component.CheckedFacts; a.Inverted = check_component.Inverted; }));
+            }
         }
 
         private static void createCanOnlyTargetSelfBuff()
