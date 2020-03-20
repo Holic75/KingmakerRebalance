@@ -5,6 +5,8 @@ using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.Items;
+using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Damage;
@@ -197,6 +199,141 @@ namespace CallOfTheWild.CompanionMechanics
                     break;
             }
             return (flag != this.Inverted) || (caster.Descriptor.Pet != null && caster.Descriptor.Pet == target.Unit);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class  SharedSlots: OwnedGameLogicComponent<UnitDescriptor>, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+
+            var pet = Owner.Pet;
+            if (pet == null)
+            {
+                return;
+            }
+
+
+            bool unequipped = slot.MaybeItem == null;
+            bool equipped = previousItem == null;
+                 
+            if (slot == Owner.Body.Head)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Head.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Head.RetainDeactivateFlag();
+                }
+            }
+
+            if (slot == Owner.Body.Neck)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Neck.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Neck.RetainDeactivateFlag();
+                }
+            }
+
+            if (slot == Owner.Body.Shoulders)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Shoulders.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Shoulders.RetainDeactivateFlag();
+                }
+            }
+
+            if (slot == Owner.Body.Wrist)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Wrist.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Wrist.RetainDeactivateFlag();
+                }
+            }
+
+
+            if (slot == Owner.Body.Gloves)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Gloves.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Gloves.RetainDeactivateFlag();
+                }
+            }
+
+
+            if (slot == Owner.Body.Ring1)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Ring1.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Ring1.RetainDeactivateFlag();
+                }
+            }
+
+
+            if (slot == Owner.Body.Ring2)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Ring2.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Ring2.RetainDeactivateFlag();
+                }
+            }
+
+
+            if (slot == Owner.Body.Feet)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Feet.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Feet.RetainDeactivateFlag();
+                }
+            }
+
+
+            if (slot == Owner.Body.Belt)
+            {
+                if (unequipped)
+                {
+                    pet.Body.Belt.ReleaseDeactivateFlag();
+                }
+                if (equipped)
+                {
+                    pet.Body.Belt.RetainDeactivateFlag();
+                }
+            }
+
         }
     }
 }

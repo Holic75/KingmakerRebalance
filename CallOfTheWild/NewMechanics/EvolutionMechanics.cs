@@ -161,16 +161,20 @@ namespace CallOfTheWild.EvolutionMechanics
         }
 
         public override void OnTurnOff()
-        {          
+        {
+            Main.logger.Log("TurningOff");
             base.OnFactDeactivate();
             this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolution(Feature, this.Fact);
+            Main.logger.Log("TurnOff " + this.Fact.Name);
         }
 
 
         public override void OnFactDeactivate()
-        {         
+        {
+            Main.logger.Log("Deactivating");
             base.OnFactDeactivate();
             this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolution(Feature, this.Fact);
+            Main.logger.Log("Deactivate " + this.Fact.Name);
         }
     }
 

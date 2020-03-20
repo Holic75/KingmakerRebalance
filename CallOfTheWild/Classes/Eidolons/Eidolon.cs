@@ -507,7 +507,6 @@ namespace CallOfTheWild
             var azata = library.Get<BlueprintUnit>("d6fdf2d1776817b4bab5d4a43d9ea708");
             var azata_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AzataEidolonUnit", "");
             azata_unit.Color = azata.Color;
-
             azata_unit.Visual = azata.Visual;
             azata_unit.LocalizedName = azata.LocalizedName.CreateCopy();
             azata_unit.LocalizedName.String = Helpers.CreateString(azata_unit.name + ".Name", "Azata Eidolon");

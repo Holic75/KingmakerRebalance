@@ -49,7 +49,10 @@ namespace CallOfTheWild
 
             static EquipSlotBase.SlotType[] allowed_slots_animal = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders };
             static EquipSlotBase.SlotType[] allowed_slots_eidolon = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.PrimaryHand, EquipSlotBase.SlotType.SecondaryHand,
+                                                                                                   EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Feet, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves, EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders,
                                                                                                    EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
+
+   
             static bool Prefix(CharDollBase __instance, UnitEntityData player)
             {
                 var tr = Harmony12.Traverse.Create(__instance);
@@ -57,6 +60,16 @@ namespace CallOfTheWild
                 if (__instance.CurrentUnit == null)
                     return false;
 
+                bool is_eidolon = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null;
+                EquipSlotBase.SlotType[] allowed_slots;
+                if (!is_eidolon)
+                {
+                    allowed_slots = allowed_slots_animal;
+                }
+                else
+                {
+                    allowed_slots = allowed_slots_eidolon;
+                }
 
                 foreach (EquipSlotBase slot in tr.Property("SlotList").GetValue<List<EquipSlotBase>>())
                 {
@@ -64,15 +77,6 @@ namespace CallOfTheWild
                     slot.SetupInfo(player.Body);
                     if (player.Descriptor.IsPet)
                     {
-                        EquipSlotBase.SlotType[] allowed_slots;
-                        if (player.Blueprint.GetComponent<Eidolon.EidolonComponent>() == null)
-                        {
-                            allowed_slots = allowed_slots_animal;
-                        }
-                        else
-                        {
-                            allowed_slots = allowed_slots_eidolon;
-                        }
                         if (!allowed_slots.Contains(slot.Type))
                         {
                             if (!slot.Slot.Lock)
@@ -91,7 +95,7 @@ namespace CallOfTheWild
                                 slot.Slot.Lock.Release();
                             }
                         }
-                    }
+                    }                                      
                 }
                 if (tr.Property("Room").GetValue() != null)
                     tr.Property("Room").Method("SetupInfo", player).GetValue();

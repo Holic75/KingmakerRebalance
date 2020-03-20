@@ -75,6 +75,9 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource summon_resource;
 
 
+        static public BlueprintFeature link;
+
+
         internal static void createSummonerClass()
         {
             Main.logger.Log("Summoner class test mode: " + test_mode.ToString());
@@ -142,6 +145,7 @@ namespace CallOfTheWild
             createSummonerProficiencies();
             createSummonerCantrips();
             createEidolon();
+            createLink();
             createLifeLink();
             createLifeBond();
             createShieldAllyAndGreaterSheildAlly();
@@ -162,7 +166,7 @@ namespace CallOfTheWild
                                                               FeatureGroup.None);
             summoner_progression.Classes = getSummonerArray();
 
-            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips, eidolon_selection, life_link,
+            summoner_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, summoner_proficiencies, detect_magic, summoner_cantrips, eidolon_selection, life_link, link,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
                                                                     Helpers.LevelEntry(2),
@@ -197,7 +201,7 @@ namespace CallOfTheWild
 
             summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips, eidolon_selection };
             summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(life_link, shield_ally, makers_call, transposition, life_bond, greater_shield_ally, twin_eidolon),
-                                                            Helpers.CreateUIGroup(aspect, greater_aspect),
+                                                            Helpers.CreateUIGroup(link, aspect, greater_aspect),
                                                             Helpers.CreateUIGroup(summon_monster)
                                                            };
         }
@@ -536,6 +540,19 @@ namespace CallOfTheWild
                                                         FeatureGroup.None,
                                                         Helpers.Create<AddFeatureToCompanion>(a => a.Feature = greater_shield_ally)
                                                         );
+        }
+
+
+        static void createLink()
+        {
+            link = Helpers.CreateFeature("SummonerLink",
+                                         "Link",
+                                         "A summoner and his eidolon share a mental link that allows for communication across any distance (as long as they are on the same plane). This communication is a free action, allowing the summoner to give orders to his eidolon at any time. In addition, magic items interfere with the summoner’s connection to his eidolon. As a result, the summoner and his eidolon share magic item slots. For example, if the summoner is wearing a ring, his eidolon can wear no more than one ring. In case of a conflict, the items worn by the summoner remain active, and those used by the eidolon become dormant. The eidolon must possess the appropriate appendages to use a magic item.",
+                                         "",
+                                         null,
+                                         FeatureGroup.None,
+                                         Helpers.Create<CompanionMechanics.SharedSlots>()
+                                         );
         }
 
 
