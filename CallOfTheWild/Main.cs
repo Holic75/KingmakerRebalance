@@ -153,7 +153,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixWebSchool();
                     CallOfTheWild.Rebalance.fixMagicVestment();
                     CallOfTheWild.Rebalance.fixDragonDiscipleBonusFeat();
-                    CallOfTheWild.Rebalance.fixAnimalGrowth();
+                    CallOfTheWild.Rebalance.fixAnimalSizeChange();
                     CallOfTheWild.Rebalance.fixIncreasedDamageReduction();
                     CallOfTheWild.Rebalance.fixItemBondForSpontnaeousCasters();
                     CallOfTheWild.FixFlying.load();

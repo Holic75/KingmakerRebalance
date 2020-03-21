@@ -978,8 +978,8 @@ namespace CallOfTheWild
                                            icon,
                                            FeatureGroup.None,
                                            Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_angel; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon }; }),
-                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_devil; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon }; }),
-                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_dragon; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon }; a.not = true; })
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_devil; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon }; }),
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_dragon; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon }; a.not = true; })
                                            );
         }
 

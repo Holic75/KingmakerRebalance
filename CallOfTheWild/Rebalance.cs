@@ -572,37 +572,33 @@ namespace CallOfTheWild
         }
 
 
-        static internal void fixAnimalGrowth()
+        static internal void fixAnimalSizeChange()
         {
-            //fix animal growth to increase size on upgraded animal companions
-            var animal_growth = library.Get<BlueprintAbility>("56923211d2ac95e43b8ac5031bab74d8");
-            var animal_growth_buff = library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a");
-            var animal_growth_buff2 = library.CopyAndAdd(animal_growth_buff, "AnimalGrowth2Buff", "");
-            animal_growth_buff2.ReplaceComponent<ChangeUnitSize>(c => c.SizeDelta = 2);
+            //to make it compatible with size increasing efects
+            string[] large_upgrades = new string[] {"abda5a76b8a5901478495ffdc5450c9e", //bear
+                                                    "59f2a25bc27f1a2408721dc24f0589c5", //boar
+                                                    "c938099ca0438b242b3edecfa9083e9f", //centiepede
+                                                    "9763e77bfdcd32541848a9095ac53455", //dog
+                                                    "70206f918cecc9440925dad944760928", //elk
+                                                    "6a23d16a4476af644af89d91f9f96790", //mammoth
+                                                    "f1e949c3d93fc234da255b94629c5b3a", //smilodon
+                                                    "fb27e69b4ca4e904bac8e97833c4a12c", //wolf
+                                                    };
+            string[] medium_upgrades = new string[] {"beb608c45bb2aef42802e2afdf018a32", //monitor
+                                                     "b8c98af302ee334499d30a926306327d", //leopard
+                                                    };
 
-            BlueprintFeatureSelection animal_companion_selection = library.Get<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533"); //select ac from domain
-
-            List<BlueprintFeature> upgrade_features = new List<BlueprintFeature>();
-
-            foreach (var ac in animal_companion_selection.AllFeatures)
+            foreach (var id in large_upgrades)
             {
-                var upgrade_feature = ac.GetComponent<AddPet>()?.UpgradeFeature;
-
-                if (upgrade_feature != null)
-                {
-                    upgrade_features.Add(upgrade_feature);
-                }
+                var feature = library.Get<BlueprintFeature>(id);
+                feature.ReplaceComponent<ChangeUnitSize>(Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Large));
             }
 
-            var animal_growth_run_action = animal_growth.GetComponent<AbilityEffectRunAction>();
-            var apply_buff_action = animal_growth_run_action.Actions.Actions[0] as ContextActionApplyBuff;
-            var apply_buff2_action = apply_buff_action.CreateCopy();
-            apply_buff2_action.Buff = animal_growth_buff2;
-
-            var new_run_action = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, upgrade_features.ToArray()),
-                                                           apply_buff2_action,
-                                                           apply_buff_action);
-            animal_growth_run_action.Actions = Helpers.CreateActionList(new_run_action);
+            foreach (var id in medium_upgrades)
+            {
+                var feature = library.Get<BlueprintFeature>(id);
+                feature.ReplaceComponent<ChangeUnitSize>(Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Medium));
+            }
         }
 
 

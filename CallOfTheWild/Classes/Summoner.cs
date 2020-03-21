@@ -75,6 +75,11 @@ namespace CallOfTheWild
         static public BlueprintFeature[] summon_monster = new BlueprintFeature[9];
         static public BlueprintSummonPool summon_pool;
         static public BlueprintAbilityResource summon_resource;
+        static public BlueprintArchetype devil_binder;
+        static public BlueprintFeature[] infernal_affinity;
+        static public BlueprintFeature[] infernal_arcana;
+        static public BlueprintFeature devil_binder_smite_chaos;
+        static public BlueprintFeature devil_binder_charisma_bonus;
 
 
         static public BlueprintFeature link;
@@ -127,14 +132,212 @@ namespace CallOfTheWild
 
             createSummonerProgression();
             summoner_class.Progression = summoner_progression;
-            summoner_class.Archetypes = new BlueprintArchetype[] {  }; //devil binder, twinned summoner?, master summoner, spirit summoner 
+            createDevilBinder();
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder }; //devil binder, twinned summoner?, master summoner, spirit summoner 
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
 
             createSummonerSpells();
+            //add to prestige classes
         }
 
+
+
+        static void createDevilBinder()
+        {
+            devil_binder = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "DevilBinderArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Devil Binder");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While many assume Hellknights are worshipers or agents of devil-kind or, at best, duped puppets of the infernal realm-most Hellknights see Hell and its native devils as a challenge to be conquered. If one can dominate these beings of pure (albeit cruel) law, then the power of that law is theirs by right. While the Test undertaken by those who seek to become full Hellknights is one method by which this power is earned, the devil binder takes this philosophy a step further, forcing a devil into service.\n"
+                                                                                        + "Unlike those of most summoners, a devil binder’s eidolon does not willingly serve its master due to a similar philosophical bent.While some devil binders(especially those who do serve Hell) seek more amicable relationships with these infernal servants, others treat their eidolons as mere tools, remorselessly ordering the devils into battle. The nature of the summoner’s magical bond is irrevocably altered by their style of invocation.A devil binder borrows extraplanar quintessence from her eidolon, gaining strange abilities for herself and evolving her eidolon’s magical powers.");
+            });
+            Helpers.SetField(devil_binder, "m_ParentClass", summoner_class);
+            library.AddAsset(devil_binder, "");
+
+            createInfernalAffinity();
+            createInfernalArcana();
+            createSmiteChaos();
+            createDevilBinderCharismaBonus();
+
+            foreach (var e in eidolon_selection.AllFeatures)
+            {
+                e.AddComponent(Common.prerequisiteNoArchetype(summoner_class, devil_binder));
+            }
+
+            Eidolon.infernal_eidolon.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, devil_binder, 1));
+            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.infernal_eidolon);
+
+            devil_binder.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_monster[0]),
+                                                             Helpers.LevelEntry(3, summon_monster[1]),
+                                                             Helpers.LevelEntry(4, shield_ally),
+                                                             Helpers.LevelEntry(5, summon_monster[2]),
+                                                             Helpers.LevelEntry(6, makers_call),
+                                                             Helpers.LevelEntry(7, summon_monster[3]),
+                                                             Helpers.LevelEntry(8, transposition),
+                                                             Helpers.LevelEntry(9, summon_monster[4]),
+                                                             Helpers.LevelEntry(11, summon_monster[5]),
+                                                             Helpers.LevelEntry(12, greater_shield_ally),
+                                                             Helpers.LevelEntry(13, summon_monster[6]),
+                                                             Helpers.LevelEntry(15, summon_monster[7]),
+                                                             Helpers.LevelEntry(17, summon_monster[8]),
+                                                             Helpers.LevelEntry(20, twin_eidolon)
+                                                           };
+            devil_binder.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, infernal_arcana[0]),
+                                                          Helpers.LevelEntry(3, infernal_arcana[1]),
+                                                          Helpers.LevelEntry(4, infernal_affinity[0], devil_binder_charisma_bonus),
+                                                          Helpers.LevelEntry(5, infernal_arcana[2]),
+                                                          Helpers.LevelEntry(6, devil_binder_smite_chaos),
+                                                          Helpers.LevelEntry(7, infernal_arcana[3]),
+                                                          Helpers.LevelEntry(8, infernal_affinity[1]),
+                                                          Helpers.LevelEntry(9, infernal_arcana[4]),
+                                                          Helpers.LevelEntry(11, infernal_arcana[5]),
+                                                          Helpers.LevelEntry(12, infernal_affinity[2]),
+                                                          Helpers.LevelEntry(13, infernal_arcana[6]),
+                                                          Helpers.LevelEntry(15, infernal_arcana[7]),
+                                                          Helpers.LevelEntry(16, infernal_affinity[3]),
+                                                          Helpers.LevelEntry(17, infernal_arcana[8]),
+                                                          Helpers.LevelEntry(19, infernal_arcana[9]),
+                                                          Helpers.LevelEntry(20, infernal_affinity[4])
+                                                        };
+
+
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(infernal_affinity));
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(infernal_arcana));
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(devil_binder_charisma_bonus, devil_binder_smite_chaos));
+        }
+
+
+        static void createDevilBinderCharismaBonus()
+        {
+            var charisma_bonus = Helpers.CreateFeature("InfernalEidolonCharismaBonus",
+                                                                "Eidolon Charisma Bonus",
+                                                                "At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None,
+                                                                Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.UntypedStackable, multiplier: 2),
+                                                                Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(),
+                                                                                                classes: getSummonerArray(), progression: ContextRankProgression.StartPlusDivStep,
+                                                                                                startLevel: 4, stepLevel: 4)
+                                                               );
+            devil_binder_charisma_bonus = Common.createAddFeatToAnimalCompanion(charisma_bonus, "");
+        }
+
+
+        static void createSmiteChaos()
+        {
+            var smite_chaos = Common.createSmite("DevilBinderSmiteChaos",
+                                     "Smite Chaos",
+                                     "At 6th level, the summoner’s eidolon gains the ability to smite chaos as a Hellknight of its Hit Dice.  As a swift action, the eidolon chooses one target within sight to smite. If this target is of chaotic alignment, the eidolon adds its Charisma bonus (if any) to its attack rolls and adds its HD to all damage rolls made against the target of its smite. Smite attacks automatically bypass any DR the target possesses.\n"
+                                     + "In addition, while smite is in effect, the eidolon gains a deflection bonus equal to its Charisma modifier (if any) to its AC against attacks made by the target of the smite. If the smite targets a creature that’s not of the chaotic alignment, the smite is wasted with no effect.\n"
+                                     + "The smite effect remains until the target of the smite is dead or the next time the eidolon rests. The eidolon can use this ability once per day, plus one additional time per day for every 4 levels beyond 6th (to a maximum of five times per day at 18th level).",
+                                     "",
+                                     "",
+                                     Helpers.GetIcon("474ed0aa656cc38499cc9a073d113716"),
+                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { Eidolon.eidolon_class }),
+                                     AlignmentComponent.Chaotic);
+            var smite_resource = Helpers.CreateAbilityResource("SmiteResource", "", "", "", null);
+            smite_resource.SetFixedResource(1);
+            var smite_ability = smite_chaos.GetComponent<AddFacts>().Facts.First() as BlueprintAbility;
+            smite_chaos.ReplaceComponent<AddAbilityResources>(c => c.Resource = smite_resource);
+            smite_ability.ReplaceComponent<AbilityResourceLogic>(c => c.RequiredResource = smite_resource);
+            smite_chaos.AddComponents(Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Resource = smite_resource; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                     Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(), classes: getSummonerArray(),
+                                                                     progression: ContextRankProgression.DelayedStartPlusDivStep, startLevel: 10, stepLevel: 4)
+                                    );
+            devil_binder_smite_chaos = Common.createAddFeatToAnimalCompanion(smite_chaos, "");
+        }
+
+        static void createInfernalAffinity()
+        {
+            var corrupting_touch = library.CopyAndAdd<BlueprintAbility>("ec78fc025b797b1459786f012b92e1ad", "DevilBinderCorruptingTouch", "");
+            corrupting_touch.ReplaceComponent<ContextRankConfig>(c => { Helpers.SetField(c, "m_Class", getSummonerArray()); Helpers.SetField(c, "Archetype", devil_binder); });
+            var corrupting_touch_resource = library.Get<BlueprintAbilityResource>("1c55aba4475e93440ade11d7076703d4");
+            corrupting_touch.RemoveComponents<AbilityResourceLogic>();
+            var corrupting_touch_cast = Helpers.CreateTouchSpellCast(corrupting_touch);
+            corrupting_touch_cast.AddComponent(corrupting_touch_resource.CreateResourceLogic());
+            var corrupting_touch_feature = library.CopyAndAdd<BlueprintFeature>("de7fc4b905e3c434a8f8eaac80195b64", "DevilBinderCorruptingTouchFeature", "");
+            corrupting_touch_feature.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { corrupting_touch_cast });
+            corrupting_touch.SetDescription("You can cause a creature to become shaken as a melee touch attack. This effect persists for a number of rounds equal to 1/2 your summoner level (minimum 1). Multiple touches do not stack, but they do add to the duration. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+            corrupting_touch_feature.SetDescription(corrupting_touch.Description);
+            var infernal_resistances = Helpers.CreateFeature("DevilBinderInfernalResistances",
+                                                             "Infernal Resistances",
+                                                             "You gain resist fire 5 and a +2 bonus on saving throws made against poison. At 9th level, your resistance to fire increases to 10 and your bonus on poison saving throws increases to +4.",
+                                                             "",
+                                                             Helpers.GetIcon("ddfb4ac970225f34dbff98a10a4a8844"),
+                                                             FeatureGroup.None,
+                                                             Common.createEnergyDRContextRank(DamageEnergyType.Fire, AbilityRankType.Default, multiplier: 5),
+                                                             Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilitySharedValue.StatBonus), ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison),
+                                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSummonerArray(),
+                                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 9,
+                                                                                             max: 2),
+                                                             Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.One, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.Default)), AbilitySharedValue.StatBonus)
+                                                             );
+            var hellfire_resource = Helpers.CreateAbilityResource("DevilBinderHellfireResource", "", "", "", null);
+            hellfire_resource.SetIncreasedByLevelStartPlusDivStep(1, 17, 1, 3, 1, 0, 0.0f, getSummonerArray());
+            var hellfire_ability = library.CopyAndAdd<BlueprintAbility>("87e837a180a12db448a6d78e58e1b0a6", "DevinlBinderHellfireAbility", "");
+            hellfire_ability.SetDescription("You can call down a column of hellfire. This 10 - foot - radius burst does 1d6 points of fire damage per sorcerer level.Those caught in the area of your blast receive a Reflex save for half damage. Good creatures that fail their saves are shaken for a number of rounds equal to your sorcerer level.The DC of this save is equal to 10 + 1 / 2 your summoner level + your Charisma modifier. At 9th level, you can use this ability once per day. At 17th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day. This power has a range of 60 feet.");
+
+            hellfire_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = hellfire_resource);
+            hellfire_ability.ReplaceComponent<ContextRankConfig>(c => { Helpers.SetField(c, "m_Class", getSummonerArray()); Helpers.SetField(c, "Archetype", devil_binder); });
+            hellfire_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(summoner_class, StatType.Charisma));
+            var hellfire = Common.AbilityToFeature(hellfire_ability, false);
+            hellfire.AddComponent(hellfire_resource.CreateAddAbilityResource());
+
+            var on_dark_wings = library.Get<BlueprintFeature>("85243106886a0384380d5b5f04046909");
+            var power_of_the_pit = library.Get<BlueprintFeature>("b6afdc50876e08149b1f9fdcdb2a308c");
+
+
+            infernal_affinity = new BlueprintFeature[] { corrupting_touch_feature, infernal_resistances, hellfire, on_dark_wings, power_of_the_pit };
+        }
+
+
+        static void createInfernalArcana()
+        {          
+            var spells = new BlueprintAbility[] {library.Get<BlueprintAbility>("1eaf1020e82028d4db55e6e464269e00"), //protection chaos
+                                                 library.Get<BlueprintAbility>("cdb106d53c65bbc4086183d54c3b97c7"), //scorching ray
+                                                 library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e"), //hold person
+                                                 library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903"), //crushing despair
+                                                 library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61"), //dominate person
+                                                 library.Get<BlueprintAbility>("02de4dd8add69aa42a3d1330b573e2ab"), //summon soul eater 
+                                                 library.Get<BlueprintAbility>("98734a2665c18cd4db71878b0532024a"), //firebrand
+                                                 library.Get<BlueprintAbility>("f958ef62eea5050418fb92dfa944c631"), //power word stun
+                                                 NewSpells.meteor_swarm};
+
+            infernal_arcana = new BlueprintFeature[spells.Length + 1];
+            var resource_bonus = Helpers.CreateFeature("InfernalArcanaExtraUseFeature",
+                                                       "Infernal Arcana Extra Use",
+                                                       "At 19th level, the devil binder’s eidolon can use each of its infernal arcana spell-like abilities three times per day.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.None);
+
+            for (int i = 0; i < spells.Length; i++)
+            {
+                var resource = Helpers.CreateAbilityResource("InfernalArcana" + spells[i].name + "Resource", "", "", "", null);
+                resource.SetFixedResource(1);
+                var spell_like = Common.convertToSpellLike(spells[i], "InfernalArcana", new BlueprintCharacterClass[] { Eidolon.eidolon_class }, StatType.Charisma,
+                                                           resource, no_scaling: true);
+                spell_like.AddComponent(Helpers.Create<ContextCalculateAbilityParams>(c => { /*c.ReplaceCasterLevel = true; c.CasterLevel = Helpers.CreateContextValue(AbilityRankType.SpeedBonus);*/ c.StatType = StatType.Charisma; c.ReplaceSpellLevel = true; c.SpellLevel = i + 1; }));
+                spell_like.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(),
+                                                                        classes: getSummonerArray(), type: AbilityRankType.SpeedBonus));
+                var spell_feature = Common.AbilityToFeature(spell_like, false);
+                spell_feature.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = new BlueprintAbility[] { spell_like }; c.correct_dc = true; c.value = Helpers.CreateContextValue(AbilityRankType.Default);}));
+                spell_feature.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(), 
+                                            classes: getSummonerArray(),
+                                            progression: ContextRankProgression.DivStep, stepLevel: 4));
+                spell_feature.SetNameDescription("Infernal Arcana: " + spell_feature.Name,
+                                                 $"The devil binder’s eidolon gains {spell_feature.Name} spell - like ability.\n"
+                                                 + "This ability is usable once per day, and the eidolon’s caster level is equal to the devil binder’s summoner level.\n"
+                                                 + spell_feature.Name + ": " + spell_feature.Description);
+                spell_feature.AddComponent(resource.CreateAddAbilityResource());
+                infernal_arcana[i] = Common.createAddFeatToAnimalCompanion(spell_feature, "");
+                resource_bonus.AddComponent(Helpers.Create<IncreaseResourceAmount>(r => { r.Resource = resource; r.Value = 2; }));
+            }
+            infernal_arcana[spells.Length] = Common.createAddFeatToAnimalCompanion(resource_bonus, "");
+        }
 
         static public BlueprintCharacterClass[] getSummonerArray()
         {
@@ -225,7 +428,7 @@ namespace CallOfTheWild
 
             summon_resource = Helpers.CreateAbilityResource("SummonnerSummonResource", "", "", "", null);
             summon_resource.SetIncreasedByStat(3, StatType.Charisma);
-            var description = "At 1st level, a summoner can cast summon monster I as a spell-like ability a number of times per day equal to 3 + his Charisma modifier. Drawing on this ability uses up the same power that the summoner uses to call his eidolon. As a result, he can use this ability only when his eidolon is not summoned. He can cast this spell as a standard action, and the creatures remain for 1 minute per level (instead of 1 round per level). At 3rd level, and every 2 levels thereafter, the power of this ability increases by 1 spell level, allowing him to summon more powerful creatures (to a maximum of summon monster IX at 17th level). If used as gate, the summoner must pay any required material components. A summoner cannot have more than one summon monster or gate spell active in this way at one time. If this ability is used again, any existing summon monster or gate from this spell-like ability immediately ends. These summon spells are considered to be part of the summoner’s spell list for the purposes of spell trigger and spell completion items.";
+            var description = "At 1st level, a summoner can cast summon monster I as a spell-like ability a number of times per day equal to 3 + his Charisma modifier. Drawing on this ability uses up the same power that the summoner uses to call his eidolon. As a result, he can use this ability only when his eidolon is not summoned. He can cast this spell as a standard action, and the creatures remain for 1 minute per level (instead of 1 round per level). At 3rd level, and every 2 levels thereafter, the power of this ability increases by 1 spell level, allowing him to summon more powerful creatures (to a maximum of summon monster IX at 17th level). A summoner cannot have more than one summon monster or gate spell active in this way at one time. If this ability is used again, any existing summon monster or gate from this spell-like ability immediately ends. These summon spells are considered to be part of the summoner’s spell list for the purposes of spell trigger and spell completion items.";
             summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "SummonerSummonPool", "");
 
             for (int i = 0; i < mt_feats.Length; i++)

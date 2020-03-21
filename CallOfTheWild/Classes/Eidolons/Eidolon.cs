@@ -49,6 +49,7 @@ namespace CallOfTheWild
         static public BlueprintCharacterClass eidolon_class;
         static public bool test_mode = false;
 
+        static public BlueprintFeature devotion;
         static public BlueprintProgression eidolon_progression;
         static public BlueprintProgression angel_eidolon; //ok
         static public BlueprintProgression azata_eidolon; //ok
@@ -76,6 +77,17 @@ namespace CallOfTheWild
             createEidolonUnits();
             Evolutions.initialize();
             fillEidolonProgressions();
+            correctText();
+        }
+
+
+        static void correctText()
+        {
+            var empty_animal_companion = library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a");
+            empty_animal_companion.SetName("Companion — Continue");
+
+            var animal_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
+            animal_rank.SetNameDescription("Companion", "Companion");
         }
 
 
@@ -140,19 +152,9 @@ namespace CallOfTheWild
             });
             Helpers.SetField(infernal_archetype, "m_ParentClass", eidolon_class);
             library.AddAsset(infernal_archetype, "");
-            infernal_archetype.RemoveFeatures = new LevelEntry[0];
+            infernal_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(5, devotion) };
             infernal_archetype.BaseAttackBonus = library.Get<BlueprintStatProgression>("0538081888b2d8c41893d25d098dee99"); //low bab
-            var charisma_bonus = Helpers.CreateFeature("InfernalEidolonCharismaBonus",
-                                                       "Eidolon Charisma Bonus",
-                                                       "At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.",
-                                                       "",
-                                                       null,
-                                                       FeatureGroup.None,
-                                                       Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.UntypedStackable, multiplier: 2)
-                                                       );
-            charisma_bonus.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, progression: ContextRankProgression.AsIs,
-                                                                                       feature: charisma_bonus));
-            charisma_bonus.Ranks = 10;
+
             infernal_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1)};
         }
 
@@ -196,6 +198,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[] { fey_archetype };
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillMobility, StatType.SkillLoreNature, StatType.SkillUseMagicDevice };
+                a.Selections = new SelectionEntry[0];
             });
             fey_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -259,6 +262,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
             });
             demon_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -322,6 +326,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
             });
             daemon_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -376,7 +381,7 @@ namespace CallOfTheWild
             devil_unit.Wisdom = 10;
             devil_unit.Charisma = 11;
             devil_unit.Speed = 30.Feet();
-            devil_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), fx_feature }; // { natural_armor2, fx_feature };
+            devil_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             devil_unit.Body = devil_unit.Body.CloneObject();
             devil_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             devil_unit.Body.PrimaryHand = null;
@@ -388,6 +393,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
             });
             devil_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -465,6 +471,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
             });
             inevitable_unit.AddComponents(Helpers.Create<EidolonComponent>(),
                                           Helpers.Create<UnitViewMechanics.ChangeUnitScaleForInventory>(c => c.scale_factor = 1.51f));
@@ -530,6 +537,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
             });
             azata_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -601,6 +609,7 @@ namespace CallOfTheWild
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
             });
             angel_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -665,6 +674,7 @@ namespace CallOfTheWild
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
                 a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
             });
             earth_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>(),
                                                Helpers.Create<UnitViewMechanics.ChangeUnitScaleForInventory>(c => c.scale_factor = 1.51f));
@@ -737,11 +747,12 @@ namespace CallOfTheWild
             fire_elemental_unit.Body.SecondaryHand = null;
             fire_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
             fire_elemental_unit.ReplaceComponent<AddClassLevels>(a => 
-                                                                { a.Archetypes = new BlueprintArchetype[0];
-                                                                    a.CharacterClass = eidolon_class;
-                                                                    a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
-                                                                    a.DoNotApplyAutomatically = true;
-                                                                });
+            { a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
+            });
             fire_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
 
@@ -817,6 +828,7 @@ namespace CallOfTheWild
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
                 a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
             });
             water_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -893,6 +905,7 @@ namespace CallOfTheWild
                 a.CharacterClass = eidolon_class;
                 a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
                 a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
             });
             air_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
 
@@ -978,7 +991,7 @@ namespace CallOfTheWild
             //str/dex increase
             //improved evasion
 
-            var devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "EidolonDevotionFeature", "");
+            devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "EidolonDevotionFeature", "");
             devotion.SetDescription("An eidolon gains a +4 morale bonus on Will saves against enchantment spells and effects.");
             var evasion = library.CopyAndAdd<BlueprintFeature>("815bec596247f9947abca891ef7f2ca8", "EidolonEvasionFeature", "");
             evasion.SetDescription("If the eidolon is subjected to an attack that normally allows a Reflex save for half damage, it takes no damage if it succeeds at its saving throw.");
@@ -1000,11 +1013,12 @@ namespace CallOfTheWild
                                                    FeatureGroup.None);
             eidolon_progression.Classes = new BlueprintCharacterClass[] { eidolon_class };
 
+            var bonus_feat = library.Get<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45");
             eidolon_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, outsider,
                                                                                        library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa"),  //touch calculate feature
                                                                                        library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee")), //inside the storm
-                                                                    Helpers.LevelEntry(2, natural_armor, evasion, str_dex_bonus, extra_class_skills, extra_class_skills),
+                                                                    Helpers.LevelEntry(2, natural_armor, evasion, str_dex_bonus, extra_class_skills, extra_class_skills, bonus_feat),
                                                                     Helpers.LevelEntry(3),
                                                                     Helpers.LevelEntry(4, natural_armor, str_dex_bonus),
                                                                     Helpers.LevelEntry(5, devotion),
