@@ -460,11 +460,11 @@ namespace CallOfTheWild
                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon,
                                                    Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon};
             var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
-                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon};
+                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      new BlueprintFeature[] { boar, dog, mammoth, monitor, wolf }));
             evolution_entries.Add(new EvolutionEntry(claws_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                         new BlueprintFeature[] {Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon,
+                                         new BlueprintFeature[] {Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon,
                                                                  Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon}));
             evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons));
 
@@ -475,7 +475,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.RemoveFromArray(Eidolon.infernal_eidolon).AddToArray(new BlueprintFeature[] {boar, elk, mammoth})));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth})));
 
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
@@ -613,7 +613,7 @@ namespace CallOfTheWild
             evolution_entries.Add(new EvolutionEntry(damage_reduction, 3, 15, new BlueprintFeature[0], new BlueprintFeature[0],
                                          new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                                    Eidolon.earth_elemental_eidolon,
-                                                                   Eidolon.fey_eidolon, Eidolon.inevitable_eidolon,
+                                                                   Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.infernal_eidolon,
                                                                    Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon}));
         }
 
