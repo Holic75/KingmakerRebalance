@@ -336,10 +336,10 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.GetIcon("65cff8410a336654486c98fd3bacd8c5"), //owls wisdom
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeArcana, ModifierDescriptor.Other),
-                                                Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeWorld, ModifierDescriptor.Other),
-                                                Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.Other),
-                                                Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.Other),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeArcana, ModifierDescriptor.UntypedStackable),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeWorld, ModifierDescriptor.UntypedStackable),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.UntypedStackable),
+                                                Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.UntypedStackable),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
                                                                                 progression: ContextRankProgression.StartPlusDivStep,
                                                                                 startLevel: 2, stepLevel: 3)
@@ -1288,7 +1288,7 @@ namespace CallOfTheWild
                                                       "",
                                                       null,
                                                       FeatureGroup.None,
-                                                      Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.Other, SpellDescriptor.Poison),
+                                                      Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison),
                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
                                                                                       progression: ContextRankProgression.StartPlusDoubleDivStep,
                                                                                       startLevel: 2, stepLevel: 3)

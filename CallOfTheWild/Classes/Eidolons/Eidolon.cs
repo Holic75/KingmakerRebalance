@@ -148,7 +148,7 @@ namespace CallOfTheWild
                                                        "",
                                                        null,
                                                        FeatureGroup.None,
-                                                       Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Other, multiplier: 2)
+                                                       Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.UntypedStackable, multiplier: 2)
                                                        );
             charisma_bonus.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, progression: ContextRankProgression.AsIs,
                                                                                        feature: charisma_bonus));

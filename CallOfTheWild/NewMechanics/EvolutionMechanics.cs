@@ -52,6 +52,7 @@ namespace CallOfTheWild.EvolutionMechanics
         [JsonProperty]
         Dictionary<string, EvolutionEntry> temporary_evolutions = new Dictionary<string, EvolutionEntry>(); //id of feature and reference to buff (might be null)
         Dictionary<string, EvolutionEntry> permanent_evolutions = new Dictionary<string, EvolutionEntry>(); //id of feature and reference to buff (null)
+        Dictionary<string, EvolutionEntry> short_duration_evolutions = new Dictionary<string, EvolutionEntry>();
         [JsonProperty]
         Dictionary<Fact, int> evolution_points = new Dictionary<Fact, int>();
         private int evolution_points_spent = 0;
@@ -79,21 +80,30 @@ namespace CallOfTheWild.EvolutionMechanics
 
         public void addTemporaryEvolution(BlueprintFeature feature, int cost, Fact buff = null)
         {
+            removeShortDurationEvolution2Internal(feature);
             removeTemporaryEvolution(feature, buff);
             temporary_evolutions[feature.AssetGuid] = new EvolutionEntry(buff, cost);
             evolution_points_spent += temporary_evolutions[feature.AssetGuid].cost;
         }
 
 
+        public void addShortDurationEvolution(BlueprintFeature feature, Fact buff = null)
+        {
+            removeShortDurationEvolution(feature, buff);
+            short_duration_evolutions[feature.AssetGuid] = new EvolutionEntry(buff, 0);      
+        }
+
+
         public void addPermanentEvolution(BlueprintFeature feature)
         {
+            removeShortDurationEvolution2Internal(feature);
             permanent_evolutions[feature.AssetGuid] = null;
         }
 
 
         public bool hasEvolution(BlueprintFeature feature)
         {
-            return temporary_evolutions.ContainsKey(feature.AssetGuid) || permanent_evolutions.ContainsKey(feature.AssetGuid);
+            return temporary_evolutions.ContainsKey(feature.AssetGuid) || permanent_evolutions.ContainsKey(feature.AssetGuid) || short_duration_evolutions.ContainsKey(feature.AssetGuid);
         }
 
 
@@ -113,6 +123,21 @@ namespace CallOfTheWild.EvolutionMechanics
         }
 
 
+        private void removeShortDurationEvolutionInternal(string feature_id, Fact buff)
+        {
+            if (short_duration_evolutions.ContainsKey(feature_id) && short_duration_evolutions[feature_id].buff == buff)
+            {
+                short_duration_evolutions.Remove(feature_id);
+            }
+        }
+
+
+        public void removeShortDurationEvolution(BlueprintFeature feature, Fact buff)
+        {
+            removeShortDurationEvolutionInternal(feature.AssetGuid, buff);
+        }
+
+
         public void removeTemporaryEvolution(BlueprintFeature feature, Fact buff)
         {
             removeTemporaryEvolutionInternal(feature.AssetGuid, buff);
@@ -124,6 +149,18 @@ namespace CallOfTheWild.EvolutionMechanics
             permanent_evolutions.Remove(feature.AssetGuid);
         }
 
+
+        private void removeShortDurationEvolution2Internal(BlueprintFeature feature)
+        {
+            foreach (var kv in short_duration_evolutions.ToArray())
+            {
+                if (kv.Value.buff != null && kv.Key == feature.AssetGuid)
+                {
+                    this.Owner.RemoveFact(kv.Value.buff);
+                }
+            }
+            short_duration_evolutions.Remove(feature.AssetGuid);
+        }
 
         public void removeTemporaryEvolutions()
         {
@@ -162,19 +199,46 @@ namespace CallOfTheWild.EvolutionMechanics
 
         public override void OnTurnOff()
         {
-            Main.logger.Log("TurningOff");
             base.OnFactDeactivate();
             this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolution(Feature, this.Fact);
-            Main.logger.Log("TurnOff " + this.Fact.Name);
         }
 
 
         public override void OnFactDeactivate()
         {
-            Main.logger.Log("Deactivating");
             base.OnFactDeactivate();
             this.Owner.Ensure<UnitPartEvolution>().removeTemporaryEvolution(Feature, this.Fact);
-            Main.logger.Log("Deactivate " + this.Fact.Name);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddShortDurationEvolution : AddFeatureToCompanion
+    {
+
+        public override void OnFactActivate()
+        {
+            base.OnFactActivate();
+            this.Owner.Ensure<UnitPartEvolution>().addShortDurationEvolution(Feature, this.Fact);
+        }
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            this.Owner.Ensure<UnitPartEvolution>().addShortDurationEvolution(Feature, this.Fact);
+        }
+
+        public override void OnTurnOff()
+        {
+            base.OnFactDeactivate();
+            this.Owner.Ensure<UnitPartEvolution>().removeShortDurationEvolution(Feature, this.Fact);
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            base.OnFactDeactivate();
+            this.Owner.Ensure<UnitPartEvolution>().removeShortDurationEvolution(Feature, this.Fact);
         }
     }
 
@@ -194,6 +258,16 @@ namespace CallOfTheWild.EvolutionMechanics
             this.Owner.Ensure<UnitPartSelfEvolution>().addTemporaryEvolution(Feature, cost, this.Fact);
         }
 
+        public override void OnTurnOn()
+        {
+            this.OnFactActivate();
+        }
+
+        public override void OnTurnOff()
+        {
+            this.OnFactDeactivate();
+        }
+
         public override void OnFactDeactivate()
         {
             this.Owner.Ensure<UnitPartSelfEvolution>().removeTemporaryEvolution(Feature, this.Fact);
@@ -210,6 +284,56 @@ namespace CallOfTheWild.EvolutionMechanics
         {
             if (this.m_AppliedFact != null)
                 return;
+            this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddShortDurationSelfEvolution : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+    {
+        public BlueprintFeature Feature;
+        [JsonProperty]
+        private Fact m_AppliedFact;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+            this.Owner.Ensure<UnitPartSelfEvolution>().addShortDurationEvolution(Feature, this.Fact);
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartSelfEvolution>().removeShortDurationEvolution(Feature, this.Fact);
+            this.Owner.RemoveFact(this.m_AppliedFact);
+            this.m_AppliedFact = null;
+        }
+
+        public override void OnTurnOn()
+        {
+            this.OnFactActivate();
+        }
+
+        public override void OnTurnOff()
+        {
+            this.OnFactDeactivate();
+        }
+
+
+        public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+        {
+            this.Apply();
+        }
+
+        private void Apply()
+        {
+            if (this.m_AppliedFact != null)
+                return;
+            if (this.Owner.Progression.Features.HasFact((BlueprintFact)this.Feature))
+            {
+                return;
+            }
             this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
         }
     }
@@ -512,6 +636,37 @@ namespace CallOfTheWild.EvolutionMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class PrerequisiteNoPermanentSelfEvolution : Prerequisite
+    {
+        public BlueprintFeature evolution;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return !unit.Ensure<UnitPartSelfEvolution>().hasPermanentEvolution(evolution);
+        }
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if ((UnityEngine.Object)this.evolution == (UnityEngine.Object)null)
+            {
+                UberDebug.LogError((object)("Empty Feature field in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(this.evolution.Name))
+                    UberDebug.LogError((object)string.Format("{0} has no Display Name", (object)this.evolution.name), (object[])Array.Empty<object>());
+                stringBuilder.Append(this.evolution.Name);
+            }
+            return "No Permanent Personal Evolution: " + stringBuilder.ToString();
+        }
+    }
+
+
 
     public abstract class ComponentAppliedOnceOnLevelUp : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
     {
@@ -653,6 +808,34 @@ namespace CallOfTheWild.EvolutionMechanics
                         FeatureSelectionState featureSelectionState = new FeatureSelectionState(null, null, selection, index, 0);
                         levelUp.State.Selections.Add(featureSelectionState);
                     }
+                }
+            }
+            catch (Exception e)
+            {
+                Main.logger.Error(e.ToString());
+            }
+        }
+    }
+
+
+    public class addSelection : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+    {
+        public BlueprintFeatureSelection selection;
+
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+        {
+        }
+
+        public override void OnFactActivate()
+        {
+            try
+            {
+                var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                {
+                    int index = levelUp.State.Selections.Count<FeatureSelectionState>((Func<FeatureSelectionState, bool>)(s => s.Selection == selection));
+                    FeatureSelectionState featureSelectionState = new FeatureSelectionState(null, null, selection, index, 0);
+                    levelUp.State.Selections.Add(featureSelectionState);
                 }
             }
             catch (Exception e)

@@ -137,8 +137,7 @@ namespace CallOfTheWild
                                           "",
                                           evolution.Icon,
                                           FeatureGroup.None,
-                                          Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = cost; a.Feature = evolution; }),
-                                          Helpers.Create<EvolutionMechanics.PrerequisiteNoPermanentEvolution>(p => p.evolution = evolution)
+                                          Helpers.Create<EvolutionMechanics.AddTemporarySelfEvolution>(a => { a.cost = cost; a.Feature = evolution; })
                                           );
                 self_selection_feature.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEnoughSelfEvolutionPoints>(p => { p.amount = cost; p.feature = selection_feature; }));
 
@@ -202,10 +201,10 @@ namespace CallOfTheWild
                                             "",
                                             evolution.Icon,
                                             null,
-                                            Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = 0; a.Feature = evolution; }));
+                                            Helpers.Create<EvolutionMechanics.AddShortDurationEvolution>(a => { a.Feature = evolution; }));
                 foreach (var be in base_evolutions)
                 {
-                    buff.AddComponent(Helpers.Create<EvolutionMechanics.AddTemporaryEvolution>(a => { a.cost = 0; a.Feature = be; }));
+                    buff.AddComponent(Helpers.Create<EvolutionMechanics.AddShortDurationEvolution>(a => { a.Feature = be; }));
                 }
             }
         }
@@ -602,9 +601,9 @@ namespace CallOfTheWild
                                                              bw1.RemoveFromArray(breath_weapon[i][0]),
                                                              new BlueprintFeature[0],
                                                              evolution_group: "Breath Weapon",
-                                                             upgradeable: i + 1 != breath_weapon[i].Length,
-                                                             next_level_total_cost: 5 + i,
-                                                             previous_evolutions: breath_weapon[i].Take(i).ToArray(),
+                                                             upgradeable: j + 1 != breath_weapon[i].Length,
+                                                             next_level_total_cost: 5 + j,
+                                                             previous_evolutions: breath_weapon[i].Take(j).ToArray(),
                                                              full_cost: 4 + j
                                                              )
                                                              );
@@ -886,7 +885,7 @@ namespace CallOfTheWild
                                                                    FeatureGroup.None
                                                                    );
                 }
-                ability_increase[j][0].AddComponents(Helpers.CreateAddContextStatBonus(stats[j], ModifierDescriptor.Other, multiplier: 2),
+                ability_increase[j][0].AddComponents(Helpers.CreateAddContextStatBonus(stats[j], ModifierDescriptor.UntypedStackable, multiplier: 2),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
                                                                                    featureList: ability_increase[j]),
                                                      Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[j])
@@ -1161,15 +1160,15 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                      FeatureGroup.None,
-                                                     Helpers.Create<SizeMechanics.PermanentSizeOverride>(a => a.size = Size.Large),
-                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Other),
-                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Other),
-                                                     Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
-                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Other),
-                                                     Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Other, multiplier: -1),
-                                                     Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Other, rankType: AbilityRankType.StatBonus, multiplier: -1),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, featureList: ability_increase[0]),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, type: AbilityRankType.StatBonus, featureList: ability_increase[2]),
+                                                     Helpers.Create<SizeMechanics.PermanentSizeOverride>(a => a.size = Size.Large),
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
+                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.UntypedStackable, multiplier: -1),
+                                                     Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus, multiplier: -1),
                                                      Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[0].AddToArray(ability_increase[2]))
                                                      );
             size_increase[1] = Helpers.CreateFeature("SizeIncreaseHugeEvolutionFeature",
@@ -1180,10 +1179,10 @@ namespace CallOfTheWild
                                                      Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                      FeatureGroup.None,
                                                      Helpers.Create<SizeMechanics.PermanentSizeOverride>(a => a.size = Size.Huge),
-                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Other),
-                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Other),
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.UntypedStackable),
                                                      Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
-                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Other)
+                                                     Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable)
                                                      );
         }
 
@@ -1209,7 +1208,7 @@ namespace CallOfTheWild
                 breath_weapon[i] = new BlueprintFeature[3];
                 var prototype = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.name == ("BloodlineDraconic" + dragon_info[i].Item1 + "BreathWeaponAbility")).FirstOrDefault();
                 var ability = library.CopyAndAdd<BlueprintAbility>(prototype, dragon_info[i].Item1 + "BreathWeaponEvolutionAbility", "");
-                ability.SetName("Breath Weapon " + $"({dragon_info[i].Item3}, {dragon_info[i].Item2})");
+                ability.SetName("Breath Weapon: " + $"{dragon_info[i].Item3}, {dragon_info[i].Item2}");
                 ability.SetDescription(description);
                 ability.RemoveComponents<ContextRankConfig>();
                 ability.RemoveComponents<AbilityResourceLogic>();

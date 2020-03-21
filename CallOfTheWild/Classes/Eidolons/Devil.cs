@@ -62,7 +62,7 @@ namespace CallOfTheWild
                                                   devil_eidolon.Icon,
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel1AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison)
+                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
                                                                                                   ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws_biped),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.skilled[1]),
@@ -106,7 +106,8 @@ namespace CallOfTheWild
                                                                                                                                   stepLevel: 10,
                                                                                                                                   min: 5,
                                                                                                                                   featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                  )
+                                                                                                                                  ),
+                                                                                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
                                                                                                   )
                                                   );
 

@@ -49,15 +49,29 @@ namespace CallOfTheWild.SizeMechanics
     public class PermanentSizeOverride : OwnedGameLogicComponent<UnitDescriptor>
     {
         public Size size;
-        public override void OnTurnOn()
+        public override void OnFactActivate()
         {
+            //Main.logger.Log("Activated: " + this.Fact.Name);
             this.Owner.Ensure<UnitPartSizeOverride>().addBuff(this.Fact);
             //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
         }
 
-
-        public override void OnTurnOff()
+        /*public override void OnTurnOn()
         {
+            this.Owner.Ensure<UnitPartSizeOverride>().addBuff(this.Fact);
+            //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
+        }*/
+
+
+        /*public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartSizeOverride>().removeBuff(this.Fact);
+            //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
+        }*/
+
+        public override void OnFactDeactivate()
+        {
+            //Main.logger.Log("Deactivated: " + this.Fact.Name);
             this.Owner.Ensure<UnitPartSizeOverride>().removeBuff(this.Fact);
             //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
         }

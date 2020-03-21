@@ -66,7 +66,7 @@ namespace CallOfTheWild
                                                   Helpers.GetIcon("2a6a2f8e492ab174eb3f01acf5b7c90a"), //defensive stance
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel4AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.MindAffecting),
+                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.MindAffecting),
                                                                                                   Common.createAddConditionImmunity(UnitCondition.Fatigued),
                                                                                                   Common.createAddConditionImmunity(UnitCondition.Exhausted),
                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Fatigue | SpellDescriptor.Exhausted),
@@ -100,7 +100,8 @@ namespace CallOfTheWild
                                                                                                                                   min: 5,
                                                                                                                                   featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
                                                                                                                                   ),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Sleep)
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Sleep),
+                                                                                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
                                                                                                   )
                                                   );
 
@@ -126,7 +127,7 @@ namespace CallOfTheWild
                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Stun),
                                                                                                   Common.createAddConditionImmunity(UnitCondition.Paralyzed),
                                                                                                   Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                                                                  Helpers.CreateAddStatBonus(StatType.SaveFortitude, 100, ModifierDescriptor.Other),
+                                                                                                  Helpers.CreateAddStatBonus(StatType.SaveFortitude, 100, ModifierDescriptor.UntypedStackable),
                                                                                                   Helpers.Create<Evasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
                                                                                                   )
                                                   );

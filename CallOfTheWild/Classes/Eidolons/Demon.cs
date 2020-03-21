@@ -63,7 +63,7 @@ namespace CallOfTheWild
                                                   demon_eidolon.Icon,
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel1AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison)
+                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
                                                                                                   ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws_biped),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
@@ -107,7 +107,8 @@ namespace CallOfTheWild
                                                                                                                                           stepLevel: 10,
                                                                                                                                           min: 5,
                                                                                                                                           featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                          )
+                                                                                                                                          ),
+                                                                                                          Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
                                                                                                           )
                                                           );
             feature12.AllFeatures = Evolutions.getPermanenetEvolutions(e => Evolutions.ability_increase.Any(ai => ai[0] == e));

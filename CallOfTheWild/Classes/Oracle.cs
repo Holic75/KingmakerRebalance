@@ -1313,7 +1313,7 @@ namespace CallOfTheWild
                                                          "",
                                                          null,
                                                          FeatureGroup.None,
-                                                         Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Other),
+                                                         Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.UntypedStackable),
                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma),
                                                          Helpers.Create<IncreaseSpellSchoolCasterLevel>(i => { i.School = SpellSchool.Divination; i.BonusLevel = 4; }),
                                                          Helpers.CreateAddFact(heroic_invocation),
@@ -1621,7 +1621,7 @@ namespace CallOfTheWild
                                   "",
                                   Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), // sickened
                                   FeatureGroup.None,
-                                  Helpers.Create<SavingThrowBonusAgainstDescriptor>(s => { s.Bonus = -1; s.ModifierDescriptor = ModifierDescriptor.Other; s.SpellDescriptor = SpellDescriptor.Disease; })
+                                  Helpers.Create<SavingThrowBonusAgainstDescriptor>(s => { s.Bonus = -1; s.ModifierDescriptor = ModifierDescriptor.UntypedStackable; s.SpellDescriptor = SpellDescriptor.Disease; })
                                   );
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Plagued",
@@ -1866,8 +1866,8 @@ namespace CallOfTheWild
                                               "",
                                               Helpers.GetIcon("c3893092a333b93499fd0a21845aa265"),
                                               FeatureGroup.None,
-                                              Helpers.CreateAddContextStatBonus(StatType.Initiative, ModifierDescriptor.Other),
-                                              Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.Other),
+                                              Helpers.CreateAddContextStatBonus(StatType.Initiative, ModifierDescriptor.UntypedStackable),
+                                              Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (4, -4), (9, -2), (20, 0) }

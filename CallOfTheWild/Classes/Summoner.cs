@@ -68,7 +68,9 @@ namespace CallOfTheWild
         static public BlueprintFeature makers_call;
         static public BlueprintFeature transposition;
         static public BlueprintFeatureSelection aspect;
+        static public BlueprintFeature[] aspect_extra;
         static public BlueprintFeatureSelection greater_aspect;
+        static public BlueprintFeature[] greater_aspect_extra;
         static public BlueprintFeature twin_eidolon;
         static public BlueprintFeature[] summon_monster = new BlueprintFeature[9];
         static public BlueprintSummonPool summon_pool;
@@ -179,15 +181,15 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(9),
                                                                     Helpers.LevelEntry(10),
                                                                     Helpers.LevelEntry(11),
-                                                                    Helpers.LevelEntry(12, greater_shield_ally, aspect),
-                                                                    Helpers.LevelEntry(13, aspect),
-                                                                    Helpers.LevelEntry(14, life_bond, aspect),
-                                                                    Helpers.LevelEntry(15, aspect),
-                                                                    Helpers.LevelEntry(16, aspect),
-                                                                    Helpers.LevelEntry(17, aspect),
-                                                                    Helpers.LevelEntry(18, greater_aspect),
-                                                                    Helpers.LevelEntry(19, greater_aspect),
-                                                                    Helpers.LevelEntry(20, greater_aspect, twin_eidolon)
+                                                                    Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[0]),
+                                                                    Helpers.LevelEntry(13, aspect_extra[1]),
+                                                                    Helpers.LevelEntry(14, life_bond, aspect_extra[2]),
+                                                                    Helpers.LevelEntry(15, aspect_extra[3]),
+                                                                    Helpers.LevelEntry(16, aspect_extra[4]),
+                                                                    Helpers.LevelEntry(17, aspect_extra[5]),
+                                                                    Helpers.LevelEntry(18, greater_aspect_extra[0]),
+                                                                    Helpers.LevelEntry(19, greater_aspect_extra[1]),
+                                                                    Helpers.LevelEntry(20, greater_aspect_extra[2], twin_eidolon)
                                                                     };
             for (int i = 0; i < 20; i++)
             {
@@ -201,7 +203,7 @@ namespace CallOfTheWild
 
             summoner_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { summoner_proficiencies, summoner_cantrips, eidolon_selection };
             summoner_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(life_link, shield_ally, makers_call, transposition, life_bond, greater_shield_ally, twin_eidolon),
-                                                            Helpers.CreateUIGroup(link, aspect, greater_aspect),
+                                                            Helpers.CreateUIGroup(link, aspect_extra[0], greater_aspect_extra[0]),
                                                             Helpers.CreateUIGroup(summon_monster)
                                                            };
         }
@@ -296,13 +298,13 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Helpers.Create<EvolutionMechanics.AddTemporarySelfEvolution>(a => { a.cost = 0; a.Feature = twinned_eidolon_evolution; }),
+                                          Helpers.Create<EvolutionMechanics.AddShortDurationSelfEvolution>(a => { a.Feature = twinned_eidolon_evolution; }),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph)
                                           );
 
             var resource = Helpers.CreateAbilityResource("TwinnedEidolonResource", "", "", "", null);
             resource.SetIncreasedByLevel(0, 1, getSummonerArray());
-            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
             var ability = Helpers.CreateAbility("TwinnedEidolonAbility",
                                                 buff.Name,
                                                 buff.Description,
@@ -367,6 +369,27 @@ namespace CallOfTheWild
                                                     FeatureGroup.None
                                                     );
             aspect.AllFeatures = aspect_selection;
+
+
+            aspect_extra = new BlueprintFeature[6];
+            for (int i = 0; i < aspect_extra.Length; i++)
+            {
+                aspect_extra[i] = Helpers.CreateFeature($"SummonerAspectExtraFeature{i}",
+                                                        aspect.Name,
+                                                        aspect.Description,
+                                                        "",
+                                                        aspect.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.Create<EvolutionMechanics.RefreshSelfEvolutionsOnLevelUp>(),
+                                                        Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = aspect)
+                                                        );
+
+                if (i > 0)
+                {
+                    aspect_extra[i].HideInCharacterSheetAndLevelUp = true;
+                    aspect_extra[i].HideInUI = true;
+                }
+            }
         }
 
 
@@ -410,6 +433,25 @@ namespace CallOfTheWild
                                                     FeatureGroup.None
                                                     );
             greater_aspect.AllFeatures = aspect_selection;
+            greater_aspect_extra = new BlueprintFeature[3];
+            for (int i = 0; i < greater_aspect_extra.Length; i++)
+            {
+                greater_aspect_extra[i] = Helpers.CreateFeature($"SummonerGreaterAspectExtraFeature{i}",
+                                                        greater_aspect.Name,
+                                                        greater_aspect.Description,
+                                                        "",
+                                                        greater_aspect.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.Create<EvolutionMechanics.RefreshSelfEvolutionsOnLevelUp>(),
+                                                        Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = greater_aspect)
+                                                        );
+
+                if (i > 0)
+                {
+                    greater_aspect_extra[i].HideInCharacterSheetAndLevelUp = true;
+                    greater_aspect_extra[i].HideInUI = true;
+                }
+            }
         }
 
 
@@ -526,7 +568,7 @@ namespace CallOfTheWild
                                                          Helpers.GetIcon("ef768022b0785eb43a18969903c537c4"),
                                                          buff11,
                                                          10.Feet(),
-                                                         Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(), Helpers.Create<NewMechanics.ContextConditionIsMaster>(c => c.Not = true))
+                                                         Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(), Helpers.Create<NewMechanics.ContextConditionIsMaster>(c => c.Not = true), Helpers.Create<ContextConditionIsCaster>(c => c.Not = true))
                                                          );
             greater_shield_ally_eidolon.AddComponent(Common.createAuraEffectFeatureComponentCustom(buff2, 
                                                                                                    10.Feet(),
@@ -538,7 +580,7 @@ namespace CallOfTheWild
                                                         "",
                                                         greater_shield_ally_eidolon.Icon,
                                                         FeatureGroup.None,
-                                                        Helpers.Create<AddFeatureToCompanion>(a => a.Feature = greater_shield_ally)
+                                                        Helpers.Create<AddFeatureToCompanion>(a => a.Feature = greater_shield_ally_eidolon)
                                                         );
         }
 
@@ -644,7 +686,6 @@ namespace CallOfTheWild
                                                     null,
                                                     FeatureGroup.None);
                 feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
-                feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshSelfEvolutionsOnLevelUp>());
                 int bonus_ep = Eidolon.EidolonComponent.rank_to_level[lvl] - Eidolon.EidolonComponent.rank_to_level[lvl - 1];
                 if (bonus_ep > 0)
                 {

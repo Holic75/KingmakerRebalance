@@ -78,7 +78,7 @@ namespace CallOfTheWild
                                                   Helpers.GetIcon("486eaff58293f6441a5c2759c4872f98"), //haste
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("FireElementalEidolonLevel8AddFeature",
-                                                                                                  Helpers.CreateAddStatBonus(StatType.Speed, 20, ModifierDescriptor.Other)
+                                                                                                  Helpers.CreateAddStatBonus(StatType.Speed, 20, ModifierDescriptor.UntypedStackable)
                                                                                                   )
                                                   );
 

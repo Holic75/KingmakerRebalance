@@ -120,9 +120,10 @@ namespace CallOfTheWild
                                                                                                                                     min: 5,
                                                                                                                                     featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
                                                                                                                                     ),
-                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.Other),
-                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalDamage, 1, ModifierDescriptor.Other),
-                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalCMB, 1, ModifierDescriptor.Other)
+                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.UntypedStackable),
+                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalDamage, 1, ModifierDescriptor.UntypedStackable),
+                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalCMB, 1, ModifierDescriptor.UntypedStackable),
+                                                                                                    Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
                                                                                                     )
                                                   );
 

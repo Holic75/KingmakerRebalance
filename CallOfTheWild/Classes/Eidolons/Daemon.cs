@@ -63,7 +63,7 @@ namespace CallOfTheWild
                                                   daemon_eidolon.Icon,
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel1AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)),
+                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws_biped),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -105,7 +105,8 @@ namespace CallOfTheWild
                                                                                                                                   featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
                                                                                                                                   ),
                                                                                                     Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
-                                                                                                    Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)
+                                                                                                    Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
+                                                                                                    Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
                                                                                                     )
                                                     );
 

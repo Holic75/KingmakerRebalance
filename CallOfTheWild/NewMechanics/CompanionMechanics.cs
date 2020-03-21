@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -43,10 +44,10 @@ namespace CallOfTheWild.CompanionMechanics
                 return;
             }
 
-            if (evt.Target.HPLeft <= 0)
+            /*if (evt.Target.HPLeft <= 0)
             {
                 return;
-            }
+            }*/
 
             if (pet.Descriptor.State.IsDead)
             {
@@ -167,7 +168,7 @@ namespace CallOfTheWild.CompanionMechanics
             {
                 int bonus = pet.Stats.GetStat(s).BaseValue + pet.Stats.GetStat(s).GetDescriptorBonus(ModifierDescriptor.Racial);
                 bonus -= this.Owner.Stats.GetStat(s).BaseValue + this.Owner.Stats.GetStat(s).GetDescriptorBonus(ModifierDescriptor.Racial);
-                this.m_AppliedModifiers.Add(this.Owner.Stats.Strength.AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.Other));
+                this.m_AppliedModifiers.Add(this.Owner.Stats.GetStat(s).AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
             }
         }
 
@@ -334,6 +335,52 @@ namespace CallOfTheWild.CompanionMechanics
                 }
             }
 
+        }
+    }
+
+
+    [ComponentName("Add feature to companion")]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class AddFeatureToCompanion2 : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public BlueprintFeature Feature;
+        [JsonProperty]
+        private Fact m_AppliedFact = null;
+
+        public override void OnFactActivate()
+        {
+            this.TryAdd();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.TryRemove();
+        }
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            this.TryAdd();
+        }
+
+        private void TryAdd()
+        {
+            if (m_AppliedFact != null)
+            {
+                return;
+            }
+            if (this.Owner.Pet == null || this.Owner.Pet.Descriptor.Progression.Features.HasFact((BlueprintFact)this.Feature))
+                return;
+            m_AppliedFact = this.Owner.Pet.Descriptor.Progression.Features.AddFact((BlueprintFact)this.Feature, (MechanicsContext)null);
+        }
+
+        private void TryRemove()
+        {
+            if (this.Owner.Pet == null || m_AppliedFact == null)
+                return;
+            this.Owner.Pet.Descriptor.Progression.Features.RemoveFact(m_AppliedFact);
+            m_AppliedFact = null;
         }
     }
 }

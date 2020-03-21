@@ -102,8 +102,8 @@ namespace CallOfTheWild
                                                                 "",
                                                                 library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").Icon,
                                                                 null,
-                                                                Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.Other),
-                                                                Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.Other),
+                                                                Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
+                                                                Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20)
                                                                 );
 

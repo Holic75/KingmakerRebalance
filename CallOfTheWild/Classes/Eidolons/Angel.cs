@@ -63,7 +63,7 @@ namespace CallOfTheWild
                                                   angel_eidolon.Icon,
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel1AddFeature",
-                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Other, SpellDescriptor.Poison)),
+                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -103,7 +103,9 @@ namespace CallOfTheWild
                                                                                                                                   featureList: new BlueprintFeature[] {Evolutions.damage_reduction}
                                                                                                                                   ),                                                                                                                                
                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified))
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
+                                                                                                  Helpers.Create<RecalculateOnFactsChange> (r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                                  )
                                                   );
 
             var feature16 = Helpers.CreateFeature("AngelEidolonLevel16Feature",

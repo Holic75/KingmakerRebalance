@@ -101,7 +101,8 @@ namespace CallOfTheWild
                                                                                                                                   featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
                                                                                                                                   ),
                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified))
+                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
+                                                                                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction }))
                                                   );
 
 
@@ -131,7 +132,7 @@ namespace CallOfTheWild
                                            icon,
                                            ghost_fx.FxOnStart,
                                            Helpers.CreateAddFacts(incorporeal),
-                                           Helpers.Create<BuffMovementSpeed>(b => { b.Descriptor = ModifierDescriptor.Other; b.Value = 100; b.MultiplierCap = 2; b.CappedOnMultiplier = true; }),
+                                           Helpers.Create<BuffMovementSpeed>(b => { b.Descriptor = ModifierDescriptor.UntypedStackable; b.Value = 100; b.MultiplierCap = 2; b.CappedOnMultiplier = true; }),
                                            Helpers.Create<AddCondition>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.CanNotAttack)
                                            );
 

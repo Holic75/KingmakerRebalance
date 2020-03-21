@@ -6684,7 +6684,7 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
                 //Main.logger.Log("Attack bonus: " + result.ToString());
-                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.Other));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
 
             public void OnEventDidTrigger(RuleAttackWithWeapon evt)
@@ -6764,9 +6764,9 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.Other));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.Other));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.Other));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
 
 
