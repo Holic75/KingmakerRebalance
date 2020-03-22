@@ -1845,12 +1845,12 @@ namespace CallOfTheWild
             solid_fog.RemoveComponents<SpellListComponent>();
             solid_fog.RemoveComponents<SpellDescriptorComponent>();
             solid_fog.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
-            solid_fog.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
+            solid_fog.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
             solid_fog.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
             solid_fog.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
             solid_fog.AddToSpellList(Helpers.magusSpellList, 4);
             solid_fog.AddToSpellList(Helpers.wizardSpellList, 4);
-
+            solid_fog.LocalizedDuration = Helpers.minutesPerLevelDuration;
             solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
             //fix acid fog 
             var acid_fog = library.Get<BlueprintAbility>("dbf99b00cd35d0a4491c6cc9e771b487");
