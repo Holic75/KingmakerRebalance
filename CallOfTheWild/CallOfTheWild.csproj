@@ -140,6 +140,7 @@
     <Compile Include="Classes\Eidolons\Devil.cs" />
     <Compile Include="Classes\Eidolons\EarthElemental.cs" />
     <Compile Include="Classes\Eidolons\Eidolon.cs" />
+    <Compile Include="Classes\Eidolons\Fey.cs" />
     <Compile Include="Classes\Eidolons\FireElemental.cs" />
     <Compile Include="Classes\Eidolons\Inevitable.cs" />
     <Compile Include="Classes\Eidolons\WaterElemental.cs" />

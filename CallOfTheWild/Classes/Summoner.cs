@@ -59,6 +59,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection eidolon_selection;
         static List<BlueprintFeature> evolution_distribution = new List<BlueprintFeature>();
 
+        static public BlueprintFeature link;
         static public BlueprintFeature life_link;
         static public BlueprintFeature life_bond;
         static public BlueprintFeature shield_ally;
@@ -82,7 +83,10 @@ namespace CallOfTheWild
         static public BlueprintFeature devil_binder_charisma_bonus;
 
 
-        static public BlueprintFeature link;
+        static BlueprintArchetype fey_caller;
+        static public BlueprintFeature[] summon_nature_ally = new BlueprintFeature[9];
+
+
 
 
         internal static void createSummonerClass()
@@ -122,7 +126,7 @@ namespace CallOfTheWild
             summoner_class.ComponentsArray = magus_class.ComponentsArray;
             summoner_class.StartingItems = new BlueprintItem[]
             {
-                library.Get<BlueprintItemArmor>("afbe88d27a0eb544583e00fa78ffb2c7"), //studied leather
+                library.Get<BlueprintItemArmor>("afbe88d27a0eb544583e00fa78ffb2c7"), //studded leather
                 library.Get<BlueprintItemWeapon>("ada85dae8d12eda4bbe6747bb8b5883c"), //quarterstaff
                 library.Get<BlueprintItemWeapon>("511c97c1ea111444aa186b1a58496664"), //light crossbow
                 library.Get<BlueprintItemEquipmentUsable>("807763fd874989e4d96eb2d8e234139e"), //shield scroll
@@ -133,13 +137,148 @@ namespace CallOfTheWild
             createSummonerProgression();
             summoner_class.Progression = summoner_progression;
             createDevilBinder();
-            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder }; //devil binder, twinned summoner?, master summoner, spirit summoner 
+            createFeyCaller();
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller }; // twinned summoner, master summoner, spirit summoner ?
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
 
             createSummonerSpells();
             //add to prestige classes
+        }
+
+
+        static void createFeyCaller()
+        {
+            fey_caller = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "FeyCallerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Fey Caller");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The strange creatures known as fey hail from a variety of places, including the natural world and their own domains on other planes. Fey callers are summoners whose voices reach out into those strange faerie realms and call forth the fey who dwell there. The touch of the fey makes the fey caller different from those summoners who call other outsiders to their sides as eidolons.");
+            });
+            Helpers.SetField(fey_caller, "m_ParentClass", summoner_class);
+            library.AddAsset(fey_caller, "");
+
+            createSummonNatureAlly();
+
+            fey_caller.ReplaceClassSkills = true;
+            fey_caller.ClassSkills = new StatType[] { StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillPersuasion, StatType.SkillUseMagicDevice };
+
+            foreach (var e in eidolon_selection.AllFeatures)
+            {
+                e.AddComponent(Common.prerequisiteNoArchetype(summoner_class, fey_caller));
+            }
+
+            Eidolon.fey_eidolon.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, fey_caller, 1));
+            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.fey_eidolon);
+
+            fey_caller.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_monster[0]),
+                                                             Helpers.LevelEntry(3, summon_monster[1]),
+                                                             Helpers.LevelEntry(5, summon_monster[2]),
+                                                             Helpers.LevelEntry(7, summon_monster[3]),
+                                                             Helpers.LevelEntry(9, summon_monster[4]),
+                                                             Helpers.LevelEntry(11, summon_monster[5]),
+                                                             Helpers.LevelEntry(13, summon_monster[6]),
+                                                             Helpers.LevelEntry(15, summon_monster[7]),
+                                                             Helpers.LevelEntry(17, summon_monster[8])
+                                                           };
+            fey_caller.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_nature_ally[0]),
+                                                             Helpers.LevelEntry(3, summon_nature_ally[1]),
+                                                             Helpers.LevelEntry(5, summon_nature_ally[2]),
+                                                             Helpers.LevelEntry(7, summon_nature_ally[3]),
+                                                             Helpers.LevelEntry(9, summon_nature_ally[4]),
+                                                             Helpers.LevelEntry(11, summon_nature_ally[5]),
+                                                             Helpers.LevelEntry(13, summon_nature_ally[6]),
+                                                             Helpers.LevelEntry(15, summon_nature_ally[7]),
+                                                             Helpers.LevelEntry(17, summon_nature_ally[8])
+                                                        };
+
+
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(summon_nature_ally));
+        }
+
+
+        static void createSummonNatureAlly()
+        {
+            var spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("c6147854641924442a3bb736080cfeb6"),
+                library.Get<BlueprintAbility>("298148133cdc3fd42889b99c82711986"),
+                library.Get<BlueprintAbility>("fdcf7e57ec44f704591f11b45f4acf61"),
+                library.Get<BlueprintAbility>("c83db50513abdf74ca103651931fac4b"),
+                library.Get<BlueprintAbility>("8f98a22f35ca6684a983363d32e51bfe"),
+                library.Get<BlueprintAbility>("55bbce9b3e76d4a4a8c8e0698d29002c"),
+                library.Get<BlueprintAbility>("051b979e7d7f8ec41b9fa35d04746b33"),
+                library.Get<BlueprintAbility>("ea78c04f0bd13d049a1cce5daf8d83e0"),
+                library.Get<BlueprintAbility>("a7469ef84ba50ac4cbf3d145e3173f8e")
+            };
+
+            var description = "Instead of summoning creatures from the summon monster list, the fey caller’s summoning spell-like ability summons creatures from the list for the summon nature’s ally spell of the same level. It still follows the other rules and restrictions for the summoner’s summon monster spell-like ability.";
+
+
+            for (int i = 0; i < spells.Length; i++)
+            {
+                List<BlueprintAbility> summon_spells = new List<BlueprintAbility>();
+                List<BlueprintAbility> sna_spells = new List<BlueprintAbility>();
+                if (spells[i].HasVariants)
+                {
+                    sna_spells = spells[i].Variants.ToList();
+                }
+                else
+                {
+                    sna_spells.Add(spells[i]);
+                }
+
+                foreach (var s in sna_spells)
+                {
+                    var ability = library.CopyAndAdd<BlueprintAbility>(s.AssetGuid, "FeyCaller" + s.name, "");
+                    ability.RemoveComponents<SpellListComponent>();
+                    ability.AddComponent(summon_resource.CreateResourceLogic());
+                    foreach (var c in ability.GetComponents<ContextRankConfig>())
+                    {
+                        if (!c.IsFeatureList)
+                        {
+                            var new_c = c.CreateCopy(crc => { Helpers.SetField(crc, "m_Class", getSummonerArray()); Helpers.SetField(crc, "m_BaseValueType", ContextRankBaseValueType.ClassLevel); });
+                            ability.ReplaceComponent(c, new_c);
+                        }
+                    }
+                    var new_actions = Common.changeAction<ContextActionSpawnMonster>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, a => 
+                                                                                        {
+                                                                                            a.SummonPool = summon_pool;
+                                                                                            a.DurationValue = Helpers.CreateContextDuration(a.DurationValue.BonusValue, DurationRate.Minutes);
+                                                                                        }
+                                                                                    );
+                    new_actions = new GameAction[] { Helpers.Create<ContextActionClearSummonPool>(c => c.SummonPool = summon_pool) }.AddToArray(new_actions);
+                    ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+                    ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
+                    ability.LocalizedDuration = Helpers.minutesPerLevelDuration;
+                    summon_spells.Add(ability);
+                }
+
+                BlueprintAbility summon_base = null;
+                if (summon_spells.Count == 1)
+                {
+                    summon_base = summon_spells[0];
+                }
+                else
+                {
+                    summon_base = Common.createVariantWrapper($"SummonerSummonNaturesAlly{i + 1}Base", "", summon_spells.ToArray());
+                    summon_base.SetNameDescription("Summon Nature's Ally " + Common.roman_id[i + 1], description);
+                }
+
+                summon_nature_ally[i] = Helpers.CreateFeature($"SummonerSummonNaturesAlly{i + 1}Feature",
+                                                          "Summon Nature's Ally " + Common.roman_id[i + 1],
+                                                          description,
+                                                          "",
+                                                          summon_spells[0].Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFact(summon_base)
+                                                          );
+                if (i == 0)
+                {
+                    summon_nature_ally[i].AddComponent(summon_resource.CreateAddAbilityResource());
+                }
+            }
         }
 
 
@@ -151,7 +290,7 @@ namespace CallOfTheWild
                 a.name = "DevilBinderArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Devil Binder");
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While many assume Hellknights are worshipers or agents of devil-kind or, at best, duped puppets of the infernal realm-most Hellknights see Hell and its native devils as a challenge to be conquered. If one can dominate these beings of pure (albeit cruel) law, then the power of that law is theirs by right. While the Test undertaken by those who seek to become full Hellknights is one method by which this power is earned, the devil binder takes this philosophy a step further, forcing a devil into service.\n"
-                                                                                        + "Unlike those of most summoners, a devil binder’s eidolon does not willingly serve its master due to a similar philosophical bent.While some devil binders(especially those who do serve Hell) seek more amicable relationships with these infernal servants, others treat their eidolons as mere tools, remorselessly ordering the devils into battle. The nature of the summoner’s magical bond is irrevocably altered by their style of invocation.A devil binder borrows extraplanar quintessence from her eidolon, gaining strange abilities for herself and evolving her eidolon’s magical powers.");
+                                                                                        + "Unlike those of most summoners, a devil binder’s eidolon does not willingly serve its master due to a similar philosophical bent.While some devil binders (especially those who do serve Hell) seek more amicable relationships with these infernal servants, others treat their eidolons as mere tools, remorselessly ordering the devils into battle. The nature of the summoner’s magical bond is irrevocably altered by their style of invocation. A devil binder borrows extraplanar quintessence from her eidolon, gaining strange abilities for herself and evolving her eidolon’s magical powers.");
             });
             Helpers.SetField(devil_binder, "m_ParentClass", summoner_class);
             library.AddAsset(devil_binder, "");
@@ -278,7 +417,7 @@ namespace CallOfTheWild
             var hellfire_resource = Helpers.CreateAbilityResource("DevilBinderHellfireResource", "", "", "", null);
             hellfire_resource.SetIncreasedByLevelStartPlusDivStep(1, 17, 1, 3, 1, 0, 0.0f, getSummonerArray());
             var hellfire_ability = library.CopyAndAdd<BlueprintAbility>("87e837a180a12db448a6d78e58e1b0a6", "DevinlBinderHellfireAbility", "");
-            hellfire_ability.SetDescription("You can call down a column of hellfire. This 10 - foot - radius burst does 1d6 points of fire damage per sorcerer level.Those caught in the area of your blast receive a Reflex save for half damage. Good creatures that fail their saves are shaken for a number of rounds equal to your sorcerer level.The DC of this save is equal to 10 + 1 / 2 your summoner level + your Charisma modifier. At 9th level, you can use this ability once per day. At 17th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day. This power has a range of 60 feet.");
+            hellfire_ability.SetDescription("You can call down a column of hellfire. This 10 - foot - radius burst does 1d6 points of fire damage per sorcerer level.Those caught in the area of your blast receive a Reflex save for half damage. Good creatures that fail their saves are shaken for a number of rounds equal to your sorcerer level.The DC of this save is equal to 10 + 1 / 2 your summoner level + your Charisma modifier. At 12th level, you can use this ability once per day. At 17th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day. This power has a range of 60 feet.");
 
             hellfire_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = hellfire_resource);
             hellfire_ability.ReplaceComponent<ContextRankConfig>(c => { Helpers.SetField(c, "m_Class", getSummonerArray()); Helpers.SetField(c, "Archetype", devil_binder); });
@@ -321,8 +460,7 @@ namespace CallOfTheWild
                 var spell_like = Common.convertToSpellLike(spells[i], "InfernalArcana", new BlueprintCharacterClass[] { Eidolon.eidolon_class }, StatType.Charisma,
                                                            resource, no_scaling: true);
                 spell_like.AddComponent(Helpers.Create<ContextCalculateAbilityParams>(c => { /*c.ReplaceCasterLevel = true; c.CasterLevel = Helpers.CreateContextValue(AbilityRankType.SpeedBonus);*/ c.StatType = StatType.Charisma; c.ReplaceSpellLevel = true; c.SpellLevel = i + 1; }));
-                spell_like.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(),
-                                                                        classes: getSummonerArray(), type: AbilityRankType.SpeedBonus));
+
                 var spell_feature = Common.AbilityToFeature(spell_like, false);
                 spell_feature.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = new BlueprintAbility[] { spell_like }; c.correct_dc = true; c.value = Helpers.CreateContextValue(AbilityRankType.Default);}));
                 spell_feature.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(), 
@@ -477,7 +615,6 @@ namespace CallOfTheWild
                     summon_monster[i].AddComponent(summon_resource.CreateAddAbilityResource());
                 }
             }
-
         }
 
 

@@ -103,6 +103,7 @@ namespace CallOfTheWild
             fillAirElementalProgression();
             fillWaterElementalProgression();
             fillEarthElementalProgression();
+            fillFeyProgression();
         }
 
 
@@ -253,7 +254,7 @@ namespace CallOfTheWild
             demon_unit.Speed = 30.Feet();
             demon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
             demon_unit.Body = demon_unit.Body.CloneObject();
-            demon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74"); //claws 1d4
+            demon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             demon_unit.Body.PrimaryHand = null;
             demon_unit.Body.SecondaryHand = null;
             demon_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];

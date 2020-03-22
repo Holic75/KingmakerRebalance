@@ -3483,7 +3483,10 @@ namespace CallOfTheWild
                                                           string guid = "")
         {
             var ability = library.CopyAndAdd<BlueprintAbility>(spell.AssetGuid, prefix + spell.name, guid);
-            ability.RemoveComponents<SpellListComponent>();
+            if (!no_scaling)
+            {
+                ability.RemoveComponents<SpellListComponent>();
+            }
             ability.Type = AbilityType.SpellLike;
             if (!no_scaling)
             {

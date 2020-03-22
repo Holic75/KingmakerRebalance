@@ -2,6 +2,7 @@
 using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Root;
 using Kingmaker.EntitySystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.ResourceLinks;
@@ -159,10 +160,12 @@ namespace CallOfTheWild.UnitViewMechanics
             if (character == null)
             {
                 character = newView.gameObject.AddComponent<Character>();
-                //BlueprintRoot.Instance.CharGen.FemaleDoll
-                var drow = ResourcesLibrary.TryGetResource<UnitEntityView>("a65d9da806faa8f4ca078dfe942bf458", true);
-                CloneMonobehaviour(drow.GetComponentInChildren<Character>(), character);
+                character.AnimatorPrefab = BlueprintRoot.Instance.CharGen.FemaleDoll.AnimatorPrefab;
                 character.BakedCharacter = CreateBakedCharacter(newView.gameObject);
+                //BlueprintRoot.Instance.CharGen.FemaleDoll
+                /*var drow = ResourcesLibrary.TryGetResource<UnitEntityView>("a65d9da806faa8f4ca078dfe942bf458", true);
+                CloneMonobehaviour(drow.GetComponentInChildren<Character>(), character);
+                character.BakedCharacter = CreateBakedCharacter(newView.gameObject);*/
             }
             Owner.Unit.AttachToViewOnLoad(newView);
             Owner.Unit.Commands.InterruptAll((UnitCommand cmd) => !(cmd is UnitMoveTo));

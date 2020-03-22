@@ -457,7 +457,7 @@ namespace CallOfTheWild
         {
             var eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                    Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
-                                                   Eidolon.fey_eidolon, Eidolon.inevitable_eidolon,
+                                                   Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.fey_eidolon,
                                                    Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon};
             var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
                                                          Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};

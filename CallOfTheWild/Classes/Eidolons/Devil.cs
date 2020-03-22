@@ -83,7 +83,7 @@ namespace CallOfTheWild
 
             var feature8 = Helpers.CreateFeature("DevilEidolonLevel8Feature",
                                                   "Poison Immunity",
-                                                  "At 8th level, devil eidolons gain the skilled (Diplomacy) evolution and gain immunity to poison.",
+                                                  "At 8th level, devil eidolons gain immunity to poison.",
                                                   "",
                                                   Helpers.GetIcon("b48b4c5ffb4eab0469feba27fc86a023"), //delay poison
                                                   FeatureGroup.None,
@@ -121,18 +121,18 @@ namespace CallOfTheWild
                                                   );
 
             var regeneration_buff = Helpers.CreateBuff("DevilEidolonRegenerationBuff",
+                                                       "Regeneration",
+                                                       "At 20th level, devil eidolons gain regeneration 5 (good weapons, good spells). They are still banished to Hell as normal for eidolons if they take enough damage.",
                                                        "",
-                                                       "",
-                                                       "",
-                                                       null,
+                                                       Helpers.GetIcon("b6afdc50876e08149b1f9fdcdb2a308c"), //fiend of the pit = rage,
                                                        null,
                                                        Helpers.Create<AddEffectRegeneration>(a => { a.Heal = 5; a.CancelDamageAlignmentTypes = new DamageAlignment[] { DamageAlignment.Good }; })
                                                        );
             var feature20 = Helpers.CreateFeature("DevilEidolonLevel20Feature",
-                                                  "Regeneration",
-                                                  "At 20th level, devil eidolons gain regeneration 5 (good weapons, good spells). They are still banished to Hell as normal for eidolons if they take enough damage.",
+                                                  regeneration_buff.Name,
+                                                  regeneration_buff.Description,
                                                   "",
-                                                  Helpers.GetIcon("b6afdc50876e08149b1f9fdcdb2a308c"), //fiend of the pit = rage
+                                                  regeneration_buff.Icon,
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel20AddFeature",
                                                                                                   Common.createAuraFeatureComponent(regeneration_buff)

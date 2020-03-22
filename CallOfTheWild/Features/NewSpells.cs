@@ -3799,9 +3799,10 @@ namespace CallOfTheWild
             obscuring_mist.RemoveComponents<SpellListComponent>();
             obscuring_mist.RemoveComponents<SpellDescriptorComponent>();
             obscuring_mist.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
-            obscuring_mist.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => s.AreaEffect = area)));
+            obscuring_mist.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
             obscuring_mist.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
             obscuring_mist.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            obscuring_mist.LocalizedDuration = Helpers.minutesPerLevelDuration;
             obscuring_mist.AddToSpellList(Helpers.druidSpellList, 1);
             obscuring_mist.AddToSpellList(Helpers.clericSpellList, 1);
             obscuring_mist.AddToSpellList(Helpers.magusSpellList, 1);
