@@ -132,6 +132,7 @@
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\Eidolons\Agathion.cs" />
     <Compile Include="Classes\Eidolons\AirElemental.cs" />
     <Compile Include="Classes\Eidolons\Angel.cs" />
     <Compile Include="Classes\Eidolons\Azata.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="NewMechanics\LevelUpMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
     <Compile Include="NewMechanics\SizeMechanics.cs" />
+    <Compile Include="NewMechanics\SkillCheckMechanics.cs" />
     <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
     <Compile Include="NewMechanics\StatReplacementMechanics.cs" />
     <Compile Include="NewMechanics\TImeStopMechanics.cs" />

@@ -63,7 +63,6 @@ namespace CallOfTheWild
 
 
         static public BlueprintFeature claws;
-        static public BlueprintFeature claws_biped;
         static public BlueprintFeature slam_biped;
         static public BlueprintFeature bite;
         static public BlueprintFeature[] improved_natural_attacks;
@@ -458,15 +457,14 @@ namespace CallOfTheWild
             var eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                    Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.fey_eidolon,
-                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon};
+                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon, Eidolon.agathion_eidolon};
             var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
                                                          Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     new BlueprintFeature[] { boar, dog, mammoth, monitor, wolf }));
-            evolution_entries.Add(new EvolutionEntry(claws_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                         new BlueprintFeature[] {Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon,
-                                                                 Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon}));
-            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons));
+                                                     new BlueprintFeature[] {Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon,
+                                                                             Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
+                                                                             boar, dog, mammoth, monitor, wolf, Eidolon.agathion_eidolon }));
+            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons.RemoveFromArray(Eidolon.agathion_eidolon)));
 
             foreach (var e in improved_natural_attacks)
             {
@@ -475,7 +473,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth})));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth, Eidolon.agathion_eidolon })));
 
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
@@ -526,7 +524,7 @@ namespace CallOfTheWild
 
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
             evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede })));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede, Eidolon.agathion_eidolon })));
 
             foreach (var e in immunity)
             {
@@ -535,14 +533,14 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar}));
+                                                     new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar, Eidolon.agathion_eidolon}));
 
             evolution_entries.Add(new EvolutionEntry(trip, 2, 4, new BlueprintFeature[] { bite }, new BlueprintFeature[0],
                                                      new BlueprintFeature[0]));
 
             for (int i = 0; i < weapon_training.Length; i++)
             {
-                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], eidolons,
+                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], eidolons.RemoveFromArray(Eidolon.agathion_eidolon),
                                                          evolution_group: "Weapon Training",
                                                          upgradeable: i + 1 != weapon_training.Length,
                                                          next_level_total_cost: 4 + i*2,
@@ -556,7 +554,7 @@ namespace CallOfTheWild
                                                     new BlueprintFeature[0]));
 
             evolution_entries.Add(new EvolutionEntry(pounce, 3, 7, new BlueprintFeature[0], new BlueprintFeature[0],
-                                        new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar })
+                                        new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar, Eidolon.agathion_eidolon })
                                         );
             evolution_entries.Add(new EvolutionEntry(amorphous, 4, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                         new BlueprintFeature[0]));
@@ -614,7 +612,7 @@ namespace CallOfTheWild
                                          new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                                    Eidolon.earth_elemental_eidolon,
                                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.infernal_eidolon,
-                                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon}));
+                                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.agathion_eidolon}));
         }
 
         static void createEvolutions()
@@ -722,23 +720,33 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("120e51788082260498a961a38a4fa617"); //dragon calws
             var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
 
+            var claws_biped = Helpers.CreateFeature("ClawsBipedEvolutionFeature",
+                             "Claws",
+                             "The eidolon has a pair of vicious claws at the ends of its limbs, giving it two claw attacks. These attacks are primary attacks. The claws deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                             "",
+                             icon,
+                             FeatureGroup.None,
+                             Common.createEmptyHandWeaponOverride(claw1d4)
+                             );
+            claws_biped.HideInCharacterSheetAndLevelUp = true;
+            var claws_quadruped = Helpers.CreateFeature("ClawsQuadrupedEvolutionFeature",
+                             "Claws",
+                             "The eidolon has a pair of vicious claws at the ends of its limbs, giving it two claw attacks. These attacks are primary attacks. The claws deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                             "",
+                             icon,
+                             FeatureGroup.None,
+                             Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4),
+                             Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4)
+                             );
+            claws_quadruped.HideInCharacterSheetAndLevelUp = true;
             claws = Helpers.CreateFeature("ClawsEvolutionFeature",
-                                         "Claw",
+                                         "Claws",
                                          "The eidolon has a pair of vicious claws at the ends of its limbs, giving it two claw attacks. These attacks are primary attacks. The claws deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
                                          "",
                                          icon,
                                          FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4),
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4)
-                                         );
-
-            claws_biped = Helpers.CreateFeature("ClawsBipedEvolutionFeature",
-                                         "Claw",
-                                         "The eidolon has a pair of vicious claws at the ends of its limbs, giving it two claw attacks. These attacks are primary attacks. The claws deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
-                                         "",
-                                         icon,
-                                         FeatureGroup.None,
-                                         Common.createEmptyHandWeaponOverride(claw1d4)
+                                         Helpers.Create<NewMechanics.AddFeatureIfQuadruped>(a => a.Feature = claws_quadruped),
+                                         Helpers.Create<NewMechanics.AddFeatureIfQuadruped>(a => { a.Feature = claws_biped; a.not = true; })
                                          );
         }
 
@@ -796,8 +804,8 @@ namespace CallOfTheWild
 
         static void createResistance()
         {
-            var energies = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Fire, DamageEnergyType.Electricity };
-            var icon_ids = new string[] { "fedc77de9b7aad54ebcc43b4daf8decd", "5368cecec375e1845ae07f48cdc09dd1", "ddfb4ac970225f34dbff98a10a4a8844", "90987584f54ab7a459c56c2d2f22cee2" };
+            var energies = new DamageEnergyType[] { DamageEnergyType.Acid, DamageEnergyType.Cold, DamageEnergyType.Electricity, DamageEnergyType.Fire };
+            var icon_ids = new string[] { "fedc77de9b7aad54ebcc43b4daf8decd", "5368cecec375e1845ae07f48cdc09dd1", "90987584f54ab7a459c56c2d2f22cee2", "ddfb4ac970225f34dbff98a10a4a8844" };
 
             resistance = new BlueprintFeature[energies.Length];
 
@@ -977,9 +985,9 @@ namespace CallOfTheWild
                                            "",
                                            icon,
                                            FeatureGroup.None,
-                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_angel; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon }; }),
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_angel; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.agathion_eidolon }; }),
                                            Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_devil; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon }; }),
-                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_dragon; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon }; a.not = true; })
+                                           Helpers.Create<NewMechanics.AddFeatureIfMasterHasFactsFromList>(a => { a.Feature = flight_dragon; a.CheckedFacts = new BlueprintUnitFact[] { Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.agathion_eidolon, Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon }; a.not = true; })
                                            );
         }
 

@@ -87,10 +87,10 @@ namespace CallOfTheWild
                                                   );
 
             var feature12 = Helpers.CreateFeature("AzataEidolonLevel12Feature",
-                                                  "Resistance II",
+                                                  "Damage Reduction",
                                                   "At 12th level, angel eidolons gain DR 5/evil. They also gain immunity to petrification.",
                                                   "",
-                                                  Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
+                                                  Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel12AddFeature",
                                                                                                   Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Evil),

@@ -64,6 +64,7 @@ namespace CallOfTheWild
         static public BlueprintFeature life_bond;
         static public BlueprintFeature shield_ally;
         static public BlueprintFeature greater_shield_ally;
+        static public BlueprintFeature merge_forms;
 
         static public BlueprintAbilityResource makers_call_resource;
         static public BlueprintFeature makers_call;
@@ -82,9 +83,9 @@ namespace CallOfTheWild
         static public BlueprintFeature devil_binder_smite_chaos;
         static public BlueprintFeature devil_binder_charisma_bonus;
 
-
         static BlueprintArchetype fey_caller;
         static public BlueprintFeature[] summon_nature_ally = new BlueprintFeature[9];
+
 
 
 
@@ -144,7 +145,21 @@ namespace CallOfTheWild
             Evolutions.addClassToExtraEvalution(summoner_class);
 
             createSummonerSpells();
-            //add to prestige classes
+            addToPrestigeClasses();
+        }
+
+
+        static void addToPrestigeClasses()
+        {
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, summoner_class.Spellbook, "EldritchKnightSummoner",
+                                        Common.createPrerequisiteClassSpellLevel(summoner_class, 3));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, summoner_class.Spellbook, "ArcaneTricksterSummoner",
+                                        Common.createPrerequisiteClassSpellLevel(summoner_class, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, summoner_class.Spellbook, "MysticTheurgeSummoner",
+                                        Common.createPrerequisiteClassSpellLevel(summoner_class, 2));
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, summoner_class.Spellbook, "DragonDiscipleSummoner",
+                                        Common.createPrerequisiteClassSpellLevel(summoner_class, 1));
+
         }
 
 
@@ -496,7 +511,7 @@ namespace CallOfTheWild
             createAspect();
             createGreaterAspect();
             createSummonMonster();
-            //createMergeForms();???
+            createMergeForms();
             createTwinEidolon();
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
@@ -615,6 +630,37 @@ namespace CallOfTheWild
                     summon_monster[i].AddComponent(summon_resource.CreateAddAbilityResource());
                 }
             }
+        }
+
+
+        static void createMergeForms()
+        {
+            var resource = Helpers.CreateAbilityResource("MergeFormsResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, getSummonerArray());
+            var icon = Helpers.GetIcon("4aa7942c3e62a164387a73184bca3fc1");
+            var buff = Helpers.CreateBuff("MergeFormsBuff",
+                                          "Merge Forms",
+                                          "At 16th level, as a full-round action, a summoner can touch his eidolon and the two can merge forms. This transformation includes all of the summoner’s gear. While merged in this way, the summoner is protected from harm and cannot be the target of spells or effects. All effects and spells currently targeting the summoner are suspended until the summoner emerges from the eidolon (although durations continue to expire).\n"
+                                          + "The summoner can cast spells while inside the eidolon by taking control of the eidolon for the duration of the casting. Any material components used for these spells are taken from the summoner’s gear, even though they are otherwise inaccessible. The summoner can direct all of the eidolon’s actions while merged, can perceive through its senses, and can speak through its voice.\n"
+                                          + "The summoner can use this ability for a number of rounds per day equal to his summoner level. He can end this effect at any time as a swift action. The summoner emerges in a square adjacent to the eidolon if able. If the eidolon is returned to its home plane while the summoner is merged with it, the summoner is immediately ejected, takes 4d6 points of damage, and is stunned for 1 round.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<EvolutionMechanics.ShareSpellbooksWithCompanion>()
+                                          );
+            var toggle = Helpers.CreateActivatableAbility("MergeFormsActivatableAbility",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          CommandType.Standard,
+                                                          null,
+                                                          resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound)
+                                                          );
+            merge_forms = Common.ActivatableAbilityToFeature(toggle, false);
+            merge_forms.AddComponent(resource.CreateAddAbilityResource());
         }
 
 

@@ -3364,6 +3364,46 @@ namespace CallOfTheWild
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfQuadruped : OwnedGameLogicComponent<UnitDescriptor>, IGlobalSubscriber
+        {
+            public BlueprintFeature Feature;
+            public bool not = false;
+            private static BlueprintCharacterClass animal = Main.library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920");
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (m_AppliedFact != null)
+                {
+                    this.Owner.RemoveFact(this.m_AppliedFact);
+                    this.m_AppliedFact = (Fact)null;
+                }
+            }
+
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null)
+                    return;
+
+                bool is_quadruped = this.Owner.Progression.IsArchetype(Eidolon.quadruped_archetype) || this.Owner.Progression.Classes.Any(c => c.CharacterClass == animal);
+                if (is_quadruped != not)
+                {
+                    this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+                }
+            }
+        }
+
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddFeatureIfMasterHasFactsFromList : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
         {
             public bool not = false;

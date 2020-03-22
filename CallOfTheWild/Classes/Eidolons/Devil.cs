@@ -64,7 +64,7 @@ namespace CallOfTheWild
                                                   Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel1AddFeature",
                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
                                                                                                   ),
-                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws_biped),
+                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.skilled[1]),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -97,7 +97,7 @@ namespace CallOfTheWild
                                                   "Damage Reduction",
                                                   "At 12th level, devil eidolons gain DR 5/good.",
                                                   "",
-                                                  Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
+                                                  Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel12AddFeature",
                                                                                                   Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),

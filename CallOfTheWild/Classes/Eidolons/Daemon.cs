@@ -64,7 +64,7 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel1AddFeature",
                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)),
-                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws_biped),
+                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
 
@@ -94,7 +94,7 @@ namespace CallOfTheWild
                                                     "Damage Reduction and Immunity",
                                                     "At 12th level, daemon eidolons gain DR 5/good. They also gain immunity to death effects, disease, and poison.",
                                                     "",
-                                                    Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
+                                                    Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                     FeatureGroup.None,
                                                     Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel12AddFeature",
                                                                                                   Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),

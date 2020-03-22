@@ -85,7 +85,7 @@ namespace CallOfTheWild
                                                "Resistance and Wings",
                                                "At 12th level, fey eidolons gain DR 5/ cold iron. They also grow wings, gaining the flight evolution.",
                                                "",
-                                               Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
+                                               Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                FeatureGroup.None,
                                                Common.createMaterialDR(Helpers.CreateContextValue(AbilityRankType.Default), PhysicalDamageMaterial.ColdIron)
                                                );

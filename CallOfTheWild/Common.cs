@@ -3511,9 +3511,9 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintAbility convertToSuperNatural(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null)
+        static public BlueprintAbility convertToSuperNatural(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null, bool no_resource = false)
         {
-            var ability = convertToSpellLike(spell, prefix, classes, stat, resource);
+            var ability = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource);
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
             ability.RemoveComponents<SpellComponent>();

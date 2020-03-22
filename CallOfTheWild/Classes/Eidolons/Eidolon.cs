@@ -53,6 +53,7 @@ namespace CallOfTheWild
         static public BlueprintProgression eidolon_progression;
         static public BlueprintProgression angel_eidolon; //ok
         static public BlueprintProgression azata_eidolon; //ok
+        static public BlueprintProgression agathion_eidolon;
         static public BlueprintProgression fire_elemental_eidolon; //ok
         static public BlueprintProgression water_elemental_eidolon; //ok
         static public BlueprintProgression air_elemental_eidolon; //ok? - visual might be better?
@@ -64,6 +65,7 @@ namespace CallOfTheWild
         static public BlueprintProgression inevitable_eidolon;//ok
         static public BlueprintProgression infernal_eidolon;
         static public BlueprintArchetype fey_archetype;
+        static public BlueprintArchetype quadruped_archetype;
         static public BlueprintArchetype infernal_archetype;
         static public BlueprintFeatureSelection extra_class_skills;
 
@@ -104,6 +106,7 @@ namespace CallOfTheWild
             fillWaterElementalProgression();
             fillEarthElementalProgression();
             fillFeyProgression();
+            fillAgathionProgression();
         }
 
 
@@ -120,6 +123,7 @@ namespace CallOfTheWild
             createDevilUnit();
             createDemonUnit();
             createDaemonUnit();
+            createAgathionUnit();
         }
 
 
@@ -140,6 +144,25 @@ namespace CallOfTheWild
             fey_type.HideInUI = true;
             fey_type.HideInCharacterSheetAndLevelUp = true;
             fey_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, fey_type) };
+        }
+
+
+        static void createQuadrupedArchetype()
+        {
+            quadruped_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "QuadruoedEidolonArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Quadruped Eidolon");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", Eidolon.eidolon_class.Description);
+            });
+            Helpers.SetField(quadruped_archetype, "m_ParentClass", eidolon_class);
+            library.AddAsset(quadruped_archetype, "");
+
+            quadruped_archetype.RemoveFeatures = new LevelEntry[0];
+            quadruped_archetype.ReflexSave = library.Get<BlueprintStatProgression>("ff4662bde9e75f145853417313842751");
+            quadruped_archetype.WillSave = library.Get<BlueprintStatProgression>("dc0c7c1aba755c54f96c089cdf7d14a3");
+
+            quadruped_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1) };
         }
 
 
@@ -262,7 +285,7 @@ namespace CallOfTheWild
             {
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
-                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillLoreReligion, StatType.SkillStealth };
                 a.Selections = new SelectionEntry[0];
             });
             demon_unit.AddComponents(Helpers.Create<EidolonComponent>());
@@ -498,6 +521,56 @@ namespace CallOfTheWild
         }
 
 
+        static void createAgathionUnit()
+        {
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var agathion_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AgathionEidolonUnit", "");
+            agathion_unit.LocalizedName = agathion_unit.LocalizedName.CreateCopy();
+            agathion_unit.LocalizedName.String = Helpers.CreateString(agathion_unit.name + ".Name", "Agathion Eidolon");
+
+            agathion_unit.Alignment = Alignment.NeutralGood;
+            agathion_unit.Strength = 14;
+            agathion_unit.Dexterity = 14;
+            agathion_unit.Constitution = 13;
+            agathion_unit.Intelligence = 7;
+            agathion_unit.Wisdom = 10;
+            agathion_unit.Charisma = 11;
+            agathion_unit.Speed = 40.Feet();
+            agathion_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2 }; // { natural_armor2, fx_feature };
+            agathion_unit.Body = agathion_unit.Body.CloneObject();
+            agathion_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            agathion_unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"); //bite 1d6
+            agathion_unit.Body.SecondaryHand = null;
+            agathion_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            agathion_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[] { quadruped_archetype };
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            agathion_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            
+            agathion_eidolon = Helpers.CreateProgression("AgathionEidolonProgression",
+                                        "Agathion Eidolon",
+                                        "Patient and enlightened liaisons of the good-aligned Outer Planes, agathion eidolons seek to vanquish evil and protect that which is good. Agathion eidolons always have aspects of a single animal or creature, rather than a hodgepodge of several. Though they have patience for summoners with unorthodox methods and even those who stray from the path of good, they will not brook their powers being used for evil ends. An agathion eidolon seeks to bring its summoner closer to its own enlightenment.",
+                                        "",
+                                        Helpers.GetIcon("de7a025d48ad5da4991e7d3c682cf69d"), //cat's grace
+                                        FeatureGroup.AnimalCompanion,
+                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                        );
+            agathion_eidolon.IsClassFeature = true;
+            agathion_eidolon.ReapplyOnLevelUp = true;
+            agathion_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            agathion_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            agathion_eidolon.ReplaceComponent<AddPet>(a => a.Pet = agathion_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(agathion_eidolon);
+        }
+
+
 
         static void createAzataUnit()
         {
@@ -555,7 +628,7 @@ namespace CallOfTheWild
             azata_eidolon.IsClassFeature = true;
             azata_eidolon.ReapplyOnLevelUp = true;
             azata_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
-            azata_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Chaotic | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood));
+            azata_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticGood | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood));
             azata_eidolon.ReplaceComponent<AddPet>(a => a.Pet = azata_unit);
           
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(azata_eidolon);
@@ -591,7 +664,7 @@ namespace CallOfTheWild
             angel_unit.LocalizedName = azata.LocalizedName.CreateCopy();
             angel_unit.LocalizedName.String = Helpers.CreateString(angel_unit.name + ".Name", "Angel Eidolon");
 
-            angel_unit.Alignment = Alignment.NeutralGood;
+            angel_unit.Alignment = Alignment.LawfulGood;
             angel_unit.Strength = 16;
             angel_unit.Dexterity = 12;
             angel_unit.Constitution = 13;
@@ -626,7 +699,7 @@ namespace CallOfTheWild
             angel_eidolon.IsClassFeature = true;
             angel_eidolon.ReapplyOnLevelUp = true;
             angel_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
-            angel_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            angel_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulGood | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood));
             angel_eidolon.ReplaceComponent<AddPet>(a => a.Pet = angel_unit);
             
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(angel_eidolon);
@@ -977,7 +1050,8 @@ namespace CallOfTheWild
 
             createFeyEidolonArchetype();
             createInfernalEidolonArchetype();
-            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype, infernal_archetype};
+            createQuadrupedArchetype();
+            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype, infernal_archetype, quadruped_archetype};
             Helpers.RegisterClass(eidolon_class);
         }
 

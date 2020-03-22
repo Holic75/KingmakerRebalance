@@ -60,7 +60,7 @@ namespace CallOfTheWild
                 if (__instance.CurrentUnit == null)
                     return false;
 
-                bool is_eidolon = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null;
+                bool is_eidolon = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null && !player.Descriptor.Progression.IsArchetype(Eidolon.quadruped_archetype);
                 EquipSlotBase.SlotType[] allowed_slots;
                 if (!is_eidolon)
                 {
@@ -104,7 +104,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                if (player.Descriptor.IsPet && player.Blueprint.GetComponent<Eidolon.EidolonComponent>() == null)
+                if (player.Descriptor.IsPet && !is_eidolon)
                 {//remove additional weapon sets
                     for (int i = 1; i < player.Body.HandsEquipmentSets.Count; i++)
                     {

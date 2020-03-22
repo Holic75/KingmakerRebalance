@@ -3,6 +3,7 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
@@ -843,5 +844,52 @@ namespace CallOfTheWild.EvolutionMechanics
                 Main.logger.Error(e.ToString());
             }
         }
+    }
+
+
+    public class ShareSpellbooksWithCompanion : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnFactActivate()
+        {
+            var pet = this.Owner.Pet;
+            if (pet == null)
+            {
+                return;
+            }
+
+            var spellbooks = Helpers.GetField<Dictionary<BlueprintSpellbook, Spellbook>>(pet.Descriptor, "m_Spellbooks");
+
+            foreach (var sb in this.Owner.Spellbooks)
+            {
+                spellbooks[sb.Blueprint] = sb;
+            }
+        }
+
+        public override void OnTurnOn()
+        {
+            OnFactActivate();
+        }
+
+        public override void OnTurnOff()
+        {
+            OnFactDeactivate();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            var pet = this.Owner.Pet;
+            if (pet == null)
+            {
+                return;
+            }
+
+            var spellbooks = Helpers.GetField<Dictionary<BlueprintSpellbook, Spellbook>>(pet.Descriptor, "m_Spellbooks");
+
+            foreach (var sb in this.Owner.Spellbooks)
+            {
+                spellbooks.Remove(sb.Blueprint);
+            }
+        }
+
     }
 }
