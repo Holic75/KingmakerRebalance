@@ -88,7 +88,7 @@ namespace CallOfTheWild
 
             var feature12 = Helpers.CreateFeature("AzataEidolonLevel12Feature",
                                                   "Damage Reduction",
-                                                  "At 12th level, angel eidolons gain DR 5/evil. They also gain immunity to petrification.",
+                                                  "At 12th level, azata eidolons gain DR 5/evil. They also gain immunity to petrification.",
                                                   "",
                                                   Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
@@ -108,7 +108,7 @@ namespace CallOfTheWild
 
             var feature16 = Helpers.CreateFeatureSelection("AzataEidolonLevel16Feature",
                                                           "Immunity",
-                                                          "At 16th level, angel eidolons lose the resistance (acid) and resistance (cold) evolutions, and instead gain the immunity (acid) and immunity (cold) evolutions.",
+                                                          "At 16th level, azata eidolons lose the resistance (electricity) evolution, and instead gain the immunity (electricity) evolution. They also gain the ability increase evolution, applied to an ability score of the summoner’s choice.",
                                                           "",
                                                           Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                           FeatureGroup.None,

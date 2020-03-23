@@ -717,7 +717,7 @@ namespace CallOfTheWild
 
         static void createClaws()
         {
-            var icon = Helpers.GetIcon("120e51788082260498a961a38a4fa617"); //dragon calws
+            var icon = Helpers.GetIcon("f68af48f9ebf32549b5f9fdc4edfd475"); //claws          
             var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
 
             var claws_biped = Helpers.CreateFeature("ClawsBipedEvolutionFeature",
@@ -994,7 +994,7 @@ namespace CallOfTheWild
 
         static void createRake()
         {
-            var icon = Helpers.GetIcon("f68af48f9ebf32549b5f9fdc4edfd475"); //claws
+            var icon = Helpers.GetIcon("120e51788082260498a961a38a4fa617"); //dragon calws
             var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
 
             rake = Helpers.CreateFeature("RakeEvolutionFeature",

@@ -85,7 +85,8 @@ namespace CallOfTheWild
 
         static BlueprintArchetype fey_caller;
         static public BlueprintFeature[] summon_nature_ally = new BlueprintFeature[9];
-
+        static BlueprintArchetype naturalist;
+        static AnimalFocusEngine animal_focus_engine;
 
 
 
@@ -139,7 +140,8 @@ namespace CallOfTheWild
             summoner_class.Progression = summoner_progression;
             createDevilBinder();
             createFeyCaller();
-            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller }; // twinned summoner, master summoner, spirit summoner ?
+            createNaturalist();
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist }; // twinned summoner, master summoner, spirit summoner ?
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
@@ -159,6 +161,109 @@ namespace CallOfTheWild
                                         Common.createPrerequisiteClassSpellLevel(summoner_class, 2));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, summoner_class.Spellbook, "DragonDiscipleSummoner",
                                         Common.createPrerequisiteClassSpellLevel(summoner_class, 1));
+
+        }
+
+
+        static void createNaturalist()
+        {
+            var acid_maw = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
+            naturalist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "NaturalistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Naturalist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A naturalist is a summoner who is in tune with the natural world, using his magic like a lens to focus various animal aspects onto his eidolon. More akin to a hunter than to other arcane spellcasters, a naturalist instinctively masters the power of such creatures as the bear, wolf, mouse, or tiger to make his exotic eidolon the perfect living tool for battle or stealth, and he eventually discovers how to apply these transformations to himself as well.");
+            });
+            Helpers.SetField(naturalist, "m_ParentClass", summoner_class);
+            library.AddAsset(naturalist, "");
+
+
+            animal_focus_engine = new AnimalFocusEngine();
+            animal_focus_engine.initialize(getSummonerArray(), naturalist, 2, "Naturalist");
+
+            var animal_focus_additional_use_component = Helpers.Create<Kingmaker.UnitLogic.FactLogic.IncreaseActivatableAbilityGroupSize>();
+            animal_focus_additional_use_component.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+
+            var animal_focus_additional_use = Helpers.CreateFeature("NaturalistAdditionalAnimalFocusFeature",
+                                                             "Second Animal Focus",
+                                                             "At 10th level, whenever a naturalist uses animal focus, he may apply two different animal aspects to his eidolon. The eidolon’s form gains superficial physical charges appropriate to the chosen aspect. This replaces the aspect summoner class ability.",
+                                                             "",
+                                                             acid_maw.Icon,
+                                                             FeatureGroup.None,
+                                                             animal_focus_additional_use_component
+                                                            );
+            animal_focus_additional_use.Ranks = 1;
+            var animal_focus_additional_use2 = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use.AssetGuid, "NaturalistAdditionalAnimalFocus2Feature", "");
+            animal_focus_additional_use2.SetNameDescription("Third Animal Focus", "At 18th level, whenever a naturalist uses his animal focus ability, he can apply three different animal aspects to his eidolon");
+
+            var animal_focus = animal_focus_engine.createAnimalFocus();
+            var animal_focus_ac = Helpers.CreateFeature("NaturalistAnimalFocusAcFeature",
+                                                        "Animal Focus",
+                                                        "At 4th level, as a swift action a naturalist can enhance his eidolon with the aspect of an animal. Each time he uses this ability, he can select a hunter’s animal aspect and apply it to his eidolon. His hunter level for this ability is equal to his summoner level – 2. He does not gain the ability to add an animal aspect to himself (see Shared Focus, below). This effect lasts until the eidolon is dismissed or sent back to its home plane.",
+                                                        "",
+                                                        acid_maw.Icon,
+                                                        FeatureGroup.None,
+                                                        Common.createAddFeatToAnimalCompanion(animal_focus)
+                                                        );
+            var animal_focus_additional_use_ac = Helpers.CreateFeature("NaturalistAdditonalAnimalFocusAcFeature",
+                                                                        animal_focus_additional_use.Name,
+                                                                        animal_focus_additional_use.Description,
+                                                                        "",
+                                                                        acid_maw.Icon,
+                                                                        FeatureGroup.None,
+                                                                        Common.createAddFeatToAnimalCompanion(animal_focus_additional_use)
+                                                                        );
+
+           var animal_focus_additional_use_ac2 = Helpers.CreateFeature("NaturalistAdditonalAnimalFocusAc2Feature",
+                                                                        animal_focus_additional_use2.Name,
+                                                                        animal_focus_additional_use2.Description,
+                                                                        "",
+                                                                        acid_maw.Icon,
+                                                                        FeatureGroup.None,
+                                                                        Common.createAddFeatToAnimalCompanion(animal_focus_additional_use2)
+                                                                        );
+
+            var shared_focus = library.CopyAndAdd<BlueprintFeature>(animal_focus, "NaturalistSharedFocus", "");
+            shared_focus.SetNameDescription("Shared Focus", "At 14th level, the naturalist begins to take on some of the feral nature of his eidolon. He can apply one animal focus to himself.");
+
+            naturalist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_monster[0]),
+                                                             Helpers.LevelEntry(3, summon_monster[1]),
+                                                             Helpers.LevelEntry(4, shield_ally),
+                                                             Helpers.LevelEntry(5, summon_monster[2]),
+                                                             Helpers.LevelEntry(7, summon_monster[3]),
+                                                             Helpers.LevelEntry(9, summon_monster[4]),
+                                                             Helpers.LevelEntry(11, summon_monster[5]),
+                                                             Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[0]),
+                                                             Helpers.LevelEntry(13, summon_monster[6], aspect_extra[1]),
+                                                             Helpers.LevelEntry(14, life_bond, aspect_extra[2]),
+                                                             Helpers.LevelEntry(15, summon_monster[7], aspect_extra[3]),
+                                                             Helpers.LevelEntry(16, aspect_extra[4]),
+                                                             Helpers.LevelEntry(17, summon_monster[8], aspect_extra[5]),
+                                                             Helpers.LevelEntry(18, greater_aspect_extra[0]),
+                                                             Helpers.LevelEntry(19, greater_aspect_extra[1]),
+                                                             Helpers.LevelEntry(20, greater_aspect_extra[2])
+                                                           };
+
+            naturalist.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_nature_ally[0]),
+                                                             Helpers.LevelEntry(3, summon_nature_ally[1]),
+                                                             Helpers.LevelEntry(4, animal_focus_ac),
+                                                             Helpers.LevelEntry(5, summon_nature_ally[2]),
+                                                             Helpers.LevelEntry(7, summon_nature_ally[3]),
+                                                             Helpers.LevelEntry(9, summon_nature_ally[4]),
+                                                             Helpers.LevelEntry(10, animal_focus_additional_use_ac),
+                                                             Helpers.LevelEntry(11, summon_nature_ally[5]),
+                                                             Helpers.LevelEntry(13, summon_nature_ally[6]),
+                                                             Helpers.LevelEntry(14, shared_focus),
+                                                             Helpers.LevelEntry(15, summon_nature_ally[7]),
+                                                             Helpers.LevelEntry(17, summon_nature_ally[8]),
+                                                             Helpers.LevelEntry(18, animal_focus_additional_use_ac2),
+                                                        };
+
+
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(animal_focus_ac, animal_focus_additional_use_ac, shared_focus, animal_focus_additional_use_ac2));
+
+            var planar_focus = animal_focus_engine.createPlanarFocus("Naturalist");
+            planar_focus.AddComponents(Common.createPrerequisiteArchetypeLevel(summoner_class, naturalist, 14));
 
         }
 
@@ -228,7 +333,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbility>("a7469ef84ba50ac4cbf3d145e3173f8e")
             };
 
-            var description = "Instead of summoning creatures from the summon monster list, the fey caller’s summoning spell-like ability summons creatures from the list for the summon nature’s ally spell of the same level. It still follows the other rules and restrictions for the summoner’s summon monster spell-like ability.";
+            var description = "Instead of summoning creatures from the summon monster list, the naturalist's and fey caller’s summoning spell-like ability summons creatures from the list for the summon nature’s ally spell of the same level. It still follows the other rules and restrictions for the summoner’s summon monster spell-like ability.";
 
 
             for (int i = 0; i < spells.Length; i++)
