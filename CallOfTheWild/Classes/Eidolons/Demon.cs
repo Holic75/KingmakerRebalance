@@ -58,7 +58,7 @@ namespace CallOfTheWild
             base_evolutions.HideInCharacterSheetAndLevelUp = true;
             var feature1 = Helpers.CreateFeature("DemonEidolonLevel1Feature",
                                                   "Base Evolutions",
-                                                  "Starting at 1st level, demon eidolons gain the claws,  resistance (electricity) and resistance (fire) evolutions as well as a +4 bonus on saving throws against poison.",
+                                                  "Starting at 1st level, demon eidolons gain the claws, resistance (electricity) and resistance (fire) evolutions as well as a +4 bonus on saving throws against poison.",
                                                   "",
                                                   demon_eidolon.Icon,
                                                   FeatureGroup.None,

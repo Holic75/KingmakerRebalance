@@ -207,6 +207,7 @@
     <Compile Include="Classes\Hunter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="NewMechanics\CustomAbilities.cs" />
+    <Compile Include="NewMechanics\DeadTargetMechanics.cs" />
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\EncumbranceMechanics.cs" />
     <Compile Include="NewMechanics\EvolutionMechanics.cs" />

@@ -3462,20 +3462,6 @@ namespace CallOfTheWild
         }
 
 
-
-        [AllowedOn(typeof(BlueprintAbility))]
-        public class AbilityTargetRecentlyDead : BlueprintComponent, IAbilityTargetChecker
-        {
-            public BlueprintBuff RecentlyDeadBuff;
-
-            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
-            {
-                bool flag1 = target.Unit != null && ((target.Unit.Descriptor.State.IsDead || target.Unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)) && target.Unit.Descriptor.HasFact((BlueprintUnitFact)this.RecentlyDeadBuff)) && !target.Unit.Descriptor.State.HasCondition(UnitCondition.Petrified);
-                return flag1;
-            }
-        }
-
-
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddFeatureIfHasFactAndNotHasFact : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber

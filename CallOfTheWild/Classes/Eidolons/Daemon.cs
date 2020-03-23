@@ -58,7 +58,7 @@ namespace CallOfTheWild
             base_evolutions.HideInCharacterSheetAndLevelUp = true;
             var feature1 = Helpers.CreateFeature("DaemonEidolonLevel1Feature",
                                                   "Base Evolutions",
-                                                  "Starting at 1st level, daemon eidolons gain the claws, resistance (acid) evolution as well as a +4 bonus on saving throws against death effects, disease, and poison.",
+                                                  "Starting at 1st level, daemon eidolons gain the claws and resistance (acid) evolutions as well as a +4 bonus on saving throws against death effects, disease, and poison.",
                                                   "",
                                                   daemon_eidolon.Icon,
                                                   FeatureGroup.None,
@@ -134,7 +134,7 @@ namespace CallOfTheWild
                                           Helpers.Create<AddContextStatBonus>(a => { a.Value = Helpers.CreateContextValue(AbilitySharedValue.StatBonus); a.Stat = StatType.SaveFortitude; a.Descriptor = ModifierDescriptor.Profane; }),
                                           Helpers.Create<AddContextStatBonus>(a => { a.Value = Helpers.CreateContextValue(AbilitySharedValue.StatBonus); a.Stat = StatType.AdditionalAttackBonus; a.Descriptor = ModifierDescriptor.Profane; })
                                          );
-            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
+            var apply_buff = Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
 
             var ability = Helpers.CreateAbility("DaemonEidolonLevel20Ability",
                                                 buff.Name,
@@ -147,7 +147,7 @@ namespace CallOfTheWild
                                                 "24 hours",
                                                 "",
                                                 Helpers.CreateRunActions(Helpers.Create<NewMechanics.WriteTargetHDtoSharedValue>(w => { w.divisor = 5; w.shared_value = AbilitySharedValue.StatBonus; }), apply_buff),
-                                                Helpers.Create<NewMechanics.AbilityTargetRecentlyDead>(a => a.RecentlyDeadBuff = library.Get<BlueprintBuff>("38bb8a5d773243843bbaaa2c340cc19c")),
+                                                Helpers.Create<DeadTargetMechanics.AbilityTargetRecentlyDead>(a => a.RecentlyDeadBuff = library.Get<BlueprintBuff>("38bb8a5d773243843bbaaa2c340cc19c")),
                                                 Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                 );
             ability.setMiscAbilityParametersTouchHarmful();

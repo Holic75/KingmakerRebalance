@@ -64,14 +64,16 @@ namespace CallOfTheWild.EvolutionMechanics
             int amount = 0;
             foreach (var kv in evolution_points)
             {
-                amount += kv.Value;
-            }
+                kv.Key.CallComponents<IIncreaseEvolutionPool>(i => { amount += i.getAmount(); });
+            }  
             return amount - evolution_points_spent;
         }
 
-        public void increaseNumberOfEvolutionPoints(int bonus, Fact fact)
+        public void increaseNumberOfEvolutionPoints(Fact fact)
         {
-            evolution_points[fact] = bonus;
+            int amount = 0;
+            fact.CallComponents<IIncreaseEvolutionPool>(i => { amount += i.getAmount(); });
+            evolution_points[fact] = amount;
         }
 
         public void removeEvolutionPointsIncrease(Fact fact)
@@ -433,13 +435,24 @@ namespace CallOfTheWild.EvolutionMechanics
     }
 
 
+    interface IIncreaseEvolutionPool
+    {
+       int getAmount();
+    }
+
     [AllowedOn(typeof(BlueprintUnitFact))]
-    public class IncreaseEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>
+    public class IncreaseEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>, IIncreaseEvolutionPool
     {
         public ContextValue amount;
+
+        public int getAmount()
+        {
+            return amount.Calculate(this.Fact.MaybeContext)*this.Fact.GetRank();
+        }
+
         public override void OnFactActivate()
         {
-            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(amount.Calculate(this.Fact.MaybeContext), this.Fact);
+            this.Owner.Ensure<UnitPartEvolution>().increaseNumberOfEvolutionPoints(this.Fact);
         }
 
 
@@ -451,12 +464,17 @@ namespace CallOfTheWild.EvolutionMechanics
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
-    public class IncreaseSelfEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>
+    public class IncreaseSelfEvolutionPool : OwnedGameLogicComponent<UnitDescriptor>, IIncreaseEvolutionPool
     {
         public ContextValue amount;
+        public int getAmount()
+        {
+            return amount.Calculate(this.Fact.MaybeContext);
+        }
+
         public override void OnFactActivate()
         {
-            this.Owner.Ensure < UnitPartSelfEvolution>().increaseNumberOfEvolutionPoints(amount.Calculate(this.Fact.MaybeContext), this.Fact);
+            this.Owner.Ensure < UnitPartSelfEvolution>().increaseNumberOfEvolutionPoints(this.Fact);
         }
 
 
