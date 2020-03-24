@@ -579,7 +579,7 @@ namespace CallOfTheWild
 
             trapfinding_rogue.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SkillThievery, ModifierDescriptor.None));
             trapfinding_slayer.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SkillThievery, ModifierDescriptor.None));
-            trapfinding_rogue.SetName("A rogue adds 1/2 her level on Perception and Trickery checks.");
+            trapfinding_rogue.SetDescription("A rogue adds 1/2 her level on Perception and Trickery checks.");
         }
 
 

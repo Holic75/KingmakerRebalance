@@ -191,16 +191,27 @@ namespace CallOfTheWild
             createDivineInspiration();
             createCelestialInsight();
 
-            jinyiwei_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration),
+            var suspicious_mind = Helpers.CreateFeature("JinyweiSuspiciousMindFeature",
+                                                        "Suspicious Mind",
+                                                        "A jinyiwei adds half her level (minimum 1) to all her Perception checks.",
+                                                        "",
+                                                        Helpers.GetIcon("c927a8b0cd3f5174f8c0b67cdbfde539"),
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.None),
+                                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(), progression: ContextRankProgression.Div2, min: 1)
+                                                        );
+
+            jinyiwei_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration, trapfinding),
                                                                    Helpers.LevelEntry(3, trap_sense),
                                                                    Helpers.LevelEntry(6, trap_sense),
                                                                    Helpers.LevelEntry(9, trap_sense),
                                                                    Helpers.LevelEntry(12, trap_sense),
                                                                    Helpers.LevelEntry(15, trap_sense),
                                                                    Helpers.LevelEntry(18, trap_sense) };
-            jinyiwei_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, detect_magic, divine_inspiration),
+            jinyiwei_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, detect_magic, divine_inspiration, suspicious_mind),
                                                                   Helpers.LevelEntry(3, celestial_insight) };
 
+            investigator_progression.UIDeterminatorsGroup = investigator_progression.UIDeterminatorsGroup.AddToArray(suspicious_mind);
             jinyiwei_archetype.ReplaceSpellbook = jinyiwei_spellbook;
             investigator_class.Progression.UIDeterminatorsGroup = investigator_class.Progression.UIDeterminatorsGroup.AddToArray(detect_magic, divine_inspiration);
             infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, jinyiwei_archetype));
