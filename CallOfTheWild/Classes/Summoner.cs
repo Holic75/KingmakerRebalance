@@ -779,7 +779,7 @@ namespace CallOfTheWild
                                                                     null,
                                                                     FeatureGroup.None,
                                                                     Helpers.Create<CompanionMechanics.SetPhysicalStatsToAnimalCompanionStats>(),
-                                                                    Helpers.Create<CompanionMechanics.GrabFeaturesFromCompanion>(g => g.Features = Evolutions.evolutions_list.ToArray())
+                                                                    Helpers.Create<CompanionMechanics.GrabFeaturesFromCompanion>(g => g.Features = Evolutions.evolutions_list.ToArray().AddToArray(Eidolon.transferable_abilities))
                                                                     );
             twinned_eidolon_evolution.HideInCharacterSheetAndLevelUp = true;
 

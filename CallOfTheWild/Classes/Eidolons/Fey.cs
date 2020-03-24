@@ -57,6 +57,7 @@ namespace CallOfTheWild
             feature1.AllFeatures = Evolutions.getPermanenetEvolutions(e => Evolutions.skilled.Contains(e));
 
             var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
+            transferable_abilities.Add(woodland_stride);
             var feature4 = Helpers.CreateFeature("FeyEidolonLevel4Feature",
                                                   "Woodland Stride",
                                                   "At 4th level, fey eidolons gain woodland stride.",
@@ -99,7 +100,7 @@ namespace CallOfTheWild
                                                                 ),
                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction, fey_extra_dr })
                                  );
-
+            transferable_abilities.Add(fey_dr);
             var feature12 = Helpers.CreateFeature("FeyEidolonLevel12Feature",
                                                   fey_dr.Name,
                                                   fey_dr.Description,
@@ -130,6 +131,7 @@ namespace CallOfTheWild
                                                       library.Get<BlueprintAbility>("ecaa0def35b38f949bd1976a6c9539e0"), //invisibility greater
                                                       library.Get<BlueprintAbility>("98310a099009bbd4dbdf66bcef58b4cd") //invisibility mass
                                                       );
+            transferable_abilities.Add(fey_extra_dr);
             var feature20 = Helpers.CreateFeatureSelection("FeyEidolonLevel20Feature",
                                                           "Fey Magic III",
                                                           "At 20th level, fey eidolons increase their DR to DR 10/cold iron. They gain the ability to use either waves of ectasy, invisibility, mass, invisibility greater, or cloak of dreams as a spell-like ability once per day.",
@@ -176,6 +178,7 @@ namespace CallOfTheWild
                 feature.SetDescription($"Fey Eidolon can use {feature.Name} as spell - like ability {uses} time{(uses == 1 ? "" : "s")} per day.\n"
                                        + feature.Name + ": " + feature.Description);
 
+                transferable_abilities.Add(feature);
                 features.Add(Common.createAddFeatToAnimalCompanion(feature, ""));
             }
 

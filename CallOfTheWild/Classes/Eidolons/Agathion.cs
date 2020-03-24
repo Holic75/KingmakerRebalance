@@ -62,8 +62,8 @@ namespace CallOfTheWild
                                                   "",
                                                   agathion_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AgathionEidolonLevel1AddFeature",
-                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Petrified)),
+                                                  addTransferableFeatToEidolon("AgathionEidolonLevel1AddFeature",
+                                                                               Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Petrified)),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true),
                                                   Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = Evolutions.bite)
                                                   );
@@ -74,18 +74,18 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AgathionEidolonLevel4AddFeature",
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Cold),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Sonic))
+                                                  addTransferableFeatToEidolon("AgathionEidolonLevel4AddFeature",
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Cold),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Sonic))
                                                   );
 
             var loh_resource = Helpers.CreateAbilityResource("AgathionLayOnHandsResource", "", "", "", null);
-            loh_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, new BlueprintCharacterClass[] { Eidolon.eidolon_class });
+            loh_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, new BlueprintCharacterClass[] { Eidolon.eidolon_class, Summoner.summoner_class });
             loh_resource.SetIncreasedByStat(0, StatType.Charisma);
 
             var loh_self = library.CopyAndAdd<BlueprintAbility>("8d6073201e5395d458b8251386d72df1", "AgathionLayOnHandsSelfAbility", "");
             loh_self.RemoveComponents<AbilityCasterAlignment>();
-            loh_self.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", new BlueprintCharacterClass[] { Eidolon.eidolon_class }));
+            loh_self.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", new BlueprintCharacterClass[] { Eidolon.eidolon_class, Summoner.summoner_class }));
             loh_self.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = loh_resource);
             var loh = library.CopyAndAdd<BlueprintAbility>("caae1dc6fcf7b37408686971ee27db13", "AgathionLayOnHandsAbility", "");
             loh.RemoveComponents<AbilityCasterAlignment>();
@@ -100,10 +100,10 @@ namespace CallOfTheWild
                                                   "",
                                                   loh.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AgathionEidolonLevel8AddFeature",
-                                                                                                  Helpers.CreateAddFacts(loh_self, loh_cast),
-                                                                                                  loh_resource.CreateAddAbilityResource()
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("AgathionEidolonLevel8AddFeature",
+                                                                                Helpers.CreateAddFacts(loh_self, loh_cast),
+                                                                                loh_resource.CreateAddAbilityResource()
+                                                                                )
                                                   );
 
 
@@ -128,6 +128,7 @@ namespace CallOfTheWild
                                          Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction, agathion_extra_dr })
                                          );
 
+            transferable_abilities.Add(agathion_dr);
             var feature12 = Helpers.CreateFeature("AgathionEidolonLevel12Feature",
                                                   agathion_dr.Name,
                                                   agathion_dr.Description,
@@ -146,7 +147,7 @@ namespace CallOfTheWild
                                                     FeatureGroup.None,
                                                     Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[2])
                                                     );
-
+            transferable_abilities.Add(agathion_extra_dr);
             var feature20 = Helpers.CreateFeature("AgathionEidolonLevel20Feature",
                                                   "Damage Reduction II",
                                                   "At 20th level, agathion eidolons increase their damage reduction to DR 10/evil.",

@@ -72,9 +72,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel4AddFeature",
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Cold),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Fire))
+                                                  addTransferableFeatToEidolon("AzataEidolonLevel4AddFeature",
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Cold),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Fire))
                                                   );
 
             var feature8 = Helpers.CreateFeature("AzataEidolonLevel8Feature",
@@ -92,17 +92,17 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel12AddFeature",
-                                                                                                  Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Evil),
-                                                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
-                                                                                                                                  progression: ContextRankProgression.MultiplyByModifier,
-                                                                                                                                  stepLevel: 10,
-                                                                                                                                  min: 5,
-                                                                                                                                  featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                  ),
-                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
-                                                                                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction }))
+                                                  addTransferableFeatToEidolon("AzataEidolonLevel12AddFeature",
+                                                                                Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Evil),
+                                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                stepLevel: 10,
+                                                                                                                min: 5,
+                                                                                                                featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                ),
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
+                                                                                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction }))
                                                   );
 
 
@@ -153,8 +153,8 @@ namespace CallOfTheWild
                                                   "",
                                                   buff.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AzataEidolonLevel20AddFeature",
-                                                                                                  Helpers.CreateAddFact(ability))                                              
+                                                  addTransferableFeatToEidolon("AzataEidolonLevel20AddFeature",
+                                                                                Helpers.CreateAddFact(ability))                                              
                                                   );
 
             azata_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

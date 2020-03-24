@@ -62,9 +62,9 @@ namespace CallOfTheWild
                                                   "",
                                                   demon_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel1AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
-                                                                                                  ),
+                                                  addTransferableFeatToEidolon("DemonEidolonLevel1AddFeature",
+                                                                                Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -75,10 +75,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel4AddFeature",
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Acid),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Cold)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DemonEidolonLevel4AddFeature",
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Acid),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Cold)
+                                                                                )
                                                   );
 
             var feature8 = Helpers.CreateFeature("DemonEidolonLevel8Feature",
@@ -87,10 +87,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("b48b4c5ffb4eab0469feba27fc86a023"), //delay poison
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel8AddFeature",
-                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Poison)
-                                                                                                  ),
+                                                  addTransferableFeatToEidolon("DemonEidolonLevel8AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(i => i.amount = 1)
                                                   );
 
@@ -100,16 +100,16 @@ namespace CallOfTheWild
                                                           "",
                                                           Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                           FeatureGroup.None,
-                                                          Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel12AddFeature",
-                                                                                                          Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
-                                                                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
-                                                                                                                                          progression: ContextRankProgression.MultiplyByModifier,
-                                                                                                                                          stepLevel: 10,
-                                                                                                                                          min: 5,
-                                                                                                                                          featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                          ),
-                                                                                                          Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
-                                                                                                          )
+                                                          addTransferableFeatToEidolon("DemonEidolonLevel12AddFeature",
+                                                                                        Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
+                                                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                        progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                        stepLevel: 10,
+                                                                                                                        min: 5,
+                                                                                                                        featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                        ),
+                                                                                        Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                        )
                                                           );
             feature12.AllFeatures = Evolutions.getPermanenetEvolutions(e => Evolutions.ability_increase.Any(ai => ai[0] == e));
 
@@ -128,9 +128,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DemonEidolonLevel20AddFeature",
-                                                                                                  Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.TrueSeeing)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DemonEidolonLevel20AddFeature",
+                                                                                Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.TrueSeeing)
+                                                                                )
                                                   );
 
             demon_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

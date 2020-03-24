@@ -52,12 +52,12 @@ namespace CallOfTheWild
                                                   "",
                                                   fire_elemental_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("EarthElementalEidolonLevel1AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Paralyzed),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Sleeping)
-                                                                                                   ),
+                                                  addTransferableFeatToEidolon("EarthElementalEidolonLevel1AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Paralyzed),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Sleeping)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[0])
                                                   );
@@ -70,7 +70,7 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(i => i.amount = 1)
                                                   );
-
+            transferable_abilities.Add(library.Get<BlueprintFeature>("737ef897849327b45b88b83a797918c8"));
             var feature8 = Helpers.CreateFeature("EarthElementalEidolonLevel8Feature",
                                                   "Combat Maneuver Immunity",
                                                   "At 8th level, earth elemental eidolons gain immunity to combat maneuvers.",
@@ -86,12 +86,12 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("EarthElementalEidolonLevel12AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                                                                   Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
-                                                                                                   )
+                                                  addTransferableFeatToEidolon("EarthElementalEidolonLevel12AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Stunned),
+                                                                                Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
+                                                                                )
                                                   );
 
             var feature16 = Helpers.CreateFeature("EarthElementalEidolonLevel16Feature",
@@ -100,10 +100,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("EarthElementalEidolonLevel16AddFeature",
-                                                                                                  Helpers.Create<AddImmunityToPrecisionDamage>(),
-                                                                                                  Helpers.Create<AddImmunityToCriticalHits>()
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("EarthElementalEidolonLevel16AddFeature",
+                                                                                Helpers.Create<AddImmunityToPrecisionDamage>(),
+                                                                                Helpers.Create<AddImmunityToCriticalHits>()
+                                                                                )
                                                   );
 
             var feature20 = Helpers.CreateFeature("EarthElementalEidolonLevel20Feature",
@@ -112,19 +112,19 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("c66e86905f7606c4eaa5c774f0357b2b"),
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("EarthElementalEidolonLevel20AddFeature",
-                                                                                                    Common.createContextPhysicalDR(Helpers.CreateContextValue(AbilityRankType.Default)),
-                                                                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
-                                                                                                                                    progression: ContextRankProgression.MultiplyByModifier,
-                                                                                                                                    stepLevel: 10,
-                                                                                                                                    min: 5,
-                                                                                                                                    featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                    ),
-                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.UntypedStackable),
-                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalDamage, 1, ModifierDescriptor.UntypedStackable),
-                                                                                                    Helpers.CreateAddStatBonus(StatType.AdditionalCMB, 1, ModifierDescriptor.UntypedStackable),
-                                                                                                    Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
-                                                                                                    )
+                                                  addTransferableFeatToEidolon("EarthElementalEidolonLevel20AddFeature",
+                                                                                Common.createContextPhysicalDR(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                stepLevel: 10,
+                                                                                                                min: 5,
+                                                                                                                featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                ),
+                                                                                Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.UntypedStackable),
+                                                                                Helpers.CreateAddStatBonus(StatType.AdditionalDamage, 1, ModifierDescriptor.UntypedStackable),
+                                                                                Helpers.CreateAddStatBonus(StatType.AdditionalCMB, 1, ModifierDescriptor.UntypedStackable),
+                                                                                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                )
                                                   );
 
             earth_elemental_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

@@ -62,8 +62,8 @@ namespace CallOfTheWild
                                                   "",
                                                   daemon_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel1AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)),
+                                                  addTransferableFeatToEidolon("DaemonEidolonLevel1AddFeature",
+                                                                               Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -74,11 +74,11 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel4AddFeature",
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Fire),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Electricity),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Cold)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DaemonEidolonLevel4AddFeature",
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Fire),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Electricity),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Cold)
+                                                                                )
                                                   );
 
             var feature8 = Helpers.CreateFeature("DaemonEidolonLevel8Feature",
@@ -96,18 +96,18 @@ namespace CallOfTheWild
                                                     "",
                                                     Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                     FeatureGroup.None,
-                                                    Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel12AddFeature",
-                                                                                                  Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
-                                                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
-                                                                                                                                  progression: ContextRankProgression.MultiplyByModifier,
-                                                                                                                                  stepLevel: 10,
-                                                                                                                                  min: 5,
-                                                                                                                                  featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                  ),
-                                                                                                    Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
-                                                                                                    Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
-                                                                                                    Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
-                                                                                                    )
+                                                    addTransferableFeatToEidolon("DaemonEidolonLevel12AddFeature",
+                                                                                Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
+                                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                stepLevel: 10,
+                                                                                                                min: 5,
+                                                                                                                featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                ),
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease),
+                                                                                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                )
                                                     );
 
 
@@ -159,9 +159,9 @@ namespace CallOfTheWild
                                                   "",
                                                   ability.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DaemonEidolonLevel20AddFeature",
-                                                                                                  Helpers.CreateAddFact(ability)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DaemonEidolonLevel20AddFeature",
+                                                                                Helpers.CreateAddFact(ability)
+                                                                                )
                                                   );
 
             daemon_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

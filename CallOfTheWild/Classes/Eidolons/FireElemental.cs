@@ -52,12 +52,12 @@ namespace CallOfTheWild
                                                   "",
                                                   fire_elemental_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("FireElementalEidolonLevel1AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Paralyzed),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Sleeping)
-                                                                                                   ),
+                                                  addTransferableFeatToEidolon("FireElementalEidolonLevel1AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Paralyzed),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Sleeping)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[3])
                                                   );
@@ -77,9 +77,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("486eaff58293f6441a5c2759c4872f98"), //haste
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("FireElementalEidolonLevel8AddFeature",
-                                                                                                  Helpers.CreateAddStatBonus(StatType.Speed, 20, ModifierDescriptor.UntypedStackable)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("FireElementalEidolonLevel8AddFeature",
+                                                                                Helpers.CreateAddStatBonus(StatType.Speed, 20, ModifierDescriptor.UntypedStackable)
+                                                                                )
                                                   );
 
             var feature12 = Helpers.CreateFeature("FireElementalEidolonLevel12Feature",
@@ -88,12 +88,12 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("FireElementalEidolonLevel12AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                                                                   Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
-                                                                                                   )
+                                                  addTransferableFeatToEidolon("FireElementalEidolonLevel12AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Stunned),
+                                                                                Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
+                                                                                )
                                                   );
 
             var feature16 = Helpers.CreateFeature("FireElementalEidolonLevel16Feature",
@@ -102,12 +102,13 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("FireElementalEidolonLevel16AddFeature",
-                                                                                                  Helpers.Create<AddImmunityToPrecisionDamage>(),
-                                                                                                  Helpers.Create<AddImmunityToCriticalHits>()
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("FireElementalEidolonLevel16AddFeature",
+                                                                                Helpers.Create<AddImmunityToPrecisionDamage>(),
+                                                                                Helpers.Create<AddImmunityToCriticalHits>()
+                                                                                )
                                                   );
-
+           
+            transferable_abilities.Add(library.Get<BlueprintFeature>("3b423b497934aeb48a3676cca64b5b55"));
             var feature20 = Helpers.CreateFeature("FireElementalEidolonLevel20Feature",
                                                   "Burn",
                                                   "At 20th level, fire elemental eidolons gain the energy attacks (fire) evolution and the burn ability as large fire elementals.",

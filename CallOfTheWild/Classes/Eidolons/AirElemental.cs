@@ -52,12 +52,12 @@ namespace CallOfTheWild
                                                   "",
                                                   air_elemental_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AirElementalEidolonLevel1AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Paralyzed),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Sleeping)
-                                                                                                   ),
+                                                  addTransferableFeatToEidolon("AirElementalEidolonLevel1AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Paralyzed),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Sleeping)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[2])
                                                   );
@@ -86,12 +86,12 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AirElementalEidolonLevel12AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                                                                   Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
-                                                                                                   )
+                                                  addTransferableFeatToEidolon("AirElementalEidolonLevel12AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Stunned),
+                                                                                Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
+                                                                                )
                                                   );
 
             var feature16 = Helpers.CreateFeature("AirElementalEidolonLevel16Feature",
@@ -100,10 +100,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AirElementalEidolonLevel16AddFeature",
-                                                                                                  Helpers.Create<AddImmunityToPrecisionDamage>(),
-                                                                                                  Helpers.Create<AddImmunityToCriticalHits>()
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("AirElementalEidolonLevel16AddFeature",
+                                                                                Helpers.Create<AddImmunityToPrecisionDamage>(),
+                                                                                Helpers.Create<AddImmunityToCriticalHits>()
+                                                                                )
                                                   );
 
             var feature20 = Helpers.CreateFeature("AirElementalEidolonLevel20Feature",
@@ -112,9 +112,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("2c746396b6ce0ab47821ad960ec44df6"), //whirlwind
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AirElementalEidolonLevel20AddFeature",
-                                                                                                  Helpers.CreateAddFact(library.Get<BlueprintActivatableAbility>("2c746396b6ce0ab47821ad960ec44df6"))
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("AirElementalEidolonLevel20AddFeature",
+                                                                                Helpers.CreateAddFact(library.Get<BlueprintActivatableAbility>("2c746396b6ce0ab47821ad960ec44df6"))
+                                                                                )
                                                   ); 
 
             air_elemental_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

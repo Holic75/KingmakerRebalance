@@ -62,8 +62,8 @@ namespace CallOfTheWild
                                                   "",
                                                   angel_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel1AddFeature",
-                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)),
+                                                  addTransferableFeatToEidolon("AngelEidolonLevel1AddFeature",
+                                                                               Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
                                                   );
@@ -74,9 +74,9 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel4AddFeature",
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Electricity),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Fire))
+                                                  addTransferableFeatToEidolon("AngelEidolonLevel4AddFeature",
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Electricity),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Fire))
                                                   );
 
             var feature8 = Helpers.CreateFeature("AngelEidolonLevel8Feature",
@@ -94,18 +94,18 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel12AddFeature",
-                                                                                                  Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Evil),
-                                                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
-                                                                                                                                  progression: ContextRankProgression.MultiplyByModifier,
-                                                                                                                                  stepLevel: 10,
-                                                                                                                                  min: 5,
-                                                                                                                                  featureList: new BlueprintFeature[] {Evolutions.damage_reduction}
-                                                                                                                                  ),                                                                                                                                
-                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
-                                                                                                  Helpers.Create<RecalculateOnFactsChange> (r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("AngelEidolonLevel12AddFeature",
+                                                                                Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Evil),
+                                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                stepLevel: 10,
+                                                                                                                min: 5,
+                                                                                                                featureList: new BlueprintFeature[] {Evolutions.damage_reduction}
+                                                                                                                ),                                                                                                                                
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Petrified),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Petrified),
+                                                                                Helpers.Create<RecalculateOnFactsChange> (r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                )
                                                   );
 
             var feature16 = Helpers.CreateFeature("AngelEidolonLevel16Feature",
@@ -125,8 +125,8 @@ namespace CallOfTheWild
                                                   "",
                                                   protective_aura_toggle.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("AngelEidolonLevel16AddFeature",
-                                                                                                  Helpers.CreateAddFact(protective_aura_toggle))                                                
+                                                  addTransferableFeatToEidolon("AngelEidolonLevel16AddFeature",
+                                                                               Helpers.CreateAddFact(protective_aura_toggle))                                                
                                                   );
 
             angel_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),

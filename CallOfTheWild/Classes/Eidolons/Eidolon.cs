@@ -69,8 +69,9 @@ namespace CallOfTheWild
         static public BlueprintArchetype infernal_archetype;
         static public BlueprintFeatureSelection extra_class_skills;
 
-        static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
+        static public List<BlueprintFeature> transferable_abilities = new List<BlueprintFeature>();
 
+        static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
 
 
         static public void create()
@@ -80,6 +81,24 @@ namespace CallOfTheWild
             Evolutions.initialize();
             fillEidolonProgressions();
             correctText();
+        }
+
+
+        public static AddFeatureToCompanion addTransferableFeatToEidolon(string name, params BlueprintComponent[] components)
+        {
+            var feature = Helpers.CreateFeature(name,
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                components);
+            feature.HideInCharacterSheetAndLevelUp = true;
+
+            var add_feat_ac = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion>();
+            add_feat_ac.Feature = feature;
+            transferable_abilities.Add(feature);
+            return add_feat_ac;
         }
 
 
@@ -265,7 +284,7 @@ namespace CallOfTheWild
 
             demon_unit.Visual = kanerah.Visual;
             demon_unit.LocalizedName = demon_unit.LocalizedName.CreateCopy();
-            demon_unit.LocalizedName.String = Helpers.CreateString(demon_unit.name + ".Name", "Damon Eidolon");
+            demon_unit.LocalizedName.String = Helpers.CreateString(demon_unit.name + ".Name", "Demon Eidolon");
 
             demon_unit.Alignment = Alignment.ChaoticEvil;
             demon_unit.Strength = 16;

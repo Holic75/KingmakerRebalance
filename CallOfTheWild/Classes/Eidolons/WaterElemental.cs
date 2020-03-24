@@ -52,12 +52,12 @@ namespace CallOfTheWild
                                                   "",
                                                   fire_elemental_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("WaterElementalEidolonLevel1AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Paralyzed),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Sleeping)
-                                                                                                   ),
+                                                  addTransferableFeatToEidolon("WaterElementalEidolonLevel1AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Paralyzed),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Sleeping)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[1])
                                                   );
@@ -86,12 +86,12 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("WaterElementalEidolonLevel12AddFeature",
-                                                                                                   Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
-                                                                                                   Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                                                                   Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
-                                                                                                   )
+                                                  addTransferableFeatToEidolon("WaterElementalEidolonLevel12AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison | SpellDescriptor.Bleed | SpellDescriptor.Stun),
+                                                                                Common.createAddConditionImmunity(UnitCondition.Stunned),
+                                                                                Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked)
+                                                                                )
                                                   );
 
             var feature16 = Helpers.CreateFeature("WaterElementalEidolonLevel16Feature",
@@ -100,14 +100,15 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("WaterElementalEidolonLevel16AddFeature",
-                                                                                                  Helpers.Create<AddImmunityToPrecisionDamage>(),
-                                                                                                  Helpers.Create<AddImmunityToCriticalHits>()
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("WaterElementalEidolonLevel16AddFeature",
+                                                                                Helpers.Create<AddImmunityToPrecisionDamage>(),
+                                                                                Helpers.Create<AddImmunityToCriticalHits>()
+                                                                                )
                                                   );
 
             var wildshape_water_elemental_freeze = library.CopyAndAdd<BlueprintFeature>("83427fd78a6e91847a3bb419076b7705", "WaterElementalEidolonLevel20FreezeFeature", "");
-            wildshape_water_elemental_freeze.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = Eidolon.eidolon_class);
+            wildshape_water_elemental_freeze.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { Eidolon.eidolon_class, Summoner.summoner_class }, StatType.Constitution));
+            transferable_abilities.Add(wildshape_water_elemental_freeze);
             var feature20 = Helpers.CreateFeature("WaterElementalEidolonLevel20Feature",
                                                   "Freeze",
                                                   "At 20th level, water elemental eidolons gain the freeze ability as large water elementals.",

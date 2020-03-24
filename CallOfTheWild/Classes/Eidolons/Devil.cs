@@ -61,9 +61,9 @@ namespace CallOfTheWild
                                                   "",
                                                   devil_eidolon.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel1AddFeature",
-                                                                                                  Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
-                                                                                                  ),
+                                                  addTransferableFeatToEidolon("DevilEidolonLevel1AddFeature",
+                                                                                Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
+                                                                                ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.skilled[1]),
                                                   Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
@@ -75,10 +75,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel4AddFeature",
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Acid),
-                                                                                                  Common.createEnergyDR(10, DamageEnergyType.Cold)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DevilEidolonLevel4AddFeature",
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Acid),
+                                                                                Common.createEnergyDR(10, DamageEnergyType.Cold)
+                                                                                )
                                                   );
 
             var feature8 = Helpers.CreateFeature("DevilEidolonLevel8Feature",
@@ -87,10 +87,10 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("b48b4c5ffb4eab0469feba27fc86a023"), //delay poison
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel8AddFeature",
-                                                                                                  Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison),
-                                                                                                  Common.createBuffDescriptorImmunity(SpellDescriptor.Poison)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DevilEidolonLevel8AddFeature",
+                                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Poison),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison)
+                                                                                )
                                                   );
 
             var feature12 = Helpers.CreateFeature("DevilEidolonLevel12Feature",
@@ -99,16 +99,16 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel12AddFeature",
-                                                                                                  Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
-                                                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
-                                                                                                                                  progression: ContextRankProgression.MultiplyByModifier,
-                                                                                                                                  stepLevel: 10,
-                                                                                                                                  min: 5,
-                                                                                                                                  featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
-                                                                                                                                  ),
-                                                                                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DevilEidolonLevel12AddFeature",
+                                                                                Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Good),
+                                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                stepLevel: 10,
+                                                                                                                min: 5,
+                                                                                                                featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                ),
+                                                                                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                )
                                                   );
 
             var feature16 = Helpers.CreateFeature("DevilEidolonLevel16Feature",
@@ -134,9 +134,9 @@ namespace CallOfTheWild
                                                   "",
                                                   regeneration_buff.Icon,
                                                   FeatureGroup.None,
-                                                  Common.createAddFeatComponentsToAnimalCompanion("DevilEidolonLevel20AddFeature",
-                                                                                                  Common.createAuraFeatureComponent(regeneration_buff)
-                                                                                                  )
+                                                  addTransferableFeatToEidolon("DevilEidolonLevel20AddFeature",
+                                                                                Common.createAuraFeatureComponent(regeneration_buff)
+                                                                                )
                                                   );
 
             devil_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),
