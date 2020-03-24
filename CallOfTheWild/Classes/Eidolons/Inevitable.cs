@@ -56,7 +56,8 @@ namespace CallOfTheWild
                                                                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Size, SpellDescriptor.Poison | SpellDescriptor.Death 
                                                                                                                                                                                      | SpellDescriptor.Disease | SpellDescriptor.Paralysis
                                                                                                                                                                                      | SpellDescriptor.Sleep | SpellDescriptor.Stun)
-                                                                                                 )
+                                                                                                 ),
+                                                  Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped)
                                                   );
 
             var feature4 = Helpers.CreateFeature("InevitableEidolonLevel4Feature",
@@ -90,7 +91,7 @@ namespace CallOfTheWild
                                                   "Damage Reduction",
                                                   "At 12th level, inevitable eidolons gain DR 5/chaotic. They also gain immunity to sleep.",
                                                   "",
-                                                  Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy,
+                                                  Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                                   FeatureGroup.None,
                                                   Common.createAddFeatComponentsToAnimalCompanion("InevitableEidolonLevel12AddFeature",
                                                                                                   Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.Default), DamageAlignment.Chaotic),
