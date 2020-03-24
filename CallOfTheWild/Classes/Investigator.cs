@@ -1265,7 +1265,7 @@ namespace CallOfTheWild
         {
             trapfinding = library.CopyAndAdd<BlueprintFeature>("dbb6b3bffe6db3547b31c3711653838e", "InvestigatorTrapfinding", "");
             trapfinding.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getInvestigatorArray()));
-            trapfinding.SetDescription("An investigator adds 1/2 her level on Perception checks.");
+            trapfinding.SetDescription("An investigator adds 1/2 her level on Perception and Trickery checks.");
         }
 
 

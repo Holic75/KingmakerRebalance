@@ -572,6 +572,17 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixTrapfinding()
+        {
+            var trapfinding_rogue = library.Get<BlueprintFeature>("dbb6b3bffe6db3547b31c3711653838e");
+            var trapfinding_slayer = library.Get<BlueprintFeature>("e3c12938c2f93544da89824fbe0933a5");
+
+            trapfinding_rogue.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SkillThievery, ModifierDescriptor.None));
+            trapfinding_slayer.AddComponent(Helpers.CreateAddContextStatBonus(StatType.SkillThievery, ModifierDescriptor.None));
+            trapfinding_rogue.SetName("A rogue adds 1/2 her level on Perception and Trickery checks.");
+        }
+
+
         static internal void fixAnimalSizeChange()
         {
             //to make it compatible with size increasing efects

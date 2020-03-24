@@ -179,6 +179,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixDruidDomainUi();
                     CallOfTheWild.Rebalance.fixLethalStance();
                     CallOfTheWild.Rebalance.disallowMultipleFamiliars();
+                    CallOfTheWild.Rebalance.fixTrapfinding();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();

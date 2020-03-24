@@ -48,7 +48,7 @@ namespace CallOfTheWild
         {
             var feature1 = Helpers.CreateFeature("FireElementalEidolonLevel1Feature",
                                                   "Base Evolutions",
-                                                  "At 1st level, fire elemental eidolons gain immunity to paralysis and sleep and the slam and immunity (fire) evolution.",
+                                                  "At 1st level, fire elemental eidolons gain immunity to paralysis and sleep and the slam and immunity (fire) evolutions.",
                                                   "",
                                                   fire_elemental_eidolon.Icon,
                                                   FeatureGroup.None,
