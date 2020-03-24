@@ -888,7 +888,7 @@ namespace CallOfTheWild
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("f5e1fc6f049cd55478fd31ace4d35ca1")),
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("9269eeeee9f80b4498a3e5bcce90e77a"/*"f5e1fc6f049cd55478fd31ace4d35ca1"*/)),
                                                    Common.createAuraFeatureComponent(fx_buff));
             fx_feature.HideInCharacterSheetAndLevelUp = true;
             fx_feature.HideInUI = true;
@@ -956,8 +956,15 @@ namespace CallOfTheWild
                                              "",
                                              "",
                                              null,
-                                             Common.createPrefabLink("6dc97e33e73b5ec49bd03b90c2345d7f"));
+                                             Common.createPrefabLink("6035a889bae45f242908569a7bc25c93"));
             fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+            var fx_buff2 = Helpers.CreateBuff("AirElementalEidolonFx2Buff",
+                                 "",
+                                 "",
+                                 "",
+                                 null,
+                                 Common.createPrefabLink("e013bfb804dc9744e8d127634d71e13e"));
+            fx_buff2.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
 
             var fx_feature = Helpers.CreateFeature("AirElementalEidolonFxFeature",
                                                    "",
@@ -965,8 +972,9 @@ namespace CallOfTheWild
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("f5e1fc6f049cd55478fd31ace4d35ca1")),
-                                                   Common.createAuraFeatureComponent(fx_buff));
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink(/*"9269eeeee9f80b4498a3e5bcce90e77a"*/"f5e1fc6f049cd55478fd31ace4d35ca1")),
+                                                   Common.createAuraFeatureComponent(fx_buff),
+                                                   Common.createAuraFeatureComponent(fx_buff2));
             fx_feature.HideInCharacterSheetAndLevelUp = true;
             fx_feature.HideInUI = true;
 
