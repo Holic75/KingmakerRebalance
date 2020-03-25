@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.EntitySystem;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.PubSubSystem;
 using Kingmaker.ResourceLinks;
 using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
@@ -68,7 +69,7 @@ namespace CallOfTheWild.UnitViewMechanics
             }
             catch (Exception ex)
             {
-                Main.DebugError(ex);
+                Main.logger.Log(ex.ToString());
             }
             return false;
         }
@@ -76,7 +77,7 @@ namespace CallOfTheWild.UnitViewMechanics
 
 
     [Harmony12.HarmonyPatch(typeof(EntityDataBase), "AttachToViewOnLoad")]
-    class EntityDataBase_CreateView_Patch
+    class EntityDataBase_AttachToViewOnLoad_Patch
     {
         static void Postfix(EntityDataBase __instance, EntityViewBase view)
         {
@@ -109,14 +110,43 @@ namespace CallOfTheWild.UnitViewMechanics
         public Fact buff;
     }
 
-    public class ReplaceUnitView : OwnedGameLogicComponent<UnitDescriptor>
+    public class ReplaceUnitView : OwnedGameLogicComponent<UnitDescriptor>, IAreaLoadingStagesHandler
     {
         public UnitViewLink prefab;
 
+        public void OnAreaLoadingComplete()
+        {
+            if (this.Owner.Unit.GetActivePolymorph() != null)
+            {
+                return;
+            }
+            this.OnFactActivate();
+        }
+
+        public void OnAreaScenesLoaded()
+        {
+
+        }
+
         public override void OnFactActivate()
         {
+            //Main.logger.Log("Activate");
             this.Owner.Ensure<UnitPartViewReplacement>().buff = this.Fact;
             Helpers.TryReplaceView(this.Owner, prefab);
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            /*Main.logger.Log("Deactivate");
+            this.Owner.Ensure<UnitPartViewReplacement>().buff = null;
+            foreach (Buff buff in this.Owner.Buffs)
+                buff.ClearParticleEffect();
+            UnitEntityView view = this.Owner.Unit.View;
+            this.Owner.Unit.AttachToViewOnLoad((EntityViewBase)null);
+            this.Owner.Unit.View.transform.SetParent(view.transform.parent, false);
+            this.Owner.Unit.View.transform.position = view.transform.position;
+            this.Owner.Unit.View.transform.rotation = view.transform.rotation;*/
         }
     }
 
@@ -135,13 +165,11 @@ namespace CallOfTheWild.UnitViewMechanics
         {
             if (!Owner.Unit.View)
             {
-                Main.DebugLog("No View");
                 return;
             }
             UnitEntityView unitEntityView = Prefab.Load(true);
             if (unitEntityView == null)
             {
-                Main.DebugLog("Could not load prefab");
                 return;
             }
             foreach (Buff buff in Owner.Buffs)
@@ -197,7 +225,7 @@ namespace CallOfTheWild.UnitViewMechanics
         {
             if (source == null)
             {
-                Main.DebugLog("CreateBakedCharacter failed. Source is null");
+                Main.logger.Log("CreateBakedCharacter failed. Source is null");
                 return null;
             }
             var renderers = source.GetComponentsInChildren<SkinnedMeshRenderer>();

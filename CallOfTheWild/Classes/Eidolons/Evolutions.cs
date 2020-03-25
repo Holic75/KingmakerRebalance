@@ -474,6 +474,10 @@ namespace CallOfTheWild
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth, Eidolon.agathion_eidolon })));
+            smilodon.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
+            centipede.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
+            monitor.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
+            bear.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
 
             for (int i = 0; i < improved_natural_armor.Length; i++)
             {
