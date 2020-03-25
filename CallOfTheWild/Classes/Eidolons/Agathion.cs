@@ -45,6 +45,56 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createAgathionUnit()
+        {
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var agathion_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AgathionEidolonUnit", "");
+            agathion_unit.LocalizedName = agathion_unit.LocalizedName.CreateCopy();
+            agathion_unit.LocalizedName.String = Helpers.CreateString(agathion_unit.name + ".Name", "Agathion Eidolon");
+
+            agathion_unit.Alignment = Alignment.NeutralGood;
+            agathion_unit.Strength = 14;
+            agathion_unit.Dexterity = 14;
+            agathion_unit.Constitution = 13;
+            agathion_unit.Intelligence = 7;
+            agathion_unit.Wisdom = 10;
+            agathion_unit.Charisma = 11;
+            agathion_unit.Speed = 40.Feet();
+            agathion_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2 }; // { natural_armor2, fx_feature };
+            agathion_unit.Body = agathion_unit.Body.CloneObject();
+            agathion_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            agathion_unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"); //bite 1d6
+            agathion_unit.Body.SecondaryHand = null;
+            agathion_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            agathion_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[] { quadruped_archetype };
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            agathion_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+
+            agathion_eidolon = Helpers.CreateProgression("AgathionEidolonProgression",
+                                        "Agathion Eidolon",
+                                        "Patient and enlightened liaisons of the good-aligned Outer Planes, agathion eidolons seek to vanquish evil and protect that which is good. Agathion eidolons always have aspects of a single animal or creature, rather than a hodgepodge of several. Though they have patience for summoners with unorthodox methods and even those who stray from the path of good, they will not brook their powers being used for evil ends. An agathion eidolon seeks to bring its summoner closer to its own enlightenment.",
+                                        "",
+                                        Helpers.GetIcon("de7a025d48ad5da4991e7d3c682cf69d"), //cat's grace
+                                        FeatureGroup.AnimalCompanion,
+                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                        );
+            agathion_eidolon.IsClassFeature = true;
+            agathion_eidolon.ReapplyOnLevelUp = true;
+            agathion_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            agathion_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Good | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            agathion_eidolon.ReplaceComponent<AddPet>(a => a.Pet = agathion_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(agathion_eidolon);
+        }
+
+
         static void fillAgathionProgression()
         {
             var base_evolutions = Helpers.CreateFeature("AgathionEidolonBaseEvolutionsFeature",

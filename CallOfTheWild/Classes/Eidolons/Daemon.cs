@@ -45,6 +45,71 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createDaemonUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("DaemonEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("fbc5f03051dda4c42b49e9ccf7dd8abe")) //lich
+                                                   );
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var lich = library.Get<BlueprintUnit>("d58b4a0df3282b84c97b751590053bcf");
+            var daemon_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "DaemonEidolonUnit", "");
+            daemon_unit.Color = lich.Color;
+
+            daemon_unit.Visual = lich.Visual;
+            daemon_unit.LocalizedName = daemon_unit.LocalizedName.CreateCopy();
+            daemon_unit.LocalizedName.String = Helpers.CreateString(daemon_unit.name + ".Name", "Daemon Eidolon");
+            daemon_unit.Alignment = Alignment.NeutralEvil;
+            daemon_unit.Strength = 16;
+            daemon_unit.Dexterity = 12;
+            daemon_unit.Constitution = 13;
+            daemon_unit.Intelligence = 7;
+            daemon_unit.Wisdom = 10;
+            daemon_unit.Charisma = 11;
+            daemon_unit.Speed = 30.Feet();
+            daemon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            daemon_unit.Body = daemon_unit.Body.CloneObject();
+            daemon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74"); //claws 1d4
+            daemon_unit.Body.PrimaryHand = null;
+            daemon_unit.Body.SecondaryHand = null;
+            daemon_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            //daemon_unit.Size = Size.Large;
+            daemon_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            daemon_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(daemon_unit, "m_Portrait", Helpers.createPortrait("EidolonDaemonProtrait", "Daemon", ""));
+            daemon_eidolon = Helpers.CreateProgression("DaemonEidolonProgression",
+                                                        "Daemon Eidolon",
+                                                        "The agents of horrible deaths, daemon eidolons desire the utter annihilation of all things. Their forms vary wildly depending on which type of death they embody, and daemon eidolons sometimes represent a more obscure kind of death than the most famous daemons. Daemon eidolons wish to sow death and misery through a variety of means. Most are capable of seeing the big picture, and will obediently follow even a neutral summoner. Ending lives is a typical part of an adventurer’s career, so following along with a summoner gives a daemon eidolon many opportunities to gather mortal soul energy for its own dark and inscrutable purposes.",
+                                                        "",
+                                                        Helpers.GetIcon("b32fd17ae27982648a30cf076790b0e8"), //daemon spawned
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            daemon_eidolon.IsClassFeature = true;
+            daemon_eidolon.ReapplyOnLevelUp = true;
+            daemon_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            daemon_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            daemon_eidolon.ReplaceComponent<AddPet>(a => a.Pet = daemon_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(daemon_eidolon);
+        }
+
+
         static void fillDaemonProgression()
         {
             var base_evolutions = Helpers.CreateFeature("DaemonEidolonBaseEvolutionsFeature",

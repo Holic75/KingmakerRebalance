@@ -44,6 +44,70 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createDemonUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("DemonEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("f271f20076d660c4a9eeb1992f8b96e0")) //kanerah                                                   
+                                                   );
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var kanerah = library.Get<BlueprintUnit>("562750329f2aad34699e5b3c610a7d29");
+            var demon_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "DemonEidolonUnit", "");
+            demon_unit.Color = kanerah.Color;
+
+            demon_unit.Visual = kanerah.Visual;
+            demon_unit.LocalizedName = demon_unit.LocalizedName.CreateCopy();
+            demon_unit.LocalizedName.String = Helpers.CreateString(demon_unit.name + ".Name", "Demon Eidolon");
+
+            demon_unit.Alignment = Alignment.ChaoticEvil;
+            demon_unit.Strength = 16;
+            demon_unit.Dexterity = 12;
+            demon_unit.Constitution = 13;
+            demon_unit.Intelligence = 7;
+            demon_unit.Wisdom = 10;
+            demon_unit.Charisma = 11;
+            demon_unit.Speed = 30.Feet();
+            demon_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            demon_unit.Body = demon_unit.Body.CloneObject();
+            demon_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            demon_unit.Body.PrimaryHand = null;
+            demon_unit.Body.SecondaryHand = null;
+            demon_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            demon_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            demon_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+            Helpers.SetField(demon_unit, "m_Portrait", Helpers.createPortrait("EidolonDemonProtrait", "Demon", ""));
+            demon_eidolon = Helpers.CreateProgression("DemonEidolonProgression",
+                                                        "Demon Eidolon",
+                                                        "Raw destruction given material substance, demon eidolons form out of the Abyss’s stew of soul energy, leading some scholars to speculate that the summoner’s arts are related to the magical tampering that gave rise to the first demons. Demon eidolons revel in causing destruction and inflicting suffering, and they will do so for their summoners without question, taking pleasure in whatever havoc they can create. For a demon eidolon, the means justify the ends.",
+                                                        "",
+                                                        Helpers.GetIcon("d3a4cb7be97a6694290f0dcfbd147113"), //abyssal progression
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            demon_eidolon.IsClassFeature = true;
+            demon_eidolon.ReapplyOnLevelUp = true;
+            demon_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            demon_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticEvil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil));
+            demon_eidolon.ReplaceComponent<AddPet>(a => a.Pet = demon_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(demon_eidolon);
+        }
+
+
         static void fillDemonProgression()
         {
             var base_evolutions = Helpers.CreateFeature("DemonEidolonBaseEvolutionsFeature",

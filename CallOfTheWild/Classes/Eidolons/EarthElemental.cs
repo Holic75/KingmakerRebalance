@@ -44,13 +44,155 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createQuadrupedEarthElementalUnit()
+        {
+            var fx_buff = Helpers.CreateBuff("QuadrupedEarthElementalEidolonFxBuff",
+                                 "",
+                                 "",
+                                 "",
+                                 null,
+                                 Common.createPrefabLink("9d0ceb7173b10774db39bafb14042710"));
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var fx_feature = Helpers.CreateFeature("QuadrupedEarthElementalEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Common.createAuraFeatureComponent(fx_buff));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var earth_elemental_unit = library.CopyAndAdd<BlueprintUnit>("eab864d9ca3415644a792792fd81bf87", "QuadrupedEarthElementalEidolonUnit", ""); //wolf
+
+            earth_elemental_unit.LocalizedName = earth_elemental_unit.LocalizedName.CreateCopy();
+            earth_elemental_unit.LocalizedName.String = Helpers.CreateString(earth_elemental_unit.name + ".Name", "Elemental Eidolon (Earth)");
+
+            earth_elemental_unit.Strength = 14;
+            earth_elemental_unit.Dexterity = 14;
+            earth_elemental_unit.Constitution = 13;
+            earth_elemental_unit.Intelligence = 7;
+            earth_elemental_unit.Wisdom = 10;
+            earth_elemental_unit.Charisma = 11;
+            earth_elemental_unit.Speed = 30.Feet();
+            earth_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            earth_elemental_unit.Body = earth_elemental_unit.Body.CloneObject();
+            earth_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            earth_elemental_unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"); //bite 1d6
+            earth_elemental_unit.Body.SecondaryHand = null;
+            earth_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            earth_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[] {Eidolon.quadruped_archetype};
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
+            });
+            earth_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+            Helpers.SetField(earth_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonQuadrupedEarthElementalProtrait", "EarthElementalQuadruped", ""));
+
+            earth_quadruped_eidolon = Helpers.CreateProgression("QuadrupedEarthElementalEidolonProgression",
+                                                        "Elemental Eidolon (Earth, Quadruped)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            earth_quadruped_eidolon.IsClassFeature = true;
+            earth_quadruped_eidolon.ReapplyOnLevelUp = true;
+            earth_quadruped_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            earth_quadruped_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            earth_quadruped_eidolon.ReplaceComponent<AddPet>(a => a.Pet = earth_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(earth_quadruped_eidolon);
+        }
+
+
+        static void createEarthElementalUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("EarthElementalEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("f59e51021e055b1459b0260a76cc4e54")), //stone golem
+                                                   Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Medium));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var earth_elemental = library.Get<BlueprintUnit>("11d8e4b048acc0e4c8e42e76b8ab869d");
+            var earth_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "EarthElementalEidolonUnit", "");
+            earth_elemental_unit.Color = earth_elemental.Color;
+
+            earth_elemental_unit.Visual = earth_elemental.Visual;
+            earth_elemental_unit.LocalizedName = earth_elemental_unit.LocalizedName.CreateCopy();
+            earth_elemental_unit.LocalizedName.String = Helpers.CreateString(earth_elemental_unit.name + ".Name", "Elemental Eidolon (Earth)");
+
+            earth_elemental_unit.Strength = 16;
+            earth_elemental_unit.Dexterity = 12;
+            earth_elemental_unit.Constitution = 13;
+            earth_elemental_unit.Intelligence = 7;
+            earth_elemental_unit.Wisdom = 10;
+            earth_elemental_unit.Charisma = 11;
+            earth_elemental_unit.Speed = 30.Feet();
+            earth_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            earth_elemental_unit.Body = earth_elemental_unit.Body.CloneObject();
+            earth_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            earth_elemental_unit.Body.PrimaryHand = null;
+            earth_elemental_unit.Body.SecondaryHand = null;
+            earth_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            earth_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
+            });
+            earth_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>(),
+                                               Helpers.Create<UnitViewMechanics.ChangeUnitScaleForInventory>(c => c.scale_factor = 1.51f));
+            earth_elemental_unit.Size = Size.Large;
+
+            Helpers.SetField(earth_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonEarthElementalProtrait", "EarthElemental", ""));
+
+            earth_elemental_eidolon = Helpers.CreateProgression("EarthElementalEidolonProgression",
+                                                        "Elemental Eidolon (Earth)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            earth_elemental_eidolon.IsClassFeature = true;
+            earth_elemental_eidolon.ReapplyOnLevelUp = true;
+            earth_elemental_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            earth_elemental_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            earth_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = earth_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(earth_elemental_eidolon);
+        }
+
+
         static void fillEarthElementalProgression()
         {
             var feature1 = Helpers.CreateFeature("EarthElementalEidolonLevel1Feature",
                                                   "Base Evolutions",
                                                   "At 1st level, earth elemental eidolons gain immunity to paralysis and sleep and the slam and immunity (acid) evolutions.",
                                                   "",
-                                                  fire_elemental_eidolon.Icon,
+                                                  earth_elemental_eidolon.Icon,
                                                   FeatureGroup.None,
                                                   addTransferableFeatToEidolon("EarthElementalEidolonLevel1AddFeature",
                                                                                 Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
@@ -61,6 +203,22 @@ namespace CallOfTheWild
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[0])
                                                   );
+
+            var feature1q = Helpers.CreateFeature("QuadrupedEarthElementalEidolonLevel1Feature",
+                                      "Base Evolutions",
+                                      "At 1st level, earth elemental eidolons gain immunity to paralysis and sleep and the bite and immunity (acid) evolutions.",
+                                      "",
+                                      earth_quadruped_eidolon.Icon,
+                                      FeatureGroup.None,
+                                      addTransferableFeatToEidolon("QuadrupedEarthElementalEidolonLevel1AddFeature",
+                                                                    Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                    Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Sleep),
+                                                                    Common.createAddConditionImmunity(UnitCondition.Paralyzed),
+                                                                    Common.createAddConditionImmunity(UnitCondition.Sleeping)
+                                                                    ),
+                                      Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = Evolutions.bite),
+                                      Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[0])
+                                      );
 
             var feature4 = Helpers.CreateFeature("EarthElementalEidolonLevel4Feature",
                                                   "Evolution Pool Increase",
@@ -135,6 +293,15 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             earth_elemental_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+
+            earth_quadruped_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1q),
+                                                           Helpers.LevelEntry(4, feature4),
+                                                           Helpers.LevelEntry(8, feature8),
+                                                           Helpers.LevelEntry(12, feature12),
+                                                           Helpers.LevelEntry(16, feature16),
+                                                           Helpers.LevelEntry(20, feature20)
+                                                           };
+            earth_quadruped_eidolon.UIGroups = Helpers.CreateUIGroups(feature1q, feature4, feature8, feature12, feature16, feature20);
         }
     }
 }

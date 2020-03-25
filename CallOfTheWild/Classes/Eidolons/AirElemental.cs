@@ -44,6 +44,91 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createAirElementalUnit()
+        {
+            var fx_buff = Helpers.CreateBuff("AirElementalEidolonFxBuff",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             Common.createPrefabLink("6035a889bae45f242908569a7bc25c93"));
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+            var fx_buff2 = Helpers.CreateBuff("AirElementalEidolonFx2Buff",
+                                 "",
+                                 "",
+                                 "",
+                                 null,
+                                 Common.createPrefabLink("e013bfb804dc9744e8d127634d71e13e"));
+            fx_buff2.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+
+            var fx_feature = Helpers.CreateFeature("AirElementalEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink(/*"9269eeeee9f80b4498a3e5bcce90e77a"*/"f5e1fc6f049cd55478fd31ace4d35ca1")),
+                                                   Common.createAuraFeatureComponent(fx_buff),
+                                                   Common.createAuraFeatureComponent(fx_buff2));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var air_elemental = library.Get<BlueprintUnit>("f739047597b7a2849b14def122e1ee0d");
+            var air_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AirElementalEidolonUnit", "");
+            air_elemental_unit.Color = air_elemental.Color;
+
+            air_elemental_unit.Visual = air_elemental.Visual;
+            air_elemental_unit.LocalizedName = air_elemental_unit.LocalizedName.CreateCopy();
+            air_elemental_unit.LocalizedName.String = Helpers.CreateString(air_elemental_unit.name + ".Name", "Elemental Eidolon (Air)");
+
+            air_elemental_unit.Strength = 16;
+            air_elemental_unit.Dexterity = 12;
+            air_elemental_unit.Constitution = 13;
+            air_elemental_unit.Intelligence = 7;
+            air_elemental_unit.Wisdom = 10;
+            air_elemental_unit.Charisma = 11;
+            air_elemental_unit.Speed = 30.Feet();
+            air_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            air_elemental_unit.Body = air_elemental_unit.Body.CloneObject();
+            air_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            air_elemental_unit.Body.PrimaryHand = null;
+            air_elemental_unit.Body.SecondaryHand = null;
+            air_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            air_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
+            });
+            air_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(air_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonAirElementalProtrait", "AirElemental", ""));
+
+            air_elemental_eidolon = Helpers.CreateProgression("AirElementalEidolonProgression",
+                                                        "Elemental Eidolon (Air)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            air_elemental_eidolon.IsClassFeature = true;
+            air_elemental_eidolon.ReapplyOnLevelUp = true;
+            air_elemental_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            air_elemental_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            air_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = air_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(air_elemental_eidolon);
+        }
+
+
         static void fillAirElementalProgression()
         {
             var feature1 = Helpers.CreateFeature("AirElementalEidolonLevel1Feature",

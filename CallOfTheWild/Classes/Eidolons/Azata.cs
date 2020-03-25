@@ -44,6 +44,69 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createAzataUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("AzataEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("255c1c746b1c31b40b16add1bb6b783e")));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var azata = library.Get<BlueprintUnit>("d6fdf2d1776817b4bab5d4a43d9ea708");
+            var azata_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "AzataEidolonUnit", "");
+            azata_unit.Color = azata.Color;
+            azata_unit.Visual = azata.Visual;
+            azata_unit.LocalizedName = azata.LocalizedName.CreateCopy();
+            azata_unit.LocalizedName.String = Helpers.CreateString(azata_unit.name + ".Name", "Azata Eidolon");
+
+            azata_unit.Alignment = Alignment.ChaoticGood;
+            azata_unit.Strength = 16;
+            azata_unit.Dexterity = 12;
+            azata_unit.Constitution = 13;
+            azata_unit.Intelligence = 7;
+            azata_unit.Wisdom = 10;
+            azata_unit.Charisma = 11;
+            azata_unit.Speed = 30.Feet();
+            azata_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            azata_unit.Body = azata_unit.Body.CloneObject();
+            azata_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            azata_unit.Body.PrimaryHand = null;
+            azata_unit.Body.SecondaryHand = null;
+            azata_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            azata_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            azata_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(azata_unit, "m_Portrait", Helpers.createPortrait("EidolonAzataProtrait", "Azata", ""));
+            azata_eidolon = Helpers.CreateProgression("AzataEidolonProgression",
+                                        "Azata Eidolon",
+                                        "Embodiments of the untamable beauty and noble passion of Elysium, azata eidolons have wild and beautiful features. They often take graceful forms reminiscent of elves or fey, but they occasionally appear like lillends, with serpentine tails. Azata eidolons are flighty and independent, and they often have their own ideas about how to defeat evil or have a good time. Thus, an azata eidolon is likely to balk if its summoner commands it to perform offensive or nefarious actions. On the other hand, an azata eidolon in sync with its summoner is a passionate and devoted companion.",
+                                        "",
+                                        Helpers.GetIcon("90810e5cf53bf854293cbd5ea1066252"), //righteous might
+                                        FeatureGroup.AnimalCompanion,
+                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                        );
+            azata_eidolon.IsClassFeature = true;
+            azata_eidolon.ReapplyOnLevelUp = true;
+            azata_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            azata_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticGood | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood));
+            azata_eidolon.ReplaceComponent<AddPet>(a => a.Pet = azata_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(azata_eidolon);
+        }
+
+
         static void fillAzataProgression()
         {
             var base_evolutions = Helpers.CreateFeature("AzataEidolonBaseEvolutionsFeature",

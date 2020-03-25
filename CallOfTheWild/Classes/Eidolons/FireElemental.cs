@@ -44,6 +44,83 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createFireElementalUnit()
+        {
+            var fx_buff = Helpers.CreateBuff("FireElementalEidolonFxBuff",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             Common.createPrefabLink("f5eaec10b715dbb46a78890db41fa6a0"));
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
+
+            var fx_feature = Helpers.CreateFeature("FireElementalEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("7cc1c50366f08814eb5a5e7c47c71a2a")),
+                                                   Common.createAuraFeatureComponent(fx_buff));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var fire_elemental = library.Get<BlueprintUnit>("37b3eb7ca48264247b3247c732007aef");
+            var fire_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "FireElementalEidolonUnit", "");
+            fire_elemental_unit.Color = fire_elemental.Color;
+
+            fire_elemental_unit.Visual = fire_elemental.Visual;
+            fire_elemental_unit.LocalizedName = fire_elemental_unit.LocalizedName.CreateCopy();
+            fire_elemental_unit.LocalizedName.String = Helpers.CreateString(fire_elemental_unit.name + ".Name", "Elemental Eidolon (Fire)");
+
+            fire_elemental_unit.Strength = 16;
+            fire_elemental_unit.Dexterity = 12;
+            fire_elemental_unit.Constitution = 13;
+            fire_elemental_unit.Intelligence = 7;
+            fire_elemental_unit.Wisdom = 10;
+            fire_elemental_unit.Charisma = 11;
+            fire_elemental_unit.Speed = 30.Feet();
+            fire_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            fire_elemental_unit.Body = fire_elemental_unit.Body.CloneObject();
+            fire_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            fire_elemental_unit.Body.PrimaryHand = null;
+            fire_elemental_unit.Body.SecondaryHand = null;
+            fire_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            fire_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
+            });
+            fire_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(fire_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonFireElementalProtrait", "FireElemental", ""));
+
+            fire_elemental_eidolon = Helpers.CreateProgression("FireElementalEidolonProgression",
+                                                        "Elemental Eidolon (Fire)",
+                                                        "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
+                                                        "",
+                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            fire_elemental_eidolon.IsClassFeature = true;
+            fire_elemental_eidolon.ReapplyOnLevelUp = true;
+            fire_elemental_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            fire_elemental_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.ChaoticNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
+                                                                                   | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            fire_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = fire_elemental_unit);
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fire_elemental_eidolon);
+        }
+
+
         static void fillFireElementalProgression()
         {
             var feature1 = Helpers.CreateFeature("FireElementalEidolonLevel1Feature",

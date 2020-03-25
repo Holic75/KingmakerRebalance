@@ -65,6 +65,8 @@ namespace CallOfTheWild
         static public BlueprintFeature claws;
         static public BlueprintFeature slam_biped;
         static public BlueprintFeature bite;
+        static public BlueprintFeature tail_slap;
+        static public BlueprintFeature constrict;
         static public BlueprintFeature[] improved_natural_attacks;
         static public BlueprintFeature[] improved_natural_armor;
         static public BlueprintFeature reach;
@@ -457,7 +459,9 @@ namespace CallOfTheWild
             var eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                    Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.fey_eidolon,
-                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon, Eidolon.agathion_eidolon};
+                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon, Eidolon.agathion_eidolon,
+                                                   Eidolon.protean_eidolon};
+            var biped_eidolons = eidolons.RemoveFromArray(Eidolon.agathion_eidolon).RemoveFromArray(Eidolon.protean_eidolon);
             var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
                                                          Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
@@ -473,7 +477,9 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth, Eidolon.agathion_eidolon })));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth, Eidolon.agathion_eidolon, Eidolon.protean_eidolon })));
+            evolution_entries.Add(new EvolutionEntry(tail_slap, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[] { centipede, Eidolon.protean_eidolon }));
+
             smilodon.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
             centipede.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
             monitor.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
@@ -539,12 +545,15 @@ namespace CallOfTheWild
             evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar, Eidolon.agathion_eidolon}));
 
+            evolution_entries.Add(new EvolutionEntry(constrict, 2, 0, new BlueprintFeature[] { tail_slap }, new BlueprintFeature[0],
+                                         new BlueprintFeature[] { Eidolon.protean_eidolon, centipede }));
+
             evolution_entries.Add(new EvolutionEntry(trip, 2, 4, new BlueprintFeature[] { bite }, new BlueprintFeature[0],
                                                      new BlueprintFeature[0]));
 
             for (int i = 0; i < weapon_training.Length; i++)
             {
-                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], eidolons.RemoveFromArray(Eidolon.agathion_eidolon),
+                evolution_entries.Add(new EvolutionEntry(weapon_training[i], 2, 0, weapon_training.Take(i).ToArray(), new BlueprintFeature[0], biped_eidolons,
                                                          evolution_group: "Weapon Training",
                                                          upgradeable: i + 1 != weapon_training.Length,
                                                          next_level_total_cost: 4 + i*2,
@@ -625,6 +634,7 @@ namespace CallOfTheWild
             createSlam();
             createImprovedNaturalAttacks();
             createBite();
+            createTailSlap();
             createImprovedNaturalArmor();
             createReach();
             createResistance();            
@@ -637,6 +647,7 @@ namespace CallOfTheWild
             createGore();
             createImmunity();
             createRake();
+            createConstrict();
             createTrip();
             createWeaponTraining();
 
@@ -715,6 +726,37 @@ namespace CallOfTheWild
                                          icon,
                                          FeatureGroup.None,
                                          Helpers.Create<AddAdditionalLimb>(a => a.Weapon = bite1d6)
+                                         );
+        }
+
+
+        static void createTailSlap()
+        {
+            var tail1d6 = library.Get<BlueprintItemWeapon>("b21cd5b03fbb0f542815580e66f85915");
+
+            tail_slap = Helpers.CreateFeature("TailSlapEvolutionFeature",
+                                         "Tail Slap",
+                                         "The eidolon can use its tail to bash nearby foes, granting it a tail slap attack. This attack is a secondary attack. The tail slap deals 1d6 points of damage (1d8 if Large, 2d6 if Huge).",
+                                         "",
+                                         null,
+                                         FeatureGroup.None,
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6)
+                                         );
+        }
+
+
+        static void createConstrict()
+        {
+            var icon = library.Get<BlueprintAbility>("3fce8e988a51a2a4ea366324d6153001").Icon; //constricting coils
+            var tail1d6 = library.Get<BlueprintItemWeapon>("b21cd5b03fbb0f542815580e66f85915");
+
+            constrict = Helpers.CreateFeature("ConstrictEvolutionFeature",
+                                         "Constrict",
+                                         "The eidolon gains powerful muscles that allow it to crush those it grapples. It can make one additional attack with its tail one making a full attack action.",
+                                         "",
+                                         icon,
+                                         FeatureGroup.None,
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6)
                                          );
         }
 

@@ -44,6 +44,74 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createInevitableUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("InevitableEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("c9f3318f6aa6a3a4a9ce476989a07df5")), //adamantine golem
+                                                   Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Medium));
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var axiomite = library.Get<BlueprintUnit>("a97cc6e80fe9a454db9c0fb519fa4087");
+            var inevitable_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "InevitableEidolonUnit", "");
+            inevitable_unit.Color = axiomite.Color;
+
+            inevitable_unit.Visual = axiomite.Visual;
+            inevitable_unit.LocalizedName = inevitable_unit.LocalizedName.CreateCopy();
+            inevitable_unit.LocalizedName.String = Helpers.CreateString(inevitable_unit.name + ".Name", "Inevitable Eidolon");
+
+            inevitable_unit.Alignment = Alignment.LawfulNeutral;
+            inevitable_unit.Strength = 16;
+            inevitable_unit.Dexterity = 12;
+            inevitable_unit.Constitution = 13;
+            inevitable_unit.Intelligence = 7;
+            inevitable_unit.Wisdom = 10;
+            inevitable_unit.Charisma = 11;
+            inevitable_unit.Speed = 30.Feet();
+            inevitable_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            inevitable_unit.Body = inevitable_unit.Body.CloneObject();
+            inevitable_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            inevitable_unit.Body.PrimaryHand = null;
+            inevitable_unit.Body.SecondaryHand = null;
+            inevitable_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            inevitable_unit.Size = Size.Large;
+            inevitable_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            inevitable_unit.AddComponents(Helpers.Create<EidolonComponent>(),
+                                          Helpers.Create<UnitViewMechanics.ChangeUnitScaleForInventory>(c => c.scale_factor = 1.51f));
+
+
+
+            Helpers.SetField(inevitable_unit, "m_Portrait", Helpers.createPortrait("EidolonInevitableProtrait", "Golem", ""));
+            inevitable_eidolon = Helpers.CreateProgression("InevitableEidolonProgression",
+                                        "Inevitable Eidolon",
+                                        "Implacable and ceaseless in their fight against chaos and those who break natural laws, inevitables make loyal, if literal-minded, companions for lawful summoners. Summoners of inevitables generally get along well with axiomites, who share their understanding of the process of forging and modifying an inevitable. Inevitable eidolons appear as a mixture between clockwork constructs and idealized humanoid statues.",
+                                        "",
+                                        Helpers.GetIcon("c66e86905f7606c4eaa5c774f0357b2b"), //stone_skin
+                                        FeatureGroup.AnimalCompanion,
+                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                        );
+            inevitable_eidolon.IsClassFeature = true;
+            inevitable_eidolon.ReapplyOnLevelUp = true;
+            inevitable_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            inevitable_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Lawful | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
+            inevitable_eidolon.ReplaceComponent<AddPet>(a => a.Pet = inevitable_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(inevitable_eidolon);
+        }
+
+
         static void fillInevitableProgression()
         {
             var feature1 = Helpers.CreateFeature("InevitableEidolonLevel1Feature",

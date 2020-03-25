@@ -232,13 +232,14 @@ namespace CallOfTheWild
                                                              Helpers.LevelEntry(5, summon_monster[2]),
                                                              Helpers.LevelEntry(7, summon_monster[3]),
                                                              Helpers.LevelEntry(9, summon_monster[4]),
-                                                             Helpers.LevelEntry(11, summon_monster[5]),
-                                                             Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[0]),
-                                                             Helpers.LevelEntry(13, summon_monster[6], aspect_extra[1]),
-                                                             Helpers.LevelEntry(14, life_bond, aspect_extra[2]),
-                                                             Helpers.LevelEntry(15, summon_monster[7], aspect_extra[3]),
-                                                             Helpers.LevelEntry(16, aspect_extra[4]),
-                                                             Helpers.LevelEntry(17, summon_monster[8], aspect_extra[5]),
+                                                             Helpers.LevelEntry(10, summon_monster[4], aspect_extra[0]),
+                                                             Helpers.LevelEntry(11, summon_monster[5], aspect_extra[1]),
+                                                             Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[2]),
+                                                             Helpers.LevelEntry(13, summon_monster[6], aspect_extra[3]),
+                                                             Helpers.LevelEntry(14, life_bond, aspect_extra[4]),
+                                                             Helpers.LevelEntry(15, summon_monster[7], aspect_extra[5]),
+                                                             Helpers.LevelEntry(16, aspect_extra[6]),
+                                                             Helpers.LevelEntry(17, summon_monster[8], aspect_extra[7]),
                                                              Helpers.LevelEntry(18, greater_aspect_extra[0]),
                                                              Helpers.LevelEntry(19, greater_aspect_extra[1]),
                                                              Helpers.LevelEntry(20, greater_aspect_extra[2])
@@ -640,14 +641,14 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(7),
                                                                     Helpers.LevelEntry(8, transposition),
                                                                     Helpers.LevelEntry(9),
-                                                                    Helpers.LevelEntry(10),
-                                                                    Helpers.LevelEntry(11),
-                                                                    Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[0]),
-                                                                    Helpers.LevelEntry(13, aspect_extra[1]),
-                                                                    Helpers.LevelEntry(14, life_bond, aspect_extra[2]),
-                                                                    Helpers.LevelEntry(15, aspect_extra[3]),
-                                                                    Helpers.LevelEntry(16, aspect_extra[4]),
-                                                                    Helpers.LevelEntry(17, aspect_extra[5]),
+                                                                    Helpers.LevelEntry(10, aspect_extra[0]),
+                                                                    Helpers.LevelEntry(11, aspect_extra[1]),
+                                                                    Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[2]),
+                                                                    Helpers.LevelEntry(13, aspect_extra[3]),
+                                                                    Helpers.LevelEntry(14, life_bond, aspect_extra[4]),
+                                                                    Helpers.LevelEntry(15, aspect_extra[5]),
+                                                                    Helpers.LevelEntry(16, aspect_extra[6]),
+                                                                    Helpers.LevelEntry(17, aspect_extra[7]),
                                                                     Helpers.LevelEntry(18, greater_aspect_extra[0]),
                                                                     Helpers.LevelEntry(19, greater_aspect_extra[1]),
                                                                     Helpers.LevelEntry(20, greater_aspect_extra[2], twin_eidolon)
@@ -862,7 +863,7 @@ namespace CallOfTheWild
             aspect.AllFeatures = aspect_selection;
 
 
-            aspect_extra = new BlueprintFeature[6];
+            aspect_extra = new BlueprintFeature[8];
             for (int i = 0; i < aspect_extra.Length; i++)
             {
                 aspect_extra[i] = Helpers.CreateFeature($"SummonerAspectExtraFeature{i}",

@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
@@ -44,6 +45,85 @@ namespace CallOfTheWild
 {
     public partial class Eidolon
     {
+        static void createDevilUnit()
+        {
+            var fx_feature = Helpers.CreateFeature("DevilEidolonFxFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("c78e19a2f6fa01343b4a188aacf38e50")) //devil apostate
+                                                                                                                                                                                    //Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Medium)
+                                                   );
+            fx_feature.HideInCharacterSheetAndLevelUp = true;
+            fx_feature.HideInUI = true;
+
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            var devil = library.Get<BlueprintUnit>("07c5044acbd443b468b6badd778f8cad");
+            var devil_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "DevilEidolonUnit", "");
+            devil_unit.Color = devil.Color;
+
+            devil_unit.Visual = devil.Visual;
+            devil_unit.LocalizedName = devil_unit.LocalizedName.CreateCopy();
+            devil_unit.LocalizedName.String = Helpers.CreateString(devil_unit.name + ".Name", "Devil Eidolon");
+
+            devil_unit.Alignment = Alignment.LawfulEvil;
+            devil_unit.Strength = 16;
+            devil_unit.Dexterity = 12;
+            devil_unit.Constitution = 13;
+            devil_unit.Intelligence = 7;
+            devil_unit.Wisdom = 10;
+            devil_unit.Charisma = 11;
+            devil_unit.Speed = 30.Feet();
+            devil_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            devil_unit.Body = devil_unit.Body.CloneObject();
+            devil_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            devil_unit.Body.PrimaryHand = null;
+            devil_unit.Body.SecondaryHand = null;
+            devil_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            //devil_unit.Size = Size.Large;
+            devil_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[0];
+                a.CharacterClass = eidolon_class;
+                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Selections = new SelectionEntry[0];
+            });
+            devil_unit.AddComponents(Helpers.Create<EidolonComponent>());
+
+
+            Helpers.SetField(devil_unit, "m_Portrait", Helpers.createPortrait("EidolonDevilProtrait", "Devil", ""));
+            devil_eidolon = Helpers.CreateProgression("DevilEidolonProgression",
+                                                        "Devil Eidolon",
+                                                        "Corruptors, tempters, and despoilers, devil eidolons often serve their summoners obediently and efficiently, all in a long-term attempt to damn the summoner’s soul to the deepest depths of Hell. While some types of devils have truly unusual forms, devil eidolons have found that the more traditional bipedal form allows them to build up a strong rapport with their summoners—and consequently to corrupt them—more easily than if they possessed a more monstrous appearance.",
+                                                        "",
+                                                        Helpers.GetIcon("e76a774cacfb092498177e6ca706064d"), //infernal bloodline
+                                                        FeatureGroup.AnimalCompanion,
+                                                        library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                        );
+            devil_eidolon.IsClassFeature = true;
+            devil_eidolon.ReapplyOnLevelUp = true;
+            devil_eidolon.Classes = new BlueprintCharacterClass[] { Summoner.summoner_class };
+            devil_eidolon.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulEvil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralEvil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral));
+            devil_eidolon.ReplaceComponent<AddPet>(a => a.Pet = devil_unit);
+
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(devil_eidolon);
+
+
+            var infernal_unit = library.CopyAndAdd<BlueprintUnit>(devil_unit, "InfernalEidolonUnit", "");
+            infernal_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.Archetypes = new BlueprintArchetype[] { infernal_archetype };
+            });
+            infernal_eidolon = library.CopyAndAdd<BlueprintProgression>(devil_eidolon, "InfernalEidolonProgression", "");
+            infernal_eidolon.SetNameDescription("Infernal Binding",
+                                                "A devil binder must select an eidolon of the devil subtype. The devil binder’s eidolon never increases its maximum number of attacks, and its base attack bonus is equal to half its Hit Dice. At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.");
+            infernal_eidolon.ReplaceComponent<AddPet>(a => a.Pet = infernal_unit);
+            infernal_eidolon.ReplaceComponent<PrerequisiteAlignment>(p => p.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulEvil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral);
+        }
+
+
         static void fillDevilProgression()
         {
             var base_evolutions = Helpers.CreateFeature("DevilEidolonBaseEvolutionsFeature",
