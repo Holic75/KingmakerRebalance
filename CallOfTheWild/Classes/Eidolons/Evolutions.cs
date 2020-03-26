@@ -90,6 +90,8 @@ namespace CallOfTheWild
         static public BlueprintFeature spell_resistance; //summoner scaling
         static public BlueprintFeature[] size_increase;
         static public BlueprintFeature damage_reduction;
+        static public BlueprintFeature poison_strength;
+        static public BlueprintFeature poison_constitution;
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
@@ -470,7 +472,7 @@ namespace CallOfTheWild
                                                          Eidolon.air_quadruped_eidolon, Eidolon.earth_quadruped_eidolon, Eidolon.fire_quadruped_eidolon, Eidolon.water_serpentine_eidolon };
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      devil_elemental.AddToArray(new BlueprintFeature[] { Eidolon.infernal_eidolon, boar, dog, mammoth, monitor, wolf, Eidolon.agathion_eidolon, Eidolon.protean_eidolon})));
-            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons_with_hands));
+            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons));
 
             foreach (var e in improved_natural_attacks)
             {
@@ -628,6 +630,13 @@ namespace CallOfTheWild
                                                                    Eidolon.earth_elemental_eidolon, Eidolon.earth_quadruped_eidolon, Eidolon.protean_eidolon,
                                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.infernal_eidolon,
                                                                    Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.agathion_eidolon}));
+
+            evolution_entries.Add(new EvolutionEntry(poison_strength, 2, 7, new BlueprintFeature[] { bite }, new BlueprintFeature[] { poison_constitution },
+                                         devil_elemental.AddToArray(Eidolon.protean_eidolon)
+                                         ));
+            evolution_entries.Add(new EvolutionEntry(poison_constitution, 4, 7, new BlueprintFeature[] { bite }, new BlueprintFeature[] { poison_strength },
+                                         devil_elemental.AddToArray(Eidolon.protean_eidolon)
+                                         ));
         }
 
         static void createEvolutions()
@@ -663,6 +672,7 @@ namespace CallOfTheWild
             createSizeIncrease();
             createBreathWeapon();
             createDamageReduction();
+            createPoison();
         }
 
 
@@ -740,7 +750,7 @@ namespace CallOfTheWild
                                          "Tail Slap",
                                          "The eidolon can use its tail to bash nearby foes, granting it a tail slap attack. This attack is a secondary attack. The tail slap deals 1d6 points of damage (1d8 if Large, 2d6 if Huge).",
                                          "",
-                                         null,
+                                         tail1d6.Icon,
                                          FeatureGroup.None,
                                          Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6)
                                          );
@@ -793,8 +803,8 @@ namespace CallOfTheWild
                                          "",
                                          icon,
                                          FeatureGroup.None,
-                                         Helpers.Create<NewMechanics.AddFeatureIfQuadruped>(a => a.Feature = claws_quadruped),
-                                         Helpers.Create<NewMechanics.AddFeatureIfQuadruped>(a => { a.Feature = claws_biped; a.not = true; })
+                                         Helpers.Create<NewMechanics.AddFeatureIfQuadrupedOrSerpentine>(a => a.Feature = claws_quadruped),
+                                         Helpers.Create<NewMechanics.AddFeatureIfQuadrupedOrSerpentine>(a => { a.Feature = claws_biped; a.not = true; })
                                          );
         }
 
@@ -941,7 +951,7 @@ namespace CallOfTheWild
                                                                    FeatureGroup.None
                                                                    );
                 }
-                ability_increase[j][0].AddComponents(Helpers.CreateAddContextStatBonus(stats[j], ModifierDescriptor.UntypedStackable, multiplier: 2),
+                ability_increase[j][0].AddComponents(Helpers.CreateAddContextStatBonus(stats[j], ModifierDescriptor.Feat, multiplier: 2),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
                                                                                    featureList: ability_increase[j]),
                                                      Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[j])
@@ -1219,12 +1229,12 @@ namespace CallOfTheWild
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, featureList: ability_increase[0]),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList, type: AbilityRankType.StatBonus, featureList: ability_increase[2]),
                                                      Helpers.Create<SizeMechanics.PermanentSizeOverride>(a => a.size = Size.Large),
-                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.UntypedStackable),
-                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Feat),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Feat),
                                                      Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
                                                      Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable),
-                                                     Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.UntypedStackable, multiplier: -1),
-                                                     Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus, multiplier: -1),
+                                                     Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Feat, multiplier: -1),
+                                                     Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Feat, rankType: AbilityRankType.StatBonus, multiplier: -1),
                                                      Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[0].AddToArray(ability_increase[2]))
                                                      );
             size_increase[1] = Helpers.CreateFeature("SizeIncreaseHugeEvolutionFeature",
@@ -1235,11 +1245,55 @@ namespace CallOfTheWild
                                                      Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                      FeatureGroup.None,
                                                      Helpers.Create<SizeMechanics.PermanentSizeOverride>(a => a.size = Size.Huge),
-                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.UntypedStackable),
-                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Feat),
+                                                     Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Feat),
                                                      Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
                                                      Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable)
                                                      );
+        }
+
+
+        static void createPoison()
+        {
+
+            var poison_cooldown_buff = Helpers.CreateBuff("PoisonEvolutionCooldownBuff",
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             null,
+                                                             null);
+            poison_cooldown_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var apply_cooldown = Common.createContextActionApplyBuffToCaster(poison_cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false);
+
+            StatType[] stats = new StatType[] { StatType.Strength, StatType.Constitution };
+            BlueprintFeature[] features = new BlueprintFeature[2];
+
+            for (int i = 0; i < 2; i++)
+            {
+                var poison_buff = library.CopyAndAdd<BlueprintBuff>("625363a810f4d884dad551b26b3454d3", $"Poison{stats[i]}EvolutionBuff", "");
+                poison_buff.SetDescription("");
+                poison_buff.ReplaceComponent<BuffPoisonStatDamage>(b => { b.Stat = stats[i]; b.Value = new DiceFormula(1, DiceType.D4); b.Ticks = 4; b.SuccesfullSaves = 1; });
+                var apply_str_poison = Common.createContextActionApplyBuff(poison_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+                var apply_poison_saved = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_str_poison)));
+
+                var action_str = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(poison_cooldown_buff) }, new GameAction[0],
+                                   new GameAction[] { apply_poison_saved, apply_cooldown });
+                features[i] = Helpers.CreateFeature($"Poison{stats[i]}EvolutionFeature",
+                                                        $"Poison: {stats[i].ToString()}",
+                                                        "The eidolon secretes toxic venom, gaining a poison attack. Select one bite or sting attack. Whenever the selected attack hits, the target is poisoned.\n"
+                                                        + "Eidolon Poison: Injury; save Fort negates; frequency 1/round for 4 rounds; effect 1d4 Str damage; cure 1 save. The save DC is equal to 10 + 1/2 the eidolon’s Hit Dice + the eidolon’s Constitution modifier. For 2 additional evolution points, this poison deals Constitution damage instead. This poison can be used no more than once per round.",
+                                                        "",
+                                                        poison_buff.Icon,
+                                                        FeatureGroup.None,
+                                                        Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(action_str),
+                                                                                                                     weapon_category: WeaponCategory.Bite),
+                                                        Helpers.Create<ContextCalculateAbilityParams>(c => c.StatType = StatType.Constitution),
+                                                        Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Constitution),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Poison)
+                                                        );
+            }
+            poison_strength = features[0];
+            poison_constitution = features[1];
         }
 
 

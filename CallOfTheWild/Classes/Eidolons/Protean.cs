@@ -183,12 +183,11 @@ namespace CallOfTheWild
             var feature16 = Helpers.CreateFeature("ProteanEidolonLevel16Feature",
                                                     "Immunity",
                                                     "At 16th level, protean eidolons lose the resistance (acid) evolution and instead gain the immunity (acid) evolution. They also gain the amorphous anatomy ability.\n"
-                                                    + "Amorphous Anatomy: A protean’s vital organs shift and change shape and position constantly. This grants it a 50 % chance to ignore additional damage caused by critical hits and sneak attacks, and grants it immunity to polymorph effects(unless the protean is a willing target).A protean automatically recovers from physical blindness or deafness after 1 round by growing new sensory organs to replace those that were compromised.",
+                                                    + "Amorphous Anatomy: A protean’s vital organs shift and change shape and position constantly. This grants it a 50 % chance to ignore additional damage caused by critical hits and sneak attacks, and grants it immunity to polymorph effects(unless the protean is a willing target). A protean automatically recovers from physical blindness or deafness after 1 round by growing new sensory organs to replace those that were compromised.",
                                                     "",
                                                     Evolutions.amorphous.Icon,
                                                     FeatureGroup.None,
                                                     Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.immunity[0]),
-                                                    Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.amorphous),
                                                     Common.createAddFeatToAnimalCompanion(amorphous_anatomy)
                                                     );
 
@@ -215,8 +214,10 @@ namespace CallOfTheWild
                                                                                 {
                                                                                     var buff = library.CopyAndAdd<BlueprintBuff>(c.Buff, "Protean" + c.Buff.name, "");
                                                                                     buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: cast_heal));
+                                                                                    c.Buff = buff;
                                                                                 }
                                                                                 );
+                ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
                 polymorph_variants.Add(ability);
             }
             var change_shape = Common.createVariantWrapper("ProteanChangeShapeAbility", "", polymorph_variants.ToArray());
@@ -260,10 +261,10 @@ namespace CallOfTheWild
         public override void OnEventAboutToTrigger(RuleApplyBuff evt)
         {
             TimeSpan round = 6.Seconds();
-            if ((evt.AppliedBuff.MaybeContext.SpellDescriptor & SpellDescriptor.Blindness) > 0
+            if ((evt.Context.SpellDescriptor & SpellDescriptor.Blindness) > 0
                 || evt.Blueprint == Common.deafened)
             {
-                Harmony12.Traverse.Create(evt).Property("Duration").SetValue(round);
+                Harmony12.Traverse.Create(evt).Property("Duration").SetValue(new TimeSpan?(round));
             }
         }
 

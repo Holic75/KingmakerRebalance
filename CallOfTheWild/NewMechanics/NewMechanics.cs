@@ -3364,7 +3364,7 @@ namespace CallOfTheWild
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class AddFeatureIfQuadruped : OwnedGameLogicComponent<UnitDescriptor>, IGlobalSubscriber
+        public class AddFeatureIfQuadrupedOrSerpentine : OwnedGameLogicComponent<UnitDescriptor>, IGlobalSubscriber
         {
             public BlueprintFeature Feature;
             public bool not = false;
@@ -3392,7 +3392,7 @@ namespace CallOfTheWild
                 if (this.m_AppliedFact != null)
                     return;
 
-                bool is_quadruped = this.Owner.Progression.IsArchetype(Eidolon.quadruped_archetype) || this.Owner.Progression.Classes.Any(c => c.CharacterClass == animal);
+                bool is_quadruped = this.Owner.Progression.IsArchetype(Eidolon.quadruped_archetype) || this.Owner.Progression.Classes.Any(c => c.CharacterClass == animal) || this.Owner.Progression.IsArchetype(Eidolon.serpentine_archetype);
                 if (is_quadruped != not)
                 {
                     this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);

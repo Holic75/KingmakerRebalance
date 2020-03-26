@@ -46,6 +46,8 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("SetupInfo", Harmony12.MethodType.Normal)]
         class CharDollBase__SetupInfo__Patch
         {
+            static EquipSlotBase.SlotType[] allowed_slots_serpentine = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders, EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves,
+                                                                                                  EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
             static EquipSlotBase.SlotType[] allowed_slots_animal = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders, EquipSlotBase.SlotType.Head };
             static EquipSlotBase.SlotType[] allowed_slots_eidolon = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.PrimaryHand, EquipSlotBase.SlotType.SecondaryHand,
                                                                                                    EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Feet, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves, EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders,
@@ -59,11 +61,16 @@ namespace CallOfTheWild
                 if (__instance.CurrentUnit == null)
                     return false;
 
+                bool is_serpentine = player.Descriptor.Progression.IsArchetype(Eidolon.serpentine_archetype);
                 bool is_biped = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null 
                                                   && !player.Descriptor.Progression.IsArchetype(Eidolon.quadruped_archetype)
-                                                  && !player.Descriptor.Progression.IsArchetype(Eidolon.serpentine_archetype);
+                                                  && !is_serpentine;
                 EquipSlotBase.SlotType[] allowed_slots;
-                if (!is_biped)
+                if (is_serpentine)
+                {
+                    allowed_slots = allowed_slots_serpentine;
+                }
+                else if (!is_biped)
                 {
                     allowed_slots = allowed_slots_animal;
                 }

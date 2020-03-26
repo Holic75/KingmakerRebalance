@@ -88,6 +88,7 @@ namespace CallOfTheWild
             foreach (var stat_bonus_value in stat_bonuses_value)
             {
                 stat_bonus_value.Value = 1;
+                stat_bonus_value.Descriptor = ModifierDescriptor.Feat;
                 if (stat_bonus_value.Stat == StatType.Constitution)
                 {
                     stat_bonus_value.Value = 0;
@@ -108,6 +109,23 @@ namespace CallOfTheWild
             foreach (var lvl_entry in animal_companion_level_entires)
             {
                 lvl_entry.Features.Remove(enchanced_attacks_feature);
+            }
+
+
+            //fix size change bonus type
+            var animals = library.Get<BlueprintFeatureSelection>("571f8434d98560c43935e132df65fe76"); //druid animal companion selection
+            foreach (var f in animals.AllFeatures)
+            {
+                var pet = f.GetComponent<AddPet>()?.UpgradeFeature;
+                if (pet == null)
+                {
+                    continue;
+                }
+
+                foreach (var s in pet.GetComponents<AddStatBonus>())
+                {
+                    s.Descriptor = ModifierDescriptor.Feat;
+                }
             }
         }
 
@@ -1161,14 +1179,14 @@ namespace CallOfTheWild
 
 
 
-    //allow inherent modifiers to be considered as permanent
+    //allow feat and inherent modifiers to be considered as permanent
     [Harmony12.HarmonyPatch(typeof(ModifiableValue.Modifier))]
     [Harmony12.HarmonyPatch("IsPermanent", Harmony12.MethodType.Normal)]
     class ModifiableValue_IsPermanent
     {
         static void Postfix(ModifiableValue.Modifier __instance,  ref bool __result)
         {
-            __result = __result || __instance.ModDescriptor == ModifierDescriptor.Inherent;
+            __result = __result || __instance.ModDescriptor == ModifierDescriptor.Inherent || __instance.ModDescriptor == ModifierDescriptor.Feat;
         }
     }
 }
