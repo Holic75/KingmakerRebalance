@@ -6927,5 +6927,37 @@ namespace CallOfTheWild
             }
         }
 
+
+        [ComponentName("Override owner's empty hand weapon")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class EmptyHandWeaponOverrideIfNoWeapon : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            static public BlueprintItemWeapon empty_hand = Main.library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
+            public BlueprintItemWeapon Weapon;
+            private ItemEntityWeapon m_Weapon;
+
+            public override void OnTurnOn()
+            {
+                base.OnTurnOn();
+                if (this.Owner.Body.EmptyHandWeapon?.Blueprint == empty_hand)
+                {
+                    m_Weapon = null;
+                }
+                else
+                {
+                    this.m_Weapon = this.Owner.Body.SetEmptyHandWeapon(this.Weapon);
+                }
+            }
+
+            public override void OnTurnOff()
+            {
+                base.OnTurnOff();
+                if (m_Weapon != null)
+                {
+                    this.Owner.Body.RemoveEmptyHandWeapon(this.m_Weapon);
+                }
+            }
+        }
+
     }
 }

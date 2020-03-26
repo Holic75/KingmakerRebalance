@@ -456,19 +456,21 @@ namespace CallOfTheWild
 
         static void createEvolutionEntries()
         {
-            var eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
+            var quadruped_eidolons = new BlueprintFeature[] { Eidolon.agathion_eidolon, Eidolon.air_quadruped_eidolon, Eidolon.fire_quadruped_eidolon, Eidolon.earth_quadruped_eidolon };
+            var serpentine_eidolons = new BlueprintFeature[] { Eidolon.protean_eidolon, Eidolon.water_serpentine_eidolon };
+            var biped_eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                    Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.fey_eidolon,
-                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon, Eidolon.agathion_eidolon,
-                                                   Eidolon.protean_eidolon};
-            var biped_eidolons = eidolons.RemoveFromArray(Eidolon.agathion_eidolon).RemoveFromArray(Eidolon.protean_eidolon);
+                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon };
+            var eidolons = biped_eidolons.AddToArray(serpentine_eidolons).AddToArray(quadruped_eidolons);
+            var eidolons_with_hands = biped_eidolons.AddToArray(serpentine_eidolons);
+
             var devil_elemental = new BlueprintFeature[]{Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon, 
-                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon};
+                                                         Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon,
+                                                         Eidolon.air_quadruped_eidolon, Eidolon.earth_quadruped_eidolon, Eidolon.fire_quadruped_eidolon, Eidolon.water_serpentine_eidolon };
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     new BlueprintFeature[] {Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon,
-                                                                             Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
-                                                                             boar, dog, mammoth, monitor, wolf, Eidolon.agathion_eidolon }));
-            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons.RemoveFromArray(Eidolon.agathion_eidolon)));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] { Eidolon.infernal_eidolon, boar, dog, mammoth, monitor, wolf, Eidolon.agathion_eidolon, Eidolon.protean_eidolon})));
+            evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons_with_hands));
 
             foreach (var e in improved_natural_attacks)
             {
@@ -478,7 +480,7 @@ namespace CallOfTheWild
 
             evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth, Eidolon.agathion_eidolon, Eidolon.protean_eidolon })));
-            evolution_entries.Add(new EvolutionEntry(tail_slap, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[] { centipede, Eidolon.protean_eidolon }));
+            evolution_entries.Add(new EvolutionEntry(tail_slap, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], serpentine_eidolons.AddToArray(centipede)));
 
             smilodon.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
             centipede.AddComponent(Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = bite));
@@ -543,10 +545,10 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar, Eidolon.agathion_eidolon}));
+                                                     quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar})));
 
             evolution_entries.Add(new EvolutionEntry(constrict, 2, 0, new BlueprintFeature[] { tail_slap }, new BlueprintFeature[0],
-                                         new BlueprintFeature[] { Eidolon.protean_eidolon, centipede }));
+                                         serpentine_eidolons.AddToArray(centipede)));
 
             evolution_entries.Add(new EvolutionEntry(trip, 2, 4, new BlueprintFeature[] { bite }, new BlueprintFeature[0],
                                                      new BlueprintFeature[0]));
@@ -567,7 +569,7 @@ namespace CallOfTheWild
                                                     new BlueprintFeature[0]));
 
             evolution_entries.Add(new EvolutionEntry(pounce, 3, 7, new BlueprintFeature[0], new BlueprintFeature[0],
-                                        new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar, Eidolon.agathion_eidolon })
+                                        quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar }))
                                         );
             evolution_entries.Add(new EvolutionEntry(amorphous, 4, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                         new BlueprintFeature[0]));
@@ -623,7 +625,7 @@ namespace CallOfTheWild
 
             evolution_entries.Add(new EvolutionEntry(damage_reduction, 3, 15, new BlueprintFeature[0], new BlueprintFeature[0],
                                          new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
-                                                                   Eidolon.earth_elemental_eidolon,
+                                                                   Eidolon.earth_elemental_eidolon, Eidolon.earth_quadruped_eidolon, Eidolon.protean_eidolon,
                                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.infernal_eidolon,
                                                                    Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.agathion_eidolon}));
         }

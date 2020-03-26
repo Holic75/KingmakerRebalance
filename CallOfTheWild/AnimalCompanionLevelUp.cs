@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
@@ -165,6 +166,10 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                 f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.serpentine_archetype));
             }
 
+
+            var improved_unarmed_strike = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+            var weapon_override = improved_unarmed_strike.GetComponent<EmptyHandWeaponOverride>();
+            improved_unarmed_strike.ReplaceComponent(weapon_override, Helpers.Create<NewMechanics.EmptyHandWeaponOverrideIfNoWeapon>(e => e.Weapon = weapon_override.Weapon));
         }
     }
 }

@@ -155,6 +155,8 @@ namespace CallOfTheWild
             createProteanUnit();
             createQuadrupedEarthElementalUnit();
             createSerpentineWaterElementalUnit();
+            createQuadrupedFireElementalUnit();
+            createQuadrupedAirElementalUnit();
         }
 
 

@@ -114,7 +114,7 @@ namespace CallOfTheWild
                                              Common.createPrefabLink("191b45b04a55aef4fa8b0d63992dbb16"));
             fx_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.StayOnDeath);
 
-            water_fx_feature = Helpers.CreateFeature("WaterElementalEidolonFxFeature",
+            var water_fx_feature = Helpers.CreateFeature("WaterElementalEidolonFxFeature",
                                                    "",
                                                    "",
                                                    "",
