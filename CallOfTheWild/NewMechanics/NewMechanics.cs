@@ -6941,11 +6941,11 @@ namespace CallOfTheWild
                 base.OnTurnOn();
                 if (this.Owner.Body.EmptyHandWeapon?.Blueprint == empty_hand)
                 {
-                    m_Weapon = null;
+                    this.m_Weapon = this.Owner.Body.SetEmptyHandWeapon(this.Weapon);
                 }
                 else
                 {
-                    this.m_Weapon = this.Owner.Body.SetEmptyHandWeapon(this.Weapon);
+                    m_Weapon = null;                  
                 }
             }
 

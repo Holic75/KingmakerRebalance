@@ -83,7 +83,7 @@ namespace CallOfTheWild
             });
             protean_unit.AddComponents(Helpers.Create<EidolonComponent>());
             Helpers.SetField(protean_unit, "m_Portrait", Helpers.createPortrait("EidolonProteanProtrait", "Protean", ""));
-
+            
 
             protean_eidolon = Helpers.CreateProgression("ProteanEidolonProgression",
                                         "Protean Eidolon",
