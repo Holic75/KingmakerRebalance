@@ -180,6 +180,7 @@ namespace CallOfTheWild
             air_elemental_unit.Body.PrimaryHand = null;
             air_elemental_unit.Body.SecondaryHand = null;
             air_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            air_elemental_unit.Gender = Gender.Female;
             air_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[0];

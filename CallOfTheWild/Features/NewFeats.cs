@@ -379,6 +379,7 @@ namespace CallOfTheWild
 
             jabbing_dancer.AddComponent(Helpers.PrerequisiteFeature(jabbing_style));
             jabbing_master.AddComponent(Helpers.PrerequisiteFeature(jabbing_style));
+            jabbing_master.AddComponent(Helpers.PrerequisiteFeature(jabbing_dancer));
 
             library.AddCombatFeats(jabbing_style, jabbing_dancer, jabbing_master);
 

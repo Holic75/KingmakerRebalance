@@ -57,7 +57,7 @@ namespace CallOfTheWild
             water_elemental.LocalizedName.String = Helpers.CreateString(water_elemental.name + ".Name", "Elemental Eidolon (Water)");
 
             water_elemental.Prefab = elemental.Prefab;
-            water_elemental.Alignment = Alignment.ChaoticNeutral;
+            water_elemental.Alignment = Alignment.TrueNeutral;
             water_elemental.Strength = 12;
             water_elemental.Dexterity = 16;
             water_elemental.Constitution = 13;
@@ -147,6 +147,7 @@ namespace CallOfTheWild
             water_elemental_unit.Body.PrimaryHand = null;
             water_elemental_unit.Body.SecondaryHand = null;
             water_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            water_elemental_unit.Gender = Gender.Female;
             water_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[0];

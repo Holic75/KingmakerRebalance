@@ -232,7 +232,7 @@ namespace CallOfTheWild
                                                              Helpers.LevelEntry(5, summon_monster[2]),
                                                              Helpers.LevelEntry(7, summon_monster[3]),
                                                              Helpers.LevelEntry(9, summon_monster[4]),
-                                                             Helpers.LevelEntry(10, summon_monster[4], aspect_extra[0]),
+                                                             Helpers.LevelEntry(10, aspect_extra[0]),
                                                              Helpers.LevelEntry(11, summon_monster[5], aspect_extra[1]),
                                                              Helpers.LevelEntry(12, greater_shield_ally, aspect_extra[2]),
                                                              Helpers.LevelEntry(13, summon_monster[6], aspect_extra[3]),

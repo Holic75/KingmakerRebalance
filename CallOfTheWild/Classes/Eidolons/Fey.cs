@@ -78,6 +78,7 @@ namespace CallOfTheWild
             fey_unit.Body.PrimaryHand = null;
             fey_unit.Body.SecondaryHand = null;
             fey_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            fey_unit.Gender = Gender.Female;
             fey_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[] { fey_archetype };
