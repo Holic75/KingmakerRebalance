@@ -90,7 +90,8 @@ New feats:
 - Extra Revelation,
 - Extra Investigator Talent,
 - Extra Inspiration,
-- Extra Evolution.
+- Extra Evolution,
+- Snap Shot, Improved Snap Shot, Greater Snap Shot.
 
 New rage powers:
 - Terrifying Howl

@@ -815,7 +815,7 @@ namespace CallOfTheWild
         {
             var buff = Helpers.CreateBuff("MetamixingExploitBuff",
                                             "Metamixing",
-                                            "The arcanist can expend 1 point from her arcane reservoir to add a metamagic feat that she knows to a spell as she casts it without affecting the casting time (though using a higher-level spell slot as normal). She can use this ability to add a metamagic feat to a spell that she prepared using a metamagic feat, although she cannot add the same metamagic feat to a given spell more than once.",
+                                            "The arcanist can expend 1 point from her arcane reservoir to cast a spell with one spontaneously applied metamgic feat without affecting the casting time. She can also use this ability with spells that she prepared using metamagic feats.",
                                             "",
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
                                             null,

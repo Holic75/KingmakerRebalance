@@ -91,6 +91,10 @@ namespace CallOfTheWild
 
         static public BlueprintFeature fey_foundling;
 
+        static public BlueprintFeature snap_shot;
+        static public BlueprintFeature improved_snap_shot;
+        static public BlueprintFeature greater_snap_shot;
+
 
         static internal void load()
         {
@@ -150,6 +154,81 @@ namespace CallOfTheWild
             createSpontaneousMetafocus();
             createSpellPerfection();
             createFeyFoundling();
+
+            createSnapShot();
+        }
+
+
+        static void createSnapShot()
+        {
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            var point_blank_shot = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");
+            var rapid_shot = library.Get<BlueprintFeature>("9c928dc570bb9e54a9649b3ebfe47a41");
+
+            var ranged_weapons = new WeaponCategory[] {WeaponCategory.Longbow, WeaponCategory.Shortbow, WeaponCategory.Shuriken, WeaponCategory.Sling, WeaponCategory.SlingStaff, WeaponCategory.HandCrossbow,
+                                                       WeaponCategory.LightCrossbow, WeaponCategory.HeavyCrossbow, WeaponCategory.Dart, WeaponCategory.ThrowingAxe, WeaponCategory.LightRepeatingCrossbow,
+                                                        WeaponCategory.HeavyRepeatingCrossbow};
+            snap_shot = Helpers.CreateFeature("SnapShotFeature",
+                                                    "Snap Shot",
+                                                    "While wielding a ranged weapon with which you have Weapon Focus, you threaten squares within 5 feet of you. You can make attacks of opportunity with that ranged weapon. You do not provoke attacks of opportunity when making a ranged attack as an attack of opportunity.",
+                                                    "",
+                                                    LoadIcons.Image2Sprite.Create(@"FeatIcons/SnapShot.png"),
+                                                    FeatureGroup.Feat,
+                                                    Helpers.Create<AooMechanics.AooWithRangedWeapon>(a => { a.required_feature = weapon_focus; a.weapon_categories = ranged_weapons; }),
+                                                    Helpers.Create<AooMechanics.DoNotProvokeAooOnAoo>(d => d.weapon_categories = ranged_weapons),
+                                                    Helpers.PrerequisiteStatValue(StatType.Dexterity, 13),
+                                                    Helpers.PrerequisiteFeature(point_blank_shot),
+                                                    Helpers.PrerequisiteFeature(rapid_shot),
+                                                    Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
+                                                    );
+
+            foreach (var c in ranged_weapons)
+            {
+                
+            }
+
+
+            improved_snap_shot = Helpers.CreateFeature("ImprovedSnapShotFeature",
+                                                        "Improved Snap Shot",
+                                                        "You threaten an additional 5 feet with Snap Shot.",
+                                                        "",
+                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons/SnapShot.png"),
+                                                        FeatureGroup.Feat,
+                                                        Helpers.Create<AooMechanics.AooWithRangedWeapon>(a => { a.required_feature = weapon_focus; a.weapon_categories = ranged_weapons; a.max_range = 8.Feet(); }),
+                                                        Helpers.PrerequisiteStatValue(StatType.Dexterity, 15),
+                                                        Helpers.PrerequisiteFeature(point_blank_shot),
+                                                        Helpers.PrerequisiteFeature(rapid_shot),
+                                                        Helpers.PrerequisiteFeature(snap_shot),
+                                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 9)
+                                                        );
+
+
+            greater_snap_shot = Helpers.CreateFeature("GreaterSnapShotFeature",
+                                            "Greater Snap Shot",
+                                            "Whenever you make an attack of opportunity using a ranged weapon and hit, you gain a +2 bonus on the damage roll and a +2 bonus on rolls to confirm a critical hit with that attack. These bonuses increase to +4 when you have base attack bonus +16, and to +6 when you have base attack bonus +20.",
+                                            "",
+                                            LoadIcons.Image2Sprite.Create(@"FeatIcons/SnapShot.png"),
+                                            FeatureGroup.Feat,
+                                            Helpers.Create<AooMechanics.AttackDamageBonusOnAoo>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.Default); a.weapon_categories = ranged_weapons; }),
+                                            Helpers.PrerequisiteStatValue(StatType.Dexterity, 17),
+                                            Helpers.PrerequisiteFeature(point_blank_shot),
+                                            Helpers.PrerequisiteFeature(rapid_shot),
+                                            Helpers.PrerequisiteFeature(improved_snap_shot),
+                                            Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 12),
+                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.BaseAttack, ContextRankProgression.Custom,
+                                                                            customProgression: new (int, int)[] { (15, 2), (19, 4), (20, 6) }
+                                                                           )
+                                            );
+            foreach (var c in ranged_weapons)
+            {
+                snap_shot.AddComponent(Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, c, any: true));
+                improved_snap_shot.AddComponent(Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, c, any: true));
+            }
+
+            snap_shot.Groups = snap_shot.Groups.AddToArray(FeatureGroup.CombatFeat);
+            improved_snap_shot.Groups = snap_shot.Groups.AddToArray(FeatureGroup.CombatFeat);
+            greater_snap_shot.Groups = snap_shot.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(snap_shot, improved_snap_shot, greater_snap_shot);
         }
 
 
