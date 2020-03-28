@@ -48,8 +48,6 @@ namespace CallOfTheWild.AooMechanics
 
 
 
-
-
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class AooWithRangedWeapon : OwnedGameLogicComponent<UnitDescriptor>, IAooSpecial, IUnitSubscriber
     {
@@ -235,7 +233,6 @@ namespace CallOfTheWild.AooMechanics
             return null;
         }
     }
-
 
 
 }

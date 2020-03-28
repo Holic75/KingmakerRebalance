@@ -171,12 +171,5 @@ namespace CallOfTheWild
             SaveGameFix.save_game_actions.Add(save_game_action);
         }
 
-
-        static internal void addBloodragerAutoCast()
-        {
-
-        }
-
-
     }
 }

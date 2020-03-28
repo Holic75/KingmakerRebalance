@@ -160,6 +160,7 @@
     <Compile Include="Classes\Oracle.cs" />
     <Compile Include="Classes\Summoner.cs" />
     <Compile Include="ClassToProgression.cs" />
+    <Compile Include="Dismiss.cs" />
     <Compile Include="Features\MagusArcana.cs" />
     <Compile Include="Features\MetamagicFeats.cs" />
     <Compile Include="Features\RogueTalents.cs" />

@@ -6959,5 +6959,46 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowMultipleComponents]
+        [ComponentName("Replace damage stat for weapon")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class DamageGraceForWeapon : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public WeaponCategory category;
+
+            public override void OnTurnOn()
+            {
+                // Using DamageGracePart should ensure this works correctly with other
+                // features that work with finessable wepaons.
+                // (e.g. this is how Weapon Finesse picks it up.) 
+                Owner.Ensure<DamageGracePart>().AddEntry(category, Fact);
+            }
+
+            public override void OnTurnOff()
+            {
+                Owner.Ensure<DamageGracePart>().RemoveEntry(Fact);
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon.Blueprint.Type.Category == category)
+                {
+                    var offHand = evt.Initiator.Body.SecondaryHand;
+                    if (!offHand.HasShield && (!offHand.HasWeapon || offHand.MaybeWeapon == evt.Initiator.Body.EmptyHandWeapon))
+                    {
+                        var dexterity = evt.Initiator.Descriptor.Stats.Dexterity;
+                        var existingStat = !evt.DamageBonusStat.HasValue ? null : (Owner.Unit.Descriptor.Stats.GetStat(evt.DamageBonusStat.Value) as ModifiableValueAttributeStat);
+                        if (dexterity != null && (existingStat == null || dexterity.Bonus > existingStat.Bonus))
+                        {
+                            evt.OverrideDamageBonusStat(StatType.Dexterity);
+                        }
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt) { }
+        }
+
     }
 }

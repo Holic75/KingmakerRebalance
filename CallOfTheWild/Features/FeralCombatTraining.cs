@@ -114,7 +114,8 @@ namespace CallOfTheWild
             {
                 return false;
             }
-            return unit.Descriptor.Progression.Features.HasFact(natural_weapon_type_fact_map[weapon.Blueprint.Category]);
+            return unit.Descriptor.HasFact(natural_weapon_type_fact_map[weapon.Blueprint.Category]);
+            //return unit.Descriptor.Progression.Features.HasFact(natural_weapon_type_fact_map[weapon.Blueprint.Category]);
         }
 
 

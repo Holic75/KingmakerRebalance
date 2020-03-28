@@ -91,7 +91,8 @@ New feats:
 - Extra Investigator Talent,
 - Extra Inspiration,
 - Extra Evolution,
-- Snap Shot, Improved Snap Shot, Greater Snap Shot.
+- Snap Shot, Improved Snap Shot, Greater Snap Shot,
+- Dervish Dance.
 
 New rage powers:
 - Terrifying Howl
@@ -118,9 +119,10 @@ New rage powers:
 New features:
 - Share Spell for animal companions,
 - Druids can use armor while in wild shape (optional),
-- Animal companions can now equip belts, bracers, capes and amulets,
+- Animal companions can now equip headgear, belts, bracers, capes and amulets,
 - Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log,
-- Animal companions are now level-upped manually.
+- Animal companions now level up manually,
+- Dismissable area effect spells.
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,

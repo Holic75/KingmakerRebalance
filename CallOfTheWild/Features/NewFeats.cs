@@ -95,6 +95,8 @@ namespace CallOfTheWild
         static public BlueprintFeature improved_snap_shot;
         static public BlueprintFeature greater_snap_shot;
 
+        static public BlueprintFeature dervish_dance;
+
 
         static internal void load()
         {
@@ -156,6 +158,32 @@ namespace CallOfTheWild
             createFeyFoundling();
 
             createSnapShot();
+            createDervishDance();
+        }
+
+
+        static void createDervishDance()
+        {
+            var slashing_grace = library.Get<BlueprintParametrizedFeature>("697d64669eb2c0543abb9c9b07998a38");
+            var weapon_finesse = library.Get<BlueprintFeature>("90e54424d682d104ab36436bd527af09");
+
+            dervish_dance = Helpers.CreateFeature("DervishDanceFeature", 
+                                                  "Dervish Dance",
+                                                    "When wielding a scimitar with one hand, you can use your Dexterity modifier instead of your Strength modifier on melee attack and damage rolls. You treat the scimitar as a one-handed piercing weapon for all feats and class abilities that require such a weapon (such as a duelist's precise strike ability). The scimitar must be for a creature of your size. You cannot use this feat if you are carrying a weapon or shield in your off hand.",
+                                                    "",
+                                                    slashing_grace.Icon,
+                                                    FeatureGroup.Feat,
+                                                    weapon_finesse.PrerequisiteFeature(),
+                                                    Helpers.PrerequisiteStatValue(StatType.Dexterity, 13),
+                                                    Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 1),
+                                                    Helpers.Create<PrerequisiteProficiency>(p =>
+                                                    {
+                                                        p.WeaponProficiencies = new WeaponCategory[] { WeaponCategory.Scimitar };
+                                                        p.ArmorProficiencies = new Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[0];
+                                                    }),
+                                                    Helpers.Create<NewMechanics.DamageGraceForWeapon>(d => d.category = WeaponCategory.Scimitar));
+            dervish_dance.Groups = dervish_dance.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(dervish_dance);
         }
 
 
