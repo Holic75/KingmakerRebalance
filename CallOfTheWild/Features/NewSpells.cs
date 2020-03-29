@@ -1386,7 +1386,7 @@ namespace CallOfTheWild
             air_walk.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
 
             air_walk.AddToSpellList(Helpers.alchemistSpellList, 4);
-            air_walk.AddToSpellList(Helpers.clericSpellList, 3);
+            air_walk.AddToSpellList(Helpers.clericSpellList, 4);
             air_walk.AddToSpellList(Helpers.druidSpellList, 4);
             air_walk.AddSpellAndScroll("1b3b15e90ba582047a40f2d593a70e5e"); //feather step
            

@@ -217,7 +217,7 @@ namespace CallOfTheWild.AooMechanics
         }
 
 
-        static private WeaponSlot canMakeAoo(UnitEntityData unit, UnitEntityData enemy)
+        static public WeaponSlot canMakeAoo(UnitEntityData unit, UnitEntityData enemy)
         {
             if (unit.GetThreatHand() != null)
             {
