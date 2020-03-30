@@ -92,7 +92,8 @@ New feats:
 - Extra Inspiration,
 - Extra Evolution,
 - Snap Shot, Improved Snap Shot, Greater Snap Shot,
-- Dervish Dance.
+- Dervish Dance,
+- Evolved Companion.
 
 New rage powers:
 - Terrifying Howl

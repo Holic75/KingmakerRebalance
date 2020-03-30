@@ -96,6 +96,7 @@ namespace CallOfTheWild
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
         static BlueprintFeature eidolon;
+        static public BlueprintFeatureSelection evolved_companion;
 
         static public List<BlueprintFeature> evolutions_list = new List<BlueprintFeature>();
 
@@ -196,8 +197,25 @@ namespace CallOfTheWild
                                                           "",
                                                           evolution.Icon,
                                                           FeatureGroup.None,
-                                                          Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => {a.Feature = evolution; }));
-              
+                                                          Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => {a.Feature = evolution; }),
+                                                          Helpers.Create<EvolutionMechanics.PrerequisiteEvolution>(p => { p.evolution = evolution; p.not = true; }));
+                if (!subtypes.Empty())
+                {
+                    permanent_evolution.AddComponent(Helpers.PrerequisiteFeaturesFromList(subtypes));
+                }
+                foreach (var e in required_evolutions)
+                {
+                    permanent_evolution.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEvolution>(p => p.evolution = e));
+                }
+                foreach (var e in conflicting_evolutions)
+                {
+                    permanent_evolution.AddComponent(Helpers.Create<EvolutionMechanics.PrerequisiteEvolution>(p => { p.evolution = e; p.not = true; }));
+                }
+                if (summoner_level > 0)
+                {
+                    permanent_evolution.AddComponent(Helpers.Create<NewMechanics.PrerequisiteMinimumFeatureRank>(p => { p.Feature = summoner_rank; p.value = summoner_level; }));
+                }
+
                 buff = Helpers.CreateBuff(evolution.name +"Buff",
                                             "",
                                             "",
@@ -313,6 +331,22 @@ namespace CallOfTheWild
             return evolutions.ToArray();
         }
 
+
+        public static BlueprintFeature[] getPermanenetEvolutions2(Predicate<EvolutionEntry> evolution_filter)
+        {
+            List<BlueprintFeature> evolutions = new List<BlueprintFeature>();
+
+            foreach (var ee in evolution_entries)
+            {
+                var pe = ee.permanent_evolution.GetComponent<EvolutionMechanics.AddPermanentEvolution>();
+                if (evolution_filter(ee))
+                {
+                    evolutions.Add(ee.permanent_evolution);
+                }
+            }
+            return evolutions.ToArray();
+        }
+
         public static void initialize()
         {
             eidolon = Helpers.CreateFeature("BipedEidolonFeature",
@@ -332,6 +366,26 @@ namespace CallOfTheWild
             {
                 evolutions_list.Add(ee.evolution);
             }
+
+            createEvolvedCompanion();
+        }
+
+
+        static void createEvolvedCompanion()
+        {
+            evolved_companion = Helpers.CreateFeatureSelection("EvolvedCompanionFeature",
+                                                               "Evolved Companion",
+                                                               "Select a 1-point evolution other than reach from those available to a summoner’s eidolon. Your animal companion gains this evolution. The animal companion must conform to any limitations of the evolution.\n"
+                                                               + "Special: You can take this feat multiple times. Each time you do, select an additional 1-point evolution for your animal companion.",
+                                                               "",
+                                                               null,
+                                                               FeatureGroup.Feat,
+                                                               Helpers.Create<PrerequisitePet>(),
+                                                               Helpers.PrerequisiteStatValue(StatType.Charisma, 13)
+                                                               );
+
+            evolved_companion.AllFeatures = Evolutions.getPermanenetEvolutions2(ee => ee.cost == 1 && (ee.evolution != reach) && ee.summoner_level == 0 && ee.base_evolutions.Empty());
+            library.AddFeats(evolved_companion);
         }
 
 
