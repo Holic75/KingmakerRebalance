@@ -402,7 +402,7 @@ namespace CallOfTheWild
 
             var check_movement = Helpers.CreateConditional(new Condition[]{Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
                                                                            Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
-                                                           Common.createContextActionSkillCheck(StatType.Strength,
+                                                           Common.createContextActionSkillCheck(StatType.SkillMobility,
                                                                                                 failure: Helpers.CreateActionList(apply_can_not_move),
                                                                                                 custom_dc: 10)
                                                            );
@@ -528,12 +528,12 @@ namespace CallOfTheWild
                                                 Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, 1, 1), sharedValue: AbilitySharedValue.Duration),
                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation)
                                                 );
-            time_stop.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            time_stop.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Empower | Metamagic.Maximize;
             time_stop.setMiscAbilityParametersSelfOnly();
 
             time_stop.AddToSpellList(Helpers.wizardSpellList, 9);
             time_stop.AddSpellAndScroll("4b2d0e65fb9775341b6c4f7c178f0fe5");
-            Common.replaceDomainSpell(library.Get<BlueprintProgression>("cc2d330bb0200e840aeb79140e770198"), time_stop, 4);
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("cc2d330bb0200e840aeb79140e770198"), time_stop, 9);
         }
 
 
@@ -1315,11 +1315,11 @@ namespace CallOfTheWild
                                           "Wind Walk",
                                           "You alter the substance of your body to a cloud-like vapor and move through the air, possibly at great speed. You can take other creatures with you, each of which acts independently.\n"
                                           + "A wind walker can regain its physical form as desired and later resume the cloud form.\n"
-                                          + "The speed of your group while on global map increases to 60 mph.",
+                                          + "The speed of your group while on global map increases to 20 mph.",
                                           "",
                                           icon,
                                           null,
-                                          Helpers.Create<TravelMap.OverrideGlobalMapTravelMultiplier>(o => o.travel_map_multiplier = 20)
+                                          Helpers.Create<TravelMap.OverrideGlobalMapTravelMultiplier>(o => o.travel_map_multiplier = 7)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Hours));

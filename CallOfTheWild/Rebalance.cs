@@ -692,6 +692,7 @@ namespace CallOfTheWild
                     feature_list.Remove(increased_dr);
                 }
                 Helpers.SetField(context_rank_config, "m_FeatureList", feature_list.ToArray());
+                //dr.AddComponent(Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { dr }));
             }
 
 

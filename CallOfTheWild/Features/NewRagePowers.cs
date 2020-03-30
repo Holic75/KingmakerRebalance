@@ -414,7 +414,7 @@ namespace CallOfTheWild
 
             lesser_spirit_totem = Helpers.CreateFeature("LesserSpiritTotemFeature",
                                                         "Sprit Totem, Lesser",
-                                                        "While raging, the barbarian is surrounded by spirit wisps that harass her foes. These spirits make one slam attack each round against a living foe that is adjacent to the barbarian. This slam attack is made using the barbarian’s full base attack bonus, plus the barbarian’s Charisma modifier. The slam deals 1d4 points of negative energy damage, plus the barbarian’s Charisma modifier.\n"
+                                                        "While raging, the barbarian is surrounded by spirit wisps that harass her foes. These spirits allow barbarian to make one additional slam attack each round against a foe that is adjacent to the barbarian. This is a secondary attack that uses the barbarian’s Charisma modifier for attack rolls. The slam deals 1d4 points of negative energy damage, plus the barbarian’s Charisma modifier.\n"
                                                         + "Note: Totem rage powers grant powers related to a theme. A barbarian cannot select from more than one group of totem rage powers; for example, a barbarian who selects a beast totem rage power cannot later choose to gain any of the dragon totem rage powers(any rage power with “dragon totem” in its title).",
                                                         "",
                                                         blur.Icon,
