@@ -73,7 +73,7 @@ namespace CallOfTheWild
 
             minor_magic = Helpers.CreateFeatureSelection("MinorMagicRogueTalent",
                                                          "Minor Magic",
-                                                         "A rogue with this talent gains the ability to cast a 1st-level spell from the sorcerer/wizard spell list once per day as a spell-like ability for every 2 rogue levels she possesses. The rogue’s caster level for this ability is equal to her rogue level. The save DC for this spell is 11 + the rogue’s Intelligence modifier. A rogue must have the minor magic rogue talent and an Intelligence score of at least 11 to select this talent.",
+                                                         "A rogue with this talent gains the ability to cast a 0-level spell from the sorcerer/wizard spell list. This spell can be cast three times a day as a spell-like ability. The caster level for this ability is equal to the rogue’s level. The save DC for this spell is 10 + the rogue’s Intelligence modifier.",
                                                          "",
                                                          Helpers.GetIcon("16e23c7a8ae53cc42a93066d19766404"), //jolt
                                                          FeatureGroup.RogueTalent,

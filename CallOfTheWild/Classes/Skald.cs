@@ -1129,7 +1129,7 @@ namespace CallOfTheWild
         {
             var damage_reduction_barbarian = library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8");
             damage_reduction = library.CopyAndAdd<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8", "SkaldDamageReduction", "");
-            damage_reduction.SetDescription("At 9th level, a skald gains damage reduction.Subtract 1 from the damage the skald takes each time he is dealt damage from a weapon or a natural attack.At 14th and 19th levels, this damage reduction increases by 1.Damage Reduction can reduce damage to 0, but not below 0.Additionally, the skald grants this DR to all allies affected by his inspired rage.");
+            damage_reduction.SetDescription("At 9th level, a skald gains damage reduction. Subtract 1 from the damage the skald takes each time he is dealt damage from a weapon or a natural attack.At 14th and 19th levels, this damage reduction increases by 1. Damage Reduction can reduce damage to 0, but not below 0.Additionally, the skald grants this DR to all allies affected by his inspired rage.");
 
             var c = damage_reduction.GetComponent<ContextRankConfig>();
             BlueprintFeature[] feats = Helpers.GetField<BlueprintFeature[]>(c, "m_FeatureList");

@@ -1192,7 +1192,7 @@ namespace CallOfTheWild
 
         static void createHypnoticPattern()
         {
-            var buff = library.Get<BlueprintBuff>("6477ae917b0ec7a4ca76bc9f36b023ac"); //rainbow pattenr
+            var buff = library.Get<BlueprintBuff>("6477ae917b0ec7a4ca76bc9f36b023ac"); //rainbow pattern
             buff.SetDescription("");
 
             hypnotic_pattern = library.CopyAndAdd<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b", "HypnoticPatternAbility", "");
@@ -2955,6 +2955,9 @@ namespace CallOfTheWild
                                                 Helpers.CreateDeliverTouch(),
                                                 Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(effect_saved, effect))
                                                 );
+            var dominate_monster = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
+            ability.AddComponents(dominate_monster.GetComponents<AbilityTargetHasFact>());
+            ability.AddComponents(dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>());
             ability.setMiscAbilityParametersTouchHarmful();
             ability.SpellResistance = true;
             ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;

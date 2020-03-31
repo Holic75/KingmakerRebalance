@@ -24,6 +24,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
@@ -1142,6 +1143,9 @@ namespace CallOfTheWild
                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Curse | SpellDescriptor.MindAffecting),
                                              Helpers.CreateContextRankConfig()
                                              );
+            var dominate_monster = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
+            ill_omen.AddComponents(dominate_monster.GetComponents<AbilityTargetHasFact>());
+            ill_omen.AddComponents(dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>());
 
             ill_omen.SpellResistance = true;
             ill_omen.setMiscAbilityParametersSingleTargetRangedHarmful(true);

@@ -137,7 +137,7 @@ namespace CallOfTheWild
             base_evolutions.HideInCharacterSheetAndLevelUp = true;
             var feature1 = Helpers.CreateFeature("DevilEidolonLevel1Feature",
                                                   "Base Evolutions",
-                                                  "Starting at 1st level, devil eidolons gain the claws evolution, resistance (fire) evolution and the skilled (Persuation) evolution. They also gain a +4 bonus on saving throws against poison.",
+                                                  "Starting at 1st level, devil eidolons gain the claws evolution, resistance (fire) evolution and the skilled (Persuasion) evolution. They also gain a +4 bonus on saving throws against poison.",
                                                   "",
                                                   devil_eidolon.Icon,
                                                   FeatureGroup.None,

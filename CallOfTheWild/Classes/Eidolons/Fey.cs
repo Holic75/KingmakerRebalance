@@ -111,7 +111,7 @@ namespace CallOfTheWild
         {
             var feature1 = Helpers.CreateFeatureSelection("FeyEidolonLevel1Feature",
                                                   "Base Evolutions",
-                                                  "Starting at 1st level, fey eidolons gain Mobility, Persuation, Lore (nature), Trickery, and Use Magic Device as class skills instead of those gained by most eidolons. They also gain the slam evolution and the skilled evolution (selecting one class skill).",
+                                                  "Starting at 1st level, fey eidolons gain Mobility, Persuasion, Lore (nature), Trickery, and Use Magic Device as class skills instead of those gained by most eidolons. They also gain the slam evolution and the skilled evolution (selecting one class skill).",
                                                   "",
                                                   fey_eidolon.Icon,
                                                   FeatureGroup.None,

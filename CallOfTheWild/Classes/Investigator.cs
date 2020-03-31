@@ -1006,7 +1006,7 @@ namespace CallOfTheWild
 
 
             var persuation_inspiration_buff = Helpers.CreateBuff("InvestigatorInspirationPersuationBuff",
-                                                     "Inspiration: Persuation",
+                                                     "Inspiration: Persuasion",
                                                      description,
                                                      "",
                                                      Helpers.GetIcon("1621be43793c5bb43be55493e9c45924"), //transmutation strength

@@ -149,7 +149,7 @@ namespace CallOfTheWild
             //bless
             library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638").GetComponent<AbilitySpawnFx>().Anchor = AbilitySpawnFxAnchor.ClickedTarget;
 
-            //make spells unsharaeable
+            //make spells unshareable
             library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67").AddComponent(Helpers.Create<SharedSpells.CannotBeShared>()); //acid maw
 
             var spells_ids_to_allow_working_on_pets = new string[] { "c60969e7f264e6d4b84a1499fdcf9039", //enlarge
