@@ -67,7 +67,8 @@ namespace CallOfTheWild
             Elemental = ElementalFire | ElementalCold | ElementalElectricity | ElementalAcid,
             BloodIntensity = 0x00100000,
             IntensifiedGeneral = BloodIntensity | Intensified,
-            FreeMetamagic = BloodIntensity
+            FreeMetamagic = BloodIntensity,
+            Piercing = 0x00080000
         }
 
         static public bool test_mode = false;
@@ -79,6 +80,7 @@ namespace CallOfTheWild
         static public BlueprintFeature rime_metamagic;
         static public BlueprintFeature persistent_metamagic;
         static public BlueprintFeature selective_metamagic;
+        static public BlueprintFeature piercing_metamagic;
         static public Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>  elemental_metamagic = new Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>();
 
         static readonly int[][] metamagic_rod_costs = new int[][] {
@@ -89,6 +91,7 @@ namespace CallOfTheWild
 
         public static void load()
         {
+            createPiercingSpell();
             createIntensifiedSpell();
             createTopplingSpell();
             createRimeSpell();
@@ -125,6 +128,31 @@ namespace CallOfTheWild
                 if (s.Parent != null)
                 {
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
+                }
+            }
+        }
+
+
+
+        static void createPiercingSpell()
+        {
+            piercing_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "PiercingSpellFeature", "");
+            piercing_metamagic.SetNameDescriptionIcon("Metamagic (Piercing Spell)",
+                                                        "When you cast a piercing spell against a target with spell resistance, it treats the spell resistance of the target as 5 lower than its actual SR.\n"
+                                                        + "Level Increase: +1 (a piercing spell uses up a spell slot one level higher than the spell’s actual level.)\n",
+                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons/PiercingSpell.png")
+                                                        );
+
+            piercing_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Piercing);
+            AddMetamagicToFeatSelection(piercing_metamagic);
+
+            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.SpellResistance == true).Cast<BlueprintAbility>().ToArray();
+            foreach (var s in spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Piercing;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Piercing;
                 }
             }
         }
@@ -460,6 +488,7 @@ namespace CallOfTheWild
                 case MetamagicExtender.ElementalElectricity:
                 case MetamagicExtender.ElementalAcid:
                 case MetamagicExtender.Selective:
+                case MetamagicExtender.Piercing:
                     return 1;
             }
             return 0;
@@ -488,6 +517,7 @@ namespace CallOfTheWild
                     case MetamagicExtender.ElementalElectricity:
                     case MetamagicExtender.ElementalAcid:
                     case MetamagicExtender.Selective:
+                    case MetamagicExtender.Piercing:
                         __result = 1;
                         return false;
                 }
@@ -519,6 +549,7 @@ namespace CallOfTheWild
                         __result = UIRoot.Instance.SpellBookColors.MetamagicHeighten;
                         return false;
                     case MetamagicExtender.Persistent:
+                    case MetamagicExtender.Piercing:
                         __result = UIRoot.Instance.SpellBookColors.MetamagicMaximize;
                         return false;
                 }
@@ -737,6 +768,10 @@ namespace CallOfTheWild
                 {
                     extra_metamagic += "Intesnsified, ";
                 }
+                if ((mask & (Metamagic)MetamagicExtender.Piercing) != 0)
+                {
+                    extra_metamagic += "Piercing, ";
+                }
                 if ((mask & (Metamagic)MetamagicExtender.Toppling) != 0)
                 {
                     extra_metamagic += "Toppling, ";
@@ -788,15 +823,27 @@ namespace CallOfTheWild
         }
 
 
-        /*[Harmony12.HarmonyPatch(typeof(UIUtilityTexts))]
-        [Harmony12.HarmonyPatch("GetMetamagicList", Harmony12.MethodType.Normal)]
-        class UIUtilityTexts__GetMetamagicList__Patch
+        [Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
+        [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+        static class RuleSpellResistanceCheck_OnTrigger_Patch
         {
-            static bool Prefix(Metamagic mask, ref string __result)
+            internal static void Postfix(RuleSpellResistanceCheck __instance, RulebookEventContext context)
             {
-                return true;
+                
+                var context2 = __instance.Context;
+                if (context2?.SourceAbility == null || context2?.Params == null)
+                {
+                    return;
+                }
+
+                if (context2.SourceAbility.IsSpell &&
+                    (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Piercing) != 0)
+                {
+                    var tr = Harmony12.Traverse.Create(__instance);
+                    tr.Property("SpellResistance").SetValue(Math.Max(0, __instance.SpellResistance - 5));
+                }
             }
-        }*/
+        }
 
 
 

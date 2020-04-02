@@ -77,6 +77,7 @@ New feats:
 - Dazing Spell,
 - Intensified Spell,
 - Persistent Spell,
+- Piercing Spell,
 - Rime Spell,
 - Toppling Spell,
 - Elemental Spell,

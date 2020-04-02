@@ -353,7 +353,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateContextRankConfig()
                                                    );
             control_undead.setMiscAbilityParametersSingleTargetRangedHarmful();
-            control_undead.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            control_undead.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             control_undead.SpellResistance = true;
             control_undead.AddToSpellList(Helpers.wizardSpellList, 7);
             control_undead.AddSpellAndScroll("bc0180b8b29abf9468dea1a24332d159");
@@ -475,7 +475,7 @@ namespace CallOfTheWild
                                                                 Helpers.CreateDeliverTouch()
                                                                 );
             temporal_stasis_touch.SpellResistance = true;
-            temporal_stasis_touch.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            temporal_stasis_touch.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             temporal_stasis_touch.setMiscAbilityParametersTouchHarmful();
 
             temporal_stasis = Helpers.CreateTouchSpellCast(temporal_stasis_touch);
@@ -574,7 +574,7 @@ namespace CallOfTheWild
                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                   Helpers.CreateDeliverTouch()
                                                   );
-            sands_of_time_touch.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize;
+            sands_of_time_touch.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             sands_of_time_touch.SpellResistance = true;
             sands_of_time_touch.setMiscAbilityParametersTouchHarmful();
             sands_of_time = Helpers.CreateTouchSpellCast(sands_of_time_touch);
@@ -760,7 +760,7 @@ namespace CallOfTheWild
                                                      );
 
             move_ability.setMiscAbilityParametersRangedDirectional();
-            move_ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            move_ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
             caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
@@ -787,7 +787,7 @@ namespace CallOfTheWild
                                                            );
 
             aggressive_thundercloud_greater.setMiscAbilityParametersRangedDirectional();
-            aggressive_thundercloud_greater.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            aggressive_thundercloud_greater.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             aggressive_thundercloud_greater.SpellResistance = true;
 
             aggressive_thundercloud_greater.AddToSpellList(Helpers.magusSpellList, 4);
@@ -855,7 +855,7 @@ namespace CallOfTheWild
                                                      );
 
             move_ability.setMiscAbilityParametersRangedDirectional();
-            move_ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            move_ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
             caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
@@ -882,7 +882,7 @@ namespace CallOfTheWild
                                                            );
 
             aggressive_thundercloud.setMiscAbilityParametersRangedDirectional();
-            aggressive_thundercloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            aggressive_thundercloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             aggressive_thundercloud.SpellResistance = true;
 
             aggressive_thundercloud.AddToSpellList(Helpers.magusSpellList, 2);
@@ -1050,7 +1050,7 @@ namespace CallOfTheWild
             wall_of_fire.Type = AbilityType.Spell;
             wall_of_fire.Range = AbilityRange.Medium;
             wall_of_fire.SpellResistance = true;
-            wall_of_fire.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            wall_of_fire.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             wall_of_fire.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig());
 
@@ -1140,7 +1140,7 @@ namespace CallOfTheWild
                                                   );
             wall_of_nausea.setMiscAbilityParametersRangedDirectional();
             wall_of_nausea.SpellResistance = true;
-            wall_of_nausea.AvailableMetamagic =  Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            wall_of_nausea.AvailableMetamagic =  Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             wall_of_nausea.AddToSpellList(Helpers.wizardSpellList, 3);
             wall_of_nausea.AddToSpellList(Helpers.bardSpellList, 3);
             wall_of_nausea.AddSpellAndScroll("70239ec6d83b5064388e64d309fef942");
@@ -1182,7 +1182,7 @@ namespace CallOfTheWild
                                                   );
             wall_of_blindness.setMiscAbilityParametersRangedDirectional();
             wall_of_blindness.SpellResistance = true;
-            wall_of_blindness.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            wall_of_blindness.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             wall_of_blindness.AddToSpellList(Helpers.wizardSpellList, 4);
             wall_of_blindness.AddToSpellList(Helpers.bardSpellList, 4);
             wall_of_blindness.AddToSpellList(Helpers.clericSpellList, 5);
@@ -1470,7 +1470,7 @@ namespace CallOfTheWild
                                                  );
             meteor_swarm.setMiscAbilityParametersRangedDirectional();
             meteor_swarm.SpellResistance = true;
-            meteor_swarm.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+            meteor_swarm.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Selective | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             meteor_swarm.AddToSpellList(Helpers.wizardSpellList, 9);
             meteor_swarm.AddSpellAndScroll("5c6a20a7dbe44ae478a2bd72efc98e2c");
@@ -1892,7 +1892,7 @@ namespace CallOfTheWild
             accursed_glare.AddComponent(doom_spell.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             accursed_glare.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Necromancy));
             accursed_glare.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Curse));
-            accursed_glare.AvailableMetamagic = Metamagic.Quicken | Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            accursed_glare.AvailableMetamagic = Metamagic.Quicken | Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             accursed_glare.SpellResistance = true;
 
             accursed_glare.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -2471,7 +2471,7 @@ namespace CallOfTheWild
                                            );
             rebuke.setMiscAbilityParametersSelfOnly();
             rebuke.SpellResistance = true;
-            rebuke.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            rebuke.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             rebuke.AddToSpellList(Helpers.inquisitorSpellList, 4);
             rebuke.AddSpellAndScroll("4c73f11f91ca3fb4a8af325686b660d8");                            
@@ -2527,7 +2527,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateDeliverTouch()
                                                 );
 
-            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Reach | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Maximize | Metamagic.Reach | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             ability.setMiscAbilityParametersTouchHarmful();
             ability.SpellResistance = true;
 
@@ -2615,7 +2615,7 @@ namespace CallOfTheWild
             ability.AddComponents(checkers);
             ability.setMiscAbilityParametersTouchHarmful();
             ability.SpellResistance = true;
-            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             ghoul_touch = ability.CreateTouchSpellCast();
 
@@ -2830,7 +2830,7 @@ namespace CallOfTheWild
                                                   );
             howling_agony.SpellResistance = true;
             howling_agony.setMiscAbilityParametersRangedDirectional();
-            howling_agony.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            howling_agony.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             howling_agony.AddToSpellList(Helpers.inquisitorSpellList, 2);
             howling_agony.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -2870,7 +2870,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                     Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic)
                                                     );
-            freezing_sphere.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Selective | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            freezing_sphere.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Selective | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             freezing_sphere.setMiscAbilityParametersRangedDirectional();
             freezing_sphere.SpellResistance = true;
 
@@ -2960,7 +2960,7 @@ namespace CallOfTheWild
             ability.AddComponents(dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>());
             ability.setMiscAbilityParametersTouchHarmful();
             ability.SpellResistance = true;
-            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             irresistible_dance = Helpers.CreateTouchSpellCast(ability);
 
             irresistible_dance.AddToSpellList(Helpers.bardSpellList, 6);
@@ -3225,7 +3225,7 @@ namespace CallOfTheWild
                                                 );
             suffocation.setMiscAbilityParametersSingleTargetRangedHarmful(true);
 
-            suffocation.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            suffocation.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             suffocation.SpellResistance = true;
 
 
@@ -3249,7 +3249,7 @@ namespace CallOfTheWild
                                     );
             mass_suffocation.setMiscAbilityParametersSingleTargetRangedHarmful(true);
 
-            mass_suffocation.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten;
+            mass_suffocation.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             suffocation.AddToSpellList(Helpers.wizardSpellList, 5);
             suffocation.AddSpellAndScroll("a9a0d65ec202e25478bcae4a87e844f9"); //force repentance
@@ -3518,7 +3518,7 @@ namespace CallOfTheWild
                                                 );
             flashfire.setMiscAbilityParametersRangedDirectional();
             flashfire.SpellResistance = true;
-            flashfire.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            flashfire.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             flashfire.AddToSpellList(Helpers.druidSpellList, 3);
             flashfire.AddSpellAndScroll("d8f2bcc130113194998810b7ae3e07f5"); //blessing of salamander
         }
@@ -3599,7 +3599,7 @@ namespace CallOfTheWild
                                                );
             ability.setMiscAbilityParametersTouchHarmful();
             ability.SpellResistance = true;
-            ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
+            ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             stricken_heart = Helpers.CreateTouchSpellCast(ability);
 
             stricken_heart.AddToSpellList(Helpers.inquisitorSpellList, 2);
@@ -3648,7 +3648,7 @@ namespace CallOfTheWild
                                                   );
             river_of_wind.setMiscAbilityParametersRangedDirectional();
             river_of_wind.SpellResistance = true;
-            river_of_wind.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            river_of_wind.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             river_of_wind.AddToSpellList(Helpers.druidSpellList, 4);
             river_of_wind.AddToSpellList(Helpers.magusSpellList, 4);
             river_of_wind.AddToSpellList(Helpers.wizardSpellList, 4);
@@ -3863,7 +3863,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Fatigue | SpellDescriptor.Exhausted));
             ray_of_exhaustion.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
             ray_of_exhaustion.SpellResistance = true;
-            ray_of_exhaustion.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ray_of_exhaustion.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             ray_of_exhaustion.AddToSpellList(Helpers.magusSpellList, 3);
             ray_of_exhaustion.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -4061,7 +4061,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation)
                                                     );
             archons_trumpet.setMiscAbilityParametersRangedDirectional();
-            archons_trumpet.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            archons_trumpet.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             archons_trumpet.SpellResistance = true;
 
             archons_trumpet.AddToSpellList(Helpers.bardSpellList, 5);
@@ -4085,7 +4085,7 @@ namespace CallOfTheWild
             var conditional_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), effect);
             area.ReplaceComponent<AbilityAreaEffectRunAction>(a => a.UnitEnter = Helpers.CreateActionList(conditional_effect));
             area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Emotion | SpellDescriptor.Fear | SpellDescriptor.Shaken));
-
+            area.SpellResistance = true;
             var buff = Helpers.CreateBuff("AuraOfDoomBuff",
                                           "Aura of Doom",
                                           "You emanate an almost palpable aura of horror (with 20 ft. radius). All enemies within this spell’s area, or that later enter the area, must make a Will save to avoid becoming shaken. A successful save suppresses the effect. Creatures that leave the area and come back must save again to avoid being affected by the effect.",
@@ -4111,7 +4111,7 @@ namespace CallOfTheWild
                                                  );
             aura_of_doom.setMiscAbilityParametersSelfOnly();
             //aura_of_doom.SpellResistance = true;
-            aura_of_doom.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            aura_of_doom.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             aura_of_doom.AddToSpellList(Helpers.clericSpellList, 4);
             aura_of_doom.AddSpellAndScroll("124d26c97479b424383124e047183828");
@@ -4198,7 +4198,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any),
                                                      Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDice, max: 15, feature: MetamagicFeats.intensified_metamagic)
                                                      );
-            explosion_of_rot.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            explosion_of_rot.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             explosion_of_rot.setMiscAbilityParametersRangedDirectional();
             explosion_of_rot.SpellResistance = true;
 
@@ -4660,7 +4660,7 @@ namespace CallOfTheWild
 
             winter_grasp.setMiscAbilityParametersRangedDirectional();
             winter_grasp.SpellResistance = false;
-            winter_grasp.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            winter_grasp.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             winter_grasp.AddToSpellList(Helpers.druidSpellList, 2);
 
             winter_grasp.AddSpellAndScroll("341915f4a228e184e8d28886ea551a17");
@@ -5220,7 +5220,7 @@ namespace CallOfTheWild
 
             sheet_lightning.setMiscAbilityParametersRangedDirectional();
             sheet_lightning.SpellResistance = true;
-            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             sheet_lightning.AddToSpellList(Helpers.druidSpellList, 3);
             sheet_lightning.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -5294,7 +5294,7 @@ namespace CallOfTheWild
                                               );
             ice_slick.setMiscAbilityParametersRangedDirectional();
             ice_slick.SpellResistance = true;
-            ice_slick.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            ice_slick.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             ice_slick.AddToSpellList(Helpers.druidSpellList, 2);
             ice_slick.AddToSpellList(Helpers.magusSpellList, 2);
             ice_slick.AddToSpellList(Helpers.rangerSpellList, 2);
@@ -5628,7 +5628,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateSpellDescriptor(descriptors[i]),
                                                   shield_of_dawn.GetComponent<SpellComponent>()
                                                   );
-                shields[i].AvailableMetamagic = shields[i].AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental; 
+                shields[i].AvailableMetamagic = shields[i].AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing; 
                 shields[i].setMiscAbilityParametersSelfOnly();
                 fire_shield_variants.Add(energy[i], shields[i]);
                 shields[i].SpellResistance = true;
@@ -5646,7 +5646,7 @@ namespace CallOfTheWild
                                                 Helpers.roundsPerLevelDuration,
                                                 Helpers.savingThrowNone,
                                                 shield_of_dawn.GetComponent<SpellComponent>());
-            fire_shield.AvailableMetamagic = shield_of_dawn.AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
+            fire_shield.AvailableMetamagic = shield_of_dawn.AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             fire_shield.setMiscAbilityParametersSelfOnly();
             fire_shield.SpellResistance = true;
 
@@ -5700,7 +5700,7 @@ namespace CallOfTheWild
                                             );
 
             command.setMiscAbilityParametersSingleTargetRangedHarmful();
-            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             command.SpellResistance = true;
 
 
@@ -5722,7 +5722,7 @@ namespace CallOfTheWild
                                 dominate_monster.GetComponent<SpellComponent>());
 
             command_greater.setMiscAbilityParametersRangedDirectional();
-            command_greater.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            command_greater.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             command_greater.SpellResistance = true;
 
             for (int i = 0; i < buffs.Length; i++)
