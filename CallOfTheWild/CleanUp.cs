@@ -57,7 +57,8 @@ namespace CallOfTheWild
                                                                Skald.inspired_rage_effect_buff,
                                                                Skald.controlled_rage_str_buff,
                                                                Skald.controlled_rage_dex_buff,
-                                                               Skald.controlled_rage_con_buff };
+                                                               Skald.controlled_rage_con_buff,
+                                                               Skald.insightful_contemplation_buff};
             //to ensure coexistance of different rages we need to do the following:
             //on every condition on activated add check that target has no buff to avoid replacing existing buffs,
             //then we need to add all activated conditional actions to new round (to reapply buffs if they dissapear)
@@ -121,6 +122,7 @@ namespace CallOfTheWild
                                                                                (Skald.controlled_rage_str_buff, true),
                                                                                (Skald.controlled_rage_dex_buff, true),
                                                                                (Skald.controlled_rage_con_buff, true),
+                                                                               (Skald.insightful_contemplation_buff, true),
                                                                                (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("6928adfa56f0dcc468162efde545786b"), false), //rage spell
                                                                                (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("9ec69854596674a4ba40802e6337894d"), false) //inspire ferocity
                                                                              };

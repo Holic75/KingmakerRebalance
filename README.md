@@ -6,7 +6,7 @@ It introduces new classes:
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch and Hex Channeler,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater and Steelblood,
-- Skald with following archetypes: Urban Skald, Herald of the Horn and War Drummer,
+- Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
 - Arcanist with following archetypes: School Savant, Blood Arcanist and Unlettered Arcanist,

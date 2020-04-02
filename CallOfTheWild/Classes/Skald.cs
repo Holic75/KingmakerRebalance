@@ -112,6 +112,13 @@ namespace CallOfTheWild
         static public BlueprintFeature deadly_rythm_feature;
         static public BlueprintFeatureSelection club_improved_critical_selection;
 
+        static public BlueprintArchetype court_poet;
+        static public BlueprintFeature insightful_contemplation;
+        static public BlueprintBuff insightful_contemplation_buff;
+        static public BlueprintFeature song_of_inspiration;
+        static public BlueprintFeature handling_the_crowd;
+
+
         internal static void createSkaldClass()
         {
             Main.logger.Log("Skald class test mode: " + test_mode.ToString());
@@ -156,7 +163,8 @@ namespace CallOfTheWild
             createUrbanSkaldArchetype();
             createHeraldOfTheHorn();
             createWarDrummer();
-            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype}; //wardrummer, urban skald, herald of the horn
+            createCourtPoet();
+            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype, court_poet}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
             fixExtraRagePower();
@@ -666,6 +674,136 @@ namespace CallOfTheWild
                                                                                           new BlueprintArchetype[] { herald_of_the_horn_archetype }, true),
                                                      Helpers.CreateAddFeatureOnClassLevel(Common.AbilityToFeature(greater_shout), 17, getSkaldArray(),
                                                                                           new BlueprintArchetype[] { herald_of_the_horn_archetype }, false)
+                                                     );
+        }
+
+
+
+        static void createCourtPoet()
+        {
+            court_poet = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "CourtPoetArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Court Poet");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Many courts are places of artistic refinement, attracting those performers who wish to revel in an aristocratic art scene. Such artists may aim to become a darling of the court, focusing on the aesthetic requirements of a particular tradition as well as learning details about that court’s history and culture. Court poets elevate the skald’s love of history and poetry to an aristocratic ideal, captivating courts with complicated poetic traditions and inspiring others with their craft. Some court poets go on to create their own works, weaving their magic and force of personality into their unique performances.");
+            });
+            Helpers.SetField(court_poet, "m_ParentClass", skald_class);
+            library.AddAsset(court_poet, "");
+            court_poet.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, inspired_rage_feature),
+                                                                          Helpers.LevelEntry(2, well_versed),
+                                                                          Helpers.LevelEntry(6, song_of_strength)
+                                                                        };
+
+            createInsightfulContemplation();
+            createSongOfInspiration();
+            createHandlingTheCrowd();
+
+            court_poet.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, insightful_contemplation),
+                                                                  Helpers.LevelEntry(2, handling_the_crowd),
+                                                                  Helpers.LevelEntry(6, song_of_inspiration),
+                                                                };
+
+            skald_progression.UIGroups[1].Features.Add(handling_the_crowd);
+            skald_progression.UIGroups[2].Features.Add(insightful_contemplation);
+            skald_progression.UIGroups[2].Features.Add(song_of_inspiration);
+        }
+
+
+        static void createHandlingTheCrowd()
+        {
+            var crowd_ac_bonus = Common.createCrowdACBonus(2, 1);
+
+            var mirror_image = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564");
+            handling_the_crowd = Helpers.CreateFeature("SkaldCourtPoetHandlingTheCrowdFeature",
+                                                      "Handling The Crowd",
+                                                      "At 2nd level, a court poet gains a +1 bonus to AC and on Perform checks when adjacent to two or more creatures. In addition she gains a bonus equal to 1/2 her skald level on Diplomacy checks.",
+                                                      "",
+                                                      mirror_image.Icon,
+                                                      FeatureGroup.None,
+                                                      crowd_ac_bonus,
+                                                      Helpers.CreateAddContextStatBonus(StatType.CheckDiplomacy, ModifierDescriptor.UntypedStackable),
+                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(), progression: ContextRankProgression.Div2)
+                                                      );
+        }
+
+
+        static internal void createInsightfulContemplation()
+        {
+            var ac_penalty = Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.UntypedStackable, ContextValueType.Rank, AbilityRankType.DamageBonus);
+            var will_bonus = Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.Default);
+            var ac_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus,
+                                                               baseValueType: ContextRankBaseValueType.FeatureListRanks,
+                                                               progression: ContextRankProgression.BonusValue,
+                                                               stepLevel: -1,
+                                                               featureList: new BlueprintFeature[] { master_skald }
+                                                               );
+            var will_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.Default,
+                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                           classes: getSkaldArray(),
+                                                                           progression: ContextRankProgression.OnePlusDivStep,
+                                                                           stepLevel: 4);
+            var int_bonus = Helpers.CreateAddContextStatBonus(StatType.Intelligence, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+            var cha_bonus = Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
+            var athletics_penalty = Helpers.CreateAddStatBonus(StatType.SkillAthletics, -20, ModifierDescriptor.Penalty);
+            var str_check_penalty = Common.createAbilityScoreCheckBonus(-20, ModifierDescriptor.Penalty, StatType.Strength);
+
+            var stat_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus,
+                                                                           baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                           classes: getSkaldArray(),
+                                                                           progression: ContextRankProgression.OnePlusDivStep,
+                                                                           stepLevel: 8);
+
+
+            insightful_contemplation_buff = createRagingSongEffectBuffForbidSpellCasting("SkaldCourtPoetInsigtfulContemplationBuff", false, int_bonus, cha_bonus, will_bonus, ac_penalty,
+                                                                                                                                     athletics_penalty, str_check_penalty, stat_context_rank_config,
+                                                                                                                                     will_context_rank_config, ac_context_rank_config);
+
+
+
+            insightful_contemplation = Helpers.CreateFeature("SkalCourtPoetInsightfulContemplationFeature",
+                                              "Insightful Contemplation",
+                                              "At 1st level, affected allies gain a + 2 morale bonus to Intelligence and Charisma and a + 1 morale bonus on Will saving throws, but they also take a –1 penalty to AC. While under the effects of insightful contemplation, allies other than the court poet can’t use any Strength - based skills or make any physical effort that requires a Constitution check. At 4th level and every 4 skald levels thereafter, the song’s bonus on Will saves increases by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Intelligence and Charisma increase by 2. (Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends.)",
+                                              "",
+                                              Helpers.GetIcon("6d3fcfab6d935754c918eb0e004b5ef7"), //inspire competence
+                                              FeatureGroup.None
+                                              );
+            insightful_contemplation_buff.SetNameDescriptionIcon(insightful_contemplation.Name, insightful_contemplation.Description, insightful_contemplation.Icon);
+            var inspire_courage = library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70");
+            var rage_ability = Common.convertPerformance(inspire_courage, insightful_contemplation_buff, "SkaldCourtPoetInsightfulContemplationAbility");
+            insightful_contemplation.AddComponent(Helpers.CreateAddFact(rage_ability));
+        }
+
+
+        static void createSongOfInspiration()
+        {
+            var buff = library.CopyAndAdd<BlueprintBuff>("1fa5f733fa1d77743bf54f5f3da5a6b1", "SkaldSongOfInspirationEffectBuff", "");
+            buff.SetName("Song of Inspiration");
+            buff.SetDescription("At 6th level, a court poet can use raging song to inspire her allies to greater mental clarity. Once each round while the court poet uses this performance, allies within 30 feet who can hear her can add 1/2 the court poet’s skald level to a single Wisdom check or Wisdom-based skill check.");
+            buff.SetIcon(Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"));
+            buff.ComponentsArray = new BlueprintComponent[]{Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.UntypedStackable,
+                                                                                                               ContextValueType.Rank, AbilityRankType.Default),
+                                                            Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.UntypedStackable,
+                                                                                                               ContextValueType.Rank, AbilityRankType.Default),
+                                                            Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.UntypedStackable,
+                                                                                                               ContextValueType.Rank, AbilityRankType.Default),
+                                                                             Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                                                                 ModifierDescriptor.UntypedStackable, StatType.Wisdom),
+                                                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                             progression: ContextRankProgression.Div2,
+                                                                                                             type: AbilityRankType.Default,
+                                                                                                             classes: getSkaldArray()
+                                                                                                             )
+                                                                             };
+            var ability = Common.convertPerformance(library.Get<BlueprintActivatableAbility>("430ab3bb57f2cfc46b7b3a68afd4f74e"), buff, "SkaldSongOfInspiration");
+            ability.DeactivateIfCombatEnded = !test_mode;
+
+            song_of_inspiration = Helpers.CreateFeature("SkaldSongOfInspirationFeature",
+                                                     buff.Name,
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(ability)
                                                      );
         }
 
@@ -1273,10 +1411,10 @@ namespace CallOfTheWild
                                                           FeatureGroup.None,
                                                           Helpers.CreateAddFact(inspired_rage)
                                                           );
-        }   
+        }
 
 
-        static internal BlueprintBuff createRagingSongEffectBuff(string name, params BlueprintComponent[] components)
+        static internal BlueprintBuff createRagingSongEffectBuffForbidSpellCasting(string name, bool forbid_spellcasting, params BlueprintComponent[] components)
         {
             var raging_song_effect_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", name, "");//standard rage buff
             //in AddFactContextActions in Activated we will need to replace all ContextConditionHasFact with ContextConditionCasterHasFact
@@ -1287,7 +1425,7 @@ namespace CallOfTheWild
             var standard_rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
             replaceContextConditionHasFactToContextConditionCasterHasFact(raging_song_effect_buff, standard_rage_buff, raging_song_effect_buff, "Skald");
 
-            var component =  raging_song_effect_buff.GetComponent<AddFactContextActions>();
+            var component = raging_song_effect_buff.GetComponent<AddFactContextActions>();
             component.NewRound = Helpers.CreateActionList();
 
             var deactivate_actions = component.Deactivated.Actions;
@@ -1307,7 +1445,7 @@ namespace CallOfTheWild
             raging_song_effect_buff.RemoveComponents<ForbidSpellCasting>();
             raging_song_effect_buff.RemoveComponents<NewMechanics.ForbidSpellCastingUnlessHasClass>();
 
-            var forbid_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true), Common.createContextConditionCasterHasFact(master_skald, has:false)},
+            var forbid_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true), Common.createContextConditionCasterHasFact(master_skald, has: false) },
                                                              Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true, false),
                                                              null
                                                             );
@@ -1315,8 +1453,10 @@ namespace CallOfTheWild
                                                  Common.createContextActionApplyBuff(master_skald_buff, Helpers.CreateContextDuration(), false, true, true, false),
                                                  null
                                                 );
-
-            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, forbid_condition);
+            if (forbid_spellcasting)
+            {
+                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, forbid_condition);
+            }
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, master_skald_condition);
 
             var skald_vigor_condition1 = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(skald_vigor_feat, has: true),
@@ -1332,6 +1472,12 @@ namespace CallOfTheWild
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, skald_vigor_condition1);
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, skald_vigor_condition2);
             return raging_song_effect_buff;
+        }
+
+
+        static internal BlueprintBuff createRagingSongEffectBuff(string name, params BlueprintComponent[] components)
+        {
+            return createRagingSongEffectBuffForbidSpellCasting(name, true, components);
         }
 
 

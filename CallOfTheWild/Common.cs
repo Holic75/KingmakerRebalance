@@ -1812,6 +1812,16 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.CrowdACBonus createCrowdACBonus(int min_num_characters_around, ContextValue value, int radius = 2 /* in meters ~ roughly 7 feets*/)
+        {
+            var c = Helpers.Create<NewMechanics.CrowdACBonus>();
+            c.num_characters_around = min_num_characters_around;
+            c.value = value;
+            c.Radius = radius;
+            return c;
+        }
+
+
         static public BlueprintFeature AbilityToFeature(string prefix, BlueprintAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(prefix + ability.name + "Feature",

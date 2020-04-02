@@ -2822,7 +2822,7 @@ namespace CallOfTheWild
                                                   AbilityRange.Close,
                                                   Helpers.roundsPerLevelDuration,
                                                   Helpers.fortNegates,
-                                                  Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(null, apply_buff)),
+                                                  Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff)),
                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                   Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
@@ -4479,7 +4479,7 @@ namespace CallOfTheWild
 
             var weapon = library.CopyAndAdd<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137", "ChillTouchWeapon", "");
             Helpers.SetField(weapon, "m_Type", touch_slam_negative);
-            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("ChillTouchWeaponName", "Chill Tocuh"));
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("ChillTouchWeaponName", "Chill Touch"));
             Helpers.SetField(weapon, "m_Icon", icon);
             Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
 

@@ -129,6 +129,7 @@ namespace CallOfTheWild
         static public BlueprintActivatableAbility quicken_blesing_ability;
         static BlueprintFeature quicken_blessing_feature;
         static Dictionary<string, BlueprintBuff> processed_quicken_ability_guid_buff_map = new Dictionary<string, BlueprintBuff>();
+        static Dictionary<string, BlueprintFeature> quicken_blessing_selections = new Dictionary<string, BlueprintFeature>();
 
 
 
@@ -1272,10 +1273,14 @@ namespace CallOfTheWild
             warpriest_blessings.AllFeatures = warpriest_blessings.AllFeatures.AddToArray(progression);
 
             blessings_map.Add(name_prefix, progression);
+            if (quicken_blessing_selections.ContainsKey(Name))
+            {
+                quicken_blessing_selections[Name].AddComponent(Helpers.PrerequisiteFeature(progression));
+            }
         }
 
 
-        static void addBlessingResourceLogic(BlueprintAbility blessing, int amount = 1, bool quicken = false, BlueprintAbility parent = null)
+        static void addBlessingResourceLogic(string blessing_name, BlueprintAbility blessing, int amount = 1, bool quicken = false, BlueprintAbility parent = null)
         {
             
             blessing.AddComponent(Helpers.CreateResourceLogic(warpriest_blessing_resource, amount: amount, cost_is_custom: true));
@@ -1301,18 +1306,22 @@ namespace CallOfTheWild
                                                           );
                     quicken_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-                    var quicken_feature = Helpers.CreateFeature(base_ability.name + "QuickenFeature",
-                                                                "Quicken Blessing: " + base_ability.Name,
-                                                                quicken_blessing_feature.Description,
-                                                                "",
-                                                                base_ability.Icon,
-                                                                FeatureGroup.Feat,
-                                                                Common.createAddFeatureIfHasFact(quicken_blessing_feature, quicken_blessing_feature, not: true),
-                                                                Helpers.PrerequisiteClassLevel(warpriest_class, 10),
-                                                                Helpers.Create<NewMechanics.PrerequisiteAbility>(p => p.Ability = base_ability)
-                                                                );
-                    quicken_blessing.AllFeatures = quicken_blessing.AllFeatures.AddToArray(quicken_feature);
-                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(quicken_blesing_ability.Buff, quicken_buff, quicken_feature);
+                    if (!quicken_blessing_selections.ContainsKey(blessing_name))
+                    {
+                        var quicken_feature = Helpers.CreateFeature(blessing_name + "QuickenFeature",
+                                                                    "Quicken Blessing: " + blessing_name,
+                                                                    quicken_blessing_feature.Description,
+                                                                    "",
+                                                                    base_ability.Icon,
+                                                                    FeatureGroup.Feat,
+                                                                    Common.createAddFeatureIfHasFact(quicken_blessing_feature, quicken_blessing_feature, not: true),
+                                                                    Helpers.PrerequisiteClassLevel(warpriest_class, 10)
+                                                                    );
+                        quicken_blessing_selections[blessing_name] = quicken_feature;
+                        quicken_blessing.AllFeatures = quicken_blessing.AllFeatures.AddToArray(quicken_feature);
+                    }
+                    
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(quicken_blesing_ability.Buff, quicken_buff, quicken_blessing_selections[blessing_name]);
                     processed_quicken_ability_guid_buff_map.Add(base_ability.AssetGuid, quicken_buff);
                 }
                 
@@ -1361,7 +1370,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly(works_on_self: true);
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Air", minor_ability, quicken: true);
 
             var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
             var wings_demon = library.Get<BlueprintBuff>("3c958be25ab34dc448569331488bee27");
@@ -1405,7 +1414,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Air", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingAir", "Air", minor_ability, major_ability, "6e5f4ff5a7010754ca78708ce1a9b233");
         }
@@ -1434,7 +1443,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Animal", minor_ability, quicken: true);
 
             string[] nature_ally_guids = new string[] {"28ea1b2e0c4a9094da208b4c186f5e4f", "060afb9e13d8a3547ad0dd20c407c0a5",
                                                       "6d8d59aa38713be4fa3be76c19107cc0", "8d3d5b62878d5b24391c1d7834d0d706", "f6751c3b22dbd884093e350a37420368" };
@@ -1463,7 +1472,7 @@ namespace CallOfTheWild
                                       );
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Animal", major_ability, quicken: true);
             addBlessing("WarpriestBlessingAnimal", "Animal", minor_ability, major_ability, "9f05f9da2ea5ae44eac47d407a0000e5");
         }
 
@@ -1508,7 +1517,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Artifice", minor_ability, quicken: true);
 
             var spell_combat = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9");
             var major_feature = Helpers.CreateFeature("WarpriestArtificeBlessingMajorFeature",
@@ -1574,7 +1583,7 @@ namespace CallOfTheWild
                                                           Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = major_feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
                                                           );
                 major_ability.setMiscAbilityParametersSelfOnly();
-                addBlessingResourceLogic(major_ability); //no quicken since it is tied to spell casting time
+                addBlessingResourceLogic("Artifice", major_ability); //no quicken since it is tied to spell casting time
                 major_feature.AddComponent(Helpers.CreateAddFact(major_ability));
             }
 
@@ -1628,7 +1637,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Chaos", minor_ability, quicken: true);
 
             string[] summon_monster_guids = new string[] {"efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
                                                       "2920d48574933c24391fbb9e18f87bf5", "eb6df7ddfc0669d4fb3fc9af4bd34bca", "e96593e67d206ab49ad1b567327d1e75" };
@@ -1657,7 +1666,7 @@ namespace CallOfTheWild
                                       );
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Chaos", major_ability, quicken: true);
             addBlessing("WarpriestBlessingChaos", "Chaos", minor_ability, major_ability, "8c7d778bc39fec642befc1435b00f613");
         }
 
@@ -1687,7 +1696,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(apply_minor_buff),
                                                       Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom));
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Charm", minor_ability, quicken: true);
 
 
             var swift_command = library.CopyAndAdd<BlueprintAbility>(NewSpells.command.AssetGuid, "WarpriestCharmDomainCommandAbility", "");
@@ -1727,7 +1736,7 @@ namespace CallOfTheWild
                                                       "",
                                                       Helpers.CreateRunActions(apply_major_buff));
             major_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Charm", major_ability, quicken: true);
             addBlessing("WarpriestBlessingCharm", "Charm", minor_ability, major_ability, "f1ceba79ee123cc479cece27bc994ff2");
         }
 
@@ -1823,14 +1832,14 @@ namespace CallOfTheWild
                                                       Helpers.willNegates,
                                                       Helpers.CreateRunActions(apply_minor_buff));
             minor_ability.setMiscAbilityParametersTouchFriendly(works_on_self: false);
-            addBlessingResourceLogic(minor_ability, quicken: true, parent: minor_ability_base);
+            addBlessingResourceLogic("Community", minor_ability, quicken: true, parent: minor_ability_base);
 
             var minor_ability2 = library.CopyAndAdd<BlueprintAbility>(minor_ability.AssetGuid, "WarpriestCommunityMinorBlessingSelfAbility", "");
             minor_ability2.CanTargetFriends = false;
             minor_ability2.CanTargetSelf = true;
             minor_ability2.ActionType = CommandType.Swift;
             minor_ability2.SetName(minor_buff.Name + " (Self)");
-            addBlessingResourceLogic(minor_ability2, quicken: true, parent: minor_ability_base);
+            addBlessingResourceLogic("Community", minor_ability2, quicken: true, parent: minor_ability_base);
             minor_ability_base.AddComponent(Helpers.CreateAbilityVariants(minor_ability_base, minor_ability, minor_ability2));
 
             var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
@@ -1917,7 +1926,7 @@ namespace CallOfTheWild
                                                       true_strike.GetComponent<AbilitySpawnFx>()
                                                       );
             major_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Community", major_ability, quicken: true);
 
 
             addBlessing("WarpriestBlessingCommunity", "Community",
@@ -1951,7 +1960,7 @@ namespace CallOfTheWild
                                                       "",
                                                       Helpers.CreateRunActions(apply_minor_buff));
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Darkness", minor_ability, quicken: true);
 
 
             var blindness_buff = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
@@ -1974,7 +1983,7 @@ namespace CallOfTheWild
                                                       Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
                                                       );
             major_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Darkness", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingDarkness", "Darkness", minor_ability, major_ability, "6d8e7accdd882e949a63021af5cde4b8");
         }
@@ -2010,7 +2019,7 @@ namespace CallOfTheWild
                                                       false_life.GetComponent<AbilitySpawnFx>());
 
             minor_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Death", minor_ability, quicken: true);
 
 
             var undead = library.Get<BlueprintUnitFact>("734a29b693e9ec346ba2951b27987e33");
@@ -2053,7 +2062,7 @@ namespace CallOfTheWild
                                                             );
 
             major_ability_touch.setMiscAbilityParametersTouchHarmful(works_on_allies: true);
-            addBlessingResourceLogic(major_ability_touch, quicken: true);
+            addBlessingResourceLogic("Death", major_ability_touch, quicken: true);
 
             var on_hit_action = Helpers.CreateActionList(effect_action,
                                                          projectile_action);
@@ -2128,7 +2137,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Destruction", minor_ability, quicken: true);
 
             var defensive_stance_buff = library.Get<BlueprintBuff>("3dccdf27a8209af478ac71cded18a271");
             var major_buff = Helpers.CreateBuff("WarpriestDestructionMajorBlessingBuff",
@@ -2156,7 +2165,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Destruction", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingDestruction", "Destruction", minor_ability, major_ability, "6832681c9a91bf946a1d9da28c5be4b4");
         }
@@ -2204,7 +2213,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Earth", minor_ability, quicken: true);
 
             var stoneskin_buff = library.Get<BlueprintBuff>("7aeaf147211349b40bb55c57fec8e28d");
             var major_buff = Helpers.CreateBuff("WarpriestEarthMajorBlessingBuff",
@@ -2233,7 +2242,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Earth", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingEarth", "Earth", minor_ability, major_ability, "5ca99a6ae118feb449dbbd165a8fe7c4");
         }
@@ -2281,7 +2290,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Evil", minor_ability, quicken: true);
 
             string[] summon_monster_guids = new string[] {"efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
                                                       "2920d48574933c24391fbb9e18f87bf5", "eb6df7ddfc0669d4fb3fc9af4bd34bca", "e96593e67d206ab49ad1b567327d1e75" };
@@ -2310,7 +2319,7 @@ namespace CallOfTheWild
                                       );
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Evil", major_ability, quicken: true);
             addBlessing("WarpriestBlessingEvil", "Evil", minor_ability, major_ability, "351235ac5fc2b7e47801f63d117b656c");
         }
 
@@ -2356,7 +2365,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Fire", minor_ability, quicken: true);
 
             var warm_shield = NewSpells.fire_shield_variants[DamageEnergyType.Fire];
             var major_buff = library.CopyAndAdd<BlueprintBuff>(NewSpells.fire_shield_buffs[DamageEnergyType.Fire], "WarpriestFireMajorBlessingBuff", "");
@@ -2384,7 +2393,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Fire", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingFire", "Fire", minor_ability, major_ability, "8d4e9731082008640b28417f577f5f31");
         }
@@ -2407,7 +2416,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(apply_minor_buff),
                                                       Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom));
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Glory", minor_ability, quicken: true);
 
             var heroism = library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63");
             var cornugon_smash = library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14");
@@ -2505,7 +2514,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Good", minor_ability, quicken: true);
 
             string[] summon_monster_guids = new string[] {"efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
                                                       "2920d48574933c24391fbb9e18f87bf5", "eb6df7ddfc0669d4fb3fc9af4bd34bca", "e96593e67d206ab49ad1b567327d1e75" };
@@ -2534,7 +2543,7 @@ namespace CallOfTheWild
                                       );
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Good", major_ability, quicken: true);
             addBlessing("WarpriestBlessingGood", "Good", minor_ability, major_ability, "882521af8012fc749930b03dc18a69de");
         }
 
@@ -2601,7 +2610,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(apply_major_buff),
                                                       touch_of_good.GetComponent<AbilitySpawnFx>());
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Healing", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingHealing", "Healing",
                         Common.ActivatableAbilityToFeature(minor_activatable_ability, false),
@@ -2656,7 +2665,7 @@ namespace CallOfTheWild
                                                             aid.GetComponent<AbilitySpawnFx>()
                                                            );
             minor_ability.setMiscAbilityParametersTouchHarmful();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Knowledge", minor_ability, quicken: true);
             var major_target_buff = Helpers.CreateBuff("WarpriestKnowledgBlessingeMajorTargetBuff",
                                                 "Monster Lore",
                                                 "At 10th level, you can as a swift action gain a +2 insight bonus on attacks, saving throws, as well as to your AC against the creature that was previously successfully inspected by you or your allies. This effect lasts for 1 minute.",
@@ -2700,7 +2709,7 @@ namespace CallOfTheWild
                                                       Helpers.Create<NewMechanics.MonsterLore.AbilityTargetInspected>()
                                                       );
             major_ability.setMiscAbilityParametersTouchHarmful();
-            addBlessingResourceLogic(major_ability);
+            addBlessingResourceLogic("Knowledge", major_ability);
             addBlessing("WarpriestBlessingKnowledge", "Knowledge", minor_ability, major_ability, "443d44b3e0ea84046a9bf304c82a0425");
         }
 
@@ -2748,7 +2757,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Law", minor_ability, quicken: true);
 
             string[] summon_monster_guids = new string[] {"efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
                                                       "2920d48574933c24391fbb9e18f87bf5", "eb6df7ddfc0669d4fb3fc9af4bd34bca", "e96593e67d206ab49ad1b567327d1e75" };
@@ -2777,7 +2786,7 @@ namespace CallOfTheWild
                                       );
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Law", major_ability, quicken: true);
             addBlessing("WarpriestBlessingLaw", "Law", minor_ability, major_ability, "092714336606cfc45a37d2ab39fabfa8");
         }
 
@@ -2849,13 +2858,13 @@ namespace CallOfTheWild
             minor_ability.RemoveComponents<AbilityResourceLogic>();
             minor_ability.SetName("Lucky Presence");
             minor_ability.SetDescription("You can touch a willing creature as a standard action, giving it a bit of luck. For the next round, any time the target rolls a d20, he may roll twice and take the more favorable result.");
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Luck", minor_ability, quicken: true);
 
             var major_ability = library.CopyAndAdd<BlueprintAbility>("0e0668a703fbfcf499d9aa9d918b71ea", "WarpriestLuckBlessingMajorAbility", ""); //divine fortune
             major_ability.SetDescription("At 10th level, you can call on your deity to give you unnatural luck. This ability functions like Lucky Presence, but it affects you and lasts for a number of rounds equal to 1/2 your warpriest level.");
             major_ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
             major_ability.RemoveComponents<AbilityResourceLogic>();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Luck", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingLuck", "Luck", minor_ability, major_ability, "d4e192475bb1a1045859c7664addd461");
         }
@@ -2890,7 +2899,7 @@ namespace CallOfTheWild
                                                                                             )
                                                      );
             minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
-            addBlessingResourceLogic(minor_ability);
+            addBlessingResourceLogic("Madness", minor_ability);
             ConfusionState[] confusion_states = { ConfusionState.AttackNearest, ConfusionState.SelfHarm, ConfusionState.ActNormally, ConfusionState.DoNothing };
             string[] names = new string[] { "Attack Nearest", "Attack Self", "Act Normally", "Do Nothing" };
 
@@ -2970,7 +2979,7 @@ namespace CallOfTheWild
             minor_ability.SetDescription("At 1st level, you can cause your melee weapon to fly from your grasp and strike an opponent, then instantly return to you. You can make a single attack using a melee weapon at a range of 30 feet. This attack is treated as a ranged attack with a thrown weapon, except that you add your Wisdom modifier to the attack roll instead of your Dexterity modifier (you still add your Strength modifier to the damage roll as normal). This ability cannot be used to perform a combat maneuver.");
 
             minor_ability.RemoveComponents<AbilityResourceLogic>();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Magic", minor_ability, quicken: true);
 
             BlueprintFeature[] blessed_magic_features = new BlueprintFeature[3];
             string name = "Blessed Magic";
@@ -2983,7 +2992,7 @@ namespace CallOfTheWild
                 ability.SetDescription(description);
                 ability.RemoveComponents<AbilityResourceLogic>();
                 ability.ReplaceComponent<AbilityRestoreSpellSlot>(a => { a.AnySpellLevel = false; a.SpellLevel = i + 1; });
-                addBlessingResourceLogic(ability);
+                addBlessingResourceLogic("Magic", ability);
                 var add_ability = Common.AbilityToFeature(ability);
 
                 var feature = Helpers.CreateFeature($"WarpriestMagicBlessingMajor{i + 1}Feature",
@@ -3032,7 +3041,7 @@ namespace CallOfTheWild
                                                       heroism.GetComponent<AbilitySpawnFx>()
                                                       );
             minor_ability.setMiscAbilityParametersSingleTargetRangedFriendly(works_on_self: true);
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Nobility", minor_ability, quicken: true);
 
             var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
 
@@ -3090,7 +3099,7 @@ namespace CallOfTheWild
                                                       true_strike.GetComponent<AbilitySpawnFx>()
                                                       );
             major_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Nobility", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingNobility", "Nobility", minor_ability, major_ability, "e0471d01e73254a4ca23278705b75e57");
         }
@@ -3159,7 +3168,7 @@ namespace CallOfTheWild
                                       );
             major_ability.LocalizedDuration = Helpers.oneMinuteDuration;
             major_ability.Parent = null;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Plant", major_ability, quicken: true);
             addBlessing("WarpriestBlessingPalnt", "Plant", Common.ActivatableAbilityToFeature(minor_activatable_ability, false),
                                                             Common.AbilityToFeature(major_ability, false), "0e03c2a03222b0b42acf96096b286327");
         }
@@ -3198,7 +3207,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(apply_minor_buff)
                                                       );
             minor_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Protection", minor_ability, quicken: true);
 
             var protection_from_energy_communal = library.Get<BlueprintAbility>("76a629d019275b94184a1a8733cac45e");
             var protection_from_electricity_communal = library.Get<BlueprintAbility>("f10cd112b876a6f449d52dee0a57e602");
@@ -3237,7 +3246,7 @@ namespace CallOfTheWild
 
             major_ability.setMiscAbilityParametersSelfOnly();
             major_ability.CanTargetFriends = true;
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Protection", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingProtection", "Protection", minor_ability, major_ability, "d4ce7592bd12d63439907ad64e986e59");
         }
@@ -3278,7 +3287,7 @@ namespace CallOfTheWild
                                                       );
             minor_ability.setMiscAbilityParametersTouchHarmful();
             minor_ability.SpellResistance = false;
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Repose", minor_ability, quicken: true);
 
 
             var major_ability = library.CopyAndAdd<BlueprintAbility>(harm_undead.AssetGuid, "WarpriestReposeBlessingMajorAbility", "");
@@ -3287,7 +3296,7 @@ namespace CallOfTheWild
             major_ability.ActionType = CommandType.Swift;
             major_ability.SetName("Back to the Grave");
             major_ability.SetDescription("At 10th level, when using channel energy to heal living creatures, you can take a swift action on that same turn to also deal damage to undead creatures (as your channel energy ability). Undead take an amount of damage equal to half the amount healed, and can attempt the normal saving throw to halve this damage.");
-            addBlessingResourceLogic(major_ability);
+            addBlessingResourceLogic("Repose", major_ability);
 
             var major_ability_base = Common.createVariantWrapper("WarpriestReposeBlessingMajorBaseAbility", "", major_ability);
 
@@ -3363,7 +3372,7 @@ namespace CallOfTheWild
                     rune.ReplaceComponent(c, new_c);
                 }
                 
-                addBlessingResourceLogic(rune, quicken: true, parent: minor_ability);
+                addBlessingResourceLogic("Rune", rune, quicken: true, parent: minor_ability);
                 rune.SetDescription(description);
                 runes[i] = rune;
             }
@@ -3396,7 +3405,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(apply_minor_buff)
                                                       );
             minor_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(minor_ability);
+            addBlessingResourceLogic("Strength", minor_ability);
 
             var greater_strength_feature = library.Get<BlueprintFeature>("3298fd30e221ef74189a06acbf376d29");
             var bull_strength = library.Get<BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d");
@@ -3432,7 +3441,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(major_ability);
+            addBlessingResourceLogic("Strength", major_ability);
 
             addBlessing("WarpriestBlessingStrength", "Strength", minor_ability, major_ability, "58d2867520de17247ac6988a31f9e397");
         }
@@ -3467,7 +3476,7 @@ namespace CallOfTheWild
                                                       Common.createContextCalculateAbilityParamsBasedOnClass(warpriest_class, StatType.Wisdom)
                                                       );
 
-            addBlessingResourceLogic(minor_ability);
+            addBlessingResourceLogic("Sun", minor_ability);
             minor_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             minor_ability.SpellResistance = false;
 
@@ -3524,7 +3533,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateRunActions(apply_buff),
                                                    weapon_bond.GetComponent<AbilitySpawnFx>()
                                                    );
-                addBlessingResourceLogic(ability, el.Length, quicken: true, parent: major_ability);
+                addBlessingResourceLogic("Sun", ability, el.Length, quicken: true, parent: major_ability);
                 ability.setMiscAbilityParametersTouchFriendly();
                 major_abilities.Add(ability);
             }
@@ -3551,7 +3560,7 @@ namespace CallOfTheWild
             minor_ability.RemoveComponents<AbilityResourceLogic>();
             minor_ability.Type = AbilityType.Supernatural;
             minor_ability.ActionType = CommandType.Swift;
-            addBlessingResourceLogic(minor_ability);
+            addBlessingResourceLogic("Travel", minor_ability);
 
             var name = "Dimensional Hop";
             var description = "At 10th level, you can teleport up to 25 feet as a move action. You can increase this distance by expending another use of your blessing—each use spent grants an additional 20 feet. You must have line of sight to your destination. This teleportation doesn’t provoke attacks of opportunity. You can bring other willing creatures with you, but each such creature requires expending one additional use of your blessing.";
@@ -3564,7 +3573,7 @@ namespace CallOfTheWild
             major_ability_self.Type = AbilityType.Supernatural;
             major_ability_self.ActionType = CommandType.Move;
             major_ability_self.Range = AbilityRange.Close;
-            addBlessingResourceLogic(major_ability_self, 1);
+            addBlessingResourceLogic("Travel", major_ability_self, 1);
 
 
             var major_ability_mass = library.CopyAndAdd<BlueprintAbility>("5bdc37e4acfa209408334326076a43bc", "WarpriestTravelBlessingMajor2Ability", "");
@@ -3575,7 +3584,7 @@ namespace CallOfTheWild
             major_ability_mass.Type = AbilityType.Supernatural;
             major_ability_mass.ActionType = CommandType.Move;
             major_ability_mass.Range = AbilityRange.Close;
-            addBlessingResourceLogic(major_ability_mass, 2);
+            addBlessingResourceLogic("Travel", major_ability_mass, 2);
 
 
             addBlessing("WarpriestBlessingTraverl", "Travel",
@@ -3601,7 +3610,7 @@ namespace CallOfTheWild
             minor_ability.Type = AbilityType.Supernatural;
             minor_ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
 
-            addBlessingResourceLogic(minor_ability);
+            addBlessingResourceLogic("Trickery", minor_ability);
 
             var major_buff = library.CopyAndAdd<BlueprintBuff>("e6b35473a237a6045969253beb09777c", "WarpriestTrickeryBlessingMajorBuff", "");
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
@@ -3688,7 +3697,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateRunActions(apply_buff)
                                                     );
                 ability.setMiscAbilityParametersTouchFriendly();
-                addBlessingResourceLogic(ability, quicken: true, parent: minor_ability);
+                addBlessingResourceLogic("War", ability, quicken: true, parent: minor_ability);
                 minor_buffs.Add(buff);
 
                 minor_variants.Add(ability);
@@ -3752,7 +3761,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("War", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingWar", "War", minor_ability, major_ability, "3795653d6d3b291418164b27be88cb43");
         }
@@ -3800,7 +3809,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Water", minor_ability, quicken: true);
 
             var chill_shield = NewSpells.fire_shield_variants[DamageEnergyType.Cold];
             var major_buff = library.CopyAndAdd<BlueprintBuff>(NewSpells.fire_shield_buffs[DamageEnergyType.Cold], "WarpriestWaterMajorBlessingBuff", "");
@@ -3828,7 +3837,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Water", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingWater", "Water", minor_ability, major_ability, "8f49469c40e2c6e4db61296558e08966");
         }
@@ -3876,7 +3885,7 @@ namespace CallOfTheWild
                                                       );
 
             minor_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic(minor_ability, quicken: true);
+            addBlessingResourceLogic("Weather", minor_ability, quicken: true);
 
             var blur_buff = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
 
@@ -3903,7 +3912,7 @@ namespace CallOfTheWild
                                                       );
 
             major_ability.setMiscAbilityParametersSelfOnly();
-            addBlessingResourceLogic(major_ability, quicken: true);
+            addBlessingResourceLogic("Weather", major_ability, quicken: true);
 
             addBlessing("WarpriestBlessingWeather", "Weather", minor_ability, major_ability, "9dfdfd4904e98fa48b80c8f63ec2cf11");
         }

@@ -760,6 +760,38 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class CrowdACBonus : RuleTargetLogicComponent<RuleCalculateAC>
+        {
+            public int num_characters_around;
+            public int Radius;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                int num = 0;
+                foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Owner.Unit.Position, (float)this.Radius, true, false))
+                {
+                    if (unitEntityData != this.Owner.Unit)
+                    {
+                        num++;
+                    }
+                }
+                if (num < num_characters_around)
+                {
+                    return;
+                }
+                var ac_bonus = value.Calculate(this.Fact.MaybeContext);
+                evt.AddBonus(ac_bonus, this.Fact);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAC evt)
+            {
+            }
+        }
+
+
         [ComponentName("Increase context spells DC by descriptor")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextIncreaseDescriptorSpellsDC : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
