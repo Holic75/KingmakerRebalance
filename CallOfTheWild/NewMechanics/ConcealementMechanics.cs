@@ -188,12 +188,11 @@ namespace CallOfTheWild.ConcealementMechanics
                 a = Concealment.Total;
 
             var ignore_fog_concealement_part = initiator.Get<UnitPartIgnoreFogConcealement>();
-            List<UnitPartConcealment.ConcealmentEntry> m_Concealments = Harmony12.Traverse.Create(unitPartConcealment2).Field("m_Concealements").GetValue<List<UnitPartConcealment.ConcealmentEntry>>();
+            List<UnitPartConcealment.ConcealmentEntry> m_Concealments = Harmony12.Traverse.Create(unitPartConcealment2).Field("m_Concealments").GetValue<List<UnitPartConcealment.ConcealmentEntry>>();
             if (a < Concealment.Total && m_Concealments != null)
             {
                 foreach (UnitPartConcealment.ConcealmentEntry concealment in m_Concealments)
                 {
-                    
                     if (concealment.Descriptor == ConcealmentDescriptor.Fog && ignore_fog_concealement_part != null && ignore_fog_concealement_part.active())
                     {
                         continue;
