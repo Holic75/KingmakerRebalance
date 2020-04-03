@@ -59,6 +59,7 @@ namespace CallOfTheWild
                                                                Skald.controlled_rage_dex_buff,
                                                                Skald.controlled_rage_con_buff,
                                                                Skald.insightful_contemplation_buff};
+            rage_buffs = rage_buffs.AddToArray(Bloodrager.urban_bloodrage_buffs);
             //to ensure coexistance of different rages we need to do the following:
             //on every condition on activated add check that target has no buff to avoid replacing existing buffs,
             //then we need to add all activated conditional actions to new round (to reapply buffs if they dissapear)
@@ -89,12 +90,8 @@ namespace CallOfTheWild
                     conditional_action.ConditionsChecker.Conditions = conditional_action.ConditionsChecker.Conditions.AddToArray(Common.createContextConditionHasFact(applied_buff, false));
                     conditional_action.ConditionsChecker.Operation = Operation.And;
                     actions_for_new_round.Add(action);
-
-
                 }
                 new_round_actions.Actions = actions_for_new_round.ToArray().AddToArray(new_round_actions.Actions);
-
-                ;
 
                 var deactivated_actions = context_actions.Deactivated;
 

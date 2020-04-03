@@ -2123,6 +2123,33 @@ namespace CallOfTheWild
         }
 
 
+
+        [AllowMultipleComponents]
+        [ComponentName("Saving throw bonus against fact from caster")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SavingThrowBonusAgainstCaster : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public ModifierDescriptor Descriptor;
+            public ContextValue Value;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                if (evt.Reason.Caster != this.Fact.MaybeContext?.MaybeCaster)
+                {
+                    return;
+                }
+                int bonus = Value.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
+
+
         [AllowMultipleComponents]
         [ComponentName("Saving throw bonus against fact from caster")]
         [AllowedOn(typeof(BlueprintUnitFact))]

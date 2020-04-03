@@ -2566,6 +2566,10 @@ namespace CallOfTheWild
             });
             progressionRoot.CharacterClasses = classes.ToArray();
             Helpers.classes.Add(class_to_register);
+
+            //fix spell specialization
+            var spell_specialization_progression = Main.library.Get<BlueprintProgression>("fe9220cdc16e5f444a84d85d5fa8e3d5");
+            spell_specialization_progression.Classes = spell_specialization_progression.Classes.AddToArray(class_to_register);
         }
 
         internal static Condition CreateConditionHasFact(object undeadType)

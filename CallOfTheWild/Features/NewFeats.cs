@@ -1899,7 +1899,8 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(ability),
                                                       Helpers.PrerequisiteStatValue(StatType.Strength, 13),
                                                       Helpers.PrerequisiteFeature(power_attack_feature),
-                                                      Helpers.PrerequisiteFeature(rage_feature),
+                                                      Helpers.PrerequisiteFeature(rage_feature, any: true),
+                                                      Helpers.PrerequisiteFeature(Bloodrager.urban_bloodrage, any: true),
                                                       Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 12)
                                                       );
             library.AddFeats(raging_brutality);
@@ -1934,10 +1935,13 @@ namespace CallOfTheWild
 
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(arcane_strike_buff, vital_strike_buff, blooded_arcane_strike);
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(Bloodrager.bloodrage_buff, arcane_strike_buff, blooded_arcane_strike);
+            foreach (var b in Bloodrager.urban_bloodrage_buffs)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(b, arcane_strike_buff, blooded_arcane_strike);
+            }
 
-            //library.AddFeats(blooded_arcane_strike);
-            library.AddCombatFeats(blooded_arcane_strike);
             blooded_arcane_strike.Groups = blooded_arcane_strike.Groups.AddToArray(FeatureGroup.Feat);
+            library.AddCombatFeats(blooded_arcane_strike);           
         }
 
 

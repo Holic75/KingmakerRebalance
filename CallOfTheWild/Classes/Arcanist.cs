@@ -432,7 +432,7 @@ namespace CallOfTheWild
 
             unlettered_arcanist_spontaneous_spellbook = library.CopyAndAdd<BlueprintSpellbook>(arcanist_spellbook.AssetGuid, "UnletteredArcanistSpontnaeousSpellbook", "");
             unlettered_arcanist_spontaneous_spellbook.Name = Helpers.CreateString("UnletteredArcanistSpontnaeousSpellbook.Name", "Unlettered Arcanist (Spontaneous)");
-            unlettered_arcanist_spontaneous_spellbook.SpellList = unlettered_arcanist_prepared_spellbook.SpellList;
+            //unlettered_arcanist_spontaneous_spellbook.SpellList = unlettered_arcanist_prepared_spellbook.SpellList;
 
             unlettered_arcanist_prepared_spellbook.ReplaceComponent<SpellbookMechanics.CompanionSpellbook>(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = unlettered_arcanist_spontaneous_spellbook));
             unlettered_arcanist_spontaneous_spellbook.ReplaceComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(Helpers.Create<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(c => c.spellbook = unlettered_arcanist_prepared_spellbook));
@@ -1796,7 +1796,7 @@ namespace CallOfTheWild
                                                                        Common.createSpellsLevelEntry(0, 4, 4, 4, 4, 4, 4, 4, 4, 4) //20
                                                                        );
 
-            arcanist_spellbook.SpellList = wizard_class.Spellbook.SpellList;
+            arcanist_spellbook.SpellList = Common.createSpellList("ArcanistSponaneousSpellList", "");//wizard_class.Spellbook.SpellList;
             memorization_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = arcanist_spellbook));
             arcanist_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(c => c.spellbook = memorization_spellbook));
 

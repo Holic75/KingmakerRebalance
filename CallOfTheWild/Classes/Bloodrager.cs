@@ -36,6 +36,9 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
+using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Buffs.Components;
 
 namespace CallOfTheWild
 {
@@ -48,6 +51,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection bloodline_selection;
 
         static public BlueprintFeature bloodrage;
+        static public BlueprintActivatableAbility bloodrage_ability;
         static public BlueprintFeature greater_bloodrage;
         static public BlueprintFeature mighty_bloodrage;
         static public BlueprintFeature tireless_bloodrage;
@@ -61,7 +65,6 @@ namespace CallOfTheWild
         static public BlueprintFeature bloodrager_proficiencies;
         static public BlueprintFeature blood_sanctuary;
 
-
         static public BlueprintArchetype metamagic_rager_archetype;
         static public BlueprintArchetype steelblood_archetype;
         static public BlueprintArchetype spelleater_archetype;
@@ -74,8 +77,16 @@ namespace CallOfTheWild
         static public BlueprintFeature blood_deflection_bonus;
         static public BlueprintFeatureSelection bloodline_feat_selection;
 
+        static public BlueprintArchetype urban_bloodrager;
+        static public BlueprintFeature urban_bloodrage;
+        static public BlueprintBuff[] urban_bloodrage_buffs = new BlueprintBuff[3];
+        static public BlueprintFeature restrained_magic;
+        static public BlueprintFeature urban_bloodrager_proficiencies;
+
         static public ActivatableAbilityGroup metarage_group = ActivatableAbilityGroupExtension.MetaRage.ToActivatableAbilityGroup();
         static public BlueprintFeature blood_casting;
+        
+        static public BlueprintFeatureSelection adopted_magic;
 
         public class BloodlineInfo
         {
@@ -133,7 +144,8 @@ namespace CallOfTheWild
             createMetarager();
             createSpellEater();
             createSteelblood();
-            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype }; //steelblood, spell eater, metamagic rager
+            createUrbanBloodrager();
+            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype, urban_bloodrager }; //steelblood, spell eater, metamagic rager
             Helpers.RegisterClass(bloodrager_class);
             createRageCastingFeat();
             addToPrestigeClasses();
@@ -354,6 +366,10 @@ namespace CallOfTheWild
 
         static void createBloodrage()
         {
+            var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
+            rage_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
+
+            
             //we are going to use barbarian rage as a bloodrage, at least for the time being
             bloodrage = library.Get<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647");//barbarian rage feature
             greater_bloodrage = library.Get<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982");
@@ -367,6 +383,7 @@ namespace CallOfTheWild
             Helpers.SetField(amount, "Class", classes);
             Helpers.SetField(rage_resource, "m_MaxAmount", amount);
 
+            bloodrage_ability = rage_ability;
             //allow to cast spells while in rage
             //It is possible to make a separate rage buff for bloodrager, different from standard rage,
             //but it is apparently impossible to allow casting only bloodrager spells while under the effect of such buff
@@ -3234,15 +3251,182 @@ namespace CallOfTheWild
 
         static void addBloodrageRestriction(BlueprintAbility ability)
         {
-            ability.AddComponent(Common.createAbilityCasterHasFacts(bloodrage_buff));
+            ability.AddComponent(Common.createAbilityCasterHasFacts(NewRagePowers.rage_marker_caster));
         }
 
 
         static void addBloodrageRestriction(BlueprintActivatableAbility ability)
         {
-            ability.AddComponent(Common.createActivatableAbilityRestrictionHasFact(bloodrage_buff));
+            ability.AddComponent(Common.createActivatableAbilityRestrictionHasFact(NewRagePowers.rage_marker_caster));
+        }
+
+
+        static void createUrbanBloodrager()
+        {
+            urban_bloodrager = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "UrbanBloodragerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Urban Bloodrager");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The urban bloodrager has learned to control her rage in so-called polite society. Though she lacks the untamed resilience of her wilder fellows, she’s an expert at keeping her rage from causing collateral damage in crowds.");
+            });
+            Helpers.SetField(urban_bloodrager, "m_ParentClass", bloodrager_class);
+            library.AddAsset(urban_bloodrager, "");
+            urban_bloodrager.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, bloodrage, bloodrager_proficiencies),
+                                                                Helpers.LevelEntry(3, blood_sanctuary),
+                                                                Helpers.LevelEntry(7, damage_reduction),
+                                                                Helpers.LevelEntry(10, damage_reduction),
+                                                                Helpers.LevelEntry(13, damage_reduction),
+                                                                Helpers.LevelEntry(16, damage_reduction),
+                                                                Helpers.LevelEntry(19, damage_reduction)
+                                                               };
+            createUrbanBloodragerProficiencies();
+            createUrbanBloodrage();
+            createRestrainedMagic();
+            createAdoptedMagic();
+
+            urban_bloodrager.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, urban_bloodrage, urban_bloodrager_proficiencies),
+                                                                  Helpers.LevelEntry(3, restrained_magic),
+                                                                  Helpers.LevelEntry(7, adopted_magic),
+                                                                  Helpers.LevelEntry(10, adopted_magic),
+                                                                  Helpers.LevelEntry(13, adopted_magic),
+                                                                  Helpers.LevelEntry(16, adopted_magic),
+                                                                  Helpers.LevelEntry(19, adopted_magic)
+                                                            };
+
+            urban_bloodrager.ReplaceClassSkills = true;
+            urban_bloodrager.ClassSkills = bloodrager_class.ClassSkills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillMobility, StatType.SkillPerception, StatType.SkillAthletics,
+                                                      StatType.SkillPersuasion};
+
+            bloodrager_progression.UIGroups[0].Features.Add(urban_bloodrage);
+            bloodrager_progression.UIGroups[1].Features.Add(restrained_magic);
+            bloodrager_progression.UIDeterminatorsGroup = bloodrager_progression.UIDeterminatorsGroup.AddToArray(urban_bloodrager_proficiencies);
+            bloodrager_progression.UIGroups = bloodrager_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(adopted_magic, adopted_magic, adopted_magic, adopted_magic, adopted_magic));
+        }
+
+
+        static void createUrbanBloodragerProficiencies()
+        {
+            urban_bloodrager_proficiencies = library.CopyAndAdd(bloodrager_proficiencies, "UrbanBloodragerProficiencies", "");
+            urban_bloodrager_proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = a.Facts.Take(a.Facts.Length - 1).ToArray());
+            urban_bloodrager_proficiencies.ReplaceComponent<ArcaneArmorProficiency>(Common.createArcaneArmorProficiency(
+                                                                                                                        Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Light,
+                                                                                                                        Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Medium
+                                                                                                                        )
+                                                                                   );
+
+            urban_bloodrager_proficiencies.SetNameDescriptionIcon("Urban Bloodrager Proficiencies",
+                                                                  "An urban bloodrager isn’t proficient with shields.",
+                                                                  Helpers.GetIcon("8c971173613282844888dc20d572cfc9")
+                                                                  );
+        }
+
+
+        static void createUrbanBloodrage()
+        {
+            urban_bloodrage = Helpers.CreateFeature("UrbanBloodragerControlledBloodrageFeature",
+                                                    "Controlled Bloodrage",
+                                                    "When an urban bloodrager rages, she does not gain the normal benefits.Instead, she can apply a + 4 morale bonus to her Constitution, Dexterity, or Strength.This bonus increases to + 6 when she gains greater bloodrage and to + 8 when she gains mighty bloodrage.When using a controlled bloodrage, an urban bloodrager gains no bonus on Will saves, takes no penalties to AC, and can still use Charisma -, Dexterity -, and Intelligence-based skills. A controlled bloodrage still counts as a bloodrage for the purposes of any spells, feats, and other effects.",
+                                                    "",
+                                                    Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e"),
+                                                    FeatureGroup.None,
+                                                    Helpers.CreateAddFact(library.Get<BlueprintUnitFact>("4b1f3dd0f61946249a654941fc417a89"))
+                                                    );
+
+
+
+            var stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution };
+            var icons = new UnityEngine.Sprite[]
+            {
+                Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e"),
+                Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a"),
+                Helpers.GetIcon("99cf556b967c2074ca284e127d815711"),
+            };
+            
+            for (int i = 0; i < stats.Length; i++)
+            {
+                urban_bloodrage_buffs[i] = library.CopyAndAdd(bloodrage_buff, "UrbanBloodragerControlledRage" + stats[i].ToString() + "Buff", "");
+                urban_bloodrage_buffs[i].SetNameDescriptionIcon("Controlled Bloodrage: " + stats[i].ToString(),
+                                                                urban_bloodrage.Description,
+                                                                icons[i]
+                                                                );
+
+                urban_bloodrage_buffs[i].RemoveComponents<AttackTypeAttackBonus>();
+                urban_bloodrage_buffs[i].RemoveComponents<WeaponGroupDamageBonus>();
+                urban_bloodrage_buffs[i].RemoveComponents<WeaponAttackTypeDamageBonus>();
+                urban_bloodrage_buffs[i].RemoveComponents<SpellDescriptorComponent>();
+                urban_bloodrage_buffs[i].RemoveComponents<AddContextStatBonus>();
+                urban_bloodrage_buffs[i].RemoveComponents<TemporaryHitPointsPerLevel>();
+                urban_bloodrage_buffs[i].AddComponent(Helpers.CreateAddContextStatBonus(stats[i], ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2));
+
+                var activatable_ability = library.CopyAndAdd(bloodrage_ability, "UrbanBloodragerControlledRage" + stats[i].ToString() + "Ability", "");
+                activatable_ability.Buff = urban_bloodrage_buffs[i];
+                activatable_ability.SetNameDescriptionIcon(urban_bloodrage_buffs[i]);
+                urban_bloodrage.GetComponent<AddFacts>().Facts = urban_bloodrage.GetComponent<AddFacts>().Facts.AddToArray(activatable_ability);
+            }
+
+
+            var extra_rage = library.Get<BlueprintFeature>("1a54bbbafab728348a015cf9ffcf50a7");
+            extra_rage.ReplaceComponent<PrerequisiteFeature>(a => a.Group = Prerequisite.GroupType.Any);
+            extra_rage.AddComponent(Helpers.PrerequisiteFeature(urban_bloodrage, any: true));
+        }
+
+
+        static void createRestrainedMagic()
+        {
+            var buff = Helpers.CreateBuff("UrbanBloodragerRestrainedMagicBuff",
+                                          "Restrained Magic",
+                                          "At 3rd level, an urban bloodrager can attune her spells so they are less likely to impact her allies or innocent bystanders. When the bloodrager casts a spell, she can grant a +2 bonus on the saving throw against that spell to any creatures she is aware of that are targeted by the spell or within the spell’s area.",
+                                          "",
+                                          Helpers.GetIcon("76a629d019275b94184a1a8733cac45e"),
+                                          null,
+                                          Helpers.Create<NewMechanics.SavingThrowBonusAgainstCaster>(s => { s.Value = 2; s.Descriptor = ModifierDescriptor.UntypedStackable; })
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            restrained_magic = Common.createAuraEffectFeature(buff.Name,
+                                                             buff.Description,
+                                                             buff.Icon,
+                                                             buff,
+                                                             60.Feet(),
+                                                             Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsEnemy>(c => c.Not = true))
+                                                             );
+        }
+
+
+        static void createAdoptedMagic()
+        {
+            var bard_spell_list = library.Get<BlueprintSpellList>("25a5013493bdcf74bb2424532214d0c8");
+            var magus_spell_list = library.Get<BlueprintSpellList>("4d72e1e7bd6bc4f4caaea7aa43a14639");
+            var combined_spell_list = Common.combineSpellLists("AdoptedMagicSpellList", bard_spell_list, magus_spell_list);
+            Common.excludeSpellsFromList(combined_spell_list, bloodrager_class.Spellbook.SpellList);
+
+            adopted_magic = Helpers.CreateFeatureSelection("AdoptedMagicFeatureSelection",
+                                                            "Adopted Magic",
+                                                            "At 7th level, an urban bloodrager learns some of the secrets of other magical traditions from other denizens of the city. She can select from the bard or magus spell list any spell of a level she can cast, and add it to her bloodrager spell list and to her bloodrager spells known.\n"
+                                                            + "At 10th level and every 3 levels thereafter, the urban bloodrager can add another such spell to her spell list and spells known.",
+                                                            "",
+                                                            Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
+                                                            FeatureGroup.None);
+            for (int i = 1; i <= 4; i++)
+            {
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956",  $"AdoptedMagic{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = bloodrager_class;
+                learn_spell.SpellList = combined_spell_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = combined_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = bloodrager_class; });
+                learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(bloodrager_class, i));
+                learn_spell.SetName(Helpers.CreateString($"AdoptedMagic{i}ParametrizedFeature.Name", "Adopted Magic " + $"(level {i})"));
+                learn_spell.SetDescription(adopted_magic.Description);
+                learn_spell.SetIcon(adopted_magic.Icon);
+
+                adopted_magic.AllFeatures = adopted_magic.AllFeatures.AddToArray(learn_spell);
+            }
         }
     }
+
+
+
 
 
 }
