@@ -248,6 +248,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();
+                    CallOfTheWild.Archetypes.UntamedRager.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();

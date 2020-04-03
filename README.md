@@ -21,7 +21,8 @@ New Archetypes for existing classes:
 - Spirit Whisperer Wizard archetype,
 - Storm Druid Druid archetype,
 - Evangelist Cleric archetype,
-- Primal Bloodline Wildblooded Sorcerer archetype.
+- Primal Bloodline Wildblooded Sorcerer archetype,
+- Untamed Rager Barbarian archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)

@@ -131,6 +131,7 @@
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
+    <Compile Include="Archetypes\UntamedRager.cs" />
     <Compile Include="Classes\AnimalFocus.cs" />
     <Compile Include="Classes\Arcanist.cs" />
     <Compile Include="Classes\Eidolons\Agathion.cs" />
