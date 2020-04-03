@@ -114,6 +114,11 @@ namespace CallOfTheWild
         static public BlueprintFeature unlettered_arcanist_spell_casting;
         static public BlueprintFeature unlettered_arcanist_cantrips;
 
+        static public BlueprintArchetype occultist;
+        static public BlueprintFeature perfect_summoner;
+        static public BlueprintFeature[] occultist_summon_monster = new BlueprintFeature[9];
+        static public BlueprintSummonPool occultist_summon_pool;
+
         static public BlueprintBuff dc_buff, cl_buff;
 
         internal static void createArcanistClass()
@@ -160,8 +165,9 @@ namespace CallOfTheWild
             createSchoolSavant();
             createBloodArcanist();
             createUnletteredArcanist();
+            createOccultist();
 
-            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype };
+            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist };
             createArcanistFeats();
             addToPrestigeClasses();
         }
@@ -217,6 +223,116 @@ namespace CallOfTheWild
                                                                                                               }
                                                                                                             )
                                               );*/
+        }
+
+
+
+        static void createOccultist()
+        {
+            occultist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "OccultistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Occultist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Not all arcanists peer inward to discern the deepest secrets of magic. Some look outward, connecting with extraplanar creatures and bartering for secrets, power, and favor.");
+            });
+            Helpers.SetField(occultist, "m_ParentClass", arcanist_class);
+            library.AddAsset(occultist, "");
+
+            createOccultistSummoning();
+            occultist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
+            occultist.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, occultist_summon_monster[0]),
+                                                        Helpers.LevelEntry(3, occultist_summon_monster[1]),
+                                                        Helpers.LevelEntry(5, occultist_summon_monster[2]),
+                                                        Helpers.LevelEntry(7, occultist_summon_monster[3]),
+                                                        Helpers.LevelEntry(9, occultist_summon_monster[4]),
+                                                        Helpers.LevelEntry(11, occultist_summon_monster[5]),
+                                                        Helpers.LevelEntry(13, occultist_summon_monster[6]),
+                                                        Helpers.LevelEntry(15, occultist_summon_monster[7]),
+                                                        Helpers.LevelEntry(17, occultist_summon_monster[8]),
+                                                        Helpers.LevelEntry(20, perfect_summoner)
+                                                    };
+            arcanist_class.Progression.UIGroups = arcanist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(occultist_summon_monster.AddToArray(perfect_summoner)));
+        }
+
+
+        static void createOccultistSummoning()
+        {
+            perfect_summoner = Helpers.CreateFeature("OccultistPerfectSummonerFeature",
+                                                     "Perfect Summoner",
+                                                     "At 20th level, an occultist can use her conjurer’s focus without spending points from her arcane reservoir, and the creatures summoned last one day or until dismissed.",
+                                                     "",
+                                                     Helpers.GetIcon("38155ca9e4055bb48a89240a2055dcc3"),
+                                                     FeatureGroup.None
+                                                     );
+            perfect_summoner.Ranks = 1;
+
+            var mt_feats = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("c19f6f34ed0bc364cbdec88b49a54f67"),
+                library.Get<BlueprintFeature>("45e466127a8961d40bb3030816ed245b"),
+                library.Get<BlueprintFeature>("ea26b3a3acb98074fa34f80fcc4e497d"),
+                library.Get<BlueprintFeature>("03168f4f13ff26f429d912085e88baba"),
+                library.Get<BlueprintFeature>("00fda605a917fcc4e89612dd31683bdd"),
+                library.Get<BlueprintFeature>("9b14b05456142914888a48354a0eec17"),
+                library.Get<BlueprintFeature>("667fd017406abd548b89292edd7dbfb7"),
+                library.Get<BlueprintFeature>("20d72612311ba914aaba5cc8a4cf312c"),
+                library.Get<BlueprintFeature>("f63d23b4e41b3264fa6aa2be8079d28d")
+            };
+
+            var description = "An occultist can spend 1 point from her arcane reservoir to cast summon monster I. She can cast this spell as a standard action and the summoned creatures remain for 1 minute per level (instead of 1 round per level). At 3rd level and every 2 levels thereafter, the power of this ability increases by one spell level, allowing her to summon more powerful creatures (to a maximum of summon monster IX at 17th level), at the cost of an additional point from her arcane spell reserve per spell level. An occultist cannot have more than one summon monster spell active in this way at one time. If this ability is used again, any existing summon monster immediately ends.";
+            occultist_summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "OccultistSummonPool", "");
+
+            for (int i = 0; i < mt_feats.Length; i++)
+            {
+                List<BlueprintAbility> summon_spells = new List<BlueprintAbility>();
+                foreach (var f in mt_feats[i].GetComponent<AddFacts>().Facts)
+                {
+                    var ability = library.CopyAndAdd<BlueprintAbility>(f.AssetGuid, f.name.Replace("MonsterTactician", "Occultist"), "");
+                    ability.ReplaceComponent<AbilityResourceLogic>(a => { a.RequiredResource = arcane_reservoir_resource; a.Amount = i + 1; });
+                    ability.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = Enumerable.Repeat(perfect_summoner, i+1).ToArray()));
+                    foreach (var c in ability.GetComponents<ContextRankConfig>())
+                    {
+                        if (c.IsBasedOnClassLevel)
+                        {
+                            var new_c = c.CreateCopy(crc => Helpers.SetField(crc, "m_Class", getArcanistArray()));
+                            ability.ReplaceComponent(c, new_c);
+                        }
+                    }
+                    var new_actions = Common.changeAction<ContextActionClearSummonPool>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, a => a.SummonPool = occultist_summon_pool);
+                    new_actions = Common.changeAction<ContextActionSpawnMonster>(new_actions,
+                                                                                  a =>
+                                                                                  {
+                                                                                      a.SummonPool = occultist_summon_pool;
+                                                                                      a.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative), DurationRate.Minutes, DiceType.One, a.DurationValue.BonusValue);
+                                                                                  }
+                                                                                  );
+                    ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+                    ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, ContextRankProgression.MultiplyByModifier, AbilityRankType.DamageDiceAlternative, 
+                                                                         feature: perfect_summoner, stepLevel: 60*24 - 20)
+                                                                         );
+                    summon_spells.Add(ability);
+                }
+
+                BlueprintAbility summon_base = null;
+                if (summon_spells.Count == 1)
+                {
+                    summon_base = summon_spells[0];
+                }
+                else
+                {
+                    summon_base = Common.createVariantWrapper($"OccultistSummon{i + 1}Base", "", summon_spells.ToArray());
+                    summon_base.SetNameDescription("Summon Monster " + Common.roman_id[i + 1], description);
+                }
+
+                occultist_summon_monster[i] = Helpers.CreateFeature($"OccultistSummonMonster{i + 1}Feature",
+                                                          "Conjurer's Focus: Summon Monster " + Common.roman_id[i + 1],
+                                                          description,
+                                                          "",
+                                                          summon_spells[0].Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFact(summon_base)
+                                                          );
+            }
         }
 
 

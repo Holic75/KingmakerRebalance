@@ -9,7 +9,7 @@ It introduces new classes:
 - Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader and Champion of the Faith,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor,
-- Arcanist with following archetypes: School Savant, Blood Arcanist and Unlettered Arcanist,
+- Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist,
