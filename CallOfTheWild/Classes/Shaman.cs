@@ -102,6 +102,13 @@ namespace CallOfTheWild
         static public BlueprintFeature channel_energy;
         static public BlueprintFeature counter_curse;
 
+        static public BlueprintArchetype spirit_warden;
+        static public BlueprintFeature unnatural_mien;
+        static public BlueprintFeature restless_magic;
+        static public BlueprintSpellList restless_magic_spell_list;
+        static public BlueprintFeature rebuke_spirits;
+        static public BlueprintFeature laugh_at_death;
+
 
         static public BlueprintAbility sense_spirit_magic; //+2 circumstance saves against spells from spirit/wandering spirit spell list for 24h hours
         static public BlueprintAbility spirit_call; //+4 concentration checks and +1 cl for spells from primary spirit or druid domain 1minute/level for everyone around shaman
@@ -286,7 +293,8 @@ namespace CallOfTheWild
             createSpeakerForThePast();
             createWitchDoctor();
             createOverseer();
-            shaman_class.Archetypes = new BlueprintArchetype[] {speaker_for_the_past_archetype, overseer_archetype, witch_doctor_archetype };
+            createSpiritWarden();
+            shaman_class.Archetypes = new BlueprintArchetype[] {speaker_for_the_past_archetype, overseer_archetype, witch_doctor_archetype, spirit_warden };
             Helpers.RegisterClass(shaman_class);
             createExtraHexFeat();
 
@@ -833,6 +841,122 @@ namespace CallOfTheWild
             speaker_for_the_past_archetype.ClassSkills = shaman_class.ClassSkills.AddToArray(StatType.SkillKnowledgeWorld, StatType.SkillPerception, StatType.SkillUseMagicDevice);
 
             beast_of_ill_omen.AddComponent(Common.prerequisiteNoArchetype(shaman_class, speaker_for_the_past_archetype));
+        }
+
+
+
+        static void createSpiritWarden()
+        {
+            var spells = new Common.ExtraSpellList("6bb0533cd457d1f4eaccc73ab7680fb2", //veil of positive energy
+                                                   "c36c1d11771b0584f8e100b92ee5475b", //blessing of courage and life
+                                                   NewSpells.halt_undead.AssetGuid,
+                                                   "0413915f355a38146bc6ad40cdf27b3f", //death ward
+                                                   "46c96cc3a3ef35243915ff3452dfacf5", //disrupting weapon
+                                                   "a9a52760290591844a96d0109e30e04d", //undeath to death
+                                                   "98310a099009bbd4dbdf66bcef58b4cd", //invisibility mass
+                                                   NewSpells.control_undead.AssetGuid,
+                                                   "1f01a098d737ec6419aedc4e7ad61fdd"//foresight
+                                                   );
+            restless_magic_spell_list = spells.createSpellList("RestlessMagicSpiritWardenSpelllist", "");
+            restless_magic = Helpers.CreateFeature("RestlessMagicFeature",
+                                                      "Restless Magic",
+                                                      "The spirit warden adds the following spells to the list of spells she can cast using spirit magic: veil of positive energy (1st), blessing of life and courage (2nd), halt undead (3rd), death ward (4th), disrupting weapon (5th), undeath to death (6th), invisibility, mass (7th), control undead (8th), and foresight (9th). This ability replaces the spirit magic spells gained from the shaman’s spirit.",
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<NewMechanics.LearnSpellListToSpecifiedSpellbook>(l => {
+                                                          l.spellbook = spirit_magic_spellbook;
+                                                          l.SpellList = restless_magic_spell_list;
+                                                      })
+                                                     );
+            var feature = Helpers.CreateFeature("RestlessMagicFluidMagicFeature",
+                                    "",
+                                    "",
+                                    "",
+                                    null,
+                                    FeatureGroup.None,
+                                    Helpers.Create<LearnSpellList>(l => { l.CharacterClass = shaman_class; l.SpellList = restless_magic_spell_list; })
+                                    );
+            feature.HideInCharacterSheetAndLevelUp = true;
+            waves_spirit.fluid_magic.AddComponent(Common.createAddFeatureIfHasFact(restless_magic, feature));
+
+
+            createUnnaturalMien();
+            createRebukeSpirits();
+            createLaughAtDeath();
+
+            spirit_warden = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SpiritWardenArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Spirit Warden");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Not all spirits deserve reverence and respect. Some are twisted and despicable. It’s a spirit warden’s duty to end these spirits’ existence.");
+            });
+            Helpers.SetField(spirit_warden, "m_ParentClass", shaman_class);
+            library.AddAsset(spirit_warden, "");
+            spirit_warden.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spirit_magic), Helpers.LevelEntry(2, hex_selection), Helpers.LevelEntry(10, hex_selection) };
+            spirit_warden.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, restless_magic, unnatural_mien), Helpers.LevelEntry(2, rebuke_spirits), Helpers.LevelEntry(10, laugh_at_death) };
+            shaman_class.Progression.UIGroups = shaman_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(unnatural_mien, rebuke_spirits, laugh_at_death));
+        }
+
+
+        static void createUnnaturalMien()
+        {
+            unnatural_mien = Helpers.CreateFeature("UnnaturalMienSpiritWardenFeature",
+                                                   "Unnatural Mien",
+                                                   "At 1st level, the spirit warden’s dealings with the spirit world give her an unsettling demeanor. She gains a +2 bonus on Intimidate checks to demoralize a foe.",
+                                                   "",
+                                                   Helpers.GetIcon("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                                                   FeatureGroup.None,
+                                                   Helpers.CreateAddStatBonus(StatType.CheckIntimidate, 2, ModifierDescriptor.UntypedStackable)
+                                                   );
+        }
+
+
+        static void createRebukeSpirits()
+        {
+            var resource = Helpers.CreateAbilityResource("SpiritWardenRebukeChannelResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2,
+                                                                                  type: AbilityRankType.Default, classes: getShamanArray());
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getShamanArray(), StatType.Charisma);
+            rebuke_spirits = Helpers.CreateFeature("ShamanSpiritWardenRebukeSpiritsFeature",
+                                                   "Rebuke Spirits",
+                                                   "At 2nd level, the spirit warden gains the ability to channel positive energy as a cleric of her level. Regardless of her alignment, she can only use this ability to harm undead creatures. The spirit warden can use this ability a number of times per day equal to 3 + her Charisma modifier.",
+                                                   "",
+                                                   positive_energy_feature.Icon,
+                                                   FeatureGroup.None);
+
+            var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                                          "ShamanSpiritWardenRebukeSpiritsHarmUndead",
+                                                          "",
+                                                          "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d6 plus 1d6 for every two shaman levels beyond first. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1 / 2 the shaman's level + the shaman's Charisma modifier.",
+                                                          "",
+                                                          context_rank_config,
+                                                          dc_scaling,
+                                                          Helpers.CreateResourceLogic(resource));
+
+            var harm_undead_base = Common.createVariantWrapper("ShamanSpiritWardenRebukeSpiritsHarmUndeadBase", "", harm_undead);
+
+            ChannelEnergyEngine.storeChannel(harm_undead, channel_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+
+            rebuke_spirits.AddComponent(Helpers.CreateAddFacts(harm_undead_base));
+            rebuke_spirits.AddComponent(Helpers.CreateAddAbilityResource(resource));
+            var extra_channel = ChannelEnergyEngine.createExtraChannelFeat(harm_undead, channel_energy, "ExtraChannelShamanSpiritWarden", "Extra Channel (Spirit Warden)", "");
+        }
+
+
+        static void createLaughAtDeath()
+        {
+            laugh_at_death = Helpers.CreateFeature("LaughAtDeathSpiritWardenFeature",
+                                                   "Laugh at Death",
+                                                   "At 10th level, the spirit warden’s familiarity with the dead has filled her with contempt for death itself. She gains a +4 insight bonus on saving throws against death effects.",
+                                                   "",
+                                                   Helpers.GetIcon("0413915f355a38146bc6ad40cdf27b3f"), //death ward
+                                                   FeatureGroup.None,
+                                                   Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Insight, SpellDescriptor.Death)
+                                                   );
         }
 
 

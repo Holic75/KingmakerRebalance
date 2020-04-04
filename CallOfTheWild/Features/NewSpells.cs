@@ -198,6 +198,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility sleet_storm;
         static public BlueprintAbility control_undead;
+        static public BlueprintAbility halt_undead;
 
 
         static public void load()
@@ -319,7 +320,48 @@ namespace CallOfTheWild
 
             createSleetStorm();
             createControlUndead();
+            createHaltUndead();
         }
+
+
+        static void createHaltUndead()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/HaltUndead.png");
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("11cb2fe4fe9c44b448cfe1788ae1ab59", "HaltUndeadBuff", "");
+            buff.SetNameDescriptionIcon("Halt Undead",
+                                        "This spell renders all undead creatures within its radius immobile. If the spell is successful, it renders the undead creature immobile for the duration of the spell (similar to the effect of hold person on a living creature). The effect is broken if the halted creatures are attacked or take damage.",
+                                        icon);
+            buff.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = SpellDescriptor.MovementImpairing);
+            buff.AddComponent(Common.createIncomingDamageTrigger(Helpers.Create<ContextActionRemoveSelf>()));
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds));
+
+            var effect = Helpers.CreateConditional(Common.createContextConditionHasFact(Common.undead), Helpers.CreateConditionalSaved(null, apply_buff));
+            halt_undead = Helpers.CreateAbility("HaltUndeadAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Medium,
+                                                   Helpers.roundsPerLevelDuration,
+                                                   Helpers.willNegates,
+                                                   Helpers.CreateRunActions(SavingThrowType.Will, effect),
+                                                   Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Enemy),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                   Helpers.CreateContextRankConfig(),
+                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.MovementImpairing)
+                                                   );
+            halt_undead.setMiscAbilityParametersSingleTargetRangedHarmful();
+            halt_undead.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            halt_undead.SpellResistance = true;
+            halt_undead.AddToSpellList(Helpers.wizardSpellList, 3);
+            halt_undead.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            halt_undead.AddSpellAndScroll("4f71bf5971c5f3c46a66e5893a1b1e83"); //life blast
+        }
+
 
 
         static void createControlUndead()
