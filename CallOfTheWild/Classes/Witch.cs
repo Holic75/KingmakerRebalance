@@ -97,6 +97,15 @@ namespace CallOfTheWild
         static public BlueprintFeature conduit_surge;
 
 
+        static public BlueprintArchetype winter_witch_archetype;
+        static List<BlueprintFeature> winter_witch_patrons = new List<BlueprintFeature>();
+        static public BlueprintFeatureSelection winter_witch_patron_selection;
+        static public BlueprintFeatureSelection winter_witch_familiar;
+        static public BlueprintFeature cold_flesh, cold_flesh2;
+        static public BlueprintFeature winter_witch_cantrips;
+        static public BlueprintFeature ice_magic;
+
+
         static public BlueprintFeature witch_knife;
         static public BlueprintAbility ill_omen;
 
@@ -154,7 +163,8 @@ namespace CallOfTheWild
             createLeyLineGuardian();
             createHedgeWitch();
             createHexChanneler();
-            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype};
+            createWinterWitch();
+            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype, winter_witch_archetype};
             Helpers.RegisterClass(witch_class);
             createExtraHexFeat();
 
@@ -165,17 +175,108 @@ namespace CallOfTheWild
         }
 
 
+        static void createWinterWitch()
+        {
+            winter_witch_familiar = library.CopyAndAdd<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183", "WinterWitchFamiliarSelection", "");
+            winter_witch_familiar.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("1cb0b559ca2e31e4d9dc65de012fa82f"), //cat
+                library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30"), //hare
+                library.Get<BlueprintFeature>("4d48365690ea9a746a74d19c31562788") //rat
+            };
+            winter_witch_familiar.SetDescription("Winter witches must choose a familiar that is native to the frozen north, even when they themselves operate in other regions. Traditionally, this limits winter witch familiar choices to cat, hare, or rat.");
+            winter_witch_familiar.Features = winter_witch_familiar.AllFeatures;
+
+            winter_witch_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "WinterWitchArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Winter Witch");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The descendents of Baba Yaga rule the frozen realm of Irrisen, and possess a unique power stemming from their otherworldly origin and their ties to cold magic. This power is partly magical, partly political, and partly cultural. Known as winter witches, these scions of Baba Yaga have not bothered to hide their secrets from outsiders, for they understand that those who see winter witches not native to Irrisen working their frozen magic will simply assume the witches are agents of Irrisen. By opening up their traditions to those who have no direct blood connection to Baba Yaga or the ruling families of Irrisen, they spread the notoriety and infamy of their wintry magic far beyond what they could accomplish on their own. While winter witches are most commonly encountered in Irrisen, they could be encountered in any part of the Inner Sea region, where they work to increase Irrisen’s notoriety with each frozen spell and manipulative hex they cast. A winter witch has the following class features.");
+            });
+            Helpers.SetField(winter_witch_archetype, "m_ParentClass", witch_class);
+            library.AddAsset(winter_witch_archetype, "");
+            
+            var spellbook = library.CopyAndAdd<BlueprintSpellbook>(witch_class.Spellbook, "WinterWitchSpellbook", "");
+            var winter_witch_spell_list = Common.combineSpellLists("WinterWitchSpellList", spellbook.SpellList);
+            Common.excludeSpellsFromList(winter_witch_spell_list, p => ((p.SpellDescriptor & SpellDescriptor.Fire) != 0));
+            spellbook.SpellList = winter_witch_spell_list;
+            var ray_of_frost = library.Get<BlueprintAbility>("9af2ab69df6538f4793b2f9c3cc85603");
+            ray_of_frost.AddToSpellList(spellbook.SpellList, 0);
+
+            winter_witch_cantrips = Common.createCantrips("WinterWitchCantrips",
+                                                          "Cantrips",
+                                                          "A winter witch adds ray of frost to list of cantrips she can cast.",
+                                                          ray_of_frost.Icon,
+                                                          "",
+                                                          witch_class,
+                                                          StatType.Intelligence,
+                                                          winter_witch_spell_list.SpellsByLevel[0].Spells.ToArray()
+                                                          );
+            winter_witch_patron_selection =  Helpers.CreateFeatureSelection("WinterWitchPatronSelection",
+                                                           "Winter Patron",
+                                                           "A winter witch must choose her patron from one of the following patron themes: ancestors, enchantment, endurance, transformation, or winter. ",
+                                                           "",
+                                                           Helpers.GetIcon("e377feb2ecec95e478e0565da621ea55"),
+                                                           FeatureGroup.None);
+            winter_witch_patron_selection.AllFeatures = winter_witch_patrons.ToArray();
+            winter_witch_patron_selection.Features = winter_witch_patrons.ToArray();
+
+
+            ice_magic = Helpers.CreateFeature("WinterWitchIceMagicFeature",
+                                              "Ice Magic",
+                                              "When a winter witch casts a spell with the cold descriptor, the save DC of the spell increases by +1. A winter witch cannot learn or cast spells with the fire descriptor at all.",
+                                              "",
+                                              Helpers.GetIcon("e7c530f8137630f4d9d7ee1aa7b1edc0"), //cone of cold
+                                              FeatureGroup.None,
+                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.Descriptor = SpellDescriptor.Cold; c.Value = 1; })
+                                              );
+            createColdFlesh();
+
+            winter_witch_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, witch_cantrips, witch_familiar, witch_patrons), Helpers.LevelEntry(4, hex_selection)};
+            winter_witch_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, winter_witch_cantrips, winter_witch_familiar, winter_witch_patron_selection, ice_magic), Helpers.LevelEntry(4, cold_flesh), Helpers.LevelEntry(14, cold_flesh2) };
+            winter_witch_archetype.ReplaceSpellbook = spellbook;
+            witch_class.Progression.UIDeterminatorsGroup = witch_class.Progression.UIDeterminatorsGroup.AddToArray(winter_witch_cantrips, winter_witch_familiar);
+            witch_class.Progression.UIGroups = witch_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(ice_magic, cold_flesh, cold_flesh2));
+        }
+
+
+        static void createColdFlesh()
+        {
+            cold_flesh = Helpers.CreateFeature("WinterWitchColdFleshFeature",
+                                  "Cold Flesh",
+                                  "At 4th level, winter witch gains cold resistance 5, making her comfortable in near-freezing temperatures. At 9th-level, this increases to cold resistance 10, and at 14th level, it becomes immunity to cold.",
+                                  "",
+                                  Helpers.GetIcon("5368cecec375e1845ae07f48cdc09dd1"), //resist cold
+                                  FeatureGroup.None,
+                                  Common.createEnergyDRContextRank(DamageEnergyType.Cold, AbilityRankType.Default, multiplier: 5)
+                                  );
+            cold_flesh.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                    startLevel: 4, stepLevel: 5, max: 2));
+            cold_flesh.ReapplyOnLevelUp = true;
+
+            cold_flesh2 = Helpers.CreateFeature("WinterWitchColdFlesh2Feature",
+                                              "Cold Flesh",
+                                              "At 4th level, winter witch gains cold resistance 5, making her comfortable in near-freezing temperatures. At 9th-level, this increases to cold resistance 10, and at 14th level, it becomes immunity to cold.",
+                                              "",
+                                              Helpers.GetIcon("021d39c8e0eec384ba69140f4875e166"), //protection from cold
+                                              FeatureGroup.None,
+                                              Common.createAddEnergyDamageImmunity(DamageEnergyType.Cold)
+                                              );
+        }
+
         static void addToPrestigeClasses()
         {
             Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, witch_class.Spellbook, "EldritchKnightWitch",
                                        Common.createPrerequisiteClassSpellLevel(witch_class, 3),
-                                       Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
+                                       Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype),
+                                       Common.prerequisiteNoArchetype(witch_class, winter_witch_archetype)
+                                       );
             Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, witch_class.Spellbook, "ArcaneTricksterWitch",
                            Common.createPrerequisiteClassSpellLevel(witch_class, 2),
-                           Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
+                           Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype), Common.prerequisiteNoArchetype(witch_class, winter_witch_archetype));
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, witch_class.Spellbook, "MysticTheurgeWitch",
                            Common.createPrerequisiteClassSpellLevel(witch_class, 2),
-                           Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype));
+                           Common.prerequisiteNoArchetype(witch_class, ley_line_guardian_archetype), Common.prerequisiteNoArchetype(witch_class, winter_witch_archetype));
 
             Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "EldritchKnightLeyLineGuardian",
                            Common.createPrerequisiteClassSpellLevel(witch_class, 3),
@@ -186,6 +287,17 @@ namespace CallOfTheWild
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "MysticTheurgeLeyLineGuardian",
                            Common.createPrerequisiteClassSpellLevel(witch_class, 2),
                            Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype,1));
+
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, winter_witch_archetype.ReplaceSpellbook, "EldritchKnightWinterWitch",
+                                       Common.createPrerequisiteClassSpellLevel(witch_class, 3),
+                                       Common.createPrerequisiteArchetypeLevel(witch_class, winter_witch_archetype, 1));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, winter_witch_archetype.ReplaceSpellbook, "ArcaneTricksterWinterWitch",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(witch_class, winter_witch_archetype, 1));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, winter_witch_archetype.ReplaceSpellbook, "MysticTheurgeWinterWitch",
+                           Common.createPrerequisiteClassSpellLevel(witch_class, 2),
+                           Common.createPrerequisiteArchetypeLevel(witch_class, winter_witch_archetype, 1));
+
 
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "DragonDiscipleLeyLineGuardian",
                            Common.createPrerequisiteClassSpellLevel(witch_class, 1),
@@ -604,7 +716,7 @@ namespace CallOfTheWild
             }
             
             
-            witch_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { witch_familiar, witch_proficiencies, witch_cantrips, detect_magic };
+            witch_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { witch_familiar, witch_proficiencies, witch_cantrips, detect_magic, witch_patrons };
             witch_progression.LevelEntries = entries.ToArray();
         }
 
@@ -624,7 +736,7 @@ namespace CallOfTheWild
                                                 
             BlueprintFeature[] patrons = new BlueprintFeature[]
             {
-                createWitchPatronFeature("Agility", "f7a4a115c138439c8e5f4ee8adacfca0","9b43dc766cae40b7891c035b8fa43522",
+                createWitchPatronFeature("Agility", "f7a4a115c138439c8e5f4ee8adacfca0","9b43dc766cae40b7891c035b8fa43522", false,
                                          "4f8181e7a7f1d904fbaea64220e83379", //expeditious retreat
                                          "de7a025d48ad5da4991e7d3c682cf69d", //cats grace
                                          "486eaff58293f6441a5c2759c4872f98", //haste
@@ -635,7 +747,7 @@ namespace CallOfTheWild
                                          "9155dbc8268da1c49a7fc4834fa1a4b1", //cloak of chaos
                                          Wildshape.shapechange.AssetGuid //shapechange
                                          ),
-                createWitchPatronFeature("Ancestors", "7e72537869dc455781780147823fc6a5", "a5dd1fcfdff84b2396c21c7705faf3fc",
+                createWitchPatronFeature("Ancestors", "7e72537869dc455781780147823fc6a5", "a5dd1fcfdff84b2396c21c7705faf3fc", true,
                                          "90e59f4a4ada87243b7b3535a06d0638", //bless
                                          "03a9630394d10164a9410882d31572f0", //aid
                                          "faabd2cc67efa4646ac58c7bb3e40fcc", //prayer
@@ -646,7 +758,7 @@ namespace CallOfTheWild
                                          "cbf3bafa8375340498b86a3313a11e2f", //euphoric tranquility
                                          "870af83be6572594d84d276d7fc583e0" //weird
                                         ),
-                createWitchPatronFeature("Animal", "aee09b4c9ae843c09829ef220241affe", "1eb5c7c9254044b5bad7bdf0eca1764a",
+                createWitchPatronFeature("Animal", "aee09b4c9ae843c09829ef220241affe", "1eb5c7c9254044b5bad7bdf0eca1764a", false,
                                          "403cf599412299a4f9d5d925c7b9fb33", //magic fang
                                          "4c3d08935262b6544ae97599b3a9556d", //bull strength
                                          "754c478a2aa9bb54d809e648c3f7ac0e", //dominate animal
@@ -657,7 +769,7 @@ namespace CallOfTheWild
                                          "ea78c04f0bd13d049a1cce5daf8d83e0", //natures ally 8
                                          "a7469ef84ba50ac4cbf3d145e3173f8e"  //natures ally 9
                                         ),
-                createWitchPatronFeature("Autumn", "c3c1f806206546628b7b9d44cc1141ad", "beaddc15271240d992b8149babb79fed",
+                createWitchPatronFeature("Autumn", "c3c1f806206546628b7b9d44cc1141ad", "beaddc15271240d992b8149babb79fed", false,
                                          "450af0402422b0b4980d9c2175869612", //ray of enfeeblement
                                          "29ccc62632178d344ad0be0865fd3113", //create pit
                                          "1a36c8b9ed655c249a9f9e8d4731f001", //soothing mud
@@ -668,7 +780,7 @@ namespace CallOfTheWild
                                          "08323922485f7e246acb3d2276515526", //horrid witling
                                          "b24583190f36a8442b212e45226c54fc" //wail of banshee
                                         ),
-                createWitchPatronFeature("Death", "0418c666165047f2bdb72e0168bb51eb", "8af4300894f04995b534531c832d8f3d",
+                createWitchPatronFeature("Death", "0418c666165047f2bdb72e0168bb51eb", "8af4300894f04995b534531c832d8f3d", false,
                                          "450af0402422b0b4980d9c2175869612", //ray of enfeeblement
                                          "c36c1d11771b0584f8e100b92ee5475b", //blessing of life and courage
                                          "4b76d32feb089ad4499c3a1ce8e1ac27", //animate dead
@@ -679,7 +791,7 @@ namespace CallOfTheWild
                                          "c3d2294a6740bc147870fff652f3ced5", //death_clutch,
                                          "2f8a67c483dfa0f439b293e094ca9e3c" //power word kill
                                         ),
-                createWitchPatronFeature("Devotion", "faa76cf5cacd447caa2c18965ca9c3cb", "89bd5b848cfc4d6eacb51cf8e018e8d4",
+                createWitchPatronFeature("Devotion", "faa76cf5cacd447caa2c18965ca9c3cb", "89bd5b848cfc4d6eacb51cf8e018e8d4", false,
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
                                          "042aaa117e89c4d4b8cb41478dd3fca3", //grace
                                          "2d4263d80f5136b4296d6eb43a221d7d", //magic vestment
@@ -690,7 +802,7 @@ namespace CallOfTheWild
                                          "808ab74c12df8784ab4eeaf6a107dbea", //holy aura
                                          "867524328b54f25488d371214eea0d90" //heal mass
                                         ),
-                createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22",
+                createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22", false,
                                          "ab395d2335d3f384e99dddee8562978f", //shocking grasp
                                          "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
                                          "2d81362af43aeac4387a3d4fced489c3", //fireball
@@ -701,7 +813,7 @@ namespace CallOfTheWild
                                          "e3d0dfe1c8527934294f241e0ae96a8d", //firestorm
                                          NewSpells.meteor_swarm.AssetGuid
                                         ),
-               createWitchPatronFeature("Enchantment", "0677e4fe8b0648a99c8965c7d580ca74", "40eb72aded8c4dbfaf0ce4cf0fa79707",
+               createWitchPatronFeature("Enchantment", "0677e4fe8b0648a99c8965c7d580ca74", "40eb72aded8c4dbfaf0ce4cf0fa79707", true,
                                           NewSpells.command.AssetGuid,
                                          "fd4d9fd7f87575d47aafe2a64a6e2d8d", //hideous laughter
                                          "e6048d85fc3294f4c92b21c8d7526b1f", //cacophonus call
@@ -712,7 +824,7 @@ namespace CallOfTheWild
                                          NewSpells.irresistible_dance.AssetGuid, 
                                          "3c17035ec4717674cae2e841a190e757"  //dominate monster
                                          ),
-                createWitchPatronFeature("Endurance", "16e0d62dac7947aab226dcded5bc5177", "79301d011ec5490ea32dcd42a8daa366",
+                createWitchPatronFeature("Endurance", "16e0d62dac7947aab226dcded5bc5177", "79301d011ec5490ea32dcd42a8daa366", true,
                                          "b065231094a21d14dbf1c3832f776871", //fire belly
                                          "a900628aea19aa74aad0ece0e65d091a", //bears endurance
                                          "d2f116cfe05fcdd4a94e80143b67046f", //protection from energy
@@ -723,7 +835,7 @@ namespace CallOfTheWild
                                          "b1c7576bd06812b42bda3f09ab202f14", //angelic aspect greater
                                          "867524328b54f25488d371214eea0d90"  //heal mass
                                          ),
-                createWitchPatronFeature("Healing", "84286f03a92c4d27bf13484dee22c990", "b6c6c3ee2e904c689d9cb0eca78ce7c1",
+                createWitchPatronFeature("Healing", "84286f03a92c4d27bf13484dee22c990", "b6c6c3ee2e904c689d9cb0eca78ce7c1", false,
                                          "55a037e514c0ee14a8e3ed14b47061de", //remove fear
                                          "e84fc922ccf952943b5240293669b171", //restoration lesser
                                          "4093d5a0eb5cae94e909eb1e0e1a6b36", //remove disiease
@@ -734,7 +846,7 @@ namespace CallOfTheWild
                                          SpellDuplicates.addDuplicateSpell("1f173a16120359e41a20fc75bb53d449", "WitchHealingPatronCureCriticalWoundsMassAbility", "").AssetGuid, //cure critical wounds mass
                                          "867524328b54f25488d371214eea0d90" // heal mass
                                          ),
-                createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b",
+                createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b", false,
                                          "91da41b9793a4624797921f221db653c", //color spray
                                          "ce7dad2b25acf85429b6c9550787b2d9", //glitterdust
                                          "c927a8b0cd3f5174f8c0b67cdbfde539", //remove blindness
@@ -745,7 +857,7 @@ namespace CallOfTheWild
                                          "e96424f70ff884947b06f41a765b7658", //sunburst
                                          "08ccad78cac525040919d51963f9ac39" //fiery body
                                         ),
-                createWitchPatronFeature("Mercy", "88ce8b8dc64b4343984fefd31054a913","b7b7f46389544a99b0b4846ab99ed042",
+                createWitchPatronFeature("Mercy", "88ce8b8dc64b4343984fefd31054a913","b7b7f46389544a99b0b4846ab99ed042", false,
                                          "5590652e1c2225c4ca30c4a699ab3649", //cure light wounds
                                          "446f7bf201dc1934f96ac0a26e324803", //eagles splendor
                                          "b48674cef2bff5e478a007cf57d8345b", //remove curse
@@ -756,7 +868,7 @@ namespace CallOfTheWild
                                          "cbf3bafa8375340498b86a3313a11e2f", //euphoric tranquility
                                          "867524328b54f25488d371214eea0d90" //mass heal
                                         ),
-                createWitchPatronFeature("Mountain", "2147870b66c643978c6c6aeae6f6c6a6", "cdcc5439ee0a4266aeb41e29f0677bf9",
+                createWitchPatronFeature("Mountain", "2147870b66c643978c6c6aeae6f6c6a6", "cdcc5439ee0a4266aeb41e29f0677bf9", false,
                                          "85067a04a97416949b5d1dbf986d93f3", //stone fist
                                          "5181c2ed0190fc34b8a1162783af5bf4", //stone call
                                          "0a2f7c6aa81bc6548ac7780d8b70bcbc", //battering blast
@@ -767,7 +879,7 @@ namespace CallOfTheWild
                                          "65254c7a2cf18944287207e1de3e44e8", //summon earth elemental elder
                                          "01300baad090d634cb1a1b2defe068d6" //clashing rocks
                                         ),
-                createWitchPatronFeature("Plague", "ad6dcbca48394d0890565eef09c0dc19", "7339a5c3c56d4403860790af1118959a",
+                createWitchPatronFeature("Plague", "ad6dcbca48394d0890565eef09c0dc19", "7339a5c3c56d4403860790af1118959a", false,
                                          "fa3078b9976a5b24caf92e20ee9c0f54", //ray of sickening
                                          "dee3074b2fbfb064b80b973f9b56319e", //pernicious poison
                                          "48e2744846ed04b4580be1a3343a5d3d", //contagion
@@ -778,7 +890,7 @@ namespace CallOfTheWild
                                          "08323922485f7e246acb3d2276515526", //horrid witlin
                                          "37302f72b06ced1408bf5bb965766d46" //energy drain
                                         ),
-                createWitchPatronFeature("Protection", "fbda94ae0c184d06a9f1bc8b56e68267", "da5be607b885402eae26f954c47b47e4",
+                createWitchPatronFeature("Protection", "fbda94ae0c184d06a9f1bc8b56e68267", "da5be607b885402eae26f954c47b47e4", false,
                                          NewSpells.sanctuary.AssetGuid, //sanctuary
                                          "21ffef7791ce73f468b6fca4d9371e8b", //resist energy
                                          "d2f116cfe05fcdd4a94e80143b67046f", //protection from energy
@@ -789,7 +901,7 @@ namespace CallOfTheWild
                                          "7ef49f184922063499b8f1346fb7f521", //seamantle
                                          "87a29febd010993419f2a4a9bee11cfc" //mindblank communal
                                          ),
-                createWitchPatronFeature("Spring", "fa8155faef214069a896e65a9073458c", "e9f7f92bf7724ec788fcd6374bfd2e82",
+                createWitchPatronFeature("Spring", "fa8155faef214069a896e65a9073458c", "e9f7f92bf7724ec788fcd6374bfd2e82", false,
                                          "f3c0b267dd17a2a45a40805e31fe3cd1", //feather step
                                          "6c7467f0344004d48848a43d8c078bf8", //sickening entanglement
                                          "d219494150ac1f24f9ce14a3d4f66d26", //feather step mass
@@ -800,7 +912,7 @@ namespace CallOfTheWild
                                          "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
                                          NewSpells.time_stop.AssetGuid
                                         ),
-                createWitchPatronFeature("Strength", "6f859ba938f94132920eeb63a8c9af50", "8125ff1edafc4c5489ad2739a85d5386",
+                createWitchPatronFeature("Strength", "6f859ba938f94132920eeb63a8c9af50", "8125ff1edafc4c5489ad2739a85d5386", false,
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
                                          "4c3d08935262b6544ae97599b3a9556d", //bulls strength
                                          NewSpells.magic_weapon_greater.AssetGuid,
@@ -811,7 +923,7 @@ namespace CallOfTheWild
                                          Wildshape.giant_formII.AssetGuid, //giant form II
                                          Wildshape.shapechange.AssetGuid //shapechange
                                         ),
-                createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4",
+                createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4", false,
                                          "b065231094a21d14dbf1c3832f776871", //firebelly
                                          "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
                                          NewSpells.flashfire.AssetGuid,
@@ -822,7 +934,7 @@ namespace CallOfTheWild
                                          "e96424f70ff884947b06f41a765b7658", //sunburst
                                          "08ccad78cac525040919d51963f9ac39" //fiery body
                                          ),
-                createWitchPatronFeature("Transformation", "6af899b9496d42258619ceebe08b1e4a" , "e71d75fcdc24439ab6a7fddbfbd92d34",
+                createWitchPatronFeature("Transformation", "6af899b9496d42258619ceebe08b1e4a" , "e71d75fcdc24439ab6a7fddbfbd92d34", true,
                                          "14c90900b690cac429b229efdf416127", //longstrider
                                          "a900628aea19aa74aad0ece0e65d091a", //bears endurance
                                          "61a7ed778dd93f344a5dacdbad324cc9", //beast shape 1
@@ -833,7 +945,7 @@ namespace CallOfTheWild
                                          "1cdc4ad4c208246419b98a35539eafa6", //form of dragon 3
                                          Wildshape.shapechange.AssetGuid //shapechange
                                          ),
-                createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228",
+                createWitchPatronFeature("Winter", "073328f3df07436eb27bcc731fca6bb1", "3d5f30725ae24f589747b1164fc44228", true,
                                          "9f10909f0be1f5141bf1c102041f93d9", //snowball
                                          "5368cecec375e1845ae07f48cdc09dd1", //resist cold
                                          SpellDuplicates.addDuplicateSpell("fcb028205a71ee64d98175ff39a0abf9", "WitchWinterPatronIceStormAbility", "").AssetGuid, //ice storm
@@ -856,7 +968,6 @@ namespace CallOfTheWild
                                                            FeatureGroup.None);
             witch_patrons.AllFeatures = patrons;
             witch_patrons.Features = patrons;
-
         }
 
 
@@ -1156,7 +1267,7 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintFeature createWitchPatronFeature(string name, string spell_list_guid, string feature_guid, params string[] spell_guids)
+        static BlueprintFeature createWitchPatronFeature(string name, string spell_list_guid, string feature_guid, bool is_winter, params string[] spell_guids)
         {
             var extra_spell_list = new Common.ExtraSpellList(spell_guids);
             var learn_spell_list = extra_spell_list.createLearnSpellList("Witch" + name + "PatronSpellList", spell_list_guid, witch_class);
@@ -1191,6 +1302,10 @@ namespace CallOfTheWild
             witch_knife_bonus.HideInCharacterSheetAndLevelUp = true;
             witch_knife.AddComponent(Common.createAddFeatureIfHasFact(patron, witch_knife_bonus));
 
+            if (is_winter)
+            {
+                winter_witch_patrons.Add(patron);
+            }
             return patron;
         }
 

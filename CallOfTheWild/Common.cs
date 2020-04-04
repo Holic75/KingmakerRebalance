@@ -3180,9 +3180,11 @@ namespace CallOfTheWild
                 }
             }
 
+
             foreach (var spell_entry in spell_guid_level_map)
             {
-                spell_list.SpellsByLevel[spell_entry.Value].Spells.Add(library.Get<BlueprintAbility>(spell_entry.Key));
+                library.Get<BlueprintAbility>(spell_entry.Key).AddToSpellList(spell_list, spell_entry.Value);
+                //spell_list.SpellsByLevel[spell_entry.Value].Spells.Add(library.Get<BlueprintAbility>(spell_entry.Key));
             }
 
             return spell_list;
@@ -3197,6 +3199,22 @@ namespace CallOfTheWild
                 foreach (var s in all_spells)
                 {
                     if (list_to_exclude.Contains(s))
+                    {
+                        sbl.Spells.Remove(s);
+                    }
+                }
+            }
+        }
+
+
+        public static void excludeSpellsFromList(BlueprintSpellList base_list, Predicate<BlueprintAbility> predicate)
+        {
+            foreach (var sbl in base_list.SpellsByLevel)
+            {
+                var all_spells = sbl.Spells.ToArray();
+                foreach (var s in all_spells)
+                {
+                    if (predicate(s))
                     {
                         sbl.Spells.Remove(s);
                     }
