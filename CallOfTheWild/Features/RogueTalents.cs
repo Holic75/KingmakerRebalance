@@ -39,12 +39,29 @@ namespace CallOfTheWild
     {
         static public BlueprintFeatureSelection minor_magic;
         static public BlueprintFeatureSelection major_magic;
+        static public BlueprintFeatureSelection feat;
         static LibraryScriptableObject library => Main.library;
 
         static public void load()
         {
             createMinorMagic();
             createMajorMagic();
+
+            createFeatAndFixCombatTrick();
+        }
+
+
+        static void createFeatAndFixCombatTrick()
+        {
+            var combat_trick = library.Get<BlueprintFeatureSelection>("c5158a6622d0b694a99efb1d0025d2c1");
+            combat_trick.AddComponent(Helpers.PrerequisiteNoFeature(combat_trick));
+
+            feat = library.CopyAndAdd<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45", "RogueTalentFeat", "");
+            feat.SetDescription(" A rogue can gain any feat that she qualifies for in place of a rogue talent.");
+            feat.AddComponents(Helpers.PrerequisiteNoFeature(feat),
+                               Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("a33b99f95322d6741af83e9381b2391c"))
+                               );
+            addToTalentSelection(feat);
         }
 
 

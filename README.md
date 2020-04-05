@@ -23,7 +23,8 @@ New Archetypes for existing classes:
 - Evangelist Cleric archetype,
 - Primal Bloodline Wildblooded Sorcerer archetype,
 - Untamed Rager Barbarian archetype,
-- Nature-Bonded Magus Magus archetype.
+- Nature-Bonded Magus Magus archetype,
+- Ninja class (implemented as rogue archetype).
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
@@ -145,7 +146,8 @@ New Wild Talents:
 
 New Rogue Talents:
 - Minor Magic,
-- Major Magic.
+- Major Magic,
+- Feat.
 
 New Magus Arcana:
 - Familiar,
@@ -303,7 +305,8 @@ enchanced attacks,
 - Empyreal sorceror no longer receives wings,
 - Celestial Sorcerer receives wings at lvl 9 and does not receive heavenly aura,
 - Abyssal bloodline sorcerer no longer receives wings,
-- Arcane bloodline combat casting was replaced with metamagic adept as per pnp rules.
+- Arcane bloodline combat casting was replaced with metamagic adept as per pnp rules,
+- Combat Trick rogue talent can not be taken more than once.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

@@ -3838,6 +3838,12 @@ namespace CallOfTheWild
 
             area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
 
+            var stinking_cloud_area = library.Get<BlueprintAbilityAreaEffect>("aa2e0a0fe89693f4e9205fd52c5ba3e5");
+            var cloudkill_area = library.Get<BlueprintAbilityAreaEffect>("6df1ac314d4e6e9418e34470b79f90d8");
+            var mind_fog_area = library.Get<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8");
+            stinking_cloud_area.AddComponents(area.ComponentsArray);
+            cloudkill_area.AddComponents(area.ComponentsArray);
+            mind_fog_area.AddComponents(area.ComponentsArray);
 
             obscuring_mist = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "ObscuringMistAbility", "");
             obscuring_mist.SpellResistance = false;
@@ -4727,7 +4733,7 @@ namespace CallOfTheWild
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Poison));
 
             var concleament_buff = library.CopyAndAdd<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674", "BloodMistConcleamentBuff", "");
-            concleament_buff.SetName("Blood Mist Concleament");
+            concleament_buff.SetName("Blood Mist Concealment");
             concleament_buff.SetDescription(buff.Description);
             concleament_buff.FxOnStart = null;
             concleament_buff.ReplaceComponent<AddConcealment>(a => a.Descriptor = ConcealmentDescriptor.Fog);
