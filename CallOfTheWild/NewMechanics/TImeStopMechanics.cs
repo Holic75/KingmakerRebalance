@@ -103,7 +103,7 @@ namespace CallOfTheWild.TImeStopMechanics
         public override void OnTurnOn()
         {
             this.Owner.State.IsUntargetable.Retain();
-            //this.Owner.Unit.PreventDirectControl.Retain();
+            this.Owner.Unit.PreventDirectControl.Retain();
             this.Owner.State.AddCondition(UnitCondition.CantAct, (Buff)null);
             this.Owner.State.AddCondition(UnitCondition.CantMove, (Buff)null);
             foreach (var buff in Owner.Buffs.Enumerable)

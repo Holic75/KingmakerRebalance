@@ -75,6 +75,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeature vanishing_trick;//
         //+all rogue talents
         //master tricks
+        static public BlueprintFeature unarmed_combat_mastery;
         static public BlueprintFeature blinding_bomb;//
         static public BlueprintFeature invisible_blade;//
         static public BlueprintFeature see_the_unseen;//
@@ -275,6 +276,7 @@ namespace CallOfTheWild.Archetypes
             createSeeTheUnseen();
             createHerbalCompound();
             createKamikaze();
+            createUnarmedCombatMastery();
 
             addToNinjaTricks(style_master);
             addToNinjaTricks(smoke_bomb);
@@ -287,6 +289,7 @@ namespace CallOfTheWild.Archetypes
             addToNinjaTricks(see_the_unseen, true);
             addToNinjaTricks(herbal_compound);
             addToNinjaTricks(kamikaze);
+            addToNinjaTricks(unarmed_combat_mastery, true);
         }
 
 
@@ -536,6 +539,31 @@ namespace CallOfTheWild.Archetypes
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
             kamikaze = Common.AbilityToFeature(ability, false);
+        }
+
+
+        static void createUnarmedCombatMastery()
+        {
+            var classes = getRogueArray().AddToArray(library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124"));
+            var unarmed1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
+            var unarmed1d10 = library.Get<BlueprintFeature>("f790a36b5d6f85a45a41244f50b947ca");
+            var unarmed2d6 = library.Get<BlueprintFeature>("b3889f445dbe42948b8bb1ba02e6d949");
+            var unarmed2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
+
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+
+            unarmed_combat_mastery = Helpers.CreateFeature("NinjaUnarmedCombatMastery",
+                                                           "Unarmed Combat Mastery",
+                                                           "A ninja who selects this trick deals damage with her unarmed strikes as if she were a monk of her ninja level –4. If the ninja has levels in monk, this ability stacks with monk levels to determine how much damage she can do with her unarmed strikes.",
+                                                           "",
+                                                           Helpers.GetIcon("641dc4bbfb8c13b43a879ba9a2e196b3"), //finesse training unarmed
+                                                           FeatureGroup.None,
+                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 0; a.max_level = 11; a.classes = classes; a.Feature = unarmed1d8; }),
+                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 12; a.max_level = 15; a.classes = classes; a.Feature = unarmed1d10; }),
+                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 16; a.max_level = 19; a.classes = classes; a.Feature = unarmed2d6; }),
+                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 20; a.classes = classes; a.Feature = unarmed2d8; }),
+                                                           Helpers.PrerequisiteFeature(improved_unarmed_strike)
+                                                           );
         }
 
     }

@@ -1174,6 +1174,22 @@ namespace CallOfTheWild
             var sylvan_animal_companion = library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c");
             sylvan_animal_companion.SetDescription("At 1st level, you gain an animal companion. Your effective druid level for this ability is equal to your sorcerer level – 3 (minimum 1st).\n" + sylvan_animal_companion.Description);
         }
+
+
+        static internal void fixPhysicalDrBypassToApplyToAllPhysicalDamage()
+        {
+            var features = library.GetAllBlueprints().OfType<BlueprintUnitFact>();
+
+            foreach (var f in features)
+            {
+                var drs = f.GetComponents<AddOutgoingPhysicalDamageProperty>();
+                foreach (var dr in drs)
+                {
+                    dr.AffectAnyPhysicalDamage = true;
+                }
+            }
+                
+        }
     }
 
 

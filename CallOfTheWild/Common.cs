@@ -809,6 +809,7 @@ namespace CallOfTheWild
             a.Alignment = alignment;
             a.CheckRange = check_range;
             a.IsRanged = is_ranged;
+            a.AffectAnyPhysicalDamage = true;
             return a;
         }
 
@@ -820,6 +821,7 @@ namespace CallOfTheWild
             a.Material = matrerial;
             a.CheckRange = check_range;
             a.IsRanged = is_ranged;
+            a.AffectAnyPhysicalDamage = true;
             return a;
         }
 
@@ -830,6 +832,7 @@ namespace CallOfTheWild
             a.AddMagic = true;
             a.CheckRange = check_range;
             a.IsRanged = is_ranged;
+            a.AffectAnyPhysicalDamage = true;
             return a;
         }
 
@@ -841,6 +844,7 @@ namespace CallOfTheWild
             a.IsRanged = is_ranged;
             a.AddReality = true;
             a.Reality = DamageRealityType.Ghost;
+            a.AffectAnyPhysicalDamage = true;
             return a;
         }
 
