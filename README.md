@@ -306,7 +306,8 @@ enchanced attacks,
 - Celestial Sorcerer receives wings at lvl 9 and does not receive heavenly aura,
 - Abyssal bloodline sorcerer no longer receives wings,
 - Arcane bloodline combat casting was replaced with metamagic adept as per pnp rules,
-- Combat Trick rogue talent can not be taken more than once.
+- Combat Trick rogue talent can not be taken more than once,
+- True Seeing allows to see through illusion concealement.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

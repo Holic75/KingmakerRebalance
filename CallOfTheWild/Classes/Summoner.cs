@@ -608,6 +608,7 @@ namespace CallOfTheWild
         {
             createSummonerProficiencies();
             createSummonerCantrips();
+            createSummonMonster();
             createEidolon();
             createLink();
             createLifeLink();
@@ -615,8 +616,7 @@ namespace CallOfTheWild
             createShieldAllyAndGreaterSheildAlly();
             createMakersCallAndTranspostion();
             createAspect();
-            createGreaterAspect();
-            createSummonMonster();
+            createGreaterAspect();            
             createMergeForms();
             createTwinEidolon();
 
@@ -985,9 +985,11 @@ namespace CallOfTheWild
             ability.ReplaceComponent(dimension_door_component, dimension_door_call);
             ability.AddComponent(makers_call_resource.CreateResourceLogic());
             ability.setMiscAbilityParametersSelfOnly();
+            ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true));
 
             makers_call = Common.AbilityToFeature(ability, false);
             makers_call.AddComponent(Helpers.CreateAddAbilityResource(makers_call_resource));
+            
 
             var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
             var ability2 = Helpers.CreateAbility("SummonerTranspositionAbility",
@@ -1005,7 +1007,9 @@ namespace CallOfTheWild
                                                                                ),
                                                       makers_call_resource.CreateResourceLogic()
                                                      );
+            ability2.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true));
             transposition = Common.AbilityToFeature(ability2, false);
+            
         }
 
 
@@ -1190,6 +1194,50 @@ namespace CallOfTheWild
 
                 evolution_distribution.Add(feature);
             }
+
+
+            var unsummon_buff = Helpers.CreateBuff("EidolonUnsummonedBuff",
+                                                   "Eidolon Unsummoned",
+                                                   "Your eidolon is unsummoned.",
+                                                   "",
+                                                   Helpers.GetIcon("4aa7942c3e62a164387a73184bca3fc1"), //disintegrate
+                                                   null,
+                                                   Helpers.CreateAddFactContextActions(activated: new GameAction[] { Helpers.Create<CompanionMechanics.ContextActionUnsummonCompanion>() },
+                                                       deactivated: new GameAction[] { Helpers.Create<CompanionMechanics.ContextActionSummonCompanion>(),
+                                                                                       Helpers.Create<ContextActionClearSummonPool>(c => c.SummonPool = summon_pool)
+                                                                                     })
+                                                  );
+           unsummon_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+            var unsummon_companion = Helpers.CreateAbility("EidolonUnsummonAbility",
+                                                           "Unsummon Eidolon",
+                                                           "Unsummon your eidolon.",
+                                                           "",
+                                                           unsummon_buff.Icon,
+                                                           AbilityType.Supernatural,
+                                                           CommandType.Standard,
+                                                           AbilityRange.Personal,
+                                                           "",
+                                                           "",
+                                                           Helpers.CreateRunActions(Common.createContextActionApplyBuff(unsummon_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)),
+                                                           Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true));
+
+            unsummon_companion.setMiscAbilityParametersSelfOnly();
+            var summon_companion = Helpers.CreateAbility("EidolonSummonAbility",
+                                                           "Summon Eidolon",
+                                                           "Summons previously unsummoned eidolon.",
+                                                           "",
+                                                           unsummon_companion.Icon,
+                                                           AbilityType.Supernatural,
+                                                           CommandType.Standard,
+                                                           AbilityRange.Personal,
+                                                           "",
+                                                           "",
+                                                           Helpers.CreateRunActions(Helpers.Create<ContextActionRemoveBuff>(c => c.Buff = unsummon_buff)),
+                                                           Helpers.Create<CompanionMechanics.AbilityCasterCompanionUnsummoned>());
+            Common.setAsFullRoundAction(summon_companion);
+            summon_companion.setMiscAbilityParametersSelfOnly();
+            eidolon_selection.AddComponent(Helpers.CreateAddFacts(summon_companion, unsummon_companion));
         }
 
 

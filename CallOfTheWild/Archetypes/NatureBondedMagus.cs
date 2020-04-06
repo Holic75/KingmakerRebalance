@@ -157,7 +157,7 @@ namespace CallOfTheWild.Archetypes
         {
             symbiosis = Helpers.CreateFeature("SymbiosisNatureBondedMagusFeature",
                                               "Symbiosis",
-                                                "A 4th level, a nature-bonded magus gains +1 bonus to its natural AC. Tsis bonus increases by 1 at 7th level and every 4 levels thereafter.",
+                                                "A 4th level, a nature-bonded magus gains +1 bonus to its natural AC. This bonus increases by 1 at 7th level and every 4 levels thereafter.",
                                                 "",
                                                 Helpers.GetIcon("5b77d7cc65b8ab74688e74a37fc2f553"), //barkskin
                                                 FeatureGroup.None,

@@ -103,11 +103,12 @@ namespace CallOfTheWild.ConcealementMechanics
                 return Concealment.None; //no concelement update
             }
          
-            Concealment a = Concealment.None;   
+            Concealment a = Concealment.None;
+            var ignore_fog_concealement_part = initiator.Get<UnitPartIgnoreFogConcealement>();
 
             foreach (UnitPartConcealment.ConcealmentEntry concealment in unitPartOutgoingConcealment.m_Concealments)
             {
-                var ignore_fog_concealement_part = initiator.Get<UnitPartIgnoreFogConcealement>();
+               
                 if (concealment.Descriptor == ConcealmentDescriptor.Fog && ignore_fog_concealement_part != null && ignore_fog_concealement_part.active())
                 {
                     continue;
@@ -162,6 +163,8 @@ namespace CallOfTheWild.ConcealementMechanics
         {
             UnitPartConcealment unitPartConcealment1 = initiator.Get<UnitPartConcealment>();
             UnitPartConcealment unitPartConcealment2 = target.Get<UnitPartConcealment>();
+
+            bool has_true_seeing = initiator.Descriptor.State.HasCondition(UnitCondition.TrueSeeing);
             if (unitPartConcealment1 != null && unitPartConcealment1.IgnoreAll)
             {
                 __result = Concealment.None;
@@ -197,6 +200,12 @@ namespace CallOfTheWild.ConcealementMechanics
                     {
                         continue;
                     }
+
+                    if (concealment.Descriptor != ConcealmentDescriptor.Fog && has_true_seeing)
+                    {
+                        continue;
+                    }
+
                     if (!concealment.OnlyForAttacks || attack)
                     {
                         if (concealment.DistanceGreater > 0.Feet())

@@ -1126,7 +1126,6 @@ namespace CallOfTheWild
                                       );
 
             remove_persuation_inspiration_ability.HideInCharacterSheetAndLevelUp = true;
-            Main.logger.Log("Perception");
             expanded_inspiration.AddComponents(Common.createRemoveFeatureOnApply(inspiration_ability_features["SkillPerception"]),
                                                Helpers.CreateAddFact(inspiration_features["SkillPerception"]),
                                                Common.createAddFeatureIfHasFact(underworld_inspiration, remove_persuation_inspiration_ability));

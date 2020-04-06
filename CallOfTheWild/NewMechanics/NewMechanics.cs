@@ -3676,7 +3676,7 @@ namespace CallOfTheWild
 
             public string GetReason()
             {
-                return "Companion is alive";
+                return $"Companion is {(not ? "dead" : "alive")}";
             }
         }
 

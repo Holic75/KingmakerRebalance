@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Root;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -15,6 +16,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -25,6 +27,113 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.CompanionMechanics
 {
+
+    public class UnitPartUnsummonedCompanion : UnitPart
+    {
+        [JsonProperty]
+        private int companion_hp = -1;
+
+
+        public bool active()
+        {
+            return companion_hp > 0;
+        }
+
+        public void activate()
+        {
+            Main.logger.Log("Activate");
+            if (this.Owner.Pet == null)
+            {
+                return;
+            }
+            if (active())
+            {
+                return;
+            }
+            if (this.Owner.Pet.Descriptor.HPLeft < 0)
+            {
+                return;
+            }
+            companion_hp = this.Owner.Pet.Descriptor.HPLeft;
+            this.Owner.Pet.Descriptor.State.MarkedForDeath = true;
+            this.Owner.Pet.Descriptor.State.IsUntargetable.Retain();
+            
+        }
+
+        public void deactivate()
+        {
+            Main.logger.Log("Deactivate");
+            if (!active())
+            {
+                return;
+            }
+            if (this.Owner.Pet == null)
+            {
+                return;
+            }
+            if (this.Owner.Pet.Descriptor.State.IsDead)
+            {
+                Main.logger.Log("Ressurect");
+                this.Owner.Pet.Descriptor.Resurrect(((float)this.companion_hp) / this.Owner.Pet.MaxHP, true);
+                //this.Owner.Pet.Descriptor.AddBuff(BlueprintRoot.Instance.SystemMechanics.ResurrectionBuff, null, new TimeSpan?(1.Rounds().Seconds));
+            }
+            Main.logger.Log("Release");
+            this.Owner.Pet.Descriptor.State.IsUntargetable.Release();
+            companion_hp = -1;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ContextActionUnsummonCompanion : ContextAction
+    {
+        public override string GetCaption()
+        {
+            return "";
+        }
+
+        public override void RunAction()
+        {
+            this.Target?.Unit?.Ensure<UnitPartUnsummonedCompanion>().activate();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ContextActionSummonCompanion : ContextAction
+    {
+        public override string GetCaption()
+        {
+            return "";
+        }
+
+        public override void RunAction()
+        {
+            Main.logger.Log("Invoke Summon");
+            this.Target?.Unit?.Ensure<UnitPartUnsummonedCompanion>().deactivate();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityCasterCompanionUnsummoned : BlueprintComponent, IAbilityCasterChecker
+    {
+        public bool CorrectCaster(UnitEntityData caster)
+        {
+            return caster.Ensure<UnitPartUnsummonedCompanion>().active();
+        }
+
+        public string GetReason()
+        {
+            return "Companion is alive";
+        }
+    }
+
+
+
+
+
+
     public class TransferDamageAfterThresholdToPet : RuleTargetLogicComponent<RuleDealDamage>
     {
         public int threshold = 1;
