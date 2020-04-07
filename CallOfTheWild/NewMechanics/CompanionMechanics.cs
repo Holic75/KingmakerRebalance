@@ -2,6 +2,7 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -17,6 +18,7 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -126,6 +128,43 @@ namespace CallOfTheWild.CompanionMechanics
         public string GetReason()
         {
             return "Companion is alive";
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class ContextActionPetIsAlive : ContextCondition
+    {
+        
+        protected override bool CheckCondition()
+        {
+            var pet = this.Context.MaybeCaster?.Descriptor?.Pet;
+            return pet != null && !pet.Descriptor.State.IsDead;
+        }
+
+        protected override string GetConditionCaption()
+        {
+            return "";
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityCasterCompanionDeadOrSummonPoolEmpty : BlueprintComponent, IAbilityCasterChecker
+    {
+        public BlueprintSummonPool SummonPool;
+        public bool not;
+        public bool CorrectCaster(UnitEntityData caster)
+        {
+            var pet = caster?.Descriptor?.Pet;
+            return not != ((pet == null || pet.Descriptor.State.IsDead) || GameHelper.GetSummonPool(this.SummonPool).Count <= 0);
+        }
+
+        public string GetReason()
+        {
+            return $"Companion is {(not ? "dead" : "alive")}";
         }
     }
 

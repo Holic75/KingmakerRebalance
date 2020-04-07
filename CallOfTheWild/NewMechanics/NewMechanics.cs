@@ -7059,5 +7059,21 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt) { }
         }
 
+
+        public class HasUnitsInSummonPool : ContextCondition
+        {
+            public BlueprintSummonPool SummonPool;
+
+            protected override string GetConditionCaption()
+            {
+                return "";
+            }
+
+            protected override bool CheckCondition()
+            {
+                return GameHelper.GetSummonPool(this.SummonPool).Count > 0;
+            }
+        }
+
     }
 }

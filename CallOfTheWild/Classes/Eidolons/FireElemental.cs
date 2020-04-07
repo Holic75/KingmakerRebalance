@@ -306,6 +306,8 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             fire_quadruped_eidolon.UIGroups = Helpers.CreateUIGroups(feature1q, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(fire_elemental_eidolon);
+            addLesserEidolon(fire_quadruped_eidolon);
         }
     }
 }

@@ -81,6 +81,7 @@ namespace CallOfTheWild
 
         static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
 
+        static Dictionary<BlueprintProgression, BlueprintProgression> normal_to_lesser_eidolon_map = new Dictionary<BlueprintProgression, BlueprintProgression>();
 
         static public void create()
         {
@@ -89,6 +90,35 @@ namespace CallOfTheWild
             Evolutions.initialize();
             fillEidolonProgressions();
             correctText();
+        }
+
+
+        static void addLesserEidolon(BlueprintProgression normal_eidolon)
+        {
+            var lesser_eidolon = library.CopyAndAdd(normal_eidolon, "Lesser" + normal_eidolon.Name, "");
+            lesser_eidolon.SetName("Lesser " + normal_eidolon.Name);
+            lesser_eidolon.LevelEntries = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, normal_eidolon.LevelEntries[0].Features),
+                Helpers.LevelEntry(8, normal_eidolon.LevelEntries[1].Features),
+                Helpers.LevelEntry(16, normal_eidolon.LevelEntries[2].Features)
+            };
+            normal_to_lesser_eidolon_map.Add(normal_eidolon, lesser_eidolon);
+        }
+
+        static public BlueprintFeature[] getLesserEidolons()
+        {
+            return normal_to_lesser_eidolon_map.Values.ToArray();
+        }
+
+
+        static public BlueprintProgression getLesserEidolon(BlueprintProgression normal_eidolon)
+        {
+            if (normal_eidolon == null)
+            {
+                return null;
+            }
+            return normal_to_lesser_eidolon_map.ContainsKey(normal_eidolon) ? normal_to_lesser_eidolon_map[normal_eidolon] : null;
         }
 
 

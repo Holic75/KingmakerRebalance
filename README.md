@@ -12,7 +12,7 @@ It introduces new classes:
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner,
-- Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist,
+- Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist and Master Summoner,
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:

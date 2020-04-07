@@ -266,7 +266,6 @@ namespace CallOfTheWild.Archetypes
             ninja_trick.AllFeatures = ninja_trick.AllFeatures.AddToArray(improved_unarmed_strike);
 
             var evasion = library.Get<BlueprintFeature>("576933720c440aa4d8d42b0c54b77e80");
-            ninja_trick.AllFeatures = ninja_trick.AllFeatures.AddToArray(evasion);
 
             createStyleMaster();
             createBombs();
@@ -290,6 +289,7 @@ namespace CallOfTheWild.Archetypes
             addToNinjaTricks(herbal_compound);
             addToNinjaTricks(kamikaze);
             addToNinjaTricks(unarmed_combat_mastery, true);
+            addToNinjaTricks(evasion, true);
         }
 
 

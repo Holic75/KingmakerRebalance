@@ -114,7 +114,7 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   addTransferableFeatToEidolon("AgathionEidolonLevel1AddFeature",
                                                                                Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Petrified)),
-                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true),
+                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 32, Summoner.getSummonerArray(), before: true),
                                                   Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = Evolutions.bite)
                                                   );
 
@@ -215,6 +215,8 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             agathion_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+
+            addLesserEidolon(agathion_eidolon);
         }
     }
 }

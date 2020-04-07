@@ -302,6 +302,8 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             earth_quadruped_eidolon.UIGroups = Helpers.CreateUIGroups(feature1q, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(earth_elemental_eidolon);
+            addLesserEidolon(earth_quadruped_eidolon);
         }
     }
 }

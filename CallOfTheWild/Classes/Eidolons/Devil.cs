@@ -146,7 +146,7 @@ namespace CallOfTheWild
                                                                                 ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.skilled[1]),
-                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
+                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 32, Summoner.getSummonerArray(), before: true)
                                                   );
 
             var feature4 = Helpers.CreateFeature("DevilEidolonLevel4Feature",
@@ -230,6 +230,7 @@ namespace CallOfTheWild
 
             infernal_eidolon.LevelEntries = devil_eidolon.LevelEntries;
             infernal_eidolon.UIGroups = devil_eidolon.UIGroups;
+            addLesserEidolon(devil_eidolon);
         }
     }
 }

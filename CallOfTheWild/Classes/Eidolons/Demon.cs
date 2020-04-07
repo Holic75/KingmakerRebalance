@@ -131,7 +131,7 @@ namespace CallOfTheWild
                                                                                 Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)
                                                                                 ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
-                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
+                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 32, Summoner.getSummonerArray(), before: true)
                                                   );
 
             var feature4 = Helpers.CreateFeature("DemonEidolonLevel4Feature",
@@ -206,6 +206,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             demon_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(demon_eidolon);
         }
     }
 }

@@ -129,6 +129,15 @@ namespace CallOfTheWild
                 conflicting_evolutions = conflicting_evolution_features;
                 required_evolutions = required_evolution_features;
                 subtypes = authorised_subtypes;
+
+                foreach (var subtype in authorised_subtypes)
+                {
+                    var lesser_subtype = Eidolon.getLesserEidolon(subtype as BlueprintProgression);
+                    if (lesser_subtype != null)
+                    {
+                        subtypes = subtypes.AddToArray(lesser_subtype);
+                    }
+                }
                 has_upgrade = upgradeable;
                 upgrade_cost = next_level_total_cost;
                 base_evolutions = previous_evolutions ?? new BlueprintFeature[0];

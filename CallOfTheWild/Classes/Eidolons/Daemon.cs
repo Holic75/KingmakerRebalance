@@ -130,7 +130,7 @@ namespace CallOfTheWild
                                                   addTransferableFeatToEidolon("DaemonEidolonLevel1AddFeature",
                                                                                Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison | SpellDescriptor.Death | SpellDescriptor.Disease)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.claws),
-                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
+                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 32, Summoner.getSummonerArray(), before: true)
                                                   );
 
             var feature4 = Helpers.CreateFeature("DaemonEidolonLevel4Feature",
@@ -237,6 +237,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             daemon_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(daemon_eidolon);
         }
     }
 }

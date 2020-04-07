@@ -2744,6 +2744,7 @@ namespace CallOfTheWild
                 {
                     actions[i] = actions[i].CreateCopy();
                     change(actions[i] as T);
+                    continue;
                 }
 
                 if (actions[i] is Conditional)
@@ -2769,6 +2770,46 @@ namespace CallOfTheWild
         }
 
 
+        public static GameAction[] replaceActions<T>(GameAction[] action_list, GameAction action) where T : GameAction
+        {
+            //we assume that only possible actions are actual actions, conditionals, ContextActionSavingThrow or ContextActionConditionalSaved
+            var actions = action_list.ToList();
+            int num_actions = actions.Count();
+            for (int i = 0; i < num_actions; i++)
+            {
+                if (actions[i] == null)
+                {
+                    continue;
+                }
+                else if (actions[i] is T)
+                {
+                    actions[i] = action;
+                    continue;
+                }
+
+                if (actions[i] is Conditional)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as Conditional).IfTrue = Helpers.CreateActionList(replaceActions<T>((actions[i] as Conditional).IfTrue.Actions, action));
+                    (actions[i] as Conditional).IfFalse = Helpers.CreateActionList(replaceActions<T>((actions[i] as Conditional).IfFalse.Actions, action));
+                }
+                else if (actions[i] is ContextActionConditionalSaved)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as ContextActionConditionalSaved).Succeed = Helpers.CreateActionList(replaceActions<T>((actions[i] as ContextActionConditionalSaved).Succeed.Actions, action));
+                    (actions[i] as ContextActionConditionalSaved).Failed = Helpers.CreateActionList(replaceActions<T>((actions[i] as ContextActionConditionalSaved).Failed.Actions, action));
+                }
+                else if (actions[i] is ContextActionSavingThrow)
+                {
+                    actions[i] = actions[i].CreateCopy();
+                    (actions[i] as ContextActionSavingThrow).Actions = Helpers.CreateActionList(replaceActions<T>((actions[i] as ContextActionSavingThrow).Actions.Actions, action));
+                }
+            }
+
+            return actions.ToArray();
+        }
+
+
         public static List<T> extractActions<T>(GameAction[] action_list) where T : GameAction
         {
             //we assume that only possible actions are actual actions, conditionals, ContextActionSavingThrow or ContextActionConditionalSaved
@@ -2783,6 +2824,7 @@ namespace CallOfTheWild
                 else if (action_list[i] is T)
                 {
                     found_actions.Add(action_list[i] as T);
+                    continue;
                 }
 
                 if (action_list[i] is Conditional)

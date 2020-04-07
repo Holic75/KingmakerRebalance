@@ -113,6 +113,7 @@ namespace CallOfTheWild
             angel_eidolon.ReplaceComponent<AddPet>(a => a.Pet = angel_unit);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(angel_eidolon);
+            
         }
 
 
@@ -137,7 +138,7 @@ namespace CallOfTheWild
                                                   addTransferableFeatToEidolon("AngelEidolonLevel1AddFeature",
                                                                                Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison)),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped),
-                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
+                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 32, Summoner.getSummonerArray(), before: true)
                                                   );
 
             var feature4 = Helpers.CreateFeature("AngelEidolonLevel4Feature",
@@ -209,6 +210,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             angel_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(angel_eidolon);
         }
     }
 }

@@ -291,6 +291,8 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             water_serpentine_eidolon.UIGroups = Helpers.CreateUIGroups(feature1s, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(water_elemental_eidolon);
+            addLesserEidolon(water_serpentine_eidolon);
         }
     }
 }

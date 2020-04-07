@@ -123,12 +123,12 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = Evolutions.bite),
                                                   Helpers.Create<EvolutionMechanics.AddFakeEvolution>(a => a.Feature = Evolutions.tail_slap),
-                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 16, Summoner.getSummonerArray(), before: true)
+                                                  Helpers.CreateAddFeatureOnClassLevel(base_evolutions, 32, Summoner.getSummonerArray(), before: true)
                                                   );
 
             var feature4 = Helpers.CreateFeature("ProteanEidolonLevel4Feature",
                                                   "Resistance",
-                                                 " At 4th level, protean eidolons gain electricity resistance 10 and sonic resistance 10.",
+                                                  "At 4th level, protean eidolons gain electricity resistance 10 and sonic resistance 10.",
                                                   "",
                                                   Helpers.GetIcon("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
                                                   FeatureGroup.None,
@@ -249,6 +249,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             protean_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
+            addLesserEidolon(protean_eidolon);
         }
     }
 

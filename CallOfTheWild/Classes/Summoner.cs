@@ -89,6 +89,14 @@ namespace CallOfTheWild
         static AnimalFocusEngine animal_focus_engine;
 
 
+        static public BlueprintArchetype master_summoner;
+        static public BlueprintFeatureSelection lesser_eidolon_selection;
+        static List<BlueprintFeature> lesser_evolution_distribution = new List<BlueprintFeature>();
+        static public BlueprintSummonPool master_summoner_free_pool;
+        static public BlueprintFeature[] master_summoner_summon_monster = new BlueprintFeature[9];
+        static public BlueprintAbilityResource master_summon_resource;
+
+
 
 
         internal static void createSummonerClass()
@@ -141,7 +149,8 @@ namespace CallOfTheWild
             createDevilBinder();
             createFeyCaller();
             createNaturalist();
-            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist }; // twinned summoner, master summoner, spirit summoner ?
+            createMasterSummoner();
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist, master_summoner };
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
@@ -162,6 +171,192 @@ namespace CallOfTheWild
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, summoner_class.Spellbook, "DragonDiscipleSummoner",
                                         Common.createPrerequisiteClassSpellLevel(summoner_class, 1));
 
+        }
+
+
+        static void createMasterSummoner()
+        {
+            master_summoner = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "MasterSummonerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Master Summoner");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Most summoners forge a bond with a single, powerful eidolon, but some summoners seek to control a variety of creatures. The master summoner sacrifices the power of his eidolon in favor of summoning a plethora of otherworldly creatures to aid him.");
+            });
+            Helpers.SetField(master_summoner, "m_ParentClass", summoner_class);
+            library.AddAsset(master_summoner, "");
+
+            createLesserEidolon();
+            createMasterSummons();
+
+
+            master_summoner.RemoveFeatures = new LevelEntry[20];
+            master_summoner.RemoveFeatures[0] = Helpers.LevelEntry(1, eidolon_selection);
+            master_summoner.RemoveFeatures[3] = Helpers.LevelEntry(4, shield_ally);
+            master_summoner.RemoveFeatures[11] = Helpers.LevelEntry(12, greater_shield_ally);
+            master_summoner.AddFeatures = new LevelEntry[20];
+
+            for (int i = 0; i < 20; i++)
+            {
+                if (master_summoner.RemoveFeatures[i] == null)
+                {
+                    master_summoner.RemoveFeatures[i] = Helpers.LevelEntry(i + 1);
+                }
+                master_summoner.RemoveFeatures[i].Features.Add(evolution_distribution[i]);
+                if (i == 0)
+                {
+                    master_summoner.AddFeatures[i] = Helpers.LevelEntry(i + 1, lesser_eidolon_selection, lesser_evolution_distribution[i]);
+                }
+                else
+                {
+                    master_summoner.AddFeatures[i] = Helpers.LevelEntry(i + 1, lesser_evolution_distribution[i]);
+                }
+            }
+
+            for (int i = 0; i < 9; i++)
+            {
+                master_summoner.RemoveFeatures[i * 2].Features.Add(summon_monster[i]);
+                master_summoner.AddFeatures[i * 2].Features.Add(master_summoner_summon_monster[i]);
+            }
+
+            var augment_summoning = library.Get<BlueprintFeature>("38155ca9e4055bb48a89240a2055dcc3");
+            var master_augment_summoning = Helpers.CreateFeature("MasterSummonerAugmentSummoning",
+                                                                 augment_summoning.Name,
+                                                                 "At 2nd level, a master summoner gains Augment Summoning as a bonus feat. He does not have to meet any requirements for this feat.",
+                                                                 "",
+                                                                 augment_summoning.Icon,
+                                                                 FeatureGroup.None,
+                                                                 Helpers.CreateAddFact(augment_summoning)
+                                                                 );
+
+            master_summoner.AddFeatures[1].Features.Add(master_augment_summoning);
+
+            summoner_class.Progression.UIGroups[0].Features.Add(master_augment_summoning);
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(master_summoner_summon_monster));
+            summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(lesser_eidolon_selection);
+        }
+
+
+        static void createMasterSummons()
+        {
+            var mt_feats = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("c19f6f34ed0bc364cbdec88b49a54f67"),
+                library.Get<BlueprintFeature>("45e466127a8961d40bb3030816ed245b"),
+                library.Get<BlueprintFeature>("ea26b3a3acb98074fa34f80fcc4e497d"),
+                library.Get<BlueprintFeature>("03168f4f13ff26f429d912085e88baba"),
+                library.Get<BlueprintFeature>("00fda605a917fcc4e89612dd31683bdd"),
+                library.Get<BlueprintFeature>("9b14b05456142914888a48354a0eec17"),
+                library.Get<BlueprintFeature>("667fd017406abd548b89292edd7dbfb7"),
+                library.Get<BlueprintFeature>("20d72612311ba914aaba5cc8a4cf312c"),
+                library.Get<BlueprintFeature>("f63d23b4e41b3264fa6aa2be8079d28d")
+            };
+
+            master_summon_resource = Helpers.CreateAbilityResource("MasterSummonnerSummonResource", "", "", "", null);
+            master_summon_resource.SetIncreasedByStat(5, StatType.Charisma);
+            var description = "Starting at 1st level, a master summoner can cast summon monster I as a spell-like ability a number of times per day equal to 5 + his Charisma modifier. The summoner can use this ability when his eidolon is summoned. Only one summon monster spell may be in effect while the eidolon is summoned. If the summoner’s eidolon is not summoned, the number of creatures that can be summoned with this ability is only limited by its uses per day. This ability otherwise functions as the summoner’s normal summon monster I ability. Other than these restrictions, there is no limit to how many summon monster spells the summoner can have active at one time.";
+            master_summoner_free_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "MasterSummonerSummonPool", "");
+
+            for (int i = 0; i < mt_feats.Length; i++)
+            {
+                List<BlueprintAbility> summon_spells = new List<BlueprintAbility>();
+                foreach (var f in mt_feats[i].GetComponent<AddFacts>().Facts)
+                {
+                    var ability = library.CopyAndAdd<BlueprintAbility>(f.AssetGuid, f.name.Replace("MonsterTactician", "MasterSummoner"), "");
+                    ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = master_summon_resource);
+                    foreach (var c in ability.GetComponents<ContextRankConfig>())
+                    {
+                        if (c.IsBasedOnClassLevel)
+                        {
+                            var new_c = c.CreateCopy(crc => Helpers.SetField(crc, "m_Class", getSummonerArray()));
+                            ability.ReplaceComponent(c, new_c);
+                        }
+                    }
+
+                    var clear_action = Helpers.CreateConditional(Helpers.Create<CompanionMechanics.ContextActionPetIsAlive>(),
+                                                                 Helpers.Create<ContextActionClearSummonPool>(c => c.SummonPool = summon_pool));
+                    var new_actions = Common.replaceActions<ContextActionClearSummonPool>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, clear_action);
+                    var summon_action = Common.extractActions<ContextActionSpawnMonster>(new_actions).FirstOrDefault();
+
+                    var summon_free = summon_action.CreateCopy(s => s.SummonPool = master_summoner_free_pool);
+                    var summon_normal = summon_action.CreateCopy(s => s.SummonPool = summon_pool);
+
+                    var summon_action2 = Helpers.CreateConditional(Helpers.Create<NewMechanics.HasUnitsInSummonPool>(h => h.SummonPool = master_summoner_free_pool),
+                                                           summon_normal, summon_free);
+                    new_actions = Common.replaceActions<ContextActionSpawnMonster>(new_actions, summon_action2);
+
+                    ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+                    ability.AddComponent(Helpers.Create<CompanionMechanics.AbilityCasterCompanionDeadOrSummonPoolEmpty>(a => a.SummonPool = master_summoner_free_pool));
+                    summon_spells.Add(ability);
+                }
+
+                BlueprintAbility summon_base = null;
+                if (summon_spells.Count == 1)
+                {
+                    summon_base = summon_spells[0];
+                }
+                else
+                {
+                    summon_base = Common.createVariantWrapper($"MasterSummonerSummon{i + 1}Base", "", summon_spells.ToArray());
+                    summon_base.SetNameDescription("Summon Monster " + Common.roman_id[i + 1], description);
+                }
+
+                master_summoner_summon_monster[i] = Helpers.CreateFeature($"MasterSummonerSummonMonster{i + 1}Feature",
+                                                                          "Summon Monster " + Common.roman_id[i + 1],
+                                                                          description,
+                                                                          "",
+                                                                          summon_spells[0].Icon,
+                                                                          FeatureGroup.None,
+                                                                          Helpers.CreateAddFact(summon_base)
+                                                                          );
+                if (i == 0)
+                {
+                    master_summoner_summon_monster[i].AddComponent(master_summon_resource.CreateAddAbilityResource());
+                }
+            }
+        }
+
+
+        static void createLesserEidolon()
+        {
+            var summoner_eidolon_rank_progression = library.CopyAndAdd<BlueprintProgression>("125af359f8bc9a145968b5d8fd8159b8", "SummonerLesserEidolonProgression", "");
+            summoner_eidolon_rank_progression.Classes = getSummonerArray();
+            summoner_eidolon_rank_progression.LevelEntries = summoner_eidolon_rank_progression.LevelEntries.Where(x => x.Level > 2 && (x.Level % 2 == 0)).ToArray();
+            lesser_eidolon_selection = Helpers.CreateFeatureSelection("LesserEidolonFeatureSelection",
+                                                                  "Lesser Eidolon",
+                                                                  "A master summoner’s class level is halved (minimum 1) for the purposes of determining his eidolon’s abilities, Hit Dice, evolution pool, and so on. The eidolon otherwise functions as normal.",
+                                                                  "",
+                                                                  null,
+                                                                  FeatureGroup.AnimalCompanion,
+                                                                  Helpers.Create<AddFeatureOnApply>(a => a.Feature = summoner_eidolon_rank_progression),
+                                                                  Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d"))
+                                                                  );
+            lesser_eidolon_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
+            lesser_eidolon_selection.AllFeatures = lesser_eidolon_selection.AllFeatures.AddToArray(Eidolon.getLesserEidolons());
+            lesser_eidolon_selection.AddComponents(eidolon_selection.GetComponents<AddFacts>().ToArray());
+
+            for (int lvl = 1; lvl <= 20; lvl++)
+            {
+                var feature = Helpers.CreateFeature($"SummonerLesserEvolutionDistribution{lvl}Feature",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None);
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.RefreshEvolutionsOnLevelUp>());
+                int half_level = Math.Max(1, lvl / 2);
+                int prev_half_level = lvl == 2 ? 1 : (lvl - 1) / 2;
+                int bonus_ep = Eidolon.EidolonComponent.rank_to_level[half_level] - Eidolon.EidolonComponent.rank_to_level[prev_half_level];
+                if (bonus_ep > 0)
+                {
+                    feature.AddComponent(Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(n => n.amount = bonus_ep));
+                }
+                feature.AddComponent(Helpers.Create<EvolutionMechanics.addEvolutionSelection>(a => a.selection = Evolutions.evolution_selection));
+
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+
+                lesser_evolution_distribution.Add(feature);
+            }
         }
 
 
@@ -1209,7 +1404,7 @@ namespace CallOfTheWild
                                                   );
            unsummon_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
 
-            var unsummon_companion = Helpers.CreateAbility("EidolonUnsummonAbility",
+           var unsummon_companion = Helpers.CreateAbility("EidolonUnsummonAbility",
                                                            "Unsummon Eidolon",
                                                            "Unsummon your eidolon.",
                                                            "",
