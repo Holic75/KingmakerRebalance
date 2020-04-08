@@ -134,6 +134,7 @@
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Archetypes\UntamedRager.cs" />
+    <Compile Include="Archetypes\ZenArcher.cs" />
     <Compile Include="Classes\AnimalFocus.cs" />
     <Compile Include="Classes\Arcanist.cs" />
     <Compile Include="Classes\Eidolons\Agathion.cs" />
@@ -217,6 +218,7 @@
     <Compile Include="NewMechanics\EnchantmentMechanics.cs" />
     <Compile Include="NewMechanics\EncumbranceMechanics.cs" />
     <Compile Include="NewMechanics\EvolutionMechanics.cs" />
+    <Compile Include="NewMechanics\FeatureMechanics.cs" />
     <Compile Include="NewMechanics\LevelUpMechanics.cs" />
     <Compile Include="NewMechanics\ParametrizedFeatureSelection.cs" />
     <Compile Include="NewMechanics\SizeMechanics.cs" />

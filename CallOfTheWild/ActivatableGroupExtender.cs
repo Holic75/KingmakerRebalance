@@ -33,7 +33,8 @@ namespace CallOfTheWild
             InvestigatorStudiedStrike,
             EidolonEvolution,
             EidolonLifeLink,
-            Rage
+            Rage,
+            RapidShot
         }
 
         public static partial class Extensions

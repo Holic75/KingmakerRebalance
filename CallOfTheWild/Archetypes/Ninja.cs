@@ -79,6 +79,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeature blinding_bomb;//
         static public BlueprintFeature invisible_blade;//
         static public BlueprintFeature see_the_unseen;//
+        static public BlueprintFeature flurry_of_darts;
         //+evasion
 
 
@@ -276,6 +277,8 @@ namespace CallOfTheWild.Archetypes
             createHerbalCompound();
             createKamikaze();
             createUnarmedCombatMastery();
+            createFlurryOfDarts();
+
 
             addToNinjaTricks(style_master);
             addToNinjaTricks(smoke_bomb);
@@ -290,6 +293,7 @@ namespace CallOfTheWild.Archetypes
             addToNinjaTricks(kamikaze);
             addToNinjaTricks(unarmed_combat_mastery, true);
             addToNinjaTricks(evasion, true);
+            addToNinjaTricks(flurry_of_darts, true);
         }
 
 
@@ -302,6 +306,39 @@ namespace CallOfTheWild.Archetypes
             {
                 feature.AddComponent(Helpers.PrerequisiteFeature(advanced_talents));
             }
+        }
+
+
+        static void createFlurryOfDarts()
+        {
+            var buff = Helpers.CreateBuff("FlurryOfDartsBuff",
+                                          "Flurry of Darts",
+                                          "A ninja with this ability can expend 1 ki point from her ki pool as a swift action before she makes a full-attack attack with darts. During that attack, she can throw two additional darts at her highest attack bonus, but all of her darts attacks are made at a –2 penalty, including the two extra attacks.",
+                                          "",
+                                          Helpers.GetIcon("b296531ffe013c8499ad712f8ae97f6b"), //acid dart
+                                          null,
+                                          Helpers.Create<NewMechanics.BuffExtraAttackCategorySpecific>(b => b.categories = new WeaponCategory[] { WeaponCategory.Dart })
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var ability = Helpers.CreateAbility("FlurryOfDartsAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Extraordinary,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                ki_resource.CreateResourceLogic(),
+                                                Helpers.Create<AbilityCasterMainWeaponCheck>(a => a.Category = new WeaponCategory[] {WeaponCategory.Dart})
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            flurry_of_darts = Common.AbilityToFeature(ability, false);
         }
 
 

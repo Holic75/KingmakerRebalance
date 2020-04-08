@@ -354,7 +354,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateContextRankConfig(),
                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MovementImpairing)
                                                    );
-            halt_undead.setMiscAbilityParametersSingleTargetRangedHarmful();
+            halt_undead.setMiscAbilityParametersRangedDirectional();
             halt_undead.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             halt_undead.SpellResistance = true;
             halt_undead.AddToSpellList(Helpers.wizardSpellList, 3);

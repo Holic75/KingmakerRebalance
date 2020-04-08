@@ -96,6 +96,10 @@ namespace CallOfTheWild
         static public BlueprintFeature greater_snap_shot;
 
         static public BlueprintFeature dervish_dance;
+        static public BlueprintFeature perfect_strike;
+        static public BlueprintFeature perfect_strike_extra_reroll;
+        static public BlueprintParametrizedFeature perfect_strike_unlocker;
+        
 
 
         static internal void load()
@@ -159,6 +163,83 @@ namespace CallOfTheWild
 
             createSnapShot();
             createDervishDance();
+            createPerfectStrike();
+        }
+
+
+        static void createPerfectStrike()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/PerfectStrike.png");
+            perfect_strike_unlocker = library.CopyAndAdd<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e", "PerfectStrikeUnlocker", "");
+            perfect_strike_unlocker.SetNameDescriptionIcon("Perfect Strike",  "You can use perfect strike feat with specified weapon type.", icon);
+            perfect_strike_unlocker.Groups = new FeatureGroup[0];
+            perfect_strike_unlocker.ComponentsArray = new BlueprintComponent[0];
+
+            perfect_strike_extra_reroll = Helpers.CreateFeature("PerfectStrikeExtraRerollFeature",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    FeatureGroup.None);
+            perfect_strike_extra_reroll.HideInUI = true;
+            perfect_strike_extra_reroll.HideInCharacterSheetAndLevelUp = true;
+
+
+            var resource = library.CopyAndAdd<BlueprintAbilityResource>("d2bae584db4bf4f4f86dd9d15ae56558", "PerfectStrikeResource", "");
+
+            var cooldown_buff = Helpers.CreateBuff("PerfectStrikeCooldownBuff",
+                                                   perfect_strike_unlocker.Name + " Cooldown",
+                                                  "You must declare that you are using this feat before you make your attack roll (thus a failed attack roll ruins the attempt). You must use one of the following weapons to make the attack: kama, nunchaku, quarterstaff, and sai. You can roll your attack roll twice and take the higher result. You may attempt a perfect attack once per day for every four levels you have attained and no more than once per round.",
+                                                  "",
+                                                  perfect_strike_unlocker.Icon,
+                                                  null
+                                                  );
+
+
+            var buff = Helpers.CreateBuff("PerfectStrikeBuff",
+                                          perfect_strike_unlocker.Name,
+                                          cooldown_buff.Description,
+                                          "",
+                                          perfect_strike_unlocker.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.RerollOnWeaponCategoryAndSpendResource>(r =>
+                                                                                                          {
+                                                                                                              r.resource = resource;
+                                                                                                              r.required_features = new BlueprintParametrizedFeature[] { perfect_strike_unlocker };
+                                                                                                              r.prevent_fact = cooldown_buff;
+                                                                                                              r.apply_cooldown_buff_rounds = 1;
+                                                                                                              r.extra_reroll_feature = perfect_strike_extra_reroll;
+                                                                                                          })
+                                                                                                          );
+            var toggle = Helpers.CreateActivatableAbility("PerfectStrikeToggleAbility",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                          null,
+                                                          resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                          );
+            toggle.DeactivateImmediately = true;
+
+
+
+            perfect_strike = Common.ActivatableAbilityToFeature(toggle, false);
+            perfect_strike.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+            perfect_strike.AddComponents(Helpers.PrerequisiteFeature(improved_unarmed_strike),
+                                         Helpers.PrerequisiteStatValue(StatType.Dexterity, 13),
+                                         Helpers.PrerequisiteStatValue(StatType.Wisdom, 13),
+                                         Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 8),
+                                         Helpers.CreateAddAbilityResource(resource),
+                                         Common.createAddParametrizedFeatures(perfect_strike_unlocker, WeaponCategory.Kama),
+                                         Common.createAddParametrizedFeatures(perfect_strike_unlocker, WeaponCategory.Nunchaku),
+                                         Common.createAddParametrizedFeatures(perfect_strike_unlocker, WeaponCategory.Quarterstaff),
+                                         Common.createAddParametrizedFeatures(perfect_strike_unlocker, WeaponCategory.Sai)
+                                         );
+            library.AddFeats(perfect_strike);
         }
 
 
@@ -209,11 +290,6 @@ namespace CallOfTheWild
                                                     Helpers.PrerequisiteFeature(rapid_shot),
                                                     Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
                                                     );
-
-            foreach (var c in ranged_weapons)
-            {
-                
-            }
 
 
             improved_snap_shot = Helpers.CreateFeature("ImprovedSnapShotFeature",

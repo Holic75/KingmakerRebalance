@@ -1323,10 +1323,72 @@ namespace CallOfTheWild
                 {
                     return;
                 }
+                foreach (var dmg in evt.DamageBundle)
+                {
+                    (dmg as PhysicalDamage)?.AddAlignment(damage_alignment);
+                }
+            }
+        }
 
-                damage.AddAlignment(damage_alignment);
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class AddOutgoingPhysicalDamageMaterialIfParametrizedFeature : RuleInitiatorLogicComponent<RulePrepareDamage>
+        {
+            public BlueprintParametrizedFeature required_parametrized_feature;
+            public PhysicalDamageMaterial material;
+            public bool add_magic;
+
+            public override void OnEventAboutToTrigger(RulePrepareDamage evt)
+            {
             }
 
+            private bool checkFeature(WeaponCategory category)
+            {
+                if (required_parametrized_feature == null)
+                {
+                    return true;
+                }
+                return this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == required_parametrized_feature).Any(p => p.Param == category);
+            }
+
+            public override void OnEventDidTrigger(RulePrepareDamage evt)
+            {
+                ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+                if (weapon == null)
+                {
+                    return;
+                }
+
+                if (!checkFeature(weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                var damage = evt.DamageBundle.WeaponDamage as PhysicalDamage;
+                if (damage == null)
+                {
+                    return;
+                }
+                foreach (var dmg in evt.DamageBundle)
+                {
+                    var physical_dmg = (dmg as PhysicalDamage);
+                    if (physical_dmg == null)
+                    {
+                        continue;
+                    }
+                    if (!add_magic)
+                    {
+                        physical_dmg?.AddMaterial(material);
+                    }
+                    else if (physical_dmg.Enchantment < 1)
+                    {
+                        physical_dmg.Enchantment = 1;
+                        physical_dmg.EnchantmentTotal++;
+                    }
+                }
+            }
         }
 
 
@@ -4152,6 +4214,121 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleRollD20 evt)
             {
 
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class RerollOnWeaponCategoryAndSpendResource : RuleInitiatorLogicComponent<RuleRollD20>, ITargetRulebookSubscriber
+        {
+            public BlueprintParametrizedFeature[] required_features;
+            public BlueprintAbilityResource resource;
+            public int amount = 1;
+            public BlueprintBuff prevent_fact;
+            public int apply_cooldown_buff_rounds = 1;
+            public BlueprintFeature extra_reroll_feature = null;
+
+            private bool checkFeatures(WeaponCategory category)
+            {
+                if (prevent_fact != null && this.Owner.HasFact(prevent_fact))
+                {
+                    return false;
+                }
+                if (required_features.Empty())
+                {
+                    return true;
+                }
+
+                bool ok = true;
+
+                foreach (var f in required_features)
+                {
+                    ok = ok && this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category);
+                }
+                return ok;
+            }
+
+
+
+            public override void OnEventAboutToTrigger(RuleRollD20 evt)
+            {
+                var previous_event = Rulebook.CurrentContext.PreviousEvent;
+                if (previous_event == null)
+                {
+                    return;
+                }
+                var attack_roll = previous_event as RuleAttackRoll;
+                if (attack_roll == null || attack_roll.IsCriticalRoll)
+                {
+                    return;
+                }
+
+                var attack_with_weapon = attack_roll.RuleAttackWithWeapon;
+
+                if (attack_with_weapon == null || attack_roll.Weapon == null)
+                {
+                    return;
+                }
+
+                if (!checkFeatures(attack_roll.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                if (resource != null)
+                {
+
+                    if (evt.Initiator.Descriptor.Resources.GetResourceAmount(resource) < amount)
+                    {
+                        return;
+                    }
+                }
+
+                if (previous_event != null && (previous_event is RuleAttackRoll) && !(previous_event as RuleAttackRoll).IsCriticalRoll)
+                {
+                    if (extra_reroll_feature != null && evt.Initiator.Descriptor.HasFact(extra_reroll_feature))
+                    {
+                        evt.SetReroll(3, true);
+                    }
+                    else
+                    {
+                        evt.SetReroll(1, true);
+                    }
+                    if (resource != null)
+                    {
+                        evt.Initiator.Descriptor.Resources.Spend(resource, amount);
+                    }
+
+                    if (apply_cooldown_buff_rounds > 0 && prevent_fact != null)
+                    {
+                        this.Owner.Buffs.AddBuff(prevent_fact, this.Fact.MaybeContext, apply_cooldown_buff_rounds.Rounds().Seconds);
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleRollD20 evt)
+            {
+
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class BuffExtraAttackCategorySpecific : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
+        {
+            public WeaponCategory[] categories;
+            public ContextValue num_attacks = 1;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
+            {
+                if (!this.Owner.Body.PrimaryHand.HasWeapon || !categories.Contains(this.Owner.Body.PrimaryHand.Weapon.Blueprint.Category))
+                    return;
+                var attacks = num_attacks.Calculate(this.Fact.MaybeContext);
+                evt.AddExtraAttacks(attacks, false, (ItemEntity)this.Owner.Body.PrimaryHand.Weapon);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
+            {
             }
         }
 

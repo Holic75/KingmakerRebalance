@@ -1165,6 +1165,14 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixUndeadImmunity()
+        {
+            //add missing immunity to stun ?
+            Common.undead.AddComponent(Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Stun));
+            Common.undead.AddComponent(Common.createBuffDescriptorImmunity(SpellDescriptor.Stun));
+        }
+
+
         internal static void fixSylvanSorcerorAnimalCompanion()
         {
             //make it to be equal to level - 4 (min 1)
