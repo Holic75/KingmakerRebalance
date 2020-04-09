@@ -894,7 +894,7 @@ namespace CallOfTheWild
                                                     "Upending Strike",
                                                     "The character can use this trick as a free action just before he makes a melee attack. If the attack hits, he may make a free trip combat maneuver against the target.",
                                                     grease.Icon,
-                                                    Helpers.Create<ContextActionCombatManeuver>(c => c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip)
+                                                    Helpers.Create<ContextActionCombatManeuver>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip; c.OnSuccess = Helpers.CreateActionList(); })
                                                     );
 
 

@@ -2795,7 +2795,7 @@ namespace CallOfTheWild
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
             dmg.DamageType.Type = DamageType.Force;
 
-            var bull_rush = Helpers.Create<ContextActionCombatManeuver>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush; c.IgnoreConcealment = true; });
+            var bull_rush = Helpers.Create<ContextActionCombatManeuver>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush; c.IgnoreConcealment = true; c.OnSuccess = Helpers.CreateActionList(); });
 
             var bull_rush_buff = Helpers.CreateBuff("ForcefullStrikeBullRushBuff",
                                                     "",
