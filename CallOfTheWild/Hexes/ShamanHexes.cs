@@ -402,10 +402,12 @@ namespace CallOfTheWild
                                           "",
                                           forced_repentance.Icon,
                                           null,
-                                          Helpers.Create<HealingMechanics.IncomingHealingModifier>(i => i.ModifierPercents = 50)
+                                          Helpers.Create<HealingMechanics.IncomingHealingModifier>(i => i.ModifierPercents = 50),
+                                          Helpers.Create<BleedMechanics.IncreaseBleed>(i => i.amount = 1),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Bleed | SpellDescriptor.Curse)
                                           );
 
-            foreach (var bb in bleed_buffs)
+            /*foreach (var bb in bleed_buffs)
             {
                 var context_actions = bb.GetComponent<AddFactContextActions>();
                 ContextActionDealDamage dmg_action = context_actions.NewRound.Actions.Where(a => a is ContextActionDealDamage).FirstOrDefault() as ContextActionDealDamage;
@@ -413,7 +415,7 @@ namespace CallOfTheWild
                 dmg_action.Value = Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.Zero, bonus: 1);
 
                 context_actions.NewRound = Helpers.CreateActionList(new GameAction[] { Helpers.CreateConditional(Common.createContextConditionHasFact(buff), dmg_action) }.AddToArray(context_actions.NewRound.Actions));
-            }
+            }*/
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,

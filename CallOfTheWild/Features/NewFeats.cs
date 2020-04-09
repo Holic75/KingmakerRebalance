@@ -189,7 +189,8 @@ namespace CallOfTheWild
 
             var cooldown_buff = Helpers.CreateBuff("PerfectStrikeCooldownBuff",
                                                    perfect_strike_unlocker.Name + " Cooldown",
-                                                  "You must declare that you are using this feat before you make your attack roll (thus a failed attack roll ruins the attempt). You must use one of the following weapons to make the attack: kama, nunchaku, quarterstaff, and sai. You can roll your attack roll twice and take the higher result. You may attempt a perfect attack once per day for every four levels you have attained and no more than once per round.",
+                                                  "You must declare that you are using this feat before you make your attack roll (thus a failed attack roll ruins the attempt). You must use one of the following weapons to make the attack: kama, nunchaku, quarterstaff, and sai. You can roll your attack roll twice and take the higher result. You may attempt a perfect attack once per day for every four levels you have attained and no more than once per round.\n"
+                                                  + "Special: A monk may attempt a perfect strike attack a number of times per day equal to his monk level, plus one more time per day for every four levels he has in classes other than monk.",
                                                   "",
                                                   perfect_strike_unlocker.Icon,
                                                   null

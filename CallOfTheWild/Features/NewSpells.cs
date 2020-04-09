@@ -109,7 +109,7 @@ namespace CallOfTheWild
         static public BlueprintAbility flashfire;
         static public BlueprintAbility stricken_heart;
         static public BlueprintAbility rigor_mortis;
-        //static public BlueprintAbility touch_of_blood_letting; - ? too powerful due to ai and a bit complicated to implement
+        
         static public BlueprintAbility ice_body;
 
         static public BlueprintAbility fire_seeds;
@@ -199,6 +199,10 @@ namespace CallOfTheWild
         static public BlueprintAbility sleet_storm;
         static public BlueprintAbility control_undead;
         static public BlueprintAbility halt_undead;
+
+
+        static public BlueprintAbility touch_of_blood_letting;
+        static public BlueprintAbility bloody_claws;
 
 
         static public void load()
@@ -321,6 +325,124 @@ namespace CallOfTheWild
             createSleetStorm();
             createControlUndead();
             createHaltUndead();
+
+            createTouchOfBloodletting();
+            createBloodyClaws();
+        }
+
+
+        static void createBloodyClaws()
+        {
+            var icon = Helpers.GetIcon("4a51dca9d9456214e9a382b9e47385b3"); //abyssal claws
+            var bleed1d6 = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
+            var effect_buff = Helpers.CreateBuff("BloodyClawsEffectBuff",
+                                          "Bloody Claws Effect",
+                                          "You give a creature the ability to deal bleed damage when making natural attacks so long as the attack deals slashing or piercing damage. This bleed damage for each attack is equal to one-half your caster level (limited to the creature’s maximum damage with that attack), though bleed damage does not stack. When two or more attacks deal bleed damage, take the worse effect.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default))),
+                                          bleed1d6.GetComponent<SpellDescriptorComponent>(),
+                                          bleed1d6.GetComponent<AddHealTrigger>(),
+                                          bleed1d6.GetComponent<CombatStateTrigger>(),
+                                          Helpers.CreateContextRankConfig(progression: ContextRankProgression.Div2)
+                                          );
+
+            var apply_effect_buff = Common.createContextActionApplyBuff(effect_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+            var on_hit = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_effect_buff));
+            on_hit.AllNaturalAndUnarmed = true;
+
+            var buff = Helpers.CreateBuff("BloodyClawsBuff",
+                                          "Bloody Claws",
+                                          effect_buff.Description,
+                                          "",
+                                          effect_buff.Icon,
+                                          library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613").FxOnStart,
+                                          on_hit);
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            bloody_claws = Helpers.CreateAbility("BloodyClawsAbility",
+                                                       buff.Name,
+                                                       buff.Description,
+                                                       "",
+                                                       buff.Icon,
+                                                       AbilityType.Spell,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Touch,
+                                                       Helpers.minutesPerLevelDuration,
+                                                       Helpers.willNegates,
+                                                       Helpers.CreateRunActions(apply_buff),
+                                                       Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                       Common.createAbilityTargetHasFact(true, Common.undead),
+                                                       Common.createAbilityTargetHasFact(true, Common.construct),
+                                                       Common.createAbilityTargetHasFact(true, Common.elemental),
+                                                       Helpers.CreateContextRankConfig()
+                                                       );
+            bloody_claws.setMiscAbilityParametersTouchFriendly();
+            bloody_claws.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach;
+            bloody_claws.AddToSpellList(Helpers.druidSpellList, 4);
+            bloody_claws.AddToSpellList(Helpers.rangerSpellList, 3);
+
+            bloody_claws.AddSpellAndScroll("d1d24c5613bb8c14a9a089c54b77527d");
+        }
+
+
+        static void createTouchOfBloodletting()
+        {
+            var icon = Helpers.GetIcon("6cbb040023868574b992677885390f92"); //vampyric touch
+            var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+            var bleed1d6 = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
+            var buff = Helpers.CreateBuff("TouchOfBloodlettingBuff",
+                                          "Touch of Bloodletting",
+                                          "This spell causes any existing wounds that the target possesses to bleed profusely. If the creature’s current total hit points are less than its maximum, this spell causes the creature to take 1 point of bleed damage each round and become exhausted for the duration of the spell. A successful DC 15 Heal check or any spell that cures hit point damage negates the effects of this spell.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1)),
+                                          bleed1d6.GetComponent<SpellDescriptorComponent>(),
+                                          bleed1d6.GetComponent<AddHealTrigger>()
+                                          );
+
+            buff.AddComponents(exhausted.ComponentsArray);
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds));
+
+            var touch_of_blood_letting_touch = Helpers.CreateAbility("TouchOfBloodlettingAbility",
+                                                                   buff.Name,
+                                                                   buff.Description,
+                                                                   "",
+                                                                   buff.Icon,
+                                                                   AbilityType.Spell,
+                                                                   UnitCommand.CommandType.Standard,
+                                                                   AbilityRange.Touch,
+                                                                   Helpers.roundsPerLevelDuration,
+                                                                   Helpers.willNegates,
+                                                                   Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(null, apply_buff)),
+                                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Bleed | SpellDescriptor.Exhausted),
+                                                                   Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                                   Common.createAbilityTargetHasFact(true, Common.undead),
+                                                                   Common.createAbilityTargetHasFact(true, Common.construct),
+                                                                   Common.createAbilityTargetHasFact(true, Common.elemental),
+                                                                   Helpers.Create<NewMechanics.AbilityTargetWounded>(),
+                                                                   Helpers.CreateDeliverTouch(),
+                                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                                   Helpers.CreateContextRankConfig()
+                                                                   );
+            touch_of_blood_letting_touch.setMiscAbilityParametersTouchHarmful();
+            touch_of_blood_letting_touch.SpellResistance = true;
+            touch_of_blood_letting_touch.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            touch_of_blood_letting = touch_of_blood_letting_touch.CreateTouchSpellCast();
+            touch_of_blood_letting.AddComponents(Common.createAbilityTargetHasFact(true, Common.undead),
+                                                 Common.createAbilityTargetHasFact(true, Common.construct),
+                                                 Common.createAbilityTargetHasFact(true, Common.elemental),
+                                                 Helpers.Create<NewMechanics.AbilityTargetWounded>());
+
+            touch_of_blood_letting.AddToSpellList(Helpers.clericSpellList, 1);
+            touch_of_blood_letting.AddToSpellList(Helpers.druidSpellList, 1);
+            touch_of_blood_letting.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            touch_of_blood_letting.AddSpellAndScroll("b693e8cc94f4477498d396a40817ff77");
         }
 
 

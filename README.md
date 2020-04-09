@@ -24,7 +24,8 @@ New Archetypes for existing classes:
 - Primal Bloodline Wildblooded Sorcerer archetype,
 - Untamed Rager Barbarian archetype,
 - Nature-Bonded Magus Magus archetype,
-- Ninja class (implemented as rogue archetype).
+- Ninja class (implemented as Rogue archetype),
+- Zen Archer Monk  archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
@@ -147,7 +148,8 @@ New Wild Talents:
 New Rogue Talents:
 - Minor Magic,
 - Major Magic,
-- Feat.
+- Feat,
+- Bleeding Attack.
 
 New Magus Arcana:
 - Familiar,
@@ -179,6 +181,7 @@ New spells:
 - Sense Spirit Magic,
 - Shillelagh,
 - Spirit Call,
+- Touch of Bloodletting,
 - Bladed Dash and Bladed Dash, Greater,
 - Blistering Invective,
 - Aggressive Thundercloud and Aggressive Thundercloud, Greater,
@@ -201,6 +204,7 @@ New spells:
 - Vine Strike,
 - Winter's Grasp,
 - Accursed Glare,
+- Bloody Claws,
 - Burning Entanglement,
 - Countless Eyes,
 - Deadly Juggernaut,
@@ -307,7 +311,8 @@ enchanced attacks,
 - Abyssal bloodline sorcerer no longer receives wings,
 - Arcane bloodline combat casting was replaced with metamagic adept as per pnp rules,
 - Combat Trick rogue talent can not be taken more than once,
-- True Seeing allows to see through illusion concealement.
+- True Seeing allows to see through illusion concealement,
+- Only one rogue talent that changes sneak attack can be active.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

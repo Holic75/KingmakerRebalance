@@ -361,23 +361,32 @@ namespace CallOfTheWild.Archetypes
                                      zen_archer_proficiencies.Icon,
                                      FeatureGroup.None);
 
+            var flurry_effect = Helpers.CreateFeature("ZenArcherFlurryEffectFeature",
+                                             flurry1.Name,
+                                             flurry1.Description,
+                                             "",
+                                             zen_archer_proficiencies.Icon,
+                                             FeatureGroup.None,
+                                             Helpers.Create<NewMechanics.BuffExtraAttackCategorySpecific>(b =>
+                                                                                                            {
+                                                                                                                b.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow };
+                                                                                                                b.num_attacks = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                            }
+                                                                                                          ),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, featureList: new BlueprintFeature[] { flurry1, flurry11 }),
+                                             Helpers.Create<FeatureMechanics.DeactivateManyshot>());
+            flurry_effect.HideInCharacterSheetAndLevelUp = true;
+
             var buff = Helpers.CreateBuff("ZenArcherFlurryBuff",
                                              flurry11.Name,
                                              flurry1.Description,
                                              "",
                                              flurry1.Icon,
                                              null,
-                                             Helpers.Create<NewMechanics.BuffExtraAttackCategorySpecific>(b =>
-                                                                                                         {
-                                                                                                             b.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow };
-                                                                                                             b.num_attacks = Helpers.CreateContextValue(AbilityRankType.Default);
-                                                                                                         }
-                                                                                                         ),
-                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, featureList: new BlueprintFeature[] { flurry1, flurry11 }),
-                                             Helpers.Create<FeatureMechanics.DeactivateManyshot>()
+                                             Helpers.Create<MonkNoArmorFeatureUnlock>(m => m.NewFact = flurry_effect)
                                              );
 
-            var ability = Helpers.CreateActivatableAbility("ZenarcherFlurryToggleAbility",
+            var ability = Helpers.CreateActivatableAbility("ZenArcherFlurryToggleAbility",
                                                            buff.Name,
                                                            buff.Description,
                                                            "",

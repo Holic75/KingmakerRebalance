@@ -1165,11 +1165,90 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixBleed()
+        {
+            var bleed1d4 = library.Get<BlueprintBuff>("5eb68bfe186d71a438d4f85579ce40c1");
+            var bleed1d6 = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
+            var bleed2d6 = library.Get<BlueprintBuff>("16249b8075ab8684ca105a78a047a5ef");
+            var bleed1d6e = library.Get<BlueprintBuff>("dc9ed761b7721c64e98fab507e2a7755");
+
+            bleed1d4.RemoveComponents<AddFactContextActions>();
+            bleed1d4.AddComponent(Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.D4, 1, 0)));
+            bleed1d6.RemoveComponents<AddFactContextActions>();
+            bleed1d6.AddComponent(Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.D6, 1, 0)));
+            bleed1d6e.RemoveComponents<AddFactContextActions>();
+            bleed1d6e.AddComponent(Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.D6, 1, 0)));
+            bleed2d6.RemoveComponents<AddFactContextActions>();
+            bleed2d6.AddComponent(Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.D6, 2, 0)));
+        }
+
+
+
+        static internal void fixRogueSneakAttackTalents()
+        {
+            var talent_ids = new string[] {"955ff81c596c1c3489406d03e81e6087", //focusing attack confused
+                                           "791f50e199d069d4f8e933996a2ce054", //focusing attack shaken
+                                           "79475c263e538c94f8e23907bd570a35", //focusing attack sickened
+                                           "b696bd7cb38da194fa3404032483d1db", //cripling strike
+                                           "1b92146b8a9830d4bb97ab694335fa7c" //dispelling attack
+                                          };
+            foreach (var id in talent_ids)
+            {
+                var feature = library.Get<BlueprintFeature>(id);
+                var buff = Helpers.CreateBuff(feature.name + "Buff",
+                                              feature.Name,
+                                              feature.Description,
+                                              "",
+                                              feature.Icon,
+                                              null,
+                                              feature.GetComponent<AddInitiatorAttackRollTrigger>()
+                                              );
+
+                var toggle = Helpers.CreateActivatableAbility(feature.name + "ToggleAbility",
+                                                              feature.Name,
+                                                              feature.Description,
+                                                              "",
+                                                              feature.Icon,
+                                                              buff,
+                                                              AbilityActivationType.Immediately,
+                                                              UnitCommand.CommandType.Free,
+                                                              null
+                                                              );
+                toggle.Group = ActivatableAbilityGroupExtension.SneakAttack.ToActivatableAbilityGroup();
+                toggle.DeactivateImmediately = true;
+                feature.RemoveComponents<AddInitiatorAttackRollTrigger>();
+                feature.AddComponent(Helpers.CreateAddFact(toggle));
+                
+            }
+        } 
+
+
         static internal void fixUndeadImmunity()
         {
             //add missing immunity to stun ?
             Common.undead.AddComponent(Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Stun));
             Common.undead.AddComponent(Common.createBuffDescriptorImmunity(SpellDescriptor.Stun));
+        }
+
+
+        static internal void addMobilityToMonkBonusFeats()
+        {
+            var mobility = library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb");
+
+            var monk_feat_ids = new string[]
+            {
+                "b993f42cb119b4f40ac423ae76394374", //monk6
+                "1051170c612d5b844bfaa817d6f4cfff", //monk10
+                "92f7b37ef1cf5484db02a924592ceb74", //scaled fist bonus feats 6
+                "c569fc66f22825445a7b7f3b5d6d208f", //scaled fist bonus feats 10
+            };
+
+            foreach (var id in monk_feat_ids)
+            {
+                var selection = library.Get<BlueprintFeatureSelection>(id);
+                selection.AllFeatures = selection.AllFeatures.AddToArray(mobility);
+                selection.Features = selection.Features.AddToArray(mobility);
+            }
         }
 
 

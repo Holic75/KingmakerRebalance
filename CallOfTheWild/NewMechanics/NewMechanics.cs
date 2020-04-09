@@ -6585,6 +6585,41 @@ namespace CallOfTheWild
         }
 
 
+        class SneakAttackDiceGetter : PropertyValueGetter
+        {
+            internal static readonly Lazy<BlueprintUnitProperty> Blueprint = new Lazy<BlueprintUnitProperty>(() =>
+            {
+                var p = Helpers.Create<BlueprintUnitProperty>();
+                p.name = "SneakAttackDiceCustomProperty";
+                Main.library.AddAsset(p, "a9d8d3c40dab4e8e8d92112cea65dc65");
+                p.SetComponents(Helpers.Create<SneakAttackDiceGetter>());
+                return p;
+            });
+
+            public override int GetInt(UnitEntityData unit)
+            {
+                return unit.Stats.SneakAttack.ModifiedValue;
+            }
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityTargetWounded : BlueprintComponent, IAbilityTargetChecker
+        {
+            public int CurrentHPLessThan;
+            public bool Inverted;
+
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                if (target.Unit == null)
+                    return false;
+                return this.Inverted != (target.Unit.Damage > 0);
+            }
+        }
+
+
         public class ImmuneToAttackOfOpportunityForSpells : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
         {
             public SpellDescriptorWrapper Descriptor;

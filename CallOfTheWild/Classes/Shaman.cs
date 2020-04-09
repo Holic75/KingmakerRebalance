@@ -1051,6 +1051,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "6c7467f0344004d48848a43d8c078bf8", 2), //sickening entanglement
                 new Common.SpellId( "298148133cdc3fd42889b99c82711986", 2), //summon nature ally II
+                new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 2),
                 new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2),
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
 

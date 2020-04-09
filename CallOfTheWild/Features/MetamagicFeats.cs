@@ -618,7 +618,7 @@ namespace CallOfTheWild
                 var spell_level = spellContext.Params.SpellLevel;
                 if (spellContext.HasMetamagic((Metamagic)MetamagicExtender.Toppling))
                 {
-                    GameAction toppling_action = Helpers.Create<ContextActionCombatManeuver>(a => { a.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip; a.UseCastingStat = true; a.UseCasterLevelAsBaseAttack = true; });
+                    GameAction toppling_action = Helpers.Create<ContextActionCombatManeuver>(a => { a.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip; a.ReplaceStat = true;  a.UseCastingStat = true; a.UseCasterLevelAsBaseAttack = true; a.OnSuccess = Helpers.CreateActionList(); a.IgnoreConcealment = true; });
                     Common.runActionOnDamageDealt(__instance, Helpers.CreateActionList(toppling_action));
                 }
 

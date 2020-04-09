@@ -20,6 +20,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
@@ -40,6 +41,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection minor_magic;
         static public BlueprintFeatureSelection major_magic;
         static public BlueprintFeatureSelection feat;
+        static public BlueprintFeature bleeding_attack;
         static LibraryScriptableObject library => Main.library;
 
         static public void load()
@@ -48,6 +50,61 @@ namespace CallOfTheWild
             createMajorMagic();
 
             createFeatAndFixCombatTrick();
+            createBleedingAttack();
+        }
+
+
+        static void createBleedingAttack()
+        {
+            var bleed1d6 = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
+            var icon = NewSpells.deadly_juggernaut.Icon;
+            var effect_buff = Helpers.CreateBuff("RogueBleedingAttackEffectBuff",
+                                          "Bleeding Attack Effect",
+                                          "A rogue with this ability can cause living opponents to bleed by hitting them with a sneak attack. This attack causes the target to take 1 additional point of damage each round for each die of the rogue’s sneak attack (e.g., 4d6 equals 4 points of bleed). Bleeding creatures take that amount of damage every round at the start of each of their turns. The bleeding can be stopped by a successful DC 15 Heal check or the application of any effect that heals hit point damage. Bleed damage from this ability does not stack with itself. Bleed damage bypasses any damage reduction the creature might possess.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default))),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, customProperty: NewMechanics.SneakAttackDiceGetter.Blueprint.Value),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Bleed),
+                                          bleed1d6.GetComponent<CombatStateTrigger>(),
+                                          bleed1d6.GetComponent<AddHealTrigger>()
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(effect_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+            var buff = Helpers.CreateBuff("RogueBleedingAttackBuff",
+                                            "Bleeding Attack",
+                                            effect_buff.Name,
+                                            "",
+                                            icon,
+                                            null,
+                                            Helpers.Create<AddInitiatorAttackRollTrigger>(a =>
+                                                                                            {
+                                                                                                a.OnlyHit = true;
+                                                                                                a.SneakAttack = true;
+                                                                                                a.Action = Helpers.CreateActionList(apply_buff);
+                                                                                            }
+                                                                                          )
+                                            );
+
+            var toggle = Helpers.CreateActivatableAbility("RogueBleedingAttackToggleAbility",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          UnitCommand.CommandType.Free,
+                                                          null
+                                                          );
+            toggle.Group = ActivatableAbilityGroupExtension.SneakAttack.ToActivatableAbilityGroup();
+            toggle.DeactivateImmediately = true;
+
+            bleeding_attack = Common.ActivatableAbilityToFeature(toggle, false);
+            addToTalentSelection(bleeding_attack);
+
+            var medical_discoveries = library.Get<BlueprintFeatureSelection>("67f499218a0e22944abab6fe1c9eaeee");
+            medical_discoveries.AllFeatures = medical_discoveries.AllFeatures.AddToArray(bleeding_attack);
         }
 
 

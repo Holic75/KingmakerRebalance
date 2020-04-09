@@ -182,6 +182,9 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixTrapfinding();
                     CallOfTheWild.Rebalance.fixPhysicalDrBypassToApplyToAllPhysicalDamage();
                     CallOfTheWild.Rebalance.fixUndeadImmunity();
+                    CallOfTheWild.Rebalance.fixBleed();
+                    CallOfTheWild.Rebalance.fixRogueSneakAttackTalents();
+                    CallOfTheWild.Rebalance.addMobilityToMonkBonusFeats();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();

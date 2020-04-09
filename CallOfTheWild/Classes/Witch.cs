@@ -1053,6 +1053,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 2),
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
+                new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 2),
                 new Common.SpellId( "134cb6d492269aa4f8662700ef57449f", 2), //web
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
 

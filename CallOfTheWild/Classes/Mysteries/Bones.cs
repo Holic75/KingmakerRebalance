@@ -100,9 +100,22 @@ namespace CallOfTheWild
 
             var features = new BlueprintFeature[buffs.Length];
 
+            var buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                         display_name,
+                                         description,
+                                         "",
+                                         icon,
+                                         null,
+                                         Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default))),
+                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: classes,
+                                                                         progression: ContextRankProgression.OnePlusDivStep, stepLevel: 5),
+                                         bleed1d6.GetComponent<CombatStateTrigger>(),
+                                         bleed1d6.GetComponent<AddHealTrigger>()
+                                         );
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, is_from_spell: false);
             for (int i = 0; i < features.Length; i++)
             {
-                var apply_buff = Common.createContextActionApplyBuff(buffs[i], Helpers.CreateContextDuration(), is_permanent: true, is_from_spell: false);
+                //var apply_buff = Common.createContextActionApplyBuff(buffs[i], Helpers.CreateContextDuration(), is_permanent: true, is_from_spell: false);
                 features[i] = Helpers.CreateFeature(name_prefix + $"{i + 1}Feature",
                                                     display_name,
                                                     description,
@@ -122,7 +135,6 @@ namespace CallOfTheWild
                 {
                     features[i].AddComponent(Common.createRemoveFeatureOnApply(features[i - 1]));
                 }
-
             }
 
             var feature = Helpers.CreateFeature(name_prefix + "Feature",

@@ -463,6 +463,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "ab395d2335d3f384e99dddee8562978f", 1), //shocking grasp
                 new Common.SpellId( "9f10909f0be1f5141bf1c102041f93d9", 1), //snowball
                 new Common.SpellId( "85067a04a97416949b5d1dbf986d93f3", 1), //stone fist
+                new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 1),
                 new Common.SpellId( "ad10bfec6d7ae8b47870e3a545cc8900", 1), //touch of gracelessness
                 new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike
 

@@ -34,7 +34,8 @@ namespace CallOfTheWild
             EidolonEvolution,
             EidolonLifeLink,
             Rage,
-            RapidShot
+            RapidShot,
+            SneakAttack,
         }
 
         public static partial class Extensions

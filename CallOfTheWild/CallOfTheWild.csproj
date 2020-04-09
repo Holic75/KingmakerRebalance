@@ -203,6 +203,7 @@
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
+    <Compile Include="NewMechanics\BleedMechanics.cs" />
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />

@@ -461,6 +461,7 @@ namespace CallOfTheWild
             {
                 var a = Helpers.Create<AbilityCasterMainWeaponCheckOrFeralCombat>();
                 a.Category = prototype.Category;
+                a.allow_ki_focus = allow_ki_focus;
                 return a;
             }
 
