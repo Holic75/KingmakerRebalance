@@ -18,6 +18,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.Enums.Damage;
 using Kingmaker.Items;
 using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
@@ -102,6 +103,37 @@ namespace CallOfTheWild
             ki_focus_weapon.SetNameDescriptionIcon("Ki Weapon", "You can use ki attacks through the specified weapon as if they were unarmed attacks. These attacks include the monk’s ki strike, quivering palm, and the Stunning Fist feat", null);
             ki_focus_weapon.Groups = new FeatureGroup[0];
             ki_focus_weapon.ComponentsArray = new BlueprintComponent[0];
+
+            var ki_strike_magic = library.Get<BlueprintFeature>("1188005ee3160f84f8bed8b19a7d46cf");
+            var ki_strike_cold_iron = library.Get<BlueprintFeature>("7b657938fde78b14cae10fc0d3dcb991");
+            var ki_strike_adamantine = library.Get<BlueprintFeature>("ddc10a3463bd4d54dbcbe993655cf64e");
+            var ki_strike_lawful = library.Get<BlueprintFeature>("1188005ee3160f84f8bed8b19a7d46cf");
+
+            ki_strike_magic.AddComponent(Helpers.Create<NewMechanics.AddOutgoingPhysicalDamageMaterialIfParametrizedFeature>(a =>
+                                                                                                                            {
+                                                                                                                                a.add_magic = true;
+                                                                                                                                a.required_parametrized_feature = FeralCombatTraining.ki_focus_weapon;
+                                                                                                                            })
+                                                                                                                           );
+            ki_strike_cold_iron.AddComponent(Helpers.Create<NewMechanics.AddOutgoingPhysicalDamageMaterialIfParametrizedFeature>(a =>
+                                                                                                                                {
+                                                                                                                                    a.material = PhysicalDamageMaterial.ColdIron;
+                                                                                                                                    a.required_parametrized_feature = FeralCombatTraining.ki_focus_weapon;
+                                                                                                                                })
+                                                                                                                                );
+            ki_strike_adamantine.AddComponent(Helpers.Create<NewMechanics.AddOutgoingPhysicalDamageMaterialIfParametrizedFeature>(a =>
+                                                                                                                                {
+                                                                                                                                    a.material = PhysicalDamageMaterial.Adamantite;
+                                                                                                                                    a.required_parametrized_feature = FeralCombatTraining.ki_focus_weapon;
+                                                                                                                                })
+                                                                                                                                );
+            ki_strike_lawful.AddComponent(Helpers.Create<NewMechanics.AddOutgoingPhysicalDamageAlignmentIfParametrizedFeature>(a =>
+                                                                                                                            {
+                                                                                                                                a.damage_alignment = DamageAlignment.Lawful;
+                                                                                                                                a.required_parametrized_feature = FeralCombatTraining.ki_focus_weapon;
+                                                                                                                            })
+                                                                                                                           );
+
             fixAbilities();
         }
 

@@ -1285,6 +1285,54 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextWeaponDamageDiceReplacementWeaponCategory : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public WeaponCategory[] categories;
+            public DiceFormula[] dice_formulas;
+            public ContextValue value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (!categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+
+                int dice_id = value.Calculate(this.Context);
+                if (dice_id < 0)
+                {
+                    dice_id = 0;
+                }
+                if (dice_id >= dice_formulas.Length)
+                {
+                    dice_id = dice_formulas.Length - 1;
+                }
+
+                double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
+                double current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2.0;
+
+                if (new_avg_dmg > current_avg_damage)
+                {
+                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
         public class AddOutgoingPhysicalDamageAlignmentIfParametrizedFeature : RuleInitiatorLogicComponent<RulePrepareDamage>
@@ -1338,7 +1386,7 @@ namespace CallOfTheWild
         {
             public BlueprintParametrizedFeature required_parametrized_feature;
             public PhysicalDamageMaterial material;
-            public bool add_magic;
+            public bool add_magic = false;
 
             public override void OnEventAboutToTrigger(RulePrepareDamage evt)
             {

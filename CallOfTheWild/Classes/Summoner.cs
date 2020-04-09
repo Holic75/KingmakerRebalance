@@ -1722,6 +1722,27 @@ namespace CallOfTheWild
                 heal_master.setMiscAbilityParametersSelfOnly();
                 heal_master.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower;
 
+
+                var damage_master = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "DamageMasterAbility",
+                                        names[i] + "( Transfer HP to Eidolon)",
+                                        $"You utilize life conduit to share hit points with your eidolon. While this spell is active, you can spend a swift action to transfer {i + 1}d6 hit points between you and your eidolon, either taking damage yourself and healing your eidolon or healing yourself and damaging your eidolon.",
+                                        "",
+                                        icon,
+                                        AbilityType.SpellLike,
+                                        CommandType.Swift,
+                                        AbilityRange.Personal,
+                                        "",
+                                        "",
+                                        Helpers.Create<NewMechanics.AbilityCasterPetIsAlive>(),
+                                        Helpers.CreateRunActions(damage, Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(heal))),
+                                        Common.createAbilitySpawnFxDestroyOnCast(prefabs[i], anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                        Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                        Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP | SpellDescriptor.Cure),
+                                        config
+                                        );
+                heal_master.setMiscAbilityParametersSelfOnly();
+                heal_master.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower;
+
                 var heal_pet = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "PetAbility",
                                         names[i],
                                         $"You utilize life conduit to share hit points with your eidolon. While this spell is active, you can spend a swift action to transfer {i + 1}d6 hit points between you and your eidolon, either taking damage yourself and healing your eidolon or healing yourself and damaging your eidolon.",
@@ -1749,7 +1770,9 @@ namespace CallOfTheWild
                                                      heal_master.Icon,
                                                      null,
                                                      Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = heal_master),
-                                                     Helpers.CreateAddFact(heal_master)
+                                                     Helpers.CreateAddFact(heal_master),
+                                                     Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = damage_master),
+                                                     Helpers.CreateAddFact(damage_master)
                                                      );
 
                 var pet_buff = Helpers.CreateBuff(names[i].Replace(" ", "").Replace(",", "") + "PetBuff",
@@ -1775,7 +1798,8 @@ namespace CallOfTheWild
                                                     AbilityRange.Personal,
                                                     Helpers.roundsPerLevelDuration,
                                                     "",
-                                                    Helpers.CreateRunActions(apply_master_buff, Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(apply_pet_buff))),
+                                                    Helpers.CreateRunActions(apply_master_buff),
+                                                    //Helpers.CreateRunActions(apply_master_buff, Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(apply_pet_buff))),
                                                     Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                     Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP | SpellDescriptor.Cure),

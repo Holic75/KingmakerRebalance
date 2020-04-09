@@ -253,6 +253,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.UntamedRager.create();
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();
                     CallOfTheWild.Archetypes.Ninja.create();
+                    CallOfTheWild.Archetypes.ZenArcher.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();

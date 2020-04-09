@@ -3858,6 +3858,7 @@ namespace CallOfTheWild
             obscuring_mist.AddToSpellList(Helpers.clericSpellList, 1);
             obscuring_mist.AddToSpellList(Helpers.magusSpellList, 1);
             obscuring_mist.AddToSpellList(Helpers.wizardSpellList, 1);
+            obscuring_mist.LocalizedSavingThrow = Helpers.CreateString("ObscuringMist.SavingThrow", "");
             //replace 1st level spell in air, darkness, water and weather domains
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("750bfcd133cd52f42acbd4f7bc9cc365"), obscuring_mist, 1);//air
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("1e1b4128290b11a41ba55280ede90d7d"), obscuring_mist, 1);//darkness
@@ -4808,7 +4809,7 @@ namespace CallOfTheWild
             savage_maw.AddToSpellList(Helpers.clericSpellList, 2);
             savage_maw.AddToSpellList(Helpers.inquisitorSpellList, 2);
             savage_maw.AddToSpellList(Helpers.magusSpellList, 2);
-            savage_maw.AddToSpellList(Helpers.rangerSpellList, 2);
+            savage_maw.AddToSpellList(Helpers.rangerSpellList, 1);
 
             savage_maw.AddSpellAndScroll("1cd597e316ac49941a568312de2be6ae");
         }

@@ -108,11 +108,11 @@ namespace CallOfTheWild.Archetypes
             createFlurry();
             createFeats();
             createWayOfTheBow();
-            /*createZenArchery();
+            createZenArchery();
             createPointBlankMaster();
             createKiArrows();
             createSnapshot();
-            createKiFocusBow();*/
+            createKiFocusBow();
 
             
 
@@ -152,6 +152,122 @@ namespace CallOfTheWild.Archetypes
             monk_class.Progression.UIGroups = monk_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(perfect_strike, way_of_the_bow, point_blank_master, snap_shot));
             monk_class.Progression.UIGroups = monk_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(flurry1, zen_archery, ki_arrows, flurry11, ki_focus_bow));
             monk_class.Archetypes = monk_class.Archetypes.AddToArray(archetype);
+        }
+
+
+        static void createKiFocusBow()
+        {
+            ki_focus_bow = Helpers.CreateFeature("KiFocusBowZenArcherFeature",
+                                                "Ki Focus Bow",
+                                                "At 13th level, a zen archer may treat arrows fired from his bow as if they were ki focus weapons, allowing him to use his special ki attacks as if his arrows were unarmed attacks.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Common.createAddParametrizedFeatures(FeralCombatTraining.ki_focus_weapon, WeaponCategory.Longbow),
+                                                Common.createAddParametrizedFeatures(FeralCombatTraining.ki_focus_weapon, WeaponCategory.Shortbow)
+                                                );
+        }
+
+
+        static void createSnapshot()
+        {
+            snap_shot = Helpers.CreateFeature("ZenArcherSnapshotFeature",
+                                            "Snap Shot",
+                                            "At 9th level, a zen archer gains Snap Shot as a bonus feat, even if he does not meet the prerequisites.",
+                                            "",
+                                            NewFeats.snap_shot.Icon,
+                                            FeatureGroup.None,
+                                            Helpers.CreateAddFact(NewFeats.snap_shot)
+                                            );
+        }
+
+
+        static void createKiArrows()
+        {
+            var resource = library.Get<BlueprintAbilityResource>("9d9c90a9a1f52d04799294bf91c80a82"); //ki resource
+            //var unarmed1d6 = library.Get<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0");
+            var unarmed1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
+            var unarmed1d10 = library.Get<BlueprintFeature>("f790a36b5d6f85a45a41244f50b947ca");
+            var unarmed2d6 = library.Get<BlueprintFeature>("b3889f445dbe42948b8bb1ba02e6d949");
+            var unarmed2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
+            var unarmed2d10 = library.Get<BlueprintFeature>("df38e56fa8b3f0f469d55f9aa26b3f5c");
+
+            DiceFormula[] dice_formulas = new DiceFormula[] {new DiceFormula(1, DiceType.D6),
+                                                            new DiceFormula(1, DiceType.D8),
+                                                            new DiceFormula(1, DiceType.D10),
+                                                            new DiceFormula(2, DiceType.D6),
+                                                            new DiceFormula(2, DiceType.D8),
+                                                            new DiceFormula(2, DiceType.D10)};
+
+
+            var buff = Helpers.CreateBuff("ZenArcherKiArrowsBuff",
+                                                       "Ki Arrows",
+                                                       "At 5th level, a zen archer may spend 1 point from his ki pool as a swift action to change the damage dice of arrows he shoots to that of his unarmed strikes. This lasts until the start of his next turn. For example, a Medium zen archer’s shortbow normally deals 1d6 damage; using this ability, his arrows deal 1d8 damage until the start of his next turn.",
+                                                        "",
+                                                       NewSpells.flame_arrow.Icon,
+                                                       null,
+                                                       Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementWeaponCategory>(c =>
+                                                                                                                                       {
+                                                                                                                                           c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                                           c.dice_formulas = dice_formulas;
+                                                                                                                                           c.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow };
+                                                                                                                                       }
+                                                                                                                                     ),
+                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                       type: AbilityRankType.Default,
+                                                                                       progression: ContextRankProgression.AsIs,
+                                                                                       featureList: new BlueprintFeature[] { unarmed1d8, unarmed1d10, unarmed2d6, unarmed2d8, unarmed2d10 }
+                                                                                       )
+                                                      );
+
+            var ability = Helpers.CreateAbility("ZenArcherKiArrowsAbility",
+                                               buff.Name,
+                                               buff.Description,
+                                               "",
+                                               buff.Icon,
+                                               AbilityType.Supernatural,
+                                               CommandType.Swift,
+                                               AbilityRange.Personal,
+                                               Helpers.oneRoundDuration,
+                                               "",
+                                               Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                               resource.CreateResourceLogic()
+                                               );
+
+            ki_arrows = Common.AbilityToFeature(ability, false);
+        }
+
+
+        static void createPointBlankMaster()
+        {
+            var feat = library.Get<BlueprintParametrizedFeature>("05a3b543b0a0a0346a5061e90f293f0b");
+            point_blank_master = Helpers.CreateFeature("ZenArcherPointBlankMasterFeature",
+                                                        "Point Blank Master",
+                                                        "At 4th level, a zen archer gains Point Blank Master as a bonus feat, even if he does not meet the prerequisites.",
+                                                        "",
+                                                        feat.Icon,
+                                                        FeatureGroup.None,
+                                                        Common.createAddParametrizedFeatures(feat, WeaponCategory.Longbow),
+                                                        Common.createAddParametrizedFeatures(feat, WeaponCategory.Shortbow)
+                                                        );
+        }
+
+
+        static void createZenArchery()
+        {
+            zen_archery = Helpers.CreateFeature("ZenArcheryFeature",
+                                                "Zen Archery",
+                                                "At 3rd level, a zen archer may use his Wisdom modifier instead of his Dexterity modifier on ranged attack rolls when using a bow.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.Create<NewMechanics.AttackStatReplacementForWeaponCategory>(c =>
+                                                                                                                    {
+                                                                                                                        c.categories = new WeaponCategory[] {WeaponCategory.Longbow, WeaponCategory.Shortbow};
+                                                                                                                        c.ReplacementStat = StatType.Wisdom;
+                                                                                                                    }
+                                                )
+                                                );
         }
 
 
