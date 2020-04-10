@@ -74,7 +74,7 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(effect_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
             var buff = Helpers.CreateBuff("RogueBleedingAttackBuff",
                                             "Bleeding Attack",
-                                            effect_buff.Name,
+                                            effect_buff.Description,
                                             "",
                                             icon,
                                             null,

@@ -58,11 +58,11 @@ namespace CallOfTheWild
             fx_feature.HideInUI = true;
 
             var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
-            var kanerah = library.Get<BlueprintUnit>("562750329f2aad34699e5b3c610a7d29");
+            var erinyes = library.Get<BlueprintUnit>("306448df57ed0c44ea380bc41d7a0740");
             var demon_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "DemonEidolonUnit", "");
-            demon_unit.Color = kanerah.Color;
+            demon_unit.Color = erinyes.Color;
 
-            demon_unit.Visual = kanerah.Visual;
+            demon_unit.Visual = erinyes.Visual;
             demon_unit.LocalizedName = demon_unit.LocalizedName.CreateCopy();
             demon_unit.LocalizedName.String = Helpers.CreateString(demon_unit.name + ".Name", "Demon Eidolon");
 

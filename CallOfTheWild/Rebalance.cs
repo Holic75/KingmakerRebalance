@@ -1190,7 +1190,8 @@ namespace CallOfTheWild
                                            "791f50e199d069d4f8e933996a2ce054", //focusing attack shaken
                                            "79475c263e538c94f8e23907bd570a35", //focusing attack sickened
                                            "b696bd7cb38da194fa3404032483d1db", //cripling strike
-                                           "1b92146b8a9830d4bb97ab694335fa7c" //dispelling attack
+                                           "1b92146b8a9830d4bb97ab694335fa7c", //dispelling attack
+                                           "7787030571e87704d9177401c595408e", //slow reactions
                                           };
             foreach (var id in talent_ids)
             {
