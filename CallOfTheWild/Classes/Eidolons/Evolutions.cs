@@ -1051,7 +1051,7 @@ namespace CallOfTheWild
         static void createGore()
         {
             var icon = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon; //infernal bloodline
-            var gore1d6 = library.Get<BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be");
+            var gore1d8 = library.Get<BlueprintItemWeapon>("5d7d23f5e35254d4bb087f7476163509");
 
             gore = Helpers.CreateFeature("GoreEvolutionFeature",
                                          "Gore",
@@ -1059,7 +1059,7 @@ namespace CallOfTheWild
                                          "",
                                          icon,
                                          FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = gore1d6)
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = gore1d8)
                                          );
         }
 

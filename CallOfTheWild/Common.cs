@@ -480,6 +480,15 @@ namespace CallOfTheWild
         }
 
 
+        static public AddCalculatedWeapon addCalcualtedWeapon(BlueprintItemWeapon weapon)
+        {
+            var a = Helpers.Create<AddCalculatedWeapon>();
+            a.Weapon = new CalculatedWeapon();
+            a.Weapon.Weapon = weapon;
+            return a;
+        }
+
+
         static public ContextValue createSimpleContextValue(int value)
         {
             var v = new ContextValue();
