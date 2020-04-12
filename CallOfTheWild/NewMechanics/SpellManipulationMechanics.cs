@@ -164,11 +164,13 @@ namespace CallOfTheWild
 
                 if (ability.Parent != null)
                 {
-                    return prepared_spells_with_metamagic[ability.Parent.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 1);
+                    return prepared_spells_with_metamagic[ability.Parent.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 1)
+                            && !prepared_spells_with_metamagic[ability.Parent.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 0);
                 }
                 else
                 {
-                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 1);
+                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 1)
+                           && !prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 0);
                 }
                 
             }

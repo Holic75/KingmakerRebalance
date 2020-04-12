@@ -57,7 +57,7 @@ namespace CallOfTheWild
             {
                 var study_target = library.Get<BlueprintAbility>("b96d810ceb1708b4e895b695ddbb1813");
                 study_target.RemoveComponents <Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetIsPartyMember>();
-                study_target.CanTargetEnemies = true;
+                study_target.CanTargetFriends = true;
             }
             createMinorMagic();
             createMajorMagic();

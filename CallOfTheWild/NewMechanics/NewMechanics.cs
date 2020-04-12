@@ -279,6 +279,7 @@ namespace CallOfTheWild
             public BlueprintSpellbook spellbook;
             public int amount = 1;
             public bool used_for_reducing_metamagic_cast_time = false;
+            public bool is_metamixing = false;
 
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
@@ -298,6 +299,7 @@ namespace CallOfTheWild
                     return;
                 }
 
+
                 if (used_for_reducing_metamagic_cast_time &&
                     (evt.Spell.MetamagicData == null || (evt.Spell.MetamagicData.MetamagicMask != 0 && (evt.Spell.MetamagicData.MetamagicMask & Metamagic.Quicken) != 0))
                     )
@@ -305,10 +307,15 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (used_for_reducing_metamagic_cast_time)
+                if (used_for_reducing_metamagic_cast_time && is_metamixing)
                 {
                     var arcanist_part = this.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>();
                     if (arcanist_part!= null && arcanist_part.isUsedWithMetamixing(evt.Spell.Blueprint, evt.Spell.MetamagicData.MetamagicMask))
+                    {
+                        this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                        return;
+                    }
+                    else
                     {
                         return;
                     }

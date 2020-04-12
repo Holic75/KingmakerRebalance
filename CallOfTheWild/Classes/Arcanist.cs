@@ -936,7 +936,7 @@ namespace CallOfTheWild
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
                                             null,
                                             Helpers.Create<SpellManipulationMechanics.Metamixing>(),
-                                            Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => {s.spellbook = null; s.resource = arcane_reservoir_resource; s.used_for_reducing_metamagic_cast_time = true; }));
+                                            Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => {s.spellbook = null; s.resource = arcane_reservoir_resource; s.used_for_reducing_metamagic_cast_time = true; s.is_metamixing = true; }));
 
             var ability = Helpers.CreateActivatableAbility("MetamixingExplotToggleAbility",
                                                            buff.Name,
