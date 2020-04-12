@@ -31,6 +31,9 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpell:
                     __result = (IEnumerable < IFeatureSelectionItem > )ExtractKnownSpells(__instance, previewUnit, false).ToArray<FeatureUIData>();
                     return false;
+                case FeatureParameterType.SpellSpecialization:
+                    __result = (IEnumerable<IFeatureSelectionItem>)ExtractItemsFromSpellbooks2(__instance, previewUnit).ToArray<FeatureUIData>();
+                    return false;
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpontaneousSpell:
                     __result = (IEnumerable<IFeatureSelectionItem>)ExtractKnownSpells(__instance, previewUnit, true).ToArray<FeatureUIData>();
                     return false;
@@ -39,12 +42,16 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
             }
         }
 
-
         static private IEnumerable<FeatureUIData> ExtractKnownSpells(BlueprintParametrizedFeature feature, UnitDescriptor unit, bool only_spontaneous)
         {
             foreach (Spellbook spellbook in unit.Spellbooks)
-            {
+            {               
                 if (only_spontaneous && !spellbook.Blueprint.Spontaneous)
+                {
+                    continue;
+                }
+
+                if (!only_spontaneous && spellbook.Blueprint.GetComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>() != null)
                 {
                     continue;
                 }
@@ -60,7 +67,36 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
             }
             yield break;
         }
+
+
+        static private IEnumerable<FeatureUIData> ExtractItemsFromSpellbooks2(BlueprintParametrizedFeature feature, UnitDescriptor unit)
+        {
+            foreach (Spellbook spellbook in unit.Spellbooks)
+            {
+                if (spellbook.Blueprint.GetComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>() != null)
+                {
+                    continue;
+                }
+                foreach (SpellLevelList spellLevel in spellbook.Blueprint.SpellList.SpellsByLevel)
+                {
+                    if (spellLevel.SpellLevel <= spellbook.MaxSpellLevel)
+                    {
+                        foreach (BlueprintAbility spell in spellLevel.SpellsFiltered)
+                        {
+                            if (unit.GetFeature(feature.Prerequisite, spell.School) != null)
+                            {
+                                yield return new FeatureUIData(feature, spell, spell.Name, spell.Description, spell.Icon, spell.name);
+                            }
+                        }
+                    }
+                }
+            }
+            yield break;
+        }
     }
+
+
+
 
 
     [Harmony12.HarmonyPatch(typeof(BlueprintParametrizedFeature))]

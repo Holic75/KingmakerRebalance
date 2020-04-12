@@ -57,6 +57,7 @@ using Kingmaker.ResourceLinks;
 using Kingmaker.Items;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Alignments;
+using CallOfTheWild.NewMechanics;
 
 namespace CallOfTheWild
 {
@@ -95,6 +96,10 @@ namespace CallOfTheWild
         public static BlueprintFeature elemental = library.Get<BlueprintFeature>("198fd8924dabcb5478d0f78bd453c586");
         public static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
         public static BlueprintFeature plant = library.Get<BlueprintFeature>("706e61781d692a042b35941f14bc41c5");
+        public static BlueprintFeature animal = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
+        public static BlueprintFeature magical_beast = library.Get<BlueprintFeature>("625827490ea69d84d8e599a33929fdc6");
+        public static BlueprintFeature monstrous_humanoid = library.Get<BlueprintFeature>("57614b50e8d86b24395931fffc5e409b");
+        public static BlueprintFeature aberration = library.Get<BlueprintFeature>("3bec99efd9a363242a6c8d9957b75e91");
 
         public static BlueprintBuff deafened = Helpers.CreateBuff("DeafenedBuff",
                                                                 "Deafened",
@@ -3636,9 +3641,26 @@ namespace CallOfTheWild
         }
 
 
-        public class MyLink: PrefabLink
-        {
 
+        static public void addToSlayerStudiedTargetDC(BlueprintScriptableObject blueprint)
+        {
+            var studied_target = library.Get<BlueprintBuff>("45548967b714e254aa83f23354f174b0");
+
+            var dc_componenet = studied_target.GetComponent<SavingthrowBonusAgainstCasterAbilities>();
+
+            if (dc_componenet == null)
+            {
+                studied_target.AddComponent(Helpers.Create<NewMechanics.SavingthrowBonusAgainstCasterAbilities>(s =>
+                {
+                    s.descriptor = ModifierDescriptor.UntypedStackable;
+                    s.value = Helpers.CreateContextValue(AbilitySharedValue.DamageBonus);
+                    s.multiplier = -1;
+                    s.sources = new BlueprintScriptableObject[0];
+                }));
+                dc_componenet = studied_target.GetComponent<SavingthrowBonusAgainstCasterAbilities>();
+            }
+
+            dc_componenet.sources = dc_componenet.sources.AddToArray(blueprint);          
         }
     }
 }

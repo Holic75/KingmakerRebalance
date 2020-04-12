@@ -256,7 +256,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                int metamagic_count = Helpers.PopulationCount((int)(evt.Spell.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.BloodIntensity)));
+                int metamagic_count = Helpers.PopulationCount((int)(evt.Spell.MetamagicData.MetamagicMask & ~((Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)));
                 if (metamagic_count > 1)
                 {
                     return;
@@ -303,6 +303,15 @@ namespace CallOfTheWild
                     )
                 {
                     return;
+                }
+
+                if (used_for_reducing_metamagic_cast_time)
+                {
+                    var arcanist_part = this.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>();
+                    if (arcanist_part!= null && arcanist_part.isUsedWithMetamixing(evt.Spell.Blueprint, evt.Spell.MetamagicData.MetamagicMask))
+                    {
+                        return;
+                    }
                 }
                  
                 if (spellbook == null || spellbook_blueprint == spellbook)
@@ -1926,12 +1935,36 @@ namespace CallOfTheWild
                 var cost = ability.Blueprint.GetComponent<AbilityResourceLogic>().Amount;
                 foreach (var f in cost_reducing_facts)
                 {
-                    cost -= ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    if (f is BlueprintBuff)
+                    {
+                        cost -= ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    }
+                    if (f is BlueprintFeature)
+                    {
+                        var feature = ability.Caster.GetFeature(f as BlueprintFeature);
+
+                        if (feature != null)
+                        {
+                            cost -= feature.GetRank();
+                        }
+                    }
                 }
 
                 foreach (var f in cost_increasing_facts)
                 {
-                    cost += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    if (f is BlueprintBuff)
+                    {
+                        cost += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    }
+                    if (f is BlueprintFeature)
+                    {
+                        var feature = ability.Caster.GetFeature(f as BlueprintFeature);
+
+                        if (feature != null)
+                        {
+                            cost += feature.GetRank();
+                        }
+                    }
                 }
 
                 return cost < 0 ? 0 : cost;
@@ -5640,7 +5673,7 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintAbility))]
-        public class AbilityShowIfCasterHasFact : BlueprintComponent, IAbilityVisibilityProvider
+        public class AbilityShowIfCasterHasFact2 : BlueprintComponent, IAbilityVisibilityProvider
         {
             public BlueprintUnitFact UnitFact;
 
@@ -7049,6 +7082,45 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
             {
 
+            }
+        }
+
+
+        [ComponentName("Increase spell descriptor DC")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SavingthrowBonusAgainstCasterAbilities : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public BlueprintScriptableObject[] sources;
+            public ContextValue value;
+            public int multiplier;
+            public ModifierDescriptor descriptor;
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                if (evt.Reason.Caster != this.Fact.MaybeContext.MaybeCaster)
+                {
+                    return;
+                }
+
+                var source = evt.Reason.Context?.AssociatedBlueprint;
+                if (source == null)
+                {
+                    return;
+                }
+
+                if (!sources.Contains(source))
+                {
+                    return;
+                }
+
+                var bonus = this.value.Calculate(this.Fact.MaybeContext) * this.multiplier;
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
             }
         }
 

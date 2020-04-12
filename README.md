@@ -25,7 +25,9 @@ New Archetypes for existing classes:
 - Untamed Rager Barbarian archetype,
 - Nature-Bonded Magus Magus archetype,
 - Ninja class (implemented as Rogue archetype),
-- Zen Archer Monk  archetype.
+- Zen Archer Monk  archetype,
+- Sanctified Slayer Inquisitor archetype,
+- Executioner Slayer archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
@@ -150,6 +152,10 @@ New Rogue Talents:
 - Major Magic,
 - Feat,
 - Bleeding Attack.
+
+
+New Slayer Talents:
+- Assasinate.
 
 New Magus Arcana:
 - Familiar,

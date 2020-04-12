@@ -218,6 +218,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.test_mode = true;
                     CallOfTheWild.VindicativeBastard.test_mode = true;
                     inquisitions_test = true;
+                    CallOfTheWild.RogueTalents.test_mode = true;
 #endif
                     CallOfTheWild.Summoner.createSummonerClass();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
@@ -257,6 +258,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();
                     CallOfTheWild.Archetypes.Ninja.create();
                     CallOfTheWild.Archetypes.ZenArcher.create();
+                    CallOfTheWild.Archetypes.SanctifiedSlayer.create();
+                    CallOfTheWild.Archetypes.Executioner.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();

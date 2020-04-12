@@ -37,6 +37,7 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Abilities;
 
 namespace CallOfTheWild
 {

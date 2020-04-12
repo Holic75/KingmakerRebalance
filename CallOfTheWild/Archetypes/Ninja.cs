@@ -264,7 +264,7 @@ namespace CallOfTheWild.Archetypes
 
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
-            ninja_trick.AllFeatures = ninja_trick.AllFeatures.AddToArray(improved_unarmed_strike);
+            ninja_trick.AllFeatures = ninja_trick.AllFeatures.AddToArray(improved_unarmed_strike, RogueTalents.assasinate);
 
             var evasion = library.Get<BlueprintFeature>("576933720c440aa4d8d42b0c54b77e80");
 

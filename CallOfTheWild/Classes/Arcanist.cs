@@ -288,7 +288,7 @@ namespace CallOfTheWild
                 foreach (var f in mt_feats[i].GetComponent<AddFacts>().Facts)
                 {
                     var ability = library.CopyAndAdd<BlueprintAbility>(f.AssetGuid, f.name.Replace("MonsterTactician", "Occultist"), "");
-                    ability.ReplaceComponent<AbilityResourceLogic>(a => { a.RequiredResource = arcane_reservoir_resource; a.Amount = i + 1; });
+                    ability.ReplaceComponent<AbilityResourceLogic>(a => { a.RequiredResource = arcane_reservoir_resource; a.Amount = i + 1; a.CostIsCustom = true; });
                     ability.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_reducing_facts = Enumerable.Repeat(perfect_summoner, i+1).ToArray()));
                     foreach (var c in ability.GetComponents<ContextRankConfig>())
                     {
@@ -432,7 +432,7 @@ namespace CallOfTheWild
 
             unlettered_arcanist_spontaneous_spellbook = library.CopyAndAdd<BlueprintSpellbook>(arcanist_spellbook.AssetGuid, "UnletteredArcanistSpontnaeousSpellbook", "");
             unlettered_arcanist_spontaneous_spellbook.Name = Helpers.CreateString("UnletteredArcanistSpontnaeousSpellbook.Name", "Unlettered Arcanist (Spontaneous)");
-            //unlettered_arcanist_spontaneous_spellbook.SpellList = unlettered_arcanist_prepared_spellbook.SpellList;
+            unlettered_arcanist_spontaneous_spellbook.SpellList = unlettered_arcanist_prepared_spellbook.SpellList;
 
             unlettered_arcanist_prepared_spellbook.ReplaceComponent<SpellbookMechanics.CompanionSpellbook>(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = unlettered_arcanist_spontaneous_spellbook));
             unlettered_arcanist_spontaneous_spellbook.ReplaceComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(Helpers.Create<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(c => c.spellbook = unlettered_arcanist_prepared_spellbook));
@@ -1758,7 +1758,7 @@ namespace CallOfTheWild
             memorization_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.CanNotUseSpells>());
 
             arcanist_spellbook = Helpers.Create<BlueprintSpellbook>();
-            arcanist_spellbook.Name = Helpers.CreateString("ArcanistSpellbook.Name", "Arcanist (Spontaneous)");
+            arcanist_spellbook.Name = Helpers.CreateString("ArcanistSpellbook.Name", "Arcanist (Spont.)");
             arcanist_spellbook.name = "ArcanistSpellbook";
             library.AddAsset(arcanist_spellbook, "0c21cfcab6ce4395bd4df330ab3cf715");
 
@@ -1796,7 +1796,7 @@ namespace CallOfTheWild
                                                                        Common.createSpellsLevelEntry(0, 4, 4, 4, 4, 4, 4, 4, 4, 4) //20
                                                                        );
 
-            arcanist_spellbook.SpellList = Common.createSpellList("ArcanistSponaneousSpellList", "");//wizard_class.Spellbook.SpellList;
+            arcanist_spellbook.SpellList = wizard_class.Spellbook.SpellList;
             memorization_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = arcanist_spellbook));
             arcanist_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(c => c.spellbook = memorization_spellbook));
 

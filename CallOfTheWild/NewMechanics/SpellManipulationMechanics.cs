@@ -155,6 +155,25 @@ namespace CallOfTheWild
             }
 
 
+            public bool isUsedWithMetamixing(BlueprintAbility ability, Metamagic metamagic)
+            {
+                if (!metamixingEnabled())
+                {
+                    return false;
+                }
+
+                if (ability.Parent != null)
+                {
+                    return prepared_spells_with_metamagic[ability.Parent.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 1);
+                }
+                else
+                {
+                    return prepared_spells_with_metamagic[ability.AssetGuid].Any(m => (m | metamagic) == metamagic && Helpers.PopulationCount((int)(metamagic & ~m)) == 1);
+                }
+                
+            }
+
+
             private bool noCastingTimeIncreaseForMetamagicInternal(BlueprintAbility ability, Metamagic metamagic, int additional_free_metamagic)
             {
                 if (!prepared_spells_with_metamagic.ContainsKey(ability.AssetGuid))

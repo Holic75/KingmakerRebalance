@@ -42,15 +42,118 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection major_magic;
         static public BlueprintFeatureSelection feat;
         static public BlueprintFeature bleeding_attack;
+
+        static public BlueprintFeature assasinate;
+        static public BlueprintFeature swift_death;
+
+        static internal bool test_mode = false;
         static LibraryScriptableObject library => Main.library;
 
         static public void load()
         {
+            Main.logger.Log("Rogue Talents test mode: " + test_mode.ToString());
+
+            if (test_mode)
+            {
+                var study_target = library.Get<BlueprintAbility>("b96d810ceb1708b4e895b695ddbb1813");
+                study_target.RemoveComponents <Kingmaker.UnitLogic.Abilities.Components.TargetCheckers.AbilityTargetIsPartyMember>();
+                study_target.CanTargetEnemies = true;
+            }
             createMinorMagic();
             createMajorMagic();
 
             createFeatAndFixCombatTrick();
             createBleedingAttack();
+
+            createAssasinateAndSwiftDeath();
+        }
+
+
+        static void createAssasinateAndSwiftDeath()
+        {
+            var slayer_class = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
+            var rogue_class = library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484");
+
+            var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
+            var assasinate_buff = Helpers.CreateBuff("SlayerAssasinateBuff",
+                                                     "Assasinate Target",
+                                                     "A slayer or ninja with this advanced talent can kill foes that are unable to defend themselves. To attempt to assassinate a target, the slayer or ninja must first study his target for 1 round as a full-round action. On the following round, if the slayer or ninja makes a sneak attack against the target and that target is denied its Dexterity bonus to AC, the sneak attack has the additional effect of possibly killing the target. This attempt automatically fails if this is not the first slayer attack against the enemy. If the sneak attack is successful, the target must attempt a Fortitude saving throw with a DC equal to 10 + 1/2 the slayer’s level + the slayer’s Intelligence modifier. If the target fails this save, it dies; otherwise, the target takes the sneak attack damage as normal and is then immune to that slayer’s assassinate ability for 24 hours.",
+                                                     "",
+                                                     sneak_attack.Icon,
+                                                     null);
+            assasinate_buff.Stacking = StackingType.Stack;
+
+            var assasinate_cooldown = Helpers.CreateBuff("SlayerAssasinateCooldownBuff",
+                                         "Assasinate Target Cooldown",
+                                         assasinate_buff.Description,
+                                         "",
+                                         sneak_attack.Icon,
+                                         null);
+            assasinate_cooldown.Stacking = StackingType.Stack;
+            var apply_cooldown = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(assasinate_cooldown), null,
+                                                           Common.createContextActionApplyBuff(assasinate_cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false));
+            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false);
+
+            var ability = Helpers.CreateAbility("AssasinateAbility",
+                                                "Assasinate",
+                                                assasinate_buff.Description,
+                                                "",
+                                                assasinate_buff.Icon,
+                                                AbilityType.Extraordinary,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                Helpers.oneRoundDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff}),
+                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental)
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful();
+            ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            Common.setAsFullRoundAction(ability);
+
+            var attempt_assasinate = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsFlatFooted>(), Common.createContextConditionHasBuffFromCaster(assasinate_buff)),
+                                                               Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKillTarget>()))
+                                                               );
+            assasinate = Helpers.CreateFeature("AssasinateSlayerTalentFeature",
+                                               ability.Name,
+                                               ability.Description,
+                                               "",
+                                               ability.Icon,
+                                               FeatureGroup.RogueTalent,
+                                               Helpers.CreateAddFact(ability),
+                                               Helpers.Create<AddInitiatorAttackRollTrigger>(a =>
+                                                                                            {
+                                                                                                a.OnlyHit = true;
+                                                                                                a.SneakAttack = true;
+                                                                                                a.Action = Helpers.CreateActionList(attempt_assasinate);
+                                                                                            }
+                                                                                            ),
+                                               Helpers.Create<AddInitiatorAttackRollTrigger>(a =>
+                                                                                              {
+                                                                                                  a.OnlyHit = false;
+                                                                                                  a.Action = Helpers.CreateActionList(apply_cooldown, Common.createContextActionRemoveBuffFromCaster(assasinate_buff));
+                                                                                              }
+                                                                                            ),
+                                               Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] {slayer_class, rogue_class}, StatType.Intelligence)
+                                               );
+
+            Common.addToSlayerStudiedTargetDC(assasinate);
+
+            addToSlayerTalentSelection(assasinate, advanced: true);
+
+            var swift_resource = Helpers.CreateAbilityResource("SlayerSwiftDeathResource", "", "", "", null);
+            swift_resource.SetIncreasedByLevelStartPlusDivStep(1, 19, 1, 100, 0, 0, 0.0f, new BlueprintCharacterClass[] { slayer_class });
+
+            var swift_ability = library.CopyAndAdd<BlueprintAbility>(ability, "SlayerSwiftDeathAbility", "");
+            swift_ability.ActionType = UnitCommand.CommandType.Swift;
+            Common.unsetAsFullRoundAction(swift_ability);
+
+            swift_ability.AddComponent(swift_resource.CreateResourceLogic());
+            swift_ability.SetNameDescription("Swift Death", "At 14th level, once per day an executioner can attempt to assassinate a foe without studying his foe beforehand. He must still succeed at a sneak attack against the target. At 19th level, he can make two such attacks per day.");
+
+            swift_death = Common.AbilityToFeature(swift_ability, false);
+            swift_death.AddComponent(swift_resource.CreateAddAbilityResource());
         }
 
 
@@ -122,7 +225,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addToTalentSelection(BlueprintFeature f)
+        static void addToTalentSelection(BlueprintFeature f, bool advanced = false)
         {
             var selections =
                 new BlueprintFeatureSelection[]
@@ -137,6 +240,34 @@ namespace CallOfTheWild
             foreach (var s in selections)
             {
                 s.AllFeatures = s.AllFeatures.AddToArray(f);
+            }
+
+            var advanced_talents = library.Get<BlueprintFeature>("a33b99f95322d6741af83e9381b2391c");
+            if (advanced)
+            {
+                f.AddComponent(Helpers.PrerequisiteFeature(advanced_talents));
+            }
+        }
+
+
+        static void addToSlayerTalentSelection(BlueprintFeature f, bool advanced = false)
+        {
+            var selections =
+                new BlueprintFeatureSelection[]
+                {
+                    library.Get<BlueprintFeatureSelection>("04430ad24988baa4daa0bcd4f1c7d118"), //slayer talent2
+                    library.Get<BlueprintFeatureSelection>("43d1b15873e926848be2abf0ea3ad9a8"), //slayer talent6
+                    library.Get<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66"), //slayerTalent10
+                };
+
+            foreach (var s in selections)
+            {
+                s.AllFeatures = s.AllFeatures.AddToArray(f);
+            }
+            var advanced_talents = library.Get<BlueprintFeature>("a33b99f95322d6741af83e9381b2391c");
+            if (advanced)
+            {
+                f.AddComponent(Helpers.PrerequisiteFeature(advanced_talents));
             }
         }
 

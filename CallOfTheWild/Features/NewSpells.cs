@@ -2352,7 +2352,7 @@ namespace CallOfTheWild
                                                     Helpers.roundsPerLevelDuration,
                                                     "",
                                                     Helpers.CreateRunActions(apply_buff),
-                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterHasFact>(a => a.UnitFact = judgment_buff),
+                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterHasFact2>(a => a.UnitFact = judgment_buff),
                                                     Helpers.CreateSpellComponent(SpellSchool.Divination),
                                                     Helpers.CreateContextRankConfig()
                                                     );

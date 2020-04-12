@@ -61,7 +61,18 @@ namespace CallOfTheWild
                         AbilityResourceLogic abilityResourceLogic = __instance.Blueprint.GetComponents<AbilityResourceLogic>().FirstOrDefault<AbilityResourceLogic>();
                         BlueprintAbilityResource blueprintAbilityResource = (abilityResourceLogic != null && abilityResourceLogic.IsSpendResource) ? abilityResourceLogic.RequiredResource : null;
                         if (blueprintAbilityResource != null)
-                            __result =  __instance.Fact.Owner.Resources.GetResourceAmount(blueprintAbilityResource) / abilityResourceLogic.CalculateCost(__instance);
+                        {
+                            int cost = abilityResourceLogic.CalculateCost(__instance);
+                            if (cost <= 0)
+                            {
+                                __result = -1;
+                            }
+                            else
+                            {
+                                __result = __instance.Fact.Owner.Resources.GetResourceAmount(blueprintAbilityResource) / cost;
+                            }
+                        }
+                           
                     }
                 }
             }

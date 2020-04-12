@@ -128,9 +128,11 @@
     <Compile Include="AnimalCompanionLevelUp.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\Evangelist.cs" />
+    <Compile Include="Archetypes\Executioner.cs" />
     <Compile Include="Archetypes\NatureBondedMagus.cs" />
     <Compile Include="Archetypes\Ninja.cs" />
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
+    <Compile Include="Archetypes\SanctifiedSlayer.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Archetypes\UntamedRager.cs" />
