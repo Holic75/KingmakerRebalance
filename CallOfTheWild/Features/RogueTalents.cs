@@ -84,7 +84,7 @@ namespace CallOfTheWild
             assasinate_buff.Stacking = StackingType.Stack;
 
             var assasinate_cooldown = Helpers.CreateBuff("SlayerAssasinateCooldownBuff",
-                                         "Assasinate Target Cooldown",
+                                         "Assassinate Target Cooldown",
                                          assasinate_buff.Description,
                                          "",
                                          sneak_attack.Icon,
@@ -95,7 +95,7 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false);
 
             var ability = Helpers.CreateAbility("AssasinateAbility",
-                                                "Assasinate",
+                                                "Assassinate",
                                                 assasinate_buff.Description,
                                                 "",
                                                 assasinate_buff.Icon,
