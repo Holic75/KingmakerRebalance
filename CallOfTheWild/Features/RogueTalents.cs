@@ -204,7 +204,7 @@ namespace CallOfTheWild
             toggle.DeactivateImmediately = true;
 
             bleeding_attack = Common.ActivatableAbilityToFeature(toggle, false);
-            addToTalentSelection(bleeding_attack);
+            addToTalentSelection(bleeding_attack, for_investigator: false);
 
             var medical_discoveries = library.Get<BlueprintFeatureSelection>("67f499218a0e22944abab6fe1c9eaeee");
             medical_discoveries.AllFeatures = medical_discoveries.AllFeatures.AddToArray(bleeding_attack);
@@ -225,7 +225,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addToTalentSelection(BlueprintFeature f, bool advanced = false)
+        static void addToTalentSelection(BlueprintFeature f, bool advanced = false, bool for_investigator = true)
         {
             var selections =
                 new BlueprintFeatureSelection[]
@@ -234,8 +234,12 @@ namespace CallOfTheWild
                     library.Get<BlueprintFeatureSelection>("04430ad24988baa4daa0bcd4f1c7d118"), //slayer talent2
                     library.Get<BlueprintFeatureSelection>("43d1b15873e926848be2abf0ea3ad9a8"), //slayer talent6
                     library.Get<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66"), //slayerTalent10
-                    Investigator.investigator_talent_selection
                 };
+
+            if (for_investigator)
+            {
+                selections = selections.AddToArray(Investigator.investigator_talent_selection);
+            }
 
             foreach (var s in selections)
             {

@@ -11,7 +11,7 @@ It introduces new classes:
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
-- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner,
+- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner and Psychic Detective,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist and Master Summoner,
 - Hinterlander and Holy Vindicator prestige classes.
 

@@ -6,6 +6,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
@@ -71,6 +72,19 @@ namespace CallOfTheWild.ResourceMechanics
         }
 
         public string GetReason() => $"{Resource.Name} is not active on any targets.";
+    }
+
+
+    public class RestrictionHasEnoughResource : ActivatableAbilityRestriction
+    {
+        public BlueprintAbilityResource resource;
+        public int amount = 1;
+        
+
+        public override bool IsAvailable()
+        {           
+            return this.Owner.Resources.GetResourceAmount(resource) >= amount;
+        }
     }
 
 

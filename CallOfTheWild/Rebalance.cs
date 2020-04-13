@@ -51,6 +51,9 @@ namespace CallOfTheWild
         {
             //fiery body
             library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
+            //force descriptors on battering blast and magic missile
+            library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
+            library.Get<BlueprintAbility>("0a2f7c6aa81bc6548ac7780d8b70bcbc").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
         }
 
 

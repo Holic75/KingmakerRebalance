@@ -109,6 +109,23 @@ namespace CallOfTheWild
         static public BlueprintSpellbook jinyiwei_spellbook;
 
 
+        static public BlueprintArchetype psychic_detective;
+        static public BlueprintFeature psychic_spellcasting;
+        static public BlueprintSpellbook psychic_detective_spellbook;
+        static public BlueprintFeature psychic_meddler;
+        static public BlueprintFeatureSelection phrenic_dabbler;
+        static public BlueprintFeature extra_phrenic_pool;
+        static public BlueprintFeatureSelection extra_phrenic_amplification;
+        static public BlueprintAbilityResource phrenic_pool_resource;
+
+        static public BlueprintFeature focused_force;
+        static public BlueprintFeature biokinetic_healing;
+        static public BlueprintFeature conjured_armor;
+        static public BlueprintFeature defensive_prognostication;
+        static public BlueprintFeature minds_eye;
+        static public BlueprintFeature overpowering_mind;
+        static public BlueprintFeature will_of_the_dead;
+
 
         internal static void createInvestigatorClass()
         {
@@ -133,9 +150,9 @@ namespace CallOfTheWild
             investigator_class.ReflexSave = bard_class.ReflexSave;
             investigator_class.WillSave = bard_class.WillSave;
             investigator_class.Spellbook = createInvestigatorSpellbook();
-            investigator_class.ClassSkills = new StatType[] {StatType.SkillMobility, StatType.SkillStealth, StatType.SkillThievery,
+            investigator_class.ClassSkills = new StatType[] {StatType.SkillAthletics,  StatType.SkillMobility, StatType.SkillStealth, StatType.SkillThievery,
                                                       StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion,
-                                                      StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice}; //everything except stealth and trickety
+                                                      StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice}; 
             investigator_class.IsDivineCaster = false;
             investigator_class.IsArcaneCaster = false;
             investigator_class.StartingGold = rogue_class.StartingGold;
@@ -154,8 +171,9 @@ namespace CallOfTheWild
             createEmpiricistArchetype();
             createQuestioner();
             createJinyiwei();
+            createPsychicDetective();
 
-            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype};
+            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype, psychic_detective};
             Helpers.RegisterClass(investigator_class);
             addToPrestigeClasses(); 
             createFeats();
@@ -173,6 +191,328 @@ namespace CallOfTheWild
                                         Common.createPrerequisiteArchetypeLevel(investigator_class, jinyiwei_archetype, 2));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, questioner_spellbook, "DragonDiscipleQuestioner",
                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1));
+        }
+
+
+        static void createPsychicDetective()
+        {
+            psychic_detective = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PsychicDetectiveArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Psychic Detective");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A psychic detective supplements her keen insight with occult skill to unravel mysteries both ordinary and supernatural.");
+            });
+            Helpers.SetField(psychic_detective, "m_ParentClass", investigator_class);
+            library.AddAsset(psychic_detective, "");
+
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+            createPsychicSpellCasting();
+            createPhrenicDabbler();
+            createPsychicDiscoveries();
+
+            psychic_meddler = Helpers.CreateFeature("PsychicMeddlerFeature",
+                                                        "Psychic Meddler",
+                                                        "At 2nd level, a psychic detective receives a +1 bonus on saves against mind-affecting spells and spell-like abilities. This bonus increases by 1 at 5th level and every 3 levels thereafter, to a maximum of +6 at 17th level.",
+                                                        "",
+                                                        Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"), //mind fog
+                                                        FeatureGroup.None,
+                                                        Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, SpellDescriptor.MindAffecting),
+                                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(), progression: ContextRankProgression.StartPlusDivStep,
+                                                                                        startLevel: 2, stepLevel: 3)
+                                                        );
+
+            psychic_detective.RemoveFeatures = new LevelEntry[] {
+                                                                   Helpers.LevelEntry(2, poison_resistance),
+                                                                   Helpers.LevelEntry(3, investigator_talent_selection),
+                                                                   Helpers.LevelEntry(11, poison_immunity),
+                                                                };
+            psychic_detective.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, detect_magic, psychic_spellcasting),
+                                                               Helpers.LevelEntry(2, psychic_meddler),
+                                                               Helpers.LevelEntry(3, phrenic_dabbler)
+                                                             };
+
+            psychic_detective.ReplaceSpellbook = psychic_detective_spellbook;
+            investigator_class.Progression.UIDeterminatorsGroup = investigator_class.Progression.UIDeterminatorsGroup.AddToArray(detect_magic, psychic_spellcasting);
+            investigator_class.Progression.UIGroups = investigator_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(psychic_meddler, phrenic_dabbler));
+
+            psychic_detective.ReplaceClassSkills = true;
+            psychic_detective.ClassSkills = new StatType[] {StatType.SkillStealth, StatType.SkillThievery,
+                                                      StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion,
+                                                      StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice};
+
+            infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
+            mutagen.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
+            enhance_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
+            extend_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
+        }
+
+
+        static void createPsychicDiscoveries()
+        {
+            extra_phrenic_pool = Helpers.CreateFeature("PsychicDetectiveExtraPhrenicPoolFeature",
+                                                       "Expanded Phrenic Pool",
+                                                       "Your phrenic pool total increases by 2 points.",
+                                                       "",
+                                                       Helpers.GetIcon("42f96fc8d6c80784194262e51b0a1d25"), //extra arcana
+                                                       FeatureGroup.None,
+                                                       Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = phrenic_pool_resource; i.Value = 2; }),
+                                                       Common.createPrerequisiteArchetypeLevel(investigator_class, psychic_detective, 3)
+                                                       );
+
+            extra_phrenic_amplification = Helpers.CreateFeatureSelection("PsychicDetectiveExtraPhrenicAmplificationFeatureSelection",
+                                           "Extra Phrenic Amplification (Psychic Detective)",
+                                           "You gain one additional phrenic amplification.",
+                                           "",
+                                           null,
+                                           FeatureGroup.None,
+                                           Common.createPrerequisiteArchetypeLevel(investigator_class, psychic_detective, 3),
+                                           Helpers.PrerequisiteNoFeature(extra_phrenic_amplification)
+                                           );
+            extra_phrenic_amplification.AllFeatures = phrenic_dabbler.AllFeatures;
+
+            investigator_talent_selection.AllFeatures = investigator_talent_selection.AllFeatures.AddToArray(extra_phrenic_pool, extra_phrenic_amplification);
+        }
+
+
+        static void createPhrenicDabbler()
+        {
+            phrenic_pool_resource = Helpers.CreateAbilityResource("PsychicDetectivePhrenicPoolResource", "", "", "", null);
+            phrenic_pool_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, getInvestigatorArray());
+
+            phrenic_dabbler = Helpers.CreateFeatureSelection("PhrenicDabblerFeature",
+                                                           "Phrenic Dabbler",
+                                                           "At 3rd level, a psychic detective gains a small pool of phrenic points equal to 1/2 her psychic detective level, as well as one phrenic amplification, as the psychic class feature. This does not allow the psychic detective to qualify for the Extra Amplification feat.",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddAbilityResource(phrenic_pool_resource)
+                                                           );
+            var phrenic_amplifications_engine = new PhrenicAmplificationsEngine(phrenic_pool_resource, psychic_detective_spellbook, investigator_class, "PsychicDetective");
+
+            focused_force = phrenic_amplifications_engine.createFocusedForce();
+            biokinetic_healing = phrenic_amplifications_engine.createBiokineticHealing();
+            conjured_armor = phrenic_amplifications_engine.createConjuredArmor();
+            defensive_prognostication = phrenic_amplifications_engine.createDefensivePrognostication();
+            minds_eye = phrenic_amplifications_engine.createMindsEye();
+            overpowering_mind = phrenic_amplifications_engine.createOverpoweringMind();
+            will_of_the_dead = phrenic_amplifications_engine.createWillOfTheDead();
+
+            phrenic_dabbler.AllFeatures = new BlueprintFeature[]
+            {
+                biokinetic_healing,
+                conjured_armor,
+                defensive_prognostication,
+                focused_force,
+                minds_eye,
+                overpowering_mind,
+                will_of_the_dead
+            };
+
+        }
+
+        static void createPsychicSpellCasting()
+        {
+            psychic_spellcasting = Helpers.CreateFeature("PsychichDetectiveSpellCasting",
+                                                         "Psychic Magic",
+                                                         "A psychic detective casts psychic spells drawn from the psychic class spell list and augmented by a select set of additional spells specified below. Only spells from the psychic class spell list of 6th level or lower and psychic detective spells are considered to be part of the psychic detective’s spell list. If a spell appears on both the psychic detective and psychic class spell lists, the psychic detective uses the spell level from the psychic detective spell list. She can cast any spell she knows without preparing it ahead of time. To learn or cast a spell, a psychic detective must have an Intelligence score equal to at least 10 + the spell’s level. The saving throw DC against a psychic detective’s spell is 10 + the spell’s level + the psychic detective’s Intelligence modifier.\n"
+                                                         + "Like other spellcasters, a psychic detective can cast only a certain number of spells of each spell level per day. She knows the same number of spells and receives the same number of spells slots per day as a bard of her investigator level, and knows and uses 0-level knacks as a bard uses cantrips. In addition, she receives bonus spells per day if she has a high Intelligence score.\n"
+                                                         + "Additional Psychic detective spells: Find Traps (1st), Banishment (6th).\n"
+                                                         + "Psychic detective spells are not subject to arcane spell failure due to armor, but they require a more significant effort, compared to classic magic and thus the DC of all concentration checks required as a part of casting a psychic spell is increased by 10, additionaly psychic magic can not be used at all if caster is under the influence of fear or negative emotion effects.",
+                                                         "",
+                                                         null,
+                                                         FeatureGroup.None);
+
+            var bard_class = library.TryGet<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
+
+            psychic_detective_spellbook = Helpers.Create<BlueprintSpellbook>();
+            psychic_detective_spellbook.name = "PsychicDetectiveSpellbook";
+            library.AddAsset(psychic_detective_spellbook, "");
+            psychic_detective_spellbook.Name = psychic_detective.LocalizedName;
+            psychic_detective_spellbook.SpellsPerDay = bard_class.Spellbook.SpellsPerDay;
+            psychic_detective_spellbook.SpellsKnown = bard_class.Spellbook.SpellsKnown;
+            psychic_detective_spellbook.Spontaneous = true;
+            psychic_detective_spellbook.IsArcane = false;
+            psychic_detective_spellbook.AllSpellsKnown = false;
+            psychic_detective_spellbook.CanCopyScrolls = false;
+            psychic_detective_spellbook.CastingAttribute = StatType.Intelligence;
+            psychic_detective_spellbook.CharacterClass = investigator_class;
+            psychic_detective_spellbook.CasterLevelModifier = 0;
+            psychic_detective_spellbook.CantripsType = CantripsType.Cantrips;
+            psychic_detective_spellbook.SpellsPerLevel = bard_class.Spellbook.SpellsPerLevel;
+
+            psychic_detective_spellbook.SpellList = Helpers.Create<BlueprintSpellList>();
+            psychic_detective_spellbook.SpellList.name = "PsychicDetectiveSpellList";
+            library.AddAsset(psychic_detective_spellbook.SpellList, "");
+            psychic_detective_spellbook.SpellList.SpellsByLevel = new SpellLevelList[10];
+            for (int i = 0; i < psychic_detective_spellbook.SpellList.SpellsByLevel.Length; i++)
+            {
+                psychic_detective_spellbook.SpellList.SpellsByLevel[i] = new SpellLevelList(i);
+
+            }
+
+            Common.SpellId[] spells = new Common.SpellId[]
+            {
+                new Common.SpellId( "55f14bc84d7c85446b07a1b5dd6b2b4c", 0), //daze
+                new Common.SpellId( "f0f8e5b9808f44e4eadd22b138131d52", 0), //flare
+                new Common.SpellId( "95f206566c5261c42aa5b3e7e0d1e36c", 0), //mage light
+                new Common.SpellId( "7bc8e27cba24f0e43ae64ed201ad5785", 0), //resistance
+                new Common.SpellId( "d3a852385ba4cd740992d1970170301a", 0), //virtue
+
+                new Common.SpellId( "bd81a3931aa285a4f9844585b5d97e51", 1), //cause fear
+                new Common.SpellId( "91da41b9793a4624797921f221db653c", 1), //color spray
+                new Common.SpellId( NewSpells.command.AssetGuid, 1),
+                new Common.SpellId( "8e7cfa5f213a90549aadd18f8f6f4664", 1), //ear-piercing scream
+                new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
+                new Common.SpellId( "4709274b2080b6444a3c11c6ebbe2404", 1), //find traps
+                new Common.SpellId( "39a602aa80cc96f4597778b6d4d49c0a", 1), //flare burst
+                new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
+                new Common.SpellId( Witch.ill_omen.AssetGuid, 1),
+                new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),                
+                new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
+                new Common.SpellId( "4ac47ddb9fa1eaf43a1b6809980cfbd2", 1), //magic missile
+                //mind thrust I
+                new Common.SpellId( "4e0e9aba6447d514f88eff1464cc4763", 1), //reduce person
+                new Common.SpellId( "55a037e514c0ee14a8e3ed14b47061de", 1), //remove fear
+                new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //shield
+                new Common.SpellId( "bb7ecad2d3d2c8247a38f44855c99061", 1), //sleep
+                new Common.SpellId( "a5ec7892fb1c2f74598b3a82f3fd679f", 1), //stunning barrier
+                new Common.SpellId( "8fd74eddd9b6c224693d9ab241f25e84", 1), //summon monster 1
+                new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike
+                new Common.SpellId( "f001c73999fb5a543a199f890108d936", 1), //vanish
+
+                new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
+                new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 2), //blindness
+                new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
+                new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
+                new Common.SpellId( NewSpells.bone_fists.AssetGuid, 2),
+                new Common.SpellId( "4c3d08935262b6544ae97599b3a9556d", 2), //bull's strength
+                new Common.SpellId( "de7a025d48ad5da4991e7d3c682cf69d", 2), //cat's grace
+                new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagle's splendor
+                new Common.SpellId( "e1291272c8f48c14ab212a599ad17aac", 2), //effortless armor
+                new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
+                new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
+                new Common.SpellId( "ae4d3ad6a8fda1542acf2e9bbc13d113", 2), //fox cunning
+                new Common.SpellId( "fd4d9fd7f87575d47aafe2a64a6e2d8d", 2), //hideous laughter
+                new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
+                new Common.SpellId( "41bab342089c0254ca222eb918e98cd4", 2), //hold animal
+                new Common.SpellId( NewSpells.howling_agony.AssetGuid, 2),
+                new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
+                //mental barrier 1
+                //mind thrust 2
+                new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image
+                new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows
+                new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
+                new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
+                new Common.SpellId( NewSpells.savage_maw.AssetGuid, 2),
+                new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
+                new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
+                new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
+                //thought shield 1
+
+                new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
+                new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
+                new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
+                new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement
+                //ego whip I
+                new Common.SpellId( NewSpells.fly.AssetGuid, 3),
+                new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
+                new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                //mental barrier 2
+                //mind thrust 3
+                new Common.SpellId( "96c9d98b6a9a7c249b6c4572e4977157", 3), //protection from arrows communal
+                new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
+                new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
+                new Common.SpellId( "7bb0c402f7f789d4d9fae8ca87b4c7e2", 3), //resist energy communal
+                new Common.SpellId( NewSpells.resinous_skin.AssetGuid, 3),
+                new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
+                new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
+                new Common.SpellId( NewSpells.stunning_barrier_greater.AssetGuid, 3),
+                //thought shield 2
+                new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
+                new Common.SpellId( NewSpells.wall_of_nausea.AssetGuid, 3),
+                new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
+
+                new Common.SpellId( NewSpells.aura_of_doom.AssetGuid, 4),
+                new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
+                new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
+                new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
+                new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimensions door
+                new Common.SpellId( "754c478a2aa9bb54d809e648c3f7ac0e", 4), //dominate animal
+                //ego whip 2
+                new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass
+                new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
+                new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
+                new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
+                new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
+                //intellect fortress 1
+                new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater
+                //mental barrier 3
+                //mind thrust 4
+                new Common.SpellId( "dd2918e4a77c50044acba1ac93494c36", 4), //overwhelming grief
+                new Common.SpellId( "76a629d019275b94184a1a8733cac45e", 4), //protection from energy communal
+                new Common.SpellId( "4b8265132f9c8174f87ce7fa6d0fe47b", 4), //rainbow pattern
+                new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass  
+                new Common.SpellId( "f09453607e683784c8fca646eec49162", 4), //shout
+                new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
+                new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
+                //thought shield 3
+                new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 4),
+
+                new Common.SpellId( NewSpells.command_greater.AssetGuid, 5),
+                new Common.SpellId( "95f7cdcec94e293489a85afdf5af1fd7", 5), //dismissal
+                new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
+                new Common.SpellId( "20b548bf09bb3ea4bafea78dcb4f3db6", 5), //echolocation
+                //ego whip 3
+                new Common.SpellId( "444eed6e26f773a40ab6e4d160c67faa", 5), //feeblemind
+                new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
+                //mental barrier 4
+                new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
+                // mind thrust 5
+                new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
+                new Common.SpellId( "12fb4a4c22549c74d949e2916a2f0b6a", 5), //phantasmal web
+                //psychich crush 1
+                new Common.SpellId( "d316d3d94d20c674db2c24d7de96f6a7", 5), //serenity
+                new Common.SpellId( "d38aaf487e29c3d43a3bffa4a4a55f8f", 5), //song of discord
+                new Common.SpellId( "0a5ddfbcfb3989543ac7c936fc256889", 5), //spell resistance
+                new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin communal
+                new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
+                //thought shield 4
+                new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
+                new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
+                
+                new Common.SpellId( "d361391f645db984bbf58907711a146a", 6), //banishment
+                new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
+                new Common.SpellId( "36c8971e91f1745418cc3ffdfac17b74", 6), //blade barrier
+                new Common.SpellId( "6a234c6dcde7ae94e94e9c36fd1163a7", 6), //bull strength mass
+                new Common.SpellId( "1f6c94d56f178b84ead4c02f1b1e1c48", 6), //cat grace mass
+                new Common.SpellId( "7f71a70d822af94458dc1a235507e972", 6), //cloak of dreams
+                new Common.SpellId( NewSpells.contingency.AssetGuid, 6),
+                new Common.SpellId( NewSpells.curse_major.AssetGuid, 6),
+                new Common.SpellId( "f0f761b808dc4b149b08eaf44b99f633", 6), //dispel magic, greater
+                new Common.SpellId( "4aa7942c3e62a164387a73184bca3fc1", 6), //disintegrate
+                //ego whip 4
+                new Common.SpellId( "2caa607eadda4ab44934c5c9875e01bc", 6), //eagles splendor mass
+                new Common.SpellId( NewSpells.fluid_form.AssetGuid, 6),
+                new Common.SpellId( "2b24159ad9907a8499c2313ba9c0f615", 6), //fox cunning mass
+                new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
+                new Common.SpellId( "15a04c40f84545949abeedef7279751a", 6), //joyful rapture
+                //mental barrier 5
+                //mind thrust 6
+                new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass    
+                new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
+                //psychic crush 2
+                new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
+                //thought shield 5
+                new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
+            };
+
+            foreach (var spell_id in spells)
+            {
+                var spell = library.Get<BlueprintAbility>(spell_id.guid);
+                spell.AddToSpellList(psychic_detective_spellbook.SpellList, spell_id.level);
+            }
+
+            psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_detective_spellbook));
         }
 
 

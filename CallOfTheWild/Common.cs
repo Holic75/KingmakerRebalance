@@ -1858,6 +1858,28 @@ namespace CallOfTheWild
             return feature;
         }
 
+
+        static public BlueprintActivatableAbility buffToToggle(BlueprintBuff buff, CommandType command, bool deactivate_immediately, params BlueprintComponent[] components)
+        {
+            var toggle = Helpers.CreateActivatableAbility(buff.name + "ToggleAbility",
+                                                             buff.Name,
+                                                             buff.Description,
+                                                             "",
+                                                             buff.Icon,
+                                                             buff,
+                                                             AbilityActivationType.Immediately,
+                                                             command,
+                                                             null,
+                                                             components
+                                                             );
+
+
+            toggle.DeactivateImmediately = deactivate_immediately;
+            return toggle;
+        }
+
+
+
         static public BlueprintFeature AbilityToFeature(BlueprintAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",

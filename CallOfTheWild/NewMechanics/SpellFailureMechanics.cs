@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Equipment;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
@@ -51,6 +52,51 @@ namespace CallOfTheWild.SpellFailureMechanics
         public void OnEventDidTrigger(RuleCastSpell evt)
         {
 
+        }
+    }
+
+
+    class PsychicSpellbook : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCastSpell>, IRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>,  IInitiatorRulebookSubscriber
+    {
+        public BlueprintSpellbook spellbook;
+
+        public void OnEventAboutToTrigger(RuleCastSpell evt)
+        {
+            if (evt.Spell?.Spellbook?.Blueprint != spellbook)
+            {
+                return;
+            }
+
+            foreach (var b in evt.Initiator.Buffs)
+            {
+                if ((b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
+                {
+                    evt.SpellFailureChance = Math.Max(evt.SpellFailureChance, 100);
+                    break;
+                }
+            }
+
+            
+        }
+
+        public void OnEventDidTrigger(RuleCastSpell evt)
+        {
+
+        }
+
+
+        void IRulebookHandler<RuleCalculateAbilityParams>.OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+        {
+            if (evt.Spellbook?.Blueprint != spellbook)
+            {
+                return;
+            }
+            evt.AddBonusConcentration(-10);
+        }
+
+        void IRulebookHandler<RuleCalculateAbilityParams>.OnEventDidTrigger(RuleCalculateAbilityParams evt)
+        {
+           
         }
     }
 

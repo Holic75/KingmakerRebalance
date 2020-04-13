@@ -118,7 +118,6 @@ namespace CallOfTheWild
         static public BlueprintBuff suffocation_buff;
         static public BlueprintAbility fluid_form;
 
-
         static public BlueprintAbility hold_person_mass;
         static public BlueprintAbility irresistible_dance;
         static public BlueprintAbility particulate_form;
@@ -200,9 +199,9 @@ namespace CallOfTheWild
         static public BlueprintAbility control_undead;
         static public BlueprintAbility halt_undead;
 
-
         static public BlueprintAbility touch_of_blood_letting;
         static public BlueprintAbility bloody_claws;
+
 
 
         static public void load()

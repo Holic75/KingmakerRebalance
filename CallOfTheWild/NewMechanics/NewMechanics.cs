@@ -329,6 +329,58 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class SpendResourceOnSpecificSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
+        {            
+            public BlueprintAbilityResource resource;
+            public BlueprintSpellbook spellbook;
+            public int amount = 1;
+            public SpellSchool school;
+            public BlueprintAbility[] spell_list = new BlueprintAbility[0];
+            public SpellDescriptorWrapper spell_descriptor;
+
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
+                if (spellbook_blueprint == null)
+                {
+                    return;
+                }
+
+                if (evt.Spell.StickyTouch != null)
+                {
+                    return;
+                }
+
+                if (spellbook != null && spellbook_blueprint != spellbook)
+                {
+                    return;
+                }
+
+                if (school != SpellSchool.None && evt.Spell.Blueprint.School != school)
+                {
+                    return;
+                }
+
+                if (!spell_list.Empty() && !spell_list.Contains(evt.Spell.Blueprint))
+                {
+                    return;
+                }
+
+                if (spell_descriptor != SpellDescriptor.None && ((evt.Context.SpellDescriptor & spell_descriptor) == 0))
+                {
+                    return;
+                }
+
+                this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintBuff))]
         [ComponentName("Buffs/AddEffect/ContextFastHealing")]
         public class AddContextEffectFastHealing : BuffLogic, ITickEachRound, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
@@ -814,6 +866,7 @@ namespace CallOfTheWild
         {
             public ContextValue Value;
             public SpellDescriptorWrapper Descriptor;
+            public BlueprintSpellbook spellbook = null;
 
             private MechanicsContext Context
             {
@@ -828,6 +881,10 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
+                if (spellbook != null && evt.Spellbook?.Blueprint != spellbook)
+                {
+                    return;
+                }
                 bool? nullable = evt.Spell.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
                 if (!nullable.HasValue || !nullable.Value)
                     return;
