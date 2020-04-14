@@ -442,6 +442,7 @@ namespace CallOfTheWild.TurnActionMechanics
             {
                 __result = true;
             }
+
         }
     }
 

@@ -100,6 +100,7 @@ namespace CallOfTheWild
         public static BlueprintFeature magical_beast = library.Get<BlueprintFeature>("625827490ea69d84d8e599a33929fdc6");
         public static BlueprintFeature monstrous_humanoid = library.Get<BlueprintFeature>("57614b50e8d86b24395931fffc5e409b");
         public static BlueprintFeature aberration = library.Get<BlueprintFeature>("3bec99efd9a363242a6c8d9957b75e91");
+        public static BlueprintFeature vermin = library.Get<BlueprintFeature>("09478937695300944a179530664e42ec");
 
         public static BlueprintBuff deafened = Helpers.CreateBuff("DeafenedBuff",
                                                                 "Deafened",
@@ -1321,6 +1322,18 @@ namespace CallOfTheWild
             var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "Area" + buff.name, "");
             area_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area_effect);
             return Common.createAuraFeatureComponent(area_buff);
+        }
+
+
+        static public BlueprintBuff createBuffAreaEffect(BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        {
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", buff.name + "AreaEffect", "");
+            area_effect.Size = radius;
+            area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = conditions; });
+
+            var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "Area" + buff.name, "");
+            area_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area_effect);
+            return area_buff;
         }
 
 

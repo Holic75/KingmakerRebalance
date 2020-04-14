@@ -119,12 +119,14 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource phrenic_pool_resource;
 
         static public BlueprintFeature focused_force;
+        static public BlueprintFeature ongoing_defense;
         static public BlueprintFeature biokinetic_healing;
         static public BlueprintFeature conjured_armor;
         static public BlueprintFeature defensive_prognostication;
         static public BlueprintFeature minds_eye;
         static public BlueprintFeature overpowering_mind;
         static public BlueprintFeature will_of_the_dead;
+
 
 
         internal static void createInvestigatorClass()
@@ -296,6 +298,7 @@ namespace CallOfTheWild
             minds_eye = phrenic_amplifications_engine.createMindsEye();
             overpowering_mind = phrenic_amplifications_engine.createOverpoweringMind();
             will_of_the_dead = phrenic_amplifications_engine.createWillOfTheDead();
+            ongoing_defense = phrenic_amplifications_engine.createOngoingDefense();
 
             phrenic_dabbler.AllFeatures = new BlueprintFeature[]
             {
@@ -305,7 +308,8 @@ namespace CallOfTheWild
                 focused_force,
                 minds_eye,
                 overpowering_mind,
-                will_of_the_dead
+                will_of_the_dead,
+                ongoing_defense
             };
 
         }
@@ -370,7 +374,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),                
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "4ac47ddb9fa1eaf43a1b6809980cfbd2", 1), //magic missile
-                //mind thrust I
+                new Common.SpellId( NewSpells.mind_thrust[0].AssetGuid, 1),
                 new Common.SpellId( "4e0e9aba6447d514f88eff1464cc4763", 1), //reduce person
                 new Common.SpellId( "55a037e514c0ee14a8e3ed14b47061de", 1), //remove fear
                 new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //shield
@@ -397,8 +401,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "41bab342089c0254ca222eb918e98cd4", 2), //hold animal
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 2),
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
-                //mental barrier 1
-                //mind thrust 2
+                new Common.SpellId( NewSpells.mental_barrier[0].AssetGuid, 2),
+                new Common.SpellId( NewSpells.mind_thrust[1].AssetGuid, 2),
                 new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image
                 new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
@@ -407,18 +411,17 @@ namespace CallOfTheWild
                 new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
-                //thought shield 1
+                new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
 
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement
-                //ego whip I
                 new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
-                //mental barrier 2
-                //mind thrust 3
+                new Common.SpellId( NewSpells.mental_barrier[1].AssetGuid, 3),
+                new Common.SpellId( NewSpells.mind_thrust[2].AssetGuid, 3),
                 new Common.SpellId( "96c9d98b6a9a7c249b6c4572e4977157", 3), //protection from arrows communal
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
@@ -427,7 +430,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( NewSpells.stunning_barrier_greater.AssetGuid, 3),
-                //thought shield 2
+                new Common.SpellId( NewSpells.thought_shield[1].AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
                 new Common.SpellId( NewSpells.wall_of_nausea.AssetGuid, 3),
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
@@ -438,16 +441,15 @@ namespace CallOfTheWild
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
                 new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimensions door
                 new Common.SpellId( "754c478a2aa9bb54d809e648c3f7ac0e", 4), //dominate animal
-                //ego whip 2
                 new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
                 new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
-                //intellect fortress 1
+                new Common.SpellId( NewSpells.intellect_fortress.AssetGuid, 4),
                 new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater
-                //mental barrier 3
-                //mind thrust 4
+                new Common.SpellId( NewSpells.mental_barrier[2].AssetGuid, 4),
+                new Common.SpellId( NewSpells.mind_thrust[3].AssetGuid, 4),
                 new Common.SpellId( "dd2918e4a77c50044acba1ac93494c36", 4), //overwhelming grief
                 new Common.SpellId( "76a629d019275b94184a1a8733cac45e", 4), //protection from energy communal
                 new Common.SpellId( "4b8265132f9c8174f87ce7fa6d0fe47b", 4), //rainbow pattern
@@ -455,28 +457,25 @@ namespace CallOfTheWild
                 new Common.SpellId( "f09453607e683784c8fca646eec49162", 4), //shout
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
-                //thought shield 3
+                new Common.SpellId( NewSpells.thought_shield[2].AssetGuid, 4),
                 new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 4),
 
                 new Common.SpellId( NewSpells.command_greater.AssetGuid, 5),
                 new Common.SpellId( "95f7cdcec94e293489a85afdf5af1fd7", 5), //dismissal
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "20b548bf09bb3ea4bafea78dcb4f3db6", 5), //echolocation
-                //ego whip 3
                 new Common.SpellId( "444eed6e26f773a40ab6e4d160c67faa", 5), //feeblemind
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster
-                //mental barrier 4
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
-                // mind thrust 5
+                new Common.SpellId( NewSpells.mind_thrust[4].AssetGuid, 5),
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( "12fb4a4c22549c74d949e2916a2f0b6a", 5), //phantasmal web
-                //psychich crush 1
                 new Common.SpellId( "d316d3d94d20c674db2c24d7de96f6a7", 5), //serenity
                 new Common.SpellId( "d38aaf487e29c3d43a3bffa4a4a55f8f", 5), //song of discord
                 new Common.SpellId( "0a5ddfbcfb3989543ac7c936fc256889", 5), //spell resistance
                 new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin communal
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
-                //thought shield 4
+                new Common.SpellId( NewSpells.mental_barrier[3].AssetGuid, 5),
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
@@ -490,19 +489,16 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.curse_major.AssetGuid, 6),
                 new Common.SpellId( "f0f761b808dc4b149b08eaf44b99f633", 6), //dispel magic, greater
                 new Common.SpellId( "4aa7942c3e62a164387a73184bca3fc1", 6), //disintegrate
-                //ego whip 4
                 new Common.SpellId( "2caa607eadda4ab44934c5c9875e01bc", 6), //eagles splendor mass
                 new Common.SpellId( NewSpells.fluid_form.AssetGuid, 6),
                 new Common.SpellId( "2b24159ad9907a8499c2313ba9c0f615", 6), //fox cunning mass
                 new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
                 new Common.SpellId( "15a04c40f84545949abeedef7279751a", 6), //joyful rapture
-                //mental barrier 5
-                //mind thrust 6
+                new Common.SpellId( NewSpells.mental_barrier[4].AssetGuid, 6),
+                new Common.SpellId( NewSpells.mind_thrust[5].AssetGuid, 6),
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass    
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
-                //psychic crush 2
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
-                //thought shield 5
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
             };
 

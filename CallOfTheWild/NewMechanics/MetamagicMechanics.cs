@@ -274,6 +274,7 @@ namespace CallOfTheWild
             public int amount;
             public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay;
+            public BlueprintSpellbook spellbook = null;
 
             private int calculate_cost(UnitEntityData caster)
             {
@@ -293,8 +294,18 @@ namespace CallOfTheWild
             {
                 bool is_metamagic_not_available = ability == null || data?.Spellbook == null || ability.Type != AbilityType.Spell
                                               || ((ability.AvailableMetamagic & Metamagic) == 0);
-
+                
                 if (is_metamagic_not_available)
+                {
+                    return false;
+                }
+              
+                if (spellbook != null && data?.Spellbook?.Blueprint != spellbook)
+                {
+                    return false;
+                }
+
+                if (this.Abilities != null && !this.Abilities.Empty() && !this.Abilities.Contains(ability))
                 {
                     return false;
                 }

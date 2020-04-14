@@ -66,9 +66,12 @@ namespace CallOfTheWild
             ElementalAcid = 0x00200000,
             Elemental = ElementalFire | ElementalCold | ElementalElectricity | ElementalAcid,
             BloodIntensity = 0x00100000,
-            IntensifiedGeneral = BloodIntensity | Intensified,
-            FreeMetamagic = BloodIntensity,
-            Piercing = 0x00080000
+            IntensifiedGeneral = BloodIntensity | Intensified,           
+            Piercing = 0x00080000,
+            ForceFocus = 0x00040000,
+            RangedAttackRollBonus = 0x00020000,
+            ExtraRoundDuration = 0x00010000,
+            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration,
         }
 
         static public bool test_mode = false;
@@ -104,6 +107,50 @@ namespace CallOfTheWild
             var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetMetamagicList");
             var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetMetamagicList_Patch), "Postfix");
             Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
+
+
+            setFreeMetamagicFlags();
+        }
+
+        static void setFreeMetamagicFlags()
+        {
+            //force focus
+            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && (b.SpellDescriptor & SpellDescriptor.Force) != 0).ToArray();
+            foreach (var s in spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.ForceFocus;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.ForceFocus;
+                }
+            }
+
+
+            //attack roll spells
+            var spells_attack_roll = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b =>
+            {
+                if (!b.IsSpell)
+                {
+                    return false;
+                }
+                var c = b.GetComponent<AbilityDeliverProjectile>();
+                if (c == null)
+                {
+                    return false;
+                }
+
+                return c.NeedAttackRoll;
+            }
+            ).ToArray();
+
+            foreach (var s in spells_attack_roll)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.RangedAttackRollBonus;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.RangedAttackRollBonus;
+                }
+            }
         }
 
 

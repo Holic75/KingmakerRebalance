@@ -122,7 +122,7 @@ namespace CallOfTheWild
                                           "",
                                           MetamagicFeats.intensified_metamagic.Icon,
                                           null,
-                                          Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic>(n => n.max_metamagics = 0), //blood intensity does not increase casting time
+                                          //Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic>(n => n.max_metamagics = 0), //blood intensity does not increase casting time
                                           Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
                                                                                                                       {
                                                                                                                           m.amount = 1;

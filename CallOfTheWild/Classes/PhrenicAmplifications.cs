@@ -2,6 +2,7 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Enums;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
@@ -43,18 +44,51 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.GetIcon("0a2f7c6aa81bc6548ac7780d8b70bcbc"),
                                           null,
-                                          Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.spell_descriptor = SpellDescriptor.Force;
-                                                                                                               s.resource = resource;
-                                                                                                               s.spellbook = spellbook;                                                                                                             
-                                                                                                               s.amount = 1; }),
-                                          Helpers.Create<OnCastMechanics.SpellDamageDiceIncrease>(s => {s.spellbook = spellbook; s.SpellDescriptor = SpellDescriptor.Force; })
+                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                            {
+                                                m.amount = 1;
+                                                m.resource = resource;
+                                                m.spell_descriptor = SpellDescriptor.Force;
+                                                m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ForceFocus;
+                                                m.spellbook = spellbook;
+                                            })                                        
                                           );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
                                              resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
                                              );
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
-            return Common.ActivatableAbilityToFeature(toggle, false);
+            var feature =  Common.ActivatableAbilityToFeature(toggle, false);
+            feature.AddComponent(Helpers.Create<OnCastMechanics.ForceFocusSpellDamageDiceIncrease>(s => { s.spellbook = spellbook; s.SpellDescriptor = SpellDescriptor.Force; }));
+            return feature;
+        }
+
+
+        public BlueprintFeature createOngoingDefense()
+        {
+            var buff = Helpers.CreateBuff(name_prefix + "OngoingDefenseBuff",
+                                          "Ongoing Defense",
+                                          "The psychic can increase the duration of spells that improve her psychic defenses. She can spend 1 point from her phrenic pool when she casts any intellect fortress, mental barrier or thought shield spell to extend the spell’s duration by 1 round.",
+                                          "",
+                                          Helpers.GetIcon("62888999171921e4dafb46de83f4d67d"), //shield of dawn
+                                          null,
+                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                            {
+                                                m.amount = 1;
+                                                m.resource = resource;
+                                                m.Abilities = NewSpells.mental_barrier.AddToArray(NewSpells.thought_shield).AddToArray(NewSpells.intellect_fortress).ToList();
+                                                m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
+                                                m.spellbook = spellbook;
+                                            })
+                                          );
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                             resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                             );
+            toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+            var feature = Common.ActivatableAbilityToFeature(toggle, false);
+            feature.AddComponent(Helpers.Create<OnCastMechanics.IncreaseDurationBy1RoundIfMetamagic>(s => { s.spellbook = spellbook;}));
+            return feature;
         }
 
 
@@ -88,7 +122,13 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.GetIcon("3c08d842e802c3e4eb19d15496145709"), //uncanny dodge
                                           null,
-                                          Helpers.Create<OnCastMechanics.RangedSpellAttackRollBonus>(s => { s.spellbook = spellbook; s.bonus = 4; s.descriptor = ModifierDescriptor.UntypedStackable; s.resource = resource; s.amount = 2; })
+                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                            {
+                                                m.amount = 2;
+                                                m.resource = resource;
+                                                m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.RangedAttackRollBonus;
+                                                m.spellbook = spellbook;
+                                            })
                                           );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
@@ -96,7 +136,9 @@ namespace CallOfTheWild
                                              Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = 2; })
                                              );
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
-            return Common.ActivatableAbilityToFeature(toggle, false);
+            var feature =  Common.ActivatableAbilityToFeature(toggle, false);
+            feature.AddComponent(Helpers.Create<OnCastMechanics.RangedSpellAttackRollBonusRangeAttackRollMetamagic>(s => { s.spellbook = spellbook; s.bonus = 4; s.descriptor = ModifierDescriptor.UntypedStackable; }));
+            return feature;
         }
 
 
@@ -119,7 +161,7 @@ namespace CallOfTheWild
                                           effect_buff.Name,
                                           effect_buff.Description,
                                           "",
-                                          Helpers.GetIcon("38155ca9e4055bb48a89240a2055dcc3"), //augmented summoning
+                                          Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //armor
                                           null,
                                           Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spellbook = spellbook; s.school = SpellSchool.Conjuration; s.spell_descriptor = SpellDescriptor.Summoning; s.amount = 1; }),
                                           Helpers.Create<OnCastMechanics.OnSpawnBuff>(s => { s.spellbook = spellbook; s.school = SpellSchool.Conjuration; s.spell_descriptor = SpellDescriptor.Summoning; s.buff = effect_buff; s.duration_value = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)); }),
@@ -176,7 +218,7 @@ namespace CallOfTheWild
                                               effect_buff.Name,
                                               effect_buff.Description,
                                               "",
-                                              Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //armor
+                                              Helpers.GetIcon("ef768022b0785eb43a18969903c537c4"), //shield
                                               null,
                                               Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spellbook = spellbook; s.school = SpellSchool.Divination; s.amount = i+1; }),
                                               Helpers.Create<OnCastMechanics.ApplyBuffAfterSpellCast>(s => { s.spellbook = spellbook; s.school = SpellSchool.Divination; s.buff = effect_buff; })

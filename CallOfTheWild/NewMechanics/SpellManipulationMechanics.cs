@@ -526,6 +526,18 @@ namespace CallOfTheWild
                 }
                 else if (!__instance.Blueprint.IsFullRoundAction)
                 {
+                    if (__instance.MetamagicData.MetamagicMask == 0)
+                    {
+                        return;
+                    }
+
+
+                    if ((__instance.MetamagicData.MetamagicMask | (Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic) == (Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)
+                    {
+                        __result = false;
+                        return;
+                    }
+
                     var fast_metamagic = __instance.Caster.Get<UnitPartNoSpontnaeousMetamagicCastingTimeIncrease>();
                     if (fast_metamagic == null)
                     {
@@ -537,10 +549,6 @@ namespace CallOfTheWild
                         return;
                     }
 
-                    if (__instance.MetamagicData.MetamagicMask == 0)
-                    {
-                        return;
-                    }
 
                     __result = !fast_metamagic.canBeUsedOnAbility(__instance);
                 }

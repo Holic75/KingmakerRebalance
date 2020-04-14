@@ -198,10 +198,8 @@ namespace CallOfTheWild.OnCastMechanics
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
-    public class RangedSpellAttackRollBonus : RuleInitiatorLogicComponent<RuleAttackRoll>
+    public class RangedSpellAttackRollBonusRangeAttackRollMetamagic : RuleInitiatorLogicComponent<RuleAttackRoll>
     {
-        public BlueprintAbilityResource resource;
-        public int amount;
         public BlueprintSpellbook spellbook;
         public ContextValue bonus;
         public ModifierDescriptor descriptor;
@@ -209,8 +207,18 @@ namespace CallOfTheWild.OnCastMechanics
 
         public override void OnEventAboutToTrigger(RuleAttackRoll evt)
         {
-            var blueprint_spellbook = evt.Reason?.Ability?.Spellbook?.Blueprint;
+            var ability = evt.Reason?.Ability;
+            if (ability == null)
+            {
+                return;
+            }
+            var blueprint_spellbook = ability.Spellbook?.Blueprint;
             if (spellbook != null && blueprint_spellbook != spellbook)
+            {
+                return;
+            }
+
+            if (!ability.HasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.RangedAttackRollBonus))
             {
                 return;
             }
@@ -219,7 +227,6 @@ namespace CallOfTheWild.OnCastMechanics
                 return;
             }
             evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.bonus.Calculate(this.Fact.MaybeContext), (GameLogicComponent)this, this.descriptor));
-            this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
         }
 
         public override void OnEventDidTrigger(RuleAttackRoll evt)
@@ -229,7 +236,45 @@ namespace CallOfTheWild.OnCastMechanics
     }
 
 
-    public class SpellDamageDiceIncrease : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncreaseDurationBy1RoundIfMetamagic : RuleInitiatorLogicComponent<RuleApplyBuff>
+    {
+        public BlueprintSpellbook spellbook;
+        public override void OnEventAboutToTrigger(RuleApplyBuff evt)
+        {
+            var ability = evt.Context.SourceAbilityContext?.Ability;
+            if (ability == null)
+            {
+                return;
+            }
+            if (spellbook != null && ability.Spellbook?.Blueprint != spellbook)
+            {
+                return;
+            }
+
+            if (!ability.HasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration))
+            {
+                return;
+            }
+            
+            TimeSpan round = 6.Seconds();
+
+            if (!evt.Duration.HasValue)
+            {
+                return;
+            }
+            Harmony12.Traverse.Create(evt).Property("Duration").SetValue(evt.Duration + round);
+        }
+
+        public override void OnEventDidTrigger(RuleApplyBuff evt)
+        {
+
+        }
+    }
+
+
+    public class ForceFocusSpellDamageDiceIncrease : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
     {
         public SpellDescriptorWrapper SpellDescriptor;
         public BlueprintSpellbook spellbook;
@@ -242,8 +287,14 @@ namespace CallOfTheWild.OnCastMechanics
 
             if (spellbook != null && context.SourceAbilityContext?.Ability?.Spellbook?.Blueprint != spellbook)
             {
-
+                return;
             }
+
+            if (!context.HasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ForceFocus))
+            {
+                return;
+            }
+
             foreach (BaseDamage baseDamage in evt.DamageBundle)
             {
                 var dice_formula = baseDamage.Dice;

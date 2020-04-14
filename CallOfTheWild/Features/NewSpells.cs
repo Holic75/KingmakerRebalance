@@ -202,7 +202,10 @@ namespace CallOfTheWild
         static public BlueprintAbility touch_of_blood_letting;
         static public BlueprintAbility bloody_claws;
 
-
+        static public BlueprintAbility[] mind_thrust = new BlueprintAbility[6];
+        static public BlueprintAbility[] thought_shield = new BlueprintAbility[3];
+        static public BlueprintAbility[] mental_barrier = new BlueprintAbility[5];
+        static public BlueprintAbility intellect_fortress;
 
         static public void load()
         {
@@ -327,6 +330,308 @@ namespace CallOfTheWild
 
             createTouchOfBloodletting();
             createBloodyClaws();
+
+            createMindThrust();
+            createThoughtShield();
+            createMentalBarrier();
+            createIntellectFortress();
+        }
+
+
+        static void createIntellectFortress()
+        {
+            var icon = Helpers.GetIcon("183d5bb91dea3a1489a6db6c9cb64445");
+
+            var effect_buff = Helpers.CreateBuff("IntellectFortressEffectBuff",
+                                                 "Intellect Fortress Effect",
+                                                 "Using the power of pure logic, you disrupt mental attacks. Intellect fortress suppresses all effects within 20 feet radius with the emotion and fear descriptors for its duration.",
+                                                 "",
+                                                 icon,
+                                                 Common.createPrefabLink("d541609d507424640a84153b89abf210"), //remove fear
+                                                 Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Fear | SpellDescriptor.Emotion | SpellDescriptor.NegativeEmotion)
+                                                 );
+
+
+            var buff = Common.createBuffAreaEffect(effect_buff, 20.Feet(), Helpers.CreateConditionsCheckerOr());
+            buff.SetNameDescriptionIcon("Intellect Fortress",
+                                        effect_buff.Description,
+                                        effect_buff.Icon);
+            buff.SetBuffFlags(0);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2));
+            intellect_fortress = Helpers.CreateAbility("IntellectFortressAbility",
+                                          buff.Name,
+                                          buff.Description,
+                                          "",
+                                          buff.Icon,
+                                          AbilityType.Spell,
+                                          UnitCommand.CommandType.Swift,
+                                          AbilityRange.Personal,
+                                          "2 rounds",
+                                          "",
+                                          Helpers.CreateRunActions(apply_buff),
+                                          Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                          Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget)//abjuration buff
+                                          );
+            intellect_fortress.setMiscAbilityParametersSelfOnly();
+            intellect_fortress.AvailableMetamagic = Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
+            Helpers.AddSpell(intellect_fortress);
+        }
+
+
+        static void createMentalBarrier()
+        {
+            var icon = Helpers.GetIcon("62888999171921e4dafb46de83f4d67d"); //shield of dawn
+
+            for (int i = 0; i < 5; i++)
+            {
+                var description = $"You put a barrier of mental energy that protects you from harm.\nThis barrier grants you a +{Math.Min(8, 4 + 2 * i)} shield bonus to AC.";
+                if (i >=3)
+                {
+                    description = $"If you are struck by a critical hit or sneak attack, there is a {(i - 2)*25}% chance that the additional damage is negated. This does not stack with similar effects that negate the additional damage from a critical hit or sneak attack.";
+                }
+                var buff = Helpers.CreateBuff($"MentalBarrier{i + 1}Buff",
+                                              "Mental Barrier " + Common.roman_id[i+1],
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.CreateAddStatBonus(StatType.AC, Math.Min(8, 4 + 2 * i), ModifierDescriptor.Shield) 
+                                              );
+
+                if (i >=3)
+                {
+                    buff.AddComponent(Common.createAddFortification((i - 2) * 25));
+                }
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2));
+
+                mental_barrier[i] = Helpers.CreateAbility($"MentalBarrier{i + 1}Ability",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          AbilityType.Spell,
+                                                          UnitCommand.CommandType.Swift,
+                                                          AbilityRange.Personal,
+                                                          "2 rounds",
+                                                          "",
+                                                          Helpers.CreateRunActions(apply_buff),
+                                                          Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                                          Common.createAbilitySpawnFx("6bebb42fd1a2ab9499d19f7a1dce3359", anchor: AbilitySpawnFxAnchor.SelectedTarget)//shield of faith
+                                                          );
+                mental_barrier[i].setMiscAbilityParametersSelfOnly();
+                mental_barrier[i].AvailableMetamagic = Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
+                Helpers.AddSpell(mental_barrier[i]);
+            }
+        }
+
+
+        static void createThoughtShield()
+        {
+            var icon = Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207");
+
+            for (int i  = 0; i < 3; i++)
+            {
+                var buff = Helpers.CreateBuff($"ThoughtShield{i + 1}Buff",
+                                              "Thought Shield " + Common.roman_id[i+1],
+                                              $"Sensing an intrusion, you throw up a defense to protect your mind from attack or analysis. This grants you a +{4 + 2 * i} circumstance bonus on throws against mind-affecting effects.",
+                                              "",
+                                              icon,
+                                              null,
+                                              Common.createSavingThrowBonusAgainstDescriptor(4 + 2 * i, ModifierDescriptor.Circumstance, SpellDescriptor.MindAffecting)
+                                              );
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2));
+
+                thought_shield[i] = Helpers.CreateAbility($"ThoughtShield{i + 1}Ability",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          AbilityType.Spell,
+                                                          UnitCommand.CommandType.Swift,
+                                                          AbilityRange.Personal,
+                                                          "2 rounds",
+                                                          "",
+                                                          Helpers.CreateRunActions(apply_buff),
+                                                          Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                                          Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget)//abjuration buff
+                                                          );
+                thought_shield[i].setMiscAbilityParametersSelfOnly();
+                thought_shield[i].AvailableMetamagic = Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
+                Helpers.AddSpell(thought_shield[i]);
+            }
+        }
+
+
+        static void createMindThrust()
+        {
+            var bloodline_undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
+            var check_undead = Helpers.Create<AbilityTargetHasNoFactUnless>(a => { a.CheckedFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { Common.undead }; a.UnlessFact = bloodline_undead_arcana; });
+            var check_intelligent = Common.createAbilityTargetHasFact(true, Common.construct, Common.plant, Common.vermin);
+
+            var icon = Helpers.GetIcon("dd2a5a6e76611c04e9eac6254fcf8c6b");
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+            var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
+
+            var apply_fatigued = Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1));
+            var apply_exhausted = Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(1));
+            var apply_stunned = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
+
+            mind_thrust[0] = Helpers.CreateAbility("MindThrust1Ability",
+                                                   "Mind Thrust I",
+                                                   "You divine the most vulnerable portions of your opponent’s mind and overload it with a glut of psychic information.\nThis attack deals 1d6 points of damage per caster level (maximum 5d6). The target receives a Will save for half damage.",
+                                                   "",
+                                                   icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Close,
+                                                   "",
+                                                   "Will half",
+                                                   Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                            Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
+                                                                            ),
+                                                   Helpers.CreateContextRankConfig(max: 5),
+                                                   Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                   check_undead,
+                                                   check_intelligent
+                                                   );
+            mind_thrust[0].setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mind_thrust[0].SpellResistance = true;
+            mind_thrust[0].AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            Helpers.AddSpell(mind_thrust[0]);
+
+
+            mind_thrust[1] = Helpers.CreateAbility("MindThrust2Ability",
+                                       "Mind Thrust II",
+                                       "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 5d8).",
+                                       "",
+                                       icon,
+                                       AbilityType.Spell,
+                                       UnitCommand.CommandType.Standard,
+                                       AbilityRange.Close,
+                                       "",
+                                       "Will half",
+                                       Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
+                                                                ),
+                                       Helpers.CreateContextRankConfig(max: 5),
+                                       Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                       Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                       Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                       check_undead,
+                                       check_intelligent
+                                       );
+            mind_thrust[1].setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mind_thrust[1].SpellResistance = true;
+            mind_thrust[1].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
+            Helpers.AddSpell(mind_thrust[1]);
+
+            mind_thrust[2] = Helpers.CreateAbility("MindThrust3Ability",
+                           "Mind Thrust III",
+                           "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 10d8).",
+                           "",
+                           icon,
+                           AbilityType.Spell,
+                           UnitCommand.CommandType.Standard,
+                           AbilityRange.Close,
+                           "",
+                           "Will half",
+                           Helpers.CreateRunActions(SavingThrowType.Will,
+                                                    Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
+                                                    ),
+                           Helpers.CreateContextRankConfig(max: 10),
+                           Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                           Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                           Helpers.CreateSpellComponent(SpellSchool.Divination),
+                           check_undead,
+                           check_intelligent
+                           );
+            mind_thrust[2].setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mind_thrust[2].SpellResistance = true;
+            mind_thrust[2].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
+            Helpers.AddSpell(mind_thrust[2]);
+
+            mind_thrust[3] = Helpers.CreateAbility("MindThrust4Ability",
+                                                   "Mind Thrust VI",
+                                                   "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 15d8) and is fatigued for 1 round if it fails its save.",
+                                                   "",
+                                                   icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Close,
+                                                   "",
+                                                   "Will half",
+                                                   Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                            Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
+                                                                            Helpers.CreateConditionalSaved(null, apply_fatigued)                                                                            
+                                                                            ),
+                                                   Helpers.CreateContextRankConfig(max: 15),
+                                                   Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                   check_undead,
+                                                   check_intelligent
+                                                   );
+            mind_thrust[3].setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mind_thrust[3].SpellResistance = true;
+            mind_thrust[3].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
+            Helpers.AddSpell(mind_thrust[3]);
+
+            mind_thrust[4] = Helpers.CreateAbility("MindThrust5Ability",
+                                       "Mind Thrust V",
+                                       "This functions as mind thrust IV, but the target is also exhausted for 1 round if it fails its save and fatigued for 1 round if it succeeds at its save.",
+                                       "",
+                                       icon,
+                                       AbilityType.Spell,
+                                       UnitCommand.CommandType.Standard,
+                                       AbilityRange.Close,
+                                       "",
+                                       "Will partial",
+                                       Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
+                                                                Helpers.CreateConditionalSaved(apply_fatigued, apply_exhausted)
+                                                                ),
+                                       Helpers.CreateContextRankConfig(max: 15),
+                                       Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                       Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                       Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                       check_undead,
+                                       check_intelligent
+                                       );
+            mind_thrust[4].setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mind_thrust[4].SpellResistance = true;
+            mind_thrust[4].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
+            Helpers.AddSpell(mind_thrust[4]);
+
+            mind_thrust[5] = Helpers.CreateAbility("MindThrust6Ability",
+                           "Mind Thrust VI",
+                           "This functions as mind thrust IV, but the target takes 1d8 points of damage per caster level (maximum 20d8) and is exhausted and stunned for 1 round if it fails its save.",
+                           "",
+                           icon,
+                           AbilityType.Spell,
+                           UnitCommand.CommandType.Standard,
+                           AbilityRange.Close,
+                           "",
+                           "Will partial",
+                           Helpers.CreateRunActions(SavingThrowType.Will,
+                                                    Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
+                                                    Helpers.CreateConditionalSaved(new GameAction[] { apply_fatigued }, new GameAction[] { apply_stunned, apply_exhausted })
+                                                    ),
+                           Helpers.CreateContextRankConfig(max: 20),
+                           Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                           Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                           Helpers.CreateSpellComponent(SpellSchool.Divination),
+                           check_undead,
+                           check_intelligent
+                           );
+            mind_thrust[5].setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mind_thrust[5].SpellResistance = true;
+            mind_thrust[5].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
+            Helpers.AddSpell(mind_thrust[5]);
         }
 
 

@@ -2214,6 +2214,44 @@ namespace CallOfTheWild
         }
 
 
+        public static ContextActionDealDamage CreateActionDealDirectDamage(ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
+        {
+            // energy damage
+            var c = Create<ContextActionDealDamage>();
+            c.DamageType = new DamageTypeDescription()
+            {
+                Type = DamageType.Direct,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+            c.Duration = Helpers.CreateContextDuration(0);
+            c.Value = damage;
+            c.IsAoE = isAoE;
+            c.HalfIfSaved = halfIfSaved;
+            c.IgnoreCritical = IgnoreCritical;
+            return c;
+        }
+
+
+        public static ContextActionDealDamage CreateActionDealForceDamage(ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
+        {
+            // energy damage
+            var c = Create<ContextActionDealDamage>();
+            c.DamageType = new DamageTypeDescription()
+            {
+                Type = DamageType.Force,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+            c.Duration = Helpers.CreateContextDuration(0);
+            c.Value = damage;
+            c.IsAoE = isAoE;
+            c.HalfIfSaved = halfIfSaved;
+            c.IgnoreCritical = IgnoreCritical;
+            return c;
+        }
+
+
         public static ContextActionDealDamage CreateActionDealDamage(PhysicalDamageForm physical, ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
         {
             // physical damage

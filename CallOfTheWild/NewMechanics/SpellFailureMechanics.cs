@@ -69,7 +69,7 @@ namespace CallOfTheWild.SpellFailureMechanics
 
             foreach (var b in evt.Initiator.Buffs)
             {
-                if ((b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
+                if (!b.IsSuppressed && (b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
                 {
                     evt.SpellFailureChance = Math.Max(evt.SpellFailureChance, 100);
                     break;
