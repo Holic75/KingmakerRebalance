@@ -295,7 +295,7 @@ namespace CallOfTheWild
             harrim_class_level.Selections[2].Selection = Warpriest.warpriest_energy_selection;
             harrim_class_level.Selections[2].Features = new BlueprintFeature[] { Warpriest.warpriest_spontaneous_heal };
             harrim_class_level.Selections[3].Selection = Warpriest.warpriest_blessings;
-            harrim_class_level.Selections[3].Features = new BlueprintFeature[] { Warpriest.blessings_map["WarpriestBlessingChaos"], Warpriest.blessings_map["WarpriestBlessingDestruction"] };
+            harrim_class_level.Selections[3].Features = new BlueprintFeature[] { Warpriest.blessings_map["Chaos"], Warpriest.blessings_map["Destruction"] };
             harrim_class_level.Selections[4].Selection = Warpriest.fighter_feat;
             harrim_class_level.Selections[4].Features = new BlueprintFeature[] {  NewFeats.weapon_of_the_chosen,
                                                                                  NewFeats.improved_weapon_of_the_chosen,

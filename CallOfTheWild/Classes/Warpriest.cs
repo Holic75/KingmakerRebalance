@@ -131,8 +131,12 @@ namespace CallOfTheWild
         static Dictionary<string, BlueprintBuff> processed_quicken_ability_guid_buff_map = new Dictionary<string, BlueprintBuff>();
         static Dictionary<string, BlueprintFeature> quicken_blessing_selections = new Dictionary<string, BlueprintFeature>();
 
-
-
+        static public BlueprintArchetype feral_champion;
+        static public BlueprintFeature sacred_claws;
+        static public BlueprintFeatureSelection feral_blessing;
+        static public BlueprintFeature[] wild_shape;
+        static public BlueprintAbilityResource wildshape_resource;
+        static public BlueprintFeature extra_wildshape;
 
         internal static void createWarpriestClass()
         {
@@ -178,7 +182,8 @@ namespace CallOfTheWild
             createSacredFist();
             createChampionOfTheFaith();
             createCultLeader();
-            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
+            createFeralChampion();
+            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype, feral_champion }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
             Helpers.RegisterClass(warpriest_class);
 
             Common.addMTDivineSpellbookProgression(warpriest_class, warpriest_class.Spellbook, "MysticTheurgeWarpriest",
@@ -1272,7 +1277,7 @@ namespace CallOfTheWild
 
             warpriest_blessings.AllFeatures = warpriest_blessings.AllFeatures.AddToArray(progression);
 
-            blessings_map.Add(name_prefix, progression);
+            blessings_map.Add(Name, progression);
             if (quicken_blessing_selections.ContainsKey(Name))
             {
                 quicken_blessing_selections[Name].AddComponent(Helpers.PrerequisiteFeature(progression));
@@ -4494,6 +4499,124 @@ namespace CallOfTheWild
                                                  };
 
             return progression;
+        }
+
+
+
+        static void createFeralChampion()
+        {
+           
+            feral_champion = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "FeralChampionArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Feral Champion");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "When a warpriest devotes himself to a god of the natural world, he is sometimes blessed with supernatural powers that allow him to evoke animalistic power and fury.");
+            });
+            Helpers.SetField(feral_champion, "m_ParentClass", warpriest_class);
+            library.AddAsset(feral_champion, "");
+
+
+            feral_champion.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_blessings, warpriest_blessings),
+                                                                    Helpers.LevelEntry(7, warpriest_sacred_armor),
+                                                                    Helpers.LevelEntry(10, warpriest_sacred_armor2),
+                                                                    Helpers.LevelEntry(13, warpriest_sacred_armor3),
+                                                                    Helpers.LevelEntry(16, warpriest_sacred_armor4),
+                                                                    Helpers.LevelEntry(19, warpriest_sacred_armor5)
+                                                                    };
+            createFeralBlessing();
+            createSacredClaws();
+            createWildShape();
+
+            feral_champion.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, feral_blessing, sacred_claws),
+                                                                  Helpers.LevelEntry(7, wild_shape[0], wild_shape[1]), //wolf, leopard
+                                                                  Helpers.LevelEntry(9, wild_shape[2], wild_shape[3]), //bear, dire wolf
+                                                                  Helpers.LevelEntry(11, wild_shape[4], wild_shape[5], extra_wildshape), //smilodon, mastodon
+                                                                  Helpers.LevelEntry(15, extra_wildshape),
+                                                                  Helpers.LevelEntry(19, extra_wildshape)
+                                                                 };
+
+
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(feral_blessing);
+            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(sacred_claws, wild_shape[0], wild_shape[2], wild_shape[4]));
+            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(wild_shape[1], wild_shape[3], wild_shape[5]));
+        }
+
+
+        static void createWildShape()
+        {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            //fix scaling
+            foreach (var s in Wildshape.animal_wildshapes)
+            {
+                s.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                                                                                       classes: new BlueprintCharacterClass[] { druid, warpriest_class },
+                                                                                       archetype: feral_champion)
+                                                     );                    
+            }
+
+            wildshape_resource = library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4");
+            extra_wildshape = library.Get<BlueprintFeature>("f78260b9a089ccc44b55f0fed08b1752");
+                                                               
+            string description = "At 7th level, a feral champion gains wild shape, as the druid ability of the same name, and treats his warpriest level – 3 as his effective druid level for the purposes of this ability. However, a feral champion does not gain the ability to take on elemental or plant forms with wild shape. A feral champion can use wild shape once per day at 7th level and one additional time per day every 4 levels thereafter, for a total of four times per day at 19th level.";            
+            wild_shape = new BlueprintFeature[Wildshape.animal_wildshapes.Count];
+
+            for (int i = 0; i < wild_shape.Length; i++)
+            {
+
+                wild_shape[i] = Helpers.CreateFeature("FeralChampion" + Wildshape.animal_wildshapes[i].name + "Feature",
+                                                      Wildshape.animal_wildshapes[i].Name,
+                                                      description,
+                                                      "",
+                                                      Wildshape.animal_wildshapes[i].Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFact(Wildshape.animal_wildshapes[i])
+                                                      );
+                if (i == 0)
+                {
+                    wild_shape[i].AddComponents(wildshape_resource.CreateAddAbilityResource(),
+                                                Helpers.CreateAddFact(Wildshape.first_wildshape_form)
+                                                );
+                }
+            }
+        }
+
+
+        static void createFeralBlessing()
+        {
+            var nature_blessing = blessings_map["Animal"];
+            feral_blessing = Helpers.CreateFeatureSelection("FeralBlessingFeralChampionFeatureSelection",
+                                                            "Feral Blessing",
+                                                            "A feral champion must take the Animal blessing and does not gain a second blessing.",
+                                                            "",
+                                                            Helpers.GetIcon("0fd00984a2c0e0a429cf1a911b4ec5ca"),
+                                                            FeatureGroup.Domain);
+            feral_blessing.AllFeatures = new BlueprintFeature[] { nature_blessing };
+
+
+
+
+            foreach (var d in warpriest_deity_selection.AllFeatures)
+            {
+                var add_facts = d.GetComponent<AddFacts>();
+                if (add_facts?.Facts?.FirstOrDefault(a => a.AssetGuid == "9f05f9da2ea5ae44eac47d407a0000e5") == null) //animal blessing
+                {
+                    d.AddComponent(Common.prerequisiteNoArchetype(warpriest_class, feral_champion));
+                }
+            }
+        }
+
+
+        static void createSacredClaws()
+        {
+            sacred_claws = Helpers.CreateFeature("SacredClawsFeralChampionFeature",
+                                                "Sacred Claws",
+                                                "Rather than empowering a physical weapon, a feral champion grows claws as primary natural weapons on each hand. These claws deal damage as a warpriest’s sacred weapon and can be enhanced as such.",
+                                                "",
+                                                Helpers.GetIcon("f68af48f9ebf32549b5f9fdc4edfd475"),
+                                                FeatureGroup.None,
+                                                Common.createAddParametrizedFeatures(NewFeats.deity_favored_weapon, WeaponCategory.Claw),
+                                                Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("289c13ba102d0df43862a488dad8a5d5"))//claws 1d4
+                                                );
         }
     }
 }

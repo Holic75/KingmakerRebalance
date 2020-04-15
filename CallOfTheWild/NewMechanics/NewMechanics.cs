@@ -727,6 +727,7 @@ namespace CallOfTheWild
         {
             public StatType StatType = StatType.Charisma;
             public BlueprintCharacterClass[] CharacterClasses;
+            public BlueprintArchetype[] archetypes = new BlueprintArchetype[0];
 
             public override AbilityParams Calculate(MechanicsContext context)
             {
@@ -744,7 +745,13 @@ namespace CallOfTheWild
                 int class_level = 0;
                 foreach (var c in this.CharacterClasses)
                 {
-                    class_level += maybeCaster.Descriptor.Progression.GetClassLevel(c);
+                    var class_archetypes = archetypes.Where(a => a.GetParentClass() == c);
+
+                    if (class_archetypes.Empty() || class_archetypes.Any(a => maybeCaster.Descriptor.Progression.IsArchetype(a)))
+                    {
+                        class_level += maybeCaster.Descriptor.Progression.GetClassLevel(c);
+                    }
+                    
                 }
                 rule.ReplaceCasterLevel = new int?(class_level);
                 rule.ReplaceSpellLevel = new int?(class_level / 2);
