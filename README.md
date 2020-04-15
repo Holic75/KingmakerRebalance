@@ -27,7 +27,8 @@ New Archetypes for existing classes:
 - Ninja class (implemented as Rogue archetype),
 - Zen Archer Monk  archetype,
 - Sanctified Slayer Inquisitor archetype,
-- Executioner Slayer archetype.
+- Executioner Slayer archetype,
+- Overwhelming Soul Kineticist archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)

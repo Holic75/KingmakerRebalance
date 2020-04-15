@@ -226,6 +226,7 @@ namespace CallOfTheWild
                 }
 
                 var m_KnownSpells = Helpers.GetField<List<AbilityData>[]>(active_spellbook, "m_KnownSpells");
+                var m_customSpells = Helpers.GetField<List<AbilityData>[]>(active_spellbook, "m_CustomSpells");
                 Dictionary<BlueprintAbility, int> m_KnownSpellLevels = Helpers.GetField<Dictionary<BlueprintAbility, int>>(active_spellbook, "m_KnownSpellLevels");
                 var m_MemorizedSpells = Helpers.GetField<List<SpellSlot>[]>(memorization_spellbook, "m_MemorizedSpells");
                 foreach (var known_spell in active_spellbook.GetKnownSpells(level).ToArray())
@@ -238,19 +239,7 @@ namespace CallOfTheWild
                         m_KnownSpellLevels.Remove(known_spell.Blueprint);
                     }
                 }
-
-                for (int lvl = 0; lvl <= 9; lvl++)
-                {
-                    foreach (var s in active_spellbook.GetCustomSpells(lvl).ToArray())
-                    {
-                        if (!authorisedMetamagic(s.Blueprint, s.MetamagicData?.MetamagicMask ?? (Metamagic)0))
-                        {
-                            active_spellbook.RemoveCustomSpell(s);
-                        }
-                    }
-                }
-
-                
+              
                 foreach (var slot in m_MemorizedSpells[level].ToArray())
                 {
                     if (slot.Spell != null)
@@ -272,6 +261,19 @@ namespace CallOfTheWild
                         m_KnownSpells[slot.Spell.SpellLevel].Add(new_ability);
                         m_KnownSpellLevels[slot.Spell.Blueprint] = spell_level;
                         EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
+                    }
+                }
+
+
+                for (int lvl = 0; lvl <= 9; lvl++)
+                {
+                    foreach (var s in m_customSpells[lvl].ToArray())
+                    {                       
+                        if (!authorisedMetamagic(s.Blueprint, s.MetamagicData?.MetamagicMask ?? (Metamagic)0))
+                        {
+                            m_customSpells[lvl].Remove(s);
+                            EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.RemoveSpellHandler(s)));
+                        }
                     }
                 }
             }

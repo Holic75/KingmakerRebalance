@@ -4262,23 +4262,19 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(15, fighter_feat),
                                                                     Helpers.LevelEntry(18, fighter_feat),
                                                                     };
-
+            var rogue_talent = library.Get<BlueprintFeature>("c074a5d615200494b8f2a9c845799d93");
             cult_leader_archetype.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, cult_leader_proficiencies, well_hidden),
                                                                   Helpers.LevelEntry(3, sneak_attack),
                                                                   Helpers.LevelEntry(4, skill_focus_persuation),
-                                                                  Helpers.LevelEntry(6, sneak_attack),
+                                                                  Helpers.LevelEntry(6, sneak_attack, rogue_talent),
                                                                   Helpers.LevelEntry(9, sneak_attack),
-                                                                  Helpers.LevelEntry(12, hide_in_plain_sight, sneak_attack),
+                                                                  Helpers.LevelEntry(12, hide_in_plain_sight, rogue_talent),
                                                                   Helpers.LevelEntry(15, sneak_attack),
                                                                   Helpers.LevelEntry(18, sneak_attack)
                                                                  };
 
-            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
-            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
-            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
-            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
-            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
-            warpriest_progression.UIGroups[0].Features.Add(sneak_attack);
+            warpriest_progression.UIGroups[0].Features.Add(rogue_talent);
+            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(sneak_attack));
 
             UIGroup misc_group = Helpers.CreateUIGroup(well_hidden, skill_focus_persuation, hide_in_plain_sight);
             warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(misc_group);

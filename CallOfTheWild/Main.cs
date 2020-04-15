@@ -260,11 +260,13 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.ZenArcher.create();
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.Executioner.create();
+                    
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
 
                     CallOfTheWild.KineticistFix.load();
+                    CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
                     CallOfTheWild.CleanUp.processRage();

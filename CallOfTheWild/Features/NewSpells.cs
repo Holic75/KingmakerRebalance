@@ -357,6 +357,7 @@ namespace CallOfTheWild
                                         effect_buff.Description,
                                         effect_buff.Icon);
             buff.SetBuffFlags(0);
+            buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("63f322580ec0e7c4c96fc62ecabad40f"); //axiomatic aoe
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2));
             intellect_fortress = Helpers.CreateAbility("IntellectFortressAbility",
                                           buff.Name,

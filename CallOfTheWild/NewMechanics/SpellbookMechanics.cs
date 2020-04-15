@@ -71,8 +71,17 @@ namespace CallOfTheWild.SpellbookMechanics
                 return;
             }
 
-           
-            foreach (var s in __instance.GetAllKnownSpells().ToArray())
+            var unit_part_arcanist = __instance.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>();
+            if (unit_part_arcanist == null)
+            {
+                return;
+            }
+
+            for (int i = 1; i <= __instance.MaxSpellLevel; i++)
+            {
+                unit_part_arcanist.refreshSpellLevel(i);
+            }
+            /*foreach (var s in __instance.GetAllKnownSpells().ToArray())
             {
                 __instance.RemoveSpell(s.Blueprint);
             }
@@ -102,7 +111,7 @@ namespace CallOfTheWild.SpellbookMechanics
                     m_known_SpellLevels[slot.Spell.Blueprint] = spell_level;
                     EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
                 }
-            }
+            }*/
         }
     }
 
@@ -238,9 +247,9 @@ namespace CallOfTheWild.SpellbookMechanics
             }
 
             var metamagic = feature.Get<AddMetamagicFeat>().Metamagic;
-            var metaamgic_after_removal = current_metamagic_data.MetamagicMask & ~metamagic;
+            var metamagic_after_removal = current_metamagic_data.MetamagicMask & ~metamagic;
 
-            if (!arcanist_part.authorisedMetamagic(__instance.CurrentTemporarySpell.Blueprint, metaamgic_after_removal))
+            if (!arcanist_part.authorisedMetamagic(__instance.CurrentTemporarySpell.Blueprint, metamagic_after_removal))
             {
                 return false;
             }

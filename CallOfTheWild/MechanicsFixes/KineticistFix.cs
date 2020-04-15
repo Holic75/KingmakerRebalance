@@ -159,7 +159,8 @@ namespace CallOfTheWild
             //fix previous saves without buffer
             Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
             {
-                if (unit.Progression.GetClassLevel(kineticist_class) >= 6 && !unit.Progression.Features.HasFact(internal_buffer))
+                if (unit.Progression.GetClassLevel(kineticist_class) >= 6 && !unit.Progression.Features.HasFact(internal_buffer)
+                    && !unit.Progression.IsArchetype(Archetypes.OverwhelmingSoul.archetype))
                 {
                     unit.Progression.Features.AddFeature(internal_buffer);
                 }

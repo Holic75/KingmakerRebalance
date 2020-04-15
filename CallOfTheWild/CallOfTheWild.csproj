@@ -127,6 +127,7 @@
     <Compile Include="AnimalCompanionInventory.cs" />
     <Compile Include="AnimalCompanionLevelUp.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
+    <Compile Include="Archetypes\OverwhelmingSoul.cs" />
     <Compile Include="Archetypes\Evangelist.cs" />
     <Compile Include="Archetypes\Executioner.cs" />
     <Compile Include="Archetypes\NatureBondedMagus.cs" />
