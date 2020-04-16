@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
@@ -13,8 +14,10 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CallOfTheWild.WeaponTrainingMechanics
 {
@@ -157,6 +160,115 @@ namespace CallOfTheWild.WeaponTrainingMechanics
 
         public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
         {
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddFeatureOnArmor : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public BlueprintUnitFact feature;
+        [JsonProperty]
+        private Fact m_AppliedFact;
+
+        public ArmorProficiencyGroup[] required_armor;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.RemoveFact(this.m_AppliedFact);
+            this.m_AppliedFact = null;
+        }
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+            this.Apply();
+        }
+
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.Apply();
+        }
+
+        private void Apply()
+        {
+            OnFactDeactivate();
+            if (Owner.Body.IsPolymorphed)
+            {
+                return;
+            }
+
+            bool armor_ok = false;
+            var body_armor = this.Owner.Body?.Armor?.MaybeArmor;
+            armor_ok = body_armor != null && required_armor.Contains(body_armor.Blueprint.ProficiencyGroup);
+
+            if (!armor_ok)
+            {
+                var shield = this.Owner.Body?.SecondaryHand?.MaybeShield?.ArmorComponent;
+                armor_ok = shield != null && required_armor.Contains(shield.Blueprint.ProficiencyGroup);
+            }
+
+            if (this.m_AppliedFact != null || !armor_ok)
+            {
+                return;
+            }
+            this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddFeatureOnWeaponTraining : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public BlueprintUnitFact feature;
+        [JsonProperty]
+        private Fact m_AppliedFact;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.RemoveFact(this.m_AppliedFact);
+            this.m_AppliedFact = null;
+        }
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+            this.Apply();
+        }
+
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.Apply();
+        }
+
+        private void Apply()
+        {
+            OnFactDeactivate();
+            var weapon_training_part = this.Owner.Get<UnitPartWeaponTraining>();
+            if (weapon_training_part == null)
+            {
+                return;
+            }
+
+            if (this.m_AppliedFact != null || weapon_training_part.GetMaxWeaponRank() <= 0)
+            {
+                return;
+            }
+            this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
         }
     }
 }

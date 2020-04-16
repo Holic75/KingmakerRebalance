@@ -1319,13 +1319,11 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         private void checkWeapons()
         {
-            //Main.logger.Log("Checking");
             deactivateEnchants();
             if (!this.Owner.Unit.Body.IsPolymorphed)
             {
                 return;
             }
-            //Main.logger.Log("Polymorph ok");
 
             var primary_hand_weapon = this.Owner?.Body?.CurrentHandsEquipmentSet?.PrimaryHand?.MaybeItem as ItemEntityWeapon;
             
@@ -1333,7 +1331,6 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             {
                 return;
             }
-           // Main.logger.Log("Weapon ok");
 
             var primary_hand_enchants = primary_hand_weapon.Enchantments;
             if (primary_hand_enchants == null)
@@ -1341,7 +1338,6 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 return;
             }
 
-            //Main.logger.Log("Enchants ok");
             List<ItemEntityWeapon> weapons = new List<ItemEntityWeapon>();
 
             var primary_weapon = this.Owner?.Body?.PrimaryHand?.MaybeWeapon;
@@ -1425,6 +1421,140 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             if (slot.Owner != this.Owner)
                 return;
             this.checkWeapons();
+        }
+    }
+
+
+    [ComponentName("remap armor enchants to specific weapon")]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class RemapBodyArmorEnchantsToSpecificWeapon : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public Dictionary<BlueprintArmorEnchantment, BlueprintWeaponEnchantment> enchantment_map = new Dictionary<BlueprintArmorEnchantment, BlueprintWeaponEnchantment>();
+        public BlueprintItemWeapon target_weapon;
+        public bool transfer_enhancement = true;
+
+        [JsonProperty]
+        private List<ItemEnchantment> m_enchants = new List<ItemEnchantment>();
+
+
+        public override void OnTurnOn()
+        {
+            this.checkEquipment();
+        }
+
+        public override void OnTurnOff()
+        {
+            this.deactivateEnchants();
+        }
+
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.checkEquipment();
+        }
+
+        private void checkEquipment()
+        {
+            deactivateEnchants();
+            if (this.Owner.Unit.Body.IsPolymorphed)
+            {
+                return;
+            }
+
+            var armor_enchants = this.Owner.Body.Armor?.MaybeArmor?.Enchantments;
+            if (armor_enchants == null)
+            {
+                return;
+            }
+
+            var primary_hand_weapon = this.Owner?.Body?.PrimaryHand?.MaybeItem as ItemEntityWeapon;
+            var secondary_hand_weapon = this.Owner?.Body?.SecondaryHand?.MaybeItem as ItemEntityWeapon;
+
+            List<ItemEntityWeapon> weapons = new List<ItemEntityWeapon>();
+            if (primary_hand_weapon?.Blueprint == target_weapon)
+            {
+                weapons.Add(primary_hand_weapon);
+            }
+
+            if (secondary_hand_weapon?.Blueprint == target_weapon)
+            {
+                weapons.Add(secondary_hand_weapon);
+            }
+
+
+            foreach (var limb in this.Owner.Body.AdditionalLimbs)
+            {
+                var weapon = limb?.Item as ItemEntityWeapon;
+                if (weapon?.Blueprint == target_weapon)
+                {
+                    weapons.Add(weapon);
+                }
+            }
+
+            if (weapons.Empty())
+            {
+                return;
+            }
+
+
+            foreach (var e in armor_enchants)
+            {
+                var blueprint = e.Blueprint as BlueprintArmorEnchantment;
+                if (blueprint == null)
+                {
+                    continue;
+                }
+                if (enchantment_map.ContainsKey(blueprint))
+                {
+                    foreach (var w in weapons)
+                    {
+                        if (w.Enchantments.HasFact(blueprint))
+                        {
+                            continue;
+                        }
+                        var new_enchant = w.AddEnchantment(enchantment_map[blueprint], this.Fact.MaybeContext, new Rounds?());
+                        new_enchant.RemoveOnUnequipItem = true;
+                        m_enchants.Add(new_enchant);
+                    }
+                }
+            }
+
+            if (transfer_enhancement)
+            {
+                var enchancement_bonus = GameHelper.GetItemEnhancementBonus(this.Owner.Body.Armor.Armor);
+
+                if (enchancement_bonus <= 0)
+                {
+                    return;
+                }
+                else
+                {
+                    enchancement_bonus = Math.Min(4, enchancement_bonus);
+                }
+
+                foreach (var w in weapons)
+                {
+                    var new_enchant = w.AddEnchantment(WeaponEnchantments.static_enchants[enchancement_bonus], this.Fact.MaybeContext, new Rounds?());
+                    new_enchant.RemoveOnUnequipItem = true;
+                    m_enchants.Add(new_enchant);
+                }
+            }
+        }
+
+        private void deactivateEnchants()
+        {
+            foreach (var e in m_enchants)
+            {
+                e.Owner?.RemoveEnchantment(e);
+            }
+            m_enchants = new List<ItemEnchantment>();
+        }
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+            this.checkEquipment();
         }
     }
 
@@ -1523,8 +1653,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         public BlueprintBuff buff;
     }
 
-//allow summoned weapons to equip as free action
-[Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
+    //allow summoned weapons to equip as free action
+    [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
     [Harmony12.HarmonyPatch("HandleEquipmentSlotUpdated", Harmony12.MethodType.Normal)]
     class UnitViewHandsEquipment_HandleEquipmentSlotUpdated_Patch
     {

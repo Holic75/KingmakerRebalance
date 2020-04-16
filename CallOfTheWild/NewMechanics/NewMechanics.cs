@@ -1975,7 +1975,7 @@ namespace CallOfTheWild
             private void Apply()
             {
                 OnFactDeactivate();
-                if (this.m_AppliedFact != null || (this.Owner.Progression.Features.GetRank(this.checked_fact) >= fact_rank == not))
+                if (this.m_AppliedFact != null || ((this.Owner.Progression.Features.GetRank(this.checked_fact) >= fact_rank) == not))
                     return;
                 this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
             }

@@ -1,6 +1,8 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
@@ -29,7 +31,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection advanced_armor_training;
         static public BlueprintFeatureSelection advanced_weapon_training = library.Get<BlueprintFeatureSelection>("b8cecf4e5e464ad41b79d5b42b76b399");
         static public BlueprintFeatureSelection weapon_training_rankup = library.Get<BlueprintFeatureSelection>("5f3cc7b9a46b880448275763fe70c0b0");
-        static public BlueprintFeature monk_weapon_group, thrown_weapon_group, flails_weapon_group;
+        static public BlueprintFeature monk_weapon_group, thrown_weapon_group;
         static BlueprintCharacterClass fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
         /////////////weapon training/////////////////
         static public BlueprintFeature dazzling_intimidation;
@@ -38,22 +40,25 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection focus_weapon;
         static public BlueprintFeature trained_grace;
         static public BlueprintFeature trained_throw;
-        static public BlueprintFeature trained_initiative;
         static public BlueprintFeatureSelection versatile_training;
         static public BlueprintFeatureSelection warrior_spirit;
 
         /////////////armor training////////////////////
         static public BlueprintFeatureSelection adaptable_training;
-        //armor specialization
-        //armored confidence
-        //armored juggernaut
-        //critical deflection
-        //steel headbutt
+        static public BlueprintFeatureSelection armor_specialization;
+        static public BlueprintFeature armored_confidence;
+        static public BlueprintFeature armored_juggernaut;
+        static public BlueprintFeature critical_deflection;
+        static public BlueprintFeature steel_headbutt;
 
         static Dictionary<WeaponCategory, WeaponFighterGroup> category_group_map = new Dictionary<WeaponCategory, WeaponFighterGroup>();
         static Dictionary<WeaponCategory, BlueprintFeature> category_training_map = new Dictionary<WeaponCategory, BlueprintFeature>();
         static public Dictionary<WeaponCategory, BlueprintFeature> category_finesse_training_map = new Dictionary<WeaponCategory, BlueprintFeature>();
         static public Dictionary<WeaponFighterGroup, BlueprintFeature> group_training_map = new Dictionary<WeaponFighterGroup, BlueprintFeature>();
+
+
+        static public BlueprintFeatureSelection[] extra_armor_training_feats;
+        static public BlueprintFeatureSelection[] extra_weapon_training_feats;
 
         public static void load()
         {
@@ -98,10 +103,265 @@ namespace CallOfTheWild
             createFocusWeapon();
             createTrainedGrace();
             createTrainedThrow();
-            createTrainedInitiative();
             createWarriorSpirit();
+
+            createArmorSpecialization();
+            createArmoredConfidence();
+            createArmoredJuggernaut();
+            createCriticalDeflection();
+            createSteelHeadbutt();
+
+            createFeats();
         }
 
+
+        static void createFeats()
+        {
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+            extra_armor_training_feats = new BlueprintFeatureSelection[4];
+
+            for (int i = 0; i < extra_armor_training_feats.Length; i++ )
+            {
+                extra_armor_training_feats[i] = Helpers.CreateFeatureSelection($"AdvancedArmorTrainingExtra{i+1}FeatureSelection",
+                                                                               "Advanced Armor Training " + Common.roman_id[i+1],
+                                                                               "Select one advanced armor training option.",
+                                                                               "",
+                                                                               advanced_armor_training.Icon,
+                                                                               FeatureGroup.Feat,
+                                                                               Helpers.PrerequisiteClassLevel(fighter, 3 + i * 5),
+                                                                               Helpers.PrerequisiteFeature(armor_training)
+                                                                               );
+                extra_armor_training_feats[i].Groups = extra_armor_training_feats[i].Groups.AddToArray(FeatureGroup.CombatFeat);
+                extra_armor_training_feats[i].AllFeatures = advanced_armor_training.AllFeatures.RemoveFromArray(armor_training);
+            }
+            library.AddCombatFeats(extra_armor_training_feats);
+
+            extra_weapon_training_feats = new BlueprintFeatureSelection[4];
+
+            var advanced_weapon_trainings = advanced_armor_training.AllFeatures;
+
+            foreach (var t in group_training_map.Values)
+            {
+                advanced_weapon_trainings = advanced_weapon_trainings.RemoveFromArray(t);
+            }
+
+            for (int i = 0; i < extra_weapon_training_feats.Length; i++)
+            {
+                extra_weapon_training_feats[i] = Helpers.CreateFeatureSelection($"AdvancedWeaponTrainingExtra{i+1}FeatureSelection",
+                                                                               "Advanced Weapon Training " + Common.roman_id[i+1],
+                                                                               "Select one advanced weapon training option, applying it to one fighter weapon group you have already selected with the weapon training class feature.",
+                                                                               "",
+                                                                               Helpers.GetIcon("b8cecf4e5e464ad41b79d5b42b76b399"),
+                                                                               FeatureGroup.Feat,
+                                                                               Helpers.PrerequisiteClassLevel(fighter, 5 + i * 5),
+                                                                               Helpers.PrerequisiteFeaturesFromList(group_training_map.Values)
+                                                                               );
+                extra_weapon_training_feats[i].Groups = extra_armor_training_feats[i].Groups.AddToArray(FeatureGroup.CombatFeat);
+
+                
+                extra_weapon_training_feats[i].AllFeatures = advanced_weapon_trainings;
+            }
+            library.AddCombatFeats(extra_weapon_training_feats);
+        }
+
+
+        static void createSteelHeadbutt()
+        {
+            var gore1d3 = library.CopyAndAdd<BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be", "SteelHeadbutt1d3", "");
+            Helpers.SetField(gore1d3, "m_OverrideDamageDice", true);
+            Helpers.SetField(gore1d3, "m_DamageDice", new DiceFormula(1, DiceType.D3));
+
+            var gore1d4 = library.CopyAndAdd<BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be", "SteelHeadbutt1d4", "");
+            Helpers.SetField(gore1d3, "m_OverrideDamageDice", true);
+            Helpers.SetField(gore1d3, "m_DamageDice", new DiceFormula(1, DiceType.D4));
+
+            var mithral = library.Get<BlueprintArmorEnchantment>("7b95a819181574a4799d93939aa99aff");
+            var adamantine_heavy = library.Get<BlueprintArmorEnchantment>("933456ff83c454146a8bf434e39b1f93");
+            var adamantine_medium = library.Get<BlueprintArmorEnchantment>("aa25531ab5bb58941945662aa47b73e7");
+
+            var adamantine_weapon = library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b");
+            var cold_iron = library.Get<BlueprintWeaponEnchantment>("e5990dc76d2a613409916071c898eee8");
+
+            var enchant_map = new Dictionary<BlueprintArmorEnchantment, BlueprintWeaponEnchantment>();
+            enchant_map.Add(mithral, cold_iron);
+            enchant_map.Add(adamantine_heavy, adamantine_weapon);
+            enchant_map.Add(adamantine_medium, adamantine_weapon);
+
+
+            var feature1d3 = Helpers.CreateFeature("SteelHeadbutt1d3Feature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Common.createAddSecondaryAttacks(gore1d3),
+                                                   Helpers.Create<NewMechanics.EnchantmentMechanics.RemapBodyArmorEnchantsToSpecificWeapon>(r =>
+                                                                                                                                               {
+                                                                                                                                                   r.enchantment_map = enchant_map;
+                                                                                                                                                   r.transfer_enhancement = true;
+                                                                                                                                                   r.target_weapon = gore1d3;
+                                                                                                                                               }
+                                                                                                                                               )
+                                                   );
+            feature1d3.HideInCharacterSheetAndLevelUp = true;
+
+            var feature1d4 = Helpers.CreateFeature("SteelHeadbutt1d4Feature",
+                                       "",
+                                       "",
+                                       "",
+                                       null,
+                                       FeatureGroup.None,
+                                       Common.createAddSecondaryAttacks(gore1d4),
+                                       Helpers.Create<NewMechanics.EnchantmentMechanics.RemapBodyArmorEnchantsToSpecificWeapon>(r =>
+                                       {
+                                           r.enchantment_map = enchant_map;
+                                           r.transfer_enhancement = true;
+                                           r.target_weapon = gore1d4;
+                                       }                                                                                                                                  )
+                                       );
+            feature1d4.HideInCharacterSheetAndLevelUp = true;
+
+            steel_headbutt = Helpers.CreateFeature("SteelHeadbuttAdvancedArmorTrainingFeature",
+                                                   "Steel Headbutt",
+                                                   "While wearing medium or heavy armor, a fighter can deliver a headbutt with his helm as part of a full attack action. This headbutt is in addition to his normal attacks, and is made using the fighter’s base attack bonus – 5. A helmet headbutt deals 1d3 points of damage if the fighter is wearing medium armor, or 1d4 points of damage if he is wearing heavy armor (1d2 and 1d3, respectively, for Small creatures), plus an amount of damage equal to 1/2 the fighter’s Strength modifier. Treat this attack as a weapon attack made using the same special material and echantment bonus (if any) as the armor.",
+                                                   "",
+                                                   Helpers.GetIcon("4c3d08935262b6544ae97599b3a9556d"), //bulls stength
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature1d3; a.required_armor = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Medium }; }),
+                                                   Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature1d4; a.required_armor = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Heavy }; })
+                                                   );
+            addToAdvancedArmorTraining(steel_headbutt);
+        }
+
+
+        static void createCriticalDeflection()
+        {
+            critical_deflection = Helpers.CreateFeature("CriticalDeflectionAdvancedArmorTrainingFeature",
+                                                       "Critical Deflection",
+                                                       "While wearing armor or using a shield, the fighter gains a +2 bonus to his AC against attack rolls made to confirm a critical hit. This bonus increases by 1 at 7th level and every 4 fighter levels thereafter, to a maximum of +6 at 19th level.",
+                                                       "",
+                                                       Helpers.GetIcon("d09b20029e9abfe4480b356c92095623"),
+                                                       FeatureGroup.None);
+
+            var armor_types = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Light, ArmorProficiencyGroup.Medium, ArmorProficiencyGroup.Heavy, ArmorProficiencyGroup.Buckler,
+                                                             ArmorProficiencyGroup.LightShield, ArmorProficiencyGroup.HeavyShield, ArmorProficiencyGroup.TowerShield };
+
+            var feature = Helpers.CreateFeature("CriticalDeflectionAdvancedArmorTrainingEffectFeature",
+                                                critical_deflection.Name,
+                                                critical_deflection.Description,
+                                                "",
+                                                critical_deflection.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.Create<CriticalConfirmationACBonus>(c => c.Value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { fighter },
+                                                                                progression: ContextRankProgression.StartPlusDivStep, startLevel: -1,
+                                                                                stepLevel: 4)
+                                               );
+            critical_deflection.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = armor_types; }));
+            addToAdvancedArmorTraining(critical_deflection);
+        }
+
+
+        static void createArmoredJuggernaut()
+        {
+            armored_juggernaut = Helpers.CreateFeature("ArmoredJuggernautAdvancedArmorTrainingFeature",
+                                                       "Armored Juggernaut",
+                                                       "When wearing heavy armor, the fighter gains DR 1/—. At 7th level, the fighter gains DR 1/— when wearing medium armor, and DR 2/— when wearing heavy armor. At 11th level, the fighter gains DR 1/— when wearing light armor, DR 2/— when wearing medium armor, and DR 3/— when wearing heavy armor. If the fighter is 19th level and has the armor mastery class feature, these DR values increase by 5. The DR from this ability stacks with that provided by adamantine armor, but not with other forms of damage reduction.",
+                                                       "",
+                                                       Helpers.GetIcon("479c7f3b0dba69a4bbcb43e101f3f7f9"),
+                                                       FeatureGroup.None);
+
+            var armor_types = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Light, ArmorProficiencyGroup.Medium, ArmorProficiencyGroup.Heavy };
+
+            foreach (var at in armor_types)
+            {
+                int shift = at == ArmorProficiencyGroup.Heavy ? 0 : (at == ArmorProficiencyGroup.Medium ? 1 : 2);
+                var feature = Helpers.CreateFeature(at.ToString() + "ArmoredJuggernautAdvancedArmorTrainingFeature",
+                                                    armored_juggernaut.Name,
+                                                    armored_juggernaut.Description,
+                                                    "",
+                                                    armored_juggernaut.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createContextPhysicalDR(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { fighter },
+                                                                                    progression: ContextRankProgression.StartPlusDivStep, startLevel: 3 + shift * 4,
+                                                                                    stepLevel: 4, max: 3 - shift )
+                                                   );
+                armored_juggernaut.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = new ArmorProficiencyGroup[] { at }; }));
+            }
+            addToAdvancedArmorTraining(armored_juggernaut);
+        }
+
+
+        static void createArmoredConfidence()
+        {
+            armored_confidence = Helpers.CreateFeature("ArmoredConfidenceAdvancedArmorTrainingFeature",
+                                                       "Armored Confidence",
+                                                       "While wearing armor, the fighter gains a bonus on Intimidate checks based upon the type of armor he is wearing: +1 for light armor, +2 for medium armor, or +3 for heavy armor. This bonus increases by 1 at 7th level and every 4 fighter levels thereafter, to a maximum of +4 at 19th level.",
+                                                       "",
+                                                       Helpers.GetIcon("d76497bfc48516e45a0831628f767a0f"),
+                                                       FeatureGroup.None);
+
+            var armor_types = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Light, ArmorProficiencyGroup.Medium, ArmorProficiencyGroup.Heavy };
+
+            foreach (var at in armor_types)
+            {
+                int shift = at == ArmorProficiencyGroup.Light ? 0 : (at == ArmorProficiencyGroup.Medium ? 1 : 2);
+                var feature = Helpers.CreateFeature(at.ToString() + "ArmoredConfidenceAdvancedArmorTrainingFeature",
+                                                    armored_confidence.Name,
+                                                    armored_confidence.Description,
+                                                    "",
+                                                    armored_confidence.Icon,
+                                                    FeatureGroup.None,
+                                                    Helpers.CreateAddContextStatBonus(StatType.CheckIntimidate, ModifierDescriptor.UntypedStackable),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { fighter },
+                                                                                    progression: ContextRankProgression.StartPlusDivStep, startLevel: 3 - shift * 4,
+                                                                                    stepLevel: 4)
+                                                   );
+                armored_confidence.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = new ArmorProficiencyGroup[] { at }; }));
+            }
+            addToAdvancedArmorTraining(armored_confidence);
+        }
+
+
+
+
+
+        static void createArmorSpecialization()
+        {
+            var armor_focus = library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482");
+
+            armor_specialization = Helpers.CreateFeatureSelection("ArmorSpecializationAdvancedArmorTrainingFeature",
+                                                         "Armor Specializaiton",
+                                                         "The fighter selects one specific type of armor with which he is proficient, such as light or heavy. While wearing the selected type of armor, the fighter adds one-quarter of his fighter level to the armor’s armor bonus, up to a maximum bonus of +3 for light armor, +4 for medium armor, or +5 for heavy armor. This increase to the armor bonus doesn’t increase the benefit that the fighter gains from feats, class abilities, or other effects that are determined by his armor’s base armor bonus, including other advanced armor training options. A fighter can choose this option multiple times. Each time he chooses it, he applies its benefit to a different type of armor.",
+                                                         "",
+                                                         armor_focus.Icon,
+                                                         FeatureGroup.None);
+            foreach (var f in armor_focus.AllFeatures)
+            {
+                var feature = library.CopyAndAdd(f, f.name.Replace("Focus", "Specialization"), "");
+                var armor_type = f.GetComponent<ArmorFocus>().ArmorCategory;
+                feature.SetNameDescription(armor_type.ToString() + " Armor Specialization",
+                                           armor_specialization.Description);
+                feature.RemoveComponents<ArmorFocus>();
+                feature.RemoveComponents<PrerequisiteStatValue>();
+
+                int max_armor = armor_type == ArmorProficiencyGroup.Light ? 3 : armor_type == ArmorProficiencyGroup.Medium ? 4 : 5;
+
+                var effect_feature = library.CopyAndAdd(feature, feature.name + "Effect", "");
+                effect_feature.ComponentsArray = new BlueprintComponent[]
+                {
+                    Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.ArmorFocus),
+                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { fighter}, progression: ContextRankProgression.DivStep,
+                                                    stepLevel: 4, max: max_armor)
+                };
+
+                effect_feature.HideInUI = true;
+                feature.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = new ArmorProficiencyGroup[] { armor_type }; }));
+                armor_specialization.AllFeatures = armor_specialization.AllFeatures.AddToArray(feature);
+            }
+            addToAdvancedArmorTraining(armor_specialization);
+        }
 
         static void createWarriorSpirit()
         {
@@ -311,20 +571,8 @@ namespace CallOfTheWild
 
                 warrior_spirit.AllFeatures = warrior_spirit.AllFeatures.AddToArray(feature);
             }
-        }
-
-
-        static void createTrainedInitiative()
-        {
-            trained_initiative = Helpers.CreateFeature("TrainedInitiativeAdvancedWeaponTrainingFeature",
-                                                          "Trained Initiative",
-                                                          "As long as he is wielding a weapon from the associated weapon group or is able to draw such a weapon (even if he is not currently wielding it), the fighter applies his weapon training bonus to initiative checks.",
-                                                          "",
-                                                          Helpers.GetIcon("797f25d709f559546b29e7bcb181cc74"), //improved initiative
-                                                          FeatureGroup.None,
-                                                          Helpers.Create<WeaponTrainingBonuses>(w => { w.Stat = StatType.Initiative; w.Descriptor = ModifierDescriptor.UntypedStackable; })
-                                                          );
-            addToAdvancedWeaponTraining(trained_initiative);
+            warrior_spirit.AddComponent(Helpers.PrerequisiteNoFeature(warrior_spirit));
+            addToAdvancedWeaponTraining(warrior_spirit);
         }
 
 
@@ -471,19 +719,21 @@ namespace CallOfTheWild
             monk_weapon_group.ReplaceComponent<WeaponGroupDamageBonus>(w => w.WeaponGroup = Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Monk);
             monk_weapon_group.ReplaceComponent<WeaponGroupAttackBonus>(w => w.WeaponGroup = Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Monk);
             monk_weapon_group.SetName("Weapon Training (Monk)");
+            monk_weapon_group.SetDescription("Whenever a fighter attacks with a weapon from this group, he gains a +1 bonus on attack and damage rolls.\nThis group includes kama, nunchaku and sai.");
 
             thrown_weapon_group = library.CopyAndAdd<BlueprintFeature>("1b18d6a1297950f4bba9d121cfc735e9", "WeaponTrainingThrown", "");
             thrown_weapon_group.ReplaceComponent<WeaponGroupDamageBonus>(w => w.WeaponGroup = Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Thrown);
             thrown_weapon_group.ReplaceComponent<WeaponGroupAttackBonus>(w => w.WeaponGroup = Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Thrown);
             thrown_weapon_group.SetName("Weapon Training (Thrown)");
+            thrown_weapon_group.SetDescription("Whenever a fighter attacks with a weapon from this group, he gains a +1 bonus on attack and damage rolls.\nThis group includes dart, javelin, shuriken, sling, sling staff and throwing axe.");
 
-            flails_weapon_group = library.CopyAndAdd<BlueprintFeature>("1b18d6a1297950f4bba9d121cfc735e9", "WeaponTrainingFlails", "");
+            /*flails_weapon_group = library.CopyAndAdd<BlueprintFeature>("1b18d6a1297950f4bba9d121cfc735e9", "WeaponTrainingFlails", "");
             flails_weapon_group.ReplaceComponent<WeaponGroupDamageBonus>(w => w.WeaponGroup = Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Flails);
             flails_weapon_group.ReplaceComponent<WeaponGroupAttackBonus>(w => w.WeaponGroup = Kingmaker.Blueprints.Items.Weapons.WeaponFighterGroup.Flails);
-            flails_weapon_group.SetName("Weapon Training (Flails)");
+            flails_weapon_group.SetName("Weapon Training (Flails)");*/
 
-            weapon_training_rankup.AllFeatures = weapon_training_rankup.AllFeatures.AddToArray(monk_weapon_group, thrown_weapon_group, flails_weapon_group);
-            advanced_weapon_training.AllFeatures = advanced_weapon_training.AllFeatures.AddToArray(monk_weapon_group, thrown_weapon_group, flails_weapon_group);
+            weapon_training_rankup.AllFeatures = weapon_training_rankup.AllFeatures.AddToArray(monk_weapon_group, thrown_weapon_group);
+            advanced_weapon_training.AllFeatures = advanced_weapon_training.AllFeatures.AddToArray(monk_weapon_group, thrown_weapon_group);
         }
 
         static void createAdvancedArmorTraining()
@@ -575,8 +825,8 @@ namespace CallOfTheWild
             skill_weapon_group_map.Add(StatType.SkillAthletics, new BlueprintFeature[] { axes, natural, spears, hammers });
             skill_weapon_group_map.Add(StatType.SkillLoreNature, new BlueprintFeature[] { axes, spears});
             skill_weapon_group_map.Add(StatType.SkillPerception, new BlueprintFeature[] { bows, close, crossbows, double_weapon, polearms, thrown_weapon_group });
-            skill_weapon_group_map.Add(StatType.SkillStealth, new BlueprintFeature[] { close, light_blades, crossbows, flails_weapon_group });
-            skill_weapon_group_map.Add(StatType.SkillMobility, new BlueprintFeature[] { double_weapon, flails_weapon_group, monk_weapon_group, thrown_weapon_group });
+            skill_weapon_group_map.Add(StatType.SkillStealth, new BlueprintFeature[] { close, light_blades, crossbows });
+            skill_weapon_group_map.Add(StatType.SkillMobility, new BlueprintFeature[] { double_weapon, monk_weapon_group, thrown_weapon_group });
             skill_weapon_group_map.Add(StatType.SkillPersuasion, new BlueprintFeature[] { hammers, heavy_blades, light_blades, polearms });
 
 
