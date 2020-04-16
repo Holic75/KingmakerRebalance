@@ -67,6 +67,52 @@ using Kingmaker.Blueprints.Items.Equipment;
 namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 {
 
+    class WeaponEnchantmentPropertyGetter : PropertyValueGetter
+    {
+        internal static readonly Lazy<BlueprintUnitProperty> Blueprint = new Lazy<BlueprintUnitProperty>(() =>
+        {
+            var p = CallOfTheWild.Helpers.Create<BlueprintUnitProperty>();
+            p.name = "WeaponEnchantmentCustomProperty";
+            Main.library.AddAsset(p, "804bbccf9985428ea25e01f17e8a5239");
+            p.SetComponents(CallOfTheWild.Helpers.Create<WeaponEnchantmentPropertyGetter>());
+            return p;
+        });
+
+        public override int GetInt(UnitEntityData unit)
+        {
+            int value = 0;
+            var primary = unit.Body?.PrimaryHand?.MaybeWeapon;
+            var secondary = unit.Body?.PrimaryHand?.MaybeWeapon;
+            if (primary != null)
+            {
+                value = Math.Max(value, GameHelper.GetItemEnhancementBonus(primary));
+            }
+            if (secondary != null)
+            {
+                value = Math.Max(value, GameHelper.GetItemEnhancementBonus(secondary));
+            }
+            
+            return value;
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class RecalculateOnEquipmentChange : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.Fact.Recalculate();
+        }
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            this.Fact.Recalculate();
+        }
+    }
+
     public class StaticWeaponEnhancementBonus : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
     {
         [JsonProperty]

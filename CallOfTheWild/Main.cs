@@ -251,6 +251,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();
                     CallOfTheWild.RogueTalents.load();
+                    CallOfTheWild.AdvancedFighterOptions.load();
 
                     CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();

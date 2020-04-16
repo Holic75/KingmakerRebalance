@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -87,6 +88,91 @@ namespace CallOfTheWild.TurnActionMechanics
             }
 
             return false;
+        }
+    }
+
+
+    public class UnitPartMoveAbilityUse : AdditiveUnitPart
+    {
+        public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (buffs.Empty())
+            {
+                return false;
+            }
+
+            foreach (var b in buffs)
+            {
+                bool result = false;
+                b.CallComponents<SwiftActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                if (result)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+
+    public class UnitPartStandardActionAbilityUse : AdditiveUnitPart
+    {
+        public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (buffs.Empty())
+            {
+                return false;
+            }
+
+            foreach (var b in buffs)
+            {
+                bool result = false;
+                b.CallComponents<SwiftActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                if (result)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+
+    public abstract class MoveActionAbilityUseBase : BuffLogic
+    {
+        public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartMoveAbilityUse>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartMoveAbilityUse>().removeBuff(this.Fact);
+        }
+    }
+
+
+
+
+
+    public abstract class StandardActionAbilityUseBase : BuffLogic
+    {
+        public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartStandardActionAbilityUse>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartStandardActionAbilityUse>().removeBuff(this.Fact);
         }
     }
 
@@ -349,6 +435,16 @@ namespace CallOfTheWild.TurnActionMechanics
                 return;
             }
 
+
+            var move_use_part = __instance.Caster.Get<UnitPartMoveAbilityUse>();
+
+            if (move_use_part != null && move_use_part.canBeUsedOnAbility(__instance, __result))
+            {
+                __result = CommandType.Move;
+                return;
+            }
+
+
             if (__result == CommandType.Standard && __instance.Blueprint.ActionType == CommandType.Swift)
             {
                 //metamagic applied to swift action spells
@@ -428,6 +524,11 @@ namespace CallOfTheWild.TurnActionMechanics
         {
             if (__result == true)
             {
+                var standard_action_use = __instance.Caster.Get<UnitPartStandardActionAbilityUse>();
+                if (standard_action_use != null)
+                {
+                    __result = !standard_action_use.canBeUsedOnAbility(__instance, CommandType.Standard);
+                }
                 return;
             }
 
@@ -454,6 +555,55 @@ namespace CallOfTheWild.TurnActionMechanics
         public override bool canUseOnAbility(AbilityData ability)
         {
             if (ability == null)
+            {
+                return false;
+            }
+
+            return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
+        }
+    }
+
+
+
+    public class StandardActionIfWeaponTraining : StandardActionAbilityUseBase
+    {
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType command)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+
+            int? maxWeaponRank = this.Owner.Get<UnitPartWeaponTraining>()?.GetMaxWeaponRank();
+            int num = !maxWeaponRank.HasValue ? 0 : maxWeaponRank.Value;
+
+            if (num == 0)
+            {
+                return false;
+            }
+
+            return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
+        }
+    }
+
+
+    public class MoveActionIfWeaponTraining : MoveActionAbilityUseBase
+    {
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType command)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+
+            int? maxWeaponRank = this.Owner.Get<UnitPartWeaponTraining>()?.GetMaxWeaponRank();
+            int num = !maxWeaponRank.HasValue ? 0 : maxWeaponRank.Value;
+
+            if (num == 0)
             {
                 return false;
             }

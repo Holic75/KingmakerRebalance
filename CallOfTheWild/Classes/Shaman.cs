@@ -1058,6 +1058,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4b76d32feb089ad4499c3a1ce8e1ac27", 3), //animate dead
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 3), //blindness
+                new Common.SpellId( NewSpells.burning_entanglement.AssetGuid, 3),
                 new Common.SpellId( "2a9ef0e0b5822a24d88b16673a267456", 3), //call lightning
                 new Common.SpellId( "3361c5df793b4c8448756146a88026ad", 3), //cure serious wounds
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber

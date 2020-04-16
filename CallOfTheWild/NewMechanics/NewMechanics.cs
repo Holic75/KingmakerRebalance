@@ -1365,6 +1365,54 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextWeaponDamageDiceReplacementForSpecificCategory : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public WeaponCategory category;
+            public DiceFormula[] dice_formulas;
+            public ContextValue value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon.Blueprint.Category != category)
+                {
+                    return;
+                }
+
+                int dice_id = value.Calculate(this.Context);
+                if (dice_id < 0)
+                {
+                    dice_id = 0;
+                }
+                if (dice_id >= dice_formulas.Length)
+                {
+                    dice_id = dice_formulas.Length - 1;
+                }
+
+                double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
+                double current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2.0;
+
+                if (new_avg_dmg > current_avg_damage)
+                {
+                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextWeaponDamageDiceReplacementWeaponCategory : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
             public WeaponCategory[] categories;
@@ -1881,6 +1929,75 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureOnFactRank : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainFactHandler, IUnitLostFactHandler, IGlobalSubscriber
+        {
+            public BlueprintFeature checked_fact;
+            public int fact_rank;
+            public BlueprintUnitFact feature;
+            public bool not;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = null;
+            }
+
+            public void HandleUnitGainFact(Fact fact)
+            {
+                if (fact.Blueprint == checked_fact)
+                {
+                    this.Apply();
+                }
+            }
+
+
+            public void HandleUnitLostFact(Fact fact)
+            {
+                if (fact.Blueprint == checked_fact)
+                {
+                    this.Apply();
+                }
+            }
+
+            private void Apply()
+            {
+                OnFactDeactivate();
+                if (this.m_AppliedFact != null || (this.Owner.Progression.Features.GetRank(this.checked_fact) >= fact_rank == not))
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMainWeaponGroupCheck : BlueprintComponent, IAbilityCasterChecker
+        {
+            public WeaponFighterGroup[] groups;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (caster.Body.PrimaryHand.HasWeapon)
+                    return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup));
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
             }
         }
 

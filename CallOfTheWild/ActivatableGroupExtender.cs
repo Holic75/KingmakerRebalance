@@ -36,7 +36,8 @@ namespace CallOfTheWild
             Rage,
             RapidShot,
             SneakAttack,
-            PhrenicAmplification
+            PhrenicAmplification,
+            WarriorSpirit,
         }
 
         public static partial class Extensions
