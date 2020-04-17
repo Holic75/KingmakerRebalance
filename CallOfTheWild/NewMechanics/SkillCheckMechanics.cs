@@ -67,12 +67,16 @@ namespace CallOfTheWild.SkillMechanics
                         var @class = LevelUp.State.SelectedClass;
                         //allow retraining
                         LevelUp.State.ExtraSkillPoints += base.Owner.Stats.GetStat(skill).BaseValue;
-
-                        HandleUnitGainLevel(this.Owner, @class);
+                        base.Owner.Stats.GetStat(skill).BaseValue = 0;
                     }
+                    HandleUnitGainLevel(this.Owner, null);
                     ModifiableValueSkill stat = this.Owner.Stats.GetStat<ModifiableValueSkill>(skill);
                     stat?.ClassSkill.Retain();
                     stat?.UpdateValue();
+                    if (base.Owner == LevelUp.Preview || base.Owner == LevelUp.Unit)
+                    {
+                        previous_value--;
+                    }
                 }
             }
             catch (Exception e)

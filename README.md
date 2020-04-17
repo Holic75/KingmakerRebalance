@@ -148,6 +148,26 @@ New Wild Talents:
 - Kinetic Whip,
 - Whip Hurricane.
 
+
+
+New Advanced Weapon Training Options:
+- Dazzling Intimidation,
+- Defensive Weapon Training,
+- Fighter's Finesse,
+- Focused Weapon,
+- Trained Grace,
+- Trained Throw,
+- Versatile Training,
+- Warrior Spirit.
+
+Advanced Armor Training Options:
+- Adaptable Training,
+- Armor Specialization,
+- Armored Confidence,
+- Armored Juggernaut,
+- Critical Deflection,
+- Steel Headbutt.
+
 New Rogue Talents:
 - Minor Magic,
 - Major Magic,
@@ -156,7 +176,10 @@ New Rogue Talents:
 
 
 New Slayer Talents:
-- Assasinate.
+- Assasinate,
+- Armored Marauder,
+- Armored Swiftness,
+- Reaping Stalker.
 
 New Magus Arcana:
 - Familiar,

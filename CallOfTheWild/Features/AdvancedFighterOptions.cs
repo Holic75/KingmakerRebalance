@@ -139,16 +139,22 @@ namespace CallOfTheWild
                                                                                );
                 extra_armor_training_feats[i].Groups = extra_armor_training_feats[i].Groups.AddToArray(FeatureGroup.CombatFeat);
                 extra_armor_training_feats[i].AllFeatures = advanced_armor_training.AllFeatures.RemoveFromArray(armor_training);
+                extra_armor_training_feats[i].AddComponent(Helpers.PrerequisiteNoFeature(extra_armor_training_feats[i]));
             }
             library.AddCombatFeats(extra_armor_training_feats);
 
             extra_weapon_training_feats = new BlueprintFeatureSelection[4];
 
-            var advanced_weapon_trainings = advanced_armor_training.AllFeatures;
+            var advanced_weapon_trainings = advanced_weapon_training.AllFeatures;
 
             foreach (var t in group_training_map.Values)
             {
-                advanced_weapon_trainings = advanced_weapon_trainings.RemoveFromArray(t);
+                advanced_weapon_trainings = advanced_weapon_trainings.RemoveFromArray(t);               
+            }
+
+            foreach (var t in advanced_weapon_trainings)
+            {
+                t.ReplaceComponent<PrerequisiteClassLevel>(Helpers.PrerequisiteFeaturesFromList(group_training_map.Values));
             }
 
             for (int i = 0; i < extra_weapon_training_feats.Length; i++)
@@ -163,9 +169,8 @@ namespace CallOfTheWild
                                                                                Helpers.PrerequisiteFeaturesFromList(group_training_map.Values)
                                                                                );
                 extra_weapon_training_feats[i].Groups = extra_armor_training_feats[i].Groups.AddToArray(FeatureGroup.CombatFeat);
-
-                
                 extra_weapon_training_feats[i].AllFeatures = advanced_weapon_trainings;
+                extra_weapon_training_feats[i].AddComponent(Helpers.PrerequisiteNoFeature(extra_weapon_training_feats[i]));
             }
             library.AddCombatFeats(extra_weapon_training_feats);
         }
@@ -263,6 +268,7 @@ namespace CallOfTheWild
                                                                                 progression: ContextRankProgression.StartPlusDivStep, startLevel: -1,
                                                                                 stepLevel: 4)
                                                );
+            feature.HideInCharacterSheetAndLevelUp = true;
             critical_deflection.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = armor_types; }));
             addToAdvancedArmorTraining(critical_deflection);
         }
@@ -293,6 +299,7 @@ namespace CallOfTheWild
                                                                                     progression: ContextRankProgression.StartPlusDivStep, startLevel: 3 + shift * 4,
                                                                                     stepLevel: 4, max: 3 - shift )
                                                    );
+                feature.HideInCharacterSheetAndLevelUp = true;
                 armored_juggernaut.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = new ArmorProficiencyGroup[] { at }; }));
             }
             addToAdvancedArmorTraining(armored_juggernaut);
@@ -324,6 +331,7 @@ namespace CallOfTheWild
                                                                                     progression: ContextRankProgression.StartPlusDivStep, startLevel: 3 - shift * 4,
                                                                                     stepLevel: 4)
                                                    );
+                feature.HideInCharacterSheetAndLevelUp = true;
                 armored_confidence.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = new ArmorProficiencyGroup[] { at }; }));
             }
             addToAdvancedArmorTraining(armored_confidence);
@@ -363,7 +371,7 @@ namespace CallOfTheWild
                 };
 
                 effect_feature.HideInUI = true;
-                feature.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = feature; a.required_armor = new ArmorProficiencyGroup[] { armor_type }; }));
+                feature.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = effect_feature; a.required_armor = new ArmorProficiencyGroup[] { armor_type }; }));
                 armor_specialization.AllFeatures = armor_specialization.AllFeatures.AddToArray(feature);
             }
             addToAdvancedArmorTraining(armor_specialization);
@@ -371,6 +379,9 @@ namespace CallOfTheWild
 
         static void createWarriorSpirit()
         {
+            var gloves_of_dueling1_feature = library.Get<BlueprintFeature>("5238b7d5f4c81574ba914d609ac1e692");
+            var gloves_of_dueling2_feature = library.Get<BlueprintFeature>("f063942ce72136c49a12d34a3fd88197");
+
             var warrior_spirit_group = ActivatableAbilityGroupExtension.WarriorSpirit.ToActivatableAbilityGroup();
             var resource = Helpers.CreateAbilityResource("WarriorSpiritResource", "", "", "", null);
             resource.SetFixedResource(1);
@@ -497,7 +508,8 @@ namespace CallOfTheWild
                                                             "",
                                                             weapon_enhancement_buff.Icon,
                                                             FeatureGroup.None,
-                                                            Helpers.CreateAddFacts(flaming, frost, shock, ghost_touch, keen)
+                                                            Helpers.CreateAddFacts(flaming, frost, shock, ghost_touch, keen),
+                                                            resource.CreateIncreaseResourceAmount(1)
                                                             );
 
             warrior_spirit_features[1] = Helpers.CreateFeature("WarriorSpiritEnchancement2Feature",
@@ -507,7 +519,8 @@ namespace CallOfTheWild
                                                             weapon_enhancement_buff.Icon,
                                                             FeatureGroup.None,
                                                             Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
-                                                            Helpers.CreateAddFacts(disruption, holy, unholy, axiomatic, anarchic)
+                                                            Helpers.CreateAddFacts(disruption, holy, unholy, axiomatic, anarchic),
+                                                            resource.CreateIncreaseResourceAmount(1)
                                                             );
 
             warrior_spirit_features[2] = Helpers.CreateFeature("WarriorSpiritEnchancement3Feature",
@@ -516,7 +529,8 @@ namespace CallOfTheWild
                                                                             "",
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
-                                                                            Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group)
+                                                                            Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
+                                                                            resource.CreateIncreaseResourceAmount(1)
                                                                             );
 
             warrior_spirit_features[3] = Helpers.CreateFeature("WarriorSpiritEnchancement4Feature",
@@ -526,7 +540,8 @@ namespace CallOfTheWild
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
                                                                             Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
-                                                                            Helpers.CreateAddFact(brilliant_energy)
+                                                                            Helpers.CreateAddFact(brilliant_energy),
+                                                                            resource.CreateIncreaseResourceAmount(1)
                                                                             );
 
             warrior_spirit_features[4] = Helpers.CreateFeature("WarriorSpiritEnchancement5Feature",
@@ -535,7 +550,8 @@ namespace CallOfTheWild
                                                                             "",
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
-                                                                            Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group)
+                                                                            Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
+                                                                            resource.CreateIncreaseResourceAmount(1)
                                                                             );
 
 
@@ -550,7 +566,7 @@ namespace CallOfTheWild
             foreach (var f in group_training_map)
             {
                 var warrior_spirit_ability = Helpers.CreateAbility(f.Key.ToString() + "WarriorSpiritEnchantmentAbility",
-                                                                    weapon_enhancement_buff.Name,
+                                                                    weapon_enhancement_buff.Name + " " + f.Value.Name.Substring(f.Value.Name.IndexOf("(")),
                                                                     weapon_enhancement_buff.Description,
                                                                     "",
                                                                     weapon_enhancement_buff.Icon,
@@ -567,12 +583,17 @@ namespace CallOfTheWild
                 var feature = Common.AbilityToFeature(warrior_spirit_ability, false);
                 feature.AddComponents(resource.CreateAddAbilityResource(),
                                       Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, feature: f.Value),
                                       Helpers.PrerequisiteFeature(f.Value)
                                       );
                 for (int i = 0; i < warrior_spirit_features.Length; i++)
                 {
-                    feature.AddComponent(Helpers.Create<NewMechanics.AddFeatureOnFactRank>(a => { a.feature = warrior_spirit_features[i]; a.fact_rank = i + 1; a.checked_fact = f.Value; }));
+                    feature.AddComponent(Helpers.Create<NewMechanics.AddFeatureOnFactRank>(a => 
+                                                                                          { a.feature = warrior_spirit_features[i];
+                                                                                            a.fact_rank = i + 1;
+                                                                                            a.checked_fact = f.Value;
+                                                                                            a.additional_triggering_features = new BlueprintFeature[] { gloves_of_dueling1_feature, gloves_of_dueling2_feature }; }
+                                                                                          )
+                                       );
                 }
 
                 warrior_spirit.AllFeatures = warrior_spirit.AllFeatures.AddToArray(feature);
@@ -603,7 +624,7 @@ namespace CallOfTheWild
 
         static void createDefensiveWeaponTraining()
         {
-            defensive_weapon_training = Helpers.CreateFeature("DefensiveWeaponTrainingAdvancedWeaponTrainingFeature",
+            var defensive_weapon_training_effect = Helpers.CreateFeature("DefensiveWeaponTrainingAdvancedWeaponTrainingEffectFeature",
                                                           "Defensive Weapon Training",
                                                           "The fighter gains a +1 shield bonus to his Armor Class. The fighter adds half his weapon’s enhancement bonus (if any) to this shield bonus. When his weapon training bonus for weapons from the associated fighter weapon group reaches +4, this shield bonus increases to +2. This shield bonus is lost if the fighter is immobilized or helpless.",
                                                           "",
@@ -616,8 +637,16 @@ namespace CallOfTheWild
                                                                                           startLevel: 1, stepLevel: 3, max: 2),
                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, progression: ContextRankProgression.Div2,
                                                                                           customProperty: NewMechanics.EnchantmentMechanics.WeaponEnchantmentPropertyGetter.Blueprint.Value,
-                                                                                          type: AbilityRankType.StatBonus),
-                                                          Helpers.Create<NewMechanics.EnchantmentMechanics.RecalculateOnEquipmentChange>()
+                                                                                          type: AbilityRankType.StatBonus)
+                                                          );
+            defensive_weapon_training_effect.HideInCharacterSheetAndLevelUp = true;
+            defensive_weapon_training = Helpers.CreateFeature("DefensiveWeaponTrainingAdvancedWeaponTrainingFeature",
+                                                          "Defensive Weapon Training",
+                                                          "The fighter gains a +1 shield bonus to his Armor Class. The fighter adds half his weapon’s enhancement bonus (if any) to this shield bonus. When his weapon training bonus for weapons from the associated fighter weapon group reaches +4, this shield bonus increases to +2. This shield bonus is lost if the fighter is immobilized or helpless.",
+                                                          "",
+                                                          Helpers.GetIcon("4c44724ffa8844f4d9bedb5bb27d144a"), //combat expertise
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<WeaponTrainingMechanics.AddFeatureOnWeaponTraining>(a => a.feature = defensive_weapon_training_effect)
                                                           );
             defensive_weapon_training.ReapplyOnLevelUp = true;
             addToAdvancedWeaponTraining(defensive_weapon_training);
@@ -688,7 +717,7 @@ namespace CallOfTheWild
                                                           weapon_focus.Icon,
                                                           FeatureGroup.None
                                                           );
-
+            
             foreach (var wt in category_training_map)
             {
                 var feature = Helpers.CreateFeature(wt.Key.ToString() + "FocusedWeaponAdvancedWeaponTrainingFeatureSelection",
@@ -820,7 +849,7 @@ namespace CallOfTheWild
 
             versatile_training = Helpers.CreateFeatureSelection("VersatileWeaponTraining",
                                                     "Versatile Training",
-                                                    "TThe fighter can use his base attack bonus in place of his ranks in skill of his choice that is associated with the fighter weapon group he has chosen with this option. The fighter need not be wielding an associated weapon to use this option. When using versatile training, the fighter substitutes his total base attack bonus (including his base attack bonus gained through levels in other classes) for his ranks in this skill, but adds the skill’s usual ability score modifier and any other bonuses or penalties that would modify those skills. Once the skill has been selected, it cannot be changed and the fighter can immediately retrain all of his skill ranks in the selected skill at no additional cost in money or time. In addition, the fighter adds all skills chosen with this option to his list of class skills.",
+                                                    "The fighter can use his base attack bonus in place of his ranks in skill of his choice that is associated with the fighter weapon group he has chosen with this option. The fighter need not be wielding an associated weapon to use this option. When using versatile training, the fighter substitutes his total base attack bonus (including his base attack bonus gained through levels in other classes) for his ranks in this skill, but adds the skill’s usual ability score modifier and any other bonuses or penalties that would modify those skills. Once the skill has been selected, it cannot be changed and the fighter can immediately retrain all of his skill ranks in the selected skill at no additional cost in money or time. In addition, the fighter adds all skills chosen with this option to his list of class skills.",
                                                     "",
                                                     null,
                                                     FeatureGroup.None
@@ -841,7 +870,7 @@ namespace CallOfTheWild
             foreach (var s in armor_skills)
             {
                 var feature = Helpers.CreateFeature(s.ToString() + "AdaptableTrainingFeature",
-                                                    "Adaptable Training: " + s.ToString(),
+                                                    "Adaptable Training: " + LocalizedTexts.Instance.Stats.GetText(s),
                                                     adaptable_training.Description,
                                                     "",
                                                     skill_foci.FirstOrDefault(sf => sf.GetComponent<AddContextStatBonus>().Stat == s).Icon,
@@ -857,7 +886,7 @@ namespace CallOfTheWild
             foreach (var s in skill_weapon_group_map)
             {
                 var feature = Helpers.CreateFeature(s.ToString() + "VersatileTrainingFeature",
-                                                    "Verstile Training: " + s.Key.ToString(),
+                                                    "Verstile Training: " + LocalizedTexts.Instance.Stats.GetText(s.Key),
                                                     versatile_training.Description,
                                                     "",
                                                     skill_foci.FirstOrDefault(sf => sf.GetComponent<AddContextStatBonus>().Stat == s.Key).Icon,
@@ -874,7 +903,7 @@ namespace CallOfTheWild
 
                 if (skill_armor_feature_map.ContainsKey(s.Key))
                 {
-                    skill_armor_feature_map[s.Key].AddComponent(Helpers.PrerequisiteNoFeature(skill_armor_feature_map[s.Key]));
+                    skill_armor_feature_map[s.Key].AddComponent(Helpers.PrerequisiteNoFeature(feature));
                     feature.AddComponent(Helpers.PrerequisiteNoFeature(skill_armor_feature_map[s.Key]));
                 }
             }

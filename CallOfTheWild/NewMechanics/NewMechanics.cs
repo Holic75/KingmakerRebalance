@@ -71,6 +71,7 @@ using Kingmaker.Controllers.Combat;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using System.Text;
 using Kingmaker.Blueprints.Root.Strings;
+using Kingmaker.Blueprints.Items.Armors;
 
 namespace CallOfTheWild
 {
@@ -1938,6 +1939,7 @@ namespace CallOfTheWild
         public class AddFeatureOnFactRank : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainFactHandler, IUnitLostFactHandler, IGlobalSubscriber
         {
             public BlueprintFeature checked_fact;
+            public BlueprintFeature[] additional_triggering_features = new BlueprintFeature[0];
             public int fact_rank;
             public BlueprintUnitFact feature;
             public bool not;
@@ -1957,7 +1959,7 @@ namespace CallOfTheWild
 
             public void HandleUnitGainFact(Fact fact)
             {
-                if (fact.Blueprint == checked_fact)
+                if (fact.Blueprint == checked_fact || additional_triggering_features.Contains(fact.Blueprint))
                 {
                     this.Apply();
                 }
@@ -1966,7 +1968,7 @@ namespace CallOfTheWild
 
             public void HandleUnitLostFact(Fact fact)
             {
-                if (fact.Blueprint == checked_fact)
+                if (fact.Blueprint == checked_fact || additional_triggering_features.Contains(fact.Blueprint))
                 {
                     this.Apply();
                 }
@@ -7179,6 +7181,33 @@ namespace CallOfTheWild
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
                 will_spend = 0;
+            }
+        }
+
+
+        [ComponentName("Context Max Dex bonus increase")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextMaxDexBonusIncrease : RuleInitiatorLogicComponent<RuleCalculateArmorMaxDexBonusLimit>
+        {
+            public ContextValue bonus;
+            public bool check_category;
+            [ShowIf("CheckCategory")]
+            public ArmorProficiencyGroup[] category;
+
+            public override void OnTurnOn()
+            {
+                this.Owner.Body.Armor.MaybeArmor?.RecalculateStats();
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateArmorMaxDexBonusLimit evt)
+            {
+                if (!category.Empty() && !category.Contains(evt.Armor.Blueprint.ProficiencyGroup))
+                    return;
+                evt.AddBonus(this.bonus.Calculate(this.Fact.MaybeContext));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateArmorMaxDexBonusLimit evt)
+            {
             }
         }
 

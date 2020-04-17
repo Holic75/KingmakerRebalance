@@ -330,7 +330,6 @@ namespace CallOfTheWild.CombatManeuverMechanics
                         (this.Fact as IFactContextOwner)?.RunActionInContext(this.other_action, (TargetWrapper)evt.Initiator);
                 }
             }
-
         }
     }
 }

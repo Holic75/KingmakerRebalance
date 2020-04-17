@@ -142,6 +142,11 @@ namespace CallOfTheWild.WeaponTrainingMechanics
                 return;
             }
 
+            if (weapon.Blueprint.Category == WeaponCategory.Scimitar && this.Owner.Progression.Features.HasFact(NewFeats.dervish_dance))
+            {
+                return;
+            }
+
             if (!evt.DamageBonusStat.HasValue || evt.DamageBonusStat != StatType.Strength)
             {
                 return;
@@ -213,6 +218,11 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             }
 
             if (weapon.Blueprint.Category == WeaponCategory.DuelingSword && this.Owner.Progression.Features.HasFact(deft_grace))
+            {
+                return;
+            }
+
+            if (weapon.Blueprint.Category == WeaponCategory.Scimitar && this.Owner.Progression.Features.HasFact(NewFeats.dervish_dance))
             {
                 return;
             }
@@ -311,7 +321,6 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             bool armor_ok = false;
             var body_armor = this.Owner.Body?.Armor?.MaybeArmor;
             armor_ok = body_armor != null && required_armor.Contains(body_armor.Blueprint.ProficiencyGroup);
-
             if (!armor_ok)
             {
                 var shield = this.Owner.Body?.SecondaryHand?.MaybeShield?.ArmorComponent;
@@ -322,6 +331,7 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             {
                 return;
             }
+
             this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
         }
     }

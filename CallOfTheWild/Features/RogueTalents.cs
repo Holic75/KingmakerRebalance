@@ -5,6 +5,8 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -46,6 +48,10 @@ namespace CallOfTheWild
         static public BlueprintFeature assasinate;
         static public BlueprintFeature swift_death;
 
+        static public BlueprintFeature armored_marudeur;
+        static public BlueprintFeature armored_swiftness;
+        static public BlueprintFeature reaping_stalker;
+
         static internal bool test_mode = false;
         static LibraryScriptableObject library => Main.library;
 
@@ -66,6 +72,77 @@ namespace CallOfTheWild
             createBleedingAttack();
 
             createAssasinateAndSwiftDeath();
+            createArmoredMaraudeur();
+            createArmoredSwiftness();
+            createReapingStalker();
+        }
+
+
+        static void createReapingStalker()
+        {
+            reaping_stalker = Helpers.CreateFeature("ReapingStalkerSlayerTalentFeature",
+                                                    "Reaping Stalker",
+                                                    "A slayer with this talent treats any sickle or scythe he wields as though it were one size larger for the purpose of determining its damage dice.\n"
+                                                    + "In addition, the slayer increases the critical threat range of any sickle or scythe he wields by 1; this does not stack with other effects that alter a weapon’s threat range.",
+                                                    "",
+                                                    Helpers.GetIcon("4eacfc7e152930a45a1a16217c35011c"), //scyth
+                                                    FeatureGroup.None,
+                                                    Helpers.Create<NewMechanics.WeaponCategorySizeChange>(w => w.category = WeaponCategory.Sickle),
+                                                    Helpers.Create<NewMechanics.WeaponCategorySizeChange>(w => w.category = WeaponCategory.Scythe),
+                                                    Helpers.Create<WeaponTypeCriticalEdgeIncrease>(w => w.WeaponType = library.Get<BlueprintWeaponType>("ec2da496c7936e14c9a28ce616a6b4cd")), //sickle
+                                                    Helpers.Create<WeaponTypeCriticalEdgeIncrease>(w => w.WeaponType = library.Get<BlueprintWeaponType>("4eacfc7e152930a45a1a16217c35011c")) //scythe
+                                                    );
+            addToSlayerTalentSelection(reaping_stalker, advanced: true);
+        }
+
+
+        static void createArmoredMaraudeur()
+        {
+            var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
+            var heavy_armor_proficiency = library.Get<BlueprintFeature>("1b0f68188dcc435429fb87a022239681");
+            armored_marudeur = Helpers.CreateFeature("ArmoredMaraudeurSlayerTalentFeature",
+                                                     "Armored Maraudeur",
+                                                     "The slayer gains proficiency with heavy armor. In addition, the armor check penalty of any heavy armor the slayer wears is reduced by 1 for every 6 slayer levels he has.",
+                                                     "",
+                                                     heavy_armor_proficiency.Icon,
+                                                     FeatureGroup.RogueTalent,
+                                                     Helpers.Create<ArmorCheckPenaltyIncrease>(a => { a.Bonus = Helpers.CreateContextValue(AbilityRankType.Default); a.CheckCategory = true; a.Category = ArmorProficiencyGroup.Heavy; }),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, 
+                                                                                     classes: new BlueprintCharacterClass[] { slayer },
+                                                                                     progression: ContextRankProgression.DivStep, stepLevel: 6)
+                                                     );
+
+            addToSlayerTalentSelection(armored_marudeur, advanced: true);
+        }
+
+
+        static void createArmoredSwiftness()
+        {
+            var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
+            armored_swiftness = Helpers.CreateFeature("ArmoredSwiftnessSlayerTalentFeature",
+                                                     "Armored Maraudeur",
+                                                     "A slayer with this talent can move at full speed in heavy armor. In addition, the maximum Dexterity bonus of heavy armor the slayer wears increases by 1 for every 6 class levels he has.",
+                                                     "",
+                                                     Helpers.GetIcon("76d4885a395976547a13c5d6bf95b482"),
+                                                     FeatureGroup.RogueTalent,
+                                                     Helpers.Create<NewMechanics.ContextMaxDexBonusIncrease>(a => { a.bonus = Helpers.CreateContextValue(AbilityRankType.Default); a.category = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Heavy }; }),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                     classes: new BlueprintCharacterClass[] { slayer },
+                                                                                     progression: ContextRankProgression.DivStep, stepLevel: 6)
+                                                     );
+
+            var reduce_heavy_armor_speed_penalty = Helpers.CreateFeature("ArmoredSwiftnessSpeedPenaltyRemovalFeature",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.ImmunToArmorSpeedPenalty)
+                                                     );
+            reduce_heavy_armor_speed_penalty.HideInCharacterSheetAndLevelUp = true;
+            armored_swiftness.AddComponent(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => { a.feature = reduce_heavy_armor_speed_penalty; a.required_armor = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Heavy }; }));
+
+            addToSlayerTalentSelection(armored_swiftness, advanced: true);
         }
 
 
