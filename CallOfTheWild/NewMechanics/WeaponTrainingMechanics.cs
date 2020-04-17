@@ -1,7 +1,9 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
@@ -113,13 +115,29 @@ namespace CallOfTheWild.WeaponTrainingMechanics
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
-    public class TrainedGrace : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+    public class GraceParametrized : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
     {
-        
-        public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        static BlueprintParametrizedFeature slashing_grace = Main.library.Get<BlueprintParametrizedFeature>("697d64669eb2c0543abb9c9b07998a38");
+        static BlueprintParametrizedFeature fencing_grace = Main.library.Get<BlueprintParametrizedFeature>("47b352ea0f73c354aba777945760b441");
+        static BlueprintWeaponEnchantment agile = Main.library.Get<BlueprintWeaponEnchantment>("a36ad92c51789b44fa8a1c5c116a1328");
+        static BlueprintFeature deft_grace = Main.library.Get<BlueprintFeature>("b63a316cb172c7b4e906a318a0621c2c");
+
+        public ContextValue value;
+
+        public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
         {
             var weapon = evt.Weapon;
             if (weapon == null)
+            {
+                return;
+            }
+
+            if (weapon.Blueprint.Category != this.Param)
+            {
+                return;
+            }
+
+            if (weapon.Blueprint.Category == WeaponCategory.DuelingSword && this.Owner.Progression.Features.HasFact(deft_grace))
             {
                 return;
             }
@@ -134,8 +152,93 @@ namespace CallOfTheWild.WeaponTrainingMechanics
                 return;
             }
 
+            if (AdvancedFighterOptions.category_finesse_training_map.ContainsKey(evt.Weapon.Blueprint.Category)
+                && this.Owner.HasFact(AdvancedFighterOptions.category_finesse_training_map[evt.Weapon.Blueprint.Category]))
+            {
+                return;
+            }
+
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == slashing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            {
+                return;
+            }
+
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == fencing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            {
+                return;
+            }
+
+            if (weapon.EnchantmentsCollection != null && weapon.EnchantmentsCollection.HasFact(agile))
+            {
+                return;
+            }
+
+            ModifiableValueAttributeStat stat1 = this.Owner.Stats.GetStat(evt.Weapon.Blueprint.AttackBonusStat) as ModifiableValueAttributeStat;
+            ModifiableValueAttributeStat stat2 = this.Owner.Stats.GetStat(StatType.Dexterity) as ModifiableValueAttributeStat;
+
+            if (stat2 <= stat1)
+            {
+                return;
+            }
+
+
+            evt.AddBonusDamage(value.Calculate(this.Fact.MaybeContext));
+        }
+
+        public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class TrainedGrace : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+    {
+        static BlueprintParametrizedFeature slashing_grace = Main.library.Get<BlueprintParametrizedFeature>("697d64669eb2c0543abb9c9b07998a38");
+        static BlueprintParametrizedFeature fencing_grace = Main.library.Get<BlueprintParametrizedFeature>("47b352ea0f73c354aba777945760b441");
+        static BlueprintWeaponEnchantment agile = Main.library.Get<BlueprintWeaponEnchantment>("a36ad92c51789b44fa8a1c5c116a1328");
+        static BlueprintFeature deft_grace = Main.library.Get<BlueprintFeature>("b63a316cb172c7b4e906a318a0621c2c");
+
+        public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            var weapon = evt.Weapon;
+            if (weapon == null)
+            {
+                return;
+            }
+
+            if (!evt.DamageBonusStat.HasValue || evt.DamageBonusStat != StatType.Strength)
+            {
+                return;
+            }
+
+            if (weapon.Blueprint.Category == WeaponCategory.DuelingSword && this.Owner.Progression.Features.HasFact(deft_grace))
+            {
+                return;
+            }
+
+            if (!evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Finessable) && !this.Owner.HasFact(AdvancedFighterOptions.fighters_finesse))
+            {
+                return;
+            }
+
             if (AdvancedFighterOptions.category_finesse_training_map.ContainsKey(evt.Weapon.Blueprint.Category) 
                 && this.Owner.HasFact(AdvancedFighterOptions.category_finesse_training_map[evt.Weapon.Blueprint.Category]))
+            {
+                return;
+            }
+
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == slashing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            {
+                return;
+            }
+
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == fencing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            {
+                return;
+            }
+
+            if (weapon.EnchantmentsCollection != null && weapon.EnchantmentsCollection.HasFact(agile))
             {
                 return;
             }

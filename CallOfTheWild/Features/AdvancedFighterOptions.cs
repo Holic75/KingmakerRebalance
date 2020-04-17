@@ -65,6 +65,29 @@ namespace CallOfTheWild
             createAdvancedArmorTraining();
             createMoreWeaponGroups();
 
+            prepareLookupData();
+
+            createVerstileTrainingAndAdaptableTraining();
+            createDazzlingIntimidation();
+            createDefensiveWeaponTraining();
+            createFightersFinesse();
+            createFocusWeapon();
+            createTrainedGrace();
+            createTrainedThrow();
+            createWarriorSpirit();
+
+            createArmorSpecialization();
+            createArmoredConfidence();
+            createArmoredJuggernaut();
+            createCriticalDeflection();
+            createSteelHeadbutt();
+
+            createFeats();
+        }
+
+
+        static void prepareLookupData()
+        {
             var weapon_types = library.GetAllBlueprints().OfType<BlueprintWeaponType>();
 
             foreach (var wt in weapon_types)
@@ -95,23 +118,6 @@ namespace CallOfTheWild
             {
                 category_finesse_training_map.Add(ft.GetComponent<WeaponTypeDamageStatReplacement>().Category, ft);
             }
-
-            createVerstileTrainingAndAdaptableTraining();
-            createDazzlingIntimidation();
-            createDefensiveWeaponTraining();
-            createFightersFinesse();
-            createFocusWeapon();
-            createTrainedGrace();
-            createTrainedThrow();
-            createWarriorSpirit();
-
-            createArmorSpecialization();
-            createArmoredConfidence();
-            createArmoredJuggernaut();
-            createCriticalDeflection();
-            createSteelHeadbutt();
-
-            createFeats();
         }
 
 

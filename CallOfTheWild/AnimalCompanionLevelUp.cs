@@ -172,5 +172,6 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
             var weapon_override = improved_unarmed_strike.GetComponent<EmptyHandWeaponOverride>();
             improved_unarmed_strike.ReplaceComponent(weapon_override, Helpers.Create<NewMechanics.EmptyHandWeaponOverrideIfNoWeapon>(e => e.Weapon = weapon_override.Weapon));
         }
+
     }
 }
