@@ -339,6 +339,18 @@ namespace CallOfTheWild
         }
 
 
+        public static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(BlueprintCharacterClass[] character_classes,
+                                                                                                                                               BlueprintArchetype[] archetypes,
+                                                                                                                                               StatType stat)
+        {
+            var c = Helpers.Create<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
+            c.CharacterClasses = character_classes;
+            c.StatType = stat;
+            c.archetypes = archetypes;
+            return c;
+        }
+
+
         public static Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks createAddSecondaryAttacks(params Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon[] weapons)
         {
             var c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddSecondaryAttacks>();
@@ -1686,8 +1698,7 @@ namespace CallOfTheWild
                                                                               c => c.Buff = buff);
 
                 ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
-                string name_prefix = ability.Name.Substring(0, ability.Name.IndexOf("—"));
-                ability.SetName(name_prefix + "— " + feat.Name);
+                ability.SetName(ability.Parent.Name + " — " + feat.Name);
                 ability.SetDescription(feat.Description);
 
                 if (share)

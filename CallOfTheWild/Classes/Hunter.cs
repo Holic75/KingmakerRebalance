@@ -461,7 +461,10 @@ namespace CallOfTheWild
                                                                                                     classes: new BlueprintCharacterClass[] { hunter_class }
                                                                                                     )
                                                                     );
-                new_ability.SetName("Tactician " + a.Name.Substring(a.Name.IndexOf("—")));
+
+                var buff = Common.extractActions<ContextActionApplyBuff>(new_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff;
+                var teamwork_feat_name = buff.GetComponent<AddFactsFromCaster>().Facts[0].Name;
+                new_ability.SetName("Tactician — " + teamwork_feat_name);
                 new_abilities.Add(new_ability);
                 //change buffs to pick name from parent ability
                 Common.extractActions<ContextActionApplyBuff>(a.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff.SetName("");

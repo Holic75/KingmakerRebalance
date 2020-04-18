@@ -247,7 +247,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Arcanist.createArcanistClass();
 
                     CallOfTheWild.SharedSpells.load();
-                    
+
+                    CallOfTheWild.Archetypes.DivineTracker.create(); // blessings will be filled in warpriest part
                     CallOfTheWild.Warpriest.createWarpriestClass();
 
                     

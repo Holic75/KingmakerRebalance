@@ -36,6 +36,27 @@ namespace CallOfTheWild.PrerequisiteMechanics
 
 
     [AllowMultipleComponents]
+    public class CompoundPrerequisite : Prerequisite
+    {
+        public Prerequisite prerequisite1;
+        public Prerequisite prerequisite2;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return this.prerequisite1.Check(selectionState, unit, state) && this.prerequisite2.Check(selectionState, unit, state);
+        }
+
+        public override string GetUIText()
+        {
+            return prerequisite1.GetUIText() + " and " + prerequisite2.GetUIText();
+        }
+    }
+
+
+    [AllowMultipleComponents]
     public class PrerequisiteNoFeatures : Prerequisite
     {
         public BlueprintFeature[] Features;

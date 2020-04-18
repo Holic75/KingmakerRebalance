@@ -567,7 +567,7 @@ namespace CallOfTheWild
             foreach (var f in group_training_map)
             {
                 var warrior_spirit_ability = Helpers.CreateAbility(f.Key.ToString() + "WarriorSpiritEnchantmentAbility",
-                                                                    weapon_enhancement_buff.Name + " " + f.Value.Name.Substring(f.Value.Name.IndexOf("(")),
+                                                                    weapon_enhancement_buff.Name + " (" + getGroupName(f.Key) +")",
                                                                     weapon_enhancement_buff.Description,
                                                                     "",
                                                                     weapon_enhancement_buff.Icon,
@@ -914,5 +914,44 @@ namespace CallOfTheWild
         }
 
 
+
+        static public string getGroupName(WeaponFighterGroup group)
+        {
+            switch (group)
+            {
+                case WeaponFighterGroup.Axes:
+                    return "Axes";
+                case WeaponFighterGroup.BladesHeavy:
+                    return "Blades, Heavy";                    
+                case WeaponFighterGroup.BladesLight:
+                    return "Blades, Light";                   
+                case WeaponFighterGroup.Bows:
+                    return "Bows";                    
+                case WeaponFighterGroup.Close:
+                    return "Close";                    
+                case WeaponFighterGroup.Crossbows:
+                    return "Crossbows";                   
+                case WeaponFighterGroup.Double:
+                    return "Double";                 
+                case WeaponFighterGroup.Flails:
+                    return "Flails";                    
+                case WeaponFighterGroup.Hammers:
+                    return "Hammers";                    
+                case WeaponFighterGroup.Monk:
+                    return "Monk";                    
+                case WeaponFighterGroup.Natural:
+                    return "Natural";                   
+                case WeaponFighterGroup.None:
+                    return "Unknown";                   
+                case WeaponFighterGroup.Polearms:
+                    return "Polearms";                    
+                case WeaponFighterGroup.Spears:
+                    return "Spears";                    
+                case WeaponFighterGroup.Thrown:
+                    return "Thrown";                   
+            }
+
+            return "None";
+        }
     }
 }

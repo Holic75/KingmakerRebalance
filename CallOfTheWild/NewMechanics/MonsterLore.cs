@@ -25,8 +25,7 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
     public class ContextMonsterLoreCheckUsingClassAndStat : ContextAction
     {
         public int bonus;
-        public BlueprintCharacterClass character_class;
-        public StatType stat_type;
+        public ContextValue value;
 
         public override string GetCaption()
         {
@@ -37,7 +36,7 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
         {
             var target = this.Target.Unit;
             var initiator = this.Context.MaybeCaster;
-            var result = bonus + initiator.Descriptor.Progression.GetClassLevel(character_class) + initiator.Descriptor.Stats.GetStat<ModifiableValueAttributeStat>(stat_type).Bonus;
+            var result = bonus + value.Calculate(this.Context);
             if (!InspectUnitsHelper.IsInspectAllow(target))
                 return;
 
