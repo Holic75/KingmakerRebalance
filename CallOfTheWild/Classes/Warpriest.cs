@@ -4226,7 +4226,7 @@ namespace CallOfTheWild
             cult_leader_proficiencies.ReplaceComponent<AddProficiencies>(a =>
                                                                             {
                                                                                 a.ArmorProficiencies = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Buckler, ArmorProficiencyGroup.LightShield };
-                                                                                a.WeaponProficiencies = a.WeaponProficiencies.AddToArray(WeaponCategory.SpikedLightShield, WeaponCategory.WeaponLightShield);
+                                                                                //a.WeaponProficiencies = a.WeaponProficiencies.AddToArray(WeaponCategory.SpikedLightShield, WeaponCategory.WeaponLightShield);
                                                                             }
                                                                         );
             var skill_focus_persuation = library.Get<BlueprintFeature>("1621be43793c5bb43be55493e9c45924");
