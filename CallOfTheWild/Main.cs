@@ -31,6 +31,7 @@ namespace CallOfTheWild
             internal bool allow_spellcasting_in_elemental_form { get; }
             internal bool fix_teamwork_feats { get; }
             internal bool fix_ecclesitheurge_class { get; }
+            internal bool advanced_fighter_options { get; }
             internal Settings()
             {
 
@@ -48,6 +49,7 @@ namespace CallOfTheWild
                     allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
                     fix_teamwork_feats = (bool)jo["fix_teamwork_feats"];
                     fix_ecclesitheurge_class = (bool)jo["fix_ecclesitheurge_class"];
+                    advanced_fighter_options = (bool)jo["advanced_fighter_options"];
                 }
             }
         }
@@ -251,7 +253,14 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();
                     CallOfTheWild.RogueTalents.load();
-                    CallOfTheWild.AdvancedFighterOptions.load();
+                    if (settings.advanced_fighter_options)
+                    {
+                        CallOfTheWild.AdvancedFighterOptions.load();
+                    }
+                    else
+                    {
+                        CallOfTheWild.AdvancedFighterOptions.prepareLookupData();
+                    }
 
                     CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();
@@ -261,7 +270,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.ZenArcher.create();
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.Executioner.create();
-                    
+                    CallOfTheWild.Archetypes.LoreWarden.create();
+
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();

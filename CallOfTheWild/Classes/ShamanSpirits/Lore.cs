@@ -237,7 +237,7 @@ namespace CallOfTheWild
                                                     Helpers.savingThrowNone,
                                                     Helpers.CreateDeliverTouch(),
                                                     Helpers.CreateRunActions(lore_action, apply_buff),
-                                                    Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(),
+                                                    Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(a => a.allow_reinspect = true),
                                                     Common.createAbilitySpawnFx("749bb96fb50ee5b4685645472d718465", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes)
                                                                                     
@@ -245,7 +245,7 @@ namespace CallOfTheWild
                 ability.setMiscAbilityParametersTouchHarmful();
                 var sticky_touch = Helpers.CreateTouchSpellCast(ability, resource);
 
-                sticky_touch.AddComponent(Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>());
+                sticky_touch.AddComponent(Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(a => a.allow_reinspect = true));
 
                 spirit_ability = Common.AbilityToFeature(sticky_touch, hide: false);
                 spirit_ability.AddComponent(Helpers.CreateAddAbilityResource(resource));

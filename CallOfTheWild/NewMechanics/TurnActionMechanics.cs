@@ -612,4 +612,20 @@ namespace CallOfTheWild.TurnActionMechanics
         }
     }
 
+
+    public class MoveActionAbilityUse : MoveActionAbilityUseBase
+    {
+        public BlueprintAbility[] abilities;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType command)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+
+            return abilities.Contains(ability.Blueprint) || (ability.Blueprint.Parent == null ? false : abilities.Contains(ability.Blueprint.Parent));
+        }
+    }
+
 }

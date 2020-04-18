@@ -239,6 +239,24 @@ namespace CallOfTheWild.CombatManeuverMechanics
     }
 
 
+
+    [ComponentName("Maneuver Defence Bonus")]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ContextManeuverDefenceBonus : RuleTargetLogicComponent<RuleCalculateCMB>
+    {
+        public ContextValue Bonus;
+
+        public override void OnEventAboutToTrigger(RuleCalculateCMB evt)
+        {
+            evt.AddBonus(this.Bonus.Calculate(this.Fact.MaybeContext), this.Fact);
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateCMB evt)
+        {
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class SpecificCombatManeuverBonusUnlessHasFacts : RuleInitiatorLogicComponent<RuleCalculateCMB>
     {

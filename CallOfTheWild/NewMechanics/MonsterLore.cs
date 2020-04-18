@@ -1,6 +1,7 @@
 ﻿using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -46,13 +47,15 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
             if (info == null)
                 return;
 
-            if (info.KnownPartsCount == 4)
-                return;
+
 
             int dc = info.DC;
             Common.AddBattleLogMessage($"{initiator.CharacterName} forced DC {dc} monster lore check: {result}");
-            info.SetCheck(result, initiator);
-            EventBus.RaiseEvent<IKnowledgeHandler>((Action<IKnowledgeHandler>)(h => h.HandleKnowledgeUpdated(info)));
+            if (info.KnownPartsCount < 4)
+            {
+                info.SetCheck(result, initiator);
+                EventBus.RaiseEvent<IKnowledgeHandler>((Action<IKnowledgeHandler>)(h => h.HandleKnowledgeUpdated(info)));
+            }
         }
     }
 
@@ -61,6 +64,7 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
     {
         public ContextValue value;
         public ModifierDescriptor descriptor;
+        public ActionList action_on_success = null;
 
         public override string GetCaption()
         {
@@ -83,9 +87,6 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
             if (info == null)
                 return;
 
-            if (info.KnownPartsCount == 4)
-                return;
-
             ModifiableValueSkill stat = initiator.Stats.GetStat<ModifiableValueSkill>(statType);
             int? nullable1;
             int? nullable2;
@@ -106,12 +107,18 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
                 skill_check.AddTemporaryModifier(initiator.Stats.GetStat(statType).AddModifier(bonus, null, descriptor));
                 skill_check.IgnoreDifficultyBonusToDC = true;
                 int rollResult = Rulebook.Trigger<RuleSkillCheck>(skill_check).RollResult;
-                info.SetCheck(rollResult, initiator);
                 Common.AddBattleLogMessage($"{initiator.CharacterName} DC {dc} monster lore check: {rollResult}");
-            }
 
-            
-            EventBus.RaiseEvent<IKnowledgeHandler>((Action<IKnowledgeHandler>)(h => h.HandleKnowledgeUpdated(info)));
+                if (dc <= rollResult && action_on_success != null)
+                {
+                    action_on_success.Run();
+                }
+                if (info.KnownPartsCount < 4)
+                {
+                    info.SetCheck(rollResult, initiator);                   
+                    EventBus.RaiseEvent<IKnowledgeHandler>((Action<IKnowledgeHandler>)(h => h.HandleKnowledgeUpdated(info)));
+                }                
+            }          
         }
     }
 
@@ -121,6 +128,7 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
     [AllowMultipleComponents]
     public class AbilityTargetCanBeInspected : BlueprintComponent, IAbilityTargetChecker
     {
+        public bool allow_reinspect = false;
         public bool CanTarget(UnitEntityData caster, TargetWrapper target)
         {
             UnitEntityData unit = target.Unit;
@@ -128,7 +136,7 @@ namespace CallOfTheWild.NewMechanics.MonsterLore
             InspectUnitsManager.UnitInfo info = Game.Instance.Player.InspectUnitsManager.GetInfo(blueprintForInspection);
             if (info == null)
                 return false;
-            return info.KnownPartsCount < 4;
+            return info.KnownPartsCount < 4 || allow_reinspect;
         }
     }
 

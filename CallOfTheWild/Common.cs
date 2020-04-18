@@ -1660,34 +1660,40 @@ namespace CallOfTheWild
 
             VindicativeBastard.teamwork_feat.AllFeatures = VindicativeBastard.teamwork_feat.AllFeatures.AddToArray(feat);
 
+            //update vanguard, forester and drill sergeant features
+
+            var abilities_to_update = new Dictionary<string, BlueprintAbility>();
 
 
-            //update vanguard features
-            var vanguard_variants = library.Get<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8").GetComponent<AbilityVariants>();
+            abilities_to_update.Add("VanguardTactician", library.Get<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8"));
+            abilities_to_update.Add("ForesterTactician", Hunter.tactician_ability);
+            //drill sergeant
 
-            var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", "VanguardTactician" + feat.name + "Buff", "");
-            var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
-            add_fact.Facts = new BlueprintUnitFact[] { feat };
-            buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
-            buff.SetName("Vanguard Tactician — " + feat.Name);
-            buff.SetDescription(feat.Description);
-
-
-            var ability = library.CopyAndAdd<BlueprintAbility>("53f4d8597163db24f8309462aadc4348", "VanguardTactician" + feat.name + "Ability", "");
-            ability.ReplaceComponent<AbilityShowIfCasterHasFact>(Common.createAbilityShowIfCasterHasFact(feat));
-
-            var condition_apply_buff = (Conditional)ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0];
-            var context_apply_buff = ((ContextActionApplyBuff)condition_apply_buff.IfTrue.Actions[0]).CreateCopy();
-            context_apply_buff.Buff = buff;
-            var run_action = Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(feat, false), context_apply_buff));
-
-            ability.ReplaceComponent<AbilityEffectRunAction>(run_action);
-            ability.SetName(buff.Name);
-            ability.SetDescription(buff.Description);
-
-            if (share)
+            foreach (var a in abilities_to_update)
             {
-                vanguard_variants.Variants = vanguard_variants.Variants.AddToArray(ability);
+                var variants = a.Value.GetComponent<AbilityVariants>();
+
+                var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", a.Key + feat.name + "Buff", "");
+                var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
+                add_fact.Facts = new BlueprintUnitFact[] { feat };
+                buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
+
+
+                var ability = library.CopyAndAdd<BlueprintAbility>(variants.Variants[0], a.Key + feat.name + "Ability", "");
+                ability.ReplaceComponent<AbilityShowIfCasterHasFact>(Common.createAbilityShowIfCasterHasFact(feat));
+
+                var new_actions = Common.changeAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions,
+                                                                              c => c.Buff = buff);
+
+                ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+                string name_prefix = ability.Name.Substring(0, ability.Name.IndexOf("—"));
+                ability.SetName(name_prefix + "— " + feat.Name);
+                ability.SetDescription(feat.Description);
+
+                if (share)
+                {
+                    variants.Variants = variants.Variants.AddToArray(ability);
+                }
             }
 
         }

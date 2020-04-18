@@ -152,10 +152,10 @@ namespace CallOfTheWild.WeaponTrainingMechanics
                 return;
             }
 
-            if (!evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Finessable) && !this.Owner.HasFact(AdvancedFighterOptions.fighters_finesse))
+            /*if (!evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Finessable) && !this.Owner.HasFact(AdvancedFighterOptions.fighters_finesse))
             {
                 return;
-            }
+            }*/
 
             if (AdvancedFighterOptions.category_finesse_training_map.ContainsKey(evt.Weapon.Blueprint.Category)
                 && this.Owner.HasFact(AdvancedFighterOptions.category_finesse_training_map[evt.Weapon.Blueprint.Category]))

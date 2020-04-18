@@ -1757,6 +1757,12 @@ namespace CallOfTheWild
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Shortbow, any: true),
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.LightCrossbow, any: true),
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.HeavyCrossbow, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Javelin, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.HeavyCrossbow, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.HeavyRepeatingCrossbow, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.LightRepeatingCrossbow, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.HandCrossbow, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Shuriken, any: true),
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.ThrowingAxe, any: true),
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Dart, any: true)
                                        );

@@ -1080,11 +1080,11 @@ namespace CallOfTheWild
                                                      );
             spell_bane_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            var apply_spell_bane = Common.createContextActionApplyBuff(spell_bane_buff, Helpers.CreateContextDuration(), dispellable: false, is_child: true);
+            var apply_spell_bane = Common.createContextActionApplyBuff(spell_bane_buff, Helpers.CreateContextDuration(), dispellable: false, is_child: true, is_permanent: true);
 
             foreach (var b in buffs)
             {
-                b.AddComponent(Helpers.CreateAddFactContextActions(activated: apply_spell_bane));
+                b.AddComponent(Helpers.CreateAddFactContextActions(activated: Helpers.CreateConditional(Common.createContextConditionHasFact(spell_bane), apply_spell_bane)));
             }
 
             library.AddFeats(spell_bane);

@@ -196,7 +196,7 @@ namespace CallOfTheWild
                 Helpers.Create<BuffAllSavesBonus>(b => b.Value = 2),
                 Helpers.Create<BuffAllSkillsBonusAbilityValue>(b => b.Value = 2),
                 Helpers.Create<NewMechanics.CasterLevelCheckBonus>(b => b.Value = 2),
-                Helpers.Create<CombatManeuverMechanics.CombatManeuverBonus>(b => b.Value = 2),
+                Helpers.CreateAddStatBonus(StatType.AdditionalCMB, 2, ModifierDescriptor.UntypedStackable),
             };
 
             var names = new string[]{"Attack Rolls", "Saving throws", "Skills", "Caster Level Checks", "Combat Maneuvers"};

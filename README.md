@@ -168,6 +168,7 @@ Advanced Armor Training Options:
 - Critical Deflection,
 - Steel Headbutt.
 
+
 New Rogue Talents:
 - Minor Magic,
 - Major Magic,

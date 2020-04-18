@@ -7,5 +7,6 @@
   "swap_weapon_sets_as_move_action": true,
   "allow_spellcasting_in_elemental_form": true,
   "fix_teamwork_feats": true,
-  "fix_ecclesitheurge_class": true
+  "fix_ecclesitheurge_class": true,
+  "advanced_fighter_options":  true
 }

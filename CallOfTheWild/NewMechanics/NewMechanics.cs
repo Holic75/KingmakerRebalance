@@ -3449,7 +3449,7 @@ namespace CallOfTheWild
 
         [ComponentName("Reduces DR against fact owner")]
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class ReduceDRForFactOwner : RuleTargetLogicComponent<RuleCalculateDamage>
+        public class ReduceDRForFactOwner : RuleInitiatorLogicComponent<RuleCalculateDamage>
         {
             public int Reduction;
             public BlueprintFeature CheckedFact;
@@ -5419,6 +5419,17 @@ namespace CallOfTheWild
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 return caster.Descriptor.Pet != null && caster.Descriptor.Pet == target.Unit;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityTargetIsAnimalCompanion : BlueprintComponent, IAbilityTargetChecker
+        {
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                return target.Unit?.Descriptor?.Master.Value != null;
             }
         }
 
@@ -7621,6 +7632,48 @@ namespace CallOfTheWild
             protected override bool CheckCondition()
             {
                 return GameHelper.GetSummonPool(this.SummonPool).Count > 0;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReduceDRFromCaster : RuleTargetLogicComponent<RuleCalculateDamage>
+        {
+            public int reduction_reduction;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                if (evt.DamageBundle.Weapon == null || evt.DamageBundle.WeaponDamage == null || evt.Target != this.Owner.Unit)
+                    return;
+                
+                if (this.Fact.MaybeContext?.MaybeCaster != evt.Initiator)
+                {
+                    return;
+                }
+                evt.DamageBundle.WeaponDamage.SetReductionPenalty(this.reduction_reduction);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class CritAutoconfirmIfHasNoFact : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public BlueprintUnitFact fact;
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (this.Owner.HasFact(fact))
+                {
+                    return;
+                }
+                evt.AutoCriticalConfirmation = true;
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
             }
         }
 

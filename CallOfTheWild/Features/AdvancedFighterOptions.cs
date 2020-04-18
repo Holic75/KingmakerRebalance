@@ -62,6 +62,7 @@ namespace CallOfTheWild
 
         public static void load()
         {
+            Main.logger.Log("Enabling Advanced Fighter Training Options");
             createAdvancedArmorTraining();
             createMoreWeaponGroups();
 
@@ -86,7 +87,7 @@ namespace CallOfTheWild
         }
 
 
-        static void prepareLookupData()
+        static internal void prepareLookupData()
         {
             var weapon_types = library.GetAllBlueprints().OfType<BlueprintWeaponType>();
 
@@ -595,7 +596,7 @@ namespace CallOfTheWild
                                                                                           )
                                        );
                 }
-
+                feature.ReapplyOnLevelUp = true;
                 warrior_spirit.AllFeatures = warrior_spirit.AllFeatures.AddToArray(feature);
             }
             warrior_spirit.AddComponent(Helpers.PrerequisiteNoFeature(warrior_spirit));

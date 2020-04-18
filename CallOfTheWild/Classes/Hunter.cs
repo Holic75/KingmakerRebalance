@@ -67,6 +67,7 @@ namespace CallOfTheWild
         static public BlueprintFeature celestial_template;
 
         static public BlueprintFeature forester_tactician;
+        static public BlueprintAbility tactician_ability;
 
         static private AnimalFocusEngine animal_focus_engine;
         static public BlueprintFeature planar_focus;
@@ -77,6 +78,10 @@ namespace CallOfTheWild
         static public BlueprintFeature animal_focus_feykiller;
         static public BlueprintFeature animal_focus_feykiller_ac;
         static public BlueprintFeature iron_talons_ac;
+
+        static public BlueprintAbilityResource raise_companion_resource;
+        static public BlueprintFeature raise_animal_companion;
+        static public BlueprintFeature forester_breath_of_life;
 
 
         internal static void createHunterClass()
@@ -366,6 +371,7 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(3, hunter_tactics),
                                                                   Helpers.LevelEntry(7, trick_selection),
                                                                   Helpers.LevelEntry(8, animal_focus_additional_use_ac),
+                                                                  Helpers.LevelEntry(10, raise_animal_companion),
                                                                   Helpers.LevelEntry(13, trick_selection),
                                                                   Helpers.LevelEntry(19, trick_selection),
                                                                   Helpers.LevelEntry(20, animal_focus_additional_use_ac2) };
@@ -397,6 +403,7 @@ namespace CallOfTheWild
             bonus_feat_selection.SetDescription("At 2nd level, a forester gains one bonus combat feat. She must meet the prerequisites for this feat as normal. She gains an additional bonus combat feat at 7th, 13th, and 19th levels.");
 
             createForesterTactician();
+            createBreathOfLife();
 
             var forester_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "ForesterAnimalFocusFeature", "");
             
@@ -409,7 +416,7 @@ namespace CallOfTheWild
                                                                 Helpers.LevelEntry(6, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(7, camouflage, bonus_feat_selection),
                                                                 Helpers.LevelEntry(9, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
-                                                                Helpers.LevelEntry(10, forester_favored_enemy_selection),
+                                                                Helpers.LevelEntry(10, forester_favored_enemy_selection, forester_breath_of_life),
                                                                 Helpers.LevelEntry(11, improved_evasion),
                                                                 Helpers.LevelEntry(13, forester_favored_terrain_selection, bonus_feat_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(14, forester_favored_enemy_selection),
@@ -422,39 +429,52 @@ namespace CallOfTheWild
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(bonus_feat_selection, bonus_feat_selection, bonus_feat_selection, bonus_feat_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection));
-           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_animal_focus_additional_use, forester_tactician, evasion, camouflage, improved_evasion));
+           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_animal_focus_additional_use, forester_tactician, forester_breath_of_life, evasion, camouflage, improved_evasion));
         }
 
 
         static void createForesterTactician()
         {
-            var tactician_ability = library.CopyAndAdd<BlueprintAbility>("f1c8ec6179505714083ed9bd47599268", "ForesterTacticianAbility", "d63901c064b146eaa9a0bc4144e26f29");
+            tactician_ability = library.CopyAndAdd<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8", "ForesterTacticianAbility", "d63901c064b146eaa9a0bc4144e26f29"); //vanguard tactician
             tactician_ability.SetName("Tactician");
-            tactician_ability.SetDescription("At 3rd level as a standard action, a forester can grant the benefits of all her teamwork feats to all allies within 30 feet who can see and hear her. Allies retain the use of these bonus feats for 3 rounds plus 1 round for every 2 levels the forester has. Allies do not need to meet the prerequisites of these bonus feats. The forester can use this ability once per day at 3rd level, plus one additional time per day at 7th level and every 5 levels thereafter.");
+            tactician_ability.SetDescription("At 3rd level as a standard action, a forester can grant the benefits of one teamwork feat to all allies within 30 feet who can see and hear her. Allies retain the use of this bonus feat for 3 rounds plus 1 round for every 2 levels the forester has. Allies do not need to meet the prerequisites of this bonus feat. The forester can use this ability once per day at 3rd level, plus one additional time per day at 7th level and every 5 levels thereafter.");
 
             var tactician_resource = Helpers.Create<BlueprintAbilityResource>();
             tactician_resource.name = "ForesterTacticianResource";
             tactician_resource.SetIncreasedByLevelStartPlusDivStep(1, 2, 0, 5, 1, 0, 0.0f, new BlueprintCharacterClass[] { hunter_class });
             library.AddAsset(tactician_resource, "46f1e4647ab948a0b12accc0e23e6849");
 
-            tactician_ability.ReplaceComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
-            tactician_ability.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                                                           progression: ContextRankProgression.StartPlusDivStep,
-                                                                                                                                           startLevel: -1,
-                                                                                                                                           stepLevel: 2,
-                                                                                                                                           classes: new BlueprintCharacterClass[] { hunter_class }
-                                                                                                                                           )
-                                                                                                          );
+            tactician_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
+
+            var abilities = tactician_ability.Variants;
+            var new_abilities = new List<BlueprintAbility>();
+
+            foreach (var a in abilities)
+            {
+                var new_ability = library.CopyAndAdd(a, a.name.Replace("Vanguard", "Forester"), "");
+                new_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
+                new_ability.Parent = tactician_ability;
+                new_ability.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                    progression: ContextRankProgression.StartPlusDivStep,
+                                                                                                    startLevel: -1,
+                                                                                                    stepLevel: 2,
+                                                                                                    classes: new BlueprintCharacterClass[] { hunter_class }
+                                                                                                    )
+                                                                    );
+                new_ability.SetName("Tactician " + a.Name.Substring(a.Name.IndexOf("—")));
+                new_abilities.Add(new_ability);
+                //change buffs to pick name from parent ability
+                Common.extractActions<ContextActionApplyBuff>(a.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff.SetName("");
+            }
+
+            tactician_ability.ReplaceComponent<AbilityVariants>(a => a.Variants = new_abilities.ToArray());
+
             forester_tactician = Helpers.CreateFeature("ForesterTacticianFeature", tactician_ability.Name, tactician_ability.Description,
                                                        "33aaac96f43e4077aca97f59eaf4b724",
                                                        tactician_ability.Icon,
                                                        FeatureGroup.None,
                                                        Helpers.CreateAddFact(tactician_ability),
                                                        Helpers.CreateAddAbilityResource(tactician_resource));
-
-            var tactician_buff = library.Get<Kingmaker.UnitLogic.Buffs.Blueprints.BlueprintBuff>("a603a90d24a636c41910b3868f434447");
-            tactician_buff.SetName("Share Teamwork Feats");
-            tactician_buff.SetDescription("The character grants teamwork feats to all allies within 30 feet who can see and hear him. Allies retain the use of these bonus feats for 3 rounds plus 1 round for every 2 levels of the class that gave this ability. Allies do not need to meet the prerequisites of these bonus feats.");
         }
 
 
@@ -789,6 +809,7 @@ namespace CallOfTheWild
 
             createPreciseCompanion();
             createTrickSelection();
+            createRaiseAnimalCompanion();
             entries.Add(Helpers.LevelEntry(2, precise_companion));
             entries.Add(Helpers.LevelEntry(3, hunter_tactics, hunter_teamwork_feat));
             entries.Add(Helpers.LevelEntry(4));
@@ -797,7 +818,7 @@ namespace CallOfTheWild
             entries.Add(Helpers.LevelEntry(7, trick_selection));
             entries.Add(Helpers.LevelEntry(8, animal_focus_additional_use, animal_focus_additional_use_ac));
             entries.Add(Helpers.LevelEntry(9, hunter_teamwork_feat));
-            entries.Add(Helpers.LevelEntry(10));
+            entries.Add(Helpers.LevelEntry(10, raise_animal_companion));
             entries.Add(Helpers.LevelEntry(11));
             entries.Add(Helpers.LevelEntry(12, hunter_teamwork_feat));
             entries.Add(Helpers.LevelEntry(13, trick_selection));
@@ -812,11 +833,51 @@ namespace CallOfTheWild
                                                                                     hunter_teamwork_feat, hunter_teamwork_feat, hunter_teamwork_feat),
                                                           Helpers.CreateUIGroup(animal_focus, animal_focus_additional_use, animal_focus_additional_use2),
                                                           Helpers.CreateUIGroup(animal_focus_ac, animal_focus_additional_use_ac, animal_focus_additional_use_ac2),
-                                                          Helpers.CreateUIGroup(bonus_hunter_spells, hunter_tactics, hunter_woodland_stride),
+                                                          Helpers.CreateUIGroup(bonus_hunter_spells, hunter_tactics, hunter_woodland_stride, raise_animal_companion),
                                                           Helpers.CreateUIGroup(trick_selection, trick_selection, trick_selection)};
             hunter_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { hunter_animal_companion, hunter_proficiencies, hunter_orisons, detect_magic};
             hunter_progression.LevelEntries = entries.ToArray();
 
+        }
+
+
+        static void createRaiseAnimalCompanion()
+        {
+            raise_companion_resource = Helpers.CreateAbilityResource("HunterRaiseAnimalCompanionResource", "", "", "", null);
+
+            var spell = library.Get<BlueprintAbility>("9288a1e0a4704b54984fd8155de38d4f");
+            spell.AddComponent(Helpers.Create<NewMechanics.AbilityTargetIsAnimalCompanion>());
+            var ability = Common.convertToSpellLike(spell, "Hunter", new BlueprintCharacterClass[] { hunter_class },
+                                                     StatType.Wisdom, raise_companion_resource);
+
+            raise_animal_companion = Helpers.CreateFeature("HunterRaiseAnimalCompanionFeature",
+                                                           "Raise Animal Companion",
+                                                           "At 10th level, a hunter gains raise animal companion as a spell-like ability; this is not restricted to raising only her own animal companion.",
+                                                           "",
+                                                           ability.Icon,
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddFact(ability),
+                                                           raise_companion_resource.CreateAddAbilityResource()
+                                                           );
+        }
+
+
+        static void createBreathOfLife()
+        {
+            var spell = library.Get<BlueprintAbility>("d5847cad0b0e54c4d82d6c59a3cda6b0");
+            
+            var ability = Common.convertToSpellLike(spell, "Forester", new BlueprintCharacterClass[] { hunter_class },
+                                                     StatType.Wisdom, raise_companion_resource);
+
+            forester_breath_of_life = Helpers.CreateFeature("ForesterBreathOfLifeFeature",
+                                                           ability.Name,
+                                                           "At 10th level, a forester can cast breath of life once per day as a spell-like ability. ",
+                                                           "",
+                                                           ability.Icon,
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddFact(ability),
+                                                           raise_companion_resource.CreateAddAbilityResource()
+                                                           );
         }
 
 
