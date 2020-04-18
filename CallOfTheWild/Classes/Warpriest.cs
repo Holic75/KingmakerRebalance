@@ -4273,7 +4273,7 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(4, skill_focus_persuation),
                                                                   Helpers.LevelEntry(6, sneak_attack, rogue_talent),
                                                                   Helpers.LevelEntry(9, sneak_attack),
-                                                                  Helpers.LevelEntry(12, hide_in_plain_sight, rogue_talent),
+                                                                  Helpers.LevelEntry(12, hide_in_plain_sight, sneak_attack),
                                                                   Helpers.LevelEntry(15, sneak_attack),
                                                                   Helpers.LevelEntry(18, sneak_attack)
                                                                  };
