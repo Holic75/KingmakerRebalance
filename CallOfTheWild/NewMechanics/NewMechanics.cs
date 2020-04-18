@@ -4968,6 +4968,27 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
+        public class ReplaceCasterLevelOfFactWithContextValue : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public BlueprintUnitFact Feature;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Blueprint != this.Feature)
+                    return;
+                evt.ReplaceCasterLevel = new int?(value.Calculate(this.Fact.MaybeContext));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
         public class LearnSpellListToSpecifiedSpellbook : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler, IGlobalSubscriber
         {
             public BlueprintSpellbook spellbook;

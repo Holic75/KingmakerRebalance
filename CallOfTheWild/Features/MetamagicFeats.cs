@@ -159,7 +159,7 @@ namespace CallOfTheWild
             selective_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "SelectiveSpellFeature", "");
             selective_metamagic.SetNameDescriptionIcon("Metamagic (Selective Spell)",
                                                          "When casting a selective spell with an area effect and a duration of instantaneous, you can exclude your allies from the effects of your spell.\n"
-                                                         + "Level Increase: +1 (a selective spell uses up a spell slot two levels higher than the spell’s actual level.)\n"
+                                                         + "Level Increase: +1 (a selective spell uses up a spell slot one level higher than the spell’s actual level.)\n"
                                                          + "Spells that do not have an area of effect or a duration of instantaneous do not benefit from this feat.",
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/SelectiveSpell.png")
                                                         );

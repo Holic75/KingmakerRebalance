@@ -28,7 +28,8 @@ New Archetypes for existing classes:
 - Zen Archer Monk  archetype,
 - Sanctified Slayer Inquisitor archetype,
 - Executioner Slayer archetype,
-- Overwhelming Soul Kineticist archetype.
+- Overwhelming Soul Kineticist archetype,
+- Lore Warden Fighter archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)

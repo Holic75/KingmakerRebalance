@@ -101,7 +101,7 @@ namespace CallOfTheWild
             var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
             var heavy_armor_proficiency = library.Get<BlueprintFeature>("1b0f68188dcc435429fb87a022239681");
             armored_marudeur = Helpers.CreateFeature("ArmoredMaraudeurSlayerTalentFeature",
-                                                     "Armored Maraudeur",
+                                                     "Armored Marauder",
                                                      "The slayer gains proficiency with heavy armor. In addition, the armor check penalty of any heavy armor the slayer wears is reduced by 1 for every 6 slayer levels he has.",
                                                      "",
                                                      heavy_armor_proficiency.Icon,
@@ -120,7 +120,7 @@ namespace CallOfTheWild
         {
             var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
             armored_swiftness = Helpers.CreateFeature("ArmoredSwiftnessSlayerTalentFeature",
-                                                     "Armored Maraudeur",
+                                                     "Armored Swiftness",
                                                      "A slayer with this talent can move at full speed in heavy armor. In addition, the maximum Dexterity bonus of heavy armor the slayer wears increases by 1 for every 6 class levels he has.",
                                                      "",
                                                      Helpers.GetIcon("76d4885a395976547a13c5d6bf95b482"),

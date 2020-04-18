@@ -471,6 +471,21 @@ namespace CallOfTheWild
         }
 
 
+        internal static void fixDispellingStrikeCL()
+        {
+            var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
+            var dispelling_attack = library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c");
+            dispelling_attack.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(slayer)));
+            dispelling_attack.ReplaceComponent<ReplaceCasterLevelOfFeature>(Helpers.Create<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>(r =>
+                                                                                                                                                    {
+                                                                                                                                                        r.Feature = dispelling_attack;
+                                                                                                                                                        r.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                                                    }
+                                                                                                                                                    )
+                                                                           );
+        }
+
+
         internal static void fixBarbarianRageAC()
         {
             var rage = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
@@ -1208,6 +1223,16 @@ namespace CallOfTheWild
                                               null,
                                               feature.GetComponent<AddInitiatorAttackRollTrigger>()
                                               );
+
+                if (feature.AssetGuid == "1b92146b8a9830d4bb97ab694335fa7c")
+                {//cl for dispelling strike
+                    buff.AddComponents(feature.GetComponents<ContextRankConfig>());
+                    buff.AddComponents(feature.GetComponents<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>());
+                    buff.ReplaceComponent<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>(r => r.Feature = buff);
+                    feature.RemoveComponents<ContextRankConfig>();
+                    feature.RemoveComponents<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>();
+                }
+
 
                 var toggle = Helpers.CreateActivatableAbility(feature.name + "ToggleAbility",
                                                               feature.Name,
