@@ -3064,12 +3064,7 @@ namespace CallOfTheWild
                                                     FeatureGroup.None,
                                                     Helpers.CreateAddFeatureOnClassLevel(add_ability, 10 + i * 3, getWarpriestArray(), null)
                                                     );
-                if (i < 2)
-                {
-                    feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(add_ability, 10 + i * 3, new BlueprintCharacterClass[] { Archetypes.DivineTracker.archetype.GetParentClass() }, Archetypes.DivineTracker.archetype));
-                }
-                feature.HideInUI = true;
-                blessed_magic_features[i] = feature;
+                blessed_magic_features[i] = add_ability;
             }
 
             var major_feature = Helpers.CreateFeature($"WarpriestMagicBlessingMajorFeature",
@@ -3078,9 +3073,37 @@ namespace CallOfTheWild
                                                     "",
                                                     bond_object.Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.CreateAddFeatureOnClassLevel(blessed_magic_features[0], 13, getBlessingUsersArray(), getBlessingUsersArchetypesArray(), true),
-                                                    Helpers.CreateAddFeatureOnClassLevel(blessed_magic_features[1], 16, getWarpriestArray(), null, true),
-                                                    Helpers.CreateAddFact(blessed_magic_features[2])
+                                                    Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                                                                                                                 { a.Feature = blessed_magic_features[0];
+                                                                                                                   a.classes = getBlessingUsersArray();
+                                                                                                                   a.archetypes = getBlessingUsersArchetypesArray();
+                                                                                                                   a.min_level = 10;
+                                                                                                                   a.max_level = 12;
+                                                                                                                 }
+                                                                                                                 ),
+                                                    Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                                                                                                                {
+                                                                                                                    a.Feature = blessed_magic_features[1];
+                                                                                                                    a.classes = getWarpriestArray();
+                                                                                                                    a.min_level = 13;
+                                                                                                                    a.max_level = 15;
+                                                                                                                }
+                                                                                                                ),
+                                                    Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                                                                                                                {
+                                                                                                                    a.Feature = blessed_magic_features[1];
+                                                                                                                    a.classes = getBlessingUsersArray().Skip(1).ToArray();
+                                                                                                                    a.archetypes = getBlessingUsersArchetypesArray();
+                                                                                                                    a.min_level = 13;
+                                                                                                                }
+                                                                                                                ),
+                                                    Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                                                                                                                {
+                                                                                                                    a.Feature = blessed_magic_features[2];
+                                                                                                                    a.classes = getWarpriestArray();
+                                                                                                                    a.min_level = 16;
+                                                                                                                }
+                                                                                                                )
                                                     );
             addBlessing("WarpriestBlessingMagic", "Magic", Common.AbilityToFeature(minor_ability, false), major_feature, "08a5686378a87b64399d329ba4ef71b8");
         }
