@@ -274,6 +274,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.Executioner.create();
                     CallOfTheWild.Archetypes.LoreWarden.create();
+                    CallOfTheWild.Archetypes.Preservationist.create();
 
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();

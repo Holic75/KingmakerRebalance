@@ -2643,6 +2643,28 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextConditionHasCondtionImmunity : ContextCondition
+        {
+            public UnitCondition condition;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                var unit = this.Target?.Unit;
+                if (unit == null)
+                {
+                    return false;
+                }
+
+                return unit.Descriptor.State.HasConditionImmunity(condition);
+            }
+        }
+
+
         public class ContextConditionIsMaster : ContextCondition
         {
 

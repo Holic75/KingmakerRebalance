@@ -118,7 +118,7 @@ namespace CallOfTheWild.Archetypes
         {
             mind_over_matter = library.CopyAndAdd<BlueprintFeature>("2fa48527ba627254ba9bf4556330a4d4", "MindOverMatterBurnFeature", "");
             var burn_resource = Helpers.CreateAbilityResource("OverwhelmingSoulBurnResource", "", "", "", null);
-            burn_resource.SetIncreasedByLevel(0, 1, new BlueprintCharacterClass[] { archetype.GetParentClass() });
+            burn_resource.SetIncreasedByLevel(2, 1, new BlueprintCharacterClass[] { archetype.GetParentClass() });
 
             var burn_per_round_resource = Helpers.CreateAbilityResource("OverwhelmingSoulBurnPerRoundResource", "", "", "", null);
             burn_per_round_resource.SetFixedResource(1);
@@ -147,7 +147,7 @@ namespace CallOfTheWild.Archetypes
                                           "Mental Prowess",
                                           "An overwhelming soul’s mind is strong enough to protect her body from the stress of channeling the elements. However, in exchange, she is unable to push her limits quite as far as other kineticists.\n"
                                           + "She can’t choose to accept burn, though she can use wild talents with a burn cost if she can reduce that cost to 0 points with abilities such as gather power and infusion specialization.\n"
-                                          + "A number of times per day equal to her kineticist level, she can reduce the total burn cost of any wild talent by 1.",
+                                          + "A number of times per day equal to 2 + her kineticist level, she can reduce the total burn cost of any wild talent by 1.",
                                           "",
                                           icon,
                                           FeatureGroup.None

@@ -2,12 +2,14 @@
 using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -105,6 +107,56 @@ namespace CallOfTheWild.SkillMechanics
 
             base.Owner.Stats.GetStat(skill).BaseValue += (new_value - old_value);
             previous_value = new_value;
+        }
+    }
+
+
+    public class ContextActionSkillCheckWithFailures : ContextAction
+    {
+        public StatType Stat;
+        public bool use_custom_dc;
+        public ContextValue custom_dc;
+        public ActionList Success = Helpers.CreateActionList();
+        public ActionList Failure5 = Helpers.CreateActionList();
+        public ActionList Failure10 = Helpers.CreateActionList();
+        public bool on_caster = false;
+
+        public override void RunAction()
+        {
+            if (this.Target.Unit == null || this.Context.MaybeCaster == null)
+            {
+                UberDebug.LogError((object)"Target unit is missing", (object[])Array.Empty<object>());
+            }
+            else
+            {
+                var dc = !this.use_custom_dc ? this.Context.Params.DC : custom_dc.Calculate(this.Context);
+                var skill_check = this.Context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(on_caster ? this.Context.MaybeCaster : this.Target.Unit, this.Stat, dc) { ShowAnyway = true });
+
+                if (skill_check.IsPassed)
+                {
+                    this.Success.Run();
+                }
+                else if (!skill_check.IsSuccessRoll(skill_check.D20, 9))
+                {
+                    this.Failure10.Run();
+                }
+                else if (!skill_check.IsSuccessRoll(skill_check.D20, 4))
+                {
+                    this.Failure5.Run();
+                }
+            }
+        }
+
+        public override string GetCaption()
+        {
+            return string.Format("Skill check {0} {1}", (object)this.Stat, !this.use_custom_dc ? (object)string.Empty : (object)string.Format("(DC: {0})", (object)this.custom_dc));
+        }
+
+        [Serializable]
+        private struct ConditionalDCIncrease
+        {
+            public ConditionsChecker Condition;
+            public ContextValue Value;
         }
     }
 }

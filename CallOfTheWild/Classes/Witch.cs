@@ -250,7 +250,7 @@ namespace CallOfTheWild
                                   FeatureGroup.None,
                                   Common.createEnergyDRContextRank(DamageEnergyType.Cold, AbilityRankType.Default, multiplier: 5)
                                   );
-            cold_flesh.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+            cold_flesh.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep, classes: getWitchArray(),
                                                                     startLevel: 4, stepLevel: 5, max: 2));
             cold_flesh.ReapplyOnLevelUp = true;
 

@@ -38,6 +38,7 @@ namespace CallOfTheWild
             SneakAttack,
             PhrenicAmplification,
             WarriorSpirit,
+            HelaersWay,
         }
 
         public static partial class Extensions

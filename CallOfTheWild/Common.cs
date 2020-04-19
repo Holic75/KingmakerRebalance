@@ -2810,7 +2810,7 @@ namespace CallOfTheWild
                 {
                     actions[i] = actions[i].CreateCopy();
                     change(actions[i] as T);
-                    continue;
+                    //continue;
                 }
 
                 if (actions[i] is Conditional)

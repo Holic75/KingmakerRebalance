@@ -3,8 +3,11 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -56,6 +59,22 @@ namespace CallOfTheWild.UndeadMechanics
         }
     }
 
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityTargetHasNegativeEnegyAffinity : BlueprintComponent, IAbilityTargetChecker
+    {
+        public bool Inverted;
+
+        public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+        {
+            UnitEntityData unit = target.Unit;
+            if (unit == null)
+                return false;
+
+            return unit.Descriptor.IsUndead != Inverted;
+        }
+    }
 
 
     [AllowMultipleComponents]

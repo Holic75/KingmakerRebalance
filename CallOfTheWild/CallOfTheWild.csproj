@@ -168,6 +168,7 @@
     <Compile Include="Classes\Mysteries\Wind.cs" />
     <Compile Include="Classes\Oracle.cs" />
     <Compile Include="Classes\PhrenicAmplifications.cs" />
+    <Compile Include="Archetypes\Preservationist.cs" />
     <Compile Include="Classes\Summoner.cs" />
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Dismiss.cs" />

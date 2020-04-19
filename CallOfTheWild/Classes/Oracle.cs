@@ -61,15 +61,25 @@ namespace CallOfTheWild
         static public BlueprintFeature mystery_skills;
 
         static public BlueprintProgression clouded_vision;
+        static public BlueprintFeature clouded_vision_minor;
         static public BlueprintProgression blackened;
+        static public BlueprintFeature blackened_minor;
         static public BlueprintProgression deaf;
+        static public BlueprintFeature deaf_minor;
         static public BlueprintProgression lame;
+        static public BlueprintFeature lame_minor;
         static public BlueprintProgression wasting;
+        static public BlueprintFeature wasting_minor;
         static public BlueprintProgression pranked;
+        static public BlueprintFeature pranked_minor;
         static public BlueprintProgression plagued;
+        static public BlueprintFeature plagued_minor;
         static public BlueprintProgression vampirism;
+        static public BlueprintFeature vampirism_minor;
         static public BlueprintProgression lich;
+        static public BlueprintFeature lich_minor;
         static public BlueprintProgression wolf_scarred_face;
+        static public BlueprintFeature wolf_scarred_face_minor;
 
         static MysteryEngine mystery_engine;
 
@@ -92,6 +102,12 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection fighter_feat;
         static public BlueprintArchetype spirit_guide_archetype;
         static public BlueprintFeatureSelection spirit_guide_spirit_selection;
+
+        static public BlueprintArchetype divine_herbalist_archetype;
+        static public BlueprintFeature master_herbalist;
+        static public BlueprintFeature healers_way;
+        static public BlueprintFeature master_healing_technique;
+        static public BlueprintAbilityResource healers_way_resource;
 
         public class Spirit
         {
@@ -223,13 +239,188 @@ namespace CallOfTheWild
             createSeeker();
             createWarsighted();
             createSpiritGuide();
+            createDivineHerbalist();
 
-            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype};
+            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype, divine_herbalist_archetype};
             Helpers.RegisterClass(oracle_class);
             createExtraRevelationFeat();
 
             Common.addMTDivineSpellbookProgression(oracle_class, oracle_class.Spellbook, "MysticTheurgeOracle",
                                                      Common.createPrerequisiteClassSpellLevel(oracle_class, 2));
+        }
+
+
+        static void createDivineHerbalist()
+        {
+            divine_herbalist_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "DivineHerbalistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Divine Herbalist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Divine herbalists practice an obscure alchemical art which involves medicinal and restorative techniques that transcend ordinary alchemy, allowing them to blur the line between alchemical medicine and divine miracles.");
+            });
+            Helpers.SetField(divine_herbalist_archetype, "m_ParentClass", oracle_class);
+            library.AddAsset(divine_herbalist_archetype, "");
+
+
+            master_herbalist = Helpers.CreateFeature("MasterHerbalistFeature",
+                                                     "Master Herbalist",
+                                                     "A divine herbalist gains competence bonus on Lore (Nature) checks equal to 1/2 her oracle level (minimum 1), and can use her Charisma modifier in place of her Wisdom modifier when attempting Lore (Nature) checks. Lore (Nature) is a class skill for divine herbalist.",
+                                                     "",
+                                                     Helpers.GetIcon("d797007a142a6c0409a74b064065a15e"),
+                                                     FeatureGroup.Domain,
+                                                     Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillLoreNature),
+                                                     Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s =>
+                                                                                                                             {
+                                                                                                                                s.StatTypeToReplaceBastStatFor = StatType.SkillLoreNature;
+                                                                                                                                s.NewBaseStatType = StatType.Charisma;
+                                                                                                                             }),
+                                                     Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma),
+                                                     Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
+                                                     Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.Competence),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getOracleArray(), progression: ContextRankProgression.Div2, min: 1)
+                                                     );
+            createHealersWayAndMasterHealingTechnique();
+
+            divine_herbalist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, mystery_skills, revelation_selection), Helpers.LevelEntry(7, revelation_selection) };
+            divine_herbalist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, master_herbalist, healers_way), Helpers.LevelEntry(7, master_healing_technique) };
+
+            oracle_class.Progression.UIDeterminatorsGroup = oracle_class.Progression.UIDeterminatorsGroup.AddToArray(master_herbalist);
+            oracle_class.Progression.UIGroups = oracle_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(healers_way, master_healing_technique));
+        }
+
+
+        static void createHealersWayAndMasterHealingTechnique()
+        {
+            List<BlueprintBuff> buffs = new List<BlueprintBuff>();
+
+            healers_way_resource = Helpers.CreateAbilityResource("HealersWayResource", "", "", "", null);
+            healers_way_resource.SetIncreasedByStat(1, StatType.Charisma);
+
+            var ability = library.CopyAndAdd<BlueprintAbility>("caae1dc6fcf7b37408686971ee27db13", "HealesWayOthersAbility", "");
+
+            ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = healers_way_resource);
+            ability.RemoveComponents<AbilityCasterAlignment>();
+            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getOracleArray()));
+            ability.AddComponent(Helpers.Create<UndeadMechanics.AbilityTargetHasNegativeEnegyAffinity>(a => a.Inverted = true));
+
+            ability.SetNameDescription("Healer's Way — Others",
+                                       "A divine herbalist combines alchemy, acupuncture, and divine magic to heal wounds by touch. She can use this ability a number of times per day equal to 1 + her Charisma modifier. With one use of this ability, she uses positive energy to heal the target of 1d6 hit points for every 2 oracle levels she has. Using this ability is a standard action unless the oracle targets herself, in which case it is a swift action. Using this ability requires only one free hand. This ability counts as a paladin’s lay on hands ability for the purposes of feats, spells, and effects that work with that class feature when it is used for healing purposes. Unlike lay on hands, this ability cannot be used to harm undead.");
+
+
+            var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+
+            var descriptor_dc_map = new Dictionary<SpellDescriptor, int>();
+            descriptor_dc_map.Add(SpellDescriptor.Fatigue, 25);
+            descriptor_dc_map.Add(SpellDescriptor.Shaken, 25);
+            descriptor_dc_map.Add(SpellDescriptor.Sickened, 25);
+            descriptor_dc_map.Add(SpellDescriptor.Daze, 30);
+            descriptor_dc_map.Add(SpellDescriptor.Staggered, 30);
+            descriptor_dc_map.Add(SpellDescriptor.Exhausted, 35);
+            descriptor_dc_map.Add(SpellDescriptor.Confusion, 35);
+            descriptor_dc_map.Add(SpellDescriptor.Frightened, 35);
+            descriptor_dc_map.Add(SpellDescriptor.Nauseated, 35);
+            descriptor_dc_map.Add(SpellDescriptor.Blindness, 40);
+            descriptor_dc_map.Add(SpellDescriptor.Paralysis, 40);
+            descriptor_dc_map.Add(SpellDescriptor.Stun, 40);
+
+
+            var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+
+            var apply_nauseted = Helpers.CreateActionList(Common.createContextActionApplyBuff(nauseted, Helpers.CreateContextDuration(1), dispellable: false));
+            var apply_sickened = Helpers.CreateActionList(Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), dispellable: false));
+            
+            actions = Common.changeAction<Conditional>(actions, c =>
+                                                                {
+                                                                    var condition = c.ConditionsChecker.Conditions[0] as ContextConditionCasterHasFact;
+                                                                    if (condition == null || condition.Not)
+                                                                    {
+                                                                        return;
+                                                                    }
+                                                                    var fact = condition.Fact;
+                                                                    var action = c.IfTrue.Actions.Length == 0 ? null : c.IfTrue.Actions[0] as ContextActionDispelMagic;
+                                                                    if (action == null)
+                                                                    {
+                                                                        return;
+                                                                    }
+                                                                    var descriptor = action.Descriptor.Value;
+                                                                    if (!descriptor_dc_map.ContainsKey(descriptor))
+                                                                    {
+                                                                        c.IfTrue = Helpers.CreateActionList();
+                                                                        return;
+                                                                    }
+                                                                    var buff = Helpers.CreateBuff(descriptor.ToString() + "MasterHealingTechniqueBuff",
+                                                                                                  "Master Healing Technique: " + descriptor.ToString(),
+                                                                                                  "",
+                                                                                                  "",
+                                                                                                  fact.Icon,
+                                                                                                  null);
+                                                                    buffs.Add(buff);
+                                                                    c.ConditionsChecker = Helpers.CreateConditionsCheckerAnd(Common.createContextConditionCasterHasFact(buff),
+                                                                                                                             Helpers.Create<NewMechanics.ContextConditionHasCondtionImmunity>(cc => { cc.Not = true; cc.condition = UnitCondition.Nauseated; }),
+                                                                                                                             Helpers.Create<NewMechanics.ContextConditionHasCondtionImmunity>(cc => { cc.Not = true; cc.condition = UnitCondition.Sickened; })
+                                                                                                                             );
+                                                                    var if_true = Helpers.Create<SkillMechanics.ContextActionSkillCheckWithFailures>();
+                                                                    if_true.custom_dc = descriptor_dc_map[descriptor];
+                                                                    if_true.Failure10 = apply_nauseted;
+                                                                    if_true.Failure5 = apply_sickened;
+                                                                    if_true.Stat = StatType.SkillLoreNature;
+                                                                    if_true.use_custom_dc = true;
+                                                                    if_true.on_caster = true;
+                                                                    if_true.Success = Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(descriptor));
+                                                                    c.IfTrue = Helpers.CreateActionList(if_true);
+                                                                }
+                                                                );
+            
+            ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
+            var self_ability = library.CopyAndAdd(ability, "HealesWaySelfAbility", "");
+            self_ability.Range = AbilityRange.Personal;
+            self_ability.setMiscAbilityParametersSelfOnly();
+            self_ability.SetNameDescriptionIcon("Healer's Way — Self", ability.Description, Helpers.GetIcon("8d6073201e5395d458b8251386d72df1"));
+            self_ability.ActionType = CommandType.Swift;
+
+            healers_way = Helpers.CreateFeature("HealersWayFeature",
+                                                "Healer's way",
+                                                ability.Description,
+                                                "",
+                                                ability.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFacts(ability, self_ability),
+                                                healers_way_resource.CreateAddAbilityResource()
+                                                );
+
+            var toggles = new List<BlueprintActivatableAbility>();
+
+            foreach (var b in buffs)
+            {
+                var toggle = Helpers.CreateActivatableAbility(b.name + "ToggleAbility",
+                                                              b.Name,
+                                                              "At 7th level, whenever a divine herbalist heals a living creature with her healer’s way ability, as a free action she can attempt a Profession (herbalist) check to remove a condition from the target, with each condition having an accompanying Profession (herbalist) DC (see the list below). She cannot take 10 or 20 on this check, nor can she receive aid from any creature except another divine herbalist (though the practitioner need not be an oracle). Failure by 5 or more causes the target to become sickened for 1 round (if the divine herbalist is attempting to remove the sickened condition, this extends it by 1 round). Similarly, failure by 10 or more instead causes the target to become nauseated for 1 round or to have its existing nauseated condition extended by 1 round. A creature that cannot be sickened or nauseated cannot have conditions removed by this ability.\n"
+                                                              + "Minor Conditions (DC 25): Fatigued, shaken, and sickened.\n"
+                                                              + "Major Conditions (DC 30): Dazed and staggered.\n"
+                                                              + "Severe Conditions (DC 35): Confused, exhausted, frightened, and nauseated.\n"
+                                                              + "Dire Conditions (DC 40): Blinded, deafened, paralyzed, and stunned.\n",
+                                                              "",
+                                                              b.Icon,
+                                                              b,
+                                                              AbilityActivationType.Immediately,
+                                                              CommandType.Free,
+                                                              null);
+                toggle.DeactivateImmediately = true;
+                toggle.Group = ActivatableAbilityGroupExtension.HelaersWay.ToActivatableAbilityGroup();
+
+                toggles.Add(toggle);
+            }
+
+
+            master_healing_technique = Helpers.CreateFeature("MasterHEalingTechniqueFeature",
+                                                            "Master Healing Technique",
+                                                            toggles[0].Description,
+                                                            "",
+                                                            Helpers.GetIcon("ff8f1534f66559c478448723e16b6624"), //heal
+                                                            FeatureGroup.None,
+                                                            Helpers.CreateAddFacts(toggles.ToArray())
+                                                            );
         }
 
 
@@ -1446,6 +1637,8 @@ namespace CallOfTheWild
                                               Helpers.Create<AddEnergyImmunity>(a => a.Type = DamageEnergyType.NegativeEnergy)
                                               );
 
+            vampirism_minor = library.CopyAndAdd(curse, "OracleCurseVampirismMinor", "");
+
             var curse5 = Helpers.CreateFeature("OracleCurse5Vampirism",
                                                "Channel Resistance",
                                                "At 5th level, you gain channel resistance +4.",
@@ -1499,6 +1692,8 @@ namespace CallOfTheWild
                                               Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                               Helpers.Create<AddEnergyImmunity>(a => a.Type = DamageEnergyType.NegativeEnergy)
                                               );
+
+            lich_minor = library.CopyAndAdd(curse, "OracleCurseLichMinor", "");
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Lich",
                                                "Ghoul Touch",
@@ -1578,6 +1773,16 @@ namespace CallOfTheWild
                                               Helpers.CreateAddFeatureOnClassLevel(bite1d4, 5, getOracleArray(), before: true)
                                               );
 
+            wolf_scarred_face_minor = Helpers.CreateFeature("OracleCurseWolfScarredFaceMinorFeature",
+                                              "Wolf-scarred Face",
+                                              "You have a severe speech impediment, and any spells you cast have a 20% chance of failing, wasting your action but not expending the spell. You gain a natural bite attack that deals 1d4 points of damage if you are a Medium creature or 1d3 points of damage if you are Small.",
+                                              "",
+                                              Helpers.GetIcon("de7a025d48ad5da4991e7d3c682cf69d"), // cats grace
+                                              FeatureGroup.None,
+                                              Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20),
+                                              Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("35dfad6517f401145af54111be04d6cf"))
+                                              );
+
             var curse5 = Helpers.CreateFeature("OracleCurse5WolfScarredFace",
                                                "Wolf-scarred Face",
                                                "At 5th level, you add magic fang to your list of known spells and your bite damage increases to 1d6.",
@@ -1623,6 +1828,7 @@ namespace CallOfTheWild
                                   FeatureGroup.None,
                                   Helpers.Create<SavingThrowBonusAgainstDescriptor>(s => { s.Bonus = -1; s.ModifierDescriptor = ModifierDescriptor.UntypedStackable; s.SpellDescriptor = SpellDescriptor.Disease; })
                                   );
+            plagued_minor = library.CopyAndAdd(curse, "OracleCursePlaguedMinorFeature", "");
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Plagued",
                                                "Pox Pustules",
@@ -1726,6 +1932,7 @@ namespace CallOfTheWild
                                                                                                 }
                                                                                                 )
                                               );
+            wasting_minor = library.CopyAndAdd(curse, "OracleCurseWastingMinorFeature", "");
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Wasting", 
                                                "Immune to Sickened",
@@ -1771,6 +1978,7 @@ namespace CallOfTheWild
                                               Helpers.Create<EncumbranceMechanics.IgnoreEncumbrence>(),
                                               Helpers.Create<NewMechanics.AddSpeedBonusBasedOnRaceSize>(a => { a.small_race_speed_bonus = -5; a.normal_race_speed_bonus = -10; })
                                               );
+            lame_minor = library.CopyAndAdd(curse, "OracleCurseLameMinorFeature", "");
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Lame", 
                                                "Immune to Fatigue",
@@ -1825,6 +2033,16 @@ namespace CallOfTheWild
                                                                               )
                                               );
 
+            blackened_minor = Helpers.CreateFeature("OracleCurseBlackenedMinorFeature",
+                                                      "Blackened",
+                                                      "You take a –4 penalty on weapon attack rolls, but you add burning hands to your list of spells known.",
+                                                      "",
+                                                      burning_hands.Icon,
+                                                      FeatureGroup.None,
+                                                      burning_hands.CreateAddKnownSpell(oracle_class, 1),
+                                                      Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = -4)
+                                                      );
+
             var curse5 = Helpers.CreateFeature("OracleCurse5Blackened", 
                                                curse.Name,
                                                "At 5th level, add scorching ray and burning arc to your list of spells known.",
@@ -1875,6 +2093,17 @@ namespace CallOfTheWild
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
                                               );
 
+            deaf_minor = Helpers.CreateFeature("OracleCurseDeafMinorFeature",
+                                              "Deaf",
+                                              "You cannot hear and suffer all of the usual penalties for being deafened: -4 penalty on initiative and -4 perception. You cast all of your spells as if they were modified by the Silent Spell feat. This does not increase their level or casting time.",
+                                              "",
+                                              Helpers.GetIcon("c3893092a333b93499fd0a21845aa265"),
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
+                                              Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
+                                              );
+
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Deaf", 
                                                curse.Name,
@@ -1920,6 +2149,7 @@ namespace CallOfTheWild
                                                                                                               }
                                                                                                               )
                                                   );
+            clouded_vision_minor = library.CopyAndAdd(curse, "OracleCurseCloudedVisionMinorFeature", "");
             var curse5 = Helpers.CreateProgression("OracleCurse5CloudedVision",
                                       curse.Name,
                                       "At 5th level, your vision distance increases to 30 feet.",
