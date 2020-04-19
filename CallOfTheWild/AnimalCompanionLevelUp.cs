@@ -66,6 +66,9 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     [Harmony12.HarmonyPatch(typeof(AddPet), "TryLevelUpPet")]
     static class AddPet_TryLevelUpPet_Patch
     {
+        static BlueprintCharacterClass[] manual_classes = new BlueprintCharacterClass[] { ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"),
+                                                                                         Eidolon.eidolon_class
+                                                                                        };
         internal static bool Prefix(AddPet __instance)
         {
             if (!__instance.Owner.IsPlayerFaction)
@@ -74,9 +77,17 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
             }
             if (__instance.SpawnedPet == null)
                 return false;
+
             AddClassLevels component = __instance.SpawnedPet.Blueprint.GetComponent<AddClassLevels>();
+
+            
             if (component == null)
                 return false;
+
+            if (!manual_classes.Contains(component.CharacterClass))
+            {//non animal and non eidolon companions will have automatic level up
+                return true;
+            }
 
             int pet_level = 0;
             var eidolon = __instance.SpawnedPet.Blueprint.GetComponent<Eidolon.EidolonComponent>();

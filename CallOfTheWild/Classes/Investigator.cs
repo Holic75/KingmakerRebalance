@@ -451,6 +451,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.mental_barrier[2].AssetGuid, 4),
                 new Common.SpellId( NewSpells.mind_thrust[3].AssetGuid, 4),
                 new Common.SpellId( "dd2918e4a77c50044acba1ac93494c36", 4), //overwhelming grief
+                new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "76a629d019275b94184a1a8733cac45e", 4), //protection from energy communal
                 new Common.SpellId( "4b8265132f9c8174f87ce7fa6d0fe47b", 4), //rainbow pattern
                 new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass  
@@ -477,6 +478,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( NewSpells.mental_barrier[3].AssetGuid, 5),
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
+                new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
                 new Common.SpellId( "d361391f645db984bbf58907711a146a", 6), //banishment
