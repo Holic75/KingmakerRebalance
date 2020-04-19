@@ -10,7 +10,7 @@ It introduces new classes:
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith and Feral Champion,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
-- Oracle with following archetypes: Seeker, Spirit Guide, Warsighted,
+- Oracle with following archetypes: Seeker, Spirit Guide, Warsighted and Divine Herbalist,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner and Psychic Detective,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist and Master Summoner,
 - Hinterlander and Holy Vindicator prestige classes.
@@ -29,7 +29,9 @@ New Archetypes for existing classes:
 - Sanctified Slayer Inquisitor archetype,
 - Executioner Slayer archetype,
 - Overwhelming Soul Kineticist archetype,
-- Lore Warden Fighter archetype.
+- Lore Warden Fighter archetype,
+- Preservationist Alchemist archetype,
+- Divine Tracker Ranger archetype.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
