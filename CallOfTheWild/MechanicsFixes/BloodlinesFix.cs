@@ -39,6 +39,25 @@ namespace CallOfTheWild
             addBloodlineMutations();
 
             //fixDragonDisciplePrerequisites();
+            fixBloodlineSpells();
+        }
+
+
+        static void fixBloodlineSpells()
+        {
+            var draconic = library.Get<BlueprintProgression>("7bd143ead2d6c3a409aad6ee22effe34"); //black
+            Common.replaceSorcererBloodlineSpell(draconic, NewSpells.fly, 3);
+            var arcane = library.Get<BlueprintProgression>("4d491cf9631f7e9429444f4aed629791");
+            Common.replaceSorcererBloodlineSpell(arcane, NewSpells.overland_flight, 5);
+            var fey = library.Get<BlueprintProgression>("e8445256abbdc45488c2d90373f7dae8");
+            Common.replaceSorcererBloodlineSpell(fey, NewSpells.irresistible_dance, 8);
+            Common.replaceSorcererBloodlineSpell(fey, Wildshape.shapechange, 9);
+            var infernal = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d");
+            Common.replaceSorcererBloodlineSpell(infernal, library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61"), 5); //dominate person
+            Common.replaceSorcererBloodlineSpell(infernal, NewSpells.meteor_swarm, 9);
+            var serpentine = library.Get<BlueprintProgression>("739c1e842bf77994baf963f4ad964379");
+            Common.replaceSorcererBloodlineSpell(serpentine, NewSpells.irresistible_dance, 8);
+            Common.replaceSorcererBloodlineSpell(serpentine, library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757"), 9); //dominate monster
         }
 
 

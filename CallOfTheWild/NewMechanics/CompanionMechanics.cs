@@ -120,9 +120,11 @@ namespace CallOfTheWild.CompanionMechanics
     [AllowMultipleComponents]
     public class AbilityCasterCompanionUnsummoned : BlueprintComponent, IAbilityCasterChecker
     {
+        public bool not = false;
         public bool CorrectCaster(UnitEntityData caster)
         {
-            return caster.Ensure<UnitPartUnsummonedCompanion>().active();
+            var unsummon_part = caster.Get<UnitPartUnsummonedCompanion>();
+            return (unsummon_part != null && unsummon_part.active()) != not;
         }
 
         public string GetReason()

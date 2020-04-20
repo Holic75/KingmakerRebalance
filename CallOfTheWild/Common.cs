@@ -3714,5 +3714,37 @@ namespace CallOfTheWild
 
             dc_componenet.sources = dc_componenet.sources.AddToArray(blueprint);          
         }
+
+
+        static public void replaceSorcererBloodlineSpell(BlueprintProgression bloodline, BlueprintAbility spell, int level)
+        {
+            foreach (var le in bloodline.LevelEntries)
+            {
+                foreach (var f in le.Features)
+                {
+                    bool changed = false;
+                    foreach (var c in f.GetComponents<AddKnownSpell>())
+                    {
+                        if (c.SpellLevel != level)
+                        {
+                            continue;
+                        }
+                        if (c.Spell == spell)
+                        {
+                            continue;
+                        }
+                        c.Spell = spell;
+                        changed = true;
+                    }
+                    if (changed)
+                    {
+                        f.SetNameDescriptionIcon(spell.Name + " ",
+                             "At 3rd level, and every two levels thereafter, a sorcerer learns an additional spell, derived from her bloodline. These spells are in addition to the number of spells given at new levels.\n"
+                             + spell.Name + ": " + spell.Description,
+                             spell.Icon);
+                    }
+                }
+            }
+        }
     }
 }

@@ -7567,6 +7567,20 @@ namespace CallOfTheWild
         }
 
 
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetIsDead : BlueprintComponent, IAbilityTargetChecker
+        {
+            public bool CanTarget(UnitEntityData caster, TargetWrapper t)
+            {
+                UnitEntityData unit = t.Unit;
+                if (unit != null && (unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)))
+                    return !unit.Descriptor.State.HasCondition(UnitCondition.Petrified);
+                return false;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
         public class WeaponCategorySizeChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>

@@ -847,21 +847,28 @@ namespace CallOfTheWild
         static void createRaiseAnimalCompanion()
         {
             raise_companion_resource = Helpers.CreateAbilityResource("HunterRaiseAnimalCompanionResource", "", "", "", null);
-
-            var spell = library.Get<BlueprintAbility>("9288a1e0a4704b54984fd8155de38d4f");
-            spell.AddComponent(Helpers.Create<NewMechanics.AbilityTargetIsAnimalCompanion>());
-            var ability = Common.convertToSpellLike(spell, "Hunter", new BlueprintCharacterClass[] { hunter_class },
-                                                     StatType.Wisdom, raise_companion_resource);
+            raise_companion_resource.SetFixedResource(1);
+            var spell = library.CopyAndAdd<BlueprintAbility>("9288a1e0a4704b54984fd8155de38d4f", "HunterRaiseAnimalCompanion", "");
+            spell.RemoveComponents<AbilityTargetIsDeadCompanion>();
+            spell.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
+            spell.AddComponent(Helpers.Create<CompanionMechanics.AbilityCasterCompanionUnsummoned>(a => a.not = true));
+            spell.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(Helpers.Create<ContextActionsOnPet>(a => a.Actions = spell.GetComponent<AbilityEffectRunAction>().Actions)));
+            spell.ReplaceComponent<AbilityTargetIsDeadCompanion>(Helpers.Create<NewMechanics.AbilityTargetIsDead>());
+            spell.Range = AbilityRange.Personal;
+            spell.setMiscAbilityParametersSelfOnly();
+            spell.Type = AbilityType.SpellLike;
+            spell.AddComponent(raise_companion_resource.CreateResourceLogic());
 
             raise_animal_companion = Helpers.CreateFeature("HunterRaiseAnimalCompanionFeature",
                                                            "Raise Animal Companion",
-                                                           "At 10th level, a hunter gains raise animal companion as a spell-like ability; this is not restricted to raising only her own animal companion.",
+                                                           "At 10th level, a hunter gains raise animal companion as a spell-like ability.",
                                                            "",
-                                                           ability.Icon,
+                                                           spell.Icon,
                                                            FeatureGroup.None,
-                                                           Helpers.CreateAddFact(ability),
+                                                           Helpers.CreateAddFact(spell),
                                                            raise_companion_resource.CreateAddAbilityResource()
                                                            );
+            //raise_animal_companion.ReapplyOnLevelUp = true;
         }
 
 
