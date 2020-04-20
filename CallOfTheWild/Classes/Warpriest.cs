@@ -1307,6 +1307,7 @@ namespace CallOfTheWild
             divine_tracker_progression.UIGroups = new UIGroup[] { Helpers.CreateUIGroup(minor_blessing, major_blessing) };
 
             Archetypes.DivineTracker.blessings.AllFeatures = Archetypes.DivineTracker.blessings.AllFeatures.AddToArray(divine_tracker_progression);
+            warpriest_blessings.AllFeatures = warpriest_blessings.AllFeatures.AddToArray(progression);
 
             blessings_map.Add(Name, progression);
             if (quicken_blessing_selections.ContainsKey(Name))
