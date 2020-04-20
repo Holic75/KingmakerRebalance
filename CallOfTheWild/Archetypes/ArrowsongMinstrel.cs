@@ -59,6 +59,7 @@ namespace CallOfTheWild.Archetypes
 
         static public BlueprintFeature precise_minstrel;
         static public BlueprintFeature arrowsong_strike;
+        static public BlueprintFeatureSelection arcane_achery_selection;
         static public BlueprintFeature arcane_achery;
         static public BlueprintFeature weapon_proficiency;
 
@@ -96,12 +97,12 @@ namespace CallOfTheWild.Archetypes
                                                        };
             archetype.ReplaceSpellbook = spellbook;
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, weapon_proficiency),
-                                                       Helpers.LevelEntry(1, arcane_achery),
+                                                       Helpers.LevelEntry(1, arcane_achery_selection),
                                                        Helpers.LevelEntry(2, precise_minstrel),
                                                        Helpers.LevelEntry(6, arrowsong_strike)};
 
             bard_class.Progression.UIDeterminatorsGroup = bard_class.Progression.UIDeterminatorsGroup.AddToArray(weapon_proficiency);
-            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery, precise_minstrel, arrowsong_strike));
+            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery_selection, precise_minstrel, arrowsong_strike));
             bard_class.Archetypes = bard_class.Archetypes.AddToArray(archetype);
 
 
@@ -110,6 +111,9 @@ namespace CallOfTheWild.Archetypes
             //replace scroll of snowball with cure light wounds
             archetype.StartingItems = starting_items.RemoveFromArray(library.Get<BlueprintItemEquipmentUsable>("66fc961f9c39ae94fb87a79adc87212e")).AddToArray(library.Get<BlueprintItemEquipmentUsable>("cd635d5720937b044a354dba17abad8d"));
             addToPrestigeClasses();
+
+            var magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
+            magus.AddComponent(Common.prerequisiteNoArchetype(bard_class, archetype));
         }
 
 
@@ -178,6 +182,17 @@ namespace CallOfTheWild.Archetypes
                                                   FeatureGroup.None,
                                                   Common.createReplace34BabWithClassLevel(bard_class)
                                                   );
+            var magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
+            arcane_achery_selection = Helpers.CreateFeatureSelection("ArrowsongMinstrelArcaneArcherySelectionFeature",
+                                                                     arcane_achery.Name,
+                                                                     arcane_achery.Description,
+                                                                     "",
+                                                                     icon,
+                                                                     FeatureGroup.None
+                                                                     );
+            arcane_achery_selection.Obligatory = true;
+            arcane_achery_selection.AllFeatures = new BlueprintFeature[] { arcane_achery };
+            arcane_achery.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = magus));
         }
 
 
@@ -187,6 +202,9 @@ namespace CallOfTheWild.Archetypes
             var add_spell_combat = Helpers.Create<AddMagusMechanicPart>(); //needed for unit_part magus creation (no actual ability though)
             Helpers.SetField(add_spell_combat, "m_Feature", 1);
             Helpers.SetField(add_spell_combat, "m_MagusClass", bard_class);
+            //it should not be used since it sets spell combat to be always active by default (ok on magus though since the corresponding toggle is always active by default)
+
+            var add_magus_part = Helpers.Create<NewMechanics.ActivateUnitPartMagus>(a => a.magus_class = bard_class);
 
             var add_eldritch_archer = Helpers.Create<AddMagusMechanicPart>();
             Helpers.SetField(add_eldritch_archer, "m_Feature", 5);
@@ -199,7 +217,7 @@ namespace CallOfTheWild.Archetypes
             spellstrike.SetDescription("At 6th level, an Arrowsong minstrel can use spellstrike (as per the magus class feature) to cast a single-target ranged touch attack spell and deliver it through a ranged weapon attack.");
             spellstrike.SetIcon(NewSpells.flame_arrow.Icon);
             arrowsong_strike = Common.ActivatableAbilityToFeature(spellstrike, false);
-            arrowsong_strike.AddComponents(add_spell_combat, add_eldritch_archer, add_spellstrike);
+            arrowsong_strike.AddComponents(add_magus_part, add_eldritch_archer, add_spellstrike);
         }
 
 

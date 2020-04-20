@@ -7589,8 +7589,27 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintFeature))]
+        public class ActivateUnitPartMagus : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public BlueprintCharacterClass magus_class;
 
-        [ComponentName("Override owner's empty hand weapon")]
+            public override void OnFactActivate()
+            {
+                UnitPartMagus unitPartMagus = this.Owner.Ensure<UnitPartMagus>();
+                unitPartMagus.Class = magus_class;
+            }
+
+            public override void OnFactDeactivate()
+            {
+ 
+            }
+        }
+
+
+
+            [ComponentName("Override owner's empty hand weapon")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class EmptyHandWeaponOverrideIfNoWeapon : OwnedGameLogicComponent<UnitDescriptor>
         {
