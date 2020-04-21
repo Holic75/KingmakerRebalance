@@ -2085,10 +2085,14 @@ namespace CallOfTheWild
                                               Helpers.GetIcon("c3893092a333b93499fd0a21845aa265"),
                                               FeatureGroup.None,
                                               Helpers.CreateAddContextStatBonus(StatType.Initiative, ModifierDescriptor.UntypedStackable),
-                                              Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
+                                              Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (4, -4), (9, -2), (20, 0) }
+                                                                              ),
+                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(), type: AbilityRankType.StatBonus,
+                                                                              progression: ContextRankProgression.Custom,
+                                                                              customProgression: new (int, int)[] { (4, -4), (20, 0) }
                                                                               ),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
                                               );

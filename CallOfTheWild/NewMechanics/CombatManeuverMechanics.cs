@@ -2,8 +2,11 @@
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Controllers.Projectiles;
 using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Entities;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Buffs;
@@ -348,6 +351,57 @@ namespace CallOfTheWild.CombatManeuverMechanics
                         (this.Fact as IFactContextOwner)?.RunActionInContext(this.other_action, (TargetWrapper)evt.Initiator);
                 }
             }
+        }
+    }
+
+
+    public class ContextActionBreakFreeFromSpellGrapple : ContextAction
+    {
+        public ActionList Success;
+        public ActionList Failure;
+
+        public override void RunAction()
+        {
+            if (this.Target.Unit == null)
+            {
+                UberDebug.LogError((object)"Target unit is missing", (object[])Array.Empty<object>());
+            }
+            else
+            {
+
+                if (tryBreakFree(this.Target.Unit, this.Context.MaybeCaster, this.Context))
+                    this.Success.Run();
+                else
+                    this.Failure.Run();
+            }
+        }
+
+        private static bool tryBreakFree(UnitEntityData target, UnitEntityData grappler, MechanicsContext context)
+        {
+            int dc = 0;
+            if (context != null)
+            {
+                dc = context.Params.DC;
+            }
+            RuleCalculateCMB rule_calcualte_cmb1 = new RuleCalculateCMB(target, grappler, CombatManeuver.Grapple);
+            RuleCalculateCMB rule_calcualte_cmb2 = context?.TriggerRule<RuleCalculateCMB>(rule_calcualte_cmb1) ?? Rulebook.Trigger<RuleCalculateCMB>(rule_calcualte_cmb1);
+            if (Math.Max((int)(target.Stats.SkillMobility), (int)(target.Stats.SkillAthletics)) < rule_calcualte_cmb2.Result)
+            {             
+                RuleSkillCheck rule_skill_check = new RuleSkillCheck(target, StatType.AdditionalCMB, dc);
+                rule_skill_check.Bonus.AddModifier(rule_calcualte_cmb2.Result - target.Stats.AdditionalCMB.ModifiedValue, null, ModifierDescriptor.UntypedStackable);
+                return (context?.TriggerRule<RuleSkillCheck>(rule_skill_check) ?? Rulebook.Trigger<RuleSkillCheck>(rule_skill_check)).IsPassed;
+            }
+            else
+            {
+                StatType stat = (int)(target.Stats.SkillMobility) > (int)(target.Stats.SkillAthletics) ? StatType.SkillMobility : StatType.SkillAthletics;
+                RuleSkillCheck rule_skill_check = new RuleSkillCheck(target, stat, dc);
+                return (context?.TriggerRule<RuleSkillCheck>(rule_skill_check) ?? Rulebook.Trigger<RuleSkillCheck>(rule_skill_check)).IsPassed;
+            }
+        }
+
+        public override string GetCaption()
+        {
+            return "Check to break free from entangle or grapple";
         }
     }
 }

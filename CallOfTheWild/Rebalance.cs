@@ -1304,8 +1304,32 @@ namespace CallOfTheWild
                 {
                     dr.AffectAnyPhysicalDamage = true;
                 }
+            }              
+        }
+
+
+        static internal void fixGrappleSpells()
+        {
+            var buffs = new BlueprintBuff[]
+            {
+                library.Get<BlueprintBuff>("a719abac0ea0ce346b401060754cc1c0"), //web
+                library.Get<BlueprintBuff>("bf6c03b98af9a374c8d61988b5f3ba96"), //phantasmal web
+            };
+
+            foreach (var b in buffs)
+            {
+                var new_round_actions = b.GetComponent<AddFactContextActions>().NewRound;
+
+                var new_actions = Common.replaceActions<ContextActionBreakFree>(new_round_actions.Actions,
+                                                                                    a => Helpers.Create<CombatManeuverMechanics.ContextActionBreakFreeFromSpellGrapple>(c =>
+                                                                                                                                                                        {
+                                                                                                                                                                            c.Failure = a.Failure;
+                                                                                                                                                                            c.Success = a.Success;
+                                                                                                                                                                        }
+                                                                                                                                                                        )
+                                                                                 );
+                new_round_actions.Actions = new_actions;
             }
-                
         }
     }
 

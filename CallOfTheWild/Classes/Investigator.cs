@@ -341,7 +341,7 @@ namespace CallOfTheWild
             psychic_detective_spellbook.CastingAttribute = StatType.Intelligence;
             psychic_detective_spellbook.CharacterClass = investigator_class;
             psychic_detective_spellbook.CasterLevelModifier = 0;
-            psychic_detective_spellbook.CantripsType = CantripsType.Cantrips;
+            psychic_detective_spellbook.CantripsType = CantripsType.Orisions;
             psychic_detective_spellbook.SpellsPerLevel = bard_class.Spellbook.SpellsPerLevel;
 
             psychic_detective_spellbook.SpellList = Helpers.Create<BlueprintSpellList>();
@@ -511,6 +511,7 @@ namespace CallOfTheWild
             }
 
             psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_detective_spellbook));
+            psychic_spellcasting.AddComponents(Common.createCantrips(investigator_class, StatType.Intelligence, psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
         }
 
 

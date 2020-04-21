@@ -188,6 +188,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixDispellingStrikeCL();
                     CallOfTheWild.Rebalance.fixRogueSneakAttackTalents();
                     CallOfTheWild.Rebalance.addMobilityToMonkBonusFeats();
+                    CallOfTheWild.Rebalance.fixGrappleSpells();
                     
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
