@@ -37,7 +37,7 @@ namespace CallOfTheWild.SizeMechanics
                 return this.Owner.OriginalSize;
             }
             else
-            {
+            {                
                 return buffs.Last().Blueprint.GetComponent<PermanentSizeOverride>().size;
             }
         }

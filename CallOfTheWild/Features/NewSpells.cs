@@ -1582,7 +1582,10 @@ namespace CallOfTheWild
             var knock_down = Common.createContextActionSkillCheck(StatType.SkillMobility, null, Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>()), 12);
 
             var action = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_buff, knock_down });
-            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action));
+            var effect = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.construct, Common.undead, Common.elemental),
+                                                   null,
+                                                   Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action))
+                                                   );
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2a90aa7f771677b4e9624fa77697fdc6", "WallOfNauseaArea", "");
             area.ComponentsArray = new BlueprintComponent[] {Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
@@ -1624,7 +1627,10 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(blind, Helpers.CreateContextDuration(), is_permanent: true);
           
             var action = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_buff });
-            var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action));
+            var effect = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.construct, Common.undead, Common.elemental),
+                                                   null,
+                                                   Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(action))
+                                                   );
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("2a90aa7f771677b4e9624fa77697fdc6", "WallOfBlindnessArea", "");
             area.ComponentsArray = new BlueprintComponent[] {Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => { a.FirstRound = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
@@ -2962,7 +2968,10 @@ namespace CallOfTheWild
             var effect = Helpers.CreateConditionalSaved(new GameAction[] { Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1)) },
                                                          new GameAction[] { Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1)), dmg, dex_dmg }
                                                        );
-            var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(effect));
+            var action = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.construct, Common.undead, Common.elemental),
+                                                   null,
+                                                   Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(effect))
+                                                   );
 
             var conditional = Helpers.CreateConditional(Common.createContextConditionHasFact(protection_from_evil),
                                                     null,

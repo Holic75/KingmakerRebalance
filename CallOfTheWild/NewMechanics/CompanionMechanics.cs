@@ -270,10 +270,10 @@ namespace CallOfTheWild.CompanionMechanics
         private List<Fact> m_AppliedFacts = new List<Fact>();
 
 
-        public override void OnTurnOn()
+        public override void OnFactActivate()
         {
             this.m_AppliedFacts.Clear();
-            base.OnTurnOn();
+            //base.OnTurnOn();
             UnitEntityData pet = this.Owner.Pet;
             if (pet == null)
                 return;
@@ -291,9 +291,9 @@ namespace CallOfTheWild.CompanionMechanics
             }
         }
 
-        public override void OnTurnOff()
+        public override void OnFactDeactivate()
         {
-            base.OnTurnOff();
+            //base.OnTurnOff();
             this.m_AppliedFacts.ForEach(new Action<Fact>((this.Owner).RemoveFact));
             this.m_AppliedFacts.Clear();
         }

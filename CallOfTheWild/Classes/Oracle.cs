@@ -2032,6 +2032,7 @@ namespace CallOfTheWild
                                                                               customProgression: new (int, int)[] { (9, -4), (20, -2) }
                                                                               )
                                               );
+            curse.ReapplyOnLevelUp = true;
 
             blackened_minor = Helpers.CreateFeature("OracleCurseBlackenedMinorFeature",
                                                       "Blackened",
@@ -2096,6 +2097,7 @@ namespace CallOfTheWild
                                                                               ),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
                                               );
+            curse.ReapplyOnLevelUp = true;
 
             deaf_minor = Helpers.CreateFeature("OracleCurseDeafMinorFeature",
                                               "Deaf",

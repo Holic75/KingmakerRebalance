@@ -985,7 +985,9 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Helpers.Create<EvolutionMechanics.AddShortDurationSelfEvolution>(a => { a.Feature = twinned_eidolon_evolution; }),
+                                          //Helpers.Create<EvolutionMechanics.AddShortDurationSelfEvolution>(a => { a.Feature = twinned_eidolon_evolution; }),
+                                          Helpers.Create<CompanionMechanics.SetPhysicalStatsToAnimalCompanionStats>(),
+                                          Helpers.Create<CompanionMechanics.GrabFeaturesFromCompanion>(g => g.Features = Evolutions.evolutions_list.ToArray().AddToArray(Eidolon.transferable_abilities)),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph)
                                           );
 
