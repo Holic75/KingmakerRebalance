@@ -173,8 +173,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateAddAbilityResource(resource),
                                                 Helpers.CreateAddFact(ability),
                                                 Helpers.PrerequisiteClassLevel(sorcerer, 3, any: true),
-                                                Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 8, any: true),
-                                                Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 3, any: true)
+                                                Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 8, any: true)//,
+                                                //Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 3, any: true)
                                                 );
         }
         static void createBloodHavoc()
@@ -216,8 +216,8 @@ namespace CallOfTheWild
                                                 FeatureGroup.None,
                                                 Helpers.Create<NewMechanics.BloodHavoc>(b => { b.feature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");}),
                                                 Helpers.PrerequisiteClassLevel(sorcerer, 1, any: true),
-                                                Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 4, any: true),
-                                                Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 1, any: true)
+                                                Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 4, any: true)//,
+                                                //Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 1, any: true)
                                                 );
         }
 

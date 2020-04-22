@@ -343,7 +343,7 @@ namespace CallOfTheWild
             regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
                                                                                 {
                                                                                     Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
-                                                                                    Features = new BlueprintFeature[] { BloodlinesFix.blood_havoc }
+                                                                                    Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("75d76373f7b7c2b429c6ad6cde02edb0") } //claws
                                                                                 }
                                                                               );
 

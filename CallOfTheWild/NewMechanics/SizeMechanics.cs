@@ -51,9 +51,8 @@ namespace CallOfTheWild.SizeMechanics
         public Size size;
         public override void OnFactActivate()
         {
-            //Main.logger.Log("Activated: " + this.Fact.Name);
+            Main.logger.Log("Activated: " + this.Fact.Name);
             this.Owner.Ensure<UnitPartSizeOverride>().addBuff(this.Fact);
-            //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
         }
 
         /*public override void OnTurnOn()
@@ -71,9 +70,8 @@ namespace CallOfTheWild.SizeMechanics
 
         public override void OnFactDeactivate()
         {
-            //Main.logger.Log("Deactivated: " + this.Fact.Name);
+            Main.logger.Log("Deactivated: " + this.Fact.Name);
             this.Owner.Ensure<UnitPartSizeOverride>().removeBuff(this.Fact);
-            //this.Owner.State.Size = this.Owner.Ensure<UnitPartSizeOverride>().getSize();
         }
     }
 
@@ -83,6 +81,7 @@ namespace CallOfTheWild.SizeMechanics
     {
         static void Postfix(UnitPartSizeModifier __instance, List<Fact> ___m_SizeChangeFacts)
         {
+            Main.logger.Log("Running: " + __instance.Owner.CharacterName);
             Fact fact = ___m_SizeChangeFacts.LastItem<Fact>();
             if (fact == null)
             {
@@ -93,7 +92,7 @@ namespace CallOfTheWild.SizeMechanics
 
 
     [Harmony12.HarmonyPatch(typeof(ChangeUnitSize), "GetSize")]
-    class ChangeUnitSizer_GetSize_Patch
+    class ChangeUnitSize_GetSize_Patch
     {
         static void Postfix(ChangeUnitSize __instance, ref Size __result)
         {
