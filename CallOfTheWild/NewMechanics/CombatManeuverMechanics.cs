@@ -404,4 +404,55 @@ namespace CallOfTheWild.CombatManeuverMechanics
             return "Check to break free from entangle or grapple";
         }
     }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class ManeuverOnAttackWithBonus : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+    {
+        public WeaponCategory[] categories = new WeaponCategory[0];
+        public CombatManeuver maneuver;
+        public ContextValue bonus;
+        public bool use_swift_action = false;
+
+        public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+        {
+        }
+
+        public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+        {
+            if (evt.Weapon == null)
+                return;
+
+            if (use_swift_action && evt.Initiator.CombatState.Cooldown.SwiftAction > 0.0f)
+            {
+                return;
+            }
+
+
+            if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
+            {
+                return;
+            }
+
+            if (!evt.AttackRoll.IsHit)
+            {
+                return;
+            }
+
+            if (this.maneuver == CombatManeuver.Trip && (evt.Target.Descriptor.State.Prone.Active || (bool)(evt.Target.View) && evt.Target.View.IsGetUp))
+            {
+                return;
+            }
+
+            var rule = new RuleCombatManeuver(this.Owner.Unit, evt.Target, this.maneuver);
+            rule.AddBonus(this.bonus.Calculate(this.Fact.MaybeContext), this.Fact);
+            Rulebook.Trigger<RuleCombatManeuver>(new RuleCombatManeuver(this.Owner.Unit, evt.Target, this.maneuver));
+
+            if (use_swift_action)
+            {
+                evt.Initiator.CombatState.Cooldown.SwiftAction = 6.0f;
+            }
+        }
+    }
 }

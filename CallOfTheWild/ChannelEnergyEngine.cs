@@ -742,6 +742,30 @@ namespace CallOfTheWild
             versatile_channeler_negative_warpriest.HideInCharacterSheetAndLevelUp = true;
 
 
+
+            var versatile_channeler_negative_evangelist = Helpers.CreateFeature("VersatileChannelerEvangelistNegativeFeature",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             FeatureGroup.None,
+                                             Helpers.CreateAddFacts(Archetypes.Evangelist.channel_negative_energy),
+                                             versatile_channeler_negative.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>()
+                                             );
+            versatile_channeler_negative_evangelist.HideInCharacterSheetAndLevelUp = true;
+
+            var versatile_channeler_positive_evangelist = Helpers.CreateFeature("VersatileChannelerPositiveEvangelistFeature",
+                                                          "",
+                                                          "",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(Archetypes.Evangelist.channel_positive_energy),
+                                                          ChannelEnergyEngine.versatile_channeler_positive.GetComponent<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>()
+                                                          );
+            versatile_channeler_positive_evangelist.HideInCharacterSheetAndLevelUp = true;
+
+
             versatile_channeler = Helpers.CreateFeature("VersatileChannelerFeature",
                                                         "Versatile Channeler",
                                                         "If you normally channel positive energy, you may choose to channel negative energy as if your effective cleric level were 2 levels lower than normal. If you normally channel negative energy, you may choose to channel positive energy as if your effective cleric level were 2 levels lower than normal.\n"
@@ -753,9 +777,12 @@ namespace CallOfTheWild
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(channel_positive, channel_negative, versatile_channeler_negative),
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_positive_energy, Warpriest.channel_negative_energy, versatile_channeler_negative_warpriest),
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_negative_energy, Warpriest.channel_negative_energy,versatile_channeler_positive_warpriest),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(Archetypes.Evangelist.channel_negative_energy, Archetypes.Evangelist.channel_positive_energy, versatile_channeler_positive_evangelist),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(Archetypes.Evangelist.channel_positive_energy, Archetypes.Evangelist.channel_negative_energy, versatile_channeler_negative_evangelist),
                                                         channel_positive.GetComponent<PrerequisiteFeature>(),
                                                         channel_negative.GetComponent<PrerequisiteFeature>(),
-                                                        Helpers.PrerequisiteFeaturesFromList(channel_negative, channel_positive, Warpriest.channel_positive_energy, Warpriest.channel_negative_energy),
+                                                        Helpers.PrerequisiteFeaturesFromList(channel_negative, channel_positive, Warpriest.channel_positive_energy, Warpriest.channel_negative_energy,
+                                                                                             Archetypes.Evangelist.channel_positive_energy, Archetypes.Evangelist.channel_negative_energy),
                                                         Helpers.PrerequisiteClassLevel(cleric, 3, true),
                                                         Helpers.PrerequisiteClassLevel(Warpriest.warpriest_class, 5, true),
                                                         Common.createPrerequisiteAlignment(AlignmentMaskType.ChaoticNeutral | AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral)
@@ -1086,7 +1113,8 @@ namespace CallOfTheWild
                                                                                        ),
                                                        Helpers.PrerequisiteClassLevel(cleric, 1),
                                                        Helpers.PrerequisiteClassLevel(inquisitor, 1),
-                                                       Helpers.PrerequisiteFeature(cleric_channel)
+                                                       Helpers.PrerequisiteFeature(cleric_channel, any: true),
+                                                       Helpers.PrerequisiteFeature(Archetypes.Evangelist.channel_energy, any: true)
                                                        );
             library.AddFeats(channeling_scourge);
         }

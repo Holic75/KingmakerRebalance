@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CallOfTheWild.NewMechanics;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -65,6 +66,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeature fascinate;
         static public BlueprintFeature weapon_proficiency;
         static public BlueprintFeature performance_resource;
+        static public BlueprintFeature channel_positive_energy, channel_negative_energy;
         static LibraryScriptableObject library => Main.library;
 
         static public void create()
@@ -248,7 +250,7 @@ namespace CallOfTheWild.Archetypes
                                                                                                                        (20, 7)}
                                                                                   );
             var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { cleric }, StatType.Charisma);
-            var channel_positive_energy = Helpers.CreateFeature("EvangelistChannelPositiveEnergyFeature",
+            channel_positive_energy = Helpers.CreateFeature("EvangelistChannelPositiveEnergyFeature",
                                                                 "Channel Positive Energy",
                                                                 "An evangelist (or a neutral evangelist who worships a good deity) channels positive energy and can choose to deal damage to undead creatures or to heal living creatures.\n"
                                                                 + "Channeling energy causes a burst that either heals all living creatures or damages all undead creatures in a 30-foot radius centered on the evangelist. The amount of damage dealt or healed is equal to 1d6 at level 3 and increases by 1d6 every 2 levels except at levels 9 and 15. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the evangelist's level + the evangelist's Charisma modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. This is a standard action that does not provoke an attack of opportunity.",
@@ -283,7 +285,7 @@ namespace CallOfTheWild.Archetypes
 
             channel_positive_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
 
-            var channel_negative_energy = Helpers.CreateFeature("EvangelistChannelNegativeEnergyFeature",
+            channel_negative_energy = Helpers.CreateFeature("EvangelistChannelNegativeEnergyFeature",
                                                                 "Channel Negative Energy",
                                                                 "An evil evangelist (or a neutral evangelist who worships an evil deity) channels negative energy and can choose to deal damage to living creatures or to heal undead creatures.\n"
                                                                 + "Channeling energy causes a burst that either heals all undead creatures or damages all living creatures in a 30-foot radius centered on the evangelist. The amount of damage dealt or healed is equal to 1d6 at level 3 and increases by 1d6 every 2 levels except at levels 9 and 15. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the evangelist's level + the evangelist's Charisam modifier. Creatures healed by channel energy cannot exceed their maximum hit point total—all excess healing is lost. This is a standard action that does not provoke an attack of opportunity.",
@@ -328,7 +330,7 @@ namespace CallOfTheWild.Archetypes
                                                              FeatureGroup.None
                                                              );
             channel_energy.AllFeatures = new BlueprintFeature[] { channel_positive_energy, channel_negative_energy };
-            var extra_channel = ChannelEnergyEngine.createExtraChannelFeat(heal_living, channel_energy, "ExtraChannelEvangelist", "Extra Channel (Evangelist)", "");
+            var extra_channel = ChannelEnergyEngine.createExtraChannelFeat(heal_living, channel_energy, "ExtraChannelEvangelist", "Extra Channel (Evangelist)", "");         
         }
     }
 }

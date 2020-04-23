@@ -79,10 +79,11 @@ namespace CallOfTheWild.SizeMechanics
     {
         static void Postfix(UnitPartSizeModifier __instance, List<Fact> ___m_SizeChangeFacts)
         {
-            Fact fact = ___m_SizeChangeFacts.LastItem<Fact>();
-            if (fact == null)
+            Fact fact = ___m_SizeChangeFacts?.LastItem<Fact>();
+            var part = __instance?.Owner?.Get<UnitPartSizeOverride>();
+            if (fact == null && part != null)
             {
-                __instance.Owner.State.Size = __instance.Owner.Ensure<UnitPartSizeOverride>().getSize();
+                __instance.Owner.State.Size = part.getSize();
             }
         }
     }
@@ -94,9 +95,10 @@ namespace CallOfTheWild.SizeMechanics
         static void Postfix(ChangeUnitSize __instance, ref Size __result)
         {
             var change_type = Helpers.GetField<int>(__instance, "m_Type");
-            if (change_type == 0)
+            var part = __instance?.Owner?.Get<UnitPartSizeOverride>();
+            if (change_type == 0 && part != null)
             {
-                __result = __instance.Owner.Ensure<UnitPartSizeOverride>().getSize().Shift(__instance.SizeDelta);
+                __result = __instance.Owner.Get<UnitPartSizeOverride>().getSize().Shift(__instance.SizeDelta);
             }
         }
     }

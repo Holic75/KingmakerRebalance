@@ -102,6 +102,9 @@ namespace CallOfTheWild
 
 
         static public BlueprintParametrizedFeature feral_grace;
+        static public BlueprintFeature shielded_mage;
+        static public BlueprintFeature stumbling_bash;
+        static public BlueprintFeature toppling_bash;
         
 
 
@@ -169,6 +172,142 @@ namespace CallOfTheWild
             createPerfectStrike();
 
             createFeralGrace();
+
+            createShieldedMage();
+            createStumblingBash();
+            createTopplingBash();
+        }
+
+
+        static void createShieldedMage()
+        {
+            var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
+            var shield_focus = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a");
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+            shielded_mage = Helpers.CreateFeature("ShieldedMageFeature",
+                                                    "Shielded Mage",
+                                                    "You reduce the arcane spell failure of any shield you use by 15% (to a minimum of 0%). Using a shield does not prevent you from completing somatic spell components with the hand wielding the shield.",
+                                                    "",
+                                                    LoadIcons.Image2Sprite.Create(@"FeatIcons/ShieldedMage.png"),
+                                                    FeatureGroup.Feat,
+                                                    Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 3, any: true),
+                                                    Helpers.PrerequisiteClassLevel(fighter, 1, any: true),
+                                                    Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                                                                                    {
+                                                                                                                        p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
+                                                                                                                        p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
+                                                                                                                    }
+                                                                                                                  ),
+                                                    Helpers.Create<ArcaneSpellFailureIncrease>(a => { a.ToShield = true; a.Bonus = -15; })
+                                                    );
+            shielded_mage.Groups = shielded_mage.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(shielded_mage);
+        }
+
+
+        static void createStumblingBash()
+        {
+            var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
+            var shield_focus = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a");
+            var improved_shield_bash = library.Get<BlueprintFeature>("121811173a614534e8720d7550aae253");
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+
+            stumbling_bash = Helpers.CreateFeature("StumblingBashFeature",
+                                                  "Stumbling Bash",
+                                                  "Creatures struck by your shield bash take a –2 penalty to their AC until the end of your next turn.",
+                                                  "",
+                                                  LoadIcons.Image2Sprite.Create(@"FeatIcons/StumblingBash.png"),
+                                                  FeatureGroup.Feat,
+                                                  Helpers.PrerequisiteFeature(improved_shield_bash),
+                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6, any: true),
+                                                  Helpers.PrerequisiteClassLevel(fighter, 4, any: true),
+                                                  Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                  {
+                                                      p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
+                                                      p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
+                                                  }
+                                                  )
+                                                  );
+
+
+            var buff = Helpers.CreateBuff("StumblingBashBuff",
+                                          stumbling_bash.Name,
+                                          stumbling_bash.Description,
+                                          "",
+                                          stumbling_bash.Icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable)
+                                          );
+            buff.Stacking = StackingType.Replace;
+            var apply_buff = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false));
+
+            stumbling_bash.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(apply_buff, weapon_category: WeaponCategory.SpikedHeavyShield));
+            stumbling_bash.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(apply_buff, weapon_category: WeaponCategory.SpikedLightShield));
+            stumbling_bash.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(apply_buff, weapon_category: WeaponCategory.WeaponHeavyShield));
+            stumbling_bash.AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(apply_buff, weapon_category: WeaponCategory.WeaponLightShield));
+
+            stumbling_bash.Groups = stumbling_bash.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(stumbling_bash);
+        }
+
+
+        static void createTopplingBash()
+        {
+            var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
+            var shield_focus = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a");
+            var improved_shield_bash = library.Get<BlueprintFeature>("121811173a614534e8720d7550aae253");
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+
+            toppling_bash = Helpers.CreateFeature("TopplingBashFeature",
+                                                  "Toppling Bash",
+                                                  "As a swift action when you hit a creature with a shield bash, you can attempt a trip combat maneuver against that creature at a –5 penalty.",
+                                                  "",
+                                                  LoadIcons.Image2Sprite.Create(@"FeatIcons/TopplingBash.png"),
+                                                  FeatureGroup.Feat,
+                                                  Helpers.PrerequisiteFeature(improved_shield_bash),
+                                                  Helpers.PrerequisiteFeature(stumbling_bash),
+                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11, any: true),
+                                                  Helpers.PrerequisiteClassLevel(fighter, 8, any: true),
+                                                  Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                  {
+                                                      p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
+                                                      p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
+                                                  }
+                                                  )
+                                                  );
+
+
+            var buff = Helpers.CreateBuff("TopplingBashBuff",
+                                          toppling_bash.Name,
+                                          toppling_bash.Description,
+                                          "",
+                                          toppling_bash.Icon,
+                                          null,
+                                          Helpers.Create<CombatManeuverMechanics.ManeuverOnAttackWithBonus>(m =>
+                                                                                                                {
+                                                                                                                    m.categories = new WeaponCategory[] { WeaponCategory.SpikedHeavyShield, WeaponCategory.SpikedLightShield, WeaponCategory.WeaponHeavyShield, WeaponCategory.WeaponLightShield };
+                                                                                                                    m.use_swift_action = true;
+                                                                                                                    m.bonus = -5;
+                                                                                                                    m.maneuver = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip;
+                                                                                                                }
+                                                                                                            )
+                                          );
+
+            var toggle = Helpers.CreateActivatableAbility("TopplingBashToggleAbility",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                          null
+                                                          );
+            toggle.DeactivateImmediately = true;
+            toppling_bash.AddComponent(Helpers.CreateAddFact(toggle));
+            
+            toppling_bash.Groups = toppling_bash.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(toppling_bash);
         }
 
 
