@@ -1284,7 +1284,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     [ComponentName("transfer enchants to polymorph")]
     [AllowedOn(typeof(BlueprintUnitFact))]
     [AllowMultipleComponents]
-    public class TransferPrimaryHandWeaponEnchantsToPolymorph : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    public class TransferPrimaryHandWeaponEnchantsToPolymorph : OwnedGameLogicComponent<UnitDescriptor>, WildArmorMechanics.IPolymorphOnHandler,
+                                                                  /*IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler*/ IGlobalSubscriber
     {
         public enum TransferType
         {
@@ -1312,10 +1313,10 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             this.deactivateEnchants();
         }
 
-        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        /*public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
         {
             this.checkWeapons();
-        }
+        }*/
 
         private void checkWeapons()
         {
@@ -1343,13 +1344,13 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             var primary_weapon = this.Owner?.Body?.PrimaryHand?.MaybeWeapon;
             var secondary_weapon = this.Owner?.Body?.SecondaryHand?.MaybeWeapon;
 
-            if (primary_weapon!= null)
+            if (primary_weapon!= null && this.Owner.Body.PrimaryHand.HasWeapon)
             {
                 weapons.Add(primary_weapon);
             }
 
 
-            if (secondary_weapon != null)
+            if (secondary_weapon != null && Owner.Body.SecondaryHand.HasWeapon)
             {
                 weapons.Add(secondary_weapon);
             }
@@ -1362,7 +1363,6 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                     weapons.Add(weapon);
                 }
             }
-
 
 
             foreach (var e in primary_hand_enchants)
@@ -1416,11 +1416,13 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             m_enchants = new List<ItemEnchantment>();
         }
 
-        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        public void polymorphOn(UnitDescriptor owner)
         {
-            if (slot.Owner != this.Owner)
+           if (owner != this.Owner)
+           {
                 return;
-            this.checkWeapons();
+           }
+           this.checkWeapons();
         }
     }
 

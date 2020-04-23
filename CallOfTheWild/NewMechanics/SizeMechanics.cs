@@ -51,7 +51,6 @@ namespace CallOfTheWild.SizeMechanics
         public Size size;
         public override void OnFactActivate()
         {
-            Main.logger.Log("Activated: " + this.Fact.Name);
             this.Owner.Ensure<UnitPartSizeOverride>().addBuff(this.Fact);
         }
 
@@ -70,7 +69,6 @@ namespace CallOfTheWild.SizeMechanics
 
         public override void OnFactDeactivate()
         {
-            Main.logger.Log("Deactivated: " + this.Fact.Name);
             this.Owner.Ensure<UnitPartSizeOverride>().removeBuff(this.Fact);
         }
     }
@@ -81,7 +79,6 @@ namespace CallOfTheWild.SizeMechanics
     {
         static void Postfix(UnitPartSizeModifier __instance, List<Fact> ___m_SizeChangeFacts)
         {
-            Main.logger.Log("Running: " + __instance.Owner.CharacterName);
             Fact fact = ___m_SizeChangeFacts.LastItem<Fact>();
             if (fact == null)
             {

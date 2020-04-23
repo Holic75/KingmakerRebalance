@@ -47,8 +47,16 @@ namespace CallOfTheWild.WildArmorMechanics
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
             {
                 __instance.Armor.ReleaseDeactivateFlag();
+                EventBus.RaiseEvent<IPolymorphOnHandler>((Action<IPolymorphOnHandler>)(h => h.polymorphOn(__instance.Owner)));
             }
         }
+    }
+
+
+
+    public interface IPolymorphOnHandler : IGlobalSubscriber
+    {
+        void polymorphOn(UnitDescriptor unit);
     }
 
 
