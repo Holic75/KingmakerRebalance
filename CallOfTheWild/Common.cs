@@ -3322,6 +3322,7 @@ namespace CallOfTheWild
         }
 
 
+
         public static void excludeSpellsFromList(BlueprintSpellList base_list, BlueprintSpellList list_to_exclude)
         {
             foreach (var sbl in base_list.SpellsByLevel)
@@ -3330,6 +3331,22 @@ namespace CallOfTheWild
                 foreach (var s in all_spells)
                 {
                     if (list_to_exclude.Contains(s))
+                    {
+                        sbl.Spells.Remove(s);
+                    }
+                }
+            }
+        }
+
+
+        public static void filterSpellList(BlueprintSpellList base_list, Predicate<BlueprintAbility> p)
+        {
+            foreach (var sbl in base_list.SpellsByLevel)
+            {
+                var all_spells = sbl.Spells.ToArray();
+                foreach (var s in all_spells)
+                {
+                    if (!p(s))
                     {
                         sbl.Spells.Remove(s);
                     }

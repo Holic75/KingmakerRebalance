@@ -3619,6 +3619,50 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Increase specific spells CL")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseCasterLevelForSchool : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue value;
+            public SpellSchool school;
+            public bool correct_dc = false;
+            public int multiplier = 1;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (!evt.Spell.IsSpell)
+                {
+                    return;
+                }
+
+
+                if (evt.Spell.School != school)
+                {
+                    return;
+                }
+
+
+                int bonus = this.value.Calculate(this.Context);
+                evt.AddBonusCasterLevel(bonus);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
         public class ActivatableAbilityMainWeaponTypeAllowed : ActivatableAbilityRestriction
         {
             public BlueprintWeaponType[] weapon_types;
@@ -6088,7 +6132,6 @@ namespace CallOfTheWild
 
                 foreach (BaseDamage baseDamage in evt.DamageBundle)
                 {
-
                     var energy_damage = baseDamage as EnergyDamage;
                     if (energy_damage == null)
                     {

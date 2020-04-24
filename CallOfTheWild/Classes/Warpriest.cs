@@ -89,6 +89,7 @@ namespace CallOfTheWild
         static public BlueprintFeature warpriest_fervor;
         static public BlueprintFeature fervor_positive;
         static public BlueprintFeature fervor_negative;
+        static public BlueprintFeature fervor_fcb;
         static public BlueprintFeature channel_positive_energy;
         static public BlueprintFeature channel_negative_energy;
         static public BlueprintFeature warpriest_channel_energy;
@@ -451,13 +452,23 @@ namespace CallOfTheWild
             var construct_type = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
             var undead_type = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
 
-            var dice = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+            fervor_fcb = Helpers.CreateFeature("WarpriestFervorFavoredClassBonusFeature",
+                                               "Fervor Heal/Damage Bonus",
+                                               "Add 1/2 point to the amount of damage dealt or healed by the warpriest’s fervor ability.",
+                                               "4a68bcfeca4140c8827621a8f219c5a8",
+                                               cure_light_wounds.Icon,
+                                               FeatureGroup.None);
+            fervor_fcb.Ranks = 10;
+
+
+            var dice = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
             var heal_action = Common.createContextActionHealTarget(dice);
             var damage_undead_action = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, dice);
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
 
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                      type: AbilityRankType.DamageBonus, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3);
+                                                                      type: AbilityRankType.DamageDice, classes: getWarpriestArray(), startLevel: 2, stepLevel: 3);
+            var context_rank_config_fcb = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, feature: fervor_fcb, type: AbilityRankType.DamageBonus);
 
             var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersTouchAbility",
                                                                         "Fervor (Postive Energy) Others",
@@ -476,7 +487,8 @@ namespace CallOfTheWild
                                                                         cure_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                                         cure_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                                         Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealDamage),
-                                                                        context_rank_config
+                                                                        context_rank_config,
+                                                                        context_rank_config_fcb
                                                                         );
             fervor_positive_ability_others.CanTargetFriends = true;
             fervor_positive_ability_others.CanTargetEnemies = true;
@@ -529,6 +541,7 @@ namespace CallOfTheWild
                                                             inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                             inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                             context_rank_config,
+                                                            context_rank_config_fcb,
                                                             Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealUndead)
                                                             );
             fervor_negative_ability_others.CanTargetFriends = true;

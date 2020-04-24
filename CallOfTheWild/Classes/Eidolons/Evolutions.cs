@@ -956,7 +956,7 @@ namespace CallOfTheWild
 
             immunity = new BlueprintFeature[energies.Length];
 
-            for (int i = 0; i < resistance.Length; i++)
+            for (int i = 0; i < immunity.Length; i++)
             {
                 immunity[i] = Helpers.CreateFeature(energies[i].ToString() + "ImmunityEvolutionFeature",
                                                       "Immunity: " + energies[i].ToString(),
@@ -1030,7 +1030,7 @@ namespace CallOfTheWild
 
             energy_attacks = new BlueprintFeature[energies.Length];
 
-            for (int i = 0; i < resistance.Length; i++)
+            for (int i = 0; i < energy_attacks.Length; i++)
             {
                 var effect = Common.createAddWeaponEnergyDamageDiceBuff(Helpers.CreateContextDiceValue(DiceType.D6, 1, 0),
                                                                                                         energies[i],

@@ -179,7 +179,7 @@ namespace CallOfTheWild
             feature12.AllFeatures = Evolutions.getPermanenetEvolutions(e => Evolutions.ability_increase.Any(ai => ai[0] == e));
 
             var feature16 = Helpers.CreateFeature("DemonEidolonLevel16Feature",
-                                                  "Elictricity Immunity",
+                                                  "Electricity Immunity",
                                                   "At 16th level, demon eidolons lose the resistance (electricity) evolution, and instead gain the immunity (electricity) evolution.",
                                                   "",
                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"), //protection from energy,
@@ -188,7 +188,7 @@ namespace CallOfTheWild
                                                   );
 
             var feature20 = Helpers.CreateFeature("DemonEidolonLevel20Feature",
-                                                  "Regeneration",
+                                                  "True Seeing",
                                                   "At 20th level, demon eidolons gain true seeing as a constant ability.",
                                                   "",
                                                   Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
