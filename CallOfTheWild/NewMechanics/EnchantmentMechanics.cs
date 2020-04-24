@@ -1523,20 +1523,16 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
             if (transfer_enhancement)
             {
-                var enchancement_bonus = GameHelper.GetItemEnhancementBonus(this.Owner.Body.Armor.Armor);
+                var enchancement_bonus = Math.Min(5, GameHelper.GetItemEnhancementBonus(this.Owner.Body.Armor.Armor));
 
                 if (enchancement_bonus <= 0)
                 {
                     return;
                 }
-                else
-                {
-                    enchancement_bonus = Math.Min(4, enchancement_bonus);
-                }
 
                 foreach (var w in weapons)
                 {
-                    var new_enchant = w.AddEnchantment(WeaponEnchantments.static_enchants[enchancement_bonus], this.Fact.MaybeContext, new Rounds?());
+                    var new_enchant = w.AddEnchantment(WeaponEnchantments.static_enchants[enchancement_bonus - 1], this.Fact.MaybeContext, new Rounds?());
                     new_enchant.RemoveOnUnequipItem = true;
                     m_enchants.Add(new_enchant);
                 }

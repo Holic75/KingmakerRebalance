@@ -294,7 +294,10 @@ namespace CallOfTheWild.WeaponTrainingMechanics
 
         public override void OnFactDeactivate()
         {
-            this.Owner.RemoveFact(this.m_AppliedFact);
+            if (m_AppliedFact != null)
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+            }
             this.m_AppliedFact = null;
         }
 
@@ -302,7 +305,16 @@ namespace CallOfTheWild.WeaponTrainingMechanics
         {
             if (slot.Owner != this.Owner)
                 return;
-            this.Apply();
+
+            var armor_slot = Owner.Body?.Armor;
+            var shield_slot = Owner.Body?.SecondaryHand;
+
+            if ((armor_slot != null && slot == armor_slot)
+                || (shield_slot != null && slot == shield_slot))
+            {
+                this.Apply();
+            }
+                         
         }
 
         public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
@@ -331,8 +343,8 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             {
                 return;
             }
-
             this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
+            Main.logger.Log((this.m_AppliedFact != null).ToString());
         }
     }
 

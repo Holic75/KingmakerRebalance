@@ -235,7 +235,7 @@ namespace CallOfTheWild
 
             steel_headbutt = Helpers.CreateFeature("SteelHeadbuttAdvancedArmorTrainingFeature",
                                                    "Steel Headbutt",
-                                                   "While wearing medium or heavy armor, a fighter can deliver a headbutt with his helm as part of a full attack action. This headbutt is in addition to his normal attacks, and is made using the fighter’s base attack bonus – 5. A helmet headbutt deals 1d3 points of damage if the fighter is wearing medium armor, or 1d4 points of damage if he is wearing heavy armor (1d2 and 1d3, respectively, for Small creatures), plus an amount of damage equal to 1/2 the fighter’s Strength modifier. Treat this attack as a weapon attack made using the same special material and echantment bonus (if any) as the armor.",
+                                                   "While wearing medium or heavy armor, a fighter can deliver a headbutt with his helm as part of a full attack action. This headbutt is in addition to his normal attacks, and is made using the fighter’s base attack bonus – 5. A helmet headbutt deals 1d3 points of damage if the fighter is wearing medium armor, or 1d4 points of damage if he is wearing heavy armor (1d2 and 1d3, respectively, for Small creatures), plus an amount of damage equal to the fighter’s Strength modifier. Treat this attack as a weapon attack made using the same special material and echantment bonus (if any) as the armor.",
                                                    "",
                                                    Helpers.GetIcon("4c3d08935262b6544ae97599b3a9556d"), //bulls stength
                                                    FeatureGroup.None,
