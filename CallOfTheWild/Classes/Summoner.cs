@@ -1700,7 +1700,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i <3; i++)
             {
-                var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal)));
+                var heal = Common.createContextActionHealTargetNoBonus(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal)));
                 var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal)));
                 damage.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
                 var config = Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0), AbilitySharedValue.Heal);

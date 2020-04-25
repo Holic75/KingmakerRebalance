@@ -260,11 +260,15 @@ namespace CallOfTheWild
         {
             var charm_of_wisdom = Helpers.CreateFeature("CharmOfWisdomFeature",
                                                                "Charm of Wisdom",
-                                                               " You use your Wisdom modifier instead of your Charisma modifier when making Bluff, Diplomacy, and Intimidate checks.",
+                                                               "You use your Wisdom modifier instead of your Charisma modifier when making Bluff, Diplomacy, and Intimidate checks.",
                                                                "",
                                                                library.Get<BlueprintAbility>("d316d3d94d20c674db2c24d7de96f6a7").Icon, //serenity
                                                                FeatureGroup.None,
-                                                               Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillPersuasion; s.ReplacementStat = StatType.Wisdom; }),
+                                                               Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s => {
+                                                                                                         s.StatTypeToReplaceBastStatFor = StatType.SkillPersuasion;
+                                                                                                         s.NewBaseStatType = StatType.Wisdom;
+                                                                                                     }),
+                                                               //Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillPersuasion; s.ReplacementStat = StatType.Wisdom; }),
                                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
                                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma)
                                                                );

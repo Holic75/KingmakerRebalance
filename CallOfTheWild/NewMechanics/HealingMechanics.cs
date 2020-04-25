@@ -478,6 +478,32 @@ namespace CallOfTheWild.HealingMechanics
         }
     }
 
+    //additional healing action that does not take into account any bonuses (can be used for hp transfer) some special healing cases which should not benefit from bonuses
+    public class ContextActionHealTargetNoBonus : ContextAction
+    {
+        public ContextDiceValue Value;
+
+        public override string GetCaption()
+        {
+            return string.Format("Heal {0} of hit point damage", (object)this.Value);
+        }
+
+        public override void RunAction()
+        {
+            if (this.Target.Unit == null)
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Invalid target for effect '{0}'", (object)this.GetType().Name);
+            else if (this.Context.MaybeCaster == null)
+            {
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Caster is missing", (object[])Array.Empty<object>());
+            }
+            else
+            {
+                int bonus = this.Value.Calculate(this.Context);
+                this.Context.TriggerRule<RuleHealDamage>(new RuleHealDamage(this.Context.MaybeCaster, this.Target.Unit, DiceFormula.Zero, bonus));
+            }
+        }
+    }
+
 
     /*public class TemporaryHpBonusInternal : BuffLogic, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
     {

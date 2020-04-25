@@ -245,7 +245,7 @@ namespace CallOfTheWild
                                                            Helpers.PrerequisiteClassLevel(barbarian_class, 10),
                                                            Helpers.PrerequisiteFeature(daemon_totem));
 
-            var effect_action = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Common.createSimpleContextValue(5)));
+            var effect_action = Common.createContextActionHealTargetNoBonus(Helpers.CreateContextDiceValue(DiceType.Zero, bonus: Common.createSimpleContextValue(5)));
             var action = Helpers.CreateActionList(effect_action);
 
             var buff = Helpers.CreateBuff("GreaterDaemonTotemBuff",

@@ -1340,6 +1340,14 @@ namespace CallOfTheWild
         }
 
 
+        static public HealingMechanics.ContextActionHealTargetNoBonus createContextActionHealTargetNoBonus(ContextDiceValue value)
+        {
+            var c = Helpers.Create<HealingMechanics.ContextActionHealTargetNoBonus>();
+            c.Value = value;
+            return c;
+        }
+
+
         static public AuraFeatureComponent createAuraEffectFeatureComponentCustom( BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
         {
             var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", buff.name + "AreaEffect", "");

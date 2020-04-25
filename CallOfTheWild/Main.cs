@@ -285,6 +285,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
+
+                    CallOfTheWild.WizardDiscoveries.create();
                     CallOfTheWild.CleanUp.processRage();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
