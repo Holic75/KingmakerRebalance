@@ -13,6 +13,8 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -26,6 +28,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -42,6 +45,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection maneuver_mastery;
         static public BlueprintFeature familiar;
         static public BlueprintFeatureSelection spell_blending;
+        static public BlueprintFeature reach_spellstrike;
 
         static BlueprintCharacterClass magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
         static BlueprintFeatureSelection magus_arcana = library.Get<BlueprintFeatureSelection>("e9dc4dfc73eaaf94aae27e0ed6cc9ada");
@@ -53,12 +57,29 @@ namespace CallOfTheWild
             createManeuverMastery();
             createFamiliar();
             createSpellBlending();
+            createReachSpellStrike();
         }
 
 
         static BlueprintCharacterClass[] getMagusArray()
         {
             return new BlueprintCharacterClass[] { magus };
+        }
+
+
+        static void createReachSpellStrike()
+        {
+            reach_spellstrike = Helpers.CreateFeature("ReachSpellStrikeMagusArcana",
+                                                      "Reach Spellstrike",
+                                                      "The magus can deliver spells with a range of touch with ranged spellstrike.",
+                                                      "12ebb355c7e34596badbf3cf5b88c30f",
+                                                      Helpers.GetIcon("3e9d1119d43d07c4c8ba9ebfd1671952"),
+                                                      FeatureGroup.MagusArcana,
+                                                      Helpers.Create<NewMechanics.MetamagicMechanics.ReachSpellStrike>(r => r.Metamagic = Metamagic.Reach),
+                                                      Helpers.PrerequisiteClassLevel(magus, 9),
+                                                      Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("6aa84ca8918ac604685a3d39a13faecc")) //ranged spell strike
+                                                      );
+            magus_arcana.AllFeatures = magus_arcana.AllFeatures.AddToArray(reach_spellstrike);
         }
 
 
@@ -164,6 +185,28 @@ namespace CallOfTheWild
         }
 
 
-        
+
+
+        //fix for reach spell strike
+        [Harmony12.HarmonyPatch(typeof(UnitPartMagus))]
+        [Harmony12.HarmonyPatch("IsSuitableForEldritchArcherSpellStrike", Harmony12.MethodType.Normal)]
+        public class Patch_UnitPartMagus_IsSuitableForEldritchArcherSpellStrike_Patch
+        {
+            static void Postfix(UnitPartMagus __instance, AbilityData spell, ref bool __result)
+            {
+                if (__result == true)
+                {
+                    return;
+                }
+
+                if (spell.Blueprint.GetComponent<AbilityDeliverTouch>() != null 
+                    && (spell.HasMetamagic(Metamagic.Reach) || ((spell.Blueprint.AvailableMetamagic & Metamagic.Reach) != 0) && __instance.Owner.HasFact(reach_spellstrike))
+                    )
+                {
+                    __result = __instance.IsSpellFromMagusSpellList(spell);
+                }
+            }
+        }
+
     }
 }

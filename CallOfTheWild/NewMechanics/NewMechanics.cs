@@ -6117,6 +6117,48 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextActionOnTargetsInReach : ContextAction
+        {
+            public ActionList actions;
+            public bool only_enemies = true;
+
+            public override string GetCaption()
+            {
+                return string.Empty;
+            }
+
+            public override void RunAction()
+            {
+                if (actions == null)
+                {
+                    return;
+                }
+
+                var treat_hand = this.Target.Unit.GetThreatHand();
+                if (treat_hand == null)
+                {
+                    return;
+                }
+                var units = GameHelper.GetTargetsAround(this.Target.Unit.Position, 30.Feet().Meters, false, false);
+
+                foreach (UnitEntityData engagee in units)
+                {
+                    if (engagee == this.Target.Unit)
+                    {
+                        continue;
+                    }
+                    if ((engagee.IsEnemy(this.Target.Unit) || !only_enemies) && this.Target.Unit.IsReach(engagee, treat_hand))
+                    {
+                        using (this.Context.GetDataScope((TargetWrapper)engagee))
+                        {
+                            this.actions.Run();
+                        }
+                    }
+                }
+            }
+        }
+
+
         public class EnergyDamageTypeSpellBonus : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
         {
             public DamageEnergyType energy_type;

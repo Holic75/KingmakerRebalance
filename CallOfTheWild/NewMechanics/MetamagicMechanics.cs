@@ -266,6 +266,63 @@ namespace CallOfTheWild
         }
 
 
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReachSpellStrike : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {         
+            public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
+            {
+                bool is_metamagic_not_available = ability == null || data?.Spellbook == null || ability.Type != AbilityType.Spell
+                                              || ((ability.AvailableMetamagic & this.Metamagic) == 0);
+
+
+                if (is_metamagic_not_available)
+                {
+                    return false;
+                }
+
+                var caster = data?.Caster;
+
+                if (caster == null)
+                {
+                    return false;
+                }
+
+                if (data.Blueprint.StickyTouch == null && data.Blueprint.GetComponent<AbilityDeliverTouch>() == null)
+                {
+                    return false;
+                }
+
+                var unit_part_magus = caster.Get<UnitPartMagus>();
+
+                if (unit_part_magus == null)
+                {
+                    return false;
+                }
+
+                if ((bool)unit_part_magus.EldritchArcher && unit_part_magus.Spellstrike.Active)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (CanBeUsedOn(evt.Spell, evt.AbilityData))
+                {
+                    evt.AddMetamagic(this.Metamagic);
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintBuff))]
         public class MetamagicOnSpellDescriptor : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
@@ -553,7 +610,7 @@ namespace CallOfTheWild
             static bool Prefix(AutoMetamagic __instance, BlueprintAbility ability, AbilityData data, ref bool __result)
             {
                 if (__instance is AutoMetamagicExtender)
-                {
+                {                   
                     __result = ((AutoMetamagicExtender)__instance).CanBeUsedOn(ability, data);
                     return false;
                 }

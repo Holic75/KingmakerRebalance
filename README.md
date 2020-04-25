@@ -188,7 +188,8 @@ New Slayer Talents:
 New Magus Arcana:
 - Familiar,
 - Maneuver Mastery,
-- Spell Blending.
+- Spell Blending,
+- Reach Spellstrike.
 
 Bloodline Mutations:
 - Blood Havoc,

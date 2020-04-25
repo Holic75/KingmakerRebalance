@@ -54,4 +54,5 @@ namespace CallOfTheWild.FeatureMechanics
             return true;
         }
     }
+
 }
