@@ -396,4 +396,39 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
         }
     }
+
+    //allow weapon training to be recognized by advanced weapon training
+    [Harmony12.HarmonyPatch(typeof(UnitPartWeaponTraining))]
+    [Harmony12.HarmonyPatch("GetWeaponRank", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(ItemEntityWeapon) })]
+    class Patch_UnitPartWeaponTraining_GetWeaponRank
+    {
+        static BlueprintFeature two_handed_weapon_training = Main.library.Get<BlueprintFeature>("88da2a5dfc505054f933bb81014e864f");
+
+        static public void Postfix(UnitPartWeaponTraining __instance, ItemEntityWeapon weapon, ref int __result)
+        {
+            if (weapon == null)
+            {
+                return;
+            }
+
+            if (!weapon.Blueprint.IsTwoHanded || !weapon.Blueprint.IsMelee)
+            {
+                return;
+            }
+
+            var fact = __instance.Owner.GetFact(two_handed_weapon_training);
+
+            if (fact == null)
+            {
+                return;
+            }
+            var rank2h = fact.GetRank();
+
+            if (rank2h > __result)
+            {
+                __result = rank2h;
+            }
+        }
+    }
 }

@@ -32,6 +32,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection advanced_weapon_training = library.Get<BlueprintFeatureSelection>("b8cecf4e5e464ad41b79d5b42b76b399");
         static public BlueprintFeatureSelection weapon_training_rankup = library.Get<BlueprintFeatureSelection>("5f3cc7b9a46b880448275763fe70c0b0");
         static public BlueprintFeature monk_weapon_group, thrown_weapon_group;
+        static BlueprintFeature two_handed_weapon_training = Main.library.Get<BlueprintFeature>("88da2a5dfc505054f933bb81014e864f");
         static BlueprintCharacterClass fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
         /////////////weapon training/////////////////
         static public BlueprintFeature dazzling_intimidation;
@@ -59,6 +60,8 @@ namespace CallOfTheWild
 
         static public BlueprintFeatureSelection[] extra_armor_training_feats;
         static public BlueprintFeatureSelection[] extra_weapon_training_feats;
+
+        static public List<WeaponCategory> two_handed_categories = new List<WeaponCategory>();
 
         public static void load()
         {
@@ -94,12 +97,18 @@ namespace CallOfTheWild
             foreach (var wt in weapon_types)
             {
                 category_group_map[wt.Category] = wt.FighterGroup;
+
+                if (wt.IsTwoHanded && !wt.IsRanged)
+                {
+                    two_handed_categories.Add(wt.Category);
+                }
             }
 
             foreach (var f in weapon_training_rankup.AllFeatures)
             {
                 group_training_map.Add(f.GetComponent<WeaponGroupAttackBonus>().WeaponGroup, f);
             }
+            group_training_map.Add(WeaponFighterGroup.None, two_handed_weapon_training);
 
 
             foreach (var wc in category_group_map)
@@ -111,7 +120,6 @@ namespace CallOfTheWild
                 }
                 category_training_map[wc.Key] = feature;
             }
-
 
             var finesse_training = library.Get<BlueprintFeatureSelection>("b78d146cea711a84598f0acef69462ea");
 
@@ -566,8 +574,9 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(weapon_enhancement_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
             foreach (var f in group_training_map)
             {
+                var group_name = f.Value == two_handed_weapon_training ? "Two-Handed Weapons" : getGroupName(f.Key);
                 var warrior_spirit_ability = Helpers.CreateAbility(f.Key.ToString() + "WarriorSpiritEnchantmentAbility",
-                                                                    weapon_enhancement_buff.Name + " (" + getGroupName(f.Key) +")",
+                                                                    weapon_enhancement_buff.Name + " (" + group_name + ")",
                                                                     weapon_enhancement_buff.Description,
                                                                     "",
                                                                     weapon_enhancement_buff.Icon,
@@ -578,7 +587,7 @@ namespace CallOfTheWild
                                                                     "",
                                                                     Helpers.CreateRunActions(apply_buff),
                                                                     resource.CreateResourceLogic(),
-                                                                    Helpers.Create<NewMechanics.AbilityCasterMainWeaponGroupCheck>(a => a.groups = new WeaponFighterGroup[] {f.Key})
+                                                                    Helpers.Create<NewMechanics.AbilityCasterMainWeaponGroupCheck>(a => { a.groups = new WeaponFighterGroup[] { f.Key }; a.is_2h = f.Key == WeaponFighterGroup.None;})
                                                                     );
                 warrior_spirit_ability.setMiscAbilityParametersSelfOnly();
                 var feature = Common.AbilityToFeature(warrior_spirit_ability, false);
@@ -727,7 +736,6 @@ namespace CallOfTheWild
                                                     "",
                                                     focus_weapon.Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.PrerequisiteFeature(wt.Value),
                                                     Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, wt.Key),
                                                     Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementForSpecificCategory>(c => 
                                                                                                                                             { c.category = wt.Key;
@@ -741,6 +749,15 @@ namespace CallOfTheWild
                                                                                     classes: new BlueprintCharacterClass[] { fighter })
                                                     );
 
+                if (two_handed_categories.Contains(wt.Key))
+                {
+                    feature.AddComponents(Helpers.PrerequisiteFeature(wt.Value, any: true), Helpers.PrerequisiteFeature(two_handed_weapon_training, any: true));
+                }
+                else
+                {
+                    feature.AddComponents(Helpers.PrerequisiteFeature(wt.Value));
+                }
+
                 focus_weapon.AllFeatures = focus_weapon.AllFeatures.AddToArray(feature);                
             }
             addToAdvancedWeaponTraining(focus_weapon);
@@ -749,6 +766,7 @@ namespace CallOfTheWild
 
         static void createMoreWeaponGroups()
         {
+            two_handed_weapon_training.AddComponent(Helpers.Create<WeaponTraining>());
             var axes = library.Get<BlueprintFeature>("1b18d6a1297950f4bba9d121cfc735e9");
 
             monk_weapon_group = library.CopyAndAdd<BlueprintFeature>("1b18d6a1297950f4bba9d121cfc735e9", "WeaponTrainingMonk", "");

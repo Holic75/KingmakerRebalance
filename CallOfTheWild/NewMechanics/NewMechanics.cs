@@ -1350,9 +1350,20 @@ namespace CallOfTheWild
                 }
 
                 double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
-                double current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2.0;
+                var old_dice_formula = evt.Weapon.Blueprint.ScaleDamage(Size.Medium);
+                double current_avg_damage = (old_dice_formula.MaxValue(0) + old_dice_formula.MinValue(0)) / 2.0;
+
+                var new_dmg_scaled = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], evt.Weapon.Size);
+                var old_dmg_scaled = evt.Weapon.Damage;
+
+                double new_avg_dmg_scaled = (new_dmg_scaled.MinValue(0) + new_dmg_scaled.MaxValue(0)) / 2.0;
+                double current_avg_damage_scaled = (old_dmg_scaled.MaxValue(0) + old_dmg_scaled.MinValue(0)) / 2.0;
 
                 if (new_avg_dmg > current_avg_damage)
+                {
+                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
+                }
+                else if (new_avg_dmg_scaled > current_avg_damage_scaled)
                 {
                     evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
                 }
@@ -1398,9 +1409,20 @@ namespace CallOfTheWild
                 }
 
                 double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
-                double current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2.0;
+                var old_dice_formula = evt.Weapon.Blueprint.ScaleDamage(Size.Medium);
+                double current_avg_damage = (old_dice_formula.MaxValue(0) + old_dice_formula.MinValue(0)) / 2.0;
+
+                var new_dmg_scaled = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], evt.Weapon.Size);
+                var old_dmg_scaled = evt.Weapon.Damage;
+
+                double new_avg_dmg_scaled = (new_dmg_scaled.MinValue(0) + new_dmg_scaled.MaxValue(0)) / 2.0;
+                double current_avg_damage_scaled = (old_dmg_scaled.MaxValue(0) + old_dmg_scaled.MinValue(0)) / 2.0;
 
                 if (new_avg_dmg > current_avg_damage)
+                {
+                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
+                }
+                else if (new_avg_dmg_scaled > current_avg_damage_scaled)
                 {
                     evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
                 }
@@ -1446,9 +1468,20 @@ namespace CallOfTheWild
                 }
 
                 double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
-                double current_avg_damage = (evt.Weapon.Damage.MaxValue(0) + evt.Weapon.Damage.MinValue(0)) / 2.0;
+                var old_dice_formula = evt.Weapon.Blueprint.ScaleDamage(Size.Medium);
+                double current_avg_damage = (old_dice_formula.MaxValue(0) + old_dice_formula.MinValue(0)) / 2.0;
+
+                var new_dmg_scaled = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], evt.Weapon.Size);
+                var old_dmg_scaled = evt.Weapon.Damage;
+
+                double new_avg_dmg_scaled = (new_dmg_scaled.MinValue(0) + new_dmg_scaled.MaxValue(0)) / 2.0;
+                double current_avg_damage_scaled = (old_dmg_scaled.MaxValue(0) + old_dmg_scaled.MinValue(0)) / 2.0;
 
                 if (new_avg_dmg > current_avg_damage)
+                {
+                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
+                }
+                else if (new_avg_dmg_scaled > current_avg_damage_scaled)
                 {
                     evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
                 }
@@ -1989,9 +2022,14 @@ namespace CallOfTheWild
         public class AbilityCasterMainWeaponGroupCheck : BlueprintComponent, IAbilityCasterChecker
         {
             public WeaponFighterGroup[] groups;
+            public bool is_2h = false;
 
             public bool CorrectCaster(UnitEntityData caster)
             {
+                if (is_2h)
+                {
+                    return caster.Body.PrimaryHand.Weapon.Blueprint.IsTwoHanded && caster.Body.PrimaryHand.Weapon.Blueprint.IsMelee;
+                }
                 if (caster.Body.PrimaryHand.HasWeapon)
                     return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup));
                 return false;
