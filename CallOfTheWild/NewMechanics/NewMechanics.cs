@@ -1735,7 +1735,29 @@ namespace CallOfTheWild
                 if (!spells.Contains(evt.Spell))
                     return;
                 evt.AddBonusDC(this.BonusDC);
+            }
 
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+        }
+
+
+        public class SpellListAffinity : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintSpellList base_spell_list;
+            public BlueprintSpellList second_spell_list;
+
+            public int bonus;
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spell.IsSpell && base_spell_list.Contains(evt.Spell.Parent ?? evt.Spell) && second_spell_list.Contains(evt.Spell.Parent ?? evt.Spell))
+                {
+                    evt.AddBonusDC(bonus);
+                    evt.AddBonusCasterLevel(bonus);
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateAbilityParams evt)

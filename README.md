@@ -197,6 +197,17 @@ Bloodline Mutations:
 - Bloodline Familiar.
 
 
+- Wizard Discoveries:
+- Alchemical Affinity,
+- Forest's Blessing,
+- Idealize,
+- Infectious Charms,
+- Knowledge is Power,
+- Opposition Research,
+- Resilent Illusions,
+- Time Stutter.
+
+
 New spells:
 - Blade Lash,
 - Command and Command, Greater,

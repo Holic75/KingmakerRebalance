@@ -722,7 +722,7 @@ namespace CallOfTheWild
 
             focus_weapon = Helpers.CreateFeatureSelection("FocusedWeaponAdvancedWeaponTrainingFeatureSelection",
                                                           "Focused Weapon",
-                                                          "The fighter selects one weapon for which he has Weapon Focus and that belongs to the associated fighter weapon group. The fighter can deal damage with this weapon based on the damage of the fighter’s Warrior Spirit class feature, treating his fighter level as his fighter level. The fighter must have Weapon Focus with the selected weapon in order to choose this option.",
+                                                          "The fighter selects one weapon for which he has Weapon Focus and that belongs to the associated fighter weapon group. The fighter can deal damage with this weapon based on the damage of the warpriest’s sacred weapon class feature, treating his fighter level as his warpriest level. The fighter must have Weapon Focus with the selected weapon in order to choose this option.",
                                                           "",
                                                           weapon_focus.Icon,
                                                           FeatureGroup.None

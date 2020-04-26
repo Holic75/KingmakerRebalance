@@ -994,7 +994,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(apply_caster_buff, 
                                                                          Helpers.Create<NewMechanics.ApplyActionToAllUnits>(a => a.actions = Helpers.CreateActionList(apply_buff))
                                                                         ),
-                                                Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, 1, 1), sharedValue: AbilitySharedValue.Duration),
+                                                Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, 1, 2), sharedValue: AbilitySharedValue.Duration),
                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation)
                                                 );
             time_stop.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Empower | Metamagic.Maximize;

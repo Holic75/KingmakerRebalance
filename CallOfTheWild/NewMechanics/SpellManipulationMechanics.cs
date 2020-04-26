@@ -1145,5 +1145,101 @@ namespace CallOfTheWild
                     return true;
             }
         }
+
+
+        public class ReplaceDCWithCasterLevelCheckForSchool : OwnedGameLogicComponent<UnitDescriptor>, MetamagicFeats.IRuleSavingThrowTriggered
+        {
+            public SpellSchool school;
+            public SavingThrowType save_type;
+
+            public void ruleSavingThrowTriggered(RuleSavingThrow evt)
+            {
+                var context = evt.Reason?.Context;
+                if (context == null)
+                {
+                    return;
+                }
+
+                var caster = context.MaybeCaster;
+                if (caster == null)
+                {
+                    return;
+                }
+
+                if (caster != this.Owner.Unit)
+                {
+                    return;
+                }
+
+                if (context.SpellSchool == school 
+                     && (save_type == SavingThrowType.Unknown || evt.Type == save_type))
+                {
+                    var cl_check = RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D20)) + evt.Reason.Context.Params.CasterLevel;
+                    if (cl_check > evt.DifficultyClass)
+                    {
+                        Common.AddBattleLogMessage("Changing spell DC for "  + evt.Initiator.CharacterName + $" form {evt.DifficultyClass} to {cl_check} due to {this.Fact.Name}");
+                        Helpers.SetField(evt, "DifficultyClass", cl_check);
+                    }
+                }
+            }
+        }
+
+
+        public class ModifierBonusForSchool : OwnedGameLogicComponent<UnitDescriptor>, IOnModifierAdd
+        {
+            public SpellSchool school;
+            public ModifierDescriptor descriptor;
+            public ContextValue bonus;
+
+            public void onModifierAdd(ModifiableValue.Modifier modifier)
+            {
+                var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (spellContext == null)
+                {
+                    return;
+                }
+
+                if (spellContext.MaybeCaster != this.Owner.Unit)
+                {
+                    return;
+                }
+
+                if (school != SpellSchool.None && spellContext.SpellSchool != school)
+                {
+                    return;
+                }
+
+                if (descriptor != ModifierDescriptor.None && descriptor != modifier.ModDescriptor)
+                {
+                    return;
+                }
+
+                modifier.ModValue += bonus.Calculate(this.Fact.MaybeContext);
+            }
+
+
+        }
+
+
+        public interface IOnModifierAdd : IGlobalSubscriber
+        {
+            void onModifierAdd(ModifiableValue.Modifier modifier);
+        }
+
+
+
+
+        [Harmony12.HarmonyPatch(typeof(ModifiableValue))]
+        [Harmony12.HarmonyPatch("AddModifier", Harmony12.MethodType.Normal)]
+        [Harmony12.HarmonyPatch(new Type[] {typeof(ModifiableValue.Modifier) })]
+        static class ModifiableValue_AddModifier_Patch
+        {
+            internal static bool Prefix(ModifiableValue __instance , ModifiableValue.Modifier mod)
+            {
+                EventBus.RaiseEvent<IOnModifierAdd>((Action<IOnModifierAdd>)(h => h.onModifierAdd(mod)));
+
+                return true;
+            }
+        }
     }
 }

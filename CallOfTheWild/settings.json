@@ -8,5 +8,6 @@
   "allow_spellcasting_in_elemental_form": true,
   "fix_teamwork_feats": true,
   "fix_ecclesitheurge_class": true,
-  "advanced_fighter_options":  true
+  "advanced_fighter_options": true,
+  "wizard_discoveries": true
 }

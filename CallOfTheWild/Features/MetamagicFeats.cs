@@ -17,6 +17,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.Items;
+using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
@@ -606,15 +607,24 @@ namespace CallOfTheWild
         }
 
 
+        public interface IRuleSavingThrowTriggered : IGlobalSubscriber
+        {
+            void ruleSavingThrowTriggered(RuleSavingThrow evt);
+        }
+
+
         [Harmony12.HarmonyPatch(typeof(RuleSavingThrow))]
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
         static class RuleSavingThrow_OnTrigger_Patch
         {
             internal static void Postfix(RuleSavingThrow __instance, RulebookEventContext context)
             {
+                EventBus.RaiseEvent<IRuleSavingThrowTriggered>((Action<IRuleSavingThrowTriggered>)(h => h.ruleSavingThrowTriggered(__instance)));
+
                 if (__instance.Initiator.Descriptor.State.IsDead)
                     return;
 
+     
                 var context2 = __instance.Reason?.Context;
                 //var ability = __instance.Reason?.;
 
