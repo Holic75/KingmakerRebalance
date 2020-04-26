@@ -165,7 +165,8 @@ namespace CallOfTheWild
                                          Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default),
                                                                                                                  ModifierDescriptor.UntypedStackable, StatType.Strength),
                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, min: 0),
-                                         Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
+                                         Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence),
+                                         Helpers.PrerequisiteClassLevel(wizard, 1)
                                          );
 
             addWizardDiscovery(knowledge_is_power);
