@@ -107,6 +107,7 @@ namespace CallOfTheWild.Archetypes
                                Helpers.PrerequisiteFeature(progression)
                                );
                 this.hex_selection.AllFeatures = hexes;
+                progression.Classes = new BlueprintCharacterClass[] { archetype.GetParentClass() };
             }
         }
 
