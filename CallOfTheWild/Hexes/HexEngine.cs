@@ -1876,7 +1876,7 @@ namespace CallOfTheWild
 
             split_major_hex_feat = Helpers.CreateFeature("SplitMajorHexFeature",
                                                        "Split Major Hex",
-                                                       "When you use one of your major hexes (not a grand hex) that targets a creature,  you can apply the same hex to another creature as a free action.",
+                                                       "When you use one of your major hexes (not a grand hex) that targets a creature, you can apply the same hex to another creature as a free action.",
                                                        "",
                                                        split_hex_ability.Icon,
                                                        FeatureGroup.Feat,

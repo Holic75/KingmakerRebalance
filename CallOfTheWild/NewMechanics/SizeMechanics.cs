@@ -19,14 +19,14 @@ namespace CallOfTheWild.SizeMechanics
         public new void addBuff(Fact buff)
         {
             base.addBuff(buff);
-            this.Owner.Ensure<UnitPartSizeModifier>().Remove(null);
+            this.Owner?.Ensure<UnitPartSizeModifier>()?.Remove(null);
         }
 
 
         public new void removeBuff(Fact buff)
         {
             base.removeBuff(buff);
-            this.Owner.Ensure<UnitPartSizeModifier>().Remove(null);
+            this.Owner?.Ensure<UnitPartSizeModifier>()?.Remove(null);
         }
 
 

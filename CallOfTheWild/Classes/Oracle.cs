@@ -161,6 +161,7 @@ namespace CallOfTheWild
                                                         );
                 progression.LevelEntries = entries.ToArray();
                 progression.UIGroups = Helpers.CreateUIGroups(hex_selection, learn_spells, spirit_ability, greater_spirit_ability);
+                progression.Classes = getOracleArray(); 
             }
         }
 
