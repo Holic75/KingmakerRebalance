@@ -7415,7 +7415,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
-        public class AddRandomBonusOnAttackRollAndConsumeResource : RuleInitiatorLogicComponent<RuleAttackRoll>, IInitiatorRulebookHandler<RuleAttackWithWeapon>
+        public class AddRandomBonusOnAttackRollAndConsumeResource : RuleInitiatorLogicComponent<RuleAttackRoll>
         {
             public ContextValue dice_count;
             public ContextValue dice_type;
@@ -7451,10 +7451,7 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {
                 will_spend = 0;
-                if (evt.RuleAttackWithWeapon == null)
-                {
-                    return;
-                }
+
                 if (resource != null)
                 {
                     int need_resource = getResourceAmount(evt);
@@ -7481,23 +7478,13 @@ namespace CallOfTheWild
                 evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
 
-            public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
                 if (will_spend > 0)
                 {
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
                 will_spend = 0;
-            }
-
-            public override void OnEventDidTrigger(RuleAttackRoll evt)
-            {
-
-            }
-
-            public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
-            {
-
             }
         }
 
