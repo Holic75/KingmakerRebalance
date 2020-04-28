@@ -984,11 +984,11 @@ namespace CallOfTheWild
                                                                   action);
             var extra_components = new BlueprintComponent[]
             {
-                Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(checked_action),
-                                                                 check_weapon_range_type: true, wait_for_attack_to_resolve: true),
-                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(checked_action_ranged),
+                Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(checked_action),
+                                                                 check_weapon_range_type: true),
+                 Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(checked_action_ranged),
                                                                   check_weapon_range_type: true,
-                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged, wait_for_attack_to_resolve: true)
+                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged)
             };
 
             studied_strike_buff.ComponentsArray = extra_components.AddToArray(studied_strike_buff.ComponentsArray);
@@ -1033,11 +1033,11 @@ namespace CallOfTheWild
                                                                   action);
             var extra_components = new BlueprintComponent[]
             {
-                Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(checked_action),
-                                                                 check_weapon_range_type: true, wait_for_attack_to_resolve: true),
-                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(checked_action_ranged),
+                Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(checked_action),
+                                                                 check_weapon_range_type: true),
+                 Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(checked_action_ranged),
                                                                   check_weapon_range_type: true,
-                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged, wait_for_attack_to_resolve: true)
+                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged)
             };
 
             studied_strike_buff.ComponentsArray = extra_components.AddToArray(studied_strike_buff.ComponentsArray);
@@ -1077,11 +1077,11 @@ namespace CallOfTheWild
                                                                   action);
             var extra_components = new BlueprintComponent[]
             {
-                Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(checked_action),
-                                                                 check_weapon_range_type: true, wait_for_attack_to_resolve: true),
-                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(checked_action_ranged),
+                Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(checked_action),
+                                                                 check_weapon_range_type: true),
+                 Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(checked_action_ranged),
                                                                   check_weapon_range_type: true,
-                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged, wait_for_attack_to_resolve: true)
+                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged)
             };
 
             studied_strike_buff.ComponentsArray = extra_components.AddToArray(studied_strike_buff.ComponentsArray);
@@ -1102,11 +1102,11 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_slow_reactions),
-                                                                                           check_weapon_range_type: true, wait_for_attack_to_resolve: true),
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(ranged_apply_slow_reactions),
+                                          Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(apply_slow_reactions),
+                                                                                           check_weapon_range_type: true),
+                                          Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(ranged_apply_slow_reactions),
                                                                                            check_weapon_range_type: true,
-                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged, wait_for_attack_to_resolve: true)
+                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged)
                                           );
             var toggle = Helpers.CreateActivatableAbility("InvestigatorSappingOffensiveToggleAbility",
                                                           buff.Name,
@@ -1137,11 +1137,11 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_sickened),
-                                                                                           check_weapon_range_type: true, wait_for_attack_to_resolve: true),
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(ranged_apply_sickened),
+                                          Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(apply_sickened),
+                                                                                           check_weapon_range_type: true),
+                                          Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(ranged_apply_sickened),
                                                                                            check_weapon_range_type: true,
-                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged, wait_for_attack_to_resolve: true)
+                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged)
                                           );
             var toggle = Helpers.CreateActivatableAbility("InvestigatorSickeningOffensiveToggleAbility",
                                                           buff.Name,
@@ -1767,7 +1767,9 @@ namespace CallOfTheWild
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.HandCrossbow, any: true),
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Shuriken, any: true),
                                        Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.ThrowingAxe, any: true),
-                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Dart, any: true)
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Dart, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Ray, any: true),
+                                       Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.KineticBlast, any: true)
                                        );
             ranged_study.AddComponents(Helpers.Create<NewMechanics.AttackBonusAgainstFactsOwner>(a =>
                                                                                                 {
@@ -1845,9 +1847,12 @@ namespace CallOfTheWild
                                                                                      startLevel: 4, stepLevel: 2),
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike),
                                                                                            check_weapon_range_type: true, wait_for_attack_to_resolve: true),
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike_ranged),
+                                          Common.createAddInitiatorCalculateDamageAfterAttckRollTrigger(Helpers.CreateActionList(remove_studied_strike_ranged),
+                                                                                                        check_weapon_range_type: true,
+                                                                                                        range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                          /*(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike_ranged),
                                                                                            check_weapon_range_type: true, wait_for_attack_to_resolve: true, 
-                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                                                           range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),*/
                                           Common.createContextCalculateAbilityParamsBasedOnClass(investigator_class, StatType.Intelligence)
                                           );
             var toggle = Helpers.CreateActivatableAbility("InvestigatorStudiedStrikeToggleAbility",

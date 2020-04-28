@@ -821,6 +821,40 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.AddInitiatorAttackRollTrigger2 createAddInitiatorAttackRollTrigger2(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
+                                                                                              bool sneak_attack = false, 
+                                                                                              bool check_weapon_range_type = false,
+                                                                                              bool on_initiator = false,
+                                                                                              AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
+        {
+            var t = Helpers.Create<NewMechanics.AddInitiatorAttackRollTrigger2>();
+            t.SneakAttack = sneak_attack;
+            t.Action = action;
+            t.OnlyHit = only_hit;
+            t.CriticalHit = critical_hit;
+            t.CheckWeaponRangeType = check_weapon_range_type;
+            t.RangeType = range_type;
+            t.OnOwner = on_initiator;
+            return t;
+        }
+
+
+        static public NewMechanics.ActioOnCalculateDamageAfterAttackRoll createAddInitiatorCalculateDamageAfterAttckRollTrigger(Kingmaker.ElementsSystem.ActionList action, bool critical_hit = false,
+                                                                                      bool sneak_attack = false,
+                                                                                      bool check_weapon_range_type = false,
+                                                                                      bool on_initiator = false,
+                                                                                      AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
+        {
+            var t = Helpers.Create<NewMechanics.ActioOnCalculateDamageAfterAttackRoll>();
+            t.SneakAttack = sneak_attack;
+            t.action = action;
+            t.CriticalHit = critical_hit;
+            t.CheckWeaponRangeType = check_weapon_range_type;
+            t.RangeType = range_type;
+            t.OnOwner = on_initiator;
+            return t;
+        }
+
         static public AddInitiatorAttackWithWeaponTrigger createAddInitiatorAttackWithWeaponTriggerWithCategory(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
                                                                                               bool check_weapon_range_type = false, bool reduce_hp_to_zero = false,
                                                                                               bool on_initiator = false,

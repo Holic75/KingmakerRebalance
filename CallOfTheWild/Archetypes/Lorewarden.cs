@@ -320,7 +320,7 @@ namespace CallOfTheWild.Archetypes
                                                      "",
                                                      null,
                                                      FeatureGroup.None,
-                                                     Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_buff), critical_hit: true, wait_for_attack_to_resolve: true)
+                                                     Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(apply_buff), critical_hit: true)
                                                      );
             feature11.HideInCharacterSheetAndLevelUp = true;
 
@@ -340,7 +340,7 @@ namespace CallOfTheWild.Archetypes
                                                     "",
                                                     null,
                                                     FeatureGroup.None,
-                                                    Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_cooldown), critical_hit: true, wait_for_attack_to_resolve: true),
+                                                    Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(apply_cooldown), critical_hit: true, on_initiator: true),
                                                     Helpers.Create<NewMechanics.CritAutoconfirmIfHasNoFact>(c => c.fact = cooldown_buff)
                                                     );
             feature19.HideInCharacterSheetAndLevelUp = true;

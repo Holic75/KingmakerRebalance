@@ -926,7 +926,7 @@ namespace CallOfTheWild
                                                                 "58fb04c603b14382b23f2c7600691277",
                                                                 blade_barrier.Icon,
                                                                 null,
-                                                                Common.createAddInitiatorAttackWithWeaponTrigger(action, critical_hit: true),
+                                                                Common.createAddInitiatorAttackRollTrigger2(action, critical_hit: true),
                                                                 Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution)
                                                                 );
                 staggering_strike = Helpers.CreateFeature(prefix + "StaggeringStrikeFeature",
@@ -1285,7 +1285,7 @@ namespace CallOfTheWild
                                                                 "7a54fe2bbf624e60b10121356218a3a5",
                                                                 blade_barrier.Icon,
                                                                 null,
-                                                                Common.createAddInitiatorAttackWithWeaponTrigger(action, critical_hit: true),
+                                                                Common.createAddInitiatorAttackRollTrigger2(action, critical_hit: true),
                                                                 Common.createContextCalculateAbilityParamsBasedOnClass(bloodrager_class, StatType.Constitution)
                                                                 );
                 confusing_critical = Helpers.CreateFeature(prefix + "ConfusingCriticalFeature",

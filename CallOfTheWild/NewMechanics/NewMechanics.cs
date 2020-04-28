@@ -3523,7 +3523,6 @@ namespace CallOfTheWild
         {
             public UnitAnimationAction GetAbilityAction(UnitEntityData caster)
             {
-                //Main.logger.Log("here " + $"{ caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action != null}");
                 return caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action;
             }
         }
@@ -5194,7 +5193,6 @@ namespace CallOfTheWild
                 ModifiableValueAttributeStat skill_stat = owner_skill.BaseStat;
                 ModifiableValueAttributeStat replacement_stat = this.Owner.Stats.GetStat(ReplacementStat) as ModifiableValueAttributeStat;
 
-                //Main.logger.Log(skill_stat.Bonus.ToString() + " : " + replacement_stat.Bonus.ToString());
                 int bonus = replacement_stat.Bonus - skill_stat.Bonus;
                 if (bonus <= 0)
                 {
@@ -7066,6 +7064,72 @@ namespace CallOfTheWild
         }
 
 
+
+        [AllowMultipleComponents]
+        public class AddInitiatorAttackRollTrigger2 : GameLogicComponent, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+        {
+            [HideIf("CriticalHit")]
+            public bool OnlyHit = true;
+            public bool CriticalHit;
+            public bool SneakAttack;
+            public bool OnOwner;
+            public bool CheckWeapon;
+            [ShowIf("CheckWeapon")]
+            public WeaponCategory WeaponCategory;
+            public bool CheckWeaponRangeType;
+            [ShowIf("CheckWeaponRangeType")]
+            public AttackTypeAttackBonus.WeaponRangeType RangeType;
+            public bool AffectFriendlyTouchSpells;
+            public ActionList Action;
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+                if (!this.CheckConditions(evt))
+                    return;
+                using (new ContextAttackData(evt, (Projectile)null))
+                {
+                    if (this.OnOwner)
+                    {
+                        UnitDescriptor unitDescriptor = (this.Fact as OwnedFact<UnitDescriptor>)?.Owner ?? (this.Fact as ItemEnchantment)?.Owner.Wielder;
+                        if (unitDescriptor != null)
+                            (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)unitDescriptor.Unit);
+                        else
+                            UberDebug.LogError((object)string.Format("Fact has no owner: {0}", (object)this.Fact), (object[])Array.Empty<object>());
+                    }
+                    else
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)evt.Target);
+                }
+            }
+
+            private bool CheckConditions(RuleAttackRoll evt)
+            {
+                ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+                ItemEntityWeapon weapon = (evt.Reason.Rule as RuleAttackWithWeapon)?.Weapon;
+                if (weapon == null)
+                {
+                    weapon = evt.Weapon;
+                }
+
+                if (weapon == null)
+                {
+                    return false;
+                }
+
+                if (this.CheckWeaponRangeType && !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.RangeType))
+                {
+                    return false;
+                }
+
+                return (owner == null || owner == weapon) && (!this.CheckWeapon || weapon != null && this.WeaponCategory == weapon.Blueprint.Category) && ((!this.OnlyHit || evt.IsHit) && (!this.CriticalHit || evt.IsCriticalConfirmed && !evt.FortificationNegatesCriticalHit)) && ((!this.SneakAttack || evt.IsSneakAttack && !evt.FortificationNegatesSneakAttack) && (this.AffectFriendlyTouchSpells || evt.Initiator.IsEnemy(evt.Target) || evt.Weapon.Blueprint.Type.AttackType != AttackType.Touch));
+            }
+        }
+
+
+
         [AllowedOn(typeof(BlueprintBuff))]
         public class DamageBonusPrecisionAgainstFactOwner : RuleInitiatorLogicComponent<RuleCalculateDamage>
         {
@@ -7134,6 +7198,91 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleCalculateDamage evt)
             {
 
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class ActioOnCalculateDamageAfterAttackRoll : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public ActionList action;
+            public bool OnOwner;
+            public bool CriticalHit;
+            public bool SneakAttack;
+            public bool CheckWeapon;
+            [ShowIf("CheckWeapon")]
+            public WeaponCategory WeaponCategory;
+            public bool CheckWeaponRangeType;
+            [ShowIf("CheckWeaponRangeType")]
+            public AttackTypeAttackBonus.WeaponRangeType RangeType;
+            public bool AffectFriendlyTouchSpells;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+                var attack_roll = evt.ParentRule?.AttackRoll;
+                if (attack_roll == null)
+                {
+                    return;
+                }
+
+                if (!CheckConditions(attack_roll))
+                {
+                    return;
+                }
+
+                using (new ContextAttackData(attack_roll, (Projectile)null))
+                {
+                    if (this.OnOwner)
+                    {
+                        UnitDescriptor unitDescriptor = (this.Fact as OwnedFact<UnitDescriptor>)?.Owner ?? (this.Fact as ItemEnchantment)?.Owner.Wielder;
+                        if (unitDescriptor != null)
+                            (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, (TargetWrapper)unitDescriptor.Unit);
+                        else
+                            UberDebug.LogError((object)string.Format("Fact has no owner: {0}", (object)this.Fact), (object[])Array.Empty<object>());
+                    }
+                    else
+                        (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, (TargetWrapper)evt.Target);
+                }
+            }
+
+
+            private bool CheckConditions(RuleAttackRoll evt)
+            {
+                ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+                ItemEntityWeapon weapon = (evt.Reason.Rule as RuleAttackWithWeapon)?.Weapon;
+                if (weapon == null)
+                {
+                    weapon = evt.Weapon;
+                }
+
+                
+                if (weapon == null)
+                {
+                    return false;
+                }
+
+                if (this.CheckWeaponRangeType && !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.RangeType))
+                {
+                    return false;
+                }
+
+                return (owner == null || owner == weapon) && (!this.CheckWeapon || weapon != null && this.WeaponCategory == weapon.Blueprint.Category) && ((!this.CriticalHit || evt.IsCriticalConfirmed && !evt.FortificationNegatesCriticalHit)) && ((!this.SneakAttack || evt.IsSneakAttack && !evt.FortificationNegatesSneakAttack));
             }
         }
 
@@ -7361,15 +7510,14 @@ namespace CallOfTheWild
                 var dice_id = dice_type.Calculate(this.Fact.MaybeContext) - 1;
                 dice_id = Math.Max(0, Math.Min(dices.Length - 1, dice_id));
                 DiceFormula dice_formula = new DiceFormula(dice_count.Calculate(this.Fact.MaybeContext), dices[dice_id]);
-                //Main.logger.Log("Dice: " + dice_formula.Dice.ToString());
-                //Main.logger.Log("Rolls: " + dice_formula.Rolls.ToString());
+
                 RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-                //Main.logger.Log("Skill bonus: " + result.ToString());
+
                 evt.Bonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable);
             }
 
@@ -7466,15 +7614,14 @@ namespace CallOfTheWild
                 var dice_id = dice_type.Calculate(this.Fact.MaybeContext) - 1;
                 dice_id = Math.Max(0, Math.Min(dices.Length - 1, dice_id));
                 DiceFormula dice_formula = new DiceFormula(dice_count.Calculate(this.Fact.MaybeContext), dices[dice_id]);
-                //Main.logger.Log("Dice: " + dice_formula.Dice.ToString());
-                //Main.logger.Log("Rolls: " + dice_formula.Rolls.ToString());
+
                 RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-                //Main.logger.Log("Attack bonus: " + result.ToString());
+
                 evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
 
