@@ -118,10 +118,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
         public bool canBeUsedAs2h(ItemEntityWeapon weapon)
         {
-            if (buffs.Empty())
-            {
-                return true;
-            }
 
             bool can_use_at_all = false;
             foreach (var b in buffs)
@@ -136,7 +132,17 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 can_use_at_all = can_use_at_all || can_use;
             }
 
-            return !can_use_at_all;
+            if (!can_use_at_all)
+            {
+                HandSlot holdingSlot = weapon.HoldingSlot as HandSlot;
+                if (holdingSlot != null)
+                    return !holdingSlot.PairSlot.HasItem;
+                return false;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -326,14 +332,26 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("CheckEligibility", Harmony12.MethodType.Normal)]
     class MonkNoArmorFeatureUnlock__CheckEligibility__Patch
     {
-        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        static bool Prefix(MonkNoArmorFeatureUnlock __instance)
+        {
+            if (!Helpers.hasShield2(__instance.Owner.Body.SecondaryHand) && (!__instance.Owner.Body.Armor.HasArmor || !__instance.Owner.Body.Armor.Armor.Blueprint.IsArmor))
+            {
+                __instance.AddFact();
+            }
+            else
+                __instance.RemoveFact();
+
+            return false;
+        }
+
+        /*static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
         {
             var codes = instructions.ToList();
             var check_shield = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("HasShield"));
 
             codes[check_shield] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<HandSlot, bool>(Helpers.hasShield2).Method);
             return codes.AsEnumerable();
-        }
+        }*/
     }
 
 

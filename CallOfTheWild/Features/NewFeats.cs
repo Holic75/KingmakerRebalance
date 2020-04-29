@@ -311,9 +311,10 @@ namespace CallOfTheWild
                                                      a.CheckCategory = true;
                                                      a.Category = ArmorProficiencyGroup.TowerShield;
                                                      a.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                     a.BonesPerRank = 3;
                                                  }
                                                                                           ),
-                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, ContextRankProgression.StartPlusDivStep, startLevel: -2, stepLevel: 1,
+                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, ContextRankProgression.AsIs,
                                                                                   feature: armor_training),
                                                   Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] {armor_training})
                                                  );

@@ -382,7 +382,8 @@ Original game bug fixes:
 - Fixed incorrect calculation of burn cost for kinetic blade and blade whirlwind abilities,
 - Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire, as a side effect it also allows to loot body under baleful polymorph.
 - Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required),
-- Fixed missing druid scaling on 1st level Weather domain ability.
+- Fixed missing druid scaling on 1st level Weather domain ability,
+- Monks no longer gain their AC bonus if using shield and fight unarmored.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

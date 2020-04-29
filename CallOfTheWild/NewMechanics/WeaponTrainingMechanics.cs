@@ -344,7 +344,6 @@ namespace CallOfTheWild.WeaponTrainingMechanics
                 return;
             }
             this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
-            Main.logger.Log((this.m_AppliedFact != null).ToString());
         }
     }
 
