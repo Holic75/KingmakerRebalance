@@ -350,7 +350,7 @@ namespace CallOfTheWild
 
             public void CheckEligibility()
             {
-                if (!this.Owner.Body.SecondaryHand.HasShield
+                if (!HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
                     && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
                     && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon))
                     )

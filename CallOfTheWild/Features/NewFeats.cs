@@ -5,13 +5,17 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.Items;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -25,6 +29,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -105,6 +110,12 @@ namespace CallOfTheWild
         static public BlueprintFeature shielded_mage;
         static public BlueprintFeature stumbling_bash;
         static public BlueprintFeature toppling_bash;
+
+        static public BlueprintFeature shield_brace;
+        static public BlueprintFeature unhindering_shield; //fix checks, magus spell combat
+        static public BlueprintFeature tower_shield_specialsit;
+        static public BlueprintFeature improved_shield_focus;
+        static public BlueprintFeature prodigious_two_weapon_fighting;
         
 
 
@@ -176,6 +187,193 @@ namespace CallOfTheWild
             createShieldedMage();
             createStumblingBash();
             createTopplingBash();
+
+            createShieldBrace();
+            createUnhinderingShield();
+            createTowerShieldSpecialist();
+            createProdigalTwoWeaponFighting();
+        }
+
+
+        static void createProdigalTwoWeaponFighting()
+        {
+            prodigious_two_weapon_fighting = Helpers.CreateFeature("ProdigiousTwoWeaponFightingFeature",
+                                                 "Prodigious Two-Weapon Fighting",
+                                                 "You may fight with a one-handed weapon in your offhand as if it were a light weapon. In addition, you may use your Strength score instead of your Dexterity score for the purpose of qualifying for Two-Weapon Fighting and any feats with Two-Weapon Fighting as a prerequisite.",
+                                                 "",
+                                                 LoadIcons.Image2Sprite.Create(@"FeatIcons/ProdigiousTwoWeaponFighting.png"),
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteStatValue(StatType.Strength, 13)
+                                                 );
+
+            var twf = library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d");
+            var itwf = library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629");
+            var gtwf = library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8");
+            var double_slice = library.Get<BlueprintFeature>("8a6a1920019c45d40b4561f05dcb3240");
+
+            var twf_feats = new BlueprintFeature[] { twf, itwf, gtwf, double_slice };
+
+            //fix twf prerequisites
+            foreach (var feat in twf_feats)
+            {
+                var dex_prerequisite = feat.GetComponents<PrerequisiteStatValue>().Where(p => p.Stat == StatType.Dexterity).FirstOrDefault();
+                dex_prerequisite.Group = Prerequisite.GroupType.Any;
+
+                feat.AddComponent(Helpers.Create<PrerequisiteMechanics.CompoundPrerequisite>(c =>
+                                                                                            {
+                                                                                                c.prerequisite1 = Helpers.PrerequisiteFeature(prodigious_two_weapon_fighting);
+                                                                                                c.prerequisite2 = Helpers.PrerequisiteStatValue(StatType.Strength, dex_prerequisite.Value);
+                                                                                                c.Group = Prerequisite.GroupType.Any;
+                                                                                            }
+                                                                                            )
+                                 );
+            }
+
+            prodigious_two_weapon_fighting.Groups = prodigious_two_weapon_fighting.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(prodigious_two_weapon_fighting);
+        }
+
+
+        //fix twf to work correctly with prodigal two weapon fighting
+        [Harmony12.HarmonyPriority(Harmony12.Priority.First)]
+        [Harmony12.HarmonyPatch(typeof(TwoWeaponFightingAttackPenalty))]
+        [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
+        [Harmony12.HarmonyPatch(new Type[] {typeof(RuleCalculateAttackBonusWithoutTarget) })]
+        class TwoWeaponFightingAttackPenalty__OnEventAboutToTrigger__Patch
+        {
+            static BlueprintFeature shield_master = library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc");
+            static bool Prefix(TwoWeaponFightingAttackPenalty __instance, RuleCalculateAttackBonusWithoutTarget evt)
+            {
+
+                ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
+                ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
+                if (evt.Weapon == null || maybeWeapon1 == null || (maybeWeapon2 == null || maybeWeapon1.Blueprint.IsNatural) || (maybeWeapon2.Blueprint.IsNatural || maybeWeapon1 == evt.Initiator.Body.EmptyHandWeapon || maybeWeapon2 == evt.Initiator.Body.EmptyHandWeapon) || maybeWeapon1 != evt.Weapon && maybeWeapon2 != evt.Weapon)
+                    return false;
+                int rank = __instance.Fact.GetRank();
+                int num1 = rank <= 1 ? -4 : -2;
+                int num2 = rank <= 1 ? -8 : -2;
+                int bonus = evt.Weapon != maybeWeapon1 ? num2 : num1;
+                UnitPartWeaponTraining partWeaponTraining = __instance.Owner.Get<UnitPartWeaponTraining>();
+                bool ignore_weapon_size = (bool)__instance.Owner.State.Features.EffortlessDualWielding && partWeaponTraining != null && partWeaponTraining.IsSuitableWeapon(maybeWeapon2);
+                ignore_weapon_size = ignore_weapon_size || __instance.Owner.Unit.Descriptor.HasFact(prodigious_two_weapon_fighting);
+                if (!maybeWeapon2.Blueprint.IsLight && !maybeWeapon1.Blueprint.Double && (!ignore_weapon_size))
+                    bonus += -2;
+
+                if (evt.Weapon.IsShield && __instance.Owner.Unit.Descriptor.HasFact(shield_master))
+                {
+                    bonus = 0;
+                }
+                evt.AddBonus(bonus, __instance.Fact);
+                return false;
+            }
+        }
+
+        [Harmony12.HarmonyPatch(typeof(ShieldMaster))]
+        [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
+        [Harmony12.HarmonyPatch(new Type[] { typeof(RuleCalculateAttackBonusWithoutTarget) })]
+        class ShieldMaster__OnEventAboutToTrigger__Patch
+        {
+            static BlueprintFeature shield_master = library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc");
+            static bool Prefix(TwoWeaponFightingAttackPenalty __instance, RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                //do nothing, everything is taken care of in twf logic
+                return false;
+            }
+        }
+
+
+
+
+
+
+        static void createTowerShieldSpecialist()
+        {
+            var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
+            var shield_focus = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a");
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+
+            tower_shield_specialsit = Helpers.CreateFeature("TowerShieldSpecialistFeature",
+                                                 "Tower Shield Specialist",
+                                                 "You reduce the armor check penalty for tower shields by 3, and if you have the armor training class feature, you modify the armor check penalty and maximum Dexterity bonus of tower shields as if they were armor.",
+                                                 "",
+                                                 LoadIcons.Image2Sprite.Create(@"FeatIcons/TowerShieldSpecialist.png"),
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11, any: true),
+                                                 Helpers.PrerequisiteClassLevel(fighter, 8, any: true),
+                                                 Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                 {
+                                                     p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
+                                                     p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
+                                                 }
+                                                    ),
+                                                 Helpers.Create<ArmorCheckPenaltyIncrease>(a =>
+                                                 {
+                                                     a.CheckCategory = true;
+                                                     a.Category = ArmorProficiencyGroup.TowerShield;
+                                                     a.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                 }
+                                                                                          ),
+                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, ContextRankProgression.StartPlusDivStep, startLevel: -2, stepLevel: 1,
+                                                                                  feature: armor_training),
+                                                  Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] {armor_training})
+                                                 );
+            tower_shield_specialsit.ReapplyOnLevelUp = true;
+            tower_shield_specialsit.Groups = tower_shield_specialsit.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(tower_shield_specialsit);
+        }
+
+
+        static void createUnhinderingShield()
+        {
+            var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
+            var shield_focus = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a");
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+
+            unhindering_shield = Helpers.CreateFeature("UnhinderingShieldFeature",
+                                                 "Unhindering Shield",
+                                                 "You still gain a buckler’s bonus to AC even if you use your shield hand for some other purpose. When you wield a buckler, your shield hand is considered free for the purposes of casting spells, wielding two-handed weapons, and using any other abilities that require you to have a free hand or interact with your shield, such as the swashbuckler’s precise strike deed or the Weapon Finesse feat.",
+                                                 "",
+                                                 LoadIcons.Image2Sprite.Create(@"FeatIcons/UnhinderingShield.png"),
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6, any: true),
+                                                 Helpers.PrerequisiteClassLevel(fighter, 4, any: true),
+                                                 Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                 {
+                                                     p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
+                                                     p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
+                                                 }
+                                                    ),
+                                                 Helpers.Create<HoldingItemsMechanics.UnhinderingShield>()
+                                                 );
+            unhindering_shield.Groups = unhindering_shield.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(unhindering_shield);
+        }
+
+
+        static void createShieldBrace()
+        {
+            var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
+            var shield_focus = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a");
+            var armor_training = library.Get<BlueprintFeature>("3c380607706f209499d951b29d3c44f3");
+
+            shield_brace = Helpers.CreateFeature("ShieldBraceFeature",
+                                                 "Shield Brace",
+                                                 "You can use a two-handed weapon sized appropriately for you from the polearm or spears weapon group while also using a light, heavy, or tower shield with which you are proficient. The shield’s armor check penalty (if any) applies to attacks made with the weapon.",
+                                                 "",
+                                                 LoadIcons.Image2Sprite.Create(@"FeatIcons/ShieldBrace.png"),
+                                                 FeatureGroup.Feat,
+                                                 Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 3, any: true),
+                                                 Helpers.PrerequisiteClassLevel(fighter, 1, any: true),
+                                                 Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                                                    {
+                                                        p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
+                                                        p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
+                                                    }
+                                                    ),
+                                                 Helpers.Create<HoldingItemsMechanics.ShieldBrace>()
+                                                 );
+            shield_brace.Groups = shield_brace.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(shield_brace);
         }
 
 

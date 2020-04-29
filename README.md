@@ -104,7 +104,12 @@ New feats:
 - Extra Evolution,
 - Snap Shot, Improved Snap Shot, Greater Snap Shot,
 - Dervish Dance,
-- Evolved Companion.
+- Evolved Companion,
+- Unhindering shield,
+- Shield Brace,
+- Tower Shield Specialist,
+- Improved Shield Focus,
+- Prodigious Two-Weapon Fighting.
 
 New rage powers:
 - Terrifying Howl
