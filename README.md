@@ -2,13 +2,13 @@
 
 This is Pathfinder: Kingmaker mod.
 
-Starting from version 1.57 the mod is no longer compatible with Eldritch Arcana.
-If you are using mod version prior to 1.57 (or no mod at all) and have characters who are polymorphed, wait till polymorph effect expires.
-Save games with primal companion hunter, are no longer compatible, so respec out of the archetype is required prior to 1.68 update.
-If you have animal companions with animal growth buff, wait till it expires, before updating to 1.68
-If you have characters with Quicken Blessing feat, respec them so they do not have it, before updating to 1.72,
-Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
-Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
+- Starting from version 1.57 the mod is no longer compatible with Eldritch Arcana.
+- If you are using mod version prior to 1.57 (or no mod at all) and have characters who are polymorphed, wait till polymorph effect expires.
+- Save games with primal companion hunter, are no longer compatible, so respec out of the archetype is required prior to 1.68 update.
+- If you have animal companions with animal growth buff, wait till it expires, before updating to 1.68
+- If you have characters with Quicken Blessing feat, respec them so they do not have it, before updating to 1.72,
+- Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
+- Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
 
 Mod is only expected to work with  2.08 English version of Enhanced Edition of the game.
 
