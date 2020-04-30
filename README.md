@@ -2,6 +2,21 @@
 
 This is Pathfinder: Kingmaker mod.
 
+Starting from version 1.57 the mod is no longer compatible with Eldritch Arcana.
+If you are using mod version prior to 1.57 (or no mod at all) and have characters who are polymorphed, wait till polymorph effect expires.
+Save games with primal companion hunter, are no longer compatible, so respec out of the archetype is required prior to 1.68 update.
+If you have animal companions with animal growth buff, wait till it expires, before updating to 1.68
+If you have characters with Quicken Blessing feat, respec them so they do not have it, before updating to 1.72,
+Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
+Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
+
+Mod is only expected to work with  2.08 English version of Enhanced Edition of the game.
+
+Known Issues:
+- Sometimes when playing Hunter/Eidolon, companion abilities (animal foci, teamwork feats, fiendish or celestial templates, evolutions) might disappear after level up. It seems that deactivating all companion abilities (like power attack) and saving the game (no need to reload)  brings all missing abilities back. Same issue happens with newly created mercenaries, it resolves itself when you leave the capital/varnhold/trading post or enter the endless dungeon.
+- If you start summoner/primal companion hunter level-up and then abort the process, your eidolon will lose all of its evolutions and will not regain them until you finish level-up.
+
+
 It introduces new classes:  
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler and Winter Witch,   
@@ -394,6 +409,34 @@ Mod also changes stats of some npcs (optional)
 - Octavia to 10/16/10/18/10/14
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 9/22/14/12/10/8
+
+Notable differences from pnp:
+- witch sleep hex does not work on targets with more hd, than your character level; disturbing slumber and ice tomb do not have this limitation,
+- Hunters animal foci duration is unlimited and animal companion foci can not be reapplied to hunter upon animal companion death,
+- Primal companion hunter primal transformation duration is permanent and these evolutions can not be applied to hunter upon animal companion death,
+- fire focus, from planar focus feat deals 1d3 points of fire damage per 4 hunter levels,
+- cold focus from planar focus feat deals 1d4 points of cold damage per 4 hunter levels,
+- Blood Armor and Magic Vestment spells do not work on targets without body piece of equipment,
+- jiniywei does not get judgements,
+- eidolons can not get extra limbs evolutions (serpentines are assumed to have it as base one instead of those corresponding to the base form of their subtype, and can only add claws to it),
+- skald inspired rage is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage
+- powers, although same rage powers do not stack) with skald inspiring rage,
+- shaman/spirit guide oracle wandering spirits are actually not wandering and can be selected only once,
+- shaman lore spirit Arcane Enlightenment  is not a hex but a greater spirit ability and allows you to select one spell per 2 levels (you will need to have charisma and intelligence equal to at least 10 + level of the spell),
+- arcanist quick study allows you to replace all the spells of specified level instead of only one,
+- Sprit Totem spirit slam attack works as a secondary slam attack, that uses charisma modifier for attack/damage,
+- Wind Walk increases speed to only 20mph instead of 60,
+- Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed
+- Sanctified Slayer looses Bane ability,
+- Cult Leader Warpriest gains weapon focus at level 1 instead of bonus combat feat at level 18 and one rouge talent at level 6 instead of combat feat,
+- Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,
+- Lore Warden Hair's Breadth ability grants a permanent bonus to AC against critical hits equal to 1/3 of mobility skill
+- Lore Warden maneuver mastery gives same bonus to all combat maneuvers,
+- Psychic magic spells can not be undercast,
+- Warrior Spirit Advanced Weapon Training option allows to apply any number of enchantments as long as their combined cost fits into available amount,
+- Condition removal DC for Master Healing Technique ability of divine herbalist oracle is increased by 5,
+- Monk/Ninja ki pools do not stack,
+- You can not use twf with unhindering shield.
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

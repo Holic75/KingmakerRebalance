@@ -52,7 +52,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class Evangelist
+    public class Evangelist
     {
         static public BlueprintArchetype archetype;
 

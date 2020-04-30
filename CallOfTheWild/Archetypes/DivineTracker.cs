@@ -51,7 +51,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class DivineTracker
+    public class DivineTracker
     {
         static public BlueprintArchetype archetype;
 

@@ -51,7 +51,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class SanctifiedSlayer
+    public class SanctifiedSlayer
     {
         static public BlueprintArchetype archetype;
         static public BlueprintFeatureSelection talented_slayer;

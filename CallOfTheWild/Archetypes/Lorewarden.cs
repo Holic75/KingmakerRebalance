@@ -51,7 +51,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class LoreWarden
+    public class LoreWarden
     {
         static public BlueprintArchetype archetype;
 

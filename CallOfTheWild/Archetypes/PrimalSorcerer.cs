@@ -50,7 +50,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class PrimalSorcerer
+    public class PrimalSorcerer
     {
         static BlueprintArchetype archetype;
         static Dictionary<SpellDescriptor, BlueprintProgression> bloodlines;

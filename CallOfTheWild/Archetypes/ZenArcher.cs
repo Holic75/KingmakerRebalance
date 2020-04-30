@@ -51,7 +51,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class ZenArcher
+    public class ZenArcher
     {
         static public BlueprintArchetype archetype;
         static public BlueprintFeature zen_archer_proficiencies;

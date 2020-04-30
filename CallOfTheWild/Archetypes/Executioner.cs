@@ -51,7 +51,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class Executioner
+    public class Executioner
     {
         static public BlueprintArchetype archetype;
         static public BlueprintFeature focused_killer;

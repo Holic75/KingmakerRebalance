@@ -50,7 +50,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.Archetypes
 {
-    class StormDruid
+    public class StormDruid
     {
         static LibraryScriptableObject library => Main.library;
         static public BlueprintArchetype archetype;
