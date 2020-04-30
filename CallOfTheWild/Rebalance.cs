@@ -412,7 +412,9 @@ namespace CallOfTheWild
 
         internal static void fixMissingSlamProficiency()
         {
-
+            //add it to base abilities 
+            var skill_use_ability = library.Get<BlueprintFeature>("e4c33ff99d638744686112e2a5f49856");
+            skill_use_ability.AddComponent(Common.createAddWeaponProficiencies(WeaponCategory.OtherNaturalWeapons));
             Action<UnitDescriptor> add_slam_proficiency = delegate (UnitDescriptor u)
             {
                 if (!u.Proficiencies.Contains(WeaponCategory.OtherNaturalWeapons))

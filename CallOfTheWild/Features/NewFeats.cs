@@ -6,6 +6,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.Designers;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -268,15 +269,20 @@ namespace CallOfTheWild
             }
         }
 
+        [Harmony12.HarmonyPriority(Harmony12.Priority.First)]
         [Harmony12.HarmonyPatch(typeof(ShieldMaster))]
         [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
         [Harmony12.HarmonyPatch(new Type[] { typeof(RuleCalculateAttackBonusWithoutTarget) })]
         class ShieldMaster__OnEventAboutToTrigger__Patch
         {
             static BlueprintFeature shield_master = library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc");
-            static bool Prefix(TwoWeaponFightingAttackPenalty __instance, RuleCalculateAttackBonusWithoutTarget evt)
+            static bool Prefix(ShieldMaster __instance, RuleCalculateAttackBonusWithoutTarget evt)
             {
-                //do nothing, everything is taken care of in twf logic
+                if (!evt.Initiator.Body.SecondaryHand.HasShield || evt.Weapon == null || !evt.Weapon.IsShield)
+                    return false;
+                //do nothing regarding penalties, everything is taken care of in twf logic
+                int bonus = GameHelper.GetItemEnhancementBonus((ItemEntity)evt.Initiator.Body.SecondaryHand.Shield.ArmorComponent);
+                evt.AddBonus(bonus, __instance.Fact);
                 return false;
             }
         }

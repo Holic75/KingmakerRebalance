@@ -108,7 +108,6 @@ New feats:
 - Unhindering shield,
 - Shield Brace,
 - Tower Shield Specialist,
-- Improved Shield Focus,
 - Prodigious Two-Weapon Fighting.
 
 New rage powers:
