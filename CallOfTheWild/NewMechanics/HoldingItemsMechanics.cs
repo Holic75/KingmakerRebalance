@@ -11,6 +11,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
+using Kingmaker.View.Animation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -416,6 +417,37 @@ namespace CallOfTheWild.HoldingItemsMechanics
         }
     }
 
+
+    [Harmony12.HarmonyPatch(typeof(ItemEntityWeapon))]
+    [Harmony12.HarmonyPatch("GetAnimationStyle", Harmony12.MethodType.Normal)]
+    class ItemEntityWeapon__GetAnimationStyle__Patch
+    {
+        static void Postfix(ItemEntityWeapon __instance, bool forDollRoom, ref WeaponAnimationStyle __result)
+        {
+            if ((__instance.Blueprint.IsTwoHanded && !__instance.HoldInTwoHands) //2h that is held as 1h
+                || ((__instance.Blueprint.IsTwoHanded || __instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands) && forDollRoom)) // make weapon look 1h in the doll room to see the shield if possible
+            {
+                if ((__instance?.HoldingSlot as HandSlot).PairSlot?.MaybeShield == null)
+                {
+                    return;
+                }
+                switch (__result)
+                {
+                    case WeaponAnimationStyle.AxeTwoHanded:
+                        __result = WeaponAnimationStyle.SlashingOneHanded;
+                        break;
+                    case WeaponAnimationStyle.PiercingTwoHanded:
+                        __result = WeaponAnimationStyle.PiercingTwoHanded;
+                        break;
+                    case WeaponAnimationStyle.SlashingTwoHanded:
+                        __result = WeaponAnimationStyle.SlashingOneHanded;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
 
 }
