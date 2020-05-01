@@ -245,13 +245,25 @@ namespace CallOfTheWild
         static void createInfectiousCharms()
         {
 
+            var spells = new List<BlueprintAbility>();
 
-            var spells = new BlueprintAbility[]
+            for (int i = 1; i <= 9; i++)
+            {
+                foreach (var s in wizard.Spellbook.SpellList.GetSpells(i))
+                {
+                    if (s.School == SpellSchool.Enchantment && ((s.SpellDescriptor & SpellDescriptor.Compulsion) != 0) && !s.HasAreaEffect() && !(s.Range == AbilityRange.Personal))
+                    {
+                        spells.Add(s.StickyTouch?.TouchDeliveryAbility ?? s);
+                    }
+                }
+            }
+            /*var spells = new BlueprintAbility[]
             {
                 library.Get<BlueprintAbility>("fd4d9fd7f87575d47aafe2a64a6e2d8d"), //hideous laughter
                 library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e"), //hold person
                 library.Get<BlueprintAbility>("dd2918e4a77c50044acba1ac93494c36"), //ovewhelming grief
                 library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61"), //dominate
+                library.Get<BlueprintAbility>("3fce8e988a51a2a4ea366324d6153001"), //constricting coils
                 library.Get<BlueprintAbility>("444eed6e26f773a40ab6e4d160c67faa"), //feeblemind
                 library.Get<BlueprintAbility>("41e8a952da7a5c247b3ec1c2dbb73018"), //hold monster
                 library.Get<BlueprintAbility>("2b044152b3620c841badb090e01ed9de"), //insanity
@@ -261,7 +273,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbility>("2f8a67c483dfa0f439b293e094ca9e3c"), //power word kill
                 library.Get<BlueprintAbility>("cbf3bafa8375340498b86a3313a11e2f"), //euphoric tranquility effect
                 NewSpells.irresistible_dance.StickyTouch.TouchDeliveryAbility,
-            };
+            };*/
 
             infectious_charms = Helpers.CreateFeature("InfectiousCharmsArcaneDiscoveryFeature",
                                                       "Infectious Charms",
@@ -280,13 +292,13 @@ namespace CallOfTheWild
                 var buff = Helpers.CreateBuff("InfectiousCharms" + spell.name + "Buff",
                                               infectious_charms.Name,
                                               infectious_charms.Description,
-                                              "",
+                                              Helpers.MergeIds("37244a94e20748f7b52312f5ddbd3ad5", spell.AssetGuid),
                                               null,
                                               null);
 
                 var apply_buff = Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false);
 
-                var swift_ability = library.CopyAndAdd<BlueprintAbility>(spell, "InfectiousCharms" + spell.name, "");
+                var swift_ability = library.CopyAndAdd<BlueprintAbility>(spell, "InfectiousCharms" + spell.name, Helpers.MergeIds("ad7a842eeff740f4bad0d794893143d5", spell.AssetGuid));
                 swift_ability.ActionType = UnitCommand.CommandType.Swift;
                 swift_ability.AddComponent(Common.createAbilityCasterHasFacts(buff));
                 swift_ability.RemoveComponents<AbilityDeliverTouch>();

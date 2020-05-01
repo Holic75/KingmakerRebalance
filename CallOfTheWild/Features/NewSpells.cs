@@ -44,7 +44,7 @@ namespace CallOfTheWild
     public class NewSpells
     {
         static public BlueprintFeature immunity_to_wind;
-        static LibraryScriptableObject library => Main.library;
+        static public LibraryScriptableObject library => Main.library;
         static public BlueprintAbility shillelagh;
         static public BlueprintAbility flame_blade;
         static public BlueprintAbility virtuoso_performance;
@@ -3428,7 +3428,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Touch,
                                                 "1d4 + 1 rounds",
                                                 "Will partial",
-                                                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
                                                 Helpers.CreateSpellComponent(SpellSchool.Enchantment),
                                                 Helpers.CreateDeliverTouch(),
                                                 Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(effect_saved, effect))
