@@ -1310,6 +1310,22 @@ namespace CallOfTheWild
             }              
         }
 
+        static internal void fixTandemTripPrerequisite()
+        {
+            var tandem_trip = library.Get<BlueprintFeature>("d26eb8ab2aabd0e45a4d7eec0340bbce");
+            tandem_trip.RemoveComponents<PrerequisiteFeature>();
+        }
+
+
+        static internal void fixDruidWoodlandStride()
+        {
+            var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
+            var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
+
+            druid_progression.LevelEntries[2].Features.Add(woodland_stride);
+            druid_progression.UIGroups[0].Features.Add(woodland_stride);
+        }
+
 
         static internal void fixGrappleSpells()
         {

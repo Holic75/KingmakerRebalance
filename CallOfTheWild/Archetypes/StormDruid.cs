@@ -85,8 +85,10 @@ namespace CallOfTheWild.Archetypes
             var spontaneous_summon = library.Get<BlueprintFeature>("b296531ffe013c8499ad712f8ae97f6b");
             var resis_nature_lure = library.Get<BlueprintFeature>("ad6a5b0e1a65c3540986cf9a7b006388");
             var venom_immunity = library.Get<BlueprintFeature>("5078622eb5cecaf4683fa16a9b948c2c");
+            var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
 
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, druid_bond, spontaneous_summon),
+                                                          Helpers.LevelEntry(3, woodland_stride),
                                                           Helpers.LevelEntry(4, resis_nature_lure),
                                                           Helpers.LevelEntry(9, venom_immunity)
                                                        };
