@@ -1986,6 +1986,25 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintFeature AbilityToFeatureMaybeReuseGuid(BlueprintAbility ability, bool hide = true, string guid = "")
+        {
+            var feature = Helpers.CreateFeature(ability.name + "Feature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     Helpers.GuidStorage.maybeGetGuid(ability.name + "Feature", guid),
+                                                     ability.Icon,
+                                                     FeatureGroup.None
+                                                     );
+            feature.AddComponent(Common.createAddFeatureIfHasFact(ability, ability, not: true));
+            if (hide)
+            {
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+            }
+            return feature;
+        }
+
+
         static public BlueprintFeature ActivatableAbilityToFeature(BlueprintActivatableAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",

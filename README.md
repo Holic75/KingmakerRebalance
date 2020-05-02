@@ -13,7 +13,7 @@ This is Pathfinder: Kingmaker mod.
 Mod is only expected to work with  2.08 English version of Enhanced Edition of the game.
 
 Known Issues:
-- Sometimes when playing Hunter/Eidolon, companion abilities (animal foci, teamwork feats, fiendish or celestial templates, evolutions) might disappear after level up. It seems that deactivating all companion abilities (like power attack) and saving the game (no need to reload)  brings all missing abilities back. Same issue happens with newly created mercenaries, it resolves itself when you leave the capital/varnhold/trading post or enter the endless dungeon.
+- Sometimes when playing Hunter/Summoner, companion abilities (animal foci, teamwork feats, fiendish or celestial templates, evolutions) might disappear after level up. It seems that deactivating all companion abilities (like power attack) and saving the game (no need to reload)  brings all missing abilities back. Same issue happens with newly created mercenaries, it resolves itself when you leave the capital/varnhold/trading post or enter the endless dungeon.
 - If you start summoner/primal companion hunter level-up and then abort the process, your eidolon will lose all of its evolutions and will not regain them until you finish level-up.
 
 

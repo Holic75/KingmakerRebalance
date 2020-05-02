@@ -17,7 +17,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CallOfTheWild
 {
-    internal class Main
+    public class Main
     {
         internal class Settings
         {
@@ -59,7 +59,7 @@ namespace CallOfTheWild
         static internal Settings settings = new Settings();
         internal static UnityModManagerNet.UnityModManager.ModEntry.ModLogger logger;
         internal static Harmony12.HarmonyInstance harmony;
-        internal static LibraryScriptableObject library;
+        public static LibraryScriptableObject library;
 
         static readonly Dictionary<Type, bool> typesPatched = new Dictionary<Type, bool>();
         static readonly List<String> failedPatches = new List<String>();

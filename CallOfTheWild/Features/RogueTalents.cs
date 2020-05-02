@@ -377,8 +377,8 @@ namespace CallOfTheWild
                 if (!s.HasVariants)
                 {
                     var spell_like = Common.convertToSpellLike(s, "MinorMagic", classes, StatType.Intelligence, no_resource: true, no_scaling: true,
-                                                               guid: Helpers.MergeIds("0e6a36ac029049c98a682f688e419f45", s.AssetGuid));                   
-                    feature = Common.AbilityToFeature(spell_like, false);
+                                                               guid: Helpers.MergeIds("0e6a36ac029049c98a682f688e419f45", s.AssetGuid));
+                    feature = Common.AbilityToFeatureMaybeReuseGuid(spell_like, false, Helpers.MergeIds("fb026930ab7943da96f6e17b7c778f2b", s.AssetGuid));
                     feature.AddComponent(Helpers.Create<BindAbilitiesToClass>(b =>
                                                                                 {
                                                                                     b.Abilites = new BlueprintAbility[] { spell_like };
@@ -400,7 +400,7 @@ namespace CallOfTheWild
                     }
                     var wrapper = Common.createVariantWrapper("MinorMagic" + s.name, Helpers.MergeIds("0e6a36ac029049c98a682f688e419f45", s.AssetGuid), spell_likes.ToArray());
                     wrapper.SetNameDescriptionIcon(s.Name, s.Description, s.Icon);
-                    feature = Common.AbilityToFeature(wrapper, false);
+                    feature = Common.AbilityToFeatureMaybeReuseGuid(wrapper, false, Helpers.MergeIds("fb026930ab7943da96f6e17b7c778f2b", s.AssetGuid));
                     feature.AddComponent(Helpers.Create<BindAbilitiesToClass>(b =>
                                                                                 {
                                                                                     b.Abilites = spell_likes.ToArray();
@@ -448,7 +448,7 @@ namespace CallOfTheWild
                 {
                     var spell_like = Common.convertToSpellLike(s, "MajorMagic", classes, StatType.Intelligence, resource, no_scaling: true,
                                                                guid: Helpers.MergeIds("0e6a36ac029049c98a682f688e419f45", s.AssetGuid));
-                    feature = Common.AbilityToFeature(spell_like, false);
+                    feature = Common.AbilityToFeatureMaybeReuseGuid(spell_like, false, Helpers.MergeIds("fb026930ab7943da96f6e17b7c778f2b", s.AssetGuid));
                     spell_like.AddComponent(Helpers.Create<NewMechanics.BindAbilitiesToClassFixedLevel>(b =>
                                                                                 {
                                                                                     b.Abilites = new BlueprintAbility[] { spell_like };
@@ -471,7 +471,7 @@ namespace CallOfTheWild
                     }
                     var wrapper = Common.createVariantWrapper("MajorMagic" + s.name, guid: Helpers.MergeIds("0e6a36ac029049c98a682f688e419f45", s.AssetGuid), spell_likes.ToArray());
                     wrapper.SetNameDescriptionIcon(s.Name, s.Description, s.Icon);
-                    feature = Common.AbilityToFeature(wrapper, false);
+                    feature = Common.AbilityToFeatureMaybeReuseGuid(wrapper, false, Helpers.MergeIds("3704cc05c1b64ea990ae6a2b97d35311", s.AssetGuid));
                     feature.AddComponent(Helpers.Create<NewMechanics.BindAbilitiesToClassFixedLevel>(b =>
                                                                                 {
                                                                                     b.Abilites = spell_likes.ToArray();

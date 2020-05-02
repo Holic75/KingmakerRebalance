@@ -921,6 +921,20 @@ namespace CallOfTheWild
                 }
             }
 
+
+            static public string maybeGetGuid(string name, string new_guid = "")
+            {
+                string original_guid;
+                if (guids_in_use.TryGetValue(name, out original_guid))
+                {
+                    return original_guid;
+                }
+                else
+                {
+                    return new_guid;
+                }
+            }
+
         }
         public static BlueprintFeatureSelection skillFocusFeat;
 
