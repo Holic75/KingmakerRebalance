@@ -24,6 +24,7 @@ using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UI.Common;
 using Kingmaker.UI.Tooltip;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -44,6 +45,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -72,7 +74,8 @@ namespace CallOfTheWild
             ForceFocus = 0x00040000,
             RangedAttackRollBonus = 0x00020000,
             ExtraRoundDuration = 0x00010000,
-            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration,
+            ImprovedSpellSharing = 0x00008000,
+            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing,
         }
 
         static public bool test_mode = false;
@@ -811,8 +814,34 @@ namespace CallOfTheWild
 
                 return true;
             }
-        }
 
+
+            internal static void Postfix(AbilityEffectRunAction __instance, AbilityExecutionContext context, TargetWrapper target)
+            {
+                var caster = context.MaybeCaster;
+                if (caster == null)
+                {
+                    return;
+                }
+
+                var pet = caster.Descriptor.Pet;
+                if (pet == null || pet.Descriptor.State.IsDead)
+                {
+                    return;
+                }
+
+                if (!context.HasMetamagic((Metamagic)MetamagicExtender.ImprovedSpellSharing))
+                {
+                    return;
+                }
+
+                using (context.GetDataScope(pet))
+                {
+                    __instance.Actions.Run();
+                }
+            }
+
+        }
 
 
         static class UIUtilityTexts_GetMetamagicList_Patch
@@ -903,6 +932,17 @@ namespace CallOfTheWild
         }
 
 
-
+        [Harmony12.HarmonyPatch(typeof(ContextDurationValue))]
+        [Harmony12.HarmonyPatch("Calculate", Harmony12.MethodType.Normal)]
+        static class ContextDurationValue_Calculate_Patch
+        {
+            internal static void Postfix(ContextDurationValue __instance, MechanicsContext context, ref Rounds __result)
+            {
+                if (__instance.IsExtendable && context.HasMetamagic((Metamagic)MetamagicExtender.ImprovedSpellSharing))
+                {
+                    __result = __result / 2;
+                }
+            }
+        }
     }
 }

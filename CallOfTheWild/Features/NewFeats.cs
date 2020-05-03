@@ -17,6 +17,7 @@ using Kingmaker.Items;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -117,6 +118,8 @@ namespace CallOfTheWild
         static public BlueprintFeature tower_shield_specialsit;
         static public BlueprintFeature improved_shield_focus;
         static public BlueprintFeature prodigious_two_weapon_fighting;
+
+        static public BlueprintFeature improved_spell_sharing;
         
 
 
@@ -193,8 +196,57 @@ namespace CallOfTheWild
             createUnhinderingShield();
             createTowerShieldSpecialist();
             createProdigalTwoWeaponFighting();
+            createImprovedSpellSharing();
         }
 
+
+        static void createImprovedSpellSharing()
+        {
+            var animal_calss = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920");
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/ImprovedSpellSharing.png");
+
+            var buff = Helpers.CreateBuff("ImprovedSpellSharingBuff",
+                                          "Improved Spell Sharing",
+                                          "When you are adjacent to or sharing a square with your companion creature and that companion creature has this feat, you can cast a spell on yourself and divide the duration evenly between yourself and the companion creature. You can use this feat only on spells with a duration of at least 2 rounds. For example, you could cast bull’s strength on yourself, and instead of the spell lasting 1 minute per level on yourself, it lasts 5 rounds per level on yourself and 5 rounds per level on your companion.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnPersonalSpell>(a => { a.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ImprovedSpellSharing; })
+                                          );
+
+            var toggle = Helpers.CreateActivatableAbility("ImprovedSpellSharingToggleAbility",
+                                                          buff.Name,
+                                                          buff.Description,
+                                                          "",
+                                                          buff.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                          null,
+                                                          Helpers.Create<CompanionMechanics.CompanionWithinRange>(c => c.range = 5.Feet()),
+                                                          Helpers.Create<PrerequisitePet>(p => p.Group = Prerequisite.GroupType.Any),
+                                                          Helpers.PrerequisiteClassLevel(animal_calss, 1, any: true),
+                                                          Helpers.PrerequisiteClassLevel(Eidolon.eidolon_class, 1, any: true)
+                                                          );
+            toggle.DeactivateImmediately = true;
+
+
+            improved_spell_sharing = Common.ActivatableAbilityToFeature(toggle, false);
+            improved_spell_sharing.Groups = new FeatureGroup[] { FeatureGroup.TeamworkFeat, FeatureGroup.Feat };
+            toggle.AddComponent(Helpers.Create<CompanionMechanics.CompanionHasFactRestriction>(c => c.fact = improved_spell_sharing));
+            library.AddFeats(improved_spell_sharing);
+            Common.addTemworkFeats(improved_spell_sharing);
+          
+            var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && !b.HasAreaEffect() && (b.CanTargetFriends || b.CanTargetSelf) && !b.CanTargetPoint && ((b.AvailableMetamagic & Metamagic.Extend) != 0)).Cast<BlueprintAbility>().ToArray();
+            foreach (var s in spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.ImprovedSpellSharing;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.ImprovedSpellSharing;
+                }
+            }
+        }
 
         static void createProdigalTwoWeaponFighting()
         {

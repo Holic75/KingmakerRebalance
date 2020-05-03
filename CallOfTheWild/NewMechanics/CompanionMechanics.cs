@@ -16,6 +16,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
@@ -148,6 +149,40 @@ namespace CallOfTheWild.CompanionMechanics
         protected override string GetConditionCaption()
         {
             return "";
+        }
+    }
+
+
+    public class CompanionWithinRange : ActivatableAbilityRestriction
+    {
+        public Feet range;
+        public override bool IsAvailable()
+        {
+            var pet = this.Owner?.Pet;
+
+            if (pet == null || pet.Descriptor.State.IsDead)
+            {
+                return false;
+            }
+ 
+            return  this.Owner.Unit.IsUnitInRange(pet.Position, range.Meters);
+        }
+    }
+
+
+    public class CompanionHasFactRestriction : ActivatableAbilityRestriction
+    {
+        public BlueprintFeature fact;
+        public override bool IsAvailable()
+        {
+            var pet = this.Owner?.Pet;
+
+            if (pet == null)
+            {
+                return false;
+            }
+
+            return pet.Descriptor.HasFact(fact);
         }
     }
 

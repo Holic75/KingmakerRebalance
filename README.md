@@ -123,7 +123,8 @@ New feats:
 - Unhindering shield,
 - Shield Brace,
 - Tower Shield Specialist,
-- Prodigious Two-Weapon Fighting.
+- Prodigious Two-Weapon Fighting,
+- Improved Spell Sharing.
 
 New rage powers:
 - Terrifying Howl

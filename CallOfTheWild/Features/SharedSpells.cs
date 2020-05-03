@@ -58,7 +58,9 @@ namespace CallOfTheWild
 
             }
 
-            if (__instance.Caster.Buffs.HasFact(SharedSpells.can_only_target_self_buff) && Common.isPersonalSpell(__instance) && target.Unit != __instance.Caster.Unit)
+            if ((__instance.Caster.Buffs.HasFact(SharedSpells.can_only_target_self_buff) && Common.isPersonalSpell(__instance)
+                || __instance.HasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ImprovedSpellSharing)) 
+                  && target.Unit != __instance.Caster.Unit)
             {
                 __result = false;
                 return false;
