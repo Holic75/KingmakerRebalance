@@ -223,16 +223,17 @@ namespace CallOfTheWild
                                                           AbilityActivationType.Immediately,
                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                           null,
-                                                          Helpers.Create<CompanionMechanics.CompanionWithinRange>(c => c.range = 5.Feet()),
-                                                          Helpers.Create<PrerequisitePet>(p => p.Group = Prerequisite.GroupType.Any),
-                                                          Helpers.PrerequisiteClassLevel(animal_calss, 1, any: true),
-                                                          Helpers.PrerequisiteClassLevel(Eidolon.eidolon_class, 1, any: true)
+                                                          Helpers.Create<CompanionMechanics.CompanionWithinRange>(c => c.range = 5.Feet())
                                                           );
             toggle.DeactivateImmediately = true;
 
 
             improved_spell_sharing = Common.ActivatableAbilityToFeature(toggle, false);
             improved_spell_sharing.Groups = new FeatureGroup[] { FeatureGroup.TeamworkFeat, FeatureGroup.Feat };
+
+            improved_spell_sharing.AddComponents(Helpers.Create<PrerequisitePet>(p => p.Group = Prerequisite.GroupType.Any),
+                                                 Helpers.PrerequisiteClassLevel(animal_calss, 1, any: true),
+                                                 Helpers.PrerequisiteClassLevel(Eidolon.eidolon_class, 1, any: true));
             toggle.AddComponent(Helpers.Create<CompanionMechanics.CompanionHasFactRestriction>(c => c.fact = improved_spell_sharing));
             library.AddFeats(improved_spell_sharing);
             Common.addTemworkFeats(improved_spell_sharing);
