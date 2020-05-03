@@ -1,10 +1,12 @@
 ﻿using Harmony12;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
@@ -89,6 +91,10 @@ namespace CallOfTheWild
         static public BlueprintFeature[] energy_resistance_feature;
         static public BlueprintBuff[] energy_resistance_buff;
 
+        static public BlueprintFeature ferocious_beast;
+        static public BlueprintFeature ferocious_beast_greater;
+        static public BlueprintBuff greater_ferocious_beast_buff;
+
 
         static public List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
@@ -124,6 +130,113 @@ namespace CallOfTheWild
             createWitchHunter();
 
             createEnergyResistance();
+
+            createFerociousBeast();
+        }
+
+
+        static void createFerociousBeast()
+        {
+            var rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
+
+            var deactivated_actions = rage_buff.GetComponent<AddFactContextActions>().Deactivated.Actions;
+            var new_round_actions = rage_buff.GetComponent<AddFactContextActions>().NewRound.Actions;
+            deactivated_actions = Common.changeAction<Conditional>(deactivated_actions,
+                                                                   c =>
+                                                                   {
+                                                                       if (!c.ConditionsChecker.HasConditions)
+                                                                       {
+                                                                           return;
+                                                                       }
+                                                                       var condtion1 = c.ConditionsChecker.Conditions[0] as ContextConditionHasFact;
+                                                                       if (condtion1 == null)
+                                                                       {
+                                                                           return;
+                                                                       }
+                                                                       c.ConditionsChecker.Conditions[0] = Common.createContextConditionCasterHasFact(condtion1.Fact, !condtion1.Not);
+                                                                   }
+                                                                   );
+            rage_buff.GetComponent<AddFactContextActions>().Deactivated.Actions = deactivated_actions;
+
+            var ferocious_beast_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", "FerociousBeastBuff", "");
+
+            var spend_resource = Helpers.Create<ResourceMechanics.ContextActionSpendResourceFromCaster>(c => { c.amount = 1; c.resource = library.Get<BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9"); });
+            ferocious_beast_buff.RemoveComponents<AddFactContextActions>();
+            ferocious_beast_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: deactivated_actions,
+                                                                                  newRound: new_round_actions.AddToArray(spend_resource)
+                                                                                  )
+                                              );
+
+            ferocious_beast_buff.SetNameDescription("Ferocious Beast",
+                                                    "While the barbarian is raging, her animal companion also gains the benefits of rage (including greater rage, mighty rage, and tireless rage), though the barbarian must spend 1 additional round of rage per round.");
+
+            
+            greater_ferocious_beast_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", "FerociousBeastGreaterBuff", "");
+
+            var activated_actions = greater_ferocious_beast_buff.GetComponent<AddFactContextActions>().Activated.Actions;
+
+
+            activated_actions = Common.changeAction<Conditional>(activated_actions,
+                                                                 c =>
+                                                                 {
+                                                                     var checker = new ConditionsChecker() { Conditions = c.ConditionsChecker.Conditions, Operation = c.ConditionsChecker.Operation };
+                                                                     for (int i = 0; i < c.ConditionsChecker.Conditions.Length; i++)
+                                                                     {
+                                                                         var cnd = checker.Conditions[i] as ContextConditionHasFact;
+                                                                         if (cnd != null)
+                                                                         {
+                                                                             checker.Conditions[i] = Common.createContextConditionCasterHasFact(cnd.Fact, !cnd.Not);
+                                                                         }
+                                                                     }
+                                                                     c.ConditionsChecker = checker;
+                                                                 });
+
+
+            greater_ferocious_beast_buff.ReplaceComponent<AddFactContextActions>(a => { a.Activated = Helpers.CreateActionList(activated_actions); a.NewRound = Helpers.CreateActionList(); a.Deactivated = Helpers.CreateActionList(); });
+            greater_ferocious_beast_buff.SetNameDescription("Ferocious Beast, Greater",
+                                                            "While the barbarian is raging, her animal companion shares the benefits of the barbarian’s rage powers that are constant in effect. It gains no benefit from rage powers that require actions to activate, even if they are free actions.");
+            greater_ferocious_beast_buff.ComponentsArray = new BlueprintComponent[] { greater_ferocious_beast_buff.GetComponent<AddFactContextActions>()};
+
+            ferocious_beast = Helpers.CreateFeature("FerociousBeastFeature",
+                                                    ferocious_beast_buff.Name,
+                                                    ferocious_beast_buff.Description,
+                                                    "",
+                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/SavageMaw.png"),
+                                                    FeatureGroup.RagePower,
+                                                    Helpers.Create<PrerequisitePet>()
+                                                    );
+
+            ferocious_beast_greater = Helpers.CreateFeature("FerociousBeastGreaterFeature",
+                                                            greater_ferocious_beast_buff.Name,
+                                                            greater_ferocious_beast_buff.Description,
+                                                            "",
+                                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/SavageMaw.png"),
+                                                            FeatureGroup.RagePower,
+                                                            Helpers.Create<PrerequisitePet>(),
+                                                            Helpers.PrerequisiteFeature(ferocious_beast),
+                                                            Helpers.PrerequisiteClassLevel(barbarian_class, 8)
+                                                            );
+
+
+            var apply_buff = Common.createContextActionApplyBuff(ferocious_beast_buff, Helpers.CreateContextDuration(), false, true, true, false);
+            var apply_buff_greater = Common.createContextActionApplyBuff(greater_ferocious_beast_buff, Helpers.CreateContextDuration(), false, true, true, false);
+
+            var remove_buff = Common.createContextActionRemoveBuffFromCaster(ferocious_beast_buff);
+            var remove_buff_greater = Common.createContextActionRemoveBuffFromCaster(greater_ferocious_beast_buff);
+            var context_actions = rage_buff.GetComponent<AddFactContextActions>();
+
+            context_actions.Deactivated.Actions = context_actions.Deactivated.Actions.AddToArray(Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(remove_buff, remove_buff_greater)));
+
+            var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(ferocious_beast), Helpers.Create<CompanionMechanics.ContextActionPetIsAlive>() },
+                                                        Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(apply_buff)));
+
+            var action_greater = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(ferocious_beast_greater), Helpers.Create<CompanionMechanics.ContextActionPetIsAlive>() },
+                                                           Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(apply_buff_greater)));
+
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, action);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, action_greater);
+            addToSelection(ferocious_beast);
+            addToSelection(ferocious_beast_greater);
         }
 
 

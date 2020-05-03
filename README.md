@@ -145,7 +145,9 @@ New rage powers:
 - Celestial Totem, Greater,
 - Daemon Totem, Lesser,
 - Daemon Totem,
-- Daemon Totem, Greater.
+- Daemon Totem, Greater,
+- Ferocious Beast,
+- Ferocious Beast, Greater.
 
 New features:
 - Share Spell for animal companions,

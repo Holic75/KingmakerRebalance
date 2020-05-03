@@ -75,6 +75,48 @@ namespace CallOfTheWild.ResourceMechanics
     }
 
 
+    public class ContextActionSpendResourceFromCaster : ContextAction
+    {
+        public BlueprintAbilityResource resource;
+        public int amount = 1;
+        public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
+
+
+        public override void RunAction()
+        {
+            int need_resource = amount;
+
+            var caster = this.Context.MaybeCaster?.Descriptor;
+
+            foreach (var f in cost_reducing_facts)
+            {
+                if (caster.HasFact(f))
+                {
+                    need_resource--;
+                }
+            }
+
+            if (need_resource < 0)
+            {
+                need_resource = 0;
+            }
+
+            if (this.resource == null || caster.Resources.GetResourceAmount(this.resource) < need_resource)
+            {
+                return;
+            }
+
+            caster.Resources.Spend(this.resource, need_resource);
+        }
+
+
+        public override string GetCaption()
+        {
+            return $"Spend {resource.name} ({amount})";
+        }
+    }
+
+
     public class RestrictionHasEnoughResource : ActivatableAbilityRestriction
     {
         public BlueprintAbilityResource resource;

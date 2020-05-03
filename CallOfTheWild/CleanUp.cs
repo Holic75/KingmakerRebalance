@@ -58,12 +58,13 @@ namespace CallOfTheWild
                                                                Skald.controlled_rage_str_buff,
                                                                Skald.controlled_rage_dex_buff,
                                                                Skald.controlled_rage_con_buff,
-                                                               Skald.insightful_contemplation_buff};
-            rage_buffs = rage_buffs.AddToArray(Bloodrager.urban_bloodrage_buffs);
+                                                               Skald.insightful_contemplation_buff,
+                                                               NewRagePowers.greater_ferocious_beast_buff};
+            //rage_buffs = rage_buffs.AddToArray(Bloodrager.urban_bloodrage_buffs); //same AddFactContextActions as in normal rage only bonuses are different
             //to ensure coexistance of different rages we need to do the following:
             //on every condition on activated add check that target has no buff to avoid replacing existing buffs,
             //then we need to add all activated conditional actions to new round (to reapply buffs if they dissapear)
-            //then in deactivated on remove buff will need to be replaced with remove buff from caster (to avoid removing buffs that are not hours?)
+            //then in deactivated on remove buff will need to be replaced with remove buff from caster (to avoid removing buffs that are not ours?)
 
 
             foreach (var buff in rage_buffs)
