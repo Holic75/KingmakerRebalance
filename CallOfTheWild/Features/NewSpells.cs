@@ -5671,7 +5671,7 @@ namespace CallOfTheWild
             var undead = library.Get<BlueprintFeature>("5941963eae3e9864d91044ba771f2cc2");
 
             var chain_lightning = library.Get<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58");
-            var dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
+            var dazed = Common.dazed_non_mind_affecting;
             var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
 
             var apply_dazed = Common.createContextActionApplyBuff(dazed, Helpers.CreateContextDuration(1));
