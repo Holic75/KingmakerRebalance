@@ -120,6 +120,7 @@ namespace CallOfTheWild
         static public BlueprintFeature prodigious_two_weapon_fighting;
 
         static public BlueprintFeature improved_spell_sharing;
+        static public BlueprintFeatureSelection animal_ally;
         
 
 
@@ -197,6 +198,37 @@ namespace CallOfTheWild
             createTowerShieldSpecialist();
             createProdigalTwoWeaponFighting();
             createImprovedSpellSharing();
+            createAnimalAlly();
+        }
+
+
+        static void createAnimalAlly()
+        {
+            var rank_feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
+            animal_ally = library.CopyAndAdd<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533", "AnimalAllyFeatureSelection", "");
+            animal_ally.SetNameDescription("Animal Ally",
+                                           "You gain an animal companion as if you were a druid of your character level –3 from the following list: leopard, dog or wolf. If you later gain an animal companion through another source (such as the Animal domain, divine bond, hunter’s bond, mount, or nature bond class features), the effective druid level granted by this feat stacks with that granted by other sources.");
+            
+            animal_ally.ComponentsArray = new BlueprintComponent[] {Helpers.Create<AddFeatureOnApply>(a => a.Feature = rank_feature),
+                                                                    Helpers.Create<CompanionMechanics.SetAnimalCompanionRankToCharacterLevel>(s => { s.rank_feature = rank_feature; s.level_diff = -3; }) };
+            animal_ally.Group = FeatureGroup.None;
+
+            animal_ally.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a"), //empty
+                library.Get<BlueprintFeature>("f894e003d31461f48a02f5caec4e3359"), //dog
+                library.Get<BlueprintFeature>("e992949eba096644784592dc7f51a5c7"), //ekun wolf
+                library.Get<BlueprintFeature>("2ee2ba60850dd064e8b98bf5c2c946ba"), //leopard
+                library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea"), //wolf
+            };
+
+            animal_ally.AddComponent(Helpers.CreateAddFact(SharedSpells.ac_share_spell));
+
+            var skill_focus_nature = library.Get<BlueprintFeature>("6507d2da389ed55448e0e1e5b871c013");
+            animal_ally.AddComponent(Helpers.PrerequisiteFeature(skill_focus_nature));
+            animal_ally.AddComponent(Helpers.PrerequisiteCharacterLevel(4));
+            animal_ally.AddComponent(Helpers.Create<PrerequisitePet>(a => a.NoCompanion = true));
+            library.AddFeats(animal_ally);
         }
 
 

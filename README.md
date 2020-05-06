@@ -124,7 +124,8 @@ New feats:
 - Shield Brace,
 - Tower Shield Specialist,
 - Prodigious Two-Weapon Fighting,
-- Improved Spell Sharing.
+- Improved Spell Sharing,
+- Animal Ally.
 
 New rage powers:
 - Terrifying Howl
@@ -218,8 +219,7 @@ Bloodline Mutations:
 - Blood Intensity,
 - Bloodline Familiar.
 
-
-- Wizard Discoveries:
+Wizard Discoveries:
 - Alchemical Affinity,
 - Forest's Blessing,
 - Idealize,
@@ -384,7 +384,9 @@ enchanced attacks,
 - Arcane bloodline combat casting was replaced with metamagic adept as per pnp rules,
 - Combat Trick rogue talent can not be taken more than once,
 - True Seeing allows to see through illusion concealement,
-- Only one rogue talent that changes sneak attack can be active.
+- Only one rogue talent that changes sneak attack can be active,
+- Ranger can only select dog, elk, leopard, lizard or wolf as her animal companion through hunter's bond feature,
+- Ranger now shares her favored enemy and favored terrain bonuses with her animal companion.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

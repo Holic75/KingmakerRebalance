@@ -6,6 +6,7 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -932,8 +933,26 @@ namespace CallOfTheWild
                 penalty.spells = penalty.spells.AddToArray(entry.ability);
             }
 
+            addIncreasedSpellDamageFromSunDomain(entry);
         }
 
+        internal static void addIncreasedSpellDamageFromSunDomain(ChannelEntry entry)
+        {
+            if (!entry.channel_type.isOf(ChannelType.PositiveHarm))
+            {
+                return;
+            }
+
+            var sun_domain_dmg_bonus = library.Get<BlueprintFeature>("3d8e38c9ed54931469281ab0cec506e9");
+            var component = sun_domain_dmg_bonus.GetComponent<IncreaseSpellDamageByClassLevel>();
+
+            if (component.Spells.Contains(entry.ability))
+            {
+                return;
+            }
+
+            component.Spells = component.Spells.AddToArray(entry.ability);
+        }
 
         internal static void addToSpecificChannelResistance(ChannelEntry entry, BlueprintUnitFact cr)
         {

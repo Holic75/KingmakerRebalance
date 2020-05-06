@@ -57,6 +57,7 @@ namespace CallOfTheWild
         [Flags]
         public enum MetamagicExtender
         {
+            //in game metamagic is used up to 32, which is 0x00000020
             Intensified = 0x40000000,
             Dazing = 0x20000000,
             Persistent = 0x10000000,
@@ -75,7 +76,8 @@ namespace CallOfTheWild
             RangedAttackRollBonus = 0x00020000,
             ExtraRoundDuration = 0x00010000,
             ImprovedSpellSharing = 0x00008000,
-            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing,
+            BypassUndeadMindAffectingImmunity = 0x00004000,
+            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | BypassUndeadMindAffectingImmunity,
         }
 
         static public bool test_mode = false;
@@ -941,6 +943,37 @@ namespace CallOfTheWild
                 if (__instance.IsExtendable && context.HasMetamagic((Metamagic)MetamagicExtender.ImprovedSpellSharing))
                 {
                     __result = __result / 2;
+                }
+            }
+        }
+
+
+
+        [Harmony12.HarmonyPatch(typeof(BuffDescriptorImmunity))]
+        [Harmony12.HarmonyPatch("IsImmune", Harmony12.MethodType.Normal)]
+        static class BuffDescriptorImmunity_IsImmune_Patch
+        {
+            static BlueprintFeature undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
+            internal static void Postfix(BuffDescriptorImmunity __instance, MechanicsContext context, ref bool __result)
+            {
+                if (__instance.IgnoreFeature == undead_arcana && context.HasMetamagic((Metamagic)MetamagicExtender.BypassUndeadMindAffectingImmunity))
+                {
+                    __result = false;
+                }
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(UnitPartSpellResistance.SpellImmunity))]
+        [Harmony12.HarmonyPatch("CanApply", Harmony12.MethodType.Normal)]
+        static class SpellImmunity_CanApply_Patch
+        {
+            static BlueprintFeature undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
+            internal static void Postfix(UnitPartSpellResistance.SpellImmunity __instance, MechanicsContext context, ref bool __result)
+            {
+                if (__instance.CasterIgnoreImmunityFact == undead_arcana && context.HasMetamagic((Metamagic)MetamagicExtender.BypassUndeadMindAffectingImmunity)) 
+                {
+                    __result = false;
                 }
             }
         }

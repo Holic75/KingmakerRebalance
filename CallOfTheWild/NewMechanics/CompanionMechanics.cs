@@ -1,4 +1,6 @@
-﻿using Kingmaker.Blueprints;
+﻿using Kingmaker;
+using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Root;
@@ -20,6 +22,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -566,6 +569,149 @@ namespace CallOfTheWild.CompanionMechanics
                 return;
             this.Owner.Pet.Descriptor.Progression.Features.RemoveFact(m_AppliedFact);
             m_AppliedFact = null;
+        }
+    }
+
+
+    [ComponentName("Add feature on class level")]
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SetAnimalCompanionRankToCharacterLevel : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler, IGlobalSubscriber
+    {
+        public BlueprintFeature rank_feature;
+        public int level_diff;
+        [JsonProperty]
+        private int m_AppliedRank;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            for (; this.m_AppliedRank > 0; --this.m_AppliedRank)
+                this.Owner.RemoveFact((BlueprintUnitFact)this.rank_feature);
+        }
+
+        private void Apply()
+        {
+            int rank = this.Owner.GetFact((BlueprintUnitFact)this.rank_feature).GetRank();
+            int character_level = this.Owner.Progression.CharacterLevel;
+
+            for (int i = rank; i < character_level + level_diff; i++)
+            {
+                this.Owner.AddFact((BlueprintUnitFact)this.rank_feature, null);
+                ++this.m_AppliedRank;
+            }
+
+            rank = this.Owner.GetFact((BlueprintUnitFact)this.rank_feature).GetRank();
+            for (int i = rank; (i > character_level + level_diff && m_AppliedRank > 0); i--)
+            {
+                this.Owner.RemoveFact((BlueprintUnitFact)this.rank_feature);
+                --this.m_AppliedRank;
+            }
+        }
+
+        public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+        {
+            this.Apply();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class FavoredTerrainBonusFromMaster : OwnedGameLogicComponent<UnitDescriptor>, IAreaLoadingStagesHandler, IGlobalSubscriber
+    {
+        private ModifiableValue.Modifier m_InitiativeModifier;
+        private ModifiableValue.Modifier m_PerceptionModifier;
+        private ModifiableValue.Modifier m_StealthModifier;
+        private ModifiableValue.Modifier m_LoreNatureModifier;
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            this.CheckSettings();
+        }
+
+        public override void OnTurnOff()
+        {
+            base.OnTurnOff();
+            this.DeactivateModifier();
+        }
+
+        public void CheckSettings()
+        {
+            this.DeactivateModifier();
+            var unit_part_favored_terrain = this.Owner.Master.Value?.Get<UnitPartFavoredTerrain>();
+            if (unit_part_favored_terrain == null)
+            {
+                return;
+            }
+            BlueprintArea current_area = Game.Instance.CurrentlyLoadedArea;
+            if (current_area == null)
+            {
+                return;
+            }
+
+            foreach (var ft in unit_part_favored_terrain.Entries)
+            {
+                if (ft.Settings.Contains<LootSetting>(current_area.LootSetting))
+                {
+                    this.ActivateModifier(ft.Source.GetRank() * 2, ft.Source);
+                    break;
+                }
+            }                
+        }
+
+        public void ActivateModifier(int val, Fact source)
+        {
+            if (this.m_InitiativeModifier == null)
+                this.m_InitiativeModifier = this.Owner.Stats.Initiative.AddModifier(val, source, (string)null, ModifierDescriptor.None);
+            if (this.m_PerceptionModifier == null)
+                this.m_PerceptionModifier = this.Owner.Stats.SkillPerception.AddModifier(val, source, (string)null, ModifierDescriptor.None);
+            if (this.m_StealthModifier == null)
+                this.m_StealthModifier = this.Owner.Stats.SkillStealth.AddModifier(val, source, (string)null, ModifierDescriptor.None);
+            if (this.m_LoreNatureModifier != null)
+                return;
+            this.m_LoreNatureModifier = this.Owner.Stats.SkillLoreNature.AddModifier(val, source, (string)null, ModifierDescriptor.None);
+        }
+
+        public void DeactivateModifier()
+        {
+            if (this.m_InitiativeModifier != null)
+            {
+                if (this.m_InitiativeModifier != null)
+                    this.m_InitiativeModifier.Remove();
+                this.m_InitiativeModifier = (ModifiableValue.Modifier)null;
+            }
+            if (this.m_PerceptionModifier != null)
+            {
+                if (this.m_PerceptionModifier != null)
+                    this.m_PerceptionModifier.Remove();
+                this.m_PerceptionModifier = (ModifiableValue.Modifier)null;
+            }
+            if (this.m_StealthModifier != null)
+            {
+                if (this.m_StealthModifier != null)
+                    this.m_StealthModifier.Remove();
+                this.m_StealthModifier = (ModifiableValue.Modifier)null;
+            }
+            if (this.m_LoreNatureModifier == null)
+                return;
+            if (this.m_LoreNatureModifier != null)
+                this.m_LoreNatureModifier.Remove();
+            this.m_LoreNatureModifier = (ModifiableValue.Modifier)null;
+        }
+
+        public void OnAreaScenesLoaded()
+        {
+        }
+
+        public void OnAreaLoadingComplete()
+        {
+            this.CheckSettings();
         }
     }
 }

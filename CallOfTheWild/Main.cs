@@ -193,6 +193,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixGrappleSpells();
                     CallOfTheWild.Rebalance.fixDruidWoodlandStride();
                     CallOfTheWild.Rebalance.fixTandemTripPrerequisite();
+                    CallOfTheWild.Rebalance.fixRangerAnimalCompanion();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
@@ -251,6 +252,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Arcanist.createArcanistClass();
 
                     CallOfTheWild.SharedSpells.load();
+                    
 
                     CallOfTheWild.Archetypes.DivineTracker.create(); // blessings will be filled in warpriest part
                     CallOfTheWild.Warpriest.createWarpriestClass();

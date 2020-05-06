@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.ActivatableAbilities;
@@ -102,7 +103,8 @@ namespace CallOfTheWild
                                           will_of_the_dead.Icon,
                                           null,
                                           Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spell_descriptor = SpellDescriptor.MindAffecting; s.amount = 2; }),
-                                          Helpers.CreateAddFact(will_of_the_dead)
+                                          Helpers.CreateAddFact(will_of_the_dead),
+                                          Helpers.Create<AutoMetamagic>(a => { a.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.BypassUndeadMindAffectingImmunity; a.Descriptor = SpellDescriptor.MindAffecting; })
                                           );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
@@ -118,7 +120,7 @@ namespace CallOfTheWild
         {         
             var buff = Helpers.CreateBuff(name_prefix + "MindsEyeBuff",
                                           "Mind's Eye",
-                                          "ome psychics train their visual and psychic senses, binding them together into a unified focus to better guide their ranged spells and place them with uncanny precision. While casting a spell that requires a ranged attack roll, the psychic can spend 2 points from her phrenic pool and gain a +4 insight bonus on the attack roll.",
+                                          "Some psychics train their visual and psychic senses, binding them together into a unified focus to better guide their ranged spells and place them with uncanny precision. While casting a spell that requires a ranged attack roll, the psychic can spend 2 points from her phrenic pool and gain a +4 insight bonus on the attack roll.",
                                           "",
                                           Helpers.GetIcon("3c08d842e802c3e4eb19d15496145709"), //uncanny dodge
                                           null,

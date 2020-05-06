@@ -1256,6 +1256,25 @@ namespace CallOfTheWild
         } 
 
 
+        static internal void fixRangerAnimalCompanion()
+        {
+            var selection = library.Get<BlueprintFeatureSelection>("ee63330662126374e8785cc901941ac7");
+            var share_fe_bonus = library.Get<BlueprintFeature>("cd7b831693c0f3947b019321c0510915");
+            share_fe_bonus.AddComponent(Helpers.Create<CompanionMechanics.FavoredTerrainBonusFromMaster>());
+            selection.AddComponent(Common.createAddFeatToAnimalCompanion(share_fe_bonus));
+            selection.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a"), //empty
+                library.Get<BlueprintFeature>("f894e003d31461f48a02f5caec4e3359"), //dog
+                library.Get<BlueprintFeature>("e992949eba096644784592dc7f51a5c7"), //ekun wolf
+                library.Get<BlueprintFeature>("aa92fea676be33d4dafd176d699d7996"), //elk
+                library.Get<BlueprintFeature>("2ee2ba60850dd064e8b98bf5c2c946ba"), //leopard
+                library.Get<BlueprintFeature>("ece6bde3dfc76ba4791376428e70621a"), //monitor
+                library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea"), //wolf
+            };
+            selection.SetDescription(selection.Description + "\nA ranger’s animal companion shares his favored enemy and favored terrain bonuses.");
+        }
+
         static internal void fixUndeadImmunity()
         {
             //add missing immunity to stun ?
