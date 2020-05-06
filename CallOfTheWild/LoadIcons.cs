@@ -33,7 +33,7 @@ namespace CallOfTheWild
         {
             if (id.Contains("CallOfTheWild"))
             {
-                __result = Path.Combine(Directory.GetCurrentDirectory(), "Mods/CallOfTheWild/Icons/Portraits", id.Replace("CallOfTheWild", ""));
+                __result = Path.Combine(UnityModManagerNet.UnityModManager.modsPath + @"/CallOfTheWild/Icons/Portraits", id.Replace("CallOfTheWild", ""));
                 return false;
             }
 
