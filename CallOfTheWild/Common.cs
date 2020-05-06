@@ -104,7 +104,7 @@ namespace CallOfTheWild
 
         public static BlueprintBuff deafened = Helpers.CreateBuff("DeafenedBuff",
                                                                 "Deafened",
-                                                                " deafened character cannot hear. He takes a –4 penalty on initiative checks, automatically fails Perception checks based on sound, takes a –4 penalty on opposed Perception checks, and has a 20% chance of spell failure when casting spells with verbal components.",
+                                                                "Deafened character cannot hear. He takes a –4 penalty on initiative checks, automatically fails Perception checks based on sound, takes a –4 penalty on opposed Perception checks, and has a 20% chance of spell failure when casting spells with verbal components.",
                                                                 "",
                                                                 library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").Icon,
                                                                 null,
@@ -112,6 +112,16 @@ namespace CallOfTheWild
                                                                 Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20)
                                                                 );
+
+        public static BlueprintBuff dazed_non_mind_affecting = Helpers.CreateBuff("DazedNonMindAffectingBuff",
+                                                                                "Dazed",
+                                                                                "The creature is unable to act normally. A dazed creature can take no actions, but has no penalty to AC.\nA dazed condition typically lasts 1 round.",
+                                                                                "7a53b321fde64339809ea8528977a711",
+                                                                                Helpers.GetIcon("9934fedff1b14994ea90205d189c8759"),
+                                                                                Common.createPrefabLink("396af91a93f6e2b468f5fa1a944fae8a"),
+                                                                                Common.createAddCondition(UnitCondition.Dazed),
+                                                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Daze)
+                                                                                );
 
         static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
         static readonly Type ContextActionSavingThrow_ConditionalDCIncrease = Harmony12.AccessTools.Inner(typeof(ContextActionSavingThrow), "ConditionalDCIncrease");

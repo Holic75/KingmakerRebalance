@@ -659,7 +659,7 @@ namespace CallOfTheWild
         static class RuleDealDamage_OnTrigger_Patch
         {
             static BlueprintBuff entangled = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
-            static BlueprintBuff dazed = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
+            static BlueprintBuff dazed = Common.dazed_non_mind_affecting;
             internal static void Postfix(RuleDealDamage __instance, RulebookEventContext context)
             {
                 var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
