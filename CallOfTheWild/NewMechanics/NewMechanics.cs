@@ -3666,7 +3666,7 @@ namespace CallOfTheWild
                 int bonus = this.value.Calculate(this.Context);
                 evt.AddBonusCasterLevel(multiplier * bonus);
 
-                if (!correct_dc)
+                if (!correct_dc && !evt.Spell.IsSpell)
                 {
                     evt.AddBonusDC((multiplier * bonus / 2));
                 }

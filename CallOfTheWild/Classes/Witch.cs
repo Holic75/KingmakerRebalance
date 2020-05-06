@@ -105,7 +105,7 @@ namespace CallOfTheWild
         static public BlueprintFeature winter_witch_cantrips;
         static public BlueprintFeature ice_magic;
 
-
+        static public BlueprintFeature patron_cl_fcb;
         static public BlueprintFeature witch_knife;
         static public BlueprintAbility ill_omen;
 
@@ -724,6 +724,16 @@ namespace CallOfTheWild
 
         static void createWitchPatrons()
         {
+            patron_cl_fcb = Helpers.CreateFeature("WitchClFCBFeature",
+                                    "Patron Spells Caster Level Bonus",
+                                    "Add +1/4 to the witch’s caster level when determining the effects of the spells granted to by the patron.",
+                                    "690666245f8a481b9b7ed8816115443a",
+                                    Helpers.GetIcon("e69a85f633ae8ca4398abeb6fa11b1fe"), //spell specialization
+                                    FeatureGroup.Feat,
+                                    Helpers.PrerequisiteClassLevel(witch_class, 1)
+                                    );
+            patron_cl_fcb.Ranks = 5;
+
             witch_knife = Helpers.CreateFeature("WitchKnifeFeature",
                                                 "Witch Knife",
                                                 "You empower your witch spells by incorporating the use of a special ceremonial knife during your castings.\n Add +1 to the DC of all your patron spells.",
@@ -1285,7 +1295,11 @@ namespace CallOfTheWild
                                   feature_guid,
                                   null,
                                   FeatureGroup.None,
-                                  learn_spell_list);
+                                  learn_spell_list,
+                                  Helpers.Create<SpellDuplicates.AddCasterLevelForSpellsOrDuplicates>(a => { a.Value = Helpers.CreateContextValue(AbilityRankType.Default); a.Spells = Common.getSpellsFromSpellList(learn_spell_list.SpellList); }),
+                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, feature: patron_cl_fcb)
+                                  );
+
 
             var witch_knife_bonus = Helpers.CreateFeature("WitchKnife" + patron.name,
                                                            "",

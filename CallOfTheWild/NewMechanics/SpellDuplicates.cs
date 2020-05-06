@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class SpellDuplicates
+    public class SpellDuplicates
     {
         static LibraryScriptableObject library => Main.library;
         static Dictionary<string, List<BlueprintAbility>> duplicate_spells = new Dictionary<string, List<BlueprintAbility>>();
