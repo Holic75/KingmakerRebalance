@@ -1033,6 +1033,7 @@ namespace CallOfTheWild
                 
 
                 new Common.SpellId( "03a9630394d10164a9410882d31572f0", 2), //aid
+                new Common.SpellId( NewSpells.animate_dead_lesser.AssetGuid, 2),
                 new Common.SpellId( "5b77d7cc65b8ab74688e74a37fc2f553", 2), //barksin
                 new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
                 new Common.SpellId( NewSpells.bone_fists.AssetGuid, 2),

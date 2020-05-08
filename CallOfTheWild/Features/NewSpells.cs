@@ -206,6 +206,7 @@ namespace CallOfTheWild
         static public BlueprintAbility[] thought_shield = new BlueprintAbility[3];
         static public BlueprintAbility[] mental_barrier = new BlueprintAbility[5];
         static public BlueprintAbility intellect_fortress;
+        static public BlueprintAbility animate_dead_lesser;
 
         static public void load()
         {
@@ -335,6 +336,67 @@ namespace CallOfTheWild
             createThoughtShield();
             createMentalBarrier();
             createIntellectFortress();
+
+            createAnimateDeadLesser();
+        }
+
+
+        static void createAnimateDeadLesser()
+        {
+            var skeleton = library.CopyAndAdd<BlueprintUnit>("6c94133d39dea8544a591836c78eaaf3", "AnimatedSkeletonUnit", "aaf0f057ecff4fc0b8ad010be9fe4a97");
+            
+            skeleton.Body = skeleton.Body.CloneObject();
+            skeleton.Body.PrimaryHand = null;
+            skeleton.Body.Armor = null;
+            skeleton.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");//claw 1d4
+
+            var animate_dead = library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27");
+            var after_spawn = (animate_dead.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).AfterSpawn;
+
+            var icon = Helpers.GetIcon("4b76d32feb089ad4499c3a1ce8e1ac27");
+
+
+            var animate_action = Helpers.Create<DeadTargetMechanics.ContextActionAnimateDead>(a =>
+                                                                                               {
+                                                                                                   a.Blueprint = skeleton;
+                                                                                                   a.AfterSpawn = after_spawn;
+                                                                                                   a.dex_bonus = 2;
+                                                                                                   a.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes);
+                                                                                                   a.transfer_equipment = true;
+                                                                                                   a.SummonPool = Common.aniamate_dead_summon_pool;
+                                                                                               }
+                                                                                               );
+            animate_dead.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<DeadTargetMechanics.ContextConditionCanBeAnimated>(), 
+                                                                                                                         animate_action)));
+            animate_dead.LocalizedDuration = Helpers.CreateString("AnimateDead.Description", Helpers.tenMinPerLevelDuration);
+            animate_dead.setMiscAbilityParametersRangedDirectional();
+            animate_dead.SetDescription("This spell turns corpses into undead skeletons that obey your spoken commands.\n"
+                                        + "They remain animated until they are destroyed. A destroyed skeleton can’t be animated again.\n"
+                                        + "You can’t create an undead with more HD than twice your caster level.\n"
+                                        + "The undead you create remain under your control. No matter how many times you use this spell, however, you can control only 4 HD worth of undead creatures per caster level."
+                                        );
+            animate_dead.AddComponent(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any, includeDead: true));
+
+            animate_dead_lesser = Helpers.CreateAbility("AniamteDeadLesserAbility",
+                                                        "Animate Dead Lesser",
+                                                        "This spell functions as animate dead, except you can only create a single Small or Medium skeleton.\n"
+                                                        + "Animate Dead: " + animate_dead.Description,
+                                                        "",
+                                                        icon,
+                                                        AbilityType.Spell,
+                                                        UnitCommand.CommandType.Standard,
+                                                        AbilityRange.Close,
+                                                        Helpers.tenMinPerLevelDuration,
+                                                        "",
+                                                        Helpers.CreateRunActions(animate_action),
+                                                        Helpers.CreateContextRankConfig(),
+                                                        Helpers.Create<DeadTargetMechanics.AbilityTargetCanBeAnimated>(a => a.max_size = Size.Medium),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Evil),
+                                                        Helpers.CreateSpellComponent(SpellSchool.Necromancy)
+                                                        );
+            animate_dead_lesser.setMiscAbilityParametersSingleTargetRangedHarmful();
+            animate_dead_lesser.AddToSpellList(Helpers.clericSpellList, 2);
+            animate_dead_lesser.AddToSpellList(Helpers.wizardSpellList, 3);
         }
 
 
