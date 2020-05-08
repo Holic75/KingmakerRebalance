@@ -1,12 +1,14 @@
 ﻿using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Designers;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -23,8 +25,8 @@ namespace CallOfTheWild.DismissSpells
         public static void create()
         {
             var ability = Helpers.CreateAbility("DismissSpellAbility",
-                                                "Dismiss Area Effect",
-                                                "This ability allows caster to dismiss and area effect created by herself at the target location.",
+                                                "Dismiss Spell",
+                                                "This ability allows caster to dismiss and area effect created by herself at the target location or dismiss a summoned or animated creature.",
                                                 "",
                                                 Helpers.GetIcon("92681f181b507b34ea87018e8f7a528a"),
                                                 Kingmaker.UnitLogic.Abilities.Blueprints.AbilityType.Extraordinary,
@@ -63,6 +65,17 @@ namespace CallOfTheWild.DismissSpells
 
         public override void RunAction()
         {
+            var unit = GameHelper.GetTargetsAround(this.Target.Point, 1.Feet().Meters * 0.1f, false, false).FirstOrDefault();
+
+            if (unit != null)
+            {
+                var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
+                if (summoner == this.Context.MaybeCaster)
+                {
+                    unit.Descriptor.RemoveFact(Game.Instance.BlueprintRoot.SystemMechanics.SummonedUnitBuff);
+                }
+                return;
+            }
 
             var area = Game.Instance.State.AreaEffects.Where(a => a.Context.SourceAbility != null && a.Context.MaybeCaster == this.Context.MaybeCaster 
                                                              && ((a.Context.AssociatedBlueprint as BlueprintBuff) == null)
@@ -83,6 +96,13 @@ namespace CallOfTheWild.DismissSpells
     {
         public bool CanTarget(UnitEntityData caster, TargetWrapper target)
         {
+            var unit = GameHelper.GetTargetsAround(target.Point, 1.Feet().Meters*0.1f, false, false).FirstOrDefault();
+            if (unit != null)
+            {
+                var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
+                return summoner == caster;
+            }
+
             var area = Game.Instance.State.AreaEffects.Where(a => a.Context.SourceAbility != null && a.Context.MaybeCaster == caster
                                                              && ((a.Context.AssociatedBlueprint as BlueprintBuff) == null)
                                                              && Helpers.GetField<TimeSpan?>(a, "m_Duration").HasValue

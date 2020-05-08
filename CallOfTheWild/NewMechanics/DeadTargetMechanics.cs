@@ -129,15 +129,17 @@ namespace CallOfTheWild.DeadTargetMechanics
             Rounds duration = this.DurationValue.Calculate(this.Context);
         
             int level = Math.Min(this.Target.Unit.Descriptor.Progression.CharacterLevel, 20);
-            Main.logger.Log("Skeleton Level: " + level.ToString());
+            
             if (level > this.Context.Params.CasterLevel * hd_cl_multiplier)
             {
+                Common.AddBattleLogMessage("Corpse HD is too high");
                 return;
             }
 
-            Main.logger.Log("Remaining HD limit: " + getUsedHD(this.Context, SummonPool).ToString() + "/" + (this.Context.Params.CasterLevel * max_hd_cl_multiplier).ToString());
+            //Main.logger.Log("Animate Dead: Remaining HD limit: " + getUsedHD(this.Context, SummonPool).ToString() + "/" + (this.Context.Params.CasterLevel * max_hd_cl_multiplier).ToString());
             if (getUsedHD(this.Context, SummonPool) + level > this.Context.Params.CasterLevel * max_hd_cl_multiplier)
             {
+                Common.AddBattleLogMessage("Corpse HD does not fit into your animate dead HD limit");
                 return;
             }
             Vector3 clampedPosition = ObstacleAnalyzer.GetNearestNode(this.Target.Point).clampedPosition;
