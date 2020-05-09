@@ -578,7 +578,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 return;
             }
 
-            int bonus = value.Calculate(Context);// - GameHelper.GetItemEnhancementBonus(weapon) - 1;
+            int bonus = value.Calculate(Context) - 1;// - GameHelper.GetItemEnhancementBonus(weapon);
             if (bonus < 0)
             {
                 return;
