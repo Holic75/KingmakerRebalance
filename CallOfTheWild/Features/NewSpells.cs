@@ -378,7 +378,7 @@ namespace CallOfTheWild
             animate_dead.AddComponent(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any, includeDead: true));
 
             animate_dead_lesser = Helpers.CreateAbility("AniamteDeadLesserAbility",
-                                                        "Animate Dead Lesser",
+                                                        "Animate Dead, Lesser",
                                                         "This spell functions as animate dead, except you can only create a single Small or Medium skeleton.\n"
                                                         + "Animate Dead: " + animate_dead.Description,
                                                         "",
@@ -2560,7 +2560,7 @@ namespace CallOfTheWild
 
             var greater_buff = Helpers.CreateBuff("MagicWeaponGreaterBuff",
                                           "Magic Weapon, Greater",
-                                          "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5).\n"
+                                          "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5). This bonus does not allow a weapon to bypass damage reduction aside from magic.\n"
                                           + "Magic Weapon: " + buff.Description,
                                           "",
                                           icon,

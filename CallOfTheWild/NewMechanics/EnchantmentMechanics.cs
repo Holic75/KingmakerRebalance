@@ -578,7 +578,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 return;
             }
 
-            int bonus = value.Calculate(Context) - GameHelper.GetItemEnhancementBonus(weapon) - 1;
+            int bonus = value.Calculate(Context);// - GameHelper.GetItemEnhancementBonus(weapon) - 1;
             if (bonus < 0)
             {
                 return;
@@ -588,7 +588,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 bonus = 4;
             }
 
-            m_Enchantment = weapon.AddEnchantment(WeaponEnchantments.temporary_enchants[bonus], Context, new Rounds?());
+            m_Enchantment = weapon.AddEnchantment(WeaponEnchantments.static_enchants[bonus], Context, new Rounds?());
 
             if (lock_slot && !weapon.IsNonRemovable)
             {
