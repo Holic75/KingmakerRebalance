@@ -113,7 +113,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
     }
 
-    public class StaticWeaponEnhancementBonus : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
+    public class StaticWeaponEnhancementBonus : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
     {
         [JsonProperty]
         private int added_bonus = 0;
@@ -146,6 +146,32 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
         {
         }
+
+        public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+        {
+            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            if (weapon != this.Owner)
+                return;
+
+            foreach (BaseDamage base_dmg in evt.DamageBundle)
+            {
+                var physical_dmg = (base_dmg as PhysicalDamage);
+                if (physical_dmg == null)
+                {
+                    continue;
+                }
+                if (physical_dmg.Enchantment < 1)
+                {
+                    physical_dmg.Enchantment = 1;
+                    ++physical_dmg.EnchantmentTotal;
+                }
+            }
+        }
+
+        public void OnEventDidTrigger(RuleCalculateDamage evt)
+        {
+
+        }
     }
 
 
@@ -176,7 +202,26 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public void OnEventAboutToTrigger(RuleCalculateDamage evt)
         {
+            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            if (!CheckWeapon(weapon))
+            {
+                return;
+            }
 
+            foreach (BaseDamage base_dmg in evt.DamageBundle)
+            {
+                var physical_dmg = (base_dmg as PhysicalDamage);
+                if (physical_dmg == null)
+                {
+                    continue;
+                }
+                var bonus2 = Enhancement - physical_dmg.Enchantment;
+                if (bonus2 > 0)
+                {
+                    physical_dmg.Enchantment += bonus2;
+                    physical_dmg.EnchantmentTotal += bonus2;
+                }
+            }
         }
 
         public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)

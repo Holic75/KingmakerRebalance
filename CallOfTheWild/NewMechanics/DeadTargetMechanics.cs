@@ -49,7 +49,12 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             if (unit != null && !unit.IsPlayerFaction && (unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)) && !unit.Descriptor.State.HasCondition(UnitCondition.Petrified))
             {
-                bool can_raise = !unit.Descriptor.HasFact(Common.aberration) && !unit.Descriptor.HasFact(Common.undead) && !unit.Descriptor.HasFact(Common.vermin) && !unit.Descriptor.HasFact(Common.elemental);
+                bool can_raise = !unit.Descriptor.HasFact(Common.aberration)
+                                 && !unit.Descriptor.HasFact(Common.undead)
+                                 && !unit.Descriptor.HasFact(Common.vermin)
+                                 && !unit.Descriptor.HasFact(Common.elemental)
+                                 && !unit.Descriptor.HasFact(Common.construct)
+                                 && !unit.Descriptor.HasFact(Common.plant);
                 return can_raise && !unit.Descriptor.HasFact(Common.no_animate_feature);
             }
 
@@ -83,7 +88,12 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             if (unit != null && !unit.IsPlayerFaction && (unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)) && !unit.Descriptor.State.HasCondition(UnitCondition.Petrified))
             {
-                bool can_raise = !unit.Descriptor.HasFact(Common.aberration) && !unit.Descriptor.HasFact(Common.undead) && !unit.Descriptor.HasFact(Common.vermin) && !unit.Descriptor.HasFact(Common.elemental);
+                bool can_raise = !unit.Descriptor.HasFact(Common.aberration)
+                                 && !unit.Descriptor.HasFact(Common.undead)
+                                 && !unit.Descriptor.HasFact(Common.vermin)
+                                 && !unit.Descriptor.HasFact(Common.elemental)
+                                 && !unit.Descriptor.HasFact(Common.construct)
+                                 && !unit.Descriptor.HasFact(Common.plant);
                 return can_raise && !unit.Descriptor.HasFact(Common.no_animate_feature);
             }
 
@@ -197,6 +207,9 @@ namespace CallOfTheWild.DeadTargetMechanics
             }
 
             unit.Descriptor.AddFact(Common.no_animate_feature);
+
+            animated_unit.Descriptor.CustomName = animated_unit.Descriptor.CharacterName + $" ({level} HD)";
+            EventBus.RaiseEvent<IUnitNameHandler>((Action<IUnitNameHandler>)(h => h.OnUnitNameChanged(animated_unit)));
         }
 
 

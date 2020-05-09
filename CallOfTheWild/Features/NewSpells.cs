@@ -397,6 +397,17 @@ namespace CallOfTheWild
             animate_dead_lesser.setMiscAbilityParametersSingleTargetRangedHarmful();
             animate_dead_lesser.AddToSpellList(Helpers.clericSpellList, 2);
             animate_dead_lesser.AddToSpellList(Helpers.wizardSpellList, 3);
+
+
+            //fix jaethal ability
+            var summon_undead = library.Get<BlueprintAbility>("4c1556984f24e5c4282c6fcda832b7b2");
+            summon_undead.LocalizedDuration = animate_dead.LocalizedDuration;
+            summon_undead.SetDescription(animate_dead.Description);
+            summon_undead.ReplaceComponent<AbilityEffectRunAction>(animate_dead.GetComponent<AbilityEffectRunAction>());
+            summon_undead.AddComponent(animate_dead.GetComponent<AbilityTargetsAround>());
+            var summon_undead_feature = library.Get<BlueprintFeature>("f06f246950e76864fa545c13cb334ba5");
+            summon_undead_feature.SetDescription("Jaethal now can cast animate dead spell three times per day");
+
         }
 
 

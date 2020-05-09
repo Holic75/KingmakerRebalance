@@ -63,7 +63,7 @@ namespace CallOfTheWild
             {
                 static_enchants[i] = Common.createWeaponEnchantment($"StaticTemporaryEnhancement{i + 1}",
                                                                     "Static " + temporary_enchants[i].Name,
-                                                                    $"Attacks with this weapon get +{i + 1} enhancement bonus on both attack and damage rolls.",
+                                                                    $"Attacks with this weapon get +{i + 1} enhancement bonus on both attack and damage rolls. This bonus does not allow this weapon to bypass damage reduction aside from magic.",
                                                                     temporary_enchants[i].Prefix,
                                                                     temporary_enchants[i].Suffix,
                                                                     "",
