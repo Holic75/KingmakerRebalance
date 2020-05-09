@@ -18,6 +18,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -250,9 +251,19 @@ namespace CallOfTheWild
 
         public BlueprintFeature createRaiseTheDead(string name_prefix, string display_name, string description)
         {
+            var skeletal_champions = new BlueprintUnit[]
+            {
+                library.Get<BlueprintUnit>("f2917899f6976fc4ebc16724a592d0b7"), //cr2 - level1
+                library.Get<BlueprintUnit>("66972515a74e62140a12abbf0d66f4df"), //cr5 - level4
+                library.Get<BlueprintUnit>("49903237b0c90b445ac1089dc89a7665"), //cr7 - level6
+                library.Get<BlueprintUnit>("622b8701c4f2468479b9f533c2cc24e5"), //cr11 - level10
+                library.Get<BlueprintUnit>("6c3d554093121ad4a93718f0ce7926d6"), //cr14 - level13
+            };
+
+            
+
             var spell_ids = new string[]
             {
-                "4b76d32feb089ad4499c3a1ce8e1ac27", //animate dead
                 "9b75cb3bd3108a24c81329a3734f2248", //grave knight
                 "43a1ea314c59c4a4eb2c193a1e17b805", //living armor
             };
@@ -260,20 +271,56 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 10, 1, 10, 0, 0, 0, classes);
 
-            var abilities = new BlueprintAbility[spell_ids.Length];
+            var abilities = new BlueprintAbility[1 + spell_ids.Length];
+
+            var summon_undead_fion = library.Get<BlueprintAbility>("b27a8af70e0d1574eb96c1357ca376fe");
+            var summon_skeleton_action = summon_undead_fion.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster;
+
+            var summon_actions = new ActionList[skeletal_champions.Length];
+            for (int i = 0; i < summon_actions.Length; i++)
+            {
+                var action = summon_skeleton_action.CreateCopy();
+                action.Blueprint = skeletal_champions[i];
+                action.CountValue = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1);
+                action.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds);
+                summon_actions[i] = Helpers.CreateActionList(action);
+            }
+
+            abilities[0] = Helpers.CreateAbility(name_prefix + "AnimateDead",
+                                                 display_name + " (Skeletal Champion)",
+                                                 "This spell summons a skeletal knight. It appears where you designate and acts according to its initiative check results. It attacks your opponents to the best of its ability. Its power scales with your level.",
+                                                 "",
+                                                 Helpers.GetIcon("4b76d32feb089ad4499c3a1ce8e1ac27"),
+                                                 AbilityType.Supernatural,
+                                                 CommandType.Standard,
+                                                 AbilityRange.Close,
+                                                 $"1 round/{stat.ToString().ToLower()} modifier",
+                                                 "",
+                                                 resource.CreateResourceLogic(),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: stat),
+                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Evil),
+                                                 Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.DamageBonus), summon_actions)),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: classes, type: AbilityRankType.DamageBonus,
+                                                                                 progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4)
+                                                 );
+
+            abilities[0].setMiscAbilityParametersRangedDirectional();
+
+
 
             for (int i = 0; i < spell_ids.Length; i++)
             {
-                abilities[i] = Common.convertToSuperNatural(library.Get<BlueprintAbility>(spell_ids[i]), name_prefix, classes, stat, resource);
-                Helpers.SetField(abilities[i], "m_IsFullRoundAction", false);
-                abilities[i].ReplaceComponent<ContextRankConfig>(c =>
+                abilities[i+1] = Common.convertToSuperNatural(library.Get<BlueprintAbility>(spell_ids[i]), name_prefix, classes, stat, resource);
+                Helpers.SetField(abilities[i+1], "m_IsFullRoundAction", false);
+                abilities[i+1].ReplaceComponent<ContextRankConfig>(c =>
                                                                 {
                                                                     Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueType.StatBonus);
-                                                                    Helpers.SetField(c, "m_Stat", StatType.Charisma);
+                                                                    Helpers.SetField(c, "m_Stat", stat);
                                                                 });
+                abilities[i + 1].LocalizedDuration = abilities[0].LocalizedDuration;
             }
 
-            abilities[0].SetNameDescription(display_name, description);
+
             abilities[1].SetNameDescription(display_name + " (Grave Knight)", description);
             abilities[2].SetNameDescription(display_name + " (Living Armor)", description);
 
@@ -288,7 +335,7 @@ namespace CallOfTheWild
                                                 "",
                                                 abilities[0].Icon,
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddFeatureOnClassLevel(feature1, 15, classes, before: true),
+                                                Helpers.CreateAddFact(abilities[0]),
                                                 Helpers.CreateAddFeatureOnClassLevel(feature2, 15, classes),
                                                 resource.CreateAddAbilityResource()
                                                 );
