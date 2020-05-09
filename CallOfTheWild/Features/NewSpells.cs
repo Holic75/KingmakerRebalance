@@ -2560,7 +2560,7 @@ namespace CallOfTheWild
 
             var greater_buff = Helpers.CreateBuff("MagicWeaponGreaterBuff",
                                           "Magic Weapon, Greater",
-                                          "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5). This bonus does not allow a weapon to bypass damage reduction aside from magic.\n"
+                                          "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5).\n"
                                           + "Magic Weapon: " + buff.Description,
                                           "",
                                           icon,

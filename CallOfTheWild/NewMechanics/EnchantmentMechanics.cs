@@ -160,11 +160,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 {
                     continue;
                 }
-                if (physical_dmg.Enchantment < 1)
-                {
-                    physical_dmg.Enchantment = 1;
-                    ++physical_dmg.EnchantmentTotal;
-                }
+                physical_dmg.EnchantmentTotal += added_bonus;
             }
         }
 
@@ -215,12 +211,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 {
                     continue;
                 }
-                var bonus2 = Enhancement - physical_dmg.Enchantment;
-                if (bonus2 > 0)
-                {
-                    physical_dmg.Enchantment += bonus2;
-                    physical_dmg.EnchantmentTotal += bonus2;
-                }
+                physical_dmg.EnchantmentTotal += added_bonus;
             }
         }
 
@@ -269,7 +260,21 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public void OnEventAboutToTrigger(RuleCalculateDamage evt)
         {
+            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            if (!CheckWeapon(weapon))
+            {
+                return;
+            }
 
+            foreach (BaseDamage base_dmg in evt.DamageBundle)
+            {
+                var physical_dmg = (base_dmg as PhysicalDamage);
+                if (physical_dmg == null)
+                {
+                    continue;
+                }
+                physical_dmg.EnchantmentTotal += Enhancement;
+            }
         }
 
         public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)

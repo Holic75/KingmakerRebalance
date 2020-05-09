@@ -177,6 +177,8 @@ namespace CallOfTheWild
                                                 //Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 3, any: true)
                                                 );
         }
+
+
         static void createBloodHavoc()
         {
             Dictionary<string, List<BlueprintFeature>> spell_asset_id_feature_map = new Dictionary<string, List<BlueprintFeature>>();
@@ -238,7 +240,7 @@ namespace CallOfTheWild
             foreach (var b in bloodlines)
             {
                 var ability1 = b.LevelEntries[0].Features.Where(f => !f.name.Contains("Arcana") && !f.name.Contains("ClassSkill")).FirstOrDefault() as BlueprintFeature;
-                var ability3 = b.LevelEntries[1].Features.Where(f => !f.name.Contains("BloodlineBonusSpell")).FirstOrDefault() as BlueprintFeature;
+                var ability3 = b.LevelEntries[1].Features.Where(f => !f.name.Contains("SpellLevel1")).FirstOrDefault() as BlueprintFeature;
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,
