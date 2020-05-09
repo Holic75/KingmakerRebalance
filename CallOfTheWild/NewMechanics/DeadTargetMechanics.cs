@@ -118,6 +118,18 @@ namespace CallOfTheWild.DeadTargetMechanics
         public int hd_cl_multiplier = 2;
         public int max_hd_cl_multiplier = 4;
 
+        static BlueprintCharacterClass[] racial_classes = new BlueprintCharacterClass[]
+        {
+            Main.library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"), //animal
+            Main.library.Get<BlueprintCharacterClass>("6ab4526f94d2e3e439af0599a29b6675"), //humanoid
+            Main.library.Get<BlueprintCharacterClass>("f2e6e760ead99fb48ade27c7e9d4ac94"), //fey
+            Main.library.Get<BlueprintCharacterClass>("b9e97f47cb86f2d45a0784a096ff8037"), //magical beast
+            Main.library.Get<BlueprintCharacterClass>("8a3c86893f383214da070e9c84c1e95b"), //monstrous humanoid
+            Main.library.Get<BlueprintCharacterClass>("9a20b40b57f4e684fa20d17c0edfd5ba"), //nymph
+            Main.library.Get<BlueprintCharacterClass>("92ab5f2fe00631b44810deffcc1a97fd"), //outsider
+            Main.library.Get<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc"), //dragon
+        };
+
         public override string GetCaption()
         {
             return string.Format("Animate {0} x {1} for {2}", (object)this.Blueprint.name, 1, (object)this.DurationValue);
@@ -138,7 +150,7 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             Rounds duration = this.DurationValue.Calculate(this.Context);
         
-            int level = Math.Min(this.Target.Unit.Descriptor.Progression.CharacterLevel, 20);
+            int level = Math.Max(Math.Min(getRacialHD(this.Target.Unit.Descriptor), 20), Blueprint.GetComponent<AddClassLevels>().Levels);
             
             if (level > this.Context.Params.CasterLevel * hd_cl_multiplier)
             {
@@ -177,6 +189,7 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             animated_unit.Stats.Strength.BaseValue = unit.Stats.Strength.BaseValue + str_bonus;
             animated_unit.Stats.Dexterity.BaseValue = unit.Stats.Dexterity.BaseValue + dex_bonus;
+
             if (adapt_size)
             {
                 animated_unit.Descriptor.AddFact(Common.size_override_facts[target_size], null, null);
@@ -213,10 +226,18 @@ namespace CallOfTheWild.DeadTargetMechanics
         }
 
 
-        int getUsedHD(MechanicsContext context, BlueprintSummonPool summon_pool)
+        int getRacialHD(UnitDescriptor unit_descriptor)
         {
-            
+            var hd = 0;
+            foreach (var rc in racial_classes)
+            {
+                hd += unit_descriptor.Progression.GetClassLevel(rc);
+            }
+            return hd;
+        }
 
+        int getUsedHD(MechanicsContext context, BlueprintSummonPool summon_pool)
+        {           
             ISummonPool pool = Game.Instance.SummonPools.GetPool(this.SummonPool);
             if (pool == null)
             {

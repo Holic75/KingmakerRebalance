@@ -363,7 +363,7 @@ namespace CallOfTheWild
                                                                                                    a.dex_bonus = 2;
                                                                                                    a.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes);
                                                                                                    a.transfer_equipment = true;
-                                                                                                   a.SummonPool = Common.aniamate_dead_summon_pool;
+                                                                                                   a.SummonPool = Common.animate_dead_summon_pool;
                                                                                                }
                                                                                                );
             animate_dead.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(Helpers.CreateConditional(Helpers.Create<DeadTargetMechanics.ContextConditionCanBeAnimated>(), 
