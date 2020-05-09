@@ -121,6 +121,7 @@ namespace CallOfTheWild.WeaponTrainingMechanics
         static BlueprintParametrizedFeature fencing_grace = Main.library.Get<BlueprintParametrizedFeature>("47b352ea0f73c354aba777945760b441");
         static BlueprintWeaponEnchantment agile = Main.library.Get<BlueprintWeaponEnchantment>("a36ad92c51789b44fa8a1c5c116a1328");
         static BlueprintFeature deft_grace = Main.library.Get<BlueprintFeature>("b63a316cb172c7b4e906a318a0621c2c");
+        static BlueprintFeature leopard_frace = Main.library.Get<BlueprintFeature>("b8c98af302ee334499d30a926306327d");
 
         public ContextValue value;
 
@@ -143,6 +144,12 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             }
 
             if (weapon.Blueprint.Category == WeaponCategory.Scimitar && this.Owner.Progression.Features.HasFact(NewFeats.dervish_dance))
+            {
+                return;
+            }
+
+
+            if ((weapon.Blueprint.Category == WeaponCategory.Bite || weapon.Blueprint.Category == WeaponCategory.Claw) && this.Owner.Progression.Features.HasFact(leopard_frace))
             {
                 return;
             }
