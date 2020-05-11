@@ -1090,7 +1090,7 @@ namespace CallOfTheWild
             var song_of_the_fallen_ability = library.CopyAndAdd<BlueprintAbility>("80a1a388ee938aa4e90d427ce9a7a3e9", "SkaldSongOfTheFallen", "");
             song_of_the_fallen_ability.MaterialComponent = new MaterialComponentData();
             song_of_the_fallen_ability.SetName("Song of the fallen");
-            song_of_the_fallen_ability.SetDescription("At 14th level, a skald can temporarily revive dead allies to continue fighting, with the same limitations as raise dead.The skald selects a dead ally within 30 feet and expends 6 rounds of raging song to bring that ally back to life for number of rounds equal to half of skald level. The revived ally is alive but staggered.");
+            song_of_the_fallen_ability.SetDescription("At 14th level, a skald can temporarily revive dead allies to continue fighting, with the same limitations as raise dead. The skald selects a dead ally within 30 feet and expends 6 rounds of raging song to bring that ally back to life for number of rounds equal to half her skald level. The revived ally is alive but staggered.");
             song_of_the_fallen_ability.Type = AbilityType.Supernatural;
             song_of_the_fallen_ability.Range = AbilityRange.Close;
             var staggered_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");

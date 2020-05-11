@@ -196,6 +196,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixTandemTripPrerequisite();
                     CallOfTheWild.Rebalance.fixRangerAnimalCompanion();
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
+                    CallOfTheWild.Rebalance.fixFlameDancer();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 

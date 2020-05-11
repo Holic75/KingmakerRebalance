@@ -1369,6 +1369,43 @@ namespace CallOfTheWild
                 new_round_actions.Actions = new_actions;
             }
         }
+
+
+        internal static void fixFlameDancer()
+        {
+            //add song_of_fiery_faze gaze
+            var buff = Helpers.CreateBuff("SongOfFeiryGazeEffectBuff",
+                                          "Song of Fiery Gaze",
+                                          "At 3rd level, a fire dancer can allow allies to see through flames without any distortion. Any ally within 30 feet of the bard who can hear the performance can see through fire, fog, and smoke without penalty as long as the light is sufficient to allow him to see normally, as with the base effect of the gaze of flames oracle revelation. Song of the fiery gaze relies on audible components.",
+                                          "",
+                                          Helpers.GetIcon("ee0b69e90bac14446a4cf9a050f87f2e"), //detect magic
+                                          null,
+                                          Helpers.Create<ConcealementMechanics.IgnoreFogConcelement>()
+                                          );
+
+            var toggle = Common.convertPerformance(library.Get<BlueprintActivatableAbility>("430ab3bb57f2cfc46b7b3a68afd4f74e"), buff, "SongOfFeiryGaze");
+            var feature = Common.ActivatableAbilityToFeature(toggle, false);
+
+            var flamedancer = library.Get<BlueprintArchetype>("e7914f2adcdb8fc46af5b65d1e06c539");
+            flamedancer.AddFeatures[0].Features[0] = feature;
+
+            var blueprint_facts = new BlueprintUnitFact[] 
+            {
+                library.Get<BlueprintFeature>("3c10a0069e7f110499d2e810f4861a6e"),
+                library.Get<BlueprintBuff>("bf9493f27bb23d74bb598fb1a7a9fe3a"),
+                library.Get<BlueprintBuff>("6b6258335b08dd74fb12e89eddceed7a"),
+                library.Get<BlueprintActivatableAbility>("1b28d456a5b1b4744a1d87cf24309ad1"),
+            };
+
+
+            foreach (var fact in blueprint_facts)
+            {
+                fact.SetDescription("At 6th level, a fire dancer’s performance can bend flames away from others. Any ally within 30 feet of the bard who can hear or see the bardic performance gains resist fire 20 as long as the performance is maintained. At 11th level, this resistance increases to 30.");
+            }
+
+            var progression = flamedancer.GetParentClass().Progression;
+            progression.UIGroups = progression.UIGroups.AddToArray(Helpers.CreateUIGroup(library.Get<BlueprintFeature>("3c10a0069e7f110499d2e810f4861a6e"), feature));
+        }
     }
 
 
