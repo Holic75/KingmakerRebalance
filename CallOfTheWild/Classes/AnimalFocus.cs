@@ -81,7 +81,7 @@ namespace CallOfTheWild
         }
 
 
-        public BlueprintFeature createPlanarFocus(string ext)
+        public BlueprintFeature createPlanarFocus(string ext, BlueprintFeature prerequisite_to_share_with_ac)
         {
             var outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
 
@@ -252,7 +252,8 @@ namespace CallOfTheWild
                                                   Helpers.CreateAddFacts(foci),
                                                   Helpers.PrerequisiteStatValue(StatType.SkillLoreReligion, 5)
                                                   );
-            planar_focus.AddComponent(Common.createAddFeatToAnimalCompanion(planar_focus));
+            //planar_focus.AddComponent(Common.createAddFeatToAnimalCompanion(planar_focus));
+            planar_focus.AddComponent(Common.createAddFeatureIfHasFact(prerequisite_to_share_with_ac, Common.createAddFeatToAnimalCompanion(planar_focus, "")));
 
             library.AddFeats(planar_focus);
 

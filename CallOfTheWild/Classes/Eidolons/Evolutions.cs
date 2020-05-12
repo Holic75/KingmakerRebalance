@@ -267,7 +267,8 @@ namespace CallOfTheWild
                 if (ee.total_cost <= max_cost && (!ee.has_upgrade || ee.upgrade_cost > max_cost))
                 {
                    var apply_buff = Common.createContextActionApplyBuffToCaster(ee.buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
-                                                                                 dispellable: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike);
+                                                                                 dispellable: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
+                                                                                 is_from_spell: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike);
 
                    var ability = Helpers.CreateAbility(name_prefix + ee.buff.name + "Ability",
                                                         display_name + " (" + ee.evolution.Name +")",

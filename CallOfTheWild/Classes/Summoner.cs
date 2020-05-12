@@ -458,7 +458,7 @@ namespace CallOfTheWild
 
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(animal_focus_ac, animal_focus_additional_use_ac, shared_focus, animal_focus_additional_use_ac2));
 
-            var planar_focus = animal_focus_engine.createPlanarFocus("Naturalist");
+            var planar_focus = animal_focus_engine.createPlanarFocus("Naturalist", animal_focus_ac);
             planar_focus.AddComponents(Common.createPrerequisiteArchetypeLevel(summoner_class, naturalist, 14));
 
         }
@@ -1787,7 +1787,7 @@ namespace CallOfTheWild
                                      Helpers.CreateAddFact(heal_pet)
                                      );
 
-                var apply_master_buff = Common.createContextActionApplyBuff(master_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+                var apply_master_buff = Common.createContextActionApplyBuff(master_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true);
                 var apply_pet_buff = Common.createContextActionApplyBuff(pet_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
 
                 var ability = Helpers.CreateAbility(names[i].Replace(" ", "").Replace(",", "") + "Ability",

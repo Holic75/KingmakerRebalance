@@ -3812,7 +3812,7 @@ namespace CallOfTheWild
             var actions = ability.GetComponent<AbilityEffectRunAction>();
             if (actions != null)
             {
-                var new_actions = changeAction<ContextActionApplyBuff>(actions.Actions.Actions, c => c.IsNotDispelable = true);
+                var new_actions = changeAction<ContextActionApplyBuff>(actions.Actions.Actions, c => { c.IsNotDispelable = true; c.IsFromSpell = false; });
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
             }
 

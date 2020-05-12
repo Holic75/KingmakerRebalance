@@ -212,6 +212,7 @@ namespace CallOfTheWild.DeadTargetMechanics
                         animated_unit.Body.TryInsertItem(maybeItem.Blueprint, list2[index]);
                 }
             }
+            animated_unit.Descriptor.State.AddCondition(UnitCondition.Unlootable, (Kingmaker.UnitLogic.Buffs.Buff)null);
 
 
             using (this.Context.GetDataScope(animated_unit))

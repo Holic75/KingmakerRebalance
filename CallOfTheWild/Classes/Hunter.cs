@@ -259,7 +259,7 @@ namespace CallOfTheWild
         {
             var inquistor_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");          
             var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
-            planar_focus = animal_focus_engine.createPlanarFocus("Hunter, Sacred Huntsmaster");
+            planar_focus = animal_focus_engine.createPlanarFocus("Hunter, Sacred Huntsmaster", animal_focus_ac);
 
             
             planar_focus.AddComponents(Helpers.PrerequisiteClassLevel(hunter_class, 1, true),

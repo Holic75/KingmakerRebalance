@@ -1248,7 +1248,7 @@ namespace CallOfTheWild
                                           );
             buff0.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffFromCaster(buff)));
 
-            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true);
 
             ill_omen = Helpers.CreateAbility("IllOmenAbility",
                                              buff.Name,
