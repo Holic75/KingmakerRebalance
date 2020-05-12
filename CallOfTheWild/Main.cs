@@ -264,6 +264,8 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();
                     CallOfTheWild.RogueTalents.load();
+
+                    CallOfTheWild.VersatilePerformance.create();
                     if (settings.advanced_fighter_options)
                     {
                         CallOfTheWild.AdvancedFighterOptions.load();

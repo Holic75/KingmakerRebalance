@@ -281,6 +281,9 @@ namespace CallOfTheWild
             toggle.DeactivateImmediately = true;
 
             bleeding_attack = Common.ActivatableAbilityToFeature(toggle, false);
+
+            bleeding_attack.AddComponent(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87")));//sneak attack
+
             addToTalentSelection(bleeding_attack, for_investigator: false);
 
             var medical_discoveries = library.Get<BlueprintFeatureSelection>("67f499218a0e22944abab6fe1c9eaeee");
@@ -368,7 +371,9 @@ namespace CallOfTheWild
 
             var classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484"), //rogue
                                                          library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb"), //slayer
-                                                         Investigator.investigator_class };
+                                                         Investigator.investigator_class,
+                                                         library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"),//bard for archaelogist
+                                                         library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")}; //inquisitor for sanctified slayer
 
 
             foreach (var s in spells)
@@ -436,7 +441,9 @@ namespace CallOfTheWild
 
             var classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484"), //rogue
                                                          library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb"),
-                                                         Investigator.investigator_class };
+                                                         Investigator.investigator_class,
+                                                         library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"),//bard for archaelogist
+                                                         library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")}; //inquisitor for sanctified slayer
 
 
             foreach (var s in spells)
