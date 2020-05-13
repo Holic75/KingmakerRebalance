@@ -301,7 +301,8 @@ namespace CallOfTheWild
                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Evil),
                                                  Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.DamageBonus), summon_actions)),
                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: classes, type: AbilityRankType.DamageBonus,
-                                                                                 progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4)
+                                                                                 progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4),
+                                                 Common.createAbilityCasterHasNoFacts(ChannelEnergyEngine.consecrate_buff)
                                                  );
 
             abilities[0].setMiscAbilityParametersRangedDirectional();

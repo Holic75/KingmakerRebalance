@@ -258,6 +258,8 @@ New spells:
 - Blood Armor,
 - Bone Fists,
 - Burst of Radiance,
+- Consecrate,
+- Desecrate,
 - Evolution Surge, Lesser, Evolution Surge and Evolution Surge, Greater,
 - Fiery Runes,
 - Flame Blade,

@@ -152,7 +152,7 @@ namespace CallOfTheWild.DeadTargetMechanics
         
             int level = Math.Max(Math.Min(getRacialHD(this.Target.Unit.Descriptor), 20), Blueprint.GetComponent<AddClassLevels>().Levels);
             
-            if (level > this.Context.Params.CasterLevel * hd_cl_multiplier)
+            if (level > this.Context.Params.CasterLevel * hd_cl_multiplier * (this.Context.MaybeCaster.Descriptor.HasFact(ChannelEnergyEngine.desecrate_buff) ? 2 : 1))
             {
                 Common.AddBattleLogMessage("Corpse HD is too high");
                 return;

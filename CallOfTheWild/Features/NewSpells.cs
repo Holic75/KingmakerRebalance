@@ -206,6 +206,9 @@ namespace CallOfTheWild
         static public BlueprintAbility[] thought_shield = new BlueprintAbility[3];
         static public BlueprintAbility[] mental_barrier = new BlueprintAbility[5];
         static public BlueprintAbility intellect_fortress;
+
+        static public BlueprintAbility consecrate;
+        static public BlueprintAbility desecrate;
         static public BlueprintAbility animate_dead_lesser;
 
         static public void load()
@@ -337,7 +340,142 @@ namespace CallOfTheWild
             createMentalBarrier();
             createIntellectFortress();
 
+            createConsecreate();
+            createDesecrate();
             createAnimateDeadLesser();
+        }
+
+
+        static void createDesecrate()
+        {
+            var desecrate_buff = Helpers.CreateBuff("DesecrateBuff",
+                  "Desecrate",
+                  "This spell imbues an area with negative energy. The DC to resist negative channeled energy within this area gains a +3 profane bonus. Every undead creature entering a desecrated area gains a +1 profane bonus on all attack rolls, damage rolls, and saving throws.\n"
+                  + "Furthermore, anyone who casts animate dead within this area may create as many as double the normal amount of undead (that is, 4 HD per caster level rather than 2 HD per caster level).",
+                  "",
+                  Helpers.GetIcon("48e2744846ed04b4580be1a3343a5d3d"),
+                  null
+                  );
+            ChannelEnergyEngine.registerDesecreate(desecrate_buff);
+            var desecrate_undead_buff = Helpers.CreateBuff("DesecrateUndeadBuff",
+                                                            desecrate_buff.Name,
+                                                            desecrate_buff.Description,
+                                                            "",
+                                                            Helpers.GetIcon("db0f61cd985ca09498cafde9a4b27a16"),
+                                                            null,
+                                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.Profane),
+                                                            Helpers.CreateAddStatBonus(StatType.AdditionalDamage, 1, ModifierDescriptor.Profane),
+                                                            Helpers.CreateAddStatBonus(StatType.SaveFortitude, 1, ModifierDescriptor.Profane),
+                                                            Helpers.CreateAddStatBonus(StatType.SaveReflex, 1, ModifierDescriptor.Profane),
+                                                            Helpers.CreateAddStatBonus(StatType.SaveWill, 1, ModifierDescriptor.Profane)
+                                                            );
+
+            desecrate_undead_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            var desecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "DesecrateArea", "");
+            desecrate_area.Size = 20.Feet();
+            desecrate_area.Fx = Common.createPrefabLink("8a80d991f3d68e84293e098a6faa7620"); //unholy aoe
+            desecrate_area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = desecrate_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }),
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = desecrate_undead_buff; a.Condition = Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFact(Common.undead)); })
+            };
+
+            desecrate = Helpers.CreateAbility("DesecrateAbility",
+                                                desecrate_buff.Name,
+                                                desecrate_buff.Description,
+                                                "",
+                                                desecrate_buff.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(desecrate_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Evil),
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                Common.createAbilityAoERadius(20.Feet(), TargetType.Any)
+                                                );
+            desecrate.setMiscAbilityParametersRangedDirectional();
+            desecrate.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
+
+            desecrate.AddToSpellList(Helpers.clericSpellList, 2);
+            desecrate.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            desecrate.AddSpellAndScroll("17959707c7004bd4abad2983f8a4af66"); //bane
+
+        }
+
+
+        static void createConsecreate()
+        {
+            var consecreate_buff = Helpers.CreateBuff("ConsecrateBuff",
+                                          "Consecrate",
+                                          "This spell blesses an area with positive energy. The DC to resist positive channeled energy within this area gains a +3 sacred bonus. Every undead creature entering a consecrated area suffers minor disruption, suffering a -1 penalty on attack rolls, damage rolls, and saves.\n"
+                                          + "Undead cannot be created within or summoned into a consecrated area.",
+                                          "",
+                                          Helpers.GetIcon("db0f61cd985ca09498cafde9a4b27a16"),
+                                          null
+                                          );
+            ChannelEnergyEngine.registerConsecrate(consecreate_buff);
+            var consecreate_undead_buff = Helpers.CreateBuff("ConsecrateUndeadBuff",
+                                                              consecreate_buff.Name,
+                                                              consecreate_buff.Description,
+                                                              "",
+                                                              Helpers.GetIcon("db0f61cd985ca09498cafde9a4b27a16"),
+                                                              null,
+                                                              Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -1, ModifierDescriptor.None),
+                                                              Helpers.CreateAddStatBonus(StatType.AdditionalDamage, -1, ModifierDescriptor.None),
+                                                              Helpers.CreateAddStatBonus(StatType.SaveFortitude, -1, ModifierDescriptor.None),
+                                                              Helpers.CreateAddStatBonus(StatType.SaveReflex, -1, ModifierDescriptor.None),
+                                                              Helpers.CreateAddStatBonus(StatType.SaveWill, -1, ModifierDescriptor.None)
+                                                              );
+            consecreate_undead_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var consecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "ConsecrateArea", "");
+            consecrate_area.Size = 20.Feet();
+            consecrate_area.Fx = Common.createPrefabLink("bbd6decdae32bce41ae8f06c6c5eb893"); //holy aoe
+            consecrate_area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = consecreate_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }),
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = consecreate_undead_buff; a.Condition = Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFact(Common.undead)); })
+            };
+
+            consecrate = Helpers.CreateAbility("ConsecrateAbility",
+                                                consecreate_buff.Name,
+                                                consecreate_buff.Description,
+                                                "",
+                                                consecreate_buff.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Close,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(consecrate_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Good),
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                Common.createAbilityAoERadius(20.Feet(), TargetType.Any)
+                                                );
+            consecrate.setMiscAbilityParametersRangedDirectional();
+            consecrate.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
+
+            consecrate.AddToSpellList(Helpers.clericSpellList, 2);
+            consecrate.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            consecrate.AddSpellAndScroll("be452dba5acdd9441841d2189e1ae55a"); //bless
+
+            var animate_dead = library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27");
+            animate_dead.AddComponent(Common.createAbilityCasterHasNoFacts(consecreate_buff));
+            var create_undead = library.Get<BlueprintAbility>("76a11b460be25e44ca85904d6806e5a3");
+            foreach (var v in create_undead.Variants)
+            {
+                v.AddComponent(Common.createAbilityCasterHasNoFacts(consecreate_buff));
+            }
+
+            //fix jaethal ability
+            var summon_undead = library.Get<BlueprintAbility>("4c1556984f24e5c4282c6fcda832b7b2");
+            summon_undead.AddComponent(Common.createAbilityCasterHasNoFacts(consecreate_buff));
         }
 
 
@@ -392,7 +530,8 @@ namespace CallOfTheWild
                                                         Helpers.CreateContextRankConfig(),
                                                         Helpers.Create<DeadTargetMechanics.AbilityTargetCanBeAnimated>(a => a.max_size = Size.Medium),
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Evil),
-                                                        Helpers.CreateSpellComponent(SpellSchool.Necromancy)
+                                                        Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                        Common.createAbilityCasterHasNoFacts(ChannelEnergyEngine.consecrate_buff)
                                                         );
             animate_dead_lesser.setMiscAbilityParametersSingleTargetRangedHarmful();
             animate_dead_lesser.AddToSpellList(Helpers.clericSpellList, 2);

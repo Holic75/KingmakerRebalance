@@ -905,6 +905,39 @@ namespace CallOfTheWild
         }
 
 
+
+        [ComponentName("Increase context spells DC by descriptor")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseAbilitiesDC : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+            public BlueprintAbility[] abilities;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (abilities.Contains(evt.Spell) || (evt.Spell.Parent != null && abilities.Contains(evt.Spell.Parent)))
+                {
+                    evt.AddBonusDC(this.Value.Calculate(this.Context));
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         [ComponentName("Damage bonus for specific weapon types")]
         public class ContextWeaponCategoryDamageBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
@@ -3635,6 +3668,8 @@ namespace CallOfTheWild
                 this.CheckSettings();
             }
         }
+
+
 
 
         [ComponentName("Increase specific spells CL")]

@@ -187,6 +187,8 @@ namespace CallOfTheWild
         static public BlueprintFeature swift_positive_channel;
         static public BlueprintAbilityResource swift_positve_channel_resource;
 
+        static public BlueprintBuff desecrate_buff, consecrate_buff;
+
         internal static void init()
         {
             var empyreal_sorc_channel_feature = library.Get<BlueprintFeature>("7d49d7f590dc9a948b3bd1c8b7979854");
@@ -934,6 +936,37 @@ namespace CallOfTheWild
             }
 
             addIncreasedSpellDamageFromSunDomain(entry);
+
+            addToDesecreate(entry);
+            addToConsecrate(entry);
+        }
+
+
+        static void addToDesecreate(ChannelEntry entry)
+        {
+            if (desecrate_buff == null)
+            {
+                return;
+            }
+            if (entry.channel_type.isOf(ChannelType.NegativeHarm))
+            {
+                var dc_bonus = desecrate_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+                dc_bonus.spells = dc_bonus.spells.AddToArray(entry.ability);
+            }
+        }
+
+
+        static void addToConsecrate(ChannelEntry entry)
+        {
+            if (consecrate_buff == null)
+            {
+                return;
+            }
+            if (entry.channel_type.isOf(ChannelType.PositiveHarm))
+            {
+                var dc_bonus = consecrate_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+                dc_bonus.spells = dc_bonus.spells.AddToArray(entry.ability);
+            }
         }
 
         internal static void addIncreasedSpellDamageFromSunDomain(ChannelEntry entry)
@@ -1176,6 +1209,29 @@ namespace CallOfTheWild
             if (!abilities.spells.Contains(c.ability))
             {
                 abilities.spells = abilities.spells.AddToArray(c.ability);
+            }
+        }
+
+
+        internal static void registerDesecreate(BlueprintBuff buff)
+        {
+            desecrate_buff = buff;
+            buff.AddComponent(Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(i => { i.BonusDC = 3; i.spells = new BlueprintAbility[0]; }));
+            foreach (var c in channel_entires)
+            {
+                addToDesecreate(c);
+            }
+        }
+
+
+        internal static void registerConsecrate(BlueprintBuff buff)
+        {
+            consecrate_buff = buff;
+
+            buff.AddComponent(Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(i => { i.BonusDC = 3; i.spells = new BlueprintAbility[0]; }));
+            foreach (var c in channel_entires)
+            {
+                addToConsecrate(c);
             }
         }
 
