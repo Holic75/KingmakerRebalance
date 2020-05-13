@@ -52,7 +52,7 @@ namespace CallOfTheWild
         static internal void create()
         {
             createMartialPerformance();
-            createExpandedVersality();
+            createVersatilePerformanceAndExpandedVersality();
             var versatile_perfrormance = library.Get<BlueprintFeatureSelection>("94e2cd84bf3a8e04f8609fe502892f4f");
             versatile_perfrormance.AllFeatures = versatile_performances.ToArray().AddToArray(martial_performance);
             versatile_perfrormance.SetNameDescription("Versatile Performance",
@@ -140,7 +140,7 @@ namespace CallOfTheWild
             }       
         }
 
-        static void createExpandedVersality()
+        static void createVersatilePerformanceAndExpandedVersality()
         {
             var bard_class = library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
 
@@ -159,7 +159,7 @@ namespace CallOfTheWild
 
                 var feature = Helpers.CreateFeature(stat.ToString() + "VersatilePerformanceFeature",
                                                    "Versatile Performance: " + name,
-                                                   "At 2nd level a bard or skald selects one of the following skills: Mobility, Stealth, Perception, Persuation or Use Magic Device. She receives a number of ranks in this skill equal to half her bard or skald level. In addition she uses charisma modifier in place of the ability modifier the skill would normally use. The bard can immediately retrain all of her ranks in the selected skill at no additional cost in money or time.",
+                                                   "At 2nd level a bard or skald selects one of the following skills: Mobility, Stealth, Perception, Persuation or Use Magic Device. She receives a number of ranks in this skill equal to half her bard or skald level. In addition she uses charisma modifier in place of the ability modifier the skill would normally use. The bard or skald can immediately retrain all of her ranks in excess in the selected skill at no additional cost in money or time.",
                                                    "",
                                                    skill_foci[i].Icon,
                                                    FeatureGroup.None,
@@ -169,7 +169,21 @@ namespace CallOfTheWild
                                                                                    classes: new BlueprintCharacterClass[] {bard_class, Skald.skald_class}
                                                                                    )
                                                    );
+
+                var feature2 = Helpers.CreateFeature(stat.ToString() + "ExpandedVersalityFeature",
+                                                       "Expanded Versality: " + name,
+                                                       "A bard or skald can select a skill for which she already selected versatile performance and instead gain a number of ranks in this skill equal to her bard or skald level. The bard or skald can immediately retrain all of her ranks in excess in the selected skill at no additional cost in money or time.",
+                                                       "",
+                                                       skill_foci[i].Icon,
+                                                       FeatureGroup.None,
+                                                       Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = stat; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); ss.increase_by1_on_apply = true; }),
+                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Div2,
+                                                                                       classes: new BlueprintCharacterClass[] { bard_class, Skald.skald_class }
+                                                                                       ),
+                                                       Helpers.PrerequisiteFeature(feature)
+                                                       );
                 versatile_performances.Add(feature);
+                versatile_performances.Add(feature2);
             }
         }
     }
