@@ -894,7 +894,7 @@ namespace CallOfTheWild
                                                     "",
                                                     skill_foci.FirstOrDefault(sf => sf.GetComponent<AddContextStatBonus>().Stat == s).Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = s; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                                    Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = s; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); ss.increase_by1_on_apply = true; }),
                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.BaseAttack)
                                                     );
                 skill_armor_feature_map.Add(s, feature);

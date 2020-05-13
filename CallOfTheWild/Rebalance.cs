@@ -1208,6 +1208,9 @@ namespace CallOfTheWild
 
         static internal void fixRogueSneakAttackTalents()
         {
+            //fix missing dispelling strike sneak attack requirement
+            library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c").AddComponent(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87")));
+
             var talent_ids = new string[] {"955ff81c596c1c3489406d03e81e6087", //focusing attack confused
                                            "791f50e199d069d4f8e933996a2ce054", //focusing attack shaken
                                            "79475c263e538c94f8e23907bd570a35", //focusing attack sickened

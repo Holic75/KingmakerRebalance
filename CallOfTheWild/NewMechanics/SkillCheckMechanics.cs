@@ -54,6 +54,7 @@ namespace CallOfTheWild.SkillMechanics
     {
         public StatType skill;
         public ContextValue value;
+        public bool increase_by1_on_apply = false;
         [JsonProperty]
         private int previous_value = 0;
 
@@ -68,14 +69,18 @@ namespace CallOfTheWild.SkillMechanics
                     {
                         var @class = LevelUp.State.SelectedClass;
                         //allow retraining
-                        LevelUp.State.ExtraSkillPoints += base.Owner.Stats.GetStat(skill).BaseValue;
-                        base.Owner.Stats.GetStat(skill).BaseValue = 0;
+                        int bonus_ranks = this.value.Calculate(this.Fact.MaybeContext);
+                        
+                        int extra_skill_points = Math.Max(0, base.Owner.Stats.GetStat(skill).BaseValue + bonus_ranks - LevelUp.State.NextLevel);
+                        LevelUp.State.ExtraSkillPoints += extra_skill_points;
+                        previous_value = extra_skill_points;
+                        //base.Owner.Stats.GetStat(skill).BaseValue = 0;
                     }
                     HandleUnitGainLevel(this.Owner, null);
                     ModifiableValueSkill stat = this.Owner.Stats.GetStat<ModifiableValueSkill>(skill);
                     stat?.ClassSkill.Retain();
                     stat?.UpdateValue();
-                    if (base.Owner == LevelUp.Preview || base.Owner == LevelUp.Unit)
+                    if ((base.Owner == LevelUp.Preview || base.Owner == LevelUp.Unit) && increase_by1_on_apply)
                     {
                         previous_value--;
                     }
@@ -91,7 +96,7 @@ namespace CallOfTheWild.SkillMechanics
         {
             if (previous_value > 0)
             {
-                base.Owner.Stats.GetStat(skill).BaseValue = 0;
+                base.Owner.Stats.GetStat(skill).BaseValue -= previous_value;
                 previous_value = 0;
             }
             ModifiableValueSkill stat = this.Owner.Stats.GetStat<ModifiableValueSkill>(skill);
