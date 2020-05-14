@@ -230,6 +230,15 @@ Wizard Discoveries:
 - Time Stutter.
 
 
+Bard Masterpieces:
+- Clamor of Heavens,
+- Dance of 23 Steps,
+- Symphony of Elysian Heart,
+- Triple Time,
+- Banshee's Requiem,
+- Blazing Rondo.
+
+
 New spells:
 - Blade Lash,
 - Command and Command, Greater,
@@ -392,7 +401,7 @@ enchanced attacks,
 - Ranger now shares her favored enemy and favored terrain bonuses with her animal companion,
 - Animate Dead spell works more akin to pnp (you need a corpse to raise a skeleton, and skeleton retains corpse's stats, size, HD and equipment, and lasts 10 minutes/cl, caster can not raise more than 4 * caster level HD of skeletons),
 - Flamedancer bard receives Song of the Fiery Gaze at level 3, he receives Fire Break Fire Dance at level 6 as per pnp rules,
-- Versatile performance works closer to pnp: bards can either receive a number of ranks equal to 1/2 bard level in specific skill for free and use charisma as skill stat, or choose martial performance,
+- Versatile performance works closer to pnp: bards can either receive a number of ranks equal to 1/2 bard level in specific skill for free and use charisma as skill stat, or choose martial performance or a masterpiece,
 - Archaelogist receives rogue talents at level 4, 8, 12, 16 and 20.
 
 Original game bug fixes:

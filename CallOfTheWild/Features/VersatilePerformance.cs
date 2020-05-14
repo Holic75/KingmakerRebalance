@@ -54,7 +54,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature clamor_of_hevens; //blind/deafen evil,  stun/stagger undead//
         static public BlueprintFeature dance_of_23_steps; //dodge ac bonus //
-        static public BlueprintFeature dumbshow_of_garroc; //damage plant ooze
+        //static public BlueprintFeature dumbshow_of_garroc; //damage plant ooze
         static public BlueprintFeature symphony_of_elysian_heart; //freedom of movement //
         static public BlueprintFeature triple_time; //+10 feet speed bonus for 1 hour
         static public BlueprintFeature banshees_requiem; // +2 negative levels //
@@ -89,16 +89,46 @@ namespace CallOfTheWild
                                                                    "",
                                                                    null,
                                                                    FeatureGroup.Feat,
-                                                                   Helpers.PrerequisiteClassLevel(bard_class, 2));
+                                                                   Helpers.PrerequisiteClassLevel(bard_class, 3));
             createClamorOfHeavens();
             createDanceOf23Steps();
             createSymphonyOfElysianHeart();
             createBansheesRequiem();
             createBlazingRondo();
+            createTripleTime();
 
-            masterpiece_selection.AllFeatures = masterpiece_selection.AllFeatures.AddToArray(clamor_of_hevens, dance_of_23_steps, symphony_of_elysian_heart, banshees_requiem, blazing_rondo);
+            masterpiece_selection.AllFeatures = masterpiece_selection.AllFeatures.AddToArray(clamor_of_hevens, dance_of_23_steps, symphony_of_elysian_heart, banshees_requiem, blazing_rondo, triple_time);
 
             library.AddFeats(masterpiece_selection);
+        }
+
+
+        static void createTripleTime()
+        {
+            var buff = library.Get<BlueprintBuff>("035ed56eb973f0e469a288ff5991c9ff"); //longstrider
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
+
+            var ability = Helpers.CreateAbility("TripleTimeAbility",
+                                                "Triple Time",
+                                                "Effect: This bright and spritely tune mimics the sound of human feet, slowly building to a steady, ground-eating pace. When you complete this performance, you affect one ally in hearing range per bard level. This masterpiece increases the affected target’s base land speed by 10 feet for 1 hour.",
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Extraordinary,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "1 hour",
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
+                                                performance_resource.CreateResourceLogic(),
+                                                Common.createAbilitySpawnFx("20d09f919accddf41bde3820341d08b7", anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.SelectedTarget)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            triple_time = Common.AbilityToFeature(ability, false);
+            triple_time.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+            triple_time.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 3));
         }
 
 
@@ -137,6 +167,7 @@ namespace CallOfTheWild
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
 
             blazing_rondo = Common.ActivatableAbilityToFeature(toggle, false);
+            blazing_rondo.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             blazing_rondo.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 7));
         }
 
@@ -151,7 +182,7 @@ namespace CallOfTheWild
                                                  "Effect: All living creatures you select within 30 feet at the start of your turn each round gain 2 negative levels unless they succeed at a Fortitude saving throw (DC = 10 + 1/2 your bard level + your Charisma bonus). This is a death effect and a sonic effect. This performance has audible components.\n"
                                                  + "Use: 3 rounds of bardic performance per round.",
                                                  "",
-                                                 Helpers.GetIcon("574cf074e8b65e84d9b69a8c6f1af27b"),
+                                                 Helpers.GetIcon("b24583190f36a8442b212e45226c54fc"), //banshee blast
                                                  null,
                                                  Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { bard_class, Skald.skald_class }, StatType.Charisma),
                                                  Helpers.CreateAddFactContextActions(activated: effect_saved, newRound: effect_saved),
@@ -176,6 +207,7 @@ namespace CallOfTheWild
             toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = performance_resource; r.amount = 3; }));
 
             banshees_requiem = Common.ActivatableAbilityToFeature(toggle, false);
+            banshees_requiem.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             banshees_requiem.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 17));
         }
 
@@ -198,6 +230,7 @@ namespace CallOfTheWild
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
 
             symphony_of_elysian_heart = Common.ActivatableAbilityToFeature(toggle, false);
+            symphony_of_elysian_heart.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             symphony_of_elysian_heart.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 7));
         }
 
@@ -211,7 +244,7 @@ namespace CallOfTheWild
                                      +"Use: 1 bardic performance round. Starting this performance is free action.",
                                      "",
                                      NewSpells.irresistible_dance.Icon,
-                                     null,
+                                     Common.createPrefabLink("91ef30ab58fa0d3449d4d2ccc20cb0f8"),
                                      Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.None, multiplier: -1),
                                      Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Dodge),
                                      Common.createAddCondition(UnitCondition.SpellCastingIsDifficult),
@@ -232,6 +265,7 @@ namespace CallOfTheWild
             toggle.Group = ActivatableAbilityGroup.BardicPerformance;
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
             dance_of_23_steps = Common.ActivatableAbilityToFeature(toggle, false);
+            dance_of_23_steps.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             dance_of_23_steps.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 4));
         }
 
@@ -282,6 +316,7 @@ namespace CallOfTheWild
             toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = performance_resource; r.amount = 3; }));
 
             clamor_of_hevens = Common.ActivatableAbilityToFeature(toggle, false);
+            clamor_of_hevens.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             clamor_of_hevens.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 10));
         }
 
