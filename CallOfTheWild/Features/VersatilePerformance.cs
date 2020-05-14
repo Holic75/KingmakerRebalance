@@ -126,6 +126,7 @@ namespace CallOfTheWild
                                                 Common.createAbilitySpawnFx("20d09f919accddf41bde3820341d08b7", anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.SelectedTarget)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(ability);
 
             triple_time = Common.AbilityToFeature(ability, false);
             triple_time.Groups = new FeatureGroup[] { FeatureGroup.Feat };
