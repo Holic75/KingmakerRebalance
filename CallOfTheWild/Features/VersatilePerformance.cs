@@ -89,7 +89,8 @@ namespace CallOfTheWild
                                                                    "",
                                                                    null,
                                                                    FeatureGroup.Feat,
-                                                                   Helpers.PrerequisiteClassLevel(bard_class, 3));
+                                                                   Helpers.PrerequisiteClassLevel(bard_class, 3, any: true),
+                                                                   Helpers.PrerequisiteClassLevel(Skald.skald_class, 3, any: true));
             createClamorOfHeavens();
             createDanceOf23Steps();
             createSymphonyOfElysianHeart();
@@ -128,7 +129,8 @@ namespace CallOfTheWild
 
             triple_time = Common.AbilityToFeature(ability, false);
             triple_time.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-            triple_time.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 3));
+            triple_time.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 3, any: true),
+                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 3, any: true)); ;
         }
 
 
@@ -168,7 +170,8 @@ namespace CallOfTheWild
 
             blazing_rondo = Common.ActivatableAbilityToFeature(toggle, false);
             blazing_rondo.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-            blazing_rondo.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 7));
+            blazing_rondo.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 7, any: true),
+                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 7, any: true)); ;
         }
 
 
@@ -208,7 +211,8 @@ namespace CallOfTheWild
 
             banshees_requiem = Common.ActivatableAbilityToFeature(toggle, false);
             banshees_requiem.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-            banshees_requiem.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 17));
+            banshees_requiem.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 17, any: true),
+                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 17, any: true));
         }
 
 
@@ -231,7 +235,8 @@ namespace CallOfTheWild
 
             symphony_of_elysian_heart = Common.ActivatableAbilityToFeature(toggle, false);
             symphony_of_elysian_heart.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-            symphony_of_elysian_heart.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 7));
+            symphony_of_elysian_heart.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 7, any: true),
+                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 7, any: true));
         }
 
 
@@ -266,7 +271,8 @@ namespace CallOfTheWild
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
             dance_of_23_steps = Common.ActivatableAbilityToFeature(toggle, false);
             dance_of_23_steps.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-            dance_of_23_steps.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 4));
+            dance_of_23_steps.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 4, any: true),
+                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 4, any: true));
         }
 
 
@@ -317,7 +323,8 @@ namespace CallOfTheWild
 
             clamor_of_hevens = Common.ActivatableAbilityToFeature(toggle, false);
             clamor_of_hevens.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-            clamor_of_hevens.AddComponent(Helpers.PrerequisiteClassLevel(bard_class, 10));
+            clamor_of_hevens.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 10, any: true),
+                                           Helpers.PrerequisiteClassLevel(Skald.skald_class, 10, any: true) );
         }
 
 
