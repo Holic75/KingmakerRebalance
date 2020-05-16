@@ -14,6 +14,7 @@ using Kingmaker.Blueprints.Items;
 using Newtonsoft.Json;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using Kingmaker.UnitLogic.Class.LevelUp;
 
 namespace CallOfTheWild
 {

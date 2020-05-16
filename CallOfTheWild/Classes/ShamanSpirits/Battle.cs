@@ -254,7 +254,7 @@ namespace CallOfTheWild
                 resource.SetIncreasedByStat(3, secondary_stat);
                 var rage = library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b");
                 var buff = Helpers.CreateBuff(prefix + "BattleSpiritEffectBuff",
-                                              "Batle Spirit",
+                                              "Battle Spirit",
                                               "A shaman surrounds herself with the spirit of battle. Allies within 30 feet of the shaman (including the shaman) receive a +1 morale bonus on attack rolls and weapon damage rolls. At 8th level and 16th level, these bonuses increase by 1. The shaman can use this ability for a number of rounds per day equal to 3 + her Charisma modifier. These rounds do not need to be consecutive.",
                                               "",
                                               rage.Icon,
@@ -349,7 +349,7 @@ namespace CallOfTheWild
                 var icon = library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038").Icon;
                 manifestation = Helpers.CreateFeature(manifestation_prefix + "BattleSpiritManifestationFeature",
                                                       "Manifestation",
-                                                      "Upon reaching 20th level, the shaman becomes a spirit of battle. He gains pounce ability and diehard Feat. Whenever she scores a critical hit, the attack ignores damage reduction. She gains a +4 insight bonus to AC for the purposes of confirming critical hits against her.",
+                                                      "Upon reaching 20th level, the shaman becomes a spirit of battle. He gains pounce ability and diehard feat. Whenever she scores a critical hit, the attack ignores damage reduction. She gains a +4 insight bonus to AC for the purposes of confirming critical hits against her.",
                                                       "",
                                                       icon,
                                                       FeatureGroup.None,

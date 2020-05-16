@@ -1310,7 +1310,7 @@ namespace CallOfTheWild
 
             var final_revelation = Helpers.CreateFeature("FinalRevelationBattleMystery",
                                                           "Final Revelation",
-                                                          "Upon reaching 20th level, you become an avatar of battle. You gain pounce ability and diehard Feat. Whenever you score a critical hit, the attack ignores damage reduction. You gain a +4 insight bonus to AC for the purposes of confirming critical hits against you.",
+                                                          "Upon reaching 20th level, you become an avatar of battle. You gain pounce ability and diehard feat. Whenever you score a critical hit, the attack ignores damage reduction. You gain a +4 insight bonus to AC for the purposes of confirming critical hits against you.",
                                                           "",
                                                           null,
                                                           FeatureGroup.None,

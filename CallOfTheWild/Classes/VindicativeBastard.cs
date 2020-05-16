@@ -344,7 +344,7 @@ namespace CallOfTheWild
             var diehard = library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad");
             spiteful_tenacity = Helpers.CreateFeature("SpitefulTenacityFeature",
                                                        "Spiteful Tenacity",
-                                                       "At 3rd level vindictive bastard receives Diehard Feat for free",
+                                                       "At 3rd level vindictive bastard receives diehard feat for free.",
                                                        "",
                                                        diehard.Icon,
                                                        FeatureGroup.None,

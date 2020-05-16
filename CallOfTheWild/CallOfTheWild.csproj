@@ -215,7 +215,7 @@
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
     <Compile Include="NewMechanics\BleedMechanics.cs" />
-    <Compile Include="NewMechanics\Class1.cs" />
+    <Compile Include="NewMechanics\ChargenMechanincs.cs" />
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />

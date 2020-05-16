@@ -1477,10 +1477,6 @@ namespace CallOfTheWild
                                         );
             osyluth_guile.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
             library.AddCombatFeats(osyluth_guile);
-
-
-
-
         }
 
         static void createSpellBane()
