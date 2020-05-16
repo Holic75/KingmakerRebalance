@@ -51,6 +51,32 @@ namespace CallOfTheWild
 {
     class CleanUp
     {
+        internal static void fixWallAbilitiesAoeVIsualization()
+        {
+            var abilities = Main.library.GetAllBlueprints().OfType<BlueprintAbility>();
+
+            foreach (var a in abilities)
+            {
+                var run_actions = a.GetComponent<AbilityEffectRunAction>();
+                if (run_actions?.Actions?.Actions == null)
+                {
+                    continue;
+                }
+                var area = Common.extractActions<ContextActionSpawnAreaEffect>(run_actions.Actions.Actions).FirstOrDefault()?.AreaEffect;
+                if (area == null)
+                {
+                    continue;
+                }
+                if (area.Shape == AreaEffectShape.Wall)
+                {
+                    a.CanTargetEnemies = true;
+                    a.CanTargetFriends = true;
+                    a.AddComponent(Common.createAbilityAoERadius(area.Size / 2, TargetType.Any));
+                    a.AddComponent(Helpers.Create<AoeMechanics.AbilityRectangularAoeVisualizer>(ab => { ab.target_type = TargetType.Any; ab.length = area.Size; ab.width = 5.Feet(); }));
+                }
+            }
+        }
+
         static internal void processRage()
         {
             BlueprintBuff[] rage_buffs = new BlueprintBuff[] { Bloodrager.bloodrage_buff, //same as barabrian rage

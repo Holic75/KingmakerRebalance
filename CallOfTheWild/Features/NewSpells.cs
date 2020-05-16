@@ -2204,7 +2204,9 @@ namespace CallOfTheWild
                                                   Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffectMultiple(area, duration, points.ToArray())),
                                                   Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP),
-                                                  Helpers.CreateContextRankConfig()
+                                                  Helpers.CreateContextRankConfig(),
+                                                  Common.createAbilityAoERadius(30.Feet(), TargetType.Ally),
+                                                  Helpers.Create<AoeMechanics.AbilityRectangularAoeVisualizer>(ab => { ab.target_type = TargetType.Ally; ab.length = 60.Feet(); ab.width = 5.Feet(); })
                                                   );
             path_of_glory.setMiscAbilityParametersRangedDirectional();
             path_of_glory.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken;
@@ -2256,7 +2258,9 @@ namespace CallOfTheWild
                                                   Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffectMultiple(area, duration, points.ToArray())),
                                                   Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.RestoreHP),
-                                                  Helpers.CreateContextRankConfig()
+                                                  Helpers.CreateContextRankConfig(),
+                                                  Common.createAbilityAoERadius(30.Feet(), TargetType.Ally),
+                                                  Helpers.Create<AoeMechanics.AbilityRectangularAoeVisualizer>(ab => { ab.target_type = TargetType.Ally; ab.length = 60.Feet(); ab.width = 5.Feet(); })
                                                   );
             path_of_glory_greater.setMiscAbilityParametersRangedDirectional();
             path_of_glory_greater.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Reach | Metamagic.Quicken;

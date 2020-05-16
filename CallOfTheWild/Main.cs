@@ -298,6 +298,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
                     CallOfTheWild.CleanUp.processRage();
+                    CallOfTheWild.CleanUp.fixWallAbilitiesAoeVIsualization();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();

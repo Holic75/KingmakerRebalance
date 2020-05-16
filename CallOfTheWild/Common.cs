@@ -3040,7 +3040,10 @@ namespace CallOfTheWild
         {
             //we assume that only possible actions are actual actions, conditionals, ContextActionSavingThrow or ContextActionConditionalSaved
             var found_actions = new List<T>();
-
+            if (action_list == null)
+            {
+                return found_actions;
+            }
             for (int i = 0; i < action_list.Length; i++)
             {
                 if (action_list[i] == null)
@@ -3055,17 +3058,17 @@ namespace CallOfTheWild
 
                 if (action_list[i] is Conditional)
                 {
-                    found_actions.AddRange(extractActions<T>((action_list[i] as Conditional).IfTrue.Actions));
-                    found_actions.AddRange(extractActions<T>((action_list[i] as Conditional).IfFalse.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as Conditional).IfTrue?.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as Conditional).IfFalse?.Actions));
                 }
                 else if (action_list[i] is ContextActionConditionalSaved)
                 {
-                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionConditionalSaved).Succeed.Actions));
-                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionConditionalSaved).Failed.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionConditionalSaved).Succeed?.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionConditionalSaved).Failed?.Actions));
                 }
                 else if (action_list[i] is ContextActionSavingThrow)
                 {
-                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionSavingThrow).Actions.Actions));
+                    found_actions.AddRange(extractActions<T>((action_list[i] as ContextActionSavingThrow).Actions?.Actions));
                 }
             }
 
