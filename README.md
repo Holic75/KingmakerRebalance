@@ -36,7 +36,7 @@ New Archetypes for existing classes:
 - Spirit Whisperer Wizard archetype,
 - Storm Druid Druid archetype,
 - Evangelist Cleric archetype,
-- Primal Bloodline Wildblooded Sorcerer archetype,
+- Seeker and Primal Bloodline Wildblooded Sorcerer archetype,
 - Untamed Rager Barbarian archetype,
 - Nature-Bonded Magus Magus archetype,
 - Ninja class (implemented as Rogue archetype),

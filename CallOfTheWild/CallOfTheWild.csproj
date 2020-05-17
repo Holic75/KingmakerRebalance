@@ -136,6 +136,7 @@
     <Compile Include="Archetypes\Ninja.cs" />
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
     <Compile Include="Archetypes\SanctifiedSlayer.cs" />
+    <Compile Include="Archetypes\Seeker.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Archetypes\UntamedRager.cs" />

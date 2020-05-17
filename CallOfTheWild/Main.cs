@@ -287,6 +287,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.LoreWarden.create();
                     CallOfTheWild.Archetypes.Preservationist.create();
 
+                    CallOfTheWild.Archetypes.Seeker.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
