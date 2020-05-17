@@ -123,10 +123,10 @@ namespace CallOfTheWild
                                                   );
 
             var resource = Helpers.CreateAbilityResource("TwinnedEidolonSpellLikeResource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 7, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { Eidolon.eidolon_class });
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 9, 1, 5, 1, 0, 0.0f, new BlueprintCharacterClass[] { Eidolon.eidolon_class });
             var feature4 = createTwinnedSpellLikeAbility("Spell-Like Ability",
                                                           "At 4th level, a twinned eidolon can cast a summoner spell once per day as a spell-like ability. The spell must be one known by the eidolon’s summoner and must be at least 1 level lower than the highest-level spell the summoner can cast. The eidolon must have a Charisma score of at least 10 + the spell level. The caster level for this spell-like ability is equal to the eidolon’s Hit Dice. The save DC is 10 + half the eidolon’s HD + the eidolon’s Charisma modifier.\n"
-                                                          + "Eidolon can use this ability one more time when summoner reaches level 9 and every 5 levels thereafter.",
+                                                          + "Eidolon can use this ability one more time per day when summoner reaches levels 11 and 18.",
                                                           Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"), //elven magic
                                                           1,
                                                           resource,

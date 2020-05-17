@@ -168,6 +168,7 @@ namespace CallOfTheWild.Archetypes
                         spells.Add(spell);
                     }
                 }
+
                 seeker_bloodline.LevelEntries = level_entries.ToArray();
                 
 
