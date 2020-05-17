@@ -53,7 +53,9 @@ namespace CallOfTheWild
         static public BlueprintProgression eidolon_progression;
         static public BlueprintProgression angel_eidolon; //ok
         static public BlueprintProgression azata_eidolon; //ok
-        static public BlueprintProgression agathion_eidolon;
+        static public BlueprintProgression twinned_eidolon;
+        static public BlueprintProgression twinned_eidolon_small;
+        static public BlueprintProgression agathion_eidolon; //ok
         static public BlueprintProgression fire_elemental_eidolon; //ok
         static public BlueprintProgression water_elemental_eidolon; //ok
         static public BlueprintProgression air_elemental_eidolon; //ok? - visual might be better?
@@ -70,6 +72,7 @@ namespace CallOfTheWild
         static public BlueprintProgression earth_quadruped_eidolon;
         static public BlueprintProgression water_serpentine_eidolon;
         static public BlueprintArchetype fey_archetype;
+        static public BlueprintArchetype twinned_archetype;
         static public BlueprintArchetype quadruped_archetype;
         static public BlueprintArchetype serpentine_archetype;
         static public BlueprintArchetype infernal_archetype;
@@ -165,6 +168,7 @@ namespace CallOfTheWild
             fillFeyProgression();
             fillAgathionProgression();
             fillProteanProgression();
+            fillTwinnedProgression();
         }
 
 
@@ -187,6 +191,7 @@ namespace CallOfTheWild
             createSerpentineWaterElementalUnit();
             createQuadrupedFireElementalUnit();
             createQuadrupedAirElementalUnit();
+            createTwinnedEidolon();
         }
 
 
@@ -207,6 +212,21 @@ namespace CallOfTheWild
             fey_type.HideInUI = true;
             fey_type.HideInCharacterSheetAndLevelUp = true;
             fey_archetype.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, fey_type) };
+        }
+
+
+        static void createTwinnedArchetype()
+        {
+            twinned_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "TwinnedEidolonArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Twinned Eidolon");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", eidolon_class.Description);
+            });
+            Helpers.SetField(twinned_archetype, "m_ParentClass", eidolon_class);
+            library.AddAsset(twinned_archetype, "");
+            twinned_archetype.RemoveFeatures = new LevelEntry[0];
+            twinned_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(10, library.Get<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45")) };
         }
 
 
@@ -310,7 +330,8 @@ namespace CallOfTheWild
             createInfernalEidolonArchetype();
             createQuadrupedArchetype();
             createSerpentineArchetype();
-            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype, infernal_archetype, quadruped_archetype, serpentine_archetype};
+            createTwinnedArchetype();
+            eidolon_class.Archetypes = new BlueprintArchetype[] {fey_archetype, infernal_archetype, quadruped_archetype, serpentine_archetype, twinned_archetype};
             Helpers.RegisterClass(eidolon_class);
         }
 

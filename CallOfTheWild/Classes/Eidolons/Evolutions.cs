@@ -11,6 +11,7 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Buffs;
@@ -92,6 +93,7 @@ namespace CallOfTheWild
         static public BlueprintFeature damage_reduction;
         static public BlueprintFeature poison_strength;
         static public BlueprintFeature poison_constitution;
+        static public BlueprintFeature[] shared_slots;
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
@@ -527,7 +529,8 @@ namespace CallOfTheWild
             var biped_eidolons = new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
                                                    Eidolon.air_elemental_eidolon, Eidolon.earth_elemental_eidolon, Eidolon.fire_elemental_eidolon, Eidolon.water_elemental_eidolon,
                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.fey_eidolon,
-                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon };
+                                                   Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.infernal_eidolon,
+                                                   Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small};
             var eidolons = biped_eidolons.AddToArray(serpentine_eidolons).AddToArray(quadruped_eidolons);
             var eidolons_with_hands = biped_eidolons.AddToArray(serpentine_eidolons);
 
@@ -600,6 +603,15 @@ namespace CallOfTheWild
                                                          );
             }
 
+
+            for (int i = 0; i < shared_slots.Length; i++)
+            {
+                evolution_entries.Add(new EvolutionEntry(shared_slots[i], 2, 0, new BlueprintFeature[0],
+                                                         new BlueprintFeature[0], new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
+                                                         evolution_group: "Shared Slot")
+                                                         );
+            }
+
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
             evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede, Eidolon.agathion_eidolon })));
@@ -657,12 +669,12 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(size_increase[0], 4, 8, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     eidolons, 
+                                                     eidolons.RemoveFromArray(Eidolon.twinned_eidolon_small), 
                                                      upgradeable: true,
                                                      next_level_total_cost: 10
                                                      ));
             evolution_entries.Add(new EvolutionEntry(size_increase[1], 6, 13, new BlueprintFeature[] { size_increase[0] }, new BlueprintFeature[0],
-                                                     eidolons,
+                                                     eidolons.RemoveFromArray(Eidolon.twinned_eidolon_small),
                                                      previous_evolutions: new BlueprintFeature[] { size_increase[0] },
                                                      full_cost: 10));
 
@@ -737,6 +749,35 @@ namespace CallOfTheWild
             createBreathWeapon();
             createDamageReduction();
             createPoison();
+            createSharedSlots();
+        }
+
+
+        static void createSharedSlots()
+        {
+            shared_slots = new BlueprintFeature[9];
+            shared_slots[0] = createShareSlot<BlueprintItemEquipmentHead>("Head", Helpers.GetIcon("3d33605336c62274483f382f58908f5b")); //headband of wisdom
+            shared_slots[1] = createShareSlot<BlueprintItemEquipmentNeck>("Neck", Helpers.GetIcon("11f435140501db84e8e787bf8792fac2")); //amulet of nat armor + 5
+            shared_slots[2] = createShareSlot<BlueprintItemEquipmentShoulders>("Shoulders", Helpers.GetIcon("a34cd0f80d04ec647af741d924a3e2a3")); //cloak of resistance
+            shared_slots[3] = createShareSlot<BlueprintItemEquipmentWrist>("Wrist", Helpers.GetIcon("bade8137f5101834c849c277ba0301a1")); //bracers of armor
+            shared_slots[4] = createShareSlot<BlueprintItemEquipmentGloves>("Gloves", Helpers.GetIcon("6555965e6540c3b48b9a352214ecba41"));//glvoes of manticore
+            shared_slots[5] = createShareSlot<BlueprintItemEquipmentFeet>("Feet", Helpers.GetIcon("815cc85ce13ab64428253aea3b6708a8"));//boots of the light step
+            shared_slots[6] = createShareSlot<BlueprintItemEquipmentRing>("Ring I", Helpers.GetIcon("31315100c28e6a2418396fb152466fcd"), 1);//ring of protection +3
+            shared_slots[7] = createShareSlot<BlueprintItemEquipmentRing>("Ring II", Helpers.GetIcon("2d576daea5f62ae489028bce40469285"), 2);//ring of protection +5
+            shared_slots[8] = createShareSlot<BlueprintItemEquipmentBelt>("Belt", Helpers.GetIcon("d8062d43606e89e4bb3f0483ed3aba5d"));//belt of strength +6
+        }
+
+        static BlueprintFeature createShareSlot<T>(string display_name, UnityEngine.Sprite icon, int slot_id = 0)
+        {
+            var feature = Helpers.CreateFeature("Share" + typeof(T).ToString() + $"{slot_id}Feature",
+                                                "Share Slot: " + display_name,
+                                                "Select a magic item slot. A magic item worn by the eidolon in that slot remains active even if the summoner is also wearing a magic item in that slot. This evolution can be selected more than once. Each time an eidolon selects this evolution, it applies to a new slot.",
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.Create<CompanionMechanics.SharedSlotComponent>(s => { s.slot_type = typeof(T); s.slot_id = slot_id; })
+                                                );
+            return feature;
         }
 
 

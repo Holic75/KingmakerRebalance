@@ -36,7 +36,7 @@ namespace CallOfTheWild.TeamworkMechanics
             if (!evt.Weapon.Blueprint.IsRanged)
                 return;
 
-            int bonus = AttackBonus + (evt.Target.CombatState.IsFlanked ? 0 : AdditionalFlankBonus);
+            int bonus = AttackBonus + (!evt.Target.CombatState.IsFlanked ? 0 : AdditionalFlankBonus);
             if (this.Owner.State.Features.SoloTactics)
             {
                 evt.AddBonus(bonus, this.Fact);

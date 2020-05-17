@@ -155,6 +155,7 @@
     <Compile Include="Classes\Eidolons\FireElemental.cs" />
     <Compile Include="Classes\Eidolons\Inevitable.cs" />
     <Compile Include="Classes\Eidolons\Protean.cs" />
+    <Compile Include="Classes\Eidolons\Twinned.cs" />
     <Compile Include="Classes\Eidolons\WaterElemental.cs" />
     <Compile Include="Classes\Eidolons\Evolutions.cs" />
     <Compile Include="Classes\Investigator.cs" />

@@ -1411,7 +1411,7 @@ namespace CallOfTheWild
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterBuff",
                                                   "Aggressive Thundercloud, Greater",
-                                                  "This spell functions as agggressive thundercloud, except it deals 6d6 points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
+                                                  "This spell functions as aggressive thundercloud, except it deals 6d6 points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
                                                   + "Aggressive Thundercloud: " + aggressive_thundercloud.Description,
                                                   "",
                                                   icon,
@@ -1507,7 +1507,7 @@ namespace CallOfTheWild
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
                                                   "Aggressive Thundercloud",
-                                                  "A crackling, spherical storm cloud at the point you designate and deals electricity damage to those inside it. It has a fly speed of 20 feet with perfect maneuverability. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
+                                                  "A crackling, spherical storm cloud at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
                                                   + "You can move the sphere as a move action for you; otherwise, it stays at rest and crackles with lightning.",
                                                   "",
                                                   icon,
@@ -2960,8 +2960,8 @@ namespace CallOfTheWild
 
             var activatable_ability = Helpers.CreateActivatableAbility("FieryRunesDischargeActivatableAbility",
                                                                        "Fiery Runes: Discharge",
-                                                                       "You charge a target with a magic rune of fire.\n"
-                                                                       + "When the it successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d4 + 1 points of fire damage to the target. This damage isn’t multiplied on a critical hit.\n"
+                                                                       "You charge a target's weapon with a magic rune of fire.\n"
+                                                                       + "When the wielder of the weapon successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d4 + 1 points of fire damage to the target. This damage isn’t multiplied on a critical hit.\n"
                                                                        + "For every 2 caster levels beyond 3rd the caster possesses, the rune deals an additional 1d4 + 1 points of fire damage (2d4 + 2 at caster level 5th, 3d4 + 3 at 7th, and so on) to a maximum of 5d4 + 5 points of fire damage at caster level 11th.",
                                                                        "",
                                                                        icon,

@@ -27,7 +27,7 @@ It introduces new classes:
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted and Divine Herbalist,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner and Psychic Detective,
-- Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist and Master Summoner,
+- Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -157,7 +157,8 @@ New features:
 - Animal companions can now equip headgear, belts, bracers, capes and amulets,
 - Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log,
 - Animal companions now level up manually,
-- Dismissable area effect spells.
+- Dismissable area effect spells,
+- When using wall area effect spells you should now see which enemies will be affected.
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,

@@ -97,6 +97,11 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource master_summon_resource;
 
 
+        static public BlueprintArchetype twinned_summoner;
+        static public BlueprintAbility makers_call_ability;
+        static public BlueprintFeature teamwork_feat_share;
+        static public BlueprintFeatureSelection teamwork_feat;
+
 
 
         internal static void createSummonerClass()
@@ -150,7 +155,8 @@ namespace CallOfTheWild
             createFeyCaller();
             createNaturalist();
             createMasterSummoner();
-            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist, master_summoner };
+            createTwinnedSummoner();
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist, master_summoner, twinned_summoner };
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
@@ -173,6 +179,77 @@ namespace CallOfTheWild
 
         }
 
+
+        static void createTwinnedSummoner()
+        {
+            var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
+            var ability_normal = Helpers.CreateAbility("SummonerTwinnedTranspositionAbility",
+                                                      "Twinned Transpostion",
+                                                      "At 6th level, as a standard action, a twinned summoner can swap locations with his eidolon. The twinned summoner can use this ability once per day at 6th level, plus one additional time per day for every 4 levels beyond 6th. At 8th level, he can use this ability as a swift action.",
+                                                      "",
+                                                      dimension_door.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      "",
+                                                      "",
+                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = makers_call_ability),
+                                                                               Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionCastSpell>(ca => ca.Spell = dimension_door)))
+                                                                               ),
+                                                      makers_call_resource.CreateResourceLogic()
+                                                     );
+            ability_normal.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true));
+            var twinned_transposition = Common.AbilityToFeature(ability_normal, false);
+            twinned_transposition.AddComponent(makers_call_resource.CreateAddAbilityResource());
+
+            var ability_swift = library.CopyAndAdd(ability_normal, "SummonerTwinnedTranspositionSwiftAbility", "");
+            ability_swift.ActionType = CommandType.Swift;
+            ability_swift.SetName(ability_normal.Name + " (Swift)");
+            var swift_twinned_transposition = Common.AbilityToFeature(ability_swift, false);
+
+            teamwork_feat_share = library.CopyAndAdd<BlueprintFeature>("e1f437048db80164792155102375b62c", "TwinnedSummonerTeamworkFeatShareFeature", "");
+            teamwork_feat_share.SetNameDescription("Teamwork Feat Sharing", "At 4th level and at 12th level, a twinned summoner gains a bonus teamwork feat. He must meet the prerequisites of the selected teamwork feat. The twinned summoner automatically grants all of his teamwork feats to his eidolon. The eidolon doesn’t need to meet the prerequisites of these teamwork feats.");
+
+            teamwork_feat = library.CopyAndAdd<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb", "TwinnedSummonerTeamworkFeatFeatureSelection", "");
+            teamwork_feat.SetDescription(teamwork_feat_share.Description);
+
+
+            twinned_summoner = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "TwinnedSummonerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Twinned Summoner");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Reflecting their connected nature, a twinned summoner and his eidolon appear identical save for any obvious differences, such as evolutions or equipment.");
+            });
+            Helpers.SetField(twinned_summoner, "m_ParentClass", summoner_class);
+            library.AddAsset(twinned_summoner, "");
+
+            twinned_summoner.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(4, shield_ally),
+                                                             Helpers.LevelEntry(6, makers_call),
+                                                             Helpers.LevelEntry(8, transposition),
+                                                             Helpers.LevelEntry(12, greater_shield_ally),
+                                                           };
+
+            twinned_summoner.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(4, teamwork_feat_share, teamwork_feat),
+                                                             Helpers.LevelEntry(6, twinned_transposition),
+                                                             Helpers.LevelEntry(8, swift_twinned_transposition),
+                                                             Helpers.LevelEntry(12, teamwork_feat),
+                                                        };
+
+            summoner_progression.UIGroups[0].Features.Add(teamwork_feat_share);
+            summoner_progression.UIGroups[0].Features.Add(twinned_transposition);
+            summoner_progression.UIGroups[0].Features.Add(swift_twinned_transposition);
+
+            Eidolon.twinned_eidolon.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, twinned_summoner, 1));
+            Eidolon.twinned_eidolon_small.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, twinned_summoner, 1));
+
+            foreach (var e in eidolon_selection.AllFeatures)
+            {
+                e.AddComponent(Common.prerequisiteNoArchetype(summoner_class, twinned_summoner));
+            }
+
+            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.twinned_eidolon);
+            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.twinned_eidolon_small);
+        }
 
         static void createMasterSummoner()
         {
@@ -1186,7 +1263,8 @@ namespace CallOfTheWild
 
             makers_call = Common.AbilityToFeature(ability, false);
             makers_call.AddComponent(Helpers.CreateAddAbilityResource(makers_call_resource));
-            
+            makers_call_ability = ability;
+
 
             var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
             var ability2 = Helpers.CreateAbility("SummonerTranspositionAbility",
@@ -1206,7 +1284,6 @@ namespace CallOfTheWild
                                                      );
             ability2.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true));
             transposition = Common.AbilityToFeature(ability2, false);
-            
         }
 
 

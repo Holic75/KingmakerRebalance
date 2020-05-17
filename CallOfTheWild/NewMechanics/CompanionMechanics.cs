@@ -3,6 +3,7 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers;
 using Kingmaker.EntitySystem.Entities;
@@ -15,6 +16,7 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
@@ -392,6 +394,46 @@ namespace CallOfTheWild.CompanionMechanics
     }
 
 
+    public class UnitPartSharedSlot : AdditiveUnitPart
+    {
+        public bool worksFor<T>(int slot_id = 0)
+        {
+            foreach (var b in buffs)
+            {
+                var comp = b.Blueprint.GetComponent<SharedSlotComponent>();
+                if (comp == null)
+                {
+                    continue;
+                }
+                if (comp.slot_type == typeof(T) && comp.slot_id == slot_id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SharedSlotComponent: OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public Type slot_type;
+        public int slot_id = 0;
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartSharedSlot>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartSharedSlot>().removeBuff(this.Fact);
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class  SharedSlots: OwnedGameLogicComponent<UnitDescriptor>, IUnitEquipmentHandler, IGlobalSubscriber
     {
@@ -412,11 +454,11 @@ namespace CallOfTheWild.CompanionMechanics
                  
             if (slot == Owner.Body.Head)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Head.Disabled)
                 {
                     pet.Body.Head.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentHead>())
                 {
                     pet.Body.Head.RetainDeactivateFlag();
                 }
@@ -424,11 +466,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Neck)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Neck.Disabled)
                 {
                     pet.Body.Neck.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentNeck>())
                 {
                     pet.Body.Neck.RetainDeactivateFlag();
                 }
@@ -436,11 +478,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Shoulders)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Shoulders.Disabled)
                 {
                     pet.Body.Shoulders.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentShoulders>())
                 {
                     pet.Body.Shoulders.RetainDeactivateFlag();
                 }
@@ -448,11 +490,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Wrist)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Wrist.Disabled)
                 {
                     pet.Body.Wrist.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentWrist>())
                 {
                     pet.Body.Wrist.RetainDeactivateFlag();
                 }
@@ -461,11 +503,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Gloves)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Gloves.Disabled)
                 {
                     pet.Body.Gloves.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentGloves>())
                 {
                     pet.Body.Gloves.RetainDeactivateFlag();
                 }
@@ -474,11 +516,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Ring1)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Ring1.Disabled)
                 {
                     pet.Body.Ring1.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentRing>(1))
                 {
                     pet.Body.Ring1.RetainDeactivateFlag();
                 }
@@ -487,11 +529,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Ring2)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Ring2.Disabled)
                 {
                     pet.Body.Ring2.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentRing>(2))
                 {
                     pet.Body.Ring2.RetainDeactivateFlag();
                 }
@@ -500,11 +542,11 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Feet)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Feet.Disabled)
                 {
                     pet.Body.Feet.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentFeet>())
                 {
                     pet.Body.Feet.RetainDeactivateFlag();
                 }
@@ -513,21 +555,32 @@ namespace CallOfTheWild.CompanionMechanics
 
             if (slot == Owner.Body.Belt)
             {
-                if (unequipped)
+                if (unequipped && pet.Body.Belt.Disabled)
                 {
                     pet.Body.Belt.ReleaseDeactivateFlag();
                 }
-                if (equipped)
+                if (equipped && !canShareSlot<BlueprintItemEquipmentBelt>())
                 {
                     pet.Body.Belt.RetainDeactivateFlag();
                 }
             }
 
+
+            bool canShareSlot<T>(int slot_id = 0)
+            {
+                var share_part =  Owner.Pet.Get<UnitPartSharedSlot>();
+                if (share_part == null)
+                {
+                    return false;
+                }
+
+                return share_part.worksFor<T>(slot_id);
+            }
         }
     }
 
 
-    [ComponentName("Add feature to companion")]
+    [ComponentName("Add feature to companion with check if it has feature")]
     [AllowedOn(typeof(BlueprintUnitFact))]
     [AllowMultipleComponents]
     public class AddFeatureToCompanion2 : OwnedGameLogicComponent<UnitDescriptor>
@@ -618,6 +671,43 @@ namespace CallOfTheWild.CompanionMechanics
             this.Apply();
         }
     }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class AbilityShowIfMasterKnowsSpellAndPetHAsSufficientStat : BlueprintComponent, IAbilityVisibilityProvider
+    {
+        public BlueprintAbility spell;
+        public BlueprintCharacterClass master_class;
+        public StatType stat;
+        public int min_stat;
+
+        public bool IsAbilityVisible(AbilityData ability)
+        {
+
+            var master = ability.Caster?.Master.Value;
+            if (master == null)
+            {
+                return false;
+            }
+
+            if (ability.Caster.Stats.GetStat<ModifiableValueAttributeStat>(stat).ModifiedValue < min_stat)
+            {
+                return false;
+            }
+
+            var master_spellbook = master.Descriptor.GetSpellbook(master_class);
+            if (master_spellbook == null)
+            {
+                return false;
+            }
+
+            return master_spellbook.IsKnown(spell);
+
+        }
+    }
+
+
+
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
