@@ -170,6 +170,14 @@ namespace CallOfTheWild
             }
         }
 
+        internal static void fixSerpentineBloodlineSerpentfriend()
+        {
+            var serpentfriend = library.Get<BlueprintFeature>("d0f97ba02e20e39419e2a29c135fc351");
+            serpentfriend.SetNameDescription("Serpentfriend",
+                                             "You gain a viper familiar.");
+            var viper_familiar = library.Get<BlueprintFeature>("3c0b706c526e0654b8af90ded235a089");
+            serpentfriend.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFact(viper_familiar) };
+        }
 
         internal static void fixSkillPoints()
         {

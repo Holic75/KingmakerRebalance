@@ -702,7 +702,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(damage_reduction, 3, 15, new BlueprintFeature[0], new BlueprintFeature[0],
-                                         new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon,
+                                         new BlueprintFeature[] {Eidolon.angel_eidolon, Eidolon.azata_eidolon, Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small,
                                                                    Eidolon.earth_elemental_eidolon, Eidolon.earth_quadruped_eidolon, Eidolon.protean_eidolon,
                                                                    Eidolon.fey_eidolon, Eidolon.inevitable_eidolon, Eidolon.infernal_eidolon,
                                                                    Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon, Eidolon.agathion_eidolon}));
