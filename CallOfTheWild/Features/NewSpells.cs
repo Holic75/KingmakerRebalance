@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Experience;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Items.Ecnchantments;
@@ -487,6 +488,9 @@ namespace CallOfTheWild
             skeleton.Body.PrimaryHand = null;
             skeleton.Body.Armor = null;
             skeleton.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");//claw 1d4
+            skeleton.Faction = library.Get<BlueprintFaction>("1b08d9ed04518ec46a9b3e4e23cb5105"); //summoned
+            skeleton.RemoveComponents<Experience>();
+            skeleton.RemoveComponents<AddTags>();
 
             var animate_dead = library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27");
             var after_spawn = (animate_dead.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).AfterSpawn;
@@ -514,7 +518,6 @@ namespace CallOfTheWild
                                         + "The undead you create remain under your control. No matter how many times you use this spell, however, you can control only 4 HD worth of undead creatures per caster level."
                                         );
             animate_dead.AddComponent(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any, includeDead: true));
-
             animate_dead_lesser = Helpers.CreateAbility("AniamteDeadLesserAbility",
                                                         "Animate Dead, Lesser",
                                                         "This spell functions as animate dead, except you can only create a single Small or Medium skeleton.\n"
@@ -543,9 +546,9 @@ namespace CallOfTheWild
             summon_undead.LocalizedDuration = animate_dead.LocalizedDuration;
             summon_undead.SetDescription(animate_dead.Description);
             summon_undead.ReplaceComponent<AbilityEffectRunAction>(animate_dead.GetComponent<AbilityEffectRunAction>());
-            summon_undead.AddComponent(animate_dead.GetComponent<AbilityTargetsAround>());
+            summon_undead.AddComponent(animate_dead.GetComponent<AbilityTargetsAround>()); 
             var summon_undead_feature = library.Get<BlueprintFeature>("f06f246950e76864fa545c13cb334ba5");
-            summon_undead_feature.SetDescription("Jaethal now can cast animate dead spell three times per day");
+            summon_undead_feature.SetDescription("Jaethal now can cast animate dead spell three times per day.");
 
         }
 

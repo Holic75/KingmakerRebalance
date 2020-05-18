@@ -1238,14 +1238,16 @@ namespace CallOfTheWild
 
         internal static void createImprovedChannel()
         {
+            var turn_undead = library.Get<BlueprintAbility>("71b8898b1d26d654b9a3eeac87e3e2f8");
+            var necromancy_school = library.Get<BlueprintFeature>("927707dce06627d4f880c90b5575125f");
             improved_channel = Helpers.CreateFeature("ImprovedChannelFeature",
                                                      "Improved Channel",
-                                                     "Add 2 to the DC of saving throws made to resist the effects of your channel energy ability.",
+                                                     "Add 2 to the DC of saving throws made to resist the effects of your channel energy or turn undead ability.",
                                                      "",
                                                      null,
                                                      FeatureGroup.Feat,
-                                                     Helpers.PrerequisiteFeaturesFromList(),
-                                                     Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 2; c.spells = new BlueprintAbility[0]; })
+                                                     Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 2; c.spells = new BlueprintAbility[] {turn_undead }; }),
+                                                     Helpers.PrerequisiteFeaturesFromList(necromancy_school)
                                                      );
 
             foreach (var c in channel_entires)

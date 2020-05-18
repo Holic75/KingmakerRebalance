@@ -63,9 +63,12 @@ namespace CallOfTheWild.CompanionMechanics
                 return;
             }
             companion_hp = this.Owner.Pet.Descriptor.HPLeft;
+            if (Game.Instance.Player.Difficulty.DeathDoorCondition && !this.Owner.Pet.Descriptor.State.HasCondition(UnitCondition.DeathDoor))
+            {
+                this.Owner.Pet.Descriptor.State.AddCondition(UnitCondition.DeathDoor);
+            }
             this.Owner.Pet.Descriptor.State.MarkedForDeath = true;
             this.Owner.Pet.Descriptor.State.IsUntargetable.Retain();
-            
         }
 
         public void deactivate()

@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
@@ -61,18 +62,15 @@ namespace CallOfTheWild.HealingMechanics
     }
 
 
-    public class UnitPartSelfHealingMetamagic : AdditiveUnitPart
+    public class UnitPartHealingMetamagic : AdditiveUnitPart
     {
-        public bool hasEmpower(BlueprintAbility spell)
+        public bool hasEmpower(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
         {
+            bool is_ok = false;
             foreach (var b in buffs)
             {
-                var comp = b.Blueprint.GetComponent<SelfHealingMetamagic>();
-                if (comp == null)
-                {
-                    continue;
-                }
-                if (comp.empower && comp.worksOn(spell))
+                b.CallComponents<HealingMetamagic>(h => is_ok = h.worksOnEmpower(spell, caster, target));
+                if (is_ok)
                 {
                     return true;
                 }
@@ -81,17 +79,13 @@ namespace CallOfTheWild.HealingMechanics
             return false;
         }
 
-        public bool hasMaximize(BlueprintAbility spell)
+        public bool hasMaximize(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
         {
+            bool is_ok = false;
             foreach (var b in buffs)
             {
-                var comp = b.Blueprint.GetComponent<SelfHealingMetamagic>();
-                if (comp == null)
-                {
-                    continue;
-                }
-                
-                if (comp.maximize && comp.worksOn(spell))
+                b.CallComponents<HealingMetamagic>(h => is_ok = h.worksOnMaximize(spell, caster, target));
+                if (is_ok)
                 {
                     return true;
                 }
@@ -195,27 +189,48 @@ namespace CallOfTheWild.HealingMechanics
     }
 
 
-    [AllowedOn(typeof(BlueprintUnitFact))]
-    public class SelfHealingMetamagic : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
-    {
-        public BlueprintAbility[] spells;
-        public bool empower = false;
-        public bool maximize = false;
 
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class HealingMetamagic : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
         public override void OnTurnOn()
         {
-            this.Owner.Ensure<UnitPartSelfHealingMetamagic>().addBuff(this.Fact);
+            this.Owner.Ensure<UnitPartHealingMetamagic>().addBuff(this.Fact);
         }
 
 
         public override void OnTurnOff()
         {
-            this.Owner.Ensure<UnitPartSelfHealingMetamagic>().removeBuff(this.Fact);
+            this.Owner.Ensure<UnitPartHealingMetamagic>().removeBuff(this.Fact);
         }
 
-        public bool worksOn(BlueprintAbility spell)
+        public virtual bool worksOnMaximize(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
         {
-            return spells.Contains(spell);
+            return false;
+        }
+
+        public virtual bool worksOnEmpower(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
+        {
+            return false;
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SelfHealingMetamagic : HealingMetamagic
+    {
+        public BlueprintAbility[] spells;
+        public bool empower = false;
+        public bool maximize = false;
+
+        public override bool worksOnMaximize(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
+        {
+            return maximize && spells.Contains(spell) && caster == target;
+        }
+
+        public override bool worksOnEmpower(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
+        {
+            return empower && spells.Contains(spell) && caster == target;
         }
     }
 
@@ -282,7 +297,7 @@ namespace CallOfTheWild.HealingMechanics
                     bonus += additional_hp;
                 }
 
-                if (!context.HasMetamagic(Metamagic.Maximize) && target.Ensure<UnitPartSelfHealingMetamagic>().hasMaximize(context.SourceAbility) && target == context.MaybeCaster)
+                if (!context.HasMetamagic(Metamagic.Maximize) && context.MaybeCaster.Ensure<UnitPartHealingMetamagic>().hasMaximize(context.SourceAbility, context.MaybeCaster, target))
                 {
                     
                     bonus = (int)__instance.Value.DiceType * __instance.Value.DiceCountValue.Calculate(context) + bonus_to_dice;
@@ -293,7 +308,7 @@ namespace CallOfTheWild.HealingMechanics
                     }
                 }
 
-                if (!context.HasMetamagic(Metamagic.Empower) && target.Ensure<UnitPartSelfHealingMetamagic>().hasEmpower(context.SourceAbility) && target == context.MaybeCaster)
+                if (!context.HasMetamagic(Metamagic.Empower) && context.MaybeCaster.Ensure<UnitPartHealingMetamagic>().hasEmpower(context.SourceAbility, context.MaybeCaster, target))
                 {
                     bonus = (int)(bonus * 1.5f);
                 }
