@@ -219,15 +219,19 @@ namespace CallOfTheWild.AooMechanics
 
         static public WeaponSlot canMakeAoo(UnitEntityData unit, UnitEntityData enemy)
         {
+            if (unit == null || enemy == null)
+            {
+                return null;
+            }
             if (unit.GetThreatHand() != null)
             {
                 return unit.GetThreatHand();
             }
 
             var aoo_part = unit.Get<UnitPartSpecialAttackOfOportunity>();
-            if (aoo_part != null || aoo_part.canMakeAoo(enemy))
+            if (aoo_part != null && aoo_part.canMakeAoo(enemy))
             {
-                return unit.Body.PrimaryHand;
+                return unit.Body?.PrimaryHand;
             }
 
             return null;
