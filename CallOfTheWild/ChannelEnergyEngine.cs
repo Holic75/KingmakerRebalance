@@ -10,6 +10,7 @@ using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -365,6 +366,9 @@ namespace CallOfTheWild
                 ch.ReplaceComponent<AbilityEffectRunAction>(CallOfTheWild.Helpers.CreateRunActions(actions));
             }
 
+            ChannelEnergyEngine.createImprovedChannel();
+            ChannelEnergyEngine.createQuickChannel();
+            ChannelEnergyEngine.createChannelSmite();
         }
 
 
@@ -1190,6 +1194,30 @@ namespace CallOfTheWild
         }
 
 
+
+        public static void addToImprovedChannel(BlueprintAbility ability, BlueprintFeature feature)
+        {
+            if (improved_channel == null)
+            {
+                return;
+            }
+
+
+            var prereq = improved_channel.GetComponent<PrerequisiteFeaturesFromList>();
+            if (!prereq.Features.Contains(feature))
+            {
+                prereq.Features = prereq.Features.AddToArray(feature);
+            }
+
+            var abilities = improved_channel.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+
+            if (!abilities.spells.Contains(ability))
+            {
+                abilities.spells = abilities.spells.AddToArray(ability);
+            }
+        }
+
+
         static void addToImprovedChannel(ChannelEntry c)
         {
             if (improved_channel == null)
@@ -1236,13 +1264,15 @@ namespace CallOfTheWild
         }
 
 
+
+
         internal static void createImprovedChannel()
         {
             var turn_undead = library.Get<BlueprintAbility>("71b8898b1d26d654b9a3eeac87e3e2f8");
             var necromancy_school = library.Get<BlueprintFeature>("927707dce06627d4f880c90b5575125f");
             improved_channel = Helpers.CreateFeature("ImprovedChannelFeature",
                                                      "Improved Channel",
-                                                     "Add 2 to the DC of saving throws made to resist the effects of your channel energy or turn undead ability.",
+                                                     "Add 2 to the DC of saving throws made to resist the effects of your channel energy, command undead or turn undead ability.",
                                                      "",
                                                      null,
                                                      FeatureGroup.Feat,
@@ -1258,6 +1288,21 @@ namespace CallOfTheWild
             library.AddFeats(improved_channel);
         }
 
+
+        internal static BlueprintFeature createCommandUndead(string name_prefix, string display_name, string description,
+                                                             StatType stat, BlueprintCharacterClass[] classes, BlueprintAbilityResource resource)
+        {
+            var ability = Common.convertToSuperNatural(NewSpells.control_undead, name_prefix, classes, stat, resource);
+            ability.SetName(display_name);
+
+            var feature = Common.AbilityToFeature(ability, false);
+            feature.AddComponent(resource.CreateAddAbilityResource());
+            feature.SetDescription(description);
+
+            ChannelEnergyEngine.addToImprovedChannel(ability, feature);
+
+            return feature;
+        }
 
         internal static void createChannelSmite()
         {

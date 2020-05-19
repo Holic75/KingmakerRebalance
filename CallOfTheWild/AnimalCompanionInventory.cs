@@ -65,6 +65,7 @@ namespace CallOfTheWild
                 bool is_biped = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null 
                                                   && !player.Descriptor.Progression.IsArchetype(Eidolon.quadruped_archetype)
                                                   && !is_serpentine;
+                is_biped = is_biped || player.Blueprint.GetComponent<Eidolon.CorpseCompanionComponent>() != null;
                 EquipSlotBase.SlotType[] allowed_slots;
                 if (is_serpentine)
                 {
@@ -79,11 +80,13 @@ namespace CallOfTheWild
                     allowed_slots = allowed_slots_eidolon;
                 }
 
+                bool no_slot_limitation = player.Descriptor.Progression.IsArchetype(Archetypes.UndeadLord.corpse_companion_archetype);
+
                 foreach (EquipSlotBase slot in tr.Property("SlotList").GetValue<List<EquipSlotBase>>())
                 {
                     slot.Clear();
                     slot.SetupInfo(player.Body);
-                    if (player.Descriptor.IsPet)
+                    if (player.Descriptor.IsPet && !no_slot_limitation)
                     {
                         if (!allowed_slots.Contains(slot.Type))
                         {

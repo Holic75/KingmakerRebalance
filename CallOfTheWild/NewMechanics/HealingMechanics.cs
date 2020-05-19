@@ -235,6 +235,24 @@ namespace CallOfTheWild.HealingMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class UndeadHealingMetamagic : HealingMetamagic
+    {
+        public bool empower = false;
+        public bool maximize = false;
+
+        public override bool worksOnMaximize(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
+        {
+            return maximize && target.Descriptor.IsUndead;
+        }
+
+        public override bool worksOnEmpower(BlueprintAbility spell, UnitEntityData caster, UnitEntityData target)
+        {
+            return empower && target.Descriptor.IsUndead;
+        }
+    }
+
+
 
 
 

@@ -62,6 +62,24 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     }
 
 
+    [Harmony12.HarmonyPatch(typeof(AddPet), "GetPetLevel")]
+    static class AddPet_GetPetLevel_Patch
+    {
+        internal static bool Prefix(AddPet __instance, ref int __result)
+        {
+            var custom_level = __instance.Fact.Blueprint.GetComponent<CompanionMechanics.CustomLevelProgression>();
+            if (custom_level == null)
+            {
+                return true;
+            }
+
+            __result = custom_level.getLevel(__instance);
+            return false;
+        }
+
+    }
+
+
 
     [Harmony12.HarmonyPatch(typeof(AddPet), "TryLevelUpPet")]
     static class AddPet_TryLevelUpPet_Patch

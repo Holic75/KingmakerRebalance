@@ -172,6 +172,7 @@
     <Compile Include="Classes\PhrenicAmplifications.cs" />
     <Compile Include="Archetypes\Preservationist.cs" />
     <Compile Include="Classes\Summoner.cs" />
+    <Compile Include="Archetypes\UndeadLord.cs" />
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Dismiss.cs" />
     <Compile Include="Features\AdvancedFighterOptions.cs" />

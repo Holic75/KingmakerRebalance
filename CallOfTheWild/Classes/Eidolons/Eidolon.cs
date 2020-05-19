@@ -470,6 +470,45 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class CorpseCompanionComponent : BlueprintComponent
+        {
+            public static readonly int[] rank_to_level = new int[21]
+                                                        {
+                                                            0,
+                                                            1,
+                                                            2,
+                                                            3,
+                                                            3,
+                                                            4,
+                                                            5,
+                                                            6,
+                                                            6,
+                                                            7,
+                                                            8,
+                                                            9,
+                                                            9,
+                                                            10,
+                                                            11,
+                                                            12,
+                                                            12,
+                                                            13,
+                                                            14,
+                                                            15,
+                                                            15,
+                                                        };
+
+            public int getEidolonLevel(AddPet add_pet_component)
+            {
+                if (add_pet_component.LevelRank == null)
+                    return 1;
+                int? rank = add_pet_component.Owner.GetFact(add_pet_component.LevelRank)?.GetRank();
+                int index = Mathf.Min(20, !rank.HasValue ? 0 : rank.Value);
+                return EidolonComponent.rank_to_level[index];
+            }
+        }
+
+
     }
 
 

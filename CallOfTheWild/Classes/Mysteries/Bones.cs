@@ -427,14 +427,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
             resource.SetIncreasedByStat(3, stat);
 
-            var ability = Common.convertToSuperNatural(NewSpells.control_undead, name_prefix, classes, stat, resource);
-            ability.SetName(display_name);
-
-            var feature = Common.AbilityToFeature(ability, false);
-            feature.AddComponent(resource.CreateAddAbilityResource());
-            feature.SetDescription(description);
-
-            return feature;
+            return ChannelEnergyEngine.createCommandUndead(name_prefix, display_name, description, stat, classes, resource) ;
         }
     }
 }

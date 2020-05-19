@@ -1034,6 +1034,8 @@ namespace CallOfTheWild
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("df3bc5bda7deb9d46b0f177db3bb7876"), 6, "EarthDomain"); //stoneskin
 
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("81bff1165d9468a44b2f815f7c26a373"), 6, "EvilDomain"); //create undead
+            //lvl 4 death domain spell should be death ward
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("710d8c959e7036448b473ffa613cdeba"), library.Get<BlueprintAbility>("0413915f355a38146bc6ad40cdf27b3f"), 4);
         }
 
         internal static void fixStalwartDefender()
@@ -1288,9 +1290,11 @@ namespace CallOfTheWild
 
         static internal void fixUndeadImmunity()
         {
-            //add missing immunity to stun ?
-            Common.undead.AddComponent(Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Stun));
-            Common.undead.AddComponent(Common.createBuffDescriptorImmunity(SpellDescriptor.Stun));
+            //add missing immunity to stun  and recalcualte fort saves on cha change
+            var undead_immunity = library.Get<BlueprintFeature>("8a75eb16bfff86949a4ddcb3dd2f83ae");
+            undead_immunity.ReplaceComponent<BuffDescriptorImmunity>(b => b.Descriptor = b.Descriptor | SpellDescriptor.Stun);
+            undead_immunity.ReplaceComponent<SpellImmunityToSpellDescriptor>(s => s.Descriptor = s.Descriptor | SpellDescriptor.Stun);
+            undead_immunity.AddComponent(Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma));
         }
 
 

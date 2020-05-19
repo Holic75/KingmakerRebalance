@@ -233,6 +233,7 @@ namespace CallOfTheWild
                     inquisitions_test = true;
                     CallOfTheWild.RogueTalents.test_mode = true;
 #endif
+                    CallOfTheWild.Archetypes.UndeadLord.create();
                     CallOfTheWild.Summoner.createSummonerClass();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.VindicativeBastard.createClass();

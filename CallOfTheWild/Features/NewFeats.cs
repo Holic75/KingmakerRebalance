@@ -136,14 +136,12 @@ namespace CallOfTheWild
             createStalwart();
             FeralCombatTraining.load();
 
-            ChannelEnergyEngine.createQuickChannel();
-            ChannelEnergyEngine.createChannelSmite();
             createPlanarWildShape();
             createGuidedHand();
             createDeadeyesBlessing();
             createExtraChannelPaladin();
             ChannelEnergyEngine.createChannelingScourge();
-            ChannelEnergyEngine.createImprovedChannel();
+            //improved channel is created in channel energy engine
             ChannelEnergyEngine.createVersatileChanneler();
 
             createPowerfulShape();
