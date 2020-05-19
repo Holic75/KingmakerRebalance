@@ -75,6 +75,100 @@ namespace CallOfTheWild
             createArmoredMaraudeur();
             createArmoredSwiftness();
             createReapingStalker();
+
+            fixRogueSneakAttackTalents();
+            fixSlayerTrapfindingScaling();
+        }
+
+
+        static void fixSlayerTrapfindingScaling()
+        {
+            var trapfinding = library.Get<BlueprintFeature>("e3c12938c2f93544da89824fbe0933a5");
+            var archetype_list_feature = Helpers.CreateFeature("SlayerTrapfindingArchetypeExtensionFeature",
+                               "",
+                               "",
+                               "",
+                               null,
+                               FeatureGroup.None);
+            archetype_list_feature.AddComponent(Helpers.Create<ContextRankConfigArchetypeList>(c => c.archetypes = new BlueprintArchetype[] { Archetypes.NatureFang.archetype, Archetypes.NatureFang.archetype }));
+            archetype_list_feature.HideInCharacterSheetAndLevelUp = true;
+            trapfinding.ReplaceComponent<ContextRankConfig>(c =>
+            {
+                Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType());
+                Helpers.SetField(c, "m_Feature", archetype_list_feature);
+                Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(Archetypes.NatureFang.archetype.GetParentClass(), Archetypes.SanctifiedSlayer.archetype.GetParentClass()));
+            }
+            );
+        }
+
+
+        static void fixRogueSneakAttackTalents()
+        {
+            //fix missing dispelling strike sneak attack requirement
+            library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c").AddComponent(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87")));
+
+            var talent_ids = new string[] {"955ff81c596c1c3489406d03e81e6087", //focusing attack confused
+                                           "791f50e199d069d4f8e933996a2ce054", //focusing attack shaken
+                                           "79475c263e538c94f8e23907bd570a35", //focusing attack sickened
+                                           "b696bd7cb38da194fa3404032483d1db", //cripling strike
+                                           "1b92146b8a9830d4bb97ab694335fa7c", //dispelling attack
+                                           "7787030571e87704d9177401c595408e", //slow reactions
+                                          };
+            foreach (var id in talent_ids)
+            {
+                var feature = library.Get<BlueprintFeature>(id);
+                var buff = Helpers.CreateBuff(feature.name + "Buff",
+                                              feature.Name,
+                                              feature.Description,
+                                              "",
+                                              feature.Icon,
+                                              null,
+                                              feature.GetComponent<AddInitiatorAttackRollTrigger>()
+                                              );
+
+                if (feature.AssetGuid == "1b92146b8a9830d4bb97ab694335fa7c")
+                {//cl for dispelling strike
+                    buff.AddComponents(feature.GetComponents<ContextRankConfig>());
+                    buff.AddComponents(feature.GetComponents<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>());
+                    buff.ReplaceComponent<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>(r => r.Feature = buff);
+                    feature.RemoveComponents<ContextRankConfig>();
+                    feature.RemoveComponents<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>();
+
+                    //add druid scaling
+                    var archetype_list_feature = Helpers.CreateFeature("DispellingAttackArchetypeExtensionFeature",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None);
+                    archetype_list_feature.AddComponent(Helpers.Create<ContextRankConfigArchetypeList>(c => c.archetypes = new BlueprintArchetype[] { Archetypes.NatureFang.archetype }));
+                    archetype_list_feature.HideInCharacterSheetAndLevelUp = true;
+                    buff.ReplaceComponent<ContextRankConfig>(c =>
+                    {
+                        Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType());
+                        Helpers.SetField(c, "m_Feature", archetype_list_feature);
+                        Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(Archetypes.NatureFang.archetype.GetParentClass()));
+                    }
+                                                        );
+                }
+
+
+                var toggle = Helpers.CreateActivatableAbility(feature.name + "ToggleAbility",
+                                                              feature.Name,
+                                                              feature.Description,
+                                                              "",
+                                                              feature.Icon,
+                                                              buff,
+                                                              AbilityActivationType.Immediately,
+                                                              UnitCommand.CommandType.Free,
+                                                              null
+                                                              );
+                toggle.Group = ActivatableAbilityGroupExtension.SneakAttack.ToActivatableAbilityGroup();
+                toggle.DeactivateImmediately = true;
+                feature.RemoveComponents<AddInitiatorAttackRollTrigger>();
+                feature.AddComponent(Helpers.CreateAddFact(toggle));
+
+            }
         }
 
 
@@ -99,6 +193,7 @@ namespace CallOfTheWild
         static void createArmoredMaraudeur()
         {
             var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var heavy_armor_proficiency = library.Get<BlueprintFeature>("1b0f68188dcc435429fb87a022239681");
             armored_marudeur = Helpers.CreateFeature("ArmoredMaraudeurSlayerTalentFeature",
                                                      "Armored Marauder",
@@ -107,8 +202,9 @@ namespace CallOfTheWild
                                                      heavy_armor_proficiency.Icon,
                                                      FeatureGroup.RogueTalent,
                                                      Helpers.Create<ArmorCheckPenaltyIncrease>(a => { a.Bonus = Helpers.CreateContextValue(AbilityRankType.Default); a.CheckCategory = true; a.Category = ArmorProficiencyGroup.Heavy; }),
-                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, 
-                                                                                     classes: new BlueprintCharacterClass[] { slayer },
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                                                                                     archetype: Archetypes.NatureFang.archetype,
+                                                                                     classes: new BlueprintCharacterClass[] { slayer, druid },
                                                                                      progression: ContextRankProgression.DivStep, stepLevel: 6)
                                                      );
 
@@ -118,6 +214,7 @@ namespace CallOfTheWild
 
         static void createArmoredSwiftness()
         {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
             armored_swiftness = Helpers.CreateFeature("ArmoredSwiftnessSlayerTalentFeature",
                                                      "Armored Swiftness",
@@ -126,8 +223,9 @@ namespace CallOfTheWild
                                                      Helpers.GetIcon("76d4885a395976547a13c5d6bf95b482"),
                                                      FeatureGroup.RogueTalent,
                                                      Helpers.Create<NewMechanics.ContextMaxDexBonusIncrease>(a => { a.bonus = Helpers.CreateContextValue(AbilityRankType.Default); a.category = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Heavy }; }),
-                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
-                                                                                     classes: new BlueprintCharacterClass[] { slayer },
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                                                                                     archetype: Archetypes.NatureFang.archetype,
+                                                                                     classes: new BlueprintCharacterClass[] { slayer, druid },
                                                                                      progression: ContextRankProgression.DivStep, stepLevel: 6)
                                                      );
 
@@ -148,6 +246,7 @@ namespace CallOfTheWild
 
         static void createAssasinateAndSwiftDeath()
         {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var slayer_class = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
             var rogue_class = library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484");
 
@@ -212,7 +311,9 @@ namespace CallOfTheWild
                                                                                                   a.Action = Helpers.CreateActionList(apply_cooldown, Common.createContextActionRemoveBuffFromCaster(assasinate_buff));
                                                                                               }
                                                                                             ),
-                                               Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] {slayer_class, rogue_class}, StatType.Intelligence)
+                                               Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(new BlueprintCharacterClass[] {slayer_class, rogue_class, druid},
+                                                                                                                      new BlueprintArchetype[] {Archetypes.NatureFang.archetype },
+                                                                                                                      StatType.Intelligence)
                                                );
 
             Common.addToSlayerStudiedTargetDC(assasinate);
@@ -314,6 +415,10 @@ namespace CallOfTheWild
                     library.Get<BlueprintFeatureSelection>("04430ad24988baa4daa0bcd4f1c7d118"), //slayer talent2
                     library.Get<BlueprintFeatureSelection>("43d1b15873e926848be2abf0ea3ad9a8"), //slayer talent6
                     library.Get<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66"), //slayerTalent10
+                    Archetypes.SanctifiedSlayer.talented_slayer,
+                    Archetypes.NatureFang.slayer_talent4,
+                    Archetypes.NatureFang.slayer_talent6,
+                    Archetypes.NatureFang.slayer_talent10,
                 };
 
             if (for_investigator)
@@ -342,6 +447,10 @@ namespace CallOfTheWild
                     library.Get<BlueprintFeatureSelection>("04430ad24988baa4daa0bcd4f1c7d118"), //slayer talent2
                     library.Get<BlueprintFeatureSelection>("43d1b15873e926848be2abf0ea3ad9a8"), //slayer talent6
                     library.Get<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66"), //slayerTalent10
+                    Archetypes.SanctifiedSlayer.talented_slayer,
+                    Archetypes.NatureFang.slayer_talent4,
+                    Archetypes.NatureFang.slayer_talent6,
+                    Archetypes.NatureFang.slayer_talent10,
                 };
 
             foreach (var s in selections)
@@ -358,6 +467,7 @@ namespace CallOfTheWild
 
         static void createMinorMagic()
         {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var spells = Helpers.wizardSpellList.SpellsByLevel[0].Spells;
 
             minor_magic = Helpers.CreateFeatureSelection("MinorMagicRogueTalent",
@@ -372,6 +482,7 @@ namespace CallOfTheWild
             var classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484"), //rogue
                                                          library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb"), //slayer
                                                          Investigator.investigator_class,
+                                                         druid,
                                                          library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"),//bard for archaelogist
                                                          library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")}; //inquisitor for sanctified slayer
 
@@ -391,6 +502,7 @@ namespace CallOfTheWild
                                                                                     b.AdditionalClasses = classes.Skip(1).ToArray();
                                                                                     b.Cantrip = true;
                                                                                     b.Stat = StatType.Intelligence;
+                                                                                    b.Archetypes = new BlueprintArchetype[] { Archetypes.SanctifiedSlayer.archetype, Archetypes.NatureFang.archetype };
                                                                                 }
                                                                                 )
                                                                             );
@@ -413,6 +525,7 @@ namespace CallOfTheWild
                                                                                     b.AdditionalClasses = classes.Skip(1).ToArray();
                                                                                     b.Cantrip = true;
                                                                                     b.Stat = StatType.Intelligence;
+                                                                                    b.Archetypes = new BlueprintArchetype[] { Archetypes.SanctifiedSlayer.archetype, Archetypes.NatureFang.archetype };
                                                                                 }
                                                                                 )
                                                                              );
@@ -427,6 +540,7 @@ namespace CallOfTheWild
 
         static void createMajorMagic()
         {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var spells = Helpers.wizardSpellList.SpellsByLevel[1].Spells;
 
             major_magic = Helpers.CreateFeatureSelection("MajorMagicRogueTalent",
@@ -442,6 +556,7 @@ namespace CallOfTheWild
             var classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484"), //rogue
                                                          library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb"),
                                                          Investigator.investigator_class,
+                                                         druid,
                                                          library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"),//bard for archaelogist
                                                          library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")}; //inquisitor for sanctified slayer
 
@@ -464,6 +579,7 @@ namespace CallOfTheWild
                                                                                     b.Cantrip = false;
                                                                                     b.Stat = StatType.Intelligence;
                                                                                     b.fixed_level = 1;
+                                                                                    b.Archetypes = new BlueprintArchetype[] { Archetypes.SanctifiedSlayer.archetype, Archetypes.NatureFang.archetype };
                                                                                 }
                                                                                 )
                                                                             );
@@ -487,6 +603,7 @@ namespace CallOfTheWild
                                                                                     b.Cantrip = false;
                                                                                     b.Stat = StatType.Intelligence;
                                                                                     b.fixed_level = 1;
+                                                                                    b.Archetypes = new BlueprintArchetype[] { Archetypes.SanctifiedSlayer.archetype, Archetypes.NatureFang.archetype };
                                                                                 }
                                                                                 )
                                                                              );

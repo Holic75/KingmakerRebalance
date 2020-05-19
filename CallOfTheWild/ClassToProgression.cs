@@ -182,15 +182,16 @@ namespace CallOfTheWild
 
         static void addClassToContextRankConfig(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, ContextRankConfig c)
         {
-            //BlueprintCharacterClass cleric_class = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            
             var classes = Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class");
-            //if (classes.Contains(cleric_class))
+            
             if (classes != null && !classes.Empty())
             {
                 classes = classes.AddToArray(class_to_add);
                 Helpers.SetField(c, "m_Class", classes);
             }
 
+            
             //TODO: account for archetypes
         }
 

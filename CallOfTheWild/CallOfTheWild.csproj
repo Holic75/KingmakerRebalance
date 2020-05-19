@@ -129,6 +129,7 @@
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\DivineTracker.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />
+    <Compile Include="Archetypes\NatureFang.cs" />
     <Compile Include="Archetypes\OverwhelmingSoul.cs" />
     <Compile Include="Archetypes\Evangelist.cs" />
     <Compile Include="Archetypes\Executioner.cs" />

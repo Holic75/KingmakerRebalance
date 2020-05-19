@@ -34,7 +34,7 @@ New Archetypes for existing classes:
 - Vindictive Bastard Paladin archetype (implemented as a separate class),
 - Arrowsong Minstrel Bard archetype,
 - Spirit Whisperer Wizard archetype,
-- Storm Druid Druid archetype,
+- Nature Fang and Storm Druid Druid archetypes,
 - Evangelist and Undead Lord Cleric archetypes,
 - Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,
 - Untamed Rager Barbarian archetype,

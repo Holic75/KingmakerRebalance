@@ -437,7 +437,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                         __result = WeaponAnimationStyle.SlashingOneHanded;
                         break;
                     case WeaponAnimationStyle.PiercingTwoHanded:
-                        __result = WeaponAnimationStyle.PiercingTwoHanded;
+                        __result = WeaponAnimationStyle.PiercingOneHanded;
                         break;
                     case WeaponAnimationStyle.SlashingTwoHanded:
                         __result = WeaponAnimationStyle.SlashingOneHanded;

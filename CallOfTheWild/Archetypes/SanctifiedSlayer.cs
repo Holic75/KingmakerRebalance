@@ -94,15 +94,15 @@ namespace CallOfTheWild.Archetypes
 
             var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
             var studied_target = library.Get<BlueprintFeature>("09bdd9445ac38044389476689ae8d5a1");
-            studied_target.SetDescription("You can study an opponent you can see as a move action. You then gain a +1 bonus on weapon attack and damage rolls against it. \nIf you deal sneak attack damage to a target, you study that target, allowing you to apply your studied target bonuses against that target (including to the normal weapon damage roll).\nAt 5th, 10th, 15th, and 20th levels, the bonuses on weapon attack rolls and damage rolls  increase by 1.\nAt 7th level, you can study an opponent as a move or swift action.");
+            studied_target.SetDescription("You can study an opponent you can see as a move action. You then gain a +1 bonus on weapon attack and damage rolls against it. \nIf you deal sneak attack damage to a target, you study that target, allowing you to apply your studied target bonuses against that target (including to the normal weapon damage roll).\nAt 5th, 10th, 15th, and 20th levels, the bonuses on weapon attack rolls and damage rolls increase by 1.");
 
             var studied_ability = library.Get<BlueprintAbility>("b96d810ceb1708b4e895b695ddbb1813");
             var studied_buff = library.Get<BlueprintBuff>("45548967b714e254aa83f23354f174b0");
-            studied_ability.SetDescription(studied_target.Description);
-            studied_buff.SetDescription(studied_target.Description);
+            studied_ability.SetDescription("The character gains a +1 bonus on weapon attack and damage rolls against it. The DCs of slayer class abilities against that opponent increase by 1.\nAt 5th, 10th, 15th, and 20th levels, the bonuses on weapon attack rolls and damage rolls increase by 1.");
+            studied_buff.SetDescription(studied_ability.Description);
 
             var swift_study = library.Get<BlueprintFeature>("40d4f55a5ac0e4f469d67d36c0dfc40b");
-            swift_study.SetDescription(studied_target.Description);
+            swift_study.SetDescription("A character can study opponent as a move or swift action.");
 
             talented_slayer = library.CopyAndAdd<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66", "TalentedSlayerFeature", ""); //slayer 10
             talented_slayer.SetNameDescription("Talented Slayer", "At 8th, 16th, 17th, and 20th levels, a sanctified slayer can gain a single slayer talent, including those from the list of rogue talents that a slayer can take, but not an advanced slayer talent.");
