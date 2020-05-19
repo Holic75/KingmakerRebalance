@@ -340,8 +340,8 @@ namespace CallOfTheWild
             var fighter_training = library.Get<BlueprintFeature>("2b636b9e8dd7df94cbd372c52237eebf");
             warpriest_fighter_feat_prerequisite_replacement = Helpers.CreateFeature("WarpriestFighterFeatPrerequisiteReplacement",
                                                                                     "Fighter Training",
-                                                                                    "Warpriest treats his warpriest level as his base attack bonus (in addition to base attack bonuses gained from other classes and Hit Dice) for the purpose of qualifying for these feats.\n"
-                                                                                    + "Finally, for the purposes of these feats, the warpriest can select feats that have a minimum number of fighter levels as a prerequisite, treating his warpriest level as his fighter level.",
+                                                                                    "The warpriest treats his warpriest level as his base attack bonus (in addition to base attack bonuses gained from other classes and Hit Dice) for the purpose of qualifying for feats.\n"
+                                                                                    + "He can furthermore select feats that have a minimum number of fighter levels as a prerequisite, treating his warpriest level as his fighter level.",
                                                                                     "",
                                                                                     fighter_training.Icon,
                                                                                     FeatureGroup.None,

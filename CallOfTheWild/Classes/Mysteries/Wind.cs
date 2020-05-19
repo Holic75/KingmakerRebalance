@@ -297,7 +297,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateAddFact(ability));
             foreach (var c in classes)
             {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
+                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
             }
             return feature;
         }

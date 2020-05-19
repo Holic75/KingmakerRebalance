@@ -1495,7 +1495,7 @@ namespace CallOfTheWild
                                                                    "Spirit Walk",
                                                                    "You can become incorporeal and invisible. You can take no action other than to move while in this form. You remain in this form for a number of rounds equal to twice your oracle level, but these rounds need not be consecutive. You must be at least 11th level to select this revelation.");           
             var ancestral_weapon = mystery_engine.createAncestralWeapon("AncestralWeaponOracleRevelation",
-                                                                     "Ancestral Wepon",
+                                                                     "Ancestral Weapon",
                                                                      "The weapon you hold gains ghost touch weapon property. You can use this ability for a number of minutes per day equal to your oracle level. This duration does not need to be consecutive, but it must be used in 1-minute increments. The weapon loses ghost touch property if it leaves your grasp.");
 
             var heroic_invocation = Common.convertToSpellLike(library.Get<BlueprintAbility>("43740dab07286fe4aa00a6ee104ce7c1"), "OracleAncestorMystery", getOracleArray(), StatType.Charisma);
