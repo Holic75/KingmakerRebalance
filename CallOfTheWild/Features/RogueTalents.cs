@@ -226,7 +226,8 @@ namespace CallOfTheWild
                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
                                                                                      archetype: Archetypes.NatureFang.archetype,
                                                                                      classes: new BlueprintCharacterClass[] { slayer, druid },
-                                                                                     progression: ContextRankProgression.DivStep, stepLevel: 6)
+                                                                                     progression: ContextRankProgression.DivStep, stepLevel: 6),
+                                                     Helpers.PrerequisiteFeature(armored_marudeur)
                                                      );
 
             var reduce_heavy_armor_speed_penalty = Helpers.CreateFeature("ArmoredSwiftnessSpeedPenaltyRemovalFeature",
