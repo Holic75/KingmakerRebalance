@@ -2380,7 +2380,7 @@ namespace CallOfTheWild
                 foreach (var b in bloodlines)
                 {
                     var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
-                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1 / 2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
+                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1/2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
                     var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class"); 
                     classes = classes.AddToArray(bloodrager_class);

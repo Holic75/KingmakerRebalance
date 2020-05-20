@@ -239,7 +239,7 @@ namespace CallOfTheWild
                 harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                                               prefix + "LifeSpiritChannelEnergyHarmUndead",
                                                               "",
-                                                              "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d6 plus 1d6 for every two shaman levels beyond first. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1 / 2 the shaman's level + the shaman's Charisma modifier.",
+                                                              "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d6 plus 1d6 for every two shaman levels beyond first. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the shaman's level + the shaman's Charisma modifier.",
                                                               "",
                                                               context_rank_config,
                                                               dc_scaling,
