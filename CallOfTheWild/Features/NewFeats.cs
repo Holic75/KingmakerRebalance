@@ -388,12 +388,7 @@ namespace CallOfTheWild
                                                  FeatureGroup.Feat,
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11, any: true),
                                                  Helpers.PrerequisiteClassLevel(fighter, 8, any: true),
-                                                 Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
-                                                 {
-                                                     p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
-                                                     p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
-                                                 }
-                                                    ),
+                                                 Helpers.PrerequisiteFeaturesFromList(shield_focus, armor_training, Bloodrager.armor_training),
                                                  Helpers.Create<ArmorCheckPenaltyIncrease>(a =>
                                                  {
                                                      a.CheckCategory = true;
@@ -426,12 +421,7 @@ namespace CallOfTheWild
                                                  FeatureGroup.Feat,
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6, any: true),
                                                  Helpers.PrerequisiteClassLevel(fighter, 4, any: true),
-                                                 Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
-                                                 {
-                                                     p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
-                                                     p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
-                                                 }
-                                                    ),
+                                                 Helpers.PrerequisiteFeaturesFromList(shield_focus, armor_training, Bloodrager.armor_training),
                                                  Helpers.Create<HoldingItemsMechanics.UnhinderingShield>()
                                                  );
             unhindering_shield.Groups = unhindering_shield.Groups.AddToArray(FeatureGroup.CombatFeat);
@@ -453,12 +443,7 @@ namespace CallOfTheWild
                                                  FeatureGroup.Feat,
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 3, any: true),
                                                  Helpers.PrerequisiteClassLevel(fighter, 1, any: true),
-                                                 Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
-                                                    {
-                                                        p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
-                                                        p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
-                                                    }
-                                                    ),
+                                                 Helpers.PrerequisiteFeaturesFromList(shield_focus, armor_training, Bloodrager.armor_training),
                                                  Helpers.Create<HoldingItemsMechanics.ShieldBrace>()
                                                  );
             shield_brace.Groups = shield_brace.Groups.AddToArray(FeatureGroup.CombatFeat);
@@ -479,12 +464,7 @@ namespace CallOfTheWild
                                                     FeatureGroup.Feat,
                                                     Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 3, any: true),
                                                     Helpers.PrerequisiteClassLevel(fighter, 1, any: true),
-                                                    Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
-                                                                                                                    {
-                                                                                                                        p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
-                                                                                                                        p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
-                                                                                                                    }
-                                                                                                                  ),
+                                                    Helpers.PrerequisiteFeaturesFromList(shield_focus, armor_training, Bloodrager.armor_training),
                                                     Helpers.Create<ArcaneSpellFailureIncrease>(a => { a.ToShield = true; a.Bonus = -15; })
                                                     );
             shielded_mage.Groups = shielded_mage.Groups.AddToArray(FeatureGroup.CombatFeat);
@@ -508,12 +488,7 @@ namespace CallOfTheWild
                                                   Helpers.PrerequisiteFeature(improved_shield_bash),
                                                   Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6, any: true),
                                                   Helpers.PrerequisiteClassLevel(fighter, 4, any: true),
-                                                  Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
-                                                  {
-                                                      p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
-                                                      p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
-                                                  }
-                                                  )
+                                                  Helpers.PrerequisiteFeaturesFromList(shield_focus, armor_training, Bloodrager.armor_training)
                                                   );
 
 
@@ -555,12 +530,7 @@ namespace CallOfTheWild
                                                   Helpers.PrerequisiteFeature(stumbling_bash),
                                                   Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11, any: true),
                                                   Helpers.PrerequisiteClassLevel(fighter, 8, any: true),
-                                                  Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
-                                                  {
-                                                      p.base_prerequsite = Helpers.PrerequisiteFeature(shield_focus);
-                                                      p.alternative_prerequsite = Helpers.PrerequisiteFeature(armor_training);
-                                                  }
-                                                  )
+                                                  Helpers.PrerequisiteFeaturesFromList(shield_focus, armor_training, Bloodrager.armor_training)
                                                   );
 
 

@@ -75,6 +75,7 @@ namespace CallOfTheWild
         static public BlueprintFeature steelblood_proficiencies;
         static public BlueprintFeature blood_deflection;
         static public BlueprintFeature blood_deflection_bonus;
+        static public BlueprintFeature armor_training;
         static public BlueprintFeatureSelection bloodline_feat_selection;
 
         static public BlueprintArchetype urban_bloodrager;
@@ -3131,7 +3132,7 @@ namespace CallOfTheWild
             var armored_swiftness = library.CopyAndAdd<BlueprintFeature>("f95f4f3a10917114c82bcbebc4d0fd36", "SteelbloodArmoredSwiftness", "");
             armored_swiftness.SetDescription("At 2nd level, a steelblood moves faster in medium and heavy armor. When wearing medium or heavy armor, a steelblood can move 5 feet faster than normal in that armor, to a maximum of his unencumbered speed.");
 
-            var armor_training = library.CopyAndAdd<BlueprintFeature>("3c380607706f209499d951b29d3c44f3", "SteelbloodArmorTraining", "");
+            armor_training = library.CopyAndAdd<BlueprintFeature>("3c380607706f209499d951b29d3c44f3", "SteelbloodArmorTraining", "");
             //armor_training.RemoveComponent(armor_training.GetComponent<Kingmaker.Designers.Mechanics.Facts.ArmorSpeedPenaltyRemoval>());
             armor_training.SetDescription("At 5th level, a steelblood learns to be more maneuverable while wearing armor. Whenever he is wearing armor, he reduces the armor check penalty by 1 (to a maximum of 0) and increases the maximum Dexterity bonus allowed by his armor by 1. Every 4 levels thereafter (9th, 13th, and 17th), these bonuses increase by 1, to a maximum 4-point reduction of the armor check penalty and a +4 increase of the maximum Dexterity bonus. This ability stacks with the fighter class feature of the same name.");
 
