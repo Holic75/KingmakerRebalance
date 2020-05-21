@@ -6116,7 +6116,7 @@ namespace CallOfTheWild
                                                             contingency_store_buff.Description,
                                                             "",
                                                             contingency_store_buff.Icon,
-                                                            AbilityType.Spell,
+                                                            AbilityType.Special,
                                                             Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                             AbilityRange.Personal,
                                                             "1 day/level or until discharged",
@@ -6229,12 +6229,12 @@ namespace CallOfTheWild
                                                             delayed_consumption_store_buff.Description,
                                                             "",
                                                             delayed_consumption_store_buff.Icon,
-                                                            AbilityType.Spell,
+                                                            AbilityType.Special,
                                                             Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                             AbilityRange.Personal,
                                                             "1 day/level or until discharged",
                                                             "",
-                                                            Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                            Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                             Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s =>
                                                             {
                                                                 s.fact = delayed_consumption_store_buff;

@@ -295,6 +295,11 @@ namespace CallOfTheWild
                     return;
                 }
 
+                if (!evt.Spell.Blueprint.IsSpell)
+                {
+                    return;
+                }
+
                 if (evt.Spell.StickyTouch != null)
                 {
                     return;

@@ -53,6 +53,7 @@ namespace CallOfTheWild
     {
         internal static void fixWallAbilitiesAoeVIsualization()
         {
+            AoeMechanics.AbilityWallRange.load();
             var abilities = Main.library.GetAllBlueprints().OfType<BlueprintAbility>();
 
             foreach (var a in abilities)

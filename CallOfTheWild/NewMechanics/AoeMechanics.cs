@@ -1,5 +1,10 @@
-﻿using Kingmaker.Blueprints;
+﻿using Harmony12;
+using Kingmaker;
+using Kingmaker.Blueprints;
+using Kingmaker.Controllers.Clicks;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.PubSubSystem;
+using Kingmaker.UI.AbilityTarget;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -68,5 +73,93 @@ namespace CallOfTheWild.AoeMechanics
     }
 
 
-    
+    [HarmonyPatch(typeof(AbilityAoERange), "CanEnable")]
+    static class AbilityAoERange_CanEnable_Patch
+    {
+        static void Postfix(AbilityAoERange __instance, ref bool __result, Ability ___Ability)
+        {
+            //Disable AbilityAoERange for wall spells
+            if (___Ability != null && ___Ability.Blueprint.GetComponent<AbilityRectangularAoeVisualizer>() != null)
+            {
+                __result = false;
+            }
+        }
+    }
+    public class AbilityWallRange : Kingmaker.UI.AbilityTarget.AbilityRange
+    {
+        bool Initalized;
+        public void Awake()
+        {
+            Range = new GameObject("DummyWallRange");
+            Range.transform.SetParent(transform);
+        }
+        protected override bool CanEnable()
+        {
+            return base.CanEnable() && Ability.Blueprint.GetComponent<AbilityRectangularAoeVisualizer>() != null;
+        }
+        public void InitWall()
+        {
+            if (!Initalized)
+            {
+                var abilityTargetSelect = Game.Instance.UI.Common?.transform.Find("AbilityTargetSelect")?.gameObject;
+                var abilityLineRange = abilityTargetSelect?.GetComponent<AbilityLineRange>()?.Range;
+                if (abilityLineRange == null) throw new System.Exception("Could not find AbilityLineRange");
+                var lineRangeVisual = abilityLineRange.transform.Find("Pivot/Line")?.gameObject;
+                if (abilityLineRange == null) throw new System.Exception("Could not find LineRangeVisual");
+                Range = GameObject.Instantiate(lineRangeVisual);
+                Range.name = "WallRange";
+                GameObject.DontDestroyOnLoad(Range);
+                Initalized = true;
+            }
+        }
+        protected override void SetFirstSpecs()
+        {
+            try
+            {
+                InitWall();
+                Transform transform = Range.transform;
+                var wallSize = Ability.Blueprint.GetComponent<AbilityRectangularAoeVisualizer>();
+                transform.localScale = new Vector3(wallSize.width.Meters, transform.localScale.y, wallSize.length.Meters);
+            }
+            catch (Exception ex)
+            {
+                Main.logger.Error(ex.ToString());
+            }
+        }
+        protected override void SetRangeToWorldPosition()
+        {
+            try
+            {
+                InitWall();
+                PointerController clickEventsController = Game.Instance.ClickEventsController;
+                TargetWrapper target = Game.Instance.SelectedAbilityHandler.GetTarget(clickEventsController.PointerOn, clickEventsController.WorldPosition, Ability);
+                Vector3 mousePosition = (!(target != null)) ? clickEventsController.WorldPosition : target.Point;
+                Vector3 casterPosition = Ability.Caster.Unit.View.transform.position;
+                Vector3 normalized = (mousePosition - casterPosition).normalized;
+                Vector2 vector = normalized.To2D();
+                Vector3 eulerAngles = Range.transform.eulerAngles;
+                eulerAngles.y = Mathf.Atan2(vector.x, vector.y) * 57.29578f + 90f;
+                Range.transform.eulerAngles = eulerAngles;
+                Range.transform.position = mousePosition;
+                EventBus.RaiseEvent<IShowAoEAffectedUIHandler>(h =>
+                {
+                    h.HandleAoEMove(mousePosition, Ability);
+                });
+            }
+            catch (Exception ex)
+            {
+                Main.logger.Error(ex.ToString());
+            }
+        }
+
+        public static void load()
+        {
+            var wallRangeContainer = new GameObject("WallRangeHolder");
+            GameObject.DontDestroyOnLoad(wallRangeContainer);
+            wallRangeContainer.AddComponent<AbilityWallRange>();
+        }
+    }
+
+
+
 }
