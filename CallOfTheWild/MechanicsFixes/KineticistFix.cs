@@ -279,7 +279,7 @@ namespace CallOfTheWild
             var healer_burn_other = library.CopyAndAdd<BlueprintAbility>("eff667a3a43a77d45a193bb7c94b3a6c", "KineticHealerBurnOtherAbility", "");
             healer_burn_other.CanTargetSelf = false;
             healer_burn_other.ReplaceComponent<AbilityKineticist>(a => a.WildTalentBurnCost = 0);
-            healer_burn_other.SetName(healer_burn_other.Name + " (Burn Offload)");
+            healer_burn_other.SetName(healer_burn_other.Name + ": Burn Offload");
 
             var burn_other_buff = Helpers.CreateBuff("BurnOtherBuff",
                                                      "Burn Offload",

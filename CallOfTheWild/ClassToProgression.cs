@@ -110,8 +110,19 @@ namespace CallOfTheWild
             }
             else if (f is BlueprintFeatureSelection)
             {
+                if ((f as BlueprintFeatureSelection).Group == FeatureGroup.Feat 
+                    || (f as BlueprintFeatureSelection).Group == FeatureGroup.WizardFeat
+                    || (f as BlueprintFeatureSelection).Group == FeatureGroup.RogueTalent
+                    )
+                {
+                    return;
+                }
                 foreach (var af in (f as BlueprintFeatureSelection).AllFeatures)
                 {
+                    if (af.HasGroup(FeatureGroup.Feat, FeatureGroup.WizardFeat, FeatureGroup.RagePower, FeatureGroup.RogueTalent))
+                    {
+                        return;
+                    }
                     addClassToFact(class_to_add, archetypes_to_add, spells_type, af);
                 }
             }
@@ -131,7 +142,8 @@ namespace CallOfTheWild
         static void addClassToAbility(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, BlueprintAbility a)
         {
             var components = a.ComponentsArray.ToArray();
-            foreach (var c in components)
+            
+            foreach (var c in components.ToArray())
             {
                 if (c is AbilityVariants)
                 {
@@ -142,15 +154,21 @@ namespace CallOfTheWild
                 }
                 else if (c is ContextRankConfig)
                 {
-                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig);
+                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig, a.name);
                 }
                 else if (c is AbilityEffectRunAction)
                 {
                     addClassToActionList(class_to_add, archetypes_to_add, (c as AbilityEffectRunAction).Actions);
                 }
+                else if (c is ContextCalculateAbilityParamsBasedOnClass)
+                {
+                    var c_typed = c as ContextCalculateAbilityParamsBasedOnClass;
+                    a.ReplaceComponent(c, Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(new BlueprintCharacterClass[] { c_typed.CharacterClass, class_to_add }, archetypes_to_add, c_typed.StatType));
+                }
                 else if (c is NewMechanics.ContextCalculateAbilityParamsBasedOnClasses)
                 {
-                    (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses = (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses.AddToArray(class_to_add);
+                    var c_typed = c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses;
+                    a.ReplaceComponent(c, Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(c_typed.CharacterClasses.AddToArray(class_to_add), c_typed.archetypes.AddToArray(archetypes_to_add), c_typed.StatType));
                 }
                 else if (c is AbilityEffectStickyTouch)
                 {
@@ -180,9 +198,8 @@ namespace CallOfTheWild
         }
 
 
-        static void addClassToContextRankConfig(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, ContextRankConfig c)
+        static void addClassToContextRankConfig(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, ContextRankConfig c, string archetypes_list_prefix)
         {
-            
             var classes = Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class");
             
             if (classes != null && !classes.Empty())
@@ -191,27 +208,68 @@ namespace CallOfTheWild
                 Helpers.SetField(c, "m_Class", classes);
             }
 
-            
-            //TODO: account for archetypes
+            if (!archetypes_to_add.Empty())
+            {
+                var base_value_type = Helpers.GetField<ContextRankBaseValueType>(c, "m_BaseValueType");
+                var rank_type = Helpers.GetField<AbilityRankType>(c, "m_Type");
+                if (base_value_type == ContextRankBaseValueType.ClassLevel || base_value_type == ContextRankBaseValueType.SummClassLevelWithArchetype)
+                {
+                    var archetypes_list = Helpers.CreateFeature(archetypes_list_prefix + rank_type.ToString() + "ArchetypesListFeature",
+                                            "",
+                                            "",
+                                            "",
+                                            null,
+                                            FeatureGroup.None,
+                                            Helpers.Create<ContextRankConfigArchetypeList>(a => a.archetypes = archetypes_to_add)
+                                            );
+                    Helpers.SetField(c, "m_BaseValueType",ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType());
+                    Helpers.SetField(c, "m_Feature", archetypes_list);
+                }
+                else if (base_value_type == ContextRankBaseValueType.MaxClassLevelWithArchetype)
+                {
+                    var archetypes_list = Helpers.CreateFeature(archetypes_list_prefix + rank_type.ToString() + "ArchetypesListFeature",
+                        "",
+                        "",
+                        "",
+                        null,
+                        FeatureGroup.None,
+                        Helpers.Create<ContextRankConfigArchetypeList>(a => a.archetypes = archetypes_to_add)
+                        );
+                    Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType());
+                    Helpers.SetField(c, "m_Feature", archetypes_list);
+                }
+                else if (base_value_type == ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType() ||
+                         base_value_type == ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType())
+                {
+                    var archetypes_list = Helpers.GetField<BlueprintFeature>(c, "m_Feature");
+                    archetypes_list.ReplaceComponent<ContextRankConfigArchetypeList>(a => a.archetypes = a.archetypes.AddToArray(archetypes_to_add));
+                }
+            }
         }
 
 
         static void addClassToBuff(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, BlueprintBuff b)
         {
             var components = b.ComponentsArray;
-            foreach (var c in components)
+            foreach (var c in components.ToArray())
             {
                 if (c is ContextRankConfig)
                 {
-                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig);
+                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig, b.name);
                 }
                 else if (c is Kingmaker.UnitLogic.Buffs.Components.AddAreaEffect)
                 {
                     addClassToAreaEffect(class_to_add, archetypes_to_add, (c as AddAreaEffect).AreaEffect);
                 }
+                else if (c is ContextCalculateAbilityParamsBasedOnClass)
+                {
+                    var c_typed = c as ContextCalculateAbilityParamsBasedOnClass;
+                    b.ReplaceComponent(c, Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(new BlueprintCharacterClass[] { c_typed.CharacterClass, class_to_add }, archetypes_to_add, c_typed.StatType));
+                }
                 else if (c is NewMechanics.ContextCalculateAbilityParamsBasedOnClasses)
                 {
-                    (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses = (c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses).CharacterClasses.AddToArray(class_to_add);
+                    var c_typed = c as NewMechanics.ContextCalculateAbilityParamsBasedOnClasses;
+                    b.ReplaceComponent(c, Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(c_typed.CharacterClasses.AddToArray(class_to_add), c_typed.archetypes.AddToArray(archetypes_to_add), c_typed.StatType));
                 }
                 else if (c is AddFactContextActions)
                 {
@@ -240,7 +298,7 @@ namespace CallOfTheWild
             {
                 if (c is ContextRankConfig)
                 {
-                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig);
+                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig, a.name);
                 }
                 else if (c is AbilityAreaEffectBuff)
                 {
@@ -381,7 +439,7 @@ namespace CallOfTheWild
                 }
                 else if (c is ContextRankConfig)
                 {
-                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig);
+                    addClassToContextRankConfig(class_to_add, archetypes_to_add, c as ContextRankConfig, feat.name);
                 }
                 else if (c is IntenseSpells)
                 {

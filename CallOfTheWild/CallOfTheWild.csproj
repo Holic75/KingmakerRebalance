@@ -161,6 +161,7 @@
     <Compile Include="Classes\Eidolons\WaterElemental.cs" />
     <Compile Include="Classes\Eidolons\Evolutions.cs" />
     <Compile Include="Classes\Investigator.cs" />
+    <Compile Include="Archetypes\KineticChirurgeon.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
     <Compile Include="Classes\Mysteries\Bones.cs" />
     <Compile Include="Classes\Mysteries\Dragon.cs" />
@@ -215,7 +216,6 @@
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditionalSpellDescriptors.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
-    <Compile Include="NewMechanics\AnimateDeadMechanics.cs" />
     <Compile Include="NewMechanics\AoeMechanics.cs" />
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />

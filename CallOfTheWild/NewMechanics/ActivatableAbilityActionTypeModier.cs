@@ -106,7 +106,7 @@ namespace CallOfTheWild.ActivatableAbilityActionTypeModierMechanics
             {
                 __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Move : UnitCommand.CommandType.Swift;
             }
-            else
+            else if (ability.Blueprint.ActivateWithUnitCommandType == UnitCommand.CommandType.Standard)
             {
                 __result = !(bool)ability.Owner.State.Features.SingingSteel ? UnitCommand.CommandType.Standard : UnitCommand.CommandType.Move;
             }

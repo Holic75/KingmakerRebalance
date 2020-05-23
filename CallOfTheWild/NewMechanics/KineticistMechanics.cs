@@ -57,4 +57,42 @@ namespace CallOfTheWild.KineticistMechanics
             }
         }
     }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class DecreaseWildTalentCostForSpecificTalents : OwnedGameLogicComponent<UnitDescriptor>, IKineticistCalculateAbilityCostHandler, IKinetecistAcceptBurnHandler, IGlobalSubscriber, IUnitSubscriber
+    {
+        public int value = 1;
+        public BlueprintAbility[] abilities;
+        public ActionList actions;
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                return this.Fact.MaybeContext;
+            }
+        }
+
+        public void HandleKineticistCalculateAbilityCost(UnitDescriptor caster, BlueprintAbility abilityBlueprint, ref KineticistAbilityBurnCost cost)
+        {
+            if (caster != this.Owner)
+                return;
+
+            var burn_cost = abilityBlueprint.GetComponent<AbilityKineticist>();
+            if (burn_cost != null && burn_cost.WildTalentBurnCost > 0 && abilities.Contains(abilityBlueprint))
+            {
+                cost.Decrease(1, KineticistBurnType.WildTalent);
+            }
+        }
+
+        public void HandleKineticistAcceptBurn(UnitPartKineticist kinetecist, int burn, AbilityData ability)
+        {
+
+            if (actions != null && abilities.Contains(ability.Blueprint))
+            {
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, kinetecist.Owner.Unit);
+            }
+        }
+    }
 }
