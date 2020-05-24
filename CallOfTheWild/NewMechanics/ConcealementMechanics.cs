@@ -315,6 +315,32 @@ namespace CallOfTheWild.ConcealementMechanics
     }
 
 
+    [ComponentName("Attack Dice Reroll")]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ReduceConcelemntByOneStep : RuleInitiatorLogicComponent<RuleAttackRoll>
+    {
+        private RuleAttackRoll m_Attack;
+
+        public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (this.m_Attack != null)
+                return;
+            evt.Initiator.Ensure<UnitPartConcealment>().IgnorePartial = true;
+            evt.Initiator.Ensure<UnitPartConcealment>().TreatTotalAsPartial = true;
+            this.m_Attack = evt;
+        }
+
+        public override void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+            if (this.m_Attack == null)
+                return;
+            evt.Initiator.Ensure<UnitPartConcealment>().IgnorePartial = false;
+            evt.Initiator.Ensure<UnitPartConcealment>().TreatTotalAsPartial = false;
+            this.m_Attack = (RuleAttackRoll)null;
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class SetVisibilityLimit : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {

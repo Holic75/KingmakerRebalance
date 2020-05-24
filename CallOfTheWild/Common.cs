@@ -3054,7 +3054,7 @@ namespace CallOfTheWild
                 else if (action_list[i] is T)
                 {
                     found_actions.Add(action_list[i] as T);
-                    continue;
+                    //continue;
                 }
 
                 if (action_list[i] is Conditional)

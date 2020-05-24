@@ -94,7 +94,8 @@ namespace CallOfTheWild
         static public BlueprintFeature ferocious_beast;
         static public BlueprintFeature ferocious_beast_greater;
         static public BlueprintBuff greater_ferocious_beast_buff;
-
+        static public BlueprintFeature sharpened_accuracy;
+        static public BlueprintBuff sharpened_accuracy_buff;
 
         static public List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
@@ -132,6 +133,35 @@ namespace CallOfTheWild
             createEnergyResistance();
 
             createFerociousBeast();
+            createSharpenedAccuracy();
+        }
+
+
+        static void createSharpenedAccuracy()
+        {
+            sharpened_accuracy = Helpers.CreateFeature("SharpenedAccuracyRagePowerFeature",
+                                                       "Sharpened Accuracy",
+                                                       "While in the accurate stance, the barbarian ignores the miss chance for concealment and treats total concealment as concealment. She also ignores cover penalties except those from total cover. A barbarian must have the accurate stance rage power and be at least 8th level to select this rage power.",
+                                                       "",
+                                                       Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"),
+                                                       FeatureGroup.RagePower,
+                                                       Helpers.PrerequisiteClassLevel(barbarian_class, 8),
+                                                       Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("e4450dd9c06dc034fb7c0c08abcc202b"))
+                                                       );
+
+            sharpened_accuracy_buff = Helpers.CreateBuff("SharpenedAccuracyRagePowerBuff",
+                                           sharpened_accuracy.Name,
+                                           sharpened_accuracy.Description,
+                                           "",
+                                           sharpened_accuracy.Icon,
+                                           null,
+                                           Helpers.Create<ConcealementMechanics.ReduceConcelemntByOneStep>()
+                                           );
+
+            sharpened_accuracy_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var lethal_stance_effect_buff = library.Get<BlueprintBuff>("c6271b3183c48d54b8defd272bea0665");
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(lethal_stance_effect_buff, sharpened_accuracy_buff, sharpened_accuracy); 
         }
 
 

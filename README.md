@@ -43,7 +43,7 @@ New Archetypes for existing classes:
 - Zen Archer Monk archetype,
 - Sanctified Slayer Inquisitor archetype,
 - Executioner Slayer archetype,
-- Overwhelming Soul Kineticist archetype,
+- Kinetic Chirurgeon and Overwhelming Soul Kineticist archetype,
 - Lore Warden Fighter archetype,
 - Preservationist Alchemist archetype,
 - Divine Tracker Ranger archetype.
@@ -149,7 +149,8 @@ New rage powers:
 - Daemon Totem,
 - Daemon Totem, Greater,
 - Ferocious Beast,
-- Ferocious Beast, Greater.
+- Ferocious Beast, Greater,
+- Sharpened Accuracy.
 
 New features:
 - Share Spell for animal companions,

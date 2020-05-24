@@ -259,7 +259,8 @@ namespace CallOfTheWild
                                                                    library.Get<BlueprintFeature>("cb502c65dab407b4e928f5d8355cafc9"), //renewed vigor
                                                                    NewRagePowers.terrifying_howl_feature,
                                                                    NewRagePowers.taunting_stance,
-                                                                   NewRagePowers.greater_atavism_totem
+                                                                   NewRagePowers.greater_atavism_totem,
+                                                                   NewRagePowers.sharpened_accuracy
                                                                   };
 
             library.AddFeats(extra_rage_power);

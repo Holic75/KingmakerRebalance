@@ -44,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class VersatilePerformance
+    public class VersatilePerformance
     {
         static LibraryScriptableObject library => Main.library;
         static List<BlueprintFeature> versatile_performances = new List<BlueprintFeature>();
@@ -59,6 +59,8 @@ namespace CallOfTheWild
         static public BlueprintFeature triple_time; //+10 feet speed bonus for 1 hour
         static public BlueprintFeature banshees_requiem; // +2 negative levels //
         static public BlueprintFeature blazing_rondo; //haste + fatigue //
+        static public BlueprintBuff blazing_rondo_buff;
+        static public BlueprintBuff symphony_of_elysian_heart_buff;
 
         static BlueprintCharacterClass bard_class = library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
 
@@ -172,7 +174,8 @@ namespace CallOfTheWild
             blazing_rondo = Common.ActivatableAbilityToFeature(toggle, false);
             blazing_rondo.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             blazing_rondo.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 7, any: true),
-                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 7, any: true)); ;
+                                            Helpers.PrerequisiteClassLevel(Skald.skald_class, 7, any: true));
+            blazing_rondo_buff = effect_buff;
         }
 
 
@@ -219,7 +222,7 @@ namespace CallOfTheWild
 
         static void createSymphonyOfElysianHeart()
         {
-            var buff = library.Get<BlueprintBuff>("1533e782fca42b84ea370fc1dcbf4fc1"); //freedom of movement
+            var buff = library.CopyAndAdd<BlueprintBuff>("1533e782fca42b84ea370fc1dcbf4fc1", "SymphonyOfElysianHeartEffectBuff", ""); //freedom of movement
 
             var toggle = Common.createToggleAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()),
                                           UnitCommand.CommandType.Standard,
@@ -238,6 +241,8 @@ namespace CallOfTheWild
             symphony_of_elysian_heart.Groups = new FeatureGroup[] { FeatureGroup.Feat };
             symphony_of_elysian_heart.AddComponents(Helpers.PrerequisiteClassLevel(bard_class, 7, any: true),
                                             Helpers.PrerequisiteClassLevel(Skald.skald_class, 7, any: true));
+
+            symphony_of_elysian_heart_buff = buff;
         }
 
 
