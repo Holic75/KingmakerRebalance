@@ -32,7 +32,7 @@ It introduces new classes:
 
 New Archetypes for existing classes:
 - Vindictive Bastard Paladin archetype (implemented as a separate class),
-- Arrowsong Minstrel Bard archetype,
+- Arrowsong Minstrel and Dirge Bard Bard archetypes,
 - Spirit Whisperer Wizard archetype,
 - Nature Fang and Storm Druid Druid archetypes,
 - Evangelist and Undead Lord Cleric archetypes,
@@ -43,7 +43,7 @@ New Archetypes for existing classes:
 - Zen Archer Monk archetype,
 - Sanctified Slayer Inquisitor archetype,
 - Executioner Slayer archetype,
-- Kinetic Chirurgeon and Overwhelming Soul Kineticist archetype,
+- Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Lore Warden Fighter archetype,
 - Preservationist Alchemist archetype,
 - Divine Tracker Ranger archetype.

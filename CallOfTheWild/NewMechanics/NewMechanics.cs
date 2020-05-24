@@ -880,6 +880,7 @@ namespace CallOfTheWild
             public ContextValue Value;
             public SpellDescriptorWrapper Descriptor;
             public BlueprintSpellbook spellbook = null;
+            public bool only_spells = true;
 
             private MechanicsContext Context
             {
@@ -898,7 +899,11 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                bool? nullable = evt.Spell.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                if (evt.Spellbook?.Blueprint == null && only_spells)
+                {
+                    return;
+                }
+                bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
                 if (!nullable.HasValue || !nullable.Value)
                     return;
                 evt.AddBonusDC(this.Value.Calculate(this.Context));
@@ -3323,6 +3328,52 @@ namespace CallOfTheWild
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SavingThrowBonusAgainstSchoolOrDescriptor : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public SpellSchool School;
+            public SpellDescriptorWrapper SpellDescriptor;
+            public ModifierDescriptor ModifierDescriptor;
+            public ContextValue Value;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                if (evt.Reason.Context == null)
+                    return;
+                SpellSchool? school = evt.Reason.Context?.SourceAbility?.School;
+
+                bool is_ok = (evt.Reason.Context.SpellDescriptor & this.SpellDescriptor) != Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.None;
+                is_ok = is_ok || school.GetValueOrDefault() == School;
+
+                if (!is_ok)
+                {
+                    return;
+                }
+
+                int bonus = this.Value.Calculate(this.Context);
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.ModifierDescriptor));
             }
 
             public override void OnEventDidTrigger(RuleSavingThrow evt)

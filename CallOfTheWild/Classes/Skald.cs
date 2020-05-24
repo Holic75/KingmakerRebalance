@@ -632,6 +632,7 @@ namespace CallOfTheWild
             var increase_dc = Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>();
             increase_dc.Descriptor = SpellDescriptor.Sonic;
             increase_dc.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+
             horn_call_feature = Helpers.CreateFeature("SkaldHeraldOfTheHornCallFeature",
                                                      "Horn Call",
                                                      "At 7th level, a herald’s horn enhances his sonic spells. If a skald spell with the sonic descriptor is cast using the horn, its DC increases by 1. These DCs increase by an additional 1 at 13th and 19th levels.",

@@ -211,6 +211,7 @@ namespace CallOfTheWild
         static public BlueprintAbility consecrate;
         static public BlueprintAbility desecrate;
         static public BlueprintAbility animate_dead_lesser;
+        static public BlueprintUnit animate_dead_skeleton;
 
         static public void load()
         {
@@ -491,6 +492,7 @@ namespace CallOfTheWild
             skeleton.Faction = library.Get<BlueprintFaction>("1b08d9ed04518ec46a9b3e4e23cb5105"); //summoned
             skeleton.RemoveComponents<Experience>();
             skeleton.RemoveComponents<AddTags>();
+            animate_dead_skeleton = skeleton;
 
             var animate_dead = library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27");
             var after_spawn = (animate_dead.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).AfterSpawn;
