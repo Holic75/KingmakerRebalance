@@ -562,7 +562,7 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class AbilitTargetManufacturedWeapon : BlueprintComponent, IAbilityTargetChecker
         {
-
+            public bool off_hand = false;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 UnitEntityData unit = target.Unit;
@@ -574,20 +574,20 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                var primary_hand = unit.Body?.PrimaryHand;
-                if (primary_hand == null)
+                var hand = !off_hand ? unit.Body?.PrimaryHand : unit.Body?.SecondaryHand;
+                if (hand == null)
                 {
                     return false;
                 }
 
-                if (primary_hand.HasWeapon)
-                    return !primary_hand.Weapon.Blueprint.IsNatural && !primary_hand.Weapon.Blueprint.IsUnarmed && !EnchantmentMechanics.Helpers.isSummoned(primary_hand.Weapon);
+                if (hand.HasWeapon)
+                    return !hand.Weapon.Blueprint.IsNatural && !hand.Weapon.Blueprint.IsUnarmed && !EnchantmentMechanics.Helpers.isSummoned(hand.Weapon);
                 return false;
             }
 
             public string GetReason()
             {
-                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+                return "Require manufactured weapon";
             }
         }
 
@@ -4200,14 +4200,37 @@ namespace CallOfTheWild
         public class AbilityCasterPrimaryHandFree : BlueprintComponent, IAbilityCasterChecker
         {
             public bool not;
+            public bool for_2h_item = false;
             public bool CorrectCaster(UnitEntityData caster)
             {
-                return not == caster.Body.PrimaryHand.HasItem;
+                if (!for_2h_item)
+                {
+                    return not != (!caster.Body.PrimaryHand.HasItem && !HoldingItemsMechanics.Helpers.has2hWeapon(caster.Body.SecondaryHand));
+                }
+                
+                return not != (!caster.Body.PrimaryHand.HasItem && HoldingItemsMechanics.Helpers.hasFreeHand(caster.Body.SecondaryHand));
             }
 
             public string GetReason()
             {
-                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+                return "Primary hand must be free";
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterSecondaryHandFree : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool not;
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+               return not != (!caster.Body.SecondaryHand.HasItem && !HoldingItemsMechanics.Helpers.has2hWeapon(caster.Body.PrimaryHand));
+            }
+
+            public string GetReason()
+            {
+                return "Secondary hand must be free";
             }
         }
 
@@ -4234,19 +4257,47 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class AbilityTargetPrimaryHandFree : BlueprintComponent, IAbilityTargetChecker
         {
-
+            public bool not;
+            public bool for_2h_item = false;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 if (target?.Unit == null)
                 {
                     return false;
                 }
-                return !target.Unit.Body.PrimaryHand.HasItem;
+                if (!for_2h_item)
+                {
+                    return not != (!target.Unit.Body.PrimaryHand.HasItem && !HoldingItemsMechanics.Helpers.has2hWeapon(target.Unit.Body.SecondaryHand));
+                }
+
+                return not != (!target.Unit.Body.PrimaryHand.HasItem && HoldingItemsMechanics.Helpers.hasFreeHand(target.Unit.Body.SecondaryHand));
             }
 
             public string GetReason()
             {
                 return "Need free primary hand.";
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityTargetSecondaryHandFree : BlueprintComponent, IAbilityTargetChecker
+        {
+            public bool not;
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                if (target?.Unit == null)
+                {
+                    return false;
+                }
+
+                return not != (!target.Unit.Body.SecondaryHand.HasItem && !HoldingItemsMechanics.Helpers.has2hWeapon(target.Unit.Body.PrimaryHand));
+            }
+
+            public string GetReason()
+            {
+                return "Need free secondary hand.";
             }
         }
 

@@ -281,6 +281,48 @@ namespace CallOfTheWild.HoldingItemsMechanics
             return shield.ArmorComponent.Blueprint.ProficiencyGroup == Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Buckler && hand_slot.Owner.HasFact(NewFeats.unhindering_shield);
         }
 
+
+        internal static bool hasFreeHandOr1hWeapon(HandSlot hand_slot)
+        {
+            if (hasFreeHand(hand_slot))
+            {
+                return true;
+            }
+
+            var weapon = hand_slot.Weapon;
+            if (weapon == null)
+            {
+                return true;
+            }
+            return !weapon.Blueprint.IsTwoHanded && (weapon.Blueprint.FighterGroup != WeaponFighterGroup.Double);
+        }
+
+
+        internal static bool has2hWeapon(HandSlot hand_slot)
+        {
+            if (hand_slot == null)
+            {
+                return false;
+            }
+            if (!hand_slot.HasItem)
+            {
+                return false;
+            }
+
+            var weapon = hand_slot.MaybeWeapon;
+            if (weapon == null)
+            {
+                return false;
+            }
+
+            if (weapon.Blueprint.IsTwoHanded)
+            {
+                return true;
+            }
+
+            return weapon.Blueprint.FighterGroup != WeaponFighterGroup.Double;
+        }
+
         internal static bool hasShield2(HandSlot hand_slot)
         {
             if (!hand_slot.HasItem)

@@ -2691,73 +2691,84 @@ namespace CallOfTheWild
         static void createMagicWeapon()
         {
             var icon = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4").Icon;
+            var off_hand = new bool[]{ false, true};
+            var magic_weapon_variants = new List<BlueprintAbility>();
+            var greater_magic_weapon_variants = new List<BlueprintAbility>();
+            foreach (var oh in off_hand)
+            {
+                var buff = Helpers.CreateBuff((oh ? "OffHand" : "") + "MagicWeaponBaseBuff",
+                                              "Magic Weapon",
+                                              "Magic weapon gives a weapon a +1 enhancement bonus on attack and damage rolls. An enhancement bonus does not stack with a masterwork weapon’s +1 bonus on attack rolls.\n"
+                                              + "You can’t cast this spell on a natural weapon, such as an unarmed strike (instead, see magic fang).",
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnhancePrimaryHandWeaponUpToValue>(b => { b.value = 1; b.in_off_hand = oh; })
+                                              );
+                buff.Stacking = StackingType.Stack;
+                buff.SetBuffFlags(BuffFlags.HiddenInUi);
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Minutes), true);
 
+                var greater_buff = Helpers.CreateBuff((oh ? "OffHand" : "") + "MagicWeaponGreaterBuff",
+                                              "Magic Weapon, Greater",
+                                              "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5).\n"
+                                              + "Magic Weapon: " + buff.Description,
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnhancePrimaryHandWeaponUpToValue>(b => { b.value = Helpers.CreateContextValue(AbilityRankType.Default); b.in_off_hand = oh; }),
+                                              Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 4)
+                                              );
 
-            var buff = Helpers.CreateBuff("MagicWeaponBaseBuff",
-                                          "Magic Weapon",
-                                          "Magic weapon gives a weapon a +1 enhancement bonus on attack and damage rolls. An enhancement bonus does not stack with a masterwork weapon’s +1 bonus on attack rolls.\n"
-                                          + "You can’t cast this spell on a natural weapon, such as an unarmed strike (instead, see magic fang).",
-                                          "",
-                                          icon,
-                                          null,
-                                          Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnhancePrimaryHandWeaponUpToValue>(b => b.value = 1)
-                                          );
-            buff.Stacking = StackingType.Stack;
-            buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Minutes), true);
+                greater_buff.Stacking = StackingType.Stack;
+                greater_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+                var apply_greater_buff = Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Hours), true);
 
-            var greater_buff = Helpers.CreateBuff("MagicWeaponGreaterBuff",
-                                          "Magic Weapon, Greater",
-                                          "This spell functions like magic weapon, except that it gives a weapon an enhancement bonus on attack and damage rolls of +1 per four caster levels (maximum +5).\n"
-                                          + "Magic Weapon: " + buff.Description,
-                                          "",
-                                          icon,
-                                          null,
-                                          Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnhancePrimaryHandWeaponUpToValue>(b => b.value = Helpers.CreateContextValue(AbilityRankType.Default)),
-                                          Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 4)
-                                          );
+                var magic_weapon_v = Helpers.CreateAbility((oh ? "OffHand" : "MainHand") + "MagicWeaponBaseAbility",
+                                                     buff.Name + (oh ? " (Off-Hand)" : ""),
+                                                     buff.Description,
+                                                     "",
+                                                     buff.Icon,
+                                                     AbilityType.Spell,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Touch,
+                                                     Helpers.minutesPerLevelDuration,
+                                                     "",
+                                                     Helpers.CreateRunActions(apply_buff),
+                                                     Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                     Common.createAbilitySpawnFx("cf69c140c7d4d3c49a37e9202c5b835e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //bless weapon
+                                                     Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.off_hand = oh)
+                                                     );
+                magic_weapon_v.setMiscAbilityParametersTouchFriendly();
+                magic_weapon_v.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
 
-            greater_buff.Stacking = StackingType.Stack;
-            greater_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            var apply_greater_buff = Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus), DurationRate.Hours), true);
+               var magic_weapon_greater_v = Helpers.CreateAbility((oh ? "OffHand" : "MainHand") + "MagicWeaponGreaterAbility",
+                                                             greater_buff.Name + (oh ? " (Off-Hand)" : ""),
+                                                             greater_buff.Description,
+                                                             "",
+                                                             greater_buff.Icon,
+                                                             AbilityType.Spell,
+                                                             UnitCommand.CommandType.Standard,
+                                                             AbilityRange.Touch,
+                                                             Helpers.hourPerLevelDuration,
+                                                             "",
+                                                             Helpers.CreateRunActions(apply_greater_buff),
+                                                             Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus),
+                                                             Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                             Common.createAbilitySpawnFx("cf69c140c7d4d3c49a37e9202c5b835e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //bless weapon
+                                                             Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.off_hand = oh)
+                                                             );
+                magic_weapon_greater_v.setMiscAbilityParametersTouchFriendly();
+                magic_weapon_greater_v.AvailableMetamagic = magic_weapon.AvailableMetamagic;
+                magic_weapon_variants.Add(magic_weapon_v);
+                greater_magic_weapon_variants.Add(magic_weapon_greater_v);
+            }
 
-            magic_weapon = Helpers.CreateAbility("MagicWeaponBaseAbility",
-                                                 buff.Name,
-                                                 buff.Description,
-                                                 "",
-                                                 buff.Icon,
-                                                 AbilityType.Spell,
-                                                 UnitCommand.CommandType.Standard,
-                                                 AbilityRange.Touch,
-                                                 Helpers.minutesPerLevelDuration,
-                                                 "",
-                                                 Helpers.CreateRunActions(apply_buff),
-                                                 Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus),
-                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
-                                                 Common.createAbilitySpawnFx("cf69c140c7d4d3c49a37e9202c5b835e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //bless weapon
-                                                 Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>()
-                                                 );
-            magic_weapon.setMiscAbilityParametersTouchFriendly();
-            magic_weapon.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
-
-            magic_weapon_greater = Helpers.CreateAbility("MagicWeaponGreaterAbility",
-                                                         greater_buff.Name,
-                                                         greater_buff.Description,
-                                                         "",
-                                                         greater_buff.Icon,
-                                                         AbilityType.Spell,
-                                                         UnitCommand.CommandType.Standard,
-                                                         AbilityRange.Touch,
-                                                         Helpers.hourPerLevelDuration,
-                                                         "",
-                                                         Helpers.CreateRunActions(apply_greater_buff),
-                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus),
-                                                         Helpers.CreateSpellComponent(SpellSchool.Transmutation),
-                                                         Common.createAbilitySpawnFx("cf69c140c7d4d3c49a37e9202c5b835e", anchor: AbilitySpawnFxAnchor.SelectedTarget), //bless weapon
-                                                         Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>()
-                                                         );
-            magic_weapon_greater.setMiscAbilityParametersTouchFriendly();
-            magic_weapon_greater.AvailableMetamagic = magic_weapon.AvailableMetamagic;
+            magic_weapon = Common.createVariantWrapper("MagicWeaponBaseAbility", "", magic_weapon_variants.ToArray());
+            magic_weapon.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+            magic_weapon_greater = Common.createVariantWrapper("MagicWeaponGreaterAbility", "", greater_magic_weapon_variants.ToArray());
+            magic_weapon_greater.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
 
             magic_weapon.AddToSpellList(Helpers.inquisitorSpellList, 1);
             magic_weapon.AddToSpellList(Helpers.clericSpellList, 1);
@@ -5084,18 +5095,6 @@ namespace CallOfTheWild
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
             weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
 
-            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("FrostBiteDazingEnchantment", buff);
-            var rime_enchant = WeaponEnchantments.createRimeEnchantment("FrostBiteRimeEnchantment", buff);
-
-            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
-                                                                                      false, false,
-                                                                                      new BlueprintWeaponType[0], dazing_enchant);
-
-            var rime_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Rime,
-                                                                                                  false, false,
-                                                                                                  new BlueprintWeaponType[0], rime_enchant);
-            //buff.AddComponents(rime_buff, daze_buff);
-
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in frost_bite_enchantments)
             {
@@ -5240,14 +5239,6 @@ namespace CallOfTheWild
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
             weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
-
-            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("ChillTouchDazingEnchantment", buff);
-            var rime_enchant = WeaponEnchantments.createRimeEnchantment("ChillTouchRimeEnchantment", buff);
-
-            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
-                                                                                      false, false,
-                                                                                      new BlueprintWeaponType[0], dazing_enchant);
-            //buff.AddComponent(daze_buff);
 
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in chill_touch_echantments)
@@ -6635,6 +6626,7 @@ namespace CallOfTheWild
 
             Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
 
+            var weapon_off_hand = library.CopyAndAdd<BlueprintItemWeapon>(weapon, "FlameBladeWeaponOffHand", "");
             for (int i = 0; i < flame_blade_enchantments.Length; i++)
             {
                 var flame_blade_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
@@ -6657,78 +6649,72 @@ namespace CallOfTheWild
                                                                              );
             }
 
+            var is_off_hand = new bool[] { false, true };
+            var flame_blades = new List<BlueprintAbility>();
 
+            foreach (var oh in is_off_hand)
+            {
+                var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
+                                                                                                      false, false,
+                                                                                                      new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.empower_enchant);
 
-
-
-            var empower_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Empower,
-                                                                                                  false, false,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.empower_enchant);
-
-            var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
-                                                                                                  false, false,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.maximize_enchant);
-           /* var cold_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalCold,
-                                                                                          false, false,
-                                                                                          new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.elemental_enchants[DamageEnergyType.Cold]);
-            var acid_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalAcid,
-                                                                                          false, false,
-                                                                                          new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.elemental_enchants[DamageEnergyType.Acid]);
-            var elec_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ElementalElectricity,
-                                                                                          false, false,
-                                                                                          new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.elemental_enchants[DamageEnergyType.Electricity]);
-            */
-
-            var buff = Helpers.CreateBuff("FlameBladeBuff",
-                                            flame_blade_enchantments[0].Name,
-                                            flame_blade_enchantments[0].Description,
-                                            "",
-                                            bless_weapon.Icon,
-                                            null,
-                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => c.weapon = weapon),
-                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
-                                                                                            new BlueprintWeaponType[] { scimitar_type }, flame_blade_enchantments),
-                                            empower_buff,
-                                            maximize_buff,
-                                            //cold_buff,
-                                            //acid_buff,
-                                            //elec_buff,
-                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.OnePlusDivStep,
-                                                                            type: AbilityRankType.DamageBonus, stepLevel: 2, max: 10)
-                                            );
-            buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
-            weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
-            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("FlameSwordDazingEnchantment", buff);
-            var rime_enchant = WeaponEnchantments.createRimeEnchantment("FlameSwordRimeEnchantment", buff);
-
-            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
-                                                                                      false, false,
-                                                                                      new BlueprintWeaponType[] { scimitar_type }, dazing_enchant);
-
-            var rime_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Rime,
-                                                                                                  false, false,
-                                                                                                  new BlueprintWeaponType[] { scimitar_type }, rime_enchant);
-
-            //buff.AddComponents(daze_buff, rime_buff);
-
-
-            flame_blade = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, "FlameBladeAbility", "");
-            flame_blade.setMiscAbilityParametersSelfOnly();
-            flame_blade.NeedEquipWeapons = false;
-            flame_blade.SetIcon(bless_weapon.Icon);
-            flame_blade.SetName(buff.Name);
-            flame_blade.SetDescription(buff.Description);
-            flame_blade.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard;
-
-            flame_blade.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
-            flame_blade.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
-
-            var apply_buff = Common.createContextActionApplyBuff(buff,
-                                                    Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true
+                var maximize_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic(Kingmaker.UnitLogic.Abilities.Metamagic.Maximize,
+                                                                                                      false, false,
+                                                                                                       new BlueprintWeaponType[] { scimitar_type }, WeaponEnchantments.maximize_enchant);
+                var fire_dmg = Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
+                                                                                                new BlueprintWeaponType[] { scimitar_type }, flame_blade_enchantments);
+                if (oh)
+                {
+                    empower_buff.in_off_hand = true;
+                    maximize_buff.in_off_hand = true;
+                    fire_dmg.in_off_hand = true;
+                }
+                var buff = Helpers.CreateBuff((oh ? "OffHand" : "") + "FlameBladeBuff",
+                                                flame_blade_enchantments[0].Name + (oh ? " (Off-Hand)" : ""),
+                                                flame_blade_enchantments[0].Description,
+                                                "",
+                                                bless_weapon.Icon,
+                                                null,
+                                                Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = oh ? weapon_off_hand : weapon; c.create_in_offhand = oh; }),
+                                                fire_dmg,
+                                                empower_buff,
+                                                maximize_buff,
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                type: AbilityRankType.DamageBonus, stepLevel: 2, max: 10)
                                                 );
-            flame_blade.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
-            flame_blade.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
-            flame_blade.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
+                buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+                weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
+
+
+                var flame_blade_v = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, (oh ? "OffHand" : "MainHand") + "FlameBladeAbility", "");
+                flame_blade_v.setMiscAbilityParametersSelfOnly();
+                flame_blade_v.NeedEquipWeapons = false;
+                flame_blade_v.SetIcon(bless_weapon.Icon);
+                flame_blade_v.SetName(buff.Name);
+                flame_blade_v.SetDescription(buff.Description);
+                flame_blade_v.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard;
+                if (oh)
+                {
+                    flame_blade_v.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetSecondaryHandFree>());
+                }
+                else
+                {
+                    flame_blade_v.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
+                }
+
+                flame_blade_v.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
+
+                var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                        Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true
+                                                    );
+                flame_blade_v.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
+                flame_blade_v.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
+                flame_blade_v.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
+                flame_blades.Add(flame_blade);
+            }
+
+            flame_blade = Common.createVariantWrapper("FlameBladeAbility", "", flame_blades.ToArray());
+            flame_blade.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire), Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
 
             flame_blade.AddToSpellList(Helpers.druidSpellList, 2);
             flame_blade.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502"); //bless weapon
@@ -6837,18 +6823,6 @@ namespace CallOfTheWild
                                             );
             buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
             weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
-            var dazing_enchant = WeaponEnchantments.createDazingEnchantment("ProduceFlameDazingEnchantment", buff);
-            var rime_enchant = WeaponEnchantments.createRimeEnchantment("ProduceFlameRimeEnchantment", buff);
-
-            var daze_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Dazing,
-                                                                                      false, false,
-                                                                                      new BlueprintWeaponType[0], dazing_enchant);
-
-            var rime_buff = Common.createBuffContextEnchantPrimaryHandWeaponIfHasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Rime,
-                                                                                                  false, false,
-                                                                                                  new BlueprintWeaponType[0], rime_enchant);
-
-            //buff.AddComponents(daze_buff, rime_buff);
 
             var reduce_buff_duration = Helpers.Create<ContextActionReduceBuffDuration>(c => { c.TargetBuff = buff; c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes); });
             foreach (var e in produce_flame_enchantments)

@@ -309,6 +309,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         public BlueprintWeaponType[] allowed_types;
         public bool lock_slot = false;
         public bool only_non_magical = false;
+        public bool in_off_hand = false;
         [JsonProperty]
         private ItemEnchantment m_Enchantment;
         [JsonProperty]
@@ -337,7 +338,15 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             var unit = this.Owner;
             if (unit == null) return;
 
-            var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            ItemEntityWeapon weapon = null;
+            if (!in_off_hand)
+            {
+                weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            }
+            else
+            {
+                weapon = unit.Body.SecondaryHand.HasWeapon ? unit.Body.SecondaryHand.MaybeWeapon : null;
+            }
             if (weapon == null)
             {
                 return;
@@ -397,84 +406,6 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     }
 
 
-    public class BuffContextEnchantSecondaryHandWeapon : BuffLogic
-    {
-        public BlueprintWeaponEnchantment[] enchantments;
-        public ContextValue value;
-        public BlueprintWeaponType[] allowed_types;
-        public bool lock_slot = false;
-        public bool only_non_magical = false;
-        [JsonProperty]
-        private ItemEnchantment m_Enchantment;
-        [JsonProperty]
-        private ItemEntityWeapon m_Weapon;
-        [JsonProperty]
-        private bool m_unlock;
-
-
-        public override void OnFactActivate()
-        {
-            m_unlock = false;
-            var unit = this.Owner;
-            if (unit == null) return;
-
-            var weapon = unit.Body.SecondaryHand.HasWeapon ? unit.Body.SecondaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
-            if (weapon == null)
-            {
-                return;
-            }
-
-            if (!allowed_types.Empty() && !allowed_types.Contains(weapon.Blueprint.Type))
-            {
-                return;
-            }
-
-            int bonus = value.Calculate(Context) - 1;
-            if (bonus < 0)
-            {
-                bonus = 0;
-            }
-            if (bonus >= enchantments.Length)
-            {
-                bonus = enchantments.Length - 1;
-            }
-
-            if (weapon.Enchantments.HasFact(enchantments[bonus]))
-            {
-                return;
-            }
-
-            if (weapon.EnchantmentValue != 0 && only_non_magical)
-            {
-                return;
-            }
-            m_Enchantment = weapon.AddEnchantment(enchantments[bonus], Context, new Rounds?());
-
-            if (lock_slot && !weapon.IsNonRemovable)
-            {
-                weapon.IsNonRemovable = true;
-                m_unlock = true;
-            }
-            //m_Enchantment.RemoveOnUnequipItem = remove_on_unequip;
-            m_Weapon = weapon;
-        }
-
-        public override void OnFactDeactivate()
-        {
-            if (this.m_Weapon == null)
-                return;
-            //m_Weapon.IsNonRemovable = false;
-            if (m_unlock)
-            {
-                m_Weapon.IsNonRemovable = false;
-            }
-            if (this.m_Enchantment == null)
-                return;
-            this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
-        }
-    }
-
-
     public class BuffContextEnchantPrimaryHandWeapon : BuffLogic
     {
         public BlueprintWeaponEnchantment[] enchantments;
@@ -482,6 +413,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         public BlueprintWeaponType[] allowed_types;
         public bool lock_slot = false;
         public bool only_non_magical = false;
+        public bool in_off_hand = false;
         [JsonProperty]
         private ItemEnchantment m_Enchantment;
         [JsonProperty]
@@ -496,7 +428,15 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             var unit = this.Owner;
             if (unit == null) return;
 
-            var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            ItemEntityWeapon weapon = null;
+            if (!in_off_hand)
+            {
+                weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            }
+            else
+            {
+                weapon = unit.Body.SecondaryHand.HasWeapon ? unit.Body.SecondaryHand.MaybeWeapon : null;
+            }
             if (weapon == null)
             {
                 return;
@@ -559,6 +499,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         public BlueprintWeaponType[] allowed_types;
         public bool lock_slot = false;
         public bool only_non_magical = false;
+        public bool in_off_hand = false;
         [JsonProperty]
         private ItemEnchantment m_Enchantment;
         [JsonProperty]
@@ -571,8 +512,15 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             m_unlock = false;
             var unit = this.Owner;
             if (unit == null) return;
-
-            var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            ItemEntityWeapon weapon = null;
+            if (!in_off_hand)
+            {
+                weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            }
+            else
+            {
+                weapon = unit.Body.SecondaryHand.HasWeapon ? unit.Body.SecondaryHand.MaybeWeapon : null;
+            }
             if (weapon == null)
             {
                 return;
@@ -628,6 +576,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         public BlueprintWeaponType[] allowed_types;
         public bool lock_slot = false;
         public bool only_non_magical = false;
+        public bool in_off_hand = false;
         [JsonProperty]
         private ItemEnchantment m_Enchantment;
         [JsonProperty]
@@ -642,7 +591,15 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             var unit = this.Owner;
             if (unit == null) return;
 
-            var weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            ItemEntityWeapon weapon = null;
+            if (!in_off_hand)
+            {
+                weapon = unit.Body.PrimaryHand.HasWeapon ? unit.Body.PrimaryHand.MaybeWeapon : unit.Body.EmptyHandWeapon;
+            }
+            else
+            {
+                weapon = unit.Body.SecondaryHand.HasWeapon ? unit.Body.SecondaryHand.MaybeWeapon : null;
+            }
             if (weapon == null)
             {
                 return;
@@ -1208,6 +1165,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     {
         public BlueprintItemWeapon weapon;
         public bool disable_aoo = false;
+        public bool create_in_offhand = false;
         [JsonProperty]
         private ItemEntityWeapon m_Applied;
 
@@ -1216,7 +1174,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             base.OnFactActivate();
             this.m_Applied = this.weapon.CreateEntity<ItemEntityWeapon>();
             this.m_Applied.MakeNotLootable();
-            if (!this.Owner.Body.PrimaryHand.CanInsertItem((ItemEntity)this.m_Applied))
+            if (!canInsert(this.m_Applied))
             {
                 this.m_Applied = null;
                 this.Buff.Remove();
@@ -1227,8 +1185,28 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 {
                     this.Owner.State.AddCondition(UnitCondition.DisableAttacksOfOpportunity, (Buff)null);
                 }
-                ItemsCollection.DoWithoutEvents((Action)(() => this.Owner.Body.PrimaryHand.InsertItem((ItemEntity)this.m_Applied)));
-                this.Owner.Body.PrimaryHand.Lock.Retain();
+                if (!create_in_offhand)
+                {
+                    ItemsCollection.DoWithoutEvents((Action)(() => this.Owner.Body.PrimaryHand.InsertItem((ItemEntity)this.m_Applied)));
+                    this.Owner.Body.PrimaryHand.Lock.Retain();
+                }
+                else
+                {
+                    ItemsCollection.DoWithoutEvents((Action)(() => this.Owner.Body.SecondaryHand.InsertItem((ItemEntity)this.m_Applied)));
+                    this.Owner.Body.SecondaryHand.Lock.Retain();
+                }
+            }
+        }
+
+        bool canInsert(ItemEntityWeapon weapon)
+        {
+            if (create_in_offhand)
+            {
+                return this.Owner.Body.SecondaryHand.CanInsertItem(weapon);
+            }
+            else
+            {
+                return this.Owner.Body.PrimaryHand.CanInsertItem(weapon);
             }
         }
 
