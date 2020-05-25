@@ -109,7 +109,9 @@ namespace CallOfTheWild.Archetypes
         {
             var bard_resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", "DanceOfTheDeadAreaEffect", ""); //dirge of doom
-
+            area.Fx = Common.createPrefabLink("baa268c6db5723b4fa43c1b65f99bf0f"); //unholy aoe
+            area.Size = 50.Feet();
+            area.AffectDead = true;
             var dance_of_the_dead_mark = Helpers.CreateBuff("DanceOfTheDeadMarkBuff",
                                                             "",
                                                             "",
@@ -121,7 +123,11 @@ namespace CallOfTheWild.Archetypes
             var apply_mark = Common.createContextActionApplyBuff(dance_of_the_dead_mark, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
             var animate_action = NewSpells.animate_dead_lesser.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as DeadTargetMechanics.ContextActionAnimateDead;
 
-            animate_action = animate_action.CreateCopy(a => a.AfterSpawn = Helpers.CreateActionList(a.AfterSpawn.Actions.AddToArray(apply_mark)));
+            animate_action = animate_action.CreateCopy(a => 
+                                                           { a.AfterSpawn = Helpers.CreateActionList(a.AfterSpawn.Actions.AddToArray(apply_mark));
+                                                               a.DurationValue = Helpers.CreateContextDuration(100, DurationRate.Rounds);
+                                                           }
+                                                           );
             area.ComponentsArray = new BlueprintComponent[]
             {
                 Helpers.CreateAreaEffectRunAction(
@@ -138,7 +144,8 @@ namespace CallOfTheWild.Archetypes
                                           "",
                                           NewSpells.animate_dead_lesser.Icon,
                                           Common.createPrefabLink("39da71647ad4747468d41920d0edd721"),
-                                          Common.createAddAreaEffect(area)
+                                          Common.createAddAreaEffect(area),
+                                          Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { archetype.GetParentClass() }, StatType.Charisma)
                                           );
 
             var toggle = Helpers.CreateActivatableAbility("DanceOfTheDeadToggleAbility",
@@ -177,7 +184,7 @@ namespace CallOfTheWild.Archetypes
                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {archetype.GetParentClass()},
                                                                                      progression: ContextRankProgression.Div2),
                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { archetype.GetParentClass() },
-                                                                                     progression: ContextRankProgression.DivStep, type: AbilityRankType.StatBonus,  stepLevel: 5) 
+                                                                                     progression: ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus,  stepLevel: 5, startLevel: 0) 
                                                      );
             haunting_refrain.ReapplyOnLevelUp = true;
         }
@@ -189,7 +196,7 @@ namespace CallOfTheWild.Archetypes
 
             var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             var bard = archetype.GetParentClass();
-            var spell_list = Common.combineSpellLists("DirgeBardBonusNecromancySpellsList", Witch.witch_class.Spellbook.SpellList, wizard.Spellbook.SpellList, bard.Spellbook.SpellList);
+            var spell_list = Common.combineSpellLists("DirgeBardBonusNecromancySpellsList", bard.Spellbook.SpellList, Witch.witch_class.Spellbook.SpellList, wizard.Spellbook.SpellList);
             Common.filterSpellList(spell_list, s => s.School == SpellSchool.Necromancy);
 
             var spell_selection = library.CopyAndAdd<BlueprintParametrizedFeature>("4a2e8388c2f0dd3478811d9c947bebfb", "DirgeBardExtraNecromancySpell", "");

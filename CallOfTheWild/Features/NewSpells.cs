@@ -2760,7 +2760,7 @@ namespace CallOfTheWild
                                                              Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.off_hand = oh)
                                                              );
                 magic_weapon_greater_v.setMiscAbilityParametersTouchFriendly();
-                magic_weapon_greater_v.AvailableMetamagic = magic_weapon.AvailableMetamagic;
+                magic_weapon_greater_v.AvailableMetamagic = magic_weapon_v.AvailableMetamagic;
                 magic_weapon_variants.Add(magic_weapon_v);
                 greater_magic_weapon_variants.Add(magic_weapon_greater_v);
             }
@@ -6710,7 +6710,7 @@ namespace CallOfTheWild
                 flame_blade_v.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
                 flame_blade_v.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
                 flame_blade_v.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
-                flame_blades.Add(flame_blade);
+                flame_blades.Add(flame_blade_v);
             }
 
             flame_blade = Common.createVariantWrapper("FlameBladeAbility", "", flame_blades.ToArray());

@@ -151,17 +151,20 @@ namespace CallOfTheWild.DeadTargetMechanics
             Rounds duration = this.DurationValue.Calculate(this.Context);
         
             int level = Math.Max(Math.Min(getRacialHD(this.Target.Unit.Descriptor), 20), Blueprint.GetComponent<AddClassLevels>().Levels);
-            
-            if (level > this.Context.Params.CasterLevel * hd_cl_multiplier * (this.Context.MaybeCaster.Descriptor.HasFact(ChannelEnergyEngine.desecrate_buff) ? 2 : 1))
+            int max_lvl = this.Context.Params.CasterLevel * hd_cl_multiplier * (this.Context.MaybeCaster.Descriptor.HasFact(ChannelEnergyEngine.desecrate_buff) ? 2 : 1);
+            if (level > max_lvl)
             {
-                Common.AddBattleLogMessage("Corpse HD is too high");
+                Common.AddBattleLogMessage($"{unit.CharacterName} corpse HD ({level}) is beyond your {caster.CharacterName}'s to animate ({max_lvl}).");
                 return;
             }
 
             //Main.logger.Log("Animate Dead: Remaining HD limit: " + getUsedHD(this.Context, SummonPool).ToString() + "/" + (this.Context.Params.CasterLevel * max_hd_cl_multiplier).ToString());
-            if (getUsedHD(this.Context, SummonPool) + level > this.Context.Params.CasterLevel * max_hd_cl_multiplier)
+            int max_total_hd = this.Context.Params.CasterLevel * max_hd_cl_multiplier;
+            int used_hd = getUsedHD(this.Context, SummonPool);
+            int remaining_hd = max_total_hd - used_hd;
+            if ( level > remaining_hd)
             {
-                Common.AddBattleLogMessage("Corpse HD does not fit into your animate dead HD limit");
+                Common.AddBattleLogMessage($"{unit.CharacterName} corpse HD ({level}) does not fit into {caster.CharacterName}'s animate dead HD limit ({remaining_hd}/{max_total_hd})");
                 return;
             }
             Vector3 clampedPosition = ObstacleAnalyzer.GetNearestNode(this.Target.Point).clampedPosition;

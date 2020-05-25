@@ -320,7 +320,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 return true;
             }
 
-            return weapon.Blueprint.FighterGroup != WeaponFighterGroup.Double;
+            return weapon.Blueprint.FighterGroup == WeaponFighterGroup.Double;
         }
 
         internal static bool hasShield2(HandSlot hand_slot)

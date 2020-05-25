@@ -656,7 +656,6 @@ namespace CallOfTheWild.CompanionMechanics
         {
             int rank = this.Owner.GetFact((BlueprintUnitFact)this.rank_feature).GetRank();
             int character_level = this.Owner.Progression.CharacterLevel;
-
             for (int i = rank; i < character_level + level_diff; i++)
             {
                 this.Owner.AddFact((BlueprintUnitFact)this.rank_feature, null);
@@ -669,6 +668,7 @@ namespace CallOfTheWild.CompanionMechanics
                 this.Owner.RemoveFact((BlueprintUnitFact)this.rank_feature);
                 --this.m_AppliedRank;
             }
+            var add_pet = this.Owner.Progression.Features.Enumerable.Where(f => f?.Blueprint.GetComponent<AddPet>() != null).FirstOrDefault()?.Blueprint.GetComponent<AddPet>();
         }
 
         public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)

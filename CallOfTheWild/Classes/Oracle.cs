@@ -1770,7 +1770,7 @@ namespace CallOfTheWild
                                               "",
                                               Helpers.GetIcon("de7a025d48ad5da4991e7d3c682cf69d"), // cats grace
                                               FeatureGroup.None,
-                                              Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20),
+                                              Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.do_not_spend_slot_if_failed = true; }),
                                               Helpers.CreateAddFeatureOnClassLevel(bite1d4, 5, getOracleArray(), before: true)
                                               );
 

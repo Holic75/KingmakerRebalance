@@ -226,6 +226,8 @@ namespace CallOfTheWild
             animal_ally.AddComponent(Helpers.PrerequisiteFeature(skill_focus_nature));
             animal_ally.AddComponent(Helpers.PrerequisiteCharacterLevel(4));
             animal_ally.AddComponent(Helpers.Create<PrerequisitePet>(a => a.NoCompanion = true));
+            animal_ally.IsClassFeature = true;
+            animal_ally.ReapplyOnLevelUp = true;
             library.AddFeats(animal_ally);
         }
 

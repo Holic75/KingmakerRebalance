@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
@@ -41,12 +42,22 @@ namespace CallOfTheWild.SpellFailureMechanics
     class SpellFailureChance : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCastSpell>, IRulebookHandler<RuleCastSpell>, IInitiatorRulebookSubscriber
     {
         public int chance;
+        public bool do_not_spend_slot_if_failed = false;
 
         public void OnEventAboutToTrigger(RuleCastSpell evt)
         {
-            if (!evt.Spell.Blueprint.IsSpell || (evt.Spell.StickyTouch != null))
+            if (!evt.Spell.Blueprint.IsSpell || evt.Spell.Spellbook == null || (evt.Spell.StickyTouch != null))
                 return;
-            evt.SpellFailureChance = Math.Max(evt.SpellFailureChance, this.chance);
+
+            if (RulebookEvent.Dice.D100 > this.chance)
+            {
+                return;
+            }
+            evt.SpellFailureChance = 200;
+            if (do_not_spend_slot_if_failed)
+            {
+                evt.Spell.Caster.Ensure<SpellbookMechanics.UnitPartDoNotSpendNextSpell>().active = true;
+            }
         }
 
         public void OnEventDidTrigger(RuleCastSpell evt)
