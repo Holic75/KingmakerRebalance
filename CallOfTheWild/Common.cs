@@ -1074,6 +1074,16 @@ namespace CallOfTheWild
             return p;
         }
 
+
+        public static PrerequisiteNoArchetype prerequisiteNoArchetype( BlueprintArchetype archetype, bool any = false)
+        {
+            var p = Helpers.Create<PrerequisiteNoArchetype>();
+            p.Archetype = archetype;
+            p.CharacterClass = archetype.GetParentClass();
+            p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
+            return p;
+        }
+
         public static BlueprintFeature createSpellResistance(string name, string display_name, string description, string guid, BlueprintCharacterClass character_class, int start_value)
         {
             var spell_resistance = library.CopyAndAdd<BlueprintFeature>("01182bcee8cb41640b7fa1b1ad772421", //monk diamond soul

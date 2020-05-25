@@ -81,7 +81,7 @@ namespace CallOfTheWild.Archetypes
             var infusion_selection = library.Get<BlueprintFeatureSelection>("58d6f8e9eea63f6418b107ce64f315ea");
             var wild_talent_selection = library.Get<BlueprintFeatureSelection>("5c883ae0cd6d7d5448b7a420f51f8459");
 
-            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, element_selection, infusion_selection),
+            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, infusion_selection),
                                                           Helpers.LevelEntry(2, wild_talent_selection),
                                                           Helpers.LevelEntry(4, wild_talent_selection),
                                                           Helpers.LevelEntry(6, wild_talent_selection, KineticistFix.internal_buffer),
@@ -94,8 +94,8 @@ namespace CallOfTheWild.Archetypes
                                                           Helpers.LevelEntry(20, wild_talent_selection)
                                                         };
             createKineticChirurgery();
-            createHealingBuffer();
             createMetahealerTalent();
+            createHealingBuffer();
 
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, kinetic_chirurgery),
                                                        Helpers.LevelEntry(2, metahealer_wild_talent),
@@ -118,6 +118,7 @@ namespace CallOfTheWild.Archetypes
 
         static void createKineticChirurgery()
         {
+            var elemental_focus = library.Get<BlueprintFeatureSelection>("1f3a15a3ae8a5524ab8b97f469bf4e3d"); //to be able to pick talents
             var water = library.Get<BlueprintFeature>("7ab8947ce2e19c44a9edcf5fd1466686");
             var kinetic_healer = library.Get<BlueprintFeature>("3ef666973adfa8f40af6c0679bd98ba5");
             kinetic_chirurgery = Helpers.CreateFeature("KineticChirurgeryFeature",
@@ -126,8 +127,17 @@ namespace CallOfTheWild.Archetypes
                                                        "",
                                                        Helpers.GetIcon("3ef666973adfa8f40af6c0679bd98ba5"),
                                                        FeatureGroup.None,
-                                                       Helpers.CreateAddFacts(water, kinetic_healer)
+                                                       Helpers.CreateAddFacts(kinetic_healer)
                                                        );
+
+            foreach (var e in elemental_focus.AllFeatures)
+            {
+                if (e == water)
+                {
+                    continue;
+                }
+                e.AddComponent(Common.prerequisiteNoArchetype(archetype.GetParentClass(), archetype));
+            }
         }
 
 
@@ -143,9 +153,9 @@ namespace CallOfTheWild.Archetypes
             //create mercy effects
             createMercies();
           
-            createEmpoweredHealing();
             createDualHealing();
             createSwiftHealing();
+            createEmpoweredHealing();
             metahealer_wild_talent.AllFeatures = metahealer_wild_talent.AllFeatures.AddToArray(empowered_healing, dual_healing, swift_healing);
         }
 
@@ -200,20 +210,21 @@ namespace CallOfTheWild.Archetypes
                 mercy_actions.Add(mercy_action);
 
                 var prereq = kv.Key.GetComponent<PrerequisiteClassLevel>();
-                kv.Key.ReapplyOnLevelUp = true;
+                //kv.Key.ReapplyOnLevelUp = true;
 
-                if (prereq == null)
+                if (prereq != null)
                 {
-                    continue;
+                    prereq.Group = Prerequisite.GroupType.Any;
+                    kv.Key.AddComponent(Common.createPrerequisiteArchetypeLevel(archetype.GetParentClass(), archetype, prereq.Level, any: true));
                 }
-                prereq.Group = Prerequisite.GroupType.Any;
-                kv.Key.AddComponent(Common.createPrerequisiteArchetypeLevel(archetype.GetParentClass(), archetype, prereq.Level));
                 kv.Key.AddComponent(Helpers.Create<AddFeatureOnClassLevel>(a =>
                 {
                     a.Feature = Common.ActivatableAbilityToFeature(toggle);
                     a.Class = archetype.GetParentClass();
                     a.Level = 1;
                     a.Archetypes = new BlueprintArchetype[] { archetype };
+                    a.AdditionalClasses = new BlueprintCharacterClass[0];
+                    a.BeforeThisLevel = false;
                 }));
                 
             }
@@ -291,18 +302,13 @@ namespace CallOfTheWild.Archetypes
 
             var heal_varinats = kinetic_healer.GetComponent<AbilityVariants>();
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 2; i++)
             {
                 var ability = library.CopyAndAdd(heal_varinats.Variants[i], "Empowered" + heal_varinats.Variants[i].name, "");
-                var shared_config = ability.GetComponents<ContextCalculateSharedValue>().Where(a => a.ValueType == AbilitySharedValue.Duration).FirstOrDefault();
-
-                var new_shared_config = Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.One,
-                                                                                                          Helpers.CreateContextValue(AbilityRankType.ProjectilesCount),
-                                                                                                          Helpers.CreateContextValue(AbilityRankType.DamageDice)),
-                                                                           AbilitySharedValue.Heal);
-                shared_config.Value.DiceCountValue = Helpers.CreateContextValue(AbilitySharedValue.Heal);
-                ability.AddComponents(new_shared_config,
-                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype, ContextRankProgression.DelayedStartPlusDivStep, AbilityRankType.ProjectilesCount,
+                var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                actions = Common.changeAction<ContextActionHealTarget>(actions, c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.ProjectilesCount), c.Value.BonusValue));
+                ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
+                ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype, ContextRankProgression.DelayedStartPlusDivStep, AbilityRankType.ProjectilesCount,
                                                                       startLevel: 5, stepLevel: 6, classes: new BlueprintCharacterClass[] { archetype.GetParentClass() },
                                                                       archetype: archetype)
                                      );
