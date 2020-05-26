@@ -2460,6 +2460,19 @@ namespace CallOfTheWild
             return b;
         }
 
+        static public NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon createBuffRemainingGroupsSizeEnchantPrimaryHandWeaponOffHand(ActivatableAbilityGroup group, bool only_non_magical,
+                                                                                                                               bool lock_slot, params BlueprintWeaponEnchantment[] enchants)
+        {
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffRemainingGroupsSizeEnchantPrimaryHandWeapon>();
+            b.allowed_types = new BlueprintWeaponType[0];
+            b.enchantments = enchants;
+            b.lock_slot = lock_slot;
+            b.only_non_magical = only_non_magical;
+            b.group = group;
+            b.in_off_hand = true;
+            return b;
+        }
+
 
         static public NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantArmor createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup group, bool only_non_magical,
                                                                                                                                        bool lock_slot, params BlueprintArmorEnchantment[] enchants)
@@ -3720,6 +3733,14 @@ namespace CallOfTheWild
 
 
         static public BlueprintActivatableAbility createEnchantmentAbility(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintBuff base_buff,
+                                                           BlueprintItemEnchantment enchantment, int group_size, ActivatableAbilityGroup group,
+                                                           AlignmentMaskType alignment = AlignmentMaskType.Any)
+        {
+            return createEnchantmentAbility(name_prefix, display_name, description, icon, new BlueprintBuff[] { base_buff }, enchantment, group_size, group, alignment);
+        }
+
+
+        static public BlueprintActivatableAbility createEnchantmentAbility(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintBuff[] base_buffs,
                                                                    BlueprintItemEnchantment enchantment, int group_size, ActivatableAbilityGroup group,
                                                                    AlignmentMaskType alignment = AlignmentMaskType.Any)
         {
@@ -3764,7 +3785,10 @@ namespace CallOfTheWild
                                   null);
             switch_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(base_buff, buff, switch_buff);
+            foreach (var bb in base_buffs)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bb, buff, switch_buff);
+            }
 
             var ability = Helpers.CreateActivatableAbility(name_prefix + "ToggleAbility",
                                                                         display_name,
