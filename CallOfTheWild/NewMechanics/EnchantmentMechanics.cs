@@ -1408,6 +1408,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                         }
                         var new_enchant = w.AddEnchantment(blueprint, this.Fact.MaybeContext, new Rounds?());
                         new_enchant.RemoveOnUnequipItem = true;
+                        //Main.logger.Log("Added " + new_enchant.Blueprint.name + "to " + w.Blueprint.Name);
                         m_enchants.Add(new_enchant);
                     }
                 }

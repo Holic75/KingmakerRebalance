@@ -269,7 +269,48 @@ namespace CallOfTheWild
                 library.Get<BlueprintWeaponEnchantment>("80bb8a737579e35498177e1e3c75899b"),
                 library.Get<BlueprintWeaponEnchantment>("783d7d496da6ac44f9511011fc5f1979"),
                 library.Get<BlueprintWeaponEnchantment>("bdba267e951851449af552aa9f9e3992"),
+            };
 
+
+            BlueprintWeaponEnchantment[] improved_enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"), //anarchic
+                library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4"), //axiomatic
+                library.Get<BlueprintWeaponEnchantment>("ee71cc8848219c24b8418a628cc3e2fa"), //bane aberration
+                library.Get<BlueprintWeaponEnchantment>("78cf9fabe95d3934688ea898c154d904"), //bane animal
+                library.Get<BlueprintWeaponEnchantment>("73d30862f33cc754bb5a5f3240162ae6"), //bane construct
+                library.Get<BlueprintWeaponEnchantment>("e5cb46a0a658b0a41854447bea32d2ee"), //bane dragon
+                library.Get<BlueprintWeaponEnchantment>("b6948040cdb601242884744a543050d4"), //bane fey
+                library.Get<BlueprintWeaponEnchantment>("dcecb5f2ffacfd44ead0ed4f8846445d"), //bane giant
+                library.Get<BlueprintWeaponEnchantment>("c4b9cce255d1d6641a6105a255934e2e"), //bane reptile
+                library.Get<BlueprintWeaponEnchantment>("188efcfcd9938d44e9561c87794d17a8"), //bane lycantrope
+                library.Get<BlueprintWeaponEnchantment>("97d477424832c5144a9413c64d818659"), //bane magical beast
+                library.Get<BlueprintWeaponEnchantment>("c5f84a79ad154c84e8d2e9fe0dd49350"), //bane monstrous humanoid
+                library.Get<BlueprintWeaponEnchantment>("234177d5807909f44b8c91ed3c9bf7ac"), //bane outsider chaotic
+                library.Get<BlueprintWeaponEnchantment>("20ba9055c6ae1e44ca270c03feacc53b"), //bane outsider evil
+                library.Get<BlueprintWeaponEnchantment>("a876de94b916b7249a77d090cb9be4f3"), //bane outsider good
+                library.Get<BlueprintWeaponEnchantment>("3a6f564c8ea2d1941a45b19fa16e59f5"), //bane outsider lawful
+                library.Get<BlueprintWeaponEnchantment>("4e30e79c500e5af4b86a205cc20436f2"), //bane outsider neutral
+                library.Get<BlueprintWeaponEnchantment>("0b761b6ed6375114d8d01525d44be5a9"), //bane plant
+                library.Get<BlueprintWeaponEnchantment>("eebb4d3f20b8caa43af1fed8f2773328"), //bane undead
+                library.Get<BlueprintWeaponEnchantment>("c3428441c00354c4fabe27629c6c64dd"), //bane vermin
+                library.Get<BlueprintWeaponEnchantment>("66e9e299c9002ea4bb65b6f300e43770"), //brillinat energy
+                library.Get<BlueprintWeaponEnchantment>("633b38ff1d11de64a91d490c683ab1c8"), //corrosive
+                library.Get<BlueprintWeaponEnchantment>("0f20d79b7049c0f4ca54ca3d1ea44baa"), //disruption
+                library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121"), //flaming
+                library.Get<BlueprintWeaponEnchantment>("3f032a3cd54e57649a0cdad0434bf221"), //flaming burst
+                library.Get<BlueprintWeaponEnchantment>("421e54078b7719d40915ce0672511d0b"), //frost
+                library.Get<BlueprintWeaponEnchantment>("564a6924b246d254c920a7c44bf2a58b"), //icy burst
+                library.Get<BlueprintWeaponEnchantment>("b606a3f5daa76cc40add055613970d2a"), //furious
+                library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f"), //ghost touch
+                library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140"), //holy
+                library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0"), //keen
+                library.Get<BlueprintWeaponEnchantment>("564a6924b246d254c920a7c44bf2a58b"), //shocking
+                library.Get<BlueprintWeaponEnchantment>("914d7ee77fb09d846924ca08bccee0ff"), //shocking burst
+                library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006"), //speed
+                library.Get<BlueprintWeaponEnchantment>("690e762f7704e1f4aa1ac69ef0ce6a96"), //thundering
+                library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"), //unholy
+                library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56"), //vicious
             };
 
             improved_weapon_shift = Helpers.CreateFeature("ImprovedWeaponShiftFeature",
@@ -292,8 +333,10 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
                                                                                                                                           {
-                                                                                                                                              t.transfer_type = TransferType.Except;
-                                                                                                                                              t.enchants = enchants2;
+                                                                                                                                              t.transfer_type = TransferType.Only;
+                                                                                                                                              t.enchants = improved_enchants;
+                                                                                                                                              //t.transfer_type = TransferType.Except;
+                                                                                                                                              //t.enchants = enchants2;
                                                                                                                                           }
                                                                                                                                          )
                                           );
@@ -328,9 +371,11 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
                                                                                                                                           {
-                                                                                                                                              t.transfer_type = TransferType.Except;
-                                                                                                                                              t.enchants = enchants2;
-                                                                                                                                              t.transfer_enhancement = true;
+                                                                                                                                              t.transfer_type = TransferType.Only;
+                                                                                                                                              t.enchants = WeaponEnchantments.standard_enchants;
+                                                                                                                                              //t.transfer_type = TransferType.Except;
+                                                                                                                                              //t.enchants = enchants2;
+                                                                                                                                              //t.transfer_enhancement = true;
                                                                                                                                           }
                                                                                                                                          )
                                           );
@@ -339,18 +384,9 @@ namespace CallOfTheWild
 
             foreach (var shape in druid_wild_shapes)
             {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff1, weapon_shift);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff2, improved_weapon_shift);
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff3, greater_weapon_shift);
-                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(shape, Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionCasterHasFact(improved_weapon_shift),
-                                                                                                                                                      Common.createContextConditionCasterHasFact(greater_weapon_shift, false)),
-                                                                                                                  Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true)
-                                                                                                                  )
-                                                                                  );
-                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(shape, Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionCasterHasFact(weapon_shift),
-                                                                                                                                      Common.createContextConditionCasterHasFact(greater_weapon_shift, false),
-                                                                                                                                      Common.createContextConditionCasterHasFact(improved_weapon_shift, false)),
-                                                                                                  Common.createContextActionApplyBuff(buff1, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true)
-                                                                                                  )
-                                                                  );
             }
             library.AddFeats(weapon_shift, improved_weapon_shift, greater_weapon_shift);
         }

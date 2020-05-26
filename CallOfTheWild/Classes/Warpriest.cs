@@ -4724,9 +4724,27 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.GetIcon("f68af48f9ebf32549b5f9fdc4edfd475"),
                                                 FeatureGroup.None,
-                                                Common.createAddParametrizedFeatures(NewFeats.deity_favored_weapon, WeaponCategory.Claw),
-                                                Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("289c13ba102d0df43862a488dad8a5d5"))//claws 1d4
+                                                Common.createAddParametrizedFeatures(NewFeats.deity_favored_weapon, WeaponCategory.Claw)
                                                 );
+            var buff = Helpers.CreateBuff("SacredClawsFeralChampionBuff",
+                                            sacred_claws.Name,
+                                            sacred_claws.Description,
+                                            "",
+                                            sacred_claws.Icon,
+                                            null,
+                                            Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("289c13ba102d0df43862a488dad8a5d5"))//claws 1d4
+                                            );
+            var toggle = Helpers.CreateActivatableAbility("SacredClawsFeralChampionToggle",
+                                                          sacred_claws.name,
+                                                          sacred_claws.Description,
+                                                          "",
+                                                          sacred_claws.Icon,
+                                                          buff,
+                                                          AbilityActivationType.Immediately,
+                                                          CommandType.Free,
+                                                          null
+                                                          );
+            sacred_claws.AddComponent(Helpers.CreateAddFact(toggle));
         }
     }
 }
