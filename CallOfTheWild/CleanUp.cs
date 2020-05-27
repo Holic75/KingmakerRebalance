@@ -46,6 +46,7 @@ using UnityEngine;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UnitLogic.Buffs;
 
 namespace CallOfTheWild
 {
@@ -198,5 +199,30 @@ namespace CallOfTheWild
             SaveGameFix.save_game_actions.Add(save_game_action);
         }
 
+
+
+        static internal void fixPolymorphSizeChangesStacking()
+        {
+            var size_buffs = new BlueprintBuff[]
+            {
+               Main.library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb"),//enlarge
+               Main.library.Get<BlueprintBuff>("b0793973c61a19744a8630468e8f4174"),//reduce
+               Main.library.Get<BlueprintBuff>("c84fbb4414925f344b894e9511626296"),//righteous might evil
+               Main.library.Get<BlueprintBuff>("17206974f2a2c164db26d1af7fac57d5"),//righteous might good
+               Main.library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a"), //animal growth
+               Main.library.Get<BlueprintBuff>("906262fda0fbda442b27f9b0a04e5aa0"),//frightful aspect
+               Main.library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3"),//legendary proprotions
+            };
+
+
+            var polymorphs = Main.library.GetAllBlueprints().OfType<BlueprintBuff>().Where(b => b.GetComponent<Polymorph>() != null).ToArray();
+            foreach (var p in polymorphs)
+            {
+                foreach (var szb in size_buffs)
+                {
+                    p.AddComponent(Common.createSpecificBuffImmunity(szb));
+                }
+            }
+        }
     }
 }

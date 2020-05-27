@@ -404,7 +404,8 @@ enchanced attacks,
 - Animate Dead spell works more akin to pnp (you need a corpse to raise a skeleton, and skeleton retains corpse's stats, size, HD and equipment, and lasts 10 minutes/cl, caster can not raise more than 4 * caster level HD of skeletons),
 - Flamedancer bard receives Song of the Fiery Gaze at level 3, he receives Fire Break Fire Dance at level 6 as per pnp rules,
 - Versatile performance works closer to pnp: bards can either receive a number of ranks equal to 1/2 bard level in specific skill for free and use charisma as skill stat, or choose martial performance or a masterpiece,
-- Archaelogist receives rogue talents at level 4, 8, 12, 16 and 20.
+- Archaelogist receives rogue talents at level 4, 8, 12, 16 and 20,
+- Polymorphs and size changes are no longer stackable.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -459,7 +460,8 @@ Notable differences from pnp:
 - Warrior Spirit Advanced Weapon Training option allows to apply any number of enchantments as long as their combined cost fits into available amount,
 - Condition removal DC for Master Healing Technique ability of divine herbalist oracle is increased by 5,
 - Monk/Ninja ki pools do not stack,
-- You can not use twf with unhindering shield.
+- You can not use twf with unhindering shield,
+- Kinetic Chirurgeon looses wild talents instead of infusions/infusion specializations/metakinesis. 
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

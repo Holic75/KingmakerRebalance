@@ -346,11 +346,7 @@ namespace CallOfTheWild.Archetypes
                                                                                                                           a.actions = Helpers.CreateActionList(spend_resource);
                                                                                                                           a.abilities = heal_varinats.Variants.Where(v => v.GetComponent<AbilityKineticist>().WildTalentBurnCost > 0).ToArray();
                                                                                                                       }
-                                                                                                                      ),
-                                          Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = buffer_resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.StartPlusDoubleDivStep, startLevel: 6, stepLevel: 5,
-                                                                          classes: new BlueprintCharacterClass[] { archetype.GetParentClass() }
-                                                                          )
+                                                                                                                      )
                                           );
 
             var ability = Helpers.CreateActivatableAbility("HealerBufferActivatableAbility",
@@ -367,7 +363,14 @@ namespace CallOfTheWild.Archetypes
             ability.DeactivateImmediately = true;
 
             healing_buffer = Common.ActivatableAbilityToFeature(ability, hide: false);
-            healing_buffer.AddComponent(Helpers.CreateAddAbilityResource(buffer_resource));
+            healing_buffer.AddComponents(Helpers.CreateAddAbilityResource(buffer_resource),
+                                         Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(c => { c.Resource = buffer_resource; c.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.StartPlusDoubleDivStep, startLevel: 6, stepLevel: 5,
+                                                                          classes: new BlueprintCharacterClass[] { archetype.GetParentClass() }
+                                                                          )
+                                        );
+            healing_buffer.ReapplyOnLevelUp = true;
+
             healing_buffer_resource = buffer_resource;
         }
 
