@@ -366,7 +366,14 @@ namespace CallOfTheWild.Archetypes
             foreach (var a in manifestation_abilities)
             {
                 a.GetComponent<AbilityResourceLogic>().CostIsCustom = true;
-                a.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_increasing_facts = new Kingmaker.Blueprints.Facts.BlueprintFact[] {bane.Buff }));
+                if (ability_1h2.Variants.Contains(a) || ability_light2.Variants.Contains(a) || ability_double.Variants.Contains(a))
+                {
+                    a.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_increasing_facts = new Kingmaker.Blueprints.Facts.BlueprintFact[] { bane.Buff, bane.Buff }));
+                }
+                else
+                {
+                    a.AddComponent(Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_increasing_facts = new Kingmaker.Blueprints.Facts.BlueprintFact[] { bane.Buff }));
+                }
             }
 
 
