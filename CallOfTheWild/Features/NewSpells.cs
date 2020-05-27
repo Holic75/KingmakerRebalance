@@ -5469,21 +5469,30 @@ namespace CallOfTheWild
 
             var icon = library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon; //keen weapon bond
 
-            keen_edge = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", "KeenEdgeAbility", "");
+            var keen_edge1 = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", "KeenEdgePrimaryHandAbility", "");
 
-            keen_edge.SetIcon(icon);
-            keen_edge.SetDescription("This spell makes a weapon magically keen, improving its ability to deal telling blows. This transmutation doubles the threat range of the weapon. A threat range of 20 becomes 19-20, a threat range of 19-20 becomes 17-20, and a threat range of 18-20 becomes 15-20. The spell can be cast only on piercing or slashing weapons. If cast on arrows or crossbow bolts, the keen edge on a particular projectile ends after one use, whether or not the missile strikes its intended target. Treat shuriken as arrows, rather than as thrown weapons, for the purpose of this spell.\n"
+            keen_edge1.SetIcon(icon);
+            keen_edge1.SetDescription("This spell makes a weapon magically keen, improving its ability to deal telling blows. This transmutation doubles the threat range of the weapon. A threat range of 20 becomes 19-20, a threat range of 19-20 becomes 17-20, and a threat range of 18-20 becomes 15-20. The spell can be cast only on piercing or slashing weapons. If cast on arrows or crossbow bolts, the keen edge on a particular projectile ends after one use, whether or not the missile strikes its intended target. Treat shuriken as arrows, rather than as thrown weapons, for the purpose of this spell.\n"
                 + "Multiple effects that increase a weapon’s threat range (such as the keen special weapon property and the Improved Critical feat) don’t stack. You can’t cast this spell on a natural weapon, such as a claw.");
-            keen_edge.SetName("Keen Edge");
-            keen_edge.setMiscAbilityParametersTouchFriendly();
-            keen_edge.RemoveComponents<AbilityDeliverTouch>();
-            var action = (keen_edge.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
+            keen_edge1.SetName("Keen Edge");
+            keen_edge1.setMiscAbilityParametersTouchFriendly();
+            keen_edge1.RemoveComponents<AbilityDeliverTouch>();
+            var action = (keen_edge1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
             action.Enchantment = keen_edge_enchant;
             action.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes);
 
-            keen_edge.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
-            keen_edge.LocalizedDuration = Helpers.tenMinPerLevelDuration;
+            keen_edge1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+            keen_edge1.LocalizedDuration = Helpers.tenMinPerLevelDuration;
 
+            var keen_edge2 = library.CopyAndAdd(keen_edge1, "KeenEdgeSecondaryHandAbility", "");
+            keen_edge2.SetName("Keen Edge (Off-Hand)");
+            var action2 = action.CreateCopy(a => a.Slot = Kingmaker.UI.GenericSlot.EquipSlotBase.SlotType.SecondaryHand);
+            keen_edge2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
+            keen_edge2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
+            keen_edge1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));
+
+            keen_edge = Common.createVariantWrapper("KeenEdgeAbility", "", keen_edge1, keen_edge2);
+            keen_edge.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
             keen_edge.AddToSpellList(Helpers.inquisitorSpellList, 3);
             keen_edge.AddToSpellList(Helpers.magusSpellList, 3);
             keen_edge.AddToSpellList(Helpers.wizardSpellList, 3);

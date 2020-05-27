@@ -562,6 +562,7 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class AbilitTargetManufacturedWeapon : BlueprintComponent, IAbilityTargetChecker
         {
+            public bool works_on_summoned = false;
             public bool off_hand = false;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
@@ -581,7 +582,7 @@ namespace CallOfTheWild
                 }
 
                 if (hand.HasWeapon)
-                    return !hand.Weapon.Blueprint.IsNatural && !hand.Weapon.Blueprint.IsUnarmed && !EnchantmentMechanics.Helpers.isSummoned(hand.Weapon);
+                    return !hand.Weapon.Blueprint.IsNatural && !hand.Weapon.Blueprint.IsUnarmed && (!EnchantmentMechanics.Helpers.isSummoned(hand.Weapon) || works_on_summoned);
                 return false;
             }
 
