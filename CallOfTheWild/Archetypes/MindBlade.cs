@@ -308,7 +308,7 @@ namespace CallOfTheWild.Archetypes
                                                 AlignmentMaskType.Chaotic);
             var bane = createEnchantmentAbility("MindBladeWeaponEnchancementBane",
                                                 "Psychic Weapon - Bane",
-                                                "A mindblade can add the bane property to her psychic weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\nA bane weapon excels against certain foes. Against a designated foe, the weapon's enhancement bonus is +2 better than its actual bonus. It also deals an extra 2d6 points of damage against such foes.",
+                                                "A mindblade can add the bane property to her psychic weapon(s), but she needs to pay 1 extra point from her psychic pool per manifested weapon (double weapons count as two weapons). These extra points are not recovered upon dismissing manifested weapons.\nA bane weapon excels against certain foes. Against a designated foe, the weapon's enhancement bonus is +2 better than its actual bonus. It also deals an extra 2d6 points of damage against such foes.",
                                                 library.Get<BlueprintActivatableAbility>("3a909d1effa3bbc4084f2b5ac95f5306").Icon,
                                                 library.Get<BlueprintWeaponEnchantment>("1a93ab9c46e48f3488178733be29342a"), //bane everything
                                                 1, ActivatableAbilityGroup.None,
@@ -354,6 +354,7 @@ namespace CallOfTheWild.Archetypes
 
 
             var bane_blade = library.CopyAndAdd<BlueprintFeature>("a2e0691dcfda2374e84d8bbf480e06a0", "MindBladeBaneBladeFeature", "");
+            bane_blade.SetDescription(bane.Description);
             bane_blade.ComponentsArray = new BlueprintComponent[]
             {
                 Helpers.CreateAddFacts(bane),
