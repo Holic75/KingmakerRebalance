@@ -612,6 +612,17 @@ namespace CallOfTheWild
         }
 
 
+        static public PrerequisiteArchetypeLevel createPrerequisiteArchetypeLevel(BlueprintArchetype archetype, int level, bool any = false)
+        {
+            var p = Helpers.Create<PrerequisiteArchetypeLevel>();
+            p.CharacterClass = archetype.GetParentClass();
+            p.Archetype = archetype;
+            p.Level = level;
+            p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
+            return p;
+        }
+
+
         static public Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency createArcaneArmorProficiency(params Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[] armor)
         {
             var p = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ArcaneArmorProficiency>();
@@ -2362,6 +2373,15 @@ namespace CallOfTheWild
             return createBuffContextEnchantPrimaryHandWeapon(value, only_non_magical, lock_slot, new BlueprintWeaponType[0], enchantments);
         }
 
+        static public NewMechanics.EnchantmentMechanics.BuffContextEnchantPrimaryHandWeapon createBuffContextEnchantSecondaryHandWeapon(ContextValue value,
+                                                                                                   bool only_non_magical, bool lock_slot,
+                                                                                                   params BlueprintWeaponEnchantment[] enchantments)
+        {
+            var c =  createBuffContextEnchantPrimaryHandWeapon(value, only_non_magical, lock_slot, new BlueprintWeaponType[0], enchantments);
+            c.in_off_hand = true;
+            return c;
+        }
+
 
         static public NewMechanics.EnchantmentMechanics.BuffContextEnchantArmor createBuffContextEnchantArmor(ContextValue value,
                                                                                                            bool only_non_magical, bool lock_slot,
@@ -3522,6 +3542,28 @@ namespace CallOfTheWild
                     }
                 }
             }
+        }
+
+
+        public static void excludeSpellsFromList(BlueprintSpellList base_list, params BlueprintAbility[] spells_to_exclude)
+        {
+            foreach (var sbl in base_list.SpellsByLevel)
+            {
+                var all_spells = sbl.Spells.ToArray();
+                foreach (var s in all_spells)
+                {
+                    if (spells_to_exclude.Contains(s))
+                    {
+                        sbl.Spells.Remove(s);
+                    }
+                }
+            }
+        }
+
+
+        public static void addSpellToSpellList(BlueprintSpellList base_list, BlueprintAbility spell, int level)
+        {
+            base_list.SpellsByLevel[level].Spells.Add(spell);
         }
 
 

@@ -261,7 +261,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.DivineTracker.create(); // blessings will be filled in warpriest part
                     CallOfTheWild.Warpriest.createWarpriestClass();
 
-                    
+                    CallOfTheWild.Archetypes.MindBlade.create();
                     CallOfTheWild.Archetypes.Evangelist.create();
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();

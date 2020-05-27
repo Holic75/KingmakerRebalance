@@ -1821,6 +1821,29 @@ namespace CallOfTheWild
         }
 
 
+
+        public class ActivatableAbilityMainHandWeaponEnhancementIfHasArchetype : ActivatableAbilityRestriction
+        {
+            public BlueprintArchetype archetype;
+            public BlueprintWeaponEnchantment enchant;
+
+            public override bool IsAvailable()
+            {
+                if (Owner.Progression.IsArchetype(archetype))
+                {
+                    return true;
+                }
+                var  weapon = Owner.Body?.PrimaryHand?.MaybeWeapon;
+                if (weapon == null || weapon.EnchantmentsCollection == null)
+                {
+                    return false;
+                }
+
+                return weapon.EnchantmentsCollection.HasFact(enchant);
+            }
+        }
+
+
         public class ActivatableAbilityNoAlignmentRestriction : ActivatableAbilityRestriction
         {
             [AlignmentMask]
@@ -6173,6 +6196,18 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterProficientWithWeaponCategory : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public WeaponCategory category;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                return ability.Caster.Proficiencies.Contains(category);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityShowIfHasClassLevel : BlueprintComponent, IAbilityVisibilityProvider
         {
             public BlueprintCharacterClass character_class;
@@ -8002,6 +8037,9 @@ namespace CallOfTheWild
                 return false;
             }
         }
+
+
+      
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]

@@ -45,6 +45,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection maneuver_mastery;
         static public BlueprintFeature familiar;
         static public BlueprintFeatureSelection spell_blending;
+        static public BlueprintFeatureSelection spell_blending_mindblade;
         static public BlueprintFeature reach_spellstrike;
 
         static BlueprintCharacterClass magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
@@ -92,7 +93,8 @@ namespace CallOfTheWild
                                                                           + "Special: A magus can select this magus arcana more than once.",
                                                                           "",
                                                                           icon,
-                                                                          FeatureGroup.None);
+                                                                          FeatureGroup.None,
+                                                                          Common.prerequisiteNoArchetype(Archetypes.MindBlade.archetype));
 
             var wizard_spell_list = library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89");
             for (int i = 1; i <= 6; i++)
@@ -115,6 +117,34 @@ namespace CallOfTheWild
 
             magus_arcana.AllFeatures = magus_arcana.AllFeatures.AddToArray(spell_blending);
             eldritch_magus_arcana.AllFeatures = eldritch_magus_arcana.AllFeatures.AddToArray(spell_blending);
+
+
+
+            spell_blending_mindblade = library.CopyAndAdd(spell_blending, "SpellBlendingMindbladeFeature", "");
+            spell_blending_mindblade.ComponentsArray = new BlueprintComponent[] { Common.createPrerequisiteArchetypeLevel(Archetypes.MindBlade.archetype, 1) };
+            spell_blending_mindblade.AllFeatures = new BlueprintFeature[0];
+
+            for (int i = 1; i <= 6; i++)
+            {
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"SpellBlendingMindblade{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = magus;
+                learn_spell.SpellList = Archetypes.MindBlade.extra_psychic_spell_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = Archetypes.MindBlade.extra_psychic_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = magus; });
+                learn_spell.AddComponents(Helpers.Create<PrerequisiteClassSpellLevel>(p => { p.CharacterClass = magus; p.RequiredSpellLevel = i; })
+                                          );
+                learn_spell.SetName(Helpers.CreateString($"SpellBlendingMindblade{i}ParametrizedFeature.Name", "Spell Blending " + $"(level {i})"));
+                learn_spell.SetDescription(spell_blending.Description);
+                learn_spell.SetIcon(spell_blending.Icon);
+
+                spell_blending_mindblade.AllFeatures = spell_blending_mindblade.AllFeatures.AddToArray(learn_spell);
+            }
+
+            magus_arcana.AllFeatures = magus_arcana.AllFeatures.AddToArray(spell_blending_mindblade);
+
+
         }
 
 

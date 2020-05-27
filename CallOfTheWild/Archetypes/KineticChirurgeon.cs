@@ -179,7 +179,6 @@ namespace CallOfTheWild.Archetypes
                 mercy_condition_map.Add(feature, descriptor);
             }
 
-            Main.logger.Log("MercyOk");
             var kinetic_healer = library.Get<BlueprintAbility>("eff667a3a43a77d45a193bb7c94b3a6c"); //kinetic healer
             var heal_varinats = kinetic_healer.GetComponent<AbilityVariants>();
             var mercy_actions = new List<GameAction>();
