@@ -33,7 +33,7 @@ It introduces new classes:
 New Archetypes for existing classes:
 - Vindictive Bastard Paladin archetype (implemented as a separate class),
 - Arrowsong Minstrel and Dirge Bard Bard archetypes,
-- Spirit Whisperer Wizard archetype,
+- Exploiter Wizard and Spirit Whisperer Wizard archetypes,
 - Nature Fang and Storm Druid Druid archetypes,
 - Evangelist and Undead Lord Cleric archetypes,
 - Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,

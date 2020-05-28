@@ -295,7 +295,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (!evt.Spell.Blueprint.IsSpell)
+                if (evt.Spell.Blueprint.Type != AbilityType.Spell)
                 {
                     return;
                 }

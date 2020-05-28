@@ -64,8 +64,11 @@ namespace CallOfTheWild
         static public BlueprintFeature consume_spells;
 
         static public BlueprintFeatureSelection arcane_exploits;
+        static public BlueprintFeatureSelection arcane_exploits_wizard;
+        static public BlueprintFeature arcane_reservoir_wizard;
         static public BlueprintFeature greater_arcane_exploits;
         static public BlueprintFeature quick_study;
+        static public BlueprintFeature quick_study_wizard;
         static public BlueprintFeature acid_jet;
         static public BlueprintFeature lingering_acid;
         static public BlueprintFeature arcane_barrier;
@@ -121,6 +124,8 @@ namespace CallOfTheWild
 
         static public BlueprintBuff dc_buff, cl_buff;
 
+        static public BlueprintArchetype exploiter_wizard_archetype;
+
         internal static void createArcanistClass()
         {
             Main.logger.Log("Arcanist class test mode: " + test_mode.ToString());
@@ -170,6 +175,39 @@ namespace CallOfTheWild
             arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist };
             createArcanistFeats();
             addToPrestigeClasses();
+
+            createExploiterWizard();
+        }
+
+
+        static void createExploiterWizard()
+        {
+            var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            exploiter_wizard_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ExploiterWizardArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Exploiter Wizard");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Contrary to traditional wizardly study, an exploiter wizard forgoes the tried and true methods of arcane focus and arcane schools for the exploits favored by an arcanist.Some wizards regard this blatant exploitation of arcane magic as somehow “cheating,” but most exploiters believe this prejudice is close - minded and overly traditional.");
+            });
+            Helpers.SetField(exploiter_wizard_archetype, "m_ParentClass", wizard);
+            library.AddAsset(exploiter_wizard_archetype, "");
+
+            var school_selection = library.Get<BlueprintFeatureSelection>("5f838049069f1ac4d804ce0862ab5110");
+            var arcane_bond = library.Get<BlueprintFeatureSelection>("03a1781486ba98043afddaabf6b7d8ff");
+
+
+            exploiter_wizard_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_selection, arcane_bond)
+                                                       };
+
+            exploiter_wizard_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_reservoir_wizard, arcane_exploits_wizard),
+                                                                                           Helpers.LevelEntry(5, arcane_exploits_wizard),
+                                                                                           Helpers.LevelEntry(9, arcane_exploits_wizard),
+                                                                                           Helpers.LevelEntry(13, arcane_exploits_wizard),
+                                                                                           Helpers.LevelEntry(17, arcane_exploits_wizard)
+                                                                                          };
+
+            wizard.Progression.UIDeterminatorsGroup = wizard.Progression.UIDeterminatorsGroup.AddToArray(arcane_reservoir_wizard);
+            wizard.Archetypes = wizard.Archetypes.AddToArray(exploiter_wizard_archetype);
         }
 
 
@@ -547,12 +585,13 @@ namespace CallOfTheWild
 
         static void createArcaneReservoirAndPotentMagic()
         {
+            var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             arcane_reservoir_resource = Helpers.CreateAbilityResource("ArcaneReservoirFullResource", "", "", "", null);
-            arcane_reservoir_resource.SetIncreasedByLevel(3, 1, getArcanistArray());
+            arcane_reservoir_resource.SetIncreasedByLevel(3, 1, getExploitsUserArray());
 
 
             arcane_reservoir_partial_resource = Helpers.CreateAbilityResource("ArcaneReservoirPartialResource", "", "", "", null);
-            arcane_reservoir_partial_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getArcanistArray());
+            arcane_reservoir_partial_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getExploitsUserArray());
             arcane_reservoir_resource.AddComponent(Helpers.Create<ResourceMechanics.FakeResourceAmountFullRestore>(f => f.fake_resource = arcane_reservoir_partial_resource));
 
             var icon = library.Get<BlueprintFeature>("55edf82380a1c8540af6c6037d34f322").Icon; //elven magic
@@ -583,6 +622,8 @@ namespace CallOfTheWild
                                              null,
                                              Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
                                              Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
+                                             Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = wizard.Spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                             Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = wizard.Spellbook; s.resource = arcane_reservoir_resource; }),
                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {arcane_reservoir, potent_magic})
                                              );
             arcane_reservoir_spell_dc_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellDCToggleAbility",
@@ -608,6 +649,8 @@ namespace CallOfTheWild
                                  null,
                                  Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
+                                 Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = wizard.Spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                 Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = wizard.Spellbook; s.resource = arcane_reservoir_resource; }),
                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] { arcane_reservoir, potent_magic })
                                  );
 
@@ -627,12 +670,21 @@ namespace CallOfTheWild
 
 
             arcane_reservoir.AddComponent(Helpers.CreateAddFacts(arcane_reservoir_spell_dc_boost, arcane_reservoir_caster_level_boost));
+
+            arcane_reservoir_wizard = library.CopyAndAdd(arcane_reservoir, "WizardArcaneReservoir", "");
+            arcane_reservoir_wizard.SetDescription("At 1st level, the exploiter wizard gains the arcanist’s arcane reservoir class feature. The exploiter wizard uses his wizard level as his arcanist level for determining how many arcane reservoir points he gains at each level.");
         }
 
 
         static BlueprintCharacterClass[] getArcanistArray()
         {
             return new BlueprintCharacterClass[] { arcanist_class };
+        }
+
+
+        static BlueprintCharacterClass[] getExploitsUserArray()
+        {
+            return new BlueprintCharacterClass[] { arcanist_class, library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e") };
         }
 
 
@@ -761,7 +813,8 @@ namespace CallOfTheWild
                                                              "",
                                                              greater_icon,
                                                              FeatureGroup.None);
-            createQuickStudy();           
+            createQuickStudy();
+            createQuickStudyWizard();
             createArcaneBarrier();
             createArcaneWeapon();
             createEnergyShieldAndEnergyAbsorption();
@@ -785,6 +838,87 @@ namespace CallOfTheWild
                                                                  spell_resistance, wooden_flesh,
                                                                  energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge,
                                                                  greater_spell_resistance};
+
+            arcane_exploits_wizard = Helpers.CreateFeatureSelection("ArcaneExploitsWizardFeatureSelection",
+                                                 "Arcanist Exploits",
+                                                 "At 1st level and every 4 levels thereafter, the exploiter wizard gains a single arcanist exploit. The exploiter wizard uses his wizard level as his arcanist level for determining the effects and DCs of his arcanist exploits.",
+                                                 "",
+                                                 icon,
+                                                 FeatureGroup.None);
+            arcane_exploits_wizard.AllFeatures = new BlueprintFeature[]
+            {
+                quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
+                flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, swift_consume,
+                spell_resistance, wooden_flesh
+            };
+        }
+
+
+        static void createQuickStudyWizard()
+        {
+            var wizard_class = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            quick_study_wizard = Helpers.CreateFeature("QuickStudyWizardFeature",
+                                           quick_study.Name,
+                                           "The exploiter wizard can prepare a spell in place of an existing spell by expending 1 point from her arcane reservoir. Using this ability is a full-round action that provokes an attack of opportunity. The arcanist must be able to reference her spellbook when using this ability. The spell prepared must be of the same level as the spell being replaced.",
+                                           "",
+                                           quick_study.Icon,
+                                           FeatureGroup.Feat);
+
+            var initiate = new BlueprintAbility[9];
+            var relearn = new BlueprintAbility[9];
+            var buffs = new BlueprintBuff[9];
+
+            for (int i = 0; i < 9; i++)
+            {
+                var buff = Helpers.CreateBuff($"QuickStudyInitiated{i+1}Buff",
+                                              "Quick Study " + Common.roman_id[i + 1],
+                                              quick_study_wizard.Description,
+                                              "",
+                                              quick_study_wizard.Icon,
+                                              null);
+                buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+
+                relearn[i] = Helpers.CreateAbility($"QuickStudyMemorize{i+1}Ability",
+                                                    buff.Name + " (Pick Spell to Memorize)",
+                                                    quick_study_wizard.Description,
+                                                    "",
+                                                    quick_study_wizard.Icon,
+                                                    AbilityType.Special,
+                                                    CommandType.Free,
+                                                    AbilityRange.Personal,
+                                                    "",
+                                                    "",
+                                                    Helpers.Create<AbilityRestoreSpellSlot>(a => a.SpellLevel = i + 1),
+                                                    Common.createAbilityCasterHasFacts(buff),
+                                                    Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff)))
+                                                    );
+
+                initiate[i] = Helpers.CreateAbility($"QuickStudyInitiate{i+1}Ability",
+                                                    buff.Name + " (Pick Spell to Forget)",
+                                                    quick_study_wizard.Description,
+                                                    "",
+                                                    quick_study_wizard.Icon,
+                                                    AbilityType.SpellLike,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    "",
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)),
+                                                    arcane_reservoir_resource.CreateResourceLogic()
+                                                    );
+                Common.setAsFullRoundAction(initiate[i]);
+                buffs[i] = buff;
+                buff.AddComponent(Helpers.CreateAddFact(relearn[i]));
+            }
+
+            foreach (var i in initiate)
+            {
+                i.AddComponent(Common.createAbilityCasterHasNoFacts(buffs));
+            }
+
+            //quick_study_wizard.AddComponent(Helpers.CreateAddFacts(relearn));
+            quick_study_wizard.AddComponent(Common.createSpontaneousSpellConversion(wizard_class, new BlueprintAbility[] { null }.AddToArray(initiate)));
         }
 
 
@@ -794,7 +928,7 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("WoodenFleshExploitBuff",
                                           "Wooden Flesh",
-                                          "The arcanist infuses herself with the toughness of the plant life that she studies.The arcanist can spend 1 point from her arcane reservoir to gain a + 2 natural armor bonus and DR / slashing equal to her Charisma modifier(minimum 1) for 1 minute per arcanist level.While this ability is in effect, she counts as both her original creature type and a plant creature for the purpose of abilities and spells.",
+                                          "The arcanist infuses herself with the toughness of the plant life that she studies.The arcanist can spend 1 point from her arcane reservoir to gain a + 2 natural armor bonus and DR / slashing equal to her Charisma modifier(minimum 1) for 1 minute per arcanist level. While this ability is in effect, she counts as both her original creature type and a plant creature for the purpose of abilities and spells.",
                                           "",
                                           icon,
                                           null,
@@ -859,7 +993,7 @@ namespace CallOfTheWild
                                                                                                             ),
                                                                              sharedValue: AbilitySharedValue.StatBonus
                                                                             ),
-                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray()),
+                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray()),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, type: AbilityRankType.StatBonus,
                                                                           featureList: new BlueprintFeature[] { spell_resistance, greater_spell_resistance },
                                                                           progression: ContextRankProgression.Custom,
@@ -918,9 +1052,9 @@ namespace CallOfTheWild
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic),
                                                         library.Get<BlueprintAbility>("8e7cfa5f213a90549aadd18f8f6f4664").GetComponent<AbilitySpawnFx>(),
                                                         Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
-                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getExploitsUserArray(), StatType.Charisma),
                                                         Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Sonic]))))
                                                         );
             sonic_blast_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -1019,9 +1153,9 @@ namespace CallOfTheWild
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                                         library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f").GetComponent<AbilityDeliverProjectile>(),
                                                         Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
-                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getExploitsUserArray(), StatType.Charisma),
                                                         Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Electricity]))))
                                                         );
             lightning_lance_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -1077,9 +1211,9 @@ namespace CallOfTheWild
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                         library.Get<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791").GetComponent<AbilityDeliverProjectile>(),
                                                         Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
-                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getExploitsUserArray(), StatType.Charisma),
                                                         Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Cold]))))
                                                         );
             ice_missile_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -1140,7 +1274,7 @@ namespace CallOfTheWild
                                                 "",
                                                 force_missile.GetComponent<AbilityDeliverProjectile>(),
                                                 Helpers.CreateRunActions(damage),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray()),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray()),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                 Helpers.CreateResourceLogic(arcane_reservoir_resource)
                                                 );
@@ -1189,9 +1323,9 @@ namespace CallOfTheWild
                                                         Helpers.CreateResourceLogic(arcane_reservoir_resource),
                                                         library.Get<BlueprintAbility>("93cc42235edc6824fa7d54b83ed4e1fe").GetComponent<AbilityDeliverProjectile>(), // water torrent
                                                         Helpers.CreateRunActions(SavingThrowType.Reflex, damage),
-                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma)
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getExploitsUserArray(), StatType.Charisma)
                                                         );
             ability.setMiscAbilityParametersRangedDirectional();
             holy_water_jet = Common.AbilityToFeature(ability, false);
@@ -1219,9 +1353,9 @@ namespace CallOfTheWild
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
                                                         library.Get<BlueprintAbility>("5e4c7cb990de4034bbee9fb99be2e15d").GetComponent<AbilityDeliverProjectile>(),
                                                         Helpers.CreateRunActions(SavingThrowType.Reflex, base_damage),
-                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getExploitsUserArray(), StatType.Charisma),
                                                         Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Fire]))))
                                                         );
             flame_arc_ability.setMiscAbilityParametersRangedDirectional(test_mode);
@@ -1343,9 +1477,9 @@ namespace CallOfTheWild
                                                         acid_arrow.GetComponent<AbilityDeliverProjectile>(),
                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
                                                         Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_effect),
-                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.OnePlusDiv2), //base damage
                                                         Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 0), //extra damage
-                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getArcanistArray(), StatType.Charisma),
+                                                        Common.createContextCalculateAbilityParamsBasedOnClasses(getExploitsUserArray(), StatType.Charisma),
                                                         Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(energy_absorption_buffs[DamageEnergyType.Acid]))))
                                                         );
             acid_jet_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -1401,7 +1535,7 @@ namespace CallOfTheWild
 
             var lingering_acid_ability = library.CopyAndAdd<BlueprintAbility>(acid_jet_ability.AssetGuid, "LingeringAcidExploitAbility", "");
             lingering_acid_ability.SetNameDescriptionIcon(lingering_acid.Name, lingering_acid.Description, lingering_acid.Icon);
-            lingering_acid_ability.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDiceAlternative, baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray(), progression: ContextRankProgression.DelayedStartPlusDivStep, startLevel: 3, stepLevel: 4));
+            lingering_acid_ability.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDiceAlternative, baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: ContextRankProgression.DelayedStartPlusDivStep, startLevel: 3, stepLevel: 4));
             lingering_acid_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(SavingThrowType.Fortitude, base_damage, extra_lingering));
             lingering_acid_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(arcane_reservoir_resource, amount: 2, cost_is_custom: true));
 
@@ -1447,7 +1581,7 @@ namespace CallOfTheWild
                                               null,
                                               Common.createEnergyDRContextRank(energy[i], AbilityRankType.Default, 5),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                               startLevel: -5, stepLevel: 5, max: 6, classes: getArcanistArray()),
+                                                                               startLevel: -5, stepLevel: 5, max: 6, classes: getExploitsUserArray()),
                                               Helpers.Create<NewMechanics.ActionOnDamageAbsorbed>(a =>
                                               {
                                                   a.min_dmg = 10;
@@ -1468,7 +1602,7 @@ namespace CallOfTheWild
                                                                   "1 minute/ arcanist level",
                                                                   "",
                                                                   Helpers.CreateRunActions(apply_buff),
-                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray()),
+                                                                  Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray()),
                                                                   resist_variants[i].GetComponent<AbilitySpawnFx>(),
                                                                   Helpers.CreateResourceLogic(arcane_reservoir_resource)
                                                                   );
@@ -1575,8 +1709,7 @@ namespace CallOfTheWild
                                                                          Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(a => a.not = true),
                                                                          Helpers.CreateRunActions(apply_buff),
                                                                          arcane_weapon_magus.GetComponent<AbilitySpawnFx>(),
-                                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1),
-                                                                         Helpers.PrerequisiteClassLevel(arcanist_class, 5)
+                                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1)
                                                                          );
             arcane_weapon_ability.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
             arcane_weapon_ability.NeedEquipWeapons = true;
@@ -1589,7 +1722,8 @@ namespace CallOfTheWild
                                                   arcane_weapon_ability.Icon,
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFacts(arcane_weapon_ability, flaming, frost, shock, keen),
-                                                  Helpers.PrerequisiteClassLevel(arcanist_class, 5)
+                                                  Helpers.PrerequisiteClassLevel(arcanist_class, 5, any: true),
+                                                  Helpers.PrerequisiteClassLevel(library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e"), 5, any: true)
                                                   );
 
             var arcane_weapon2 = Helpers.CreateFeature("ArcanistArcaneWeaponEnchancement2Feature",
@@ -1619,9 +1753,9 @@ namespace CallOfTheWild
                                 Common.createIncreaseActivatableAbilityGroupSize(arcane_weapon_group)
                                 );
 
-            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon2, 9, getArcanistArray()));
-            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon3, 13, getArcanistArray()));
-            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon4, 17, getArcanistArray()));
+            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon2, 9, getExploitsUserArray()));
+            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon3, 13, getExploitsUserArray()));
+            arcane_weapon_ability.AddComponent(Helpers.CreateAddFeatureOnClassLevel(arcane_weapon4, 17, getExploitsUserArray()));
         }
 
         static void createArcaneBarrier()
@@ -1645,7 +1779,7 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.Create<TemporaryHitPointsFromAbilityValue>(t => { t.Value = Helpers.CreateContextValue(AbilityRankType.Default); t.RemoveWhenHitPointsEnd = true; }),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueTypeExtender.ClassLevelPlusStatValue.ToContextRankBaseValueType(),
-                                                                          classes: getArcanistArray(), stat: StatType.Charisma, min: 0)
+                                                                          classes: getExploitsUserArray(), stat: StatType.Charisma, min: 0)
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
 
@@ -1663,7 +1797,7 @@ namespace CallOfTheWild
                                                 library.Get<BlueprintAbility>("183d5bb91dea3a1489a6db6c9cb64445").GetComponent<AbilitySpawnFx>(),
                                                 Helpers.CreateResourceLogic(arcane_reservoir_resource, cost_is_custom: true),
                                                 Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => { r.cost_increasing_facts = new BlueprintFact[] { arcane_barrier_cost_buff }; }),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getArcanistArray())
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray())
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
 
