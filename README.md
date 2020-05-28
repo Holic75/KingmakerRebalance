@@ -154,7 +154,7 @@ New rage powers:
 
 New features:
 - Share Spell for animal companions,
-- Druids can use armor while in wild shape (optional),
+- Wild Armor enchantment on certain unique armors, optionally you can enable wild enchantment on all items,
 - Animal companions can now equip headgear, belts, bracers, capes and amulets,
 - Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log,
 - Animal companions now level up manually,

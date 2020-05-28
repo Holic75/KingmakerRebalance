@@ -45,6 +45,7 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using static CallOfTheWild.NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph;
 using static Kingmaker.Blueprints.BlueprintUnit;
 using Kingmaker.Items.Slots;
+using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 
 namespace CallOfTheWild
 {
@@ -444,6 +445,33 @@ namespace CallOfTheWild
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff, wild_armor_feature);
             }
+
+
+            var enchant = Common.createArmorEnchantment("WildArmorEnchantment", "Wild", wild_armor_feature.Description, "Wild", "", "8cc52c63f3494254bb69ad3fa3a31d73", 10, 3);
+            enchant.AddComponent(Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = wild_armor_feature));
+            var armor_guids = new string[]
+            {
+                "d0808425cbe661140a636de0ca1a1535", //dragonscale plate
+                "71e8a7c15aeebcf4ea11370f3d35ad58", //bone scale mail
+                "2c4699388c4b9c14dbc7d50bdab30c87", //blizzards heart
+                "c135396b3bf22a14e99ac2c4c8860dca", //burned protector
+                "dfe9839fab2afe846b6c8c4acde1b19d", //giant snake skin
+                "0c75e3a3025240247bc3388040e82ddd", //hide owlbear
+                "7981ac4c52f4dbe4fabb19884aaacea3", //hodag armor
+                "8fa54f5d50b3fd44abb6e5045f6e3fcb", //linnorm hide
+                "90a937ee70b7e8d4fa48d796022921d4", //oaks leather
+                "be870ed4eb418a9459e2e8e991252861", //second skin
+                "caef4e3a5dace8e49a938cafc0a9b3e6", //primal hide
+                "9c1dd7e5c3dc25e4cb12116950dff129" //black dragon plate
+            };
+
+            foreach (var ag in armor_guids)
+            {
+                var armor = library.Get<BlueprintItemArmor>(ag);
+                Common.addArmorEnchantment(armor, enchant);
+            }
+
+            
         }
 
         static void createEngulf()

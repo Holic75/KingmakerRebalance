@@ -211,7 +211,7 @@ namespace CallOfTheWild
                Main.library.Get<BlueprintBuff>("17206974f2a2c164db26d1af7fac57d5"),//righteous might good
                Main.library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a"), //animal growth
                Main.library.Get<BlueprintBuff>("906262fda0fbda442b27f9b0a04e5aa0"),//frightful aspect
-               Main.library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3"),//legendary proprotions
+               Main.library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3"),//legendary proportions
             };
 
 
