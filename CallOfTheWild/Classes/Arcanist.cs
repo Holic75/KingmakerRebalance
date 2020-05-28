@@ -173,10 +173,11 @@ namespace CallOfTheWild
             createOccultist();
 
             arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist };
+            createExploiterWizard();
             createArcanistFeats();
             addToPrestigeClasses();
 
-            createExploiterWizard();
+            
         }
 
 
@@ -516,7 +517,8 @@ namespace CallOfTheWild
                                                     FeatureGroup.Feat,
                                                     Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = arcane_reservoir_resource; i.Value = 3; }),
                                                     Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = arcane_reservoir_partial_resource; i.Value = 3; }),
-                                                    Helpers.PrerequisiteClassLevel(arcanist_class, 1)
+                                                    Helpers.PrerequisiteClassLevel(arcanist_class, 1, any: true),
+                                                    Common.createPrerequisiteArchetypeLevel(exploiter_wizard_archetype, 1, any: true)
                                                     );
 
             extra_reservoir.Ranks = 10;
