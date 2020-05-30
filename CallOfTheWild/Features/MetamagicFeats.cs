@@ -255,6 +255,7 @@ namespace CallOfTheWild
             library.AddFeats(feat);
             var selections = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("d6dd06f454b34014ab0903cb1ed2ade3"),
                                                             library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899"),
+                                                            library.Get<BlueprintFeatureSelection>("66befe7b24c42dd458952e3c47c93563") //magus bonus feats
                                                            };
 
             foreach (var s in selections)

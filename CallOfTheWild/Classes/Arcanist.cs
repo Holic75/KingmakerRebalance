@@ -850,8 +850,7 @@ namespace CallOfTheWild
             arcane_exploits_wizard.AllFeatures = new BlueprintFeature[]
             {
                 quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
-                flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, swift_consume,
-                spell_resistance, wooden_flesh
+                flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh
             };
         }
 

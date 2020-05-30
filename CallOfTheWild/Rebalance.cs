@@ -692,7 +692,7 @@ namespace CallOfTheWild
 
             var bonded = library.Get<BlueprintFeature>("aa34ca4f3cd5e5d49b2475fcfdf56b24");
 
-            bonded.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.value = -2; c.spells = new BlueprintAbility[0]; }));
+            bonded.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.value = -2; c.spells = new BlueprintAbility[0];}));
             bonded.SetDescription(bonded.Description + "\nThis ability replaces the increase to channel energy gained at 3rd level.");
 
             var long_blessing = library.Get<BlueprintAbility>("3ef665bb337d96946bcf98a11103f32f");

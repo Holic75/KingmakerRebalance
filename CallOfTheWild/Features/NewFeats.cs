@@ -1548,7 +1548,7 @@ namespace CallOfTheWild
 
             target_of_opportunity = library.CopyAndAdd<BlueprintFeature>("e45ab30f49215054e83b4ea12165409f", "TargetOfOpportunityFeature", "");
             target_of_opportunity.SetName("Target of Opportunity");
-            target_of_opportunity.SetDescription("When an ally who also has this feat makes a ranged attack and hits an opponent within 30 feet of you, you can spend an immediate action to make a single ranged attack against that opponent.");
+            target_of_opportunity.SetDescription("When an ally who also has this feat makes a ranged attack and hits an opponent within 30 feet of you, you can spend a swift action to make a single ranged attack against that opponent.");
             target_of_opportunity.SetIcon(icon);
             target_of_opportunity.RemoveComponents<SpellImmunityToSpellDescriptor>();
             target_of_opportunity.RemoveComponents<BuffDescriptorImmunity>();

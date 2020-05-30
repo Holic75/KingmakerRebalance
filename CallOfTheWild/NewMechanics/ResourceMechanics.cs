@@ -6,12 +6,14 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Parts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +48,45 @@ namespace CallOfTheWild.ResourceMechanics
                 unit.Descriptor.Resources.Restore(Resource, unit.Descriptor.Resources.GetResourceAmount(Resource));
             }
 
+        }
+    }
+
+
+    public class RestoreResourceAmountEqualToRemainingGroupSize : ContextAction
+    {
+        public ActivatableAbilityGroup group;
+        public BlueprintAbilityResource resource;
+
+        public override string GetCaption()
+        {
+            return "Restore resource equal to remaining group size";
+        }
+
+        public override void RunAction()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                UberDebug.LogError("Target is missing");
+                return;
+            }
+
+            int amount = getRemainingGroupSize(unit.Descriptor);
+            unit.Descriptor.Resources.Restore(resource, amount);
+        }
+
+        private int getRemainingGroupSize(UnitDescriptor unit)
+        {
+            int remaining_group_size = unit.Ensure<UnitPartActivatableAbility>().GetGroupSize(this.group);
+
+            foreach (var a in unit.ActivatableAbilities)
+            {
+                if (a.Blueprint.Group == group && a.IsOn)
+                {
+                    remaining_group_size -= a.Blueprint.WeightInGroup;
+                }
+            }
+            return remaining_group_size;
         }
     }
 

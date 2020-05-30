@@ -299,6 +299,7 @@ namespace CallOfTheWild
                     CallOfTheWild.KineticistFix.load();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
+                    CallOfTheWild.Archetypes.SacredServant.create();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 

@@ -138,6 +138,7 @@
     <Compile Include="Archetypes\NatureBondedMagus.cs" />
     <Compile Include="Archetypes\Ninja.cs" />
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
+    <Compile Include="Archetypes\SacredServant.cs" />
     <Compile Include="Archetypes\SanctifiedSlayer.cs" />
     <Compile Include="Archetypes\Seeker.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />

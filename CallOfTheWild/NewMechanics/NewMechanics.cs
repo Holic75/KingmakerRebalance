@@ -3783,7 +3783,7 @@ namespace CallOfTheWild
 
                 if (!correct_dc && !evt.Spell.IsSpell)
                 {
-                    evt.AddBonusDC((multiplier * bonus / 2));
+                    evt.AddBonusDC(-(multiplier * bonus / 2));
                 }
             }
 
