@@ -75,9 +75,7 @@ namespace CallOfTheWild
             var domains = domain_selection.AllFeatures;
             foreach (var domain_feature in domains)
             {
-
-                BlueprintProgression domain = domain_feature as BlueprintProgression;
-                addClassToProgression(class_to_add, archetypes_to_add, spells_type, domain);
+                addClassToFact(class_to_add, archetypes_to_add, spells_type, domain_feature);
             }
         }
 
@@ -125,6 +123,7 @@ namespace CallOfTheWild
                     }
                     addClassToFact(class_to_add, archetypes_to_add, spells_type, af);
                 }
+                addClassToFeat(class_to_add, archetypes_to_add, spells_type, (f as BlueprintFeatureBase));
             }
             else if (f is BlueprintProgression)
             {
@@ -367,6 +366,11 @@ namespace CallOfTheWild
                     var c_typed = c as IncreaseSpellDamageByClassLevel;
                     c_typed.AdditionalClasses = c_typed.AdditionalClasses.AddToArray(class_to_add);
                     c_typed.Archetypes = c_typed.Archetypes.AddToArray(archetypes_to_add);
+                }
+                if (c is AddFeatureOnApply)
+                {
+                    var c_typed = c as AddFeatureOnApply;
+                    addClassToFact(class_to_add, archetypes_to_add, spells_type, c_typed.Feature);
                 }
                 else if (c is AddFeatureOnClassLevel)
                 {

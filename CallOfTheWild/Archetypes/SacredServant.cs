@@ -62,6 +62,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintAbility divine_bond_ability;
         static public BlueprintBuff divine_bond_buff;
         static public BlueprintFeature call_celestial_ally;
+        static public BlueprintFeatureSelection paladin_deity;
 
         static LibraryScriptableObject library => Main.library;
        
@@ -85,7 +86,7 @@ namespace CallOfTheWild.Archetypes
             createDivineBond();
             createCallCelestialAlly();
 
-            var smite_evil_extra = library.Get<BlueprintFeature>("SmiteEvilAdditionalUse");
+            var smite_evil_extra = library.Get<BlueprintFeature>("0f5c99ffb9c084545bbbe960b825d137");
             var weapon_bond_feature = library.Get<BlueprintFeature>("1c7cdc1605554954f838d85bbdd22d90");
             var weapon_bond_feature2 = library.Get<BlueprintFeature>("c8db0772b7059ec4eabe55b7e0e79824");
             var weapon_bond_feature3 = library.Get<BlueprintFeature>("d2f45a2034d4f7643ba1a450bc5c4c06");
@@ -95,7 +96,8 @@ namespace CallOfTheWild.Archetypes
             var weapon_bond_extra_use = library.Get<BlueprintFeature>("5a64de5435667da4eae2e4c95ec87917");
             var aura_of_resolve = library.Get<BlueprintFeature>("a28693b24cc412c478b8b85877f2dad2");
 
-            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(4, smite_evil_extra),
+            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, paladin_deity),
+                                                          Helpers.LevelEntry(4, smite_evil_extra),
                                                           Helpers.LevelEntry(5,  weapon_bond_feature),
                                                           Helpers.LevelEntry(8, aura_of_resolve, weapon_bond_feature2),
                                                           Helpers.LevelEntry(9, weapon_bond_extra_use),
@@ -108,7 +110,7 @@ namespace CallOfTheWild.Archetypes
                                                           Helpers.LevelEntry(20,  weapon_bond_feature6),
                                                        };
 
-            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, domain_selection),
+            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, paladin_deity, domain_selection),
                                                        Helpers.LevelEntry(5, divine_bond[0]),
                                                        Helpers.LevelEntry(8, divine_bond[1], call_celestial_ally),
                                                        Helpers.LevelEntry(11, divine_bond[2]),
@@ -118,23 +120,27 @@ namespace CallOfTheWild.Archetypes
                                                      };
 
             paladin_class.Progression.UIDeterminatorsGroup = paladin_class.Progression.UIDeterminatorsGroup.AddToArray(domain_selection);
-            paladin_class.Progression.UIGroups = paladin_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(divine_bond));
+            paladin_class.Progression.UIGroups[0].Features.AddRange(divine_bond);
+            paladin_class.Progression.UIGroups[2].Features.Add(call_celestial_ally);
             paladin_class.Archetypes = paladin_class.Archetypes.AddToArray(archetype);
         }
 
 
         static void createDomainSelection()
         {
+            paladin_deity = library.Get<BlueprintFeatureSelection>("a7c8b73528d34c2479b4bd638503da1d");
+            paladin_deity.Group = FeatureGroup.Deities;
             var cleric_domain = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             domain_selection = library.CopyAndAdd(cleric_domain, "SacredServantDomainSelection", "");
             ClassToProgression.addClassToDomains(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.SpecialList, domain_selection);
             domain_selection.SetDescription("Sacred Servant chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of paladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
+            archetype.GetParentClass().Spellbook.CantripsType = CantripsType.Orisions; //to properly show domain slots
         }
 
 
         static void createCallCelestialAlly()
         {
-            var resource = Helpers.CreateAbilityResource("SacredServantDivineBondResource", "", "", "", null);
+            var resource = Helpers.CreateAbilityResource("SacredServantCelestialAllyResource", "", "", "", null);
             resource.SetFixedResource(1);
             var summons = new BlueprintAbility[]
             {
@@ -155,7 +161,7 @@ namespace CallOfTheWild.Archetypes
 
             var ability = Helpers.CreateAbility("SacredServantCallCelestialAllyAbility",
                                                 "Call Celestial Ally",
-                                                "At 8th level, a sacred servant can call upon her deity for aid, in the form of a powerful servant. This allows the sacred servant to bralani azata once per day as a spell-like ability for 1 minute per sacred servant level. At 12th level, she can summon movanic deva instead and and ghaelle azata at 16th level.",
+                                                "At 8th level, a sacred servant can call upon her deity for aid, in the form of a powerful servant. This allows the sacred servant to bralani azata once per day as a spell-like ability for 1 minute per sacred servant level. At 12th level, she can summon movanic deva instead. Finally, at 16th level, a sacred servant can summon ghaelle azata.",
                                                 "",
                                                 Helpers.GetIcon("b1c7576bd06812b42bda3f09ab202f14"),
                                                 AbilityType.SpellLike,
@@ -176,7 +182,7 @@ namespace CallOfTheWild.Archetypes
                                                 );
             Common.setAsFullRoundAction(ability);
             ability.setMiscAbilityParametersRangedDirectional();
-            call_celestial_ally = Common.AbilityToFeature(ability);
+            call_celestial_ally = Common.AbilityToFeature(ability, false);
             call_celestial_ally.AddComponent(resource.CreateAddAbilityResource());
         }
 
@@ -220,7 +226,7 @@ namespace CallOfTheWild.Archetypes
 
 
             cl_bonuses = createSacredBondAbility("SacredServantDivineBondCLBonus",
-                                                 "Caster Level",
+                                                 "Caster Level Bonus",
                                                  divine_bond_buff.Description,
                                                  cl_icon,
                                                  Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = archetype.GetParentClass().Spellbook; cl.Value = 1; }),
@@ -248,17 +254,17 @@ namespace CallOfTheWild.Archetypes
                                                          "Channel Energy Dice Bonus",
                                                          divine_bond_buff.Description,
                                                          channel_dice_icon,
-                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 1; }),
                                                          Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 2; }),
-                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 3; }),
                                                          Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 4; }),
-                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 5; }),
-                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 6; })
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 6; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 8; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 10; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 12; })
                                                          );
 
             for (int i = 0; i < 6; i++)
             {
-                divine_bond[i] = Helpers.CreateFeature("SacredServantDivineBondFeature",
+                divine_bond[i] = Helpers.CreateFeature($"SacredServantDivineBond{i+1}Feature",
                                                        divine_bond_ability.Name,
                                                        divine_bond_ability.Description,
                                                        "",
@@ -267,6 +273,7 @@ namespace CallOfTheWild.Archetypes
                 if (i == 0)
                 {
                     divine_bond[i].AddComponent(resource.CreateAddAbilityResource());
+                    divine_bond[i].AddComponent(Helpers.CreateAddFact(divine_bond_ability));
                 }
                 else
                 {

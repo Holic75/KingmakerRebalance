@@ -31,7 +31,7 @@ It introduces new classes:
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
-- Vindictive Bastard Paladin archetype (implemented as a separate class),
+- Sacred Servant and Vindictive Bastard(implemented as a separate class) Paladin archetypes,
 - Arrowsong Minstrel and Dirge Bard Bard archetypes,
 - Exploiter Wizard and Spirit Whisperer Wizard archetypes,
 - Nature Fang and Storm Druid Druid archetypes,
