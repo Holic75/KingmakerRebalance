@@ -125,10 +125,13 @@ namespace CallOfTheWild.Archetypes
                                                           Helpers.LevelEntry(9, improved_evasion, style_strike),
                                                           Helpers.LevelEntry(10, monk_feat10),
                                                           Helpers.LevelEntry(11, monk_flurry11),
+                                                          Helpers.LevelEntry(12, MonkStunningFists.stunning_fist_staggered),
                                                           Helpers.LevelEntry(13, style_strike),
                                                           Helpers.LevelEntry(14, monk_feat10),
+                                                          Helpers.LevelEntry(16, MonkStunningFists.stunning_fist_blind),
                                                           Helpers.LevelEntry(17, style_strike),
-                                                          Helpers.LevelEntry(18, monk_feat10)
+                                                          Helpers.LevelEntry(18, monk_feat10),
+                                                          Helpers.LevelEntry(20, MonkStunningFists.stunning_fist_paralyzed),
                                                        };
 
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, zen_archer_proficiencies, flurry1, perfect_strike, bonus_feat1),

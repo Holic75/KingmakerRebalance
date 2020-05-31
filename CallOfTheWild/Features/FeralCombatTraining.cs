@@ -192,7 +192,10 @@ namespace CallOfTheWild
             BlueprintBuff[] attack_triggers = new BlueprintBuff[] {library.Get<BlueprintBuff>("8709a00782de26d4a8524732879000fa"), //dragon ferocity
                                                                    library.Get<BlueprintBuff>("d9eaeba5690a7704da8bbf626456a50e"), //stunning fist buff
                                                                    library.Get<BlueprintBuff>("696b29374599d4141be64e46a91bd09b"), //stunning fist fatigue buff
-                                                                   library.Get<BlueprintBuff>("4d7da6df5cb3b3940a9d96311a2dc311") //stunning fist sickened buff
+                                                                   library.Get<BlueprintBuff>("4d7da6df5cb3b3940a9d96311a2dc311"), //stunning fist sickened buff
+                                                                   MonkStunningFists.stunning_fist_blind_buff,
+                                                                   MonkStunningFists.stunning_fist_staggered_buff,
+                                                                   MonkStunningFists.stunning_fist_paralyzed_buff
                                                                   };
             foreach (var b in attack_triggers)
             {
@@ -205,7 +208,10 @@ namespace CallOfTheWild
             BlueprintAbility[] main_hand_chackers = new BlueprintAbility[] {library.Get<BlueprintAbility>("732ae7773baf15447a6737ae6547fc1e"), //stunning fist
                                                                             library.Get<BlueprintAbility>("32f92fea1ab81c843a436a49f522bfa1"), //stunning fist fatigue
                                                                             library.Get<BlueprintAbility>("c81906c75821cbe4c897fa11bdaeee01"), //stunning fist sickened
-                                                                            library.Get<BlueprintAbility>("957a10e303269324dbf1a70513f37559") //crushing blow
+                                                                            library.Get<BlueprintAbility>("957a10e303269324dbf1a70513f37559"), //crushing blow
+                                                                            MonkStunningFists.stunning_fist_blind_ability,
+                                                                            MonkStunningFists.stunning_fist_staggered_ability,
+                                                                            MonkStunningFists.stunning_fist_paralyzed_ability
                                                                            };
             foreach (var m in main_hand_chackers)
             {

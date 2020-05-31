@@ -131,6 +131,7 @@
     <Compile Include="Archetypes\DivineTracker.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />
     <Compile Include="Archetypes\MindBlade.cs" />
+    <Compile Include="Archetypes\MonkOfTheMantis.cs" />
     <Compile Include="Archetypes\NatureFang.cs" />
     <Compile Include="Archetypes\OverwhelmingSoul.cs" />
     <Compile Include="Archetypes\Evangelist.cs" />
@@ -183,6 +184,7 @@
     <Compile Include="Features\AdvancedFighterOptions.cs" />
     <Compile Include="Features\MagusArcana.cs" />
     <Compile Include="Features\MetamagicFeats.cs" />
+    <Compile Include="Features\MonkStunningFistEffects.cs" />
     <Compile Include="Features\RogueTalents.cs" />
     <Compile Include="Features\VersatilePerformance.cs" />
     <Compile Include="Features\WizardDiscoveries.cs" />

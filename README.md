@@ -40,7 +40,7 @@ New Archetypes for existing classes:
 - Untamed Rager Barbarian archetype,
 - Mindblade and Nature-Bonded Magus Magus archetypes,
 - Ninja class (implemented as Rogue archetype),
-- Zen Archer Monk archetype,
+- Monk of the Mantis and Zen Archer Monk archetypes,
 - Sanctified Slayer Inquisitor archetype,
 - Executioner Slayer archetype,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
@@ -405,7 +405,8 @@ enchanced attacks,
 - Flamedancer bard receives Song of the Fiery Gaze at level 3, he receives Fire Break Fire Dance at level 6 as per pnp rules,
 - Versatile performance works closer to pnp: bards can either receive a number of ranks equal to 1/2 bard level in specific skill for free and use charisma as skill stat, or choose martial performance or a masterpiece,
 - Archaelogist receives rogue talents at level 4, 8, 12, 16 and 20,
-- Polymorphs and size changes are no longer stackable.
+- Polymorphs and size changes are no longer stackable,
+- Monks can now stagger opponents at level 12, blind at level 16 and paralyze at level 20 with stunning fists.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

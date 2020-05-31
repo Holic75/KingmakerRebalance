@@ -198,6 +198,7 @@ namespace CallOfTheWild
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
                     CallOfTheWild.Rebalance.fixFlameDancer();
                     CallOfTheWild.Rebalance.fixSerpentineBloodlineSerpentfriend();
+                    CallOfTheWild.MonkStunningFists.create();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
@@ -300,6 +301,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
                     CallOfTheWild.Archetypes.SacredServant.create();
+                    CallOfTheWild.Archetypes.MonkOfTheMantis.create();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 
