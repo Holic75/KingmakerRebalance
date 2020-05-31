@@ -148,19 +148,33 @@ namespace CallOfTheWild.Archetypes
 
             var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "MonkStunningFistEffectBuff", "");
 
+            var stunned_extra = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "MonkStunningFistEffectMantis1Buff", "");
+            stunned_extra.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateAddFactContextActions(deactivated: new GameAction[]{Common.createContextActionApplyBuff(entangled, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                                  Helpers.CreateConditional(Common.createContextConditionCasterHasFact(debilitating_blows[1]), Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(1), dispellable: false))
+                                                                                 })
+            };
+            stunned_extra.SetBuffFlags(BuffFlags.HiddenInUi);
+            var stunned_extra2 = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "MonkStunningFistEffectMantis2Buff", "");
+            stunned_extra2.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateAddFactContextActions(deactivated: new GameAction[]{Common.createContextActionApplyBuff(entangled, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false),
+                                                                                  Helpers.CreateConditional(Common.createContextConditionCasterHasFact(debilitating_blows[1]), Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false))
+                                                                                 }),
+                Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 2)
+            };
+
+            stunned_extra2.SetBuffFlags(BuffFlags.HiddenInUi);
             var effect = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(debilitating_blows_duration_buff) },
-                                                  new GameAction[]{ Common.createContextActionApplyBuff(entangled, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false),
-                                                                    Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false),
+                                                  new GameAction[]{ Common.createContextActionApplyBuff(stunned_extra2, Helpers.CreateContextDuration(1), dispellable: false),
                                                                     Helpers.Create<ResourceMechanics.ContextActionSpendResourceFromCaster>(c => {c.resource = ki_resource; c.amount = 1; })
                                                                    },
-                                                  new GameAction[] { Helpers.CreateConditional(Common.createContextConditionCasterHasFact(debilitating_blows[0]), Common.createContextActionApplyBuff(entangled, Helpers.CreateContextDuration(1), dispellable: false)),
-                                                                     Helpers.CreateConditional(Common.createContextConditionCasterHasFact(debilitating_blows[1]), Common.createContextActionApplyBuff(exhausted, Helpers.CreateContextDuration(1), dispellable: false))
+                                                  new GameAction[] { Helpers.CreateConditional(Common.createContextConditionCasterHasFact(debilitating_blows[0]), Common.createContextActionApplyBuff(stunned_extra, Helpers.CreateContextDuration(1), dispellable: false))
                                                                    }
                                                   );
 
-            stunned.AddComponents(Helpers.CreateAddFactContextActions(deactivated: effect),
-                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 2)
-                                  );
+            stunned.AddComponents(Helpers.CreateAddFactContextActions(activated: effect));
 
             var old_stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
 
