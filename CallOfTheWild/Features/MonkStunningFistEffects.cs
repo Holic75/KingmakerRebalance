@@ -68,7 +68,7 @@ namespace CallOfTheWild
             fatigued_ability.GetComponent<AbilityCasterHasNoFacts>().Facts = fatigued_ability.GetComponent<AbilityCasterHasNoFacts>().Facts.AddToArray(sickened_fist_buff, stunning_fist_buff);
 
             var staggered_tuple = createStunningFistVariant("StunningFistStaggered",
-                                                           "Stunning Fist: Staggered",
+                                                           "Stunning Fist: Stagger",
                                                            "This ability works as Stunning Fist, but it makes the target staggered for 1d6+1 rounds on a failed save instead of stunning for 1 round.",
                                                            staggered,
                                                            Helpers.CreateContextDuration(1, DurationRate.Rounds, Kingmaker.RuleSystem.DiceType.D6, 1),
@@ -82,7 +82,7 @@ namespace CallOfTheWild
                                                        16);
 
             var paralyzed_tuple = createStunningFistVariant("StunningFistParalyzed",
-                                                           "Stunning Fist: Paralyzed",
+                                                           "Stunning Fist: Paralyze",
                                                            "This ability works as Stunning Fist, but it makes the target paralyzed for 1d6+1 rounds on a failed save instead of stunning for 1 round.",
                                                            paralyzed,
                                                            Helpers.CreateContextDuration(1, DurationRate.Rounds, Kingmaker.RuleSystem.DiceType.D6, 1),
