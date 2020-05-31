@@ -37,7 +37,7 @@ New Archetypes for existing classes:
 - Nature Fang and Storm Druid Druid archetypes,
 - Evangelist and Undead Lord Cleric archetypes,
 - Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,
-- Untamed Rager Barbarian archetype,
+- Beastkin Berserker and Untamed Rager Barbarian archetypes,
 - Mindblade and Nature-Bonded Magus Magus archetypes,
 - Ninja class (implemented as Rogue archetype),
 - Monk of the Mantis and Zen Archer Monk archetypes,

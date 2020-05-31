@@ -161,7 +161,8 @@ namespace CallOfTheWild
             sharpened_accuracy_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             var lethal_stance_effect_buff = library.Get<BlueprintBuff>("c6271b3183c48d54b8defd272bea0665");
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(lethal_stance_effect_buff, sharpened_accuracy_buff, sharpened_accuracy); 
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(lethal_stance_effect_buff, sharpened_accuracy_buff, sharpened_accuracy);
+            addToSelection(sharpened_accuracy);
         }
 
 

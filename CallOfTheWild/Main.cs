@@ -302,6 +302,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
                     CallOfTheWild.Archetypes.SacredServant.create();
                     CallOfTheWild.Archetypes.MonkOfTheMantis.create();
+                    CallOfTheWild.Archetypes.BeastkinBerserker.create();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 
