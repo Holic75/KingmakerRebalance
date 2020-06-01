@@ -638,6 +638,7 @@ namespace CallOfTheWild.CompanionMechanics
     {
         public BlueprintFeature rank_feature;
         public int level_diff;
+        public BlueprintFeature boon_companion = Main.library.Get<BlueprintFeature>("8fc01f06eab4dd946baa5bc658cac556");
         [JsonProperty]
         private int m_AppliedRank;
 
@@ -654,16 +655,21 @@ namespace CallOfTheWild.CompanionMechanics
 
         private void Apply()
         {
+            int actual_diff = level_diff;
+            if (boon_companion != null && this.Owner.HasFact(boon_companion))
+            {
+                actual_diff = 0;
+            }
             int rank = this.Owner.GetFact((BlueprintUnitFact)this.rank_feature).GetRank();
             int character_level = this.Owner.Progression.CharacterLevel;
-            for (int i = rank; i < character_level + level_diff; i++)
+            for (int i = rank; i < character_level + actual_diff; i++)
             {
                 this.Owner.AddFact((BlueprintUnitFact)this.rank_feature, null);
                 ++this.m_AppliedRank;
             }
 
             rank = this.Owner.GetFact((BlueprintUnitFact)this.rank_feature).GetRank();
-            for (int i = rank; (i > character_level + level_diff && m_AppliedRank > 0); i--)
+            for (int i = rank; (i > character_level + actual_diff && m_AppliedRank > 0); i--)
             {
                 this.Owner.RemoveFact((BlueprintUnitFact)this.rank_feature);
                 --this.m_AppliedRank;

@@ -109,6 +109,8 @@ namespace CallOfTheWild
         static public BlueprintFeature master_healing_technique;
         static public BlueprintAbilityResource healers_way_resource;
 
+        static public BlueprintArchetype dual_cursed_archetype;
+
         public class Spirit
         {
             public BlueprintProgression progression;
@@ -1613,6 +1615,8 @@ namespace CallOfTheWild
             createLich();
             createVampirism();
 
+            vampirism_minor.AddComponent(Helpers.PrerequisiteNoFeature(lich));
+            lich_minor.AddComponent(Helpers.PrerequisiteNoFeature(vampirism));
             oracle_curses = Helpers.CreateFeatureSelection("OracleCurseSelection",
                                                            "Oracle's Curse",
                                                            "Each oracle is cursed, but this curse comes with a benefit as well as a hindrance. This choice is made at 1st level, and once made, it cannot be changed. The oracle’s curse cannot be removed or dispelled without the aid of a deity. An oracle’s curse is based on her oracle level.",
@@ -1678,6 +1682,8 @@ namespace CallOfTheWild
             vampirism = createOracleCurseProgression("OracleVampirismCurseProgression", "Vampirism",
                                                     "You crave the taste of fresh, warm blood.",
                                                     curse, curse5, curse10, curse15);
+
+            vampirism_minor.AddComponent(Helpers.PrerequisiteNoFeature(vampirism));
         }
 
         static void createLich()
@@ -1727,6 +1733,8 @@ namespace CallOfTheWild
             lich = createOracleCurseProgression("OracleLichCurseProgression", "Lich",
                                                     "Every living spellcaster hides a secret in their flesh—a unique, personalized set of conditions that, when all are fulfilled in the correct order, can trigger the transformation into a lich. Normally, one must expend years and tens of thousands of gold pieces to research this deeply personalized method of attaining immortality. Yet, in a rare few cases, chance and ill fortune can conspire against an unsuspecting spellcaster.",
                                                     curse, curse5, curse10, curse15);
+
+            lich_minor.AddComponent(Helpers.PrerequisiteNoFeature(lich));
         }
 
 
@@ -1816,6 +1824,8 @@ namespace CallOfTheWild
             wolf_scarred_face = createOracleCurseProgression("OracleWolfScarredFaceCurseProgression", "Wolf-scarred Face",
                                                             "Your face is deformed, as though you were born with a wolf’s muzzle instead of an ordinary nose and jaw. Many mistake you for a werewolf, and in areas plagued by lycanthropes, you must take pains to hide your face.",
                                                             curse, curse5, curse10, curse15);
+
+            wolf_scarred_face_minor.AddComponent(Helpers.PrerequisiteNoFeature(wolf_scarred_face));
         }
 
         static void createPlagued()
@@ -1860,6 +1870,8 @@ namespace CallOfTheWild
             plagued = createOracleCurseProgression("OraclePlaguedCurseProgression", "Plagued",
                                                     "You suffer from minor ailments and sicknesses. While you struggle to resist new diseases, you have grown accustomed to the many inconveniences of sickness.",
                                                     curse, curse5, curse10, curse15);
+
+            plagued_minor.AddComponent(Helpers.PrerequisiteNoFeature(plagued));
         }
 
         static void createPranked()
@@ -1881,6 +1893,7 @@ namespace CallOfTheWild
                                               faerie_fire.CreateAddKnownSpell(oracle_class, 1),
                                               vanish.CreateAddKnownSpell(oracle_class, 1)
                                               );
+            pranked_minor = library.CopyAndAdd(curse, "OracleCursePrankedMinorFeature", "");
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Pranked",
                                                "Pranked",
@@ -1911,6 +1924,8 @@ namespace CallOfTheWild
             pranked = createOracleCurseProgression("OraclePrankedCurseProgression", "Pranked",
                                                     "Capricious fey constantly bedevil you, playing pranks on you such as tying your shoelaces together, hiding your gear, making inappropriate noises or smells at formal events, and mimicking your voice to tell embarrassing lies.",
                                                     curse, curse5, curse10, curse15);
+
+            pranked_minor.AddComponent(Helpers.PrerequisiteNoFeature(pranked));
         }
 
 
@@ -1965,6 +1980,8 @@ namespace CallOfTheWild
             wasting = createOracleCurseProgression("OracleWastingCurseProgression", "Wasting",
                                                     "Your body is slowly rotting away.",
                                                     curse, curse5, curse10, curse15);
+
+            wasting_minor.AddComponent(Helpers.PrerequisiteNoFeature(wasting));
         }
 
 
@@ -2011,6 +2028,7 @@ namespace CallOfTheWild
             lame = createOracleCurseProgression("OracleLameCurseProgression", "Lame",
                                                 "",
                                                 curse, curse5, curse10, curse15);
+            lame_minor.AddComponent(Helpers.PrerequisiteNoFeature(lame));
         }
 
 
@@ -2075,6 +2093,7 @@ namespace CallOfTheWild
             blackened = createOracleCurseProgression("OracleBlackenedCurseProgression", "Blackened", 
                                                      "Your hands and forearms are shriveled and blackened, as if you had plunged your arms into a blazing fire, and your thin, papery skin is sensitive to the touch.",
                                                      curse, curse5, curse10, curse15);
+            blackened_minor.AddComponent(Helpers.PrerequisiteNoFeature(blackened));
         }
 
 
@@ -2082,7 +2101,7 @@ namespace CallOfTheWild
         {
             var curse = Helpers.CreateFeature("OracleCurseDeaf",
                                               "Deaf",
-                                              "You cannot hear and suffer all of the usual penalties for being deafened: -4 penalty on initiative and -4 perception. You cast all of your spells as if they were modified by the Silent Spell feat. This does not increase their level or casting time.",
+                                              "You cannot hear and suffer all of the usual penalties for being deafened: -4 penalty on initiative and -4 perception. It does not affect your ability to cast spells.",
                                               "",
                                               Helpers.GetIcon("c3893092a333b93499fd0a21845aa265"),
                                               FeatureGroup.None,
@@ -2102,7 +2121,7 @@ namespace CallOfTheWild
 
             deaf_minor = Helpers.CreateFeature("OracleCurseDeafMinorFeature",
                                               "Deaf",
-                                              "You cannot hear and suffer all of the usual penalties for being deafened: -4 penalty on initiative and -4 perception. You cast all of your spells as if they were modified by the Silent Spell feat. This does not increase their level or casting time.",
+                                              "You cannot hear and suffer all of the usual penalties for being deafened: -4 penalty on initiative and -4 perception. It does not affect your ability to cast spells.",
                                               "",
                                               Helpers.GetIcon("c3893092a333b93499fd0a21845aa265"),
                                               FeatureGroup.None,
@@ -2135,6 +2154,7 @@ namespace CallOfTheWild
                                                 FeatureGroup.None,
                                                 Helpers.Create<Blindsense>(b => b.Range = 30.Feet()));
             deaf = createOracleCurseProgression("OracleDeafCurseProgression", "Deaf", "", curse, curse5, curse10, curse15);
+            deaf_minor.AddComponent(Helpers.PrerequisiteNoFeature(deaf));
         }
 
 
@@ -2189,7 +2209,8 @@ namespace CallOfTheWild
                                                 FeatureGroup.None,
                                                 Helpers.Create<Blindsense>(b => { b.Range = 15.Feet(); b.Blindsight = true; }));
             clouded_vision = createOracleCurseProgression("OracleCloudedVisionCurseProgression", "Clouded Vision", "",
-                                                          curse, curse5, curse10, curse15);                
+                                                          curse, curse5, curse10, curse15);
+            clouded_vision_minor.AddComponent(Helpers.PrerequisiteNoFeature(clouded_vision));
         }
 
 
