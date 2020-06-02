@@ -283,7 +283,7 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff}),
-                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental)
+                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental, Common.undead)
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             ability.EffectOnEnemy = AbilityEffectOnUnit.None;

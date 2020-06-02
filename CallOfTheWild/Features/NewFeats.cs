@@ -121,6 +121,10 @@ namespace CallOfTheWild
 
         static public BlueprintFeature improved_spell_sharing;
         static public BlueprintFeatureSelection animal_ally;
+
+
+        static public BlueprintFeature bullseye_shot;
+        static public BlueprintFeature pinpoint_targeting;
         
 
 
@@ -197,6 +201,100 @@ namespace CallOfTheWild
             createProdigalTwoWeaponFighting();
             createImprovedSpellSharing();
             createAnimalAlly();
+
+            createBullsEyeShot();
+            createPinpointTargeting();
+        }
+
+
+        static void createPinpointTargeting()
+        {
+            var ranged_weapons = new WeaponCategory[] {WeaponCategory.Longbow, WeaponCategory.Shortbow, WeaponCategory.Shuriken, WeaponCategory.Sling, WeaponCategory.SlingStaff, WeaponCategory.HandCrossbow,
+                                                       WeaponCategory.LightCrossbow, WeaponCategory.HeavyCrossbow, WeaponCategory.Dart, WeaponCategory.ThrowingAxe, WeaponCategory.LightRepeatingCrossbow,
+                                                        WeaponCategory.HeavyRepeatingCrossbow, WeaponCategory.Javelin};
+
+            var buff = Helpers.CreateBuff("PinpointTargetingBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<NewMechanics.IgnoreAcShieldAndNaturalArmor>());
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var ability = Helpers.CreateAbility("PinpointTargetingAbility",
+                                                "Pinpoint Targeting",
+                                                "As a standard action, make a single ranged attack. The target does not gain any armor, natural armor, or shield bonuses to its Armor Class.",
+                                                "",
+                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/ImprovedSpellSharing.png"),
+                                                AbilityType.Special,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                                AbilityRange.Weapon,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                            Common.createContextActionAttack(Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff)),
+                                                                                                            Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff))
+                                                                                                            )
+                                                                        ),
+                                                Helpers.Create<NewMechanics.AttackAnimation>(),
+                                                //Helpers.Create<NewMechanics.AbilityCasterMoved>(a => a.not = true),
+                                                Common.createAbilityCasterMainWeaponCheck(ranged_weapons)
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful();
+
+            pinpoint_targeting = Common.AbilityToFeature(ability, false);
+            pinpoint_targeting.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+
+            pinpoint_targeting.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab")),//point blank shot
+                                            Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665")),//precise shot
+                                            Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("46f970a6b9b5d2346b10892673fe6e74")),//improved precise shot
+                                            Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 16),
+                                            Helpers.PrerequisiteStatValue(StatType.Dexterity, 19)
+                                           );
+            library.AddCombatFeats(pinpoint_targeting);
+
+            var archery_style10 = library.Get<BlueprintFeatureSelection>("7ef950ca681955d47bc4efbe77073e2c");
+            archery_style10.AllFeatures = archery_style10.AllFeatures.AddToArray(pinpoint_targeting);
+            archery_style10.Features = archery_style10.Features.AddToArray(pinpoint_targeting);
+        }
+
+        static void createBullsEyeShot()
+        {
+            var true_strike = library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00");
+            var buff = Helpers.CreateBuff("BullsEyeShotBuff",
+                                            "Bullseye Shot",
+                                            "You can spend a move action to steady your shot. When you do, you gain a +4 bonus on your next ranged attack roll before the end of your turn.",
+                                            "",
+                                            true_strike.Icon,
+                                            null,
+                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
+                                            Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true,
+                                                                                             check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged,
+                                                                                             wait_for_attack_to_resolve: true)
+                                          );
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 4);
+            var strike_true_ability = Helpers.CreateAbility("BullseyeShotFeature",
+                                                            buff.Name,
+                                                            buff.Description,
+                                                            "",
+                                                            buff.Icon,
+                                                            AbilityType.Special,
+                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move,
+                                                            AbilityRange.Personal,
+                                                            "First Attack or until end of the round.",
+                                                            "",
+                                                            Helpers.CreateRunActions(apply_buff)
+                                                            );
+            strike_true_ability.setMiscAbilityParametersSelfOnly(animation: Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Special);
+            bullseye_shot = Common.AbilityToFeature(strike_true_ability, false);
+            bullseye_shot.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+            bullseye_shot.SetIcon(null);
+            bullseye_shot.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab")),//point blank shot
+                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665")),//precise shot
+                                        Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 5)
+                                       );
+            library.AddCombatFeats(bullseye_shot);
         }
 
 
@@ -1796,7 +1894,8 @@ namespace CallOfTheWild
                                             true_strike.Icon,
                                             null,
                                             Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
-                                            Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true)
+                                            Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true,
+                                                                                             wait_for_attack_to_resolve: true)
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 4);
             var strike_true_ability = Helpers.CreateAbility("StrikeTrueFeature",
@@ -1807,12 +1906,12 @@ namespace CallOfTheWild
                                                             AbilityType.Special,
                                                             Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move,
                                                             AbilityRange.Personal,
-                                                            "First Attack or untile end of the round.",
+                                                            "First Attack or until end of the round.",
                                                             "",
                                                             Helpers.CreateRunActions(apply_buff)
                                                             );
             strike_true_ability.setMiscAbilityParametersSelfOnly(animation: Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Special);
-            strike_true = Common.AbilityToFeature(strike_true_ability);
+            strike_true = Common.AbilityToFeature(strike_true_ability, false);
             strike_true.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
             strike_true.SetIcon(null);
             strike_true.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a")),//combat expertise

@@ -125,7 +125,9 @@ New feats:
 - Tower Shield Specialist,
 - Prodigious Two-Weapon Fighting,
 - Improved Spell Sharing,
-- Animal Ally.
+- Animal Ally,
+- Bullseye shot,
+- Pinpoint targeting.
 
 New rage powers:
 - Terrifying Howl

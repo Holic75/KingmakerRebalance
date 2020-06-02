@@ -352,7 +352,7 @@ namespace CallOfTheWild
 
             master_archer1 = Helpers.CreateFeatureSelection("HinterlanderMasterArcher1Feature",
                                                             "Master Archer",
-                                                            "At 1st level, and again at 3rd, 5th and 10th levels, a hinterlander gains a bonus feat from the following list, even if he doesn’t meet the prerequisites: Deadeye’s Blessing, Point-Blank Shot, and Rapid Shot. At 3rd level, he adds Improved Precise Shot, Point Blank Master, and Manyshot to the list. At 5th level, he adds Deadly Aim to the list.",
+                                                            "At 1st level, and again at 3rd, 5th and 10th levels, a hinterlander gains a bonus feat from the following list, even if he doesn’t meet the prerequisites: Deadeye’s Blessing, Point-Blank Shot, and Rapid Shot. At 3rd level, he adds Improved Precise Shot, Point Blank Master, and Manyshot to the list. At 5th level, he adds Deadly Aim and Pinpoint Targeting to the list.",
                                                             "",
                                                             null,
                                                             FeatureGroup.None);
@@ -363,7 +363,7 @@ namespace CallOfTheWild
             master_archer2.AllFeatures = master_archer2.AllFeatures.AddToArray(improved_precise_shot, manyshot, pointblank_master);
 
             master_archer3 = library.CopyAndAdd<BlueprintFeatureSelection>(master_archer2.AssetGuid, "HinterlanderMasterArcher3Feature", "");
-            master_archer3.AllFeatures = master_archer3.AllFeatures.AddToArray(deadly_aim);
+            master_archer3.AllFeatures = master_archer3.AllFeatures.AddToArray(deadly_aim, NewFeats.pinpoint_targeting);
         }
 
 

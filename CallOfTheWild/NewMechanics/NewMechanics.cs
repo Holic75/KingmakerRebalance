@@ -1973,6 +1973,23 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
+        public class AbilityCasterMoved : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool not;
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return not != caster.CombatState.IsFullAttackRestrictedBecauseOfMoveAction;
+            }
+
+            public string GetReason()
+            {
+                return "Moved this round";
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
         public class AbilityCasterPetIsAlive : BlueprintComponent, IAbilityCasterChecker
         {
             public bool CorrectCaster(UnitEntityData caster)
@@ -3536,6 +3553,20 @@ namespace CallOfTheWild
             }
 
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
+        [ComponentName("Attacks ignore armor and shields")]
+        public class IgnoreAcShieldAndNaturalArmor : RuleInitiatorLogicComponent<RuleCalculateAC>, IRulebookHandler<RuleCalculateAC>, IInitiatorRulebookSubscriber
+        {
+            public override void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                evt.BrilliantEnergy = this.Fact;
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAC evt)
             {
             }
         }
