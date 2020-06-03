@@ -291,8 +291,8 @@ namespace CallOfTheWild
                     CallOfTheWild.RogueTalents.load();
                     CallOfTheWild.Archetypes.Executioner.create();
                     CallOfTheWild.Archetypes.Ninja.create();
-
                     CallOfTheWild.Archetypes.Seeker.create();
+                    CallOfTheWild.Archetypes.Bloodhunter.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();

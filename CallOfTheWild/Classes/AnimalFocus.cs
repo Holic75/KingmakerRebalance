@@ -504,7 +504,7 @@ namespace CallOfTheWild
             var wildshape_wolf = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
             var feat = CallOfTheWild.Helpers.CreateFeature(prefix + "AnimalFocusFeature",
                                                             "Animal Focus",
-                                                            "Character can take the Focus of an animal as a swift action. She must select one type of animal to emulate, gaining a bonus or special ability based on the type of animal emulated and her level.",
+                                                            "Character can take the focus of an animal as a swift action. She must select one type of animal to emulate, gaining a bonus or special ability based on the type of animal emulated and her level.",
                                                             "",
                                                             wildshape_wolf.Icon,
                                                             FeatureGroup.None,

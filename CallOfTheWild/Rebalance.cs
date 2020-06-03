@@ -1304,6 +1304,11 @@ namespace CallOfTheWild
 
             druid_progression.LevelEntries[2].Features.Add(woodland_stride);
             druid_progression.UIGroups[0].Features.Add(woodland_stride);
+
+            var ranger_progression = library.Get<BlueprintProgression>("97261d609529d834eba4fd4da1bc44dc");
+
+            ranger_progression.LevelEntries[6].Features.Add(woodland_stride);
+            ranger_progression.UIGroups[3].Features.Add(woodland_stride);
         }
 
 
