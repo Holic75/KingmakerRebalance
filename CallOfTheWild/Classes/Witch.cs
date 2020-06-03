@@ -1403,7 +1403,7 @@ namespace CallOfTheWild
         static void createMurksightHex()
         {
             murksight_hex = hex_engine.createMurksightHex("Murksight", "Murksight",
-                                                          "The witch receives blindsight up to 15 feet.",
+                                                          "The witch can see through natural or magical fog, mist, and rain without penalty, ignoring any concealment bonuses gained from such effects.",
                                                           "e860bd889e494cd583b59bc5df42e7ef");
         }
 

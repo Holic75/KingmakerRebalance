@@ -481,7 +481,7 @@ namespace CallOfTheWild
                                   feature_guid,
                                    remove_blindness.Icon,
                                    FeatureGroup.None,
-                                   Common.createBlindsight(15));
+                                   Helpers.Create<ConcealementMechanics.IgnoreFogConcelement>());
             murksight_hex.Ranks = 1;
             return murksight_hex;
         }
@@ -1628,6 +1628,8 @@ namespace CallOfTheWild
                                                             CommandType.Free,                                                        
                                                             null,
                                                             Helpers.Create<RestrictionHasFact>(r => { r.Feature = staggered; r.Not = true; }));
+            cackle_activatable_ability.DeactivateIfCombatEnded = true;
+            cackle_activatable_ability.DeactivateIfOwnerDisabled = true;
 
             var bane = library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734");
             var cackle_ability = Helpers.CreateAbility(name_prefix+ "Ability",

@@ -298,6 +298,7 @@ namespace CallOfTheWild
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
 
                     CallOfTheWild.KineticistFix.load();
+                    CallOfTheWild.Archetypes.Rake.create();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
                     CallOfTheWild.Archetypes.SacredServant.create();

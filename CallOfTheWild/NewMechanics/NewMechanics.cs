@@ -2009,10 +2009,6 @@ namespace CallOfTheWild
         public class BlessedHunterTerrain : OwnedGameLogicComponent<UnitDescriptor>, IAreaLoadingStagesHandler, IGlobalSubscriber
         {
             public LootSetting[] Settings;
-            private ModifiableValue.Modifier m_InitiativeModifier;
-            private ModifiableValue.Modifier m_PerceptionModifier;
-            private ModifiableValue.Modifier m_StealthModifier;
-            private ModifiableValue.Modifier m_LoreNatureModifier;
             private ModifiableValue.Modifier m_DamageModifier;
             private ModifiableValue.Modifier m_WillSaveModifier;
             private ModifiableValue.Modifier m_FortSaveModifier;
@@ -2043,14 +2039,6 @@ namespace CallOfTheWild
 
             public void ActivateModifier()
             {
-                if (this.m_InitiativeModifier == null)
-                    this.m_InitiativeModifier = this.Owner.Stats.Initiative.AddModifier(2 * this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-                if (this.m_PerceptionModifier == null)
-                    this.m_PerceptionModifier = this.Owner.Stats.SkillPerception.AddModifier(2 * this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-                if (this.m_StealthModifier == null)
-                    this.m_StealthModifier = this.Owner.Stats.SkillStealth.AddModifier(2 * this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-                if (this.m_LoreNatureModifier == null)
-                    this.m_LoreNatureModifier = this.Owner.Stats.SkillLoreNature.AddModifier(2 * this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
                 if (this.m_DamageModifier == null)
                     this.m_DamageModifier = this.Owner.Stats.AdditionalDamage.AddModifier(this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
                 if (this.m_WillSaveModifier == null)
@@ -2063,30 +2051,6 @@ namespace CallOfTheWild
 
             public void DeactivateModifier()
             {
-                if (this.m_InitiativeModifier != null)
-                {
-                    if (this.m_InitiativeModifier != null)
-                        this.m_InitiativeModifier.Remove();
-                    this.m_InitiativeModifier = (ModifiableValue.Modifier)null;
-                }
-                if (this.m_PerceptionModifier != null)
-                {
-                    if (this.m_PerceptionModifier != null)
-                        this.m_PerceptionModifier.Remove();
-                    this.m_PerceptionModifier = (ModifiableValue.Modifier)null;
-                }
-                if (this.m_StealthModifier != null)
-                {
-                    if (this.m_StealthModifier != null)
-                        this.m_StealthModifier.Remove();
-                    this.m_StealthModifier = (ModifiableValue.Modifier)null;
-                }
-                if (this.m_LoreNatureModifier != null)
-                {
-                    if (this.m_LoreNatureModifier != null)
-                        this.m_LoreNatureModifier.Remove();
-                    this.m_LoreNatureModifier = (ModifiableValue.Modifier)null;
-                }
                 if (this.m_DamageModifier != null)
                 {
                     if (this.m_DamageModifier != null)
@@ -5645,6 +5609,8 @@ namespace CallOfTheWild
             public BlueprintFeature ShatterConfidenceFeature;
             public BlueprintBuff ShatterConfidenceBuff;
             public ActionList actions;
+            public int bonus = 0;
+            public ModifierDescriptor modifier_descriptor;
 
             public override string GetCaption()
             {
@@ -5685,6 +5651,11 @@ namespace CallOfTheWild
                                     ++num;
                             }
                             modifier = maybeCaster.Stats.CheckIntimidate.AddModifier(num, (GameLogicComponent)null, ModifierDescriptor.None);
+                        }
+                        var skill_check = new RuleSkillCheck(maybeCaster, StatType.CheckIntimidate, dc);
+                        if (bonus > 0)
+                        {
+                            skill_check.Bonus.AddModifier(bonus, null, modifier_descriptor);
                         }
                         RuleSkillCheck ruleSkillCheck = context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(maybeCaster, StatType.CheckIntimidate, dc));
                         if (!ruleSkillCheck.IsPassed)

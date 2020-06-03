@@ -170,7 +170,7 @@ namespace CallOfTheWild.Archetypes
                                                    "",
                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/HuntingGround.png"),
                                                    FeatureGroup.None,
-                                                   Helpers.Create<FavoredTerrain>(f => f.Settings = new LootSetting[0])
+                                                   Helpers.Create<NewMechanics.BlessedHunterTerrain>(f => f.Settings = new LootSetting[0])
                                                    );
             hunting_ground.ReapplyOnLevelUp = true;
             hunting_ground.Ranks = 10;
@@ -188,7 +188,7 @@ namespace CallOfTheWild.Archetypes
         {
             blessed_hunter = Helpers.CreateFeature("BlessedHunterBloodHunterFeat",
                                                    "Blessed Hunter",
-                                                   "While in his favored terrain, blood hunter's favored terrain bonuses increase by 2. He also gains +1 bonus on damage rolls and saving throws.",
+                                                   "While in his favored terrain, blood hunter gains +1 bonus on damage rolls and saving throws.",
                                                    "",
                                                    null,
                                                    FeatureGroup.None,

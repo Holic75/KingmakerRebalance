@@ -39,7 +39,7 @@ New Archetypes for existing classes:
 - Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,
 - Beastkin Berserker and Untamed Rager Barbarian archetypes,
 - Mindblade and Nature-Bonded Magus Magus archetypes,
-- Ninja class (implemented as Rogue archetype),
+- Ninja class (implemented as Rogue archetype) and Rake Rogue archetype,
 - Monk of the Mantis and Zen Archer Monk archetypes,
 - Sanctified Slayer Inquisitor archetype,
 - Executioner Slayer archetype,
