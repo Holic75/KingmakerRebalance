@@ -245,15 +245,10 @@ namespace CallOfTheWild
                 if (!disabled)
                 {
                     library.AddFeats(arcane_discovery);
+                    var wizard_feat = library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899");
+                    wizard_feat.AllFeatures = wizard_feat.AllFeatures.AddToArray(arcane_discovery);
                 }
-                var wizard_feat = library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899");
-                wizard_feat.AllFeatures = wizard_feat.AllFeatures.AddToArray(arcane_discovery);
 
-            }
-
-            if (disabled)
-            {
-                return;
             }
 
 
