@@ -62,10 +62,10 @@ namespace CallOfTheWild
             var domain_selection = Main.library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             var cleric = Main.library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var druid = Main.library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
-            fixDomainSpells(Archetypes.SacredServant.archetype.GetParentClass().Spellbook.SpellList, domain_selection);
-            fixDomainSpells(cleric.Spellbook.SpellList, domain_selection);
-            fixDomainSpells(druid.Spellbook.SpellList, domain_selection);
-            fixDomainSpells(Hunter.hunter_class.Spellbook.SpellList, domain_selection);
+            fixDomainSpells(Archetypes.SacredServant.archetype.GetParentClass().Spellbook.SpellList, domain_selection, 4);
+            fixDomainSpells(cleric.Spellbook.SpellList, domain_selection, 9);
+            fixDomainSpells(druid.Spellbook.SpellList, domain_selection, 9);
+            fixDomainSpells(Hunter.hunter_class.Spellbook.SpellList, domain_selection, 6);
         }
 
         static void fixWallAbilitiesAoeVIsualization()
@@ -243,11 +243,11 @@ namespace CallOfTheWild
 
 
 
-        static void fixDomainSpells(BlueprintSpellList base_spell_list, BlueprintFeatureSelection domain_selection)
+        static void fixDomainSpells(BlueprintSpellList base_spell_list, BlueprintFeatureSelection domain_selection, int max_level)
         {
             //to avoid bug with different level domain and spellbook spells
             var spells_map = new Dictionary<string, int>();
-            for (int i = 1; i <= 9; i++)
+            for (int i = 1; i <= max_level; i++)
             {
                 foreach (var s in base_spell_list.SpellsByLevel[i].Spells)
                 {
@@ -263,7 +263,7 @@ namespace CallOfTheWild
                     continue;
                 }
 
-                for (int i = 1; i <= 4; i++)
+                for (int i = 1; i <= max_level; i++)
                 {
                     foreach (var s in spell_list.SpellsByLevel[i].Spells.ToArray())
                     {
