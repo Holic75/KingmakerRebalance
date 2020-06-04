@@ -199,6 +199,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixFlameDancer();
                     CallOfTheWild.Rebalance.fixSerpentineBloodlineSerpentfriend();
                     CallOfTheWild.Rebalance.fixRangerMasterHunter();
+                    CallOfTheWild.Rebalance.fixEaglesoul();
                     CallOfTheWild.MonkStunningFists.create();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
@@ -309,9 +310,7 @@ namespace CallOfTheWild
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
-                    CallOfTheWild.CleanUp.processRage();
-                    CallOfTheWild.CleanUp.fixWallAbilitiesAoeVIsualization();
-                    CallOfTheWild.CleanUp.fixPolymorphSizeChangesStacking();
+                    CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();

@@ -626,7 +626,7 @@ namespace CallOfTheWild
                                              Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
                                              Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = wizard.Spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
                                              Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = wizard.Spellbook; s.resource = arcane_reservoir_resource; }),
-                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {arcane_reservoir, potent_magic})
+                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {potent_magic}, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 1)
                                              );
             arcane_reservoir_spell_dc_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellDCToggleAbility",
                                                                                dc_buff.Name,
@@ -653,7 +653,7 @@ namespace CallOfTheWild
                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
                                  Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = wizard.Spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = wizard.Spellbook; s.resource = arcane_reservoir_resource; }),
-                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] { arcane_reservoir, potent_magic })
+                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {potent_magic }, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 1)
                                  );
 
             arcane_reservoir_caster_level_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellCLToggleAbility",

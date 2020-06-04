@@ -1265,6 +1265,15 @@ namespace CallOfTheWild
             master_hunter.NeedEquipWeapons = true;
         }
 
+
+        static internal void fixEaglesoul()
+        {
+            //fix it to be swift action rather than standard since it is how it is supposed to be due to its pnp version
+            var eaglesoul = library.Get<BlueprintAbility>("332ad68273db9704ab0e92518f2efd1c");
+            eaglesoul.ActionType = UnitCommand.CommandType.Swift;
+
+        }
+
         static internal void fixUndeadImmunity()
         {
             //add missing immunity to stun  and recalcualte fort saves on cha change

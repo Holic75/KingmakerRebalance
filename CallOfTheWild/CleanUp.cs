@@ -52,7 +52,23 @@ namespace CallOfTheWild
 {
     class CleanUp
     {
-        internal static void fixWallAbilitiesAoeVIsualization()
+        internal static void run()
+        {
+            fixWallAbilitiesAoeVIsualization();
+            processRage();
+            fixPolymorphSizeChangesStacking();
+
+
+            var domain_selection = Main.library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
+            var cleric = Main.library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var druid = Main.library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            fixDomainSpells(Archetypes.SacredServant.archetype.GetParentClass().Spellbook.SpellList, domain_selection);
+            fixDomainSpells(cleric.Spellbook.SpellList, domain_selection);
+            fixDomainSpells(druid.Spellbook.SpellList, domain_selection);
+            fixDomainSpells(Hunter.hunter_class.Spellbook.SpellList, domain_selection);
+        }
+
+        static void fixWallAbilitiesAoeVIsualization()
         {
             AoeMechanics.AbilityWallRange.load();
             var abilities = Main.library.GetAllBlueprints().OfType<BlueprintAbility>();
@@ -79,7 +95,7 @@ namespace CallOfTheWild
             }
         }
 
-        static internal void processRage()
+        static void processRage()
         {
             BlueprintBuff[] rage_buffs = new BlueprintBuff[] { Bloodrager.bloodrage_buff, //same as barabrian rage
                                                                Skald.inspired_rage_effect_buff,
@@ -201,7 +217,7 @@ namespace CallOfTheWild
 
 
 
-        static internal void fixPolymorphSizeChangesStacking()
+        static void fixPolymorphSizeChangesStacking()
         {
             var size_buffs = new BlueprintBuff[]
             {
@@ -221,6 +237,41 @@ namespace CallOfTheWild
                 foreach (var szb in size_buffs)
                 {
                     p.AddComponent(Common.createSpecificBuffImmunity(szb));
+                }
+            }
+        }
+
+
+
+        static void fixDomainSpells(BlueprintSpellList base_spell_list, BlueprintFeatureSelection domain_selection)
+        {
+            //to avoid bug with different level domain and spellbook spells
+            var spells_map = new Dictionary<string, int>();
+            for (int i = 1; i <= 9; i++)
+            {
+                foreach (var s in base_spell_list.SpellsByLevel[i].Spells)
+                {
+                    spells_map.Add(s.AssetGuid, i);
+                }
+            }
+
+            foreach (var d in domain_selection.AllFeatures)
+            {
+                var spell_list = d.GetComponent<LearnSpellList>()?.SpellList;
+                if (spell_list == null)
+                {
+                    continue;
+                }
+
+                for (int i = 1; i <= 4; i++)
+                {
+                    foreach (var s in spell_list.SpellsByLevel[i].Spells.ToArray())
+                    {
+                        if (spells_map.ContainsKey(s.AssetGuid) && spells_map[s.AssetGuid] != i)
+                        {
+                            Common.replaceDomainSpell(d as BlueprintProgression, SpellDuplicates.addDuplicateSpell(s, "Domain" + s.name, Helpers.MergeIds(s.AssetGuid, "cb8e527ae3db4f81bcac7d03753d5c40")), i);
+                        }
+                    }
                 }
             }
         }
