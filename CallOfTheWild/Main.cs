@@ -198,6 +198,7 @@ namespace CallOfTheWild
                     CallOfTheWild.VitalStrikeMechanics.VitalStrikeRangedAttackPatch.Run();
                     CallOfTheWild.Rebalance.fixFlameDancer();
                     CallOfTheWild.Rebalance.fixSerpentineBloodlineSerpentfriend();
+                    CallOfTheWild.Rebalance.fixRangerMasterHunter();
                     CallOfTheWild.MonkStunningFists.create();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();

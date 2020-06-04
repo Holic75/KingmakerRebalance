@@ -1592,6 +1592,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4e0e9aba6447d514f88eff1464cc4763", 1), //reduce person
                 //rejuvenate eidolon, lesser
                 new Common.SpellId( "ef768022b0785eb43a18969903c537c4", 1), //shield
+                new Common.SpellId( "9f10909f0be1f5141bf1c102041f93d9", 1), //snowball
                 new Common.SpellId( "8fd74eddd9b6c224693d9ab241f25e84", 1), //summon monster 1
 
                 new Common.SpellId( "5b77d7cc65b8ab74688e74a37fc2f553", 2), //barksin

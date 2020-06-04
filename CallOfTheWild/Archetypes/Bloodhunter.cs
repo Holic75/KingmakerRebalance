@@ -145,7 +145,7 @@ namespace CallOfTheWild.Archetypes
             favored_target.ReapplyOnLevelUp = true;
             foreach (var fe in favored_enemy.AllFeatures)
             {
-                favored_target.AddComponent(Helpers.Create<NewMechanics.AddHalfFavoredEnemy>(a => a.CheckedFacts = fe.GetComponent<AddFavoredEnemy>().CheckedFacts));
+                favored_target.AddComponent(Helpers.Create<FavoredEnemyMechanics.AddHalfFavoredEnemy>(a => a.CheckedFacts = fe.GetComponent<AddFavoredEnemy>().CheckedFacts));
             }
             var hunters_bond_buff = library.Get<BlueprintBuff>("2f93cad6b132aac4e80728d7fa03a8aa");
             var hunters_bond_full_buff = library.CopyAndAdd<BlueprintBuff>("2f93cad6b132aac4e80728d7fa03a8aa", "BloodHunterHuntersBond", "");
@@ -170,7 +170,7 @@ namespace CallOfTheWild.Archetypes
                                                    "",
                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/HuntingGround.png"),
                                                    FeatureGroup.None,
-                                                   Helpers.Create<NewMechanics.BlessedHunterTerrain>(f => f.Settings = new LootSetting[0])
+                                                   Helpers.Create<FavoredTerrain>(f => f.Settings = new LootSetting[0])
                                                    );
             hunting_ground.ReapplyOnLevelUp = true;
             hunting_ground.Ranks = 10;
@@ -192,14 +192,14 @@ namespace CallOfTheWild.Archetypes
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Helpers.Create<NewMechanics.BlessedHunterTerrain>(b => b.Settings = hunting_ground.GetComponent<FavoredTerrain>().Settings)
+                                                   Helpers.Create<FavoredEnemyMechanics.BlessedHunterTerrain>(b => b.Settings = hunting_ground.GetComponent<FavoredTerrain>().Settings)
                                                    );
 
 
             blessed_hunter_stride = library.CopyAndAdd<BlueprintFeature>("11f4072ea766a5840a46e6660894527d", "BlessedHunterStrideFeature", "");
             blessed_hunter_stride.SetNameDescription("Blessed Hunter's Stride",
                                                      "Blood hunter's speed increases by 10 feet while he is in his favored terrain, and he ignores difficult terrain effects.");
-
+            blessed_hunter_stride.AddComponent(Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable));
             var animal_focus_engine = new AnimalFocusEngine();
             animal_focus_engine.initialize(new BlueprintCharacterClass[] { archetype.GetParentClass() }, archetype, 0, "BloodHunter");
 
@@ -250,6 +250,9 @@ namespace CallOfTheWild.Archetypes
             ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff));
 
             ability.RemoveComponents<AbilityTargetIsPartyMember>();
+
+            var quarry_buff = library.Get<BlueprintBuff>("b44184c7ca33c6a41bc11cc5ed07addb");
+            quarry_buff.SetBuffFlags(quarry_buff.GetBuffFlags() | BuffFlags.RemoveOnRest);
 
 
             rapid_quarry = Helpers.CreateFeature("BloodHunterQuarryFeature",

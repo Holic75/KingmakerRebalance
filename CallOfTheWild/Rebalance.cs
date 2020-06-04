@@ -1234,6 +1234,37 @@ namespace CallOfTheWild
             selection.SetDescription(selection.Description + "\nA ranger’s animal companion shares his favored enemy and favored terrain bonuses.");
         }
 
+
+        static internal void fixRangerMasterHunter()
+        {
+            var master_hunter_cooldown_buff = library.Get<BlueprintBuff>("077f4430a10d3504b9078ab717334972");
+            master_hunter_cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            var master_hunter = library.Get<BlueprintAbility>("8a57e1072da4f6f4faaa55b7b7dc633c");
+
+
+            master_hunter.Range = AbilityRange.Weapon;
+            master_hunter.setMiscAbilityParametersSingleTargetRangedHarmful();
+
+            var effect = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
+                                                         Helpers.CreateConditionalSaved(null,
+                                                                                        Helpers.Create<ContextActionKillTarget>()
+                                                                                        )
+                                                        );
+
+            master_hunter.ComponentsArray = new BlueprintComponent[]
+            {
+                master_hunter.GetComponent<AbilityResourceLogic>(),
+                Helpers.CreateRunActions(Common.createContextActionApplyBuff(master_hunter_cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false),
+                                         Common.createContextActionAttack(Helpers.CreateActionList(effect))
+                                        ),
+                Helpers.Create<NewMechanics.AttackAnimation>(),
+                Common.createAbilityTargetHasFact(true, master_hunter_cooldown_buff),
+                Helpers.Create<FavoredEnemyMechanics.AbilityTargetIsFavoredEnemy>()
+            };
+
+            master_hunter.NeedEquipWeapons = true;
+        }
+
         static internal void fixUndeadImmunity()
         {
             //add missing immunity to stun  and recalcualte fort saves on cha change

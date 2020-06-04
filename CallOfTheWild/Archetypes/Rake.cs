@@ -132,10 +132,22 @@ namespace CallOfTheWild.Archetypes
 
         static void createBravadosBlade()
         {
+            
             var demoralize = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb").GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as NewMechanics.DemoralizeWithAction;
             for (int i = 0; i < 5; i++)
             {
-                var new_demoralize = Helpers.CreateActionList(demoralize.CreateCopy(d => d.bonus = i * 5));
+                var buff_sneak = Helpers.CreateBuff($"BravadosBladeReduceSneak{i}Buff",
+                                                      "",
+                                                      "",
+                                                      "",
+                                                      null,
+                                                      null,
+                                                      Helpers.CreateAddStatBonus(StatType.SneakAttack, -(i + 1), ModifierDescriptor.UntypedStackable)
+                                                      );
+                buff_sneak.SetBuffFlags(BuffFlags.HiddenInUi);
+                var new_demoralize = demoralize.CreateCopy(d => d.bonus = i * 5);
+                var action_on_hit = Helpers.CreateActionList(Common.createContextActionApplyBuffToCaster(buff_sneak, Helpers.CreateContextDuration(1), dispellable: false),
+                                                             demoralize.CreateCopy(d => d.bonus = i * 5));
 
                 var buff = Helpers.CreateBuff($"BravadosBlade{i}Buff",
                                               $"Bravado's Blade ({Common.roman_id[i + 1]})",
@@ -143,8 +155,12 @@ namespace CallOfTheWild.Archetypes
                                               "",
                                               Helpers.GetIcon("bd81a3931aa285a4f9844585b5d97e51"),
                                               null,
-                                              Helpers.CreateAddStatBonus(StatType.SneakAttack, -(i + 1), ModifierDescriptor.Circumstance),
-                                              Common.createAddInitiatorAttackRollTrigger2(new_demoralize, sneak_attack: true)
+                                              Common.createAddInitiatorAttackRollTrigger2(action_on_hit, sneak_attack: true),
+                                              Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff_sneak)),
+                                                                                               false,
+                                                                                               wait_for_attack_to_resolve: true,
+                                                                                               on_initiator: true
+                                                                                               )
                                               );
                 var toggle = Helpers.CreateActivatableAbility($"BravadosBlade{i}ToggleAbility",
                                                                buff.Name,

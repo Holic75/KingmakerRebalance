@@ -1988,106 +1988,6 @@ namespace CallOfTheWild
         }
 
 
-        [AllowedOn(typeof(BlueprintUnitFact))]
-        public class AddHalfFavoredEnemy : OwnedGameLogicComponent<UnitDescriptor>
-        {
-            public BlueprintUnitFact[] CheckedFacts;
-
-            public override void OnTurnOn()
-            {
-                this.Owner.Ensure<UnitPartFavoredEnemy>().AddEntry(this.CheckedFacts, this.Fact, this.Fact.GetRank());
-            }
-
-            public override void OnTurnOff()
-            {
-                this.Owner.Ensure<UnitPartAbilityModifiers>().RemoveEntry(this.Fact);
-            }
-        }
-
-        [AllowedOn(typeof(BlueprintUnitFact))]
-        [AllowMultipleComponents]
-        public class BlessedHunterTerrain : OwnedGameLogicComponent<UnitDescriptor>, IAreaLoadingStagesHandler, IGlobalSubscriber
-        {
-            public LootSetting[] Settings;
-            private ModifiableValue.Modifier m_DamageModifier;
-            private ModifiableValue.Modifier m_WillSaveModifier;
-            private ModifiableValue.Modifier m_FortSaveModifier;
-            private ModifiableValue.Modifier m_RefSaveModifier;
-
-            public override void OnTurnOn()
-            {
-                base.OnTurnOn();
-                this.CheckSettings();
-                this.Owner.Ensure<UnitPartFavoredTerrain>().AddEntry(this.Settings, this.Fact);
-            }
-
-            public override void OnTurnOff()
-            {
-                base.OnTurnOff();
-                this.DeactivateModifier();
-                this.Owner.Ensure<UnitPartFavoredTerrain>().RemoveEntry(this.Fact);
-            }
-
-            public void CheckSettings()
-            {
-                BlueprintArea currentlyLoadedArea = Game.Instance.CurrentlyLoadedArea;
-                if (currentlyLoadedArea != null && ((IEnumerable<LootSetting>)this.Settings).Contains<LootSetting>(currentlyLoadedArea.LootSetting))
-                    this.ActivateModifier();
-                else
-                    this.DeactivateModifier();
-            }
-
-            public void ActivateModifier()
-            {
-                if (this.m_DamageModifier == null)
-                    this.m_DamageModifier = this.Owner.Stats.AdditionalDamage.AddModifier(this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-                if (this.m_WillSaveModifier == null)
-                    this.m_WillSaveModifier = this.Owner.Stats.SaveWill.AddModifier(this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-                if (this.m_FortSaveModifier == null)
-                    this.m_FortSaveModifier = this.Owner.Stats.SaveFortitude.AddModifier(this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-                if (this.m_RefSaveModifier == null)
-                    this.m_RefSaveModifier = this.Owner.Stats.SaveReflex.AddModifier(this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
-            }
-
-            public void DeactivateModifier()
-            {
-                if (this.m_DamageModifier != null)
-                {
-                    if (this.m_DamageModifier != null)
-                        this.m_DamageModifier.Remove();
-                    this.m_DamageModifier = (ModifiableValue.Modifier)null;
-                }
-                if (this.m_FortSaveModifier != null)
-                {
-                    if (this.m_FortSaveModifier != null)
-                        this.m_FortSaveModifier.Remove();
-                    this.m_FortSaveModifier = (ModifiableValue.Modifier)null;
-                }
-                if (this.m_WillSaveModifier != null)
-                {
-                    if (this.m_WillSaveModifier != null)
-                        this.m_WillSaveModifier.Remove();
-                    this.m_WillSaveModifier = (ModifiableValue.Modifier)null;
-                }
-                if (this.m_RefSaveModifier != null)
-                {
-                    if (this.m_RefSaveModifier != null)
-                        this.m_RefSaveModifier.Remove();
-                    this.m_RefSaveModifier = (ModifiableValue.Modifier)null;
-                }
-            }
-
-            public void OnAreaScenesLoaded()
-            {
-            }
-
-            public void OnAreaLoadingComplete()
-            {
-                this.CheckSettings();
-            }
-        }
-
-
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
         public class AbilityCasterPetIsAlive : BlueprintComponent, IAbilityCasterChecker
@@ -5657,7 +5557,7 @@ namespace CallOfTheWild
                         {
                             skill_check.Bonus.AddModifier(bonus, null, modifier_descriptor);
                         }
-                        RuleSkillCheck ruleSkillCheck = context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(maybeCaster, StatType.CheckIntimidate, dc));
+                        RuleSkillCheck ruleSkillCheck = context.TriggerRule<RuleSkillCheck>(skill_check);
                         if (!ruleSkillCheck.IsPassed)
                             return;
                         if (this.actions != null)
