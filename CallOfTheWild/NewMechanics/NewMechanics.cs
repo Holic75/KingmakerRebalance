@@ -3355,7 +3355,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextSavingThrowBonusAgainstFact : RuleInitiatorLogicComponent<RuleSavingThrow>
         {
-            public BlueprintFeature CheckedFact;
+            public BlueprintUnitFact CheckedFact;
             public ModifierDescriptor Descriptor;
             public ContextValue Bonus;
             public AlignmentComponent Alignment;
@@ -7356,6 +7356,7 @@ namespace CallOfTheWild
             public AttackType[] attack_types;
             public bool only_from_caster = false;
             public BlueprintFeature attacker_fact = null;
+            public bool remove_after_damage;
 
             private MechanicsContext Context
             {
@@ -7411,6 +7412,11 @@ namespace CallOfTheWild
                 new_damage.Precision = true;
                 new_damage.CriticalModifier = new int?();
                 evt.DamageBundle.Add(new_damage);
+
+                if (remove_after_damage)
+                {
+                    (this.Fact as Buff).Remove();
+                }
             }
 
             public override void OnEventDidTrigger(RuleCalculateDamage evt)
@@ -8250,6 +8256,31 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
+            }
+        }
+
+        public class ContextActionRemoveBuffs : ContextAction
+        {
+            public BlueprintBuff[] Buffs;
+            public bool ToCaster;
+
+            public override string GetCaption()
+            {
+                return "Remove Buffs";
+            }
+
+            public override void RunAction()
+            {
+                MechanicsContext context = ElementsContext.GetData<MechanicsContext.Data>()?.Context;
+                if (context == null)
+                    UberDebug.LogError((UnityEngine.Object)this, (object)"Unable to remove buff: no context found", (object[])Array.Empty<object>());
+                else
+                {
+                    foreach (var b in Buffs)
+                    {
+                        (!this.ToCaster ? this.Target.Unit : context.MaybeCaster).Buffs.RemoveFact(b);
+                    }
+                }
             }
         }
 

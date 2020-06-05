@@ -26,7 +26,7 @@ It introduces new classes:
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted and Divine Herbalist,
-- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner and Psychic Detective,
+- Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Hinterlander and Holy Vindicator prestige classes.
 
@@ -42,7 +42,7 @@ New Archetypes for existing classes:
 - Ninja class (implemented as Rogue archetype) and Rake Rogue archetype,
 - Monk of the Mantis and Zen Archer Monk archetypes,
 - Sanctified Slayer Inquisitor archetype,
-- Executioner Slayer archetype,
+- Executioner and Grave Warden Slayer archetypes,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Lore Warden Fighter archetype,
 - Preservationist Alchemist archetype,

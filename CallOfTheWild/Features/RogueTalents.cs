@@ -52,6 +52,7 @@ namespace CallOfTheWild
         static public BlueprintFeature armored_swiftness;
         static public BlueprintFeature reaping_stalker;
 
+
         static internal bool test_mode = false;
         static LibraryScriptableObject library => Main.library;
 
@@ -254,7 +255,7 @@ namespace CallOfTheWild
             var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
             var assasinate_buff = Helpers.CreateBuff("SlayerAssasinateBuff",
                                                      "Assasinate Target",
-                                                     "A slayer or ninja with this advanced talent can kill foes that are unable to defend themselves. To attempt to assassinate a target, the slayer or ninja must first study his target for 1 round as a full-round action. On the following round, if the slayer or ninja makes a sneak attack against the target and that target is denied its Dexterity bonus to AC, the sneak attack has the additional effect of possibly killing the target. This attempt automatically fails if this is not the first slayer attack against the enemy. If the sneak attack is successful, the target must attempt a Fortitude saving throw with a DC equal to 10 + 1/2 the slayer’s level + the slayer’s Intelligence modifier. If the target fails this save, it dies; otherwise, the target takes the sneak attack damage as normal and is then immune to that slayer’s assassinate ability for 24 hours.",
+                                                     "A slayer or ninja with this advanced talent can kill foes that are unable to defend themselves. To attempt to assassinate a target, the slayer or ninja must first study his target for 1 round as a standard action. On the following round, if the slayer or ninja makes a sneak attack against the target and that target is denied its Dexterity bonus to AC, the sneak attack has the additional effect of possibly killing the target. This attempt automatically fails if this is not the first slayer attack against the enemy. If the sneak attack is successful, the target must attempt a Fortitude saving throw with a DC equal to 10 + 1/2 the slayer’s level + the slayer’s Intelligence modifier. If the target fails this save, it dies; otherwise, the target takes the sneak attack damage as normal and is then immune to that slayer’s assassinate ability for 24 hours.",
                                                      "",
                                                      sneak_attack.Icon,
                                                      null);
@@ -287,7 +288,7 @@ namespace CallOfTheWild
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             ability.EffectOnEnemy = AbilityEffectOnUnit.None;
-            Common.setAsFullRoundAction(ability);
+            //Common.setAsFullRoundAction(ability);
 
             var attempt_assasinate = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsFlatFooted>(), Common.createContextConditionHasBuffFromCaster(assasinate_buff)),
                                                                Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKillTarget>()))

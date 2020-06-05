@@ -127,6 +127,10 @@ namespace CallOfTheWild
         static public BlueprintFeature overpowering_mind;
         static public BlueprintFeature will_of_the_dead;
 
+        static public BlueprintArchetype cryptid_schoolar;
+        static public BlueprintFeature intuitive_monster_lore;
+        static public BlueprintFeature opportune_advice;
+        static public BlueprintFeature knowledgeable_strike;
 
 
         internal static void createInvestigatorClass()
@@ -174,8 +178,9 @@ namespace CallOfTheWild
             createQuestioner();
             createJinyiwei();
             createPsychicDetective();
+            createCryptidSchoolar();
 
-            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype, psychic_detective};
+            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype, psychic_detective, cryptid_schoolar};
             Helpers.RegisterClass(investigator_class);
             addToPrestigeClasses(); 
             createFeats();
@@ -195,6 +200,242 @@ namespace CallOfTheWild
                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1));
         }
 
+
+        static void createCryptidSchoolar()
+        {
+            cryptid_schoolar = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "CryptidSchoolarArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Cryptid Schoolar");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Cryptid scholars research monsters that lurk secretly at the edge of civilization, developing a deep expertise regarding their anatomy, habits, and ecology. Although competent as lone monster hunters, cryptid scholars excel when they have associates with whom to share their insights.");
+            });
+            Helpers.SetField(cryptid_schoolar, "m_ParentClass", investigator_class);
+            library.AddAsset(cryptid_schoolar, "");
+
+            createIntuitiveMonsterLore();
+            createOpportuneAdviceAndKnowledgeableStrike();
+
+            cryptid_schoolar.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(2, poison_resistance),
+                                                                   Helpers.LevelEntry(4, studied_combat, studied_strike),
+                                                                   Helpers.LevelEntry(11, poison_immunity),
+                                                                };
+            cryptid_schoolar.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, intuitive_monster_lore),
+                                                               Helpers.LevelEntry(4, opportune_advice, knowledgeable_strike)
+                                                             };
+           
+
+            quick_study.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            prolonged_study.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            sapping_offensive.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            sickening_offensive.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            blinding_strike.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            confusing_strike.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            studied_defense.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            toppling_strike.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+            ranged_study.AddComponent(Common.prerequisiteNoArchetype(cryptid_schoolar));
+
+            investigator_class.Progression.UIGroups[3].Features.Add(knowledgeable_strike);
+        }
+
+
+        static void createIntuitiveMonsterLore()
+        {
+            intuitive_monster_lore = Helpers.CreateFeature("IntuitiveLoreCryptidSchoolarFeature",
+                                                           "Intuitive Lore",
+                                                           "A cryptid scholar adds both his Intelligence and Wisdom modifiers on Knowledge and Lore skill checks.",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.UntypedStackable),
+                                                           Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.UntypedStackable),
+                                                           Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeArcana, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
+                                                           Helpers.CreateAddContextStatBonus(StatType.SkillKnowledgeWorld, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, min: 0),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 0, type: AbilityRankType.StatBonus),
+                                                           Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence),
+                                                           Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom)
+                                                           );
+        }
+
+
+        static void createOpportuneAdviceAndKnowledgeableStrike()
+        {
+            var favored_enemies = new (BlueprintFeature, string)[]
+            {
+                (library.Get<BlueprintFeature>("7081934ab5f8573429dbd26522adcc39"), "Aberration"),
+                (library.Get<BlueprintFeature>("1ef8d7ab3ca4795498ff446cb027e2f3"), "Animal"),
+                (library.Get<BlueprintFeature>("6ea5a4a19ccb81a498e18a229cc5038a"), "Construct"),
+                (library.Get<BlueprintFeature>("918555c021b3a2944beed35df53b4c56"), "Dragon"),
+                (library.Get<BlueprintFeature>("be3d454ea70a8bb468b0a8a087e7e65b"), "Fey"),
+                (library.Get<BlueprintFeature>("bd59614d30bcadd46bd56aabe0de819f"), "Giant Humanoid"),
+                (library.Get<BlueprintFeature>("c03dc59e2ce30484b82e7aead6d10471"), "Goblin"),
+                (library.Get<BlueprintFeature>("f807fac786faa86438428c79f5629654"), "Magical Beast"),
+                (library.Get<BlueprintFeature>("0fd21e10dff071e4580ef9f30a0334df"), "Monstrous Humanoid"),
+                (library.Get<BlueprintFeature>("f643b38acc23e8e42a3ed577daeb6949"), "Outsider"),
+                (library.Get<BlueprintFeature>("4ae78c44858bc1942934efe7c149d039"), "Plant"),
+                (library.Get<BlueprintFeature>("3b0f03e24ad0b7243b5973c3d8ab7af5"), "Reptilian"),
+                (library.Get<BlueprintFeature>("5941963eae3e9864d91044ba771f2cc2"), "Undead"),
+                (library.Get<BlueprintFeature>("f6dac9009747b91408644fa834dd0d99"), "Vermin"),
+
+                (library.Get<BlueprintFeature>("7ed4cbc226539d6419d6c60320bfd244"), "Elf"),
+                (library.Get<BlueprintFeature>("8bf97ce6a52d7274197a6c1911378b27"), "Dwarf"),
+                (library.Get<BlueprintFeature>("04314be4be2b7f444883ca8caf78a8a8"), "Gnome"),
+                (library.Get<BlueprintFeature>("8a18b8eec185cd24eb55c3457a7f69b1"), "Halfling"),
+                (library.Get<BlueprintFeature>("7283344b0309d8e4cb77eb22f1e7c57a"), "Human"),
+            };
+
+            var icon = Helpers.GetIcon("183d5bb91dea3a1489a6db6c9cb64445"); //shield of faith
+            var icon_opportune_strike = Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"); //true strike
+            var buffs = new List<BlueprintBuff>();
+            var opportune_strike_buffs = new List<BlueprintBuff>();
+            var cooldowns = new List<BlueprintBuff>();
+            var abilities = new List<BlueprintAbility>();
+
+            foreach (var fe in favored_enemies)
+            {
+                var opportune_advice_cooldown = Helpers.CreateBuff(fe.Item2.Replace(" ", "") + "InvestigatorOpportuneAdviceCooldownBuff",
+                                                                  "Opportune Advice Cooldown: " + fe.Item2,
+                                                                  "At 4th level, when the cryptid scholar succeeds at a Knowledge check to identify a monster’s special powers or vulnerabilities, he can take a move action to share his insights with his allies. Allies within 30 feet who can hear the cryptid scholar gain a +1 insight bonus to their ACs and on saving throws against extraordinary, supernatural, and spell-like abilities used by creatures of the same type and all the same subtypes as the monster identified. This bonus lasts for a number of rounds equal to the cryptid scholar’s Intelligence modifier (minimum 1) or until he uses knowledgeable strike (see below), whichever comes first. This bonus increases by 1 at 8th level and every 4 investigator levels thereafter (to a maximum of +5 at 20th level). A creature cannot benefit from opportune advice regarding more than one specific kind of monster at a time.\n"
+                                                                  + "Once the cryptid scholar has used this ability to provide a bonus against a specific kind of monster, he can’t grant a bonus against that same kind of monster again for 24 hours, unless he expends one use of inspiration when taking a move action to use this ability.",
+                                                                  "",
+                                                                  fe.Item1.Icon,
+                                                                  null);
+                opportune_advice_cooldown.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+                var opportune_advice_buff = Helpers.CreateBuff(fe.Item2.Replace(" ", "") + "InvestigatorOpportuneAdviceBuff",
+                                                             "Opportune Advice: " + fe.Item2,
+                                                             studied_defense.Description,
+                                                             "",
+                                                             fe.Item1.Icon,
+                                                             null,
+                                                             Helpers.Create<NewMechanics.ContextACBonusAgainstFactOwner>(a =>
+                                                                                                                         {
+                                                                                                                             a.CheckedFact = fe.Item1.GetComponent<AddFavoredEnemy>().CheckedFacts[0];
+                                                                                                                             a.Descriptor = ModifierDescriptor.Insight;
+                                                                                                                             a.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                         }
+                                                                                                                         ),
+                                                             Helpers.Create<NewMechanics.ContextSavingThrowBonusAgainstFact>(a =>
+                                                                                                                            {
+                                                                                                                                a.CheckedFact = fe.Item1.GetComponent<AddFavoredEnemy>().CheckedFacts[0];
+                                                                                                                                a.Descriptor = ModifierDescriptor.Insight;
+                                                                                                                                a.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                            }
+                                                                                                                         ),
+                                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
+                                                                                         progression: ContextRankProgression.DivStep, stepLevel: 4)
+                                                             );
+                buffs.Add(opportune_advice_buff);
+                cooldowns.Add(opportune_advice_cooldown);
+
+
+
+                var opportune_strike_buff = Helpers.CreateBuff(fe.Item2.Replace(" ", "") + "InvestigatorOpportuneStrikeBuff",
+                                                              "Opportune Strike: " + fe.Item2,
+                                                              "At 4th level, the cryptid scholar can direct allies to exploit a monster’s weaknesses. If the cryptid scholar ends his opportune advice early as a move action, each ally within 30 feet who can hear the cryptid scholar deals additional damage on its next successful unarmed, natural, or weapon attack against that specific kind of monster within 1 round. The additional damage is 1d6 at 4th level and increases by 1d6 for every 4 investigator levels thereafter (to a maximum of 5d6 at 20th level). The damage of knowledgeable strike is precision damage and is not multiplied on a critical hit; creatures that are immune to sneak attacks are also immune to knowledgeable strike. Ranged attacks gain this additional damage only against a target within 30 feet. The ally must be able to see the target well enough to pick out a vital spot and must be able to reach such a spot. Knowledgeable strike cannot be used against a creature with concealment.",
+                                                              "",
+                                                              icon_opportune_strike,
+                                                              null,
+                                                              Helpers.Create<NewMechanics.DamageBonusPrecisionAgainstFactOwner>(a =>
+                                                              {
+                                                                  a.bonus = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0);
+                                                                  a.attack_types = new AttackType[] { AttackType.Melee, AttackType.Touch, AttackType.Ranged, AttackType.RangedTouch };
+                                                                  a.only_from_caster = false;
+                                                                  a.checked_fact  = fe.Item1.GetComponent<AddFavoredEnemy>().CheckedFacts[0];
+                                                                  a.remove_after_damage = true;
+                                                              }),
+                                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
+                                                                                                         progression: ContextRankProgression.DivStep,
+                                                                                                         stepLevel: 4)
+                                                              );
+                var remove_ooportune_strike = Common.createContextActionRemoveBuff(opportune_strike_buff);
+
+
+
+                opportune_strike_buffs.Add(opportune_strike_buff);
+            }
+
+
+            for (int i = 0; i < buffs.Count; i++)
+            {
+                var apply_cooldown = Common.createContextActionApplyBuffToCaster(cooldowns[i], Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
+                var apply_buff = Common.createContextActionApplyBuff(buffs[i], Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                                                                                      dispellable: false);
+
+                var ability = Helpers.CreateAbility(favored_enemies[i].Item2.Replace(" ", "") + "OpportuneAdviceInvestigatorAbility",
+                                                   buffs[i].Name,
+                                                   buffs[i].Description,
+                                                   "",
+                                                   favored_enemies[i].Item1.Icon,
+                                                   AbilityType.Extraordinary,
+                                                   CommandType.Move,
+                                                   AbilityRange.Personal,
+                                                   "1 round/Intelligence modifier",
+                                                   "",
+                                                   Helpers.CreateRunActions(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(b => b.Buffs = buffs.ToArray()), apply_buff),
+                                                   Common.createAbilityCasterHasNoFacts(cooldowns[i]),
+                                                   Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
+                                                                                 stat: StatType.Intelligence),
+                                                   Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_cooldown)),
+                                                   Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally)
+                                                   );
+                ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(ability);
+            }
+
+            var wrapper = Common.createVariantWrapper("OpportuneAdviceInvestigatorAbility", "", abilities.ToArray());
+            wrapper.SetNameDescriptionIcon("Opportune Advice", buffs[0].Description, icon);
+
+
+            var reset_cooldown = Helpers.CreateAbility("ResetCooldownOpportuneAdviceInvestigatorAbility",
+                                                       "Opportune Advice: Reset Cooldown",
+                                                       buffs[0].Description,
+                                                       "",
+                                                       icon,
+                                                       AbilityType.Extraordinary,
+                                                       CommandType.Free,
+                                                       AbilityRange.Personal,
+                                                       "",
+                                                       "",
+                                                       Helpers.CreateRunActions(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(b => b.Buffs = cooldowns.ToArray())),
+                                                       inspiration_resource.CreateResourceLogic()
+                                                       );
+            reset_cooldown.setMiscAbilityParametersSelfOnly();
+
+            opportune_advice = Common.AbilityToFeature(wrapper, false);
+            opportune_advice.AddComponent(Helpers.CreateAddFact(reset_cooldown));
+
+
+
+            var knowledgeable_strike_ability = Helpers.CreateAbility("KnowledgeableStrikeInvestigatorAbility",
+                                           "Knowledgeable Strike",
+                                           buffs[0].Description,
+                                           "",
+                                           icon_opportune_strike,
+                                           AbilityType.Extraordinary,
+                                           CommandType.Move,
+                                           AbilityRange.Personal,
+                                           "",
+                                           "",
+                                           Common.createAbilityCasterHasFacts(buffs.ToArray()),
+                                           Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally)
+                                           );
+
+            var actions = new List<GameAction>();
+            for (int i = 0; i < buffs.Count; i++)
+            {
+                var apply_oportune_strike = Common.createContextActionApplyBuff(opportune_strike_buffs[i], Helpers.CreateContextDuration(1), dispellable: false);
+                var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionHasBuffFromCaster(buffs[i]) },
+                                                       new GameAction[] { Common.createContextActionRemoveBuffFromCaster(buffs[i]), apply_oportune_strike }
+                                                       );
+                actions.Add(action);
+            }
+
+            knowledgeable_strike_ability.AddComponent(Helpers.CreateRunActions(actions.ToArray()));
+            knowledgeable_strike = Common.AbilityToFeature(knowledgeable_strike_ability, false);
+
+
+        }
 
         static void createPsychicDetective()
         {
@@ -267,10 +508,10 @@ namespace CallOfTheWild
                                            "",
                                            null,
                                            FeatureGroup.None,
-                                           Common.createPrerequisiteArchetypeLevel(investigator_class, psychic_detective, 3),
-                                           Helpers.PrerequisiteNoFeature(extra_phrenic_amplification)
+                                           Common.createPrerequisiteArchetypeLevel(investigator_class, psychic_detective, 3)
                                            );
             extra_phrenic_amplification.AllFeatures = phrenic_dabbler.AllFeatures;
+            extra_phrenic_amplification.AddComponent(Helpers.PrerequisiteNoFeature(extra_phrenic_amplification));
 
             investigator_talent_selection.AllFeatures = investigator_talent_selection.AllFeatures.AddToArray(extra_phrenic_pool, extra_phrenic_amplification);
         }
@@ -1660,7 +1901,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("b96d810ceb1708b4e895b695ddbb1813");
 
             var studied_target_cooldown = Helpers.CreateBuff("InvestigatorStudiedTargetCooldownBuff",
-                                                             "Investigator Studied Target Cooldown",
+                                                             "Studied Target Cooldown",
                                                               "With a keen eye and calculating mind, an investigator can assess the mettle of his opponent to take advantage of gaps in talent and training. At 4th level, an investigator can use a move action to study a single enemy that he can see. Upon doing so, he adds 1/2 his investigator level as an insight bonus on melee attack rolls and as a bonus on damage rolls against the creature. This effect lasts for a number of rounds equal to his Intelligence modifier (minimum 1) or until he deals damage with a studied strike, whichever comes first. The bonus on damage rolls is precision damage, and is not multiplied on a critical hit.\n"
                                                               + "An investigator can only have one target of studied combat at a time, and once a creature has become the target of an investigator’s studied combat, he cannot become the target of the same investigator’s studied combat again for 24 hours unless the investigator expends one use of inspiration when taking the move action to use this ability.",
                                                               "",
@@ -1669,14 +1910,14 @@ namespace CallOfTheWild
             studied_target_cooldown.SetBuffFlags(BuffFlags.RemoveOnRest);
             var apply_cooldown = Common.createContextActionApplyBuff(studied_target_cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
             var studied_attack_buff = Helpers.CreateBuff("InvestigatorStudiedTargetAttackBuff",
-                                                             "Investigator Studied Target",
+                                                             "Studied Target",
                                                              studied_target_cooldown.Description,
                                                              "",
                                                              icon,
                                                              null
                                                              );
             var studied_defense_buff = Helpers.CreateBuff("InvestigatorStudiedDefenseBuff",
-                                                         "Investigator Studied Defense Target",
+                                                         "Studied Defense Target",
                                                          studied_defense.Description,
                                                          "",
                                                          icon,
