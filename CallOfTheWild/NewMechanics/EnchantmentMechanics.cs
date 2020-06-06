@@ -1169,11 +1169,15 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         [JsonProperty]
         private ItemEntityWeapon m_Applied;
 
+        private int off_hand_unlock;
+        private int main_hand_unlock;
+
         public override void OnFactActivate()
         {
             base.OnFactActivate();
             this.m_Applied = this.weapon.CreateEntity<ItemEntityWeapon>();
             this.m_Applied.MakeNotLootable();
+            maybeUnlockSlots();
             if (!canInsert(this.m_Applied))
             {
                 this.m_Applied = null;
@@ -1185,6 +1189,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 {
                     this.Owner.State.AddCondition(UnitCondition.DisableAttacksOfOpportunity, (Buff)null);
                 }
+
+                
                 if (!create_in_offhand)
                 {
                     ItemsCollection.DoWithoutEvents((Action)(() => this.Owner.Body.PrimaryHand.InsertItem((ItemEntity)this.m_Applied)));
@@ -1196,6 +1202,8 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                     this.Owner.Body.SecondaryHand.Lock.Retain();
                 }
             }
+
+            maybeRelockSlots();
         }
 
         bool canInsert(ItemEntityWeapon weapon)
@@ -1224,6 +1232,36 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             this.m_Applied.HoldingSlot?.RemoveItem();
             ItemsCollection.DoWithoutEvents((Action)(() => this.m_Applied.Collection?.Remove((ItemEntity)this.m_Applied)));
             this.m_Applied = (ItemEntityWeapon)null;
+        }
+
+
+        private void maybeUnlockSlots()
+        {
+            while (this.Owner.Body.SecondaryHand.Lock.Count > 0)
+            {
+                this.Owner.Body.SecondaryHand.Lock.Release();
+                off_hand_unlock++;
+            }
+            while (this.Owner.Body.PrimaryHand.Lock.Count > 0)
+            {
+                this.Owner.Body.PrimaryHand.Lock.Release();
+                main_hand_unlock++;
+            }
+        }
+
+
+        private void maybeRelockSlots()
+        {
+            while (off_hand_unlock > 0)
+            {
+                off_hand_unlock--;
+                this.Owner.Body.SecondaryHand.Lock.Retain();
+            }
+            while (main_hand_unlock > 0)
+            {
+                main_hand_unlock--;
+                this.Owner.Body.PrimaryHand.Lock.Retain();
+            }
         }
     }
 
@@ -1670,6 +1708,32 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
 
         public void OnEventDidTrigger(RuleDealDamage evt)
+        {
+        }
+    }
+
+
+    public class WeaponDamageAgainstFact : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RulePrepareDamage>, IRulebookHandler<RulePrepareDamage>, IInitiatorRulebookSubscriber
+    {
+        public ContextDiceValue Value;
+        public DamageEnergyType DamageType;
+        public BlueprintUnitFact checked_fact;
+
+        public void OnEventAboutToTrigger(RulePrepareDamage evt)
+        {
+            var weapon = evt.ParentRule?.AttackRoll?.Weapon;
+            if (weapon != this.Owner)
+                return;
+            if (!evt.Target.Descriptor.HasFact(checked_fact))
+                return;
+            int rollsCount = this.Value.DiceCountValue.Calculate(this.Context);
+            int bonusDamage = this.Value.BonusValue.Calculate(this.Context);
+            EnergyDamage energyDamage = new EnergyDamage(new DiceFormula(rollsCount, this.Value.DiceType), this.DamageType);
+            energyDamage.AddBonusTargetRelated(bonusDamage);
+            evt.DamageBundle.Add((BaseDamage)energyDamage);
+        }
+
+        public void OnEventDidTrigger(RulePrepareDamage evt)
         {
         }
     }

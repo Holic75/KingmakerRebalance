@@ -639,6 +639,8 @@ namespace CallOfTheWild.Archetypes
                                                         Helpers.CreateRunActions(apply_buff2),
                                                         resource.CreateResourceLogic(amount: resource_amount*2),
                                                         Common.createAbilityCasterHasFacts(allow_two_weapons_buff),
+                                                        Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(a => a.for_2h_item = false),
+                                                        Helpers.Create<NewMechanics.AbilityCasterSecondaryHandFree>(),
                                                         Helpers.Create<NewMechanics.AbilityShowIfCasterProficientWithWeaponCategory>(a => a.category = wc)
                                                         );
                     abilities.Add(ability2);
@@ -675,7 +677,6 @@ namespace CallOfTheWild.Archetypes
             var remove_buffs_actions = new List<GameAction>();
             foreach (var b in mind_blade_weapon_buffs)
             {
-
                 remove_buffs_actions.Add(Common.createContextActionRemoveBuffFromCaster(b));
             }
             foreach (var b in mind_blade_2weapon_buffs)

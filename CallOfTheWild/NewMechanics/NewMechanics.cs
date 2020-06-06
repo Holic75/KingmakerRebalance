@@ -1822,6 +1822,17 @@ namespace CallOfTheWild
         }
 
 
+        public class ActivatableAbilityMeleeWeaponRestriction : ActivatableAbilityRestriction
+        {
+            public override bool IsAvailable()
+            {
+                if (Owner.Body.PrimaryHand.HasWeapon)
+                    return Owner.Body.PrimaryHand.Weapon.Blueprint.IsMelee;
+                return false;
+            }
+        }
+
+
 
         public class ActivatableAbilityMainHandWeaponEnhancementIfHasArchetype : ActivatableAbilityRestriction
         {

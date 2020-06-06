@@ -169,16 +169,27 @@ namespace CallOfTheWild.Archetypes
 
         static void createHolyWaterSprinkerAndDeathWard()
         {
-            var action = Helpers.CreateConditional(Common.createContextConditionHasFact(Common.undead), Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D4, 2)));
+            var enchantment = Common.createWeaponEnchantment("HolyWaterSprinklerEnhancement",
+                                                  "Holy Water Sprinkler",
+                                                  "As a swift action, a grave warden can open a flask of holy water and pour it onto a held or adjacent melee weapon. If the weapon successfully hits an undead creature before the end of the grave warden’s next turn, the undead takes damage as if it took a direct hit from the holy water, taking 2d4 points of damage in addition to the damage from the weapon, if any.\n"
+                                                  + "A grave warden can use this ability once per day per grave warden level.",
+                                                  "",
+                                                  "",
+                                                  "",
+                                                  0,
+                                                  null,
+                                                  Common.createWeaponDamageAgainstFact(DamageEnergyType.Holy, Common.undead,
+                                                                                            Helpers.CreateContextDiceValue(DiceType.D4, 2))
+                                                  );
+
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/HolyWaterJet.png");
             var buff = Helpers.CreateBuff("HolyWaterSprinklerBuff",
-                                         "Holy Water Sprinkler",
-                                         "As a swift action, a grave warden can open a flask of holy water and pour it onto a held or adjacent melee weapon. If the weapon successfully hits an undead creature before the end of the grave warden’s next turn, the undead takes damage as if it took a direct hit from the holy water, taking 2d4 points of damage in addition to the damage from the weapon, if any.\n"
-                                         + "A grave warden can use this ability once per day per grave warden level.",
+                                         enchantment.Name,
+                                         enchantment.Description,
                                          "",
                                          icon,
                                          null,
-                                         Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action), check_weapon_range_type: true, wait_for_attack_to_resolve: true)
+                                         Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, enchantment)
                                          );
             var resource = Helpers.CreateAbilityResource("GraveWardenHolyWaterResource", "", "", "", null);
             resource.SetIncreasedByLevel(0, 1, new BlueprintCharacterClass[] { archetype.GetParentClass() });
@@ -192,7 +203,8 @@ namespace CallOfTheWild.Archetypes
                                                  CommandType.Swift,
                                                  null,
                                                  resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound),
-                                                 Common.createActivatableAbilityUnitCommand(CommandType.Swift)
+                                                 Common.createActivatableAbilityUnitCommand(CommandType.Swift),
+                                                 Helpers.Create<NewMechanics.ActivatableAbilityMeleeWeaponRestriction>()
                                                  );
 
             holy_water_sprinkler = Common.ActivatableAbilityToFeature(ability, false);

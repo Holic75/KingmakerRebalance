@@ -42,23 +42,24 @@ namespace CallOfTheWild.HoldingItemsMechanics
             {
                 if (!spell_combat)
                 {//check if we can hold the 2h weapon in 1h
-                    var unit_part = __instance.Owner?.Get<UnitPartCanHold2hWeaponIn1h>();
+                    var unit_part = __instance.Wielder?.Get<UnitPartCanHold2hWeaponIn1h>();
                     if (unit_part == null)
                     {
                         return;
                     }
+
                     __result = unit_part.canBeUsedAs2h(__instance);
                 }
                 else
                 {
                     //normally we can not 2h with spell combat, so we check only magus specific feature that would allow us
-                    var use_spell_combat_part = __instance.Owner?.Get<UnitPartCanUseSpellCombat>();
+                    var use_spell_combat_part = __instance.Wielder?.Get<UnitPartCanUseSpellCombat>();
                     if (use_spell_combat_part == null)
                     {
                         return;
                     }
 
-                    var pair_slot = (__instance.HoldingSlot as HandSlot)?.PairSlot;  
+                    var pair_slot = (__instance.HoldingSlot as HandSlot)?.PairSlot;
                     __result = use_spell_combat_part.canBeUsedOn(__instance.HoldingSlot as HandSlot, pair_slot, true);
                 }
             }
@@ -70,7 +71,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("OnItemInserted", Harmony12.MethodType.Normal)]
     class HandSlot__OnItemInserted__Patch
     {
-
         static bool Prefix(HandSlot __instance)
         {
             var unit_part = __instance.Owner?.Get<UnitPartCanHold2hWeaponIn1h>();
@@ -135,7 +135,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
         public bool canBeUsedAs2h(ItemEntityWeapon weapon)
         {
-
             bool can_use_at_all = false;
             foreach (var b in buffs)
             {
@@ -151,9 +150,9 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
             if (!can_use_at_all)
             {
-                HandSlot holdingSlot = weapon.HoldingSlot as HandSlot;
-                if (holdingSlot != null)
-                    return !holdingSlot.PairSlot.HasItem;
+                HandSlot pair_slot = (weapon?.HoldingSlot as HandSlot)?.PairSlot;
+                if (pair_slot != null)
+                    return !pair_slot.HasItem;
                 return false;
             }
             else
@@ -228,6 +227,11 @@ namespace CallOfTheWild.HoldingItemsMechanics
         public BlueprintWeaponEnchantment required_enchant;
         public override bool canBeUsedOn(HandSlot primary_hand_slot, HandSlot secondary_hand_slot, bool use_two_handed)
         {
+            if (use_two_handed)
+            {
+                return false;
+            }
+
             var weapon = primary_hand_slot?.MaybeWeapon;
             var weapon2 = secondary_hand_slot?.MaybeWeapon;
             if (weapon == null  || weapon.EnchantmentsCollection == null )
@@ -347,7 +351,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 return;
             }
 
-            var shield = (evt.Weapon?.HoldingSlot as HandSlot).PairSlot.MaybeShield;
+            var shield = (evt.Weapon?.HoldingSlot as HandSlot)?.PairSlot.MaybeShield;
             int penalty = Rulebook.Trigger<RuleCalculateArmorCheckPenalty>(new RuleCalculateArmorCheckPenalty(evt.Initiator, shield.ArmorComponent)).Penalty;
 
 
@@ -606,7 +610,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
             if ((__instance.Blueprint.IsTwoHanded && !__instance.HoldInTwoHands) //2h that is held as 1h
                 || ((__instance.Blueprint.IsTwoHanded || __instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands) && forDollRoom)) // make weapon look 1h in the doll room to see the shield if possible
             {
-                if ((__instance?.HoldingSlot as HandSlot).PairSlot?.MaybeShield == null)
+                if ((__instance.HoldingSlot as HandSlot)?.PairSlot?.MaybeShield == null)
                 {
                     return;
                 }

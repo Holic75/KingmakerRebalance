@@ -2600,6 +2600,17 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.EnchantmentMechanics.WeaponDamageAgainstFact createWeaponDamageAgainstFact(DamageEnergyType energy, BlueprintUnitFact fact, 
+                                                                                ContextDiceValue value)
+        {
+            var w = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageAgainstFact>();
+            w.DamageType = energy;
+            w.checked_fact = fact;
+            w.Value = value;
+            return w;
+        }
+
+
         static public NewMechanics.ContextActionSpendResource createContextActionSpendResource(BlueprintAbilityResource resource, int amount, params BlueprintUnitFact[] cost_reducing_facts)
         {
             var c = Helpers.Create<NewMechanics.ContextActionSpendResource>();

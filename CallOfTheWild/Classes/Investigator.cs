@@ -277,11 +277,11 @@ namespace CallOfTheWild
                 (library.Get<BlueprintFeature>("5941963eae3e9864d91044ba771f2cc2"), "Undead"),
                 (library.Get<BlueprintFeature>("f6dac9009747b91408644fa834dd0d99"), "Vermin"),
 
-                (library.Get<BlueprintFeature>("7ed4cbc226539d6419d6c60320bfd244"), "Elf"),
+                /*(library.Get<BlueprintFeature>("7ed4cbc226539d6419d6c60320bfd244"), "Elf"),
                 (library.Get<BlueprintFeature>("8bf97ce6a52d7274197a6c1911378b27"), "Dwarf"),
                 (library.Get<BlueprintFeature>("04314be4be2b7f444883ca8caf78a8a8"), "Gnome"),
                 (library.Get<BlueprintFeature>("8a18b8eec185cd24eb55c3457a7f69b1"), "Halfling"),
-                (library.Get<BlueprintFeature>("7283344b0309d8e4cb77eb22f1e7c57a"), "Human"),
+                (library.Get<BlueprintFeature>("7283344b0309d8e4cb77eb22f1e7c57a"), "Human"),*/
             };
 
             var icon = Helpers.GetIcon("183d5bb91dea3a1489a6db6c9cb64445"); //shield of faith
@@ -293,13 +293,15 @@ namespace CallOfTheWild
 
             foreach (var fe in favored_enemies)
             {
+                var remove_self = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
                 var opportune_advice_cooldown = Helpers.CreateBuff(fe.Item2.Replace(" ", "") + "InvestigatorOpportuneAdviceCooldownBuff",
                                                                   "Opportune Advice Cooldown: " + fe.Item2,
                                                                   "At 4th level, when the cryptid scholar succeeds at a Knowledge check to identify a monster’s special powers or vulnerabilities, he can take a move action to share his insights with his allies. Allies within 30 feet who can hear the cryptid scholar gain a +1 insight bonus to their ACs and on saving throws against extraordinary, supernatural, and spell-like abilities used by creatures of the same type and all the same subtypes as the monster identified. This bonus lasts for a number of rounds equal to the cryptid scholar’s Intelligence modifier (minimum 1) or until he uses knowledgeable strike (see below), whichever comes first. This bonus increases by 1 at 8th level and every 4 investigator levels thereafter (to a maximum of +5 at 20th level). A creature cannot benefit from opportune advice regarding more than one specific kind of monster at a time.\n"
-                                                                  + "Once the cryptid scholar has used this ability to provide a bonus against a specific kind of monster, he can’t grant a bonus against that same kind of monster again for 24 hours, unless he expends one use of inspiration when taking a move action to use this ability.",
+                                                                  + "Once the cryptid scholar has used this ability to provide a bonus against a specific kind of monster in the current encounter, he can’t grant a bonus against that same kind of monster again for 24 hours, unless he expends one use of inspiration when taking a move action to use this ability.",
                                                                   "",
                                                                   fe.Item1.Icon,
-                                                                  null);
+                                                                  null,
+                                                                  Helpers.Create<CombatStateTrigger>(c => { c.CombatEndActions = remove_self; c.CombatStartActions = remove_self; }));
                 opportune_advice_cooldown.SetBuffFlags(BuffFlags.RemoveOnRest);
 
                 var opportune_advice_buff = Helpers.CreateBuff(fe.Item2.Replace(" ", "") + "InvestigatorOpportuneAdviceBuff",
