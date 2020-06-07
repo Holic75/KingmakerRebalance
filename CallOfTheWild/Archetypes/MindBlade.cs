@@ -748,7 +748,7 @@ namespace CallOfTheWild.Archetypes
         {
             dual_manifest = Helpers.CreateFeature("MindBladeDualManifestFeature",
                                                    "Dual Manifest",
-                                                   "At 13th level, a mindblade can manifest two psychic weapons or one double weapon with a swift action. Also, when wielding a weapon two-handed, she can use her spell combat ability as though she had a hand free.",
+                                                   "At 13th level, a mindblade can manifest two psychic weapons or one double weapon with a swift action. Also, when wielding a psychic weapon two-handed, she can use her spell combat ability as though she had a hand free.",
                                                    "",
                                                    Helpers.GetIcon("27d76f1afda08a64d897cc81201b5218"),
                                                    FeatureGroup.None,

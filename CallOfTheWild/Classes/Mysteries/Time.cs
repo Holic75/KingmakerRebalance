@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints.Classes;
+﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Stats;
@@ -7,6 +8,7 @@ using Kingmaker.Enums.Damage;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -243,7 +245,7 @@ namespace CallOfTheWild
 
         public BlueprintFeature createRewindTime(string name_prefix, string display_name, string description)
         {
-            // Note: will replace with action that will make one reroll of failed action during next round
+            // Note: will replace with toggle allowing to reroll corresponding d20
 
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 7, 0, 4, 1, 0, 0, classes);
@@ -268,7 +270,43 @@ namespace CallOfTheWild
                                     Helpers.CreateResourceLogic(resource)
                                    );
             ability.setMiscAbilityParametersSelfOnly();
+
+
+            var rule_types = new RuleType[] { RuleType.AttackRoll, RuleType.Intiative, RuleType.Maneuver, RuleType.SavingThrow, RuleType.SkillCheck, RuleType.SpellResistance };
+            var names = new string[] { "Attack Roll", "Initiative", "Combat Maneuver", "Saving Throw", "Skill", "Spell Resistance" };
+            var abilities = new List<BlueprintActivatableAbility>();
+            for (int i = 0; i < rule_types.Length; i++)
+            {
+                var buff2 = library.CopyAndAdd<BlueprintBuff>("3bc40c9cbf9a0db4b8b43d8eedf2e6ec", rule_types[i].ToString() + name_prefix + "Buff", "");
+                buff2.SetNameDescription(display_name + ": " + names[i], description);
+                buff2.RemoveComponents<ModifyD20>();
+                buff2.AddComponent(Helpers.Create<NewMechanics.ModifyD20WithActions>(m =>
+                                                                                    {
+                                                                                        m.Rule = rule_types[i];
+                                                                                        m.RollsAmount = 1;
+                                                                                        m.TakeBest = true;
+                                                                                        m.RerollOnlyIfFailed = true;
+                                                                                        m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(resource, 1));
+                                                                                    })
+                                                                                    );
+                var ability2 = Helpers.CreateActivatableAbility(rule_types[i].ToString() + name_prefix + "ToggleAbility",
+                                                               buff.Name,
+                                                               buff.Description,
+                                                               "",
+                                                               buff.Icon,
+                                                               buff,
+                                                               AbilityActivationType.Immediately,
+                                                               Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                               null,
+                                                               Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                               );
+                ability2.DeactivateImmediately = true;
+                abilities.Add(ability2);
+            }
+
+
             var feature = Common.AbilityToFeature(ability, hide: false);
+            feature.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFacts(abilities.ToArray()) };
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
 
             foreach (var c in classes)

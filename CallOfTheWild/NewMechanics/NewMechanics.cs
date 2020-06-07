@@ -5950,6 +5950,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleRollD20 evt)
             {
+                this.m_Roll = null;
                 RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
                 if (previousEvent == null || !this.CheckRule(previousEvent))
                     return;
