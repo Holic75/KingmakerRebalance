@@ -70,6 +70,12 @@ namespace CallOfTheWild
             return Helpers.CreateFeature(name, "", "", guid, null, FeatureGroup.None);
         }
 
+
+        static public BlueprintFeatureSelection createDummyFeatureSelection(string name, string guid)
+        {
+            return Helpers.CreateFeatureSelection(name, "", "", guid, null, FeatureGroup.None);
+        }
+
         static internal void FixMissingAssets()
         {
             List<BlueprintUnitFact> missing_facts = new List<BlueprintUnitFact>();
@@ -84,7 +90,8 @@ namespace CallOfTheWild
 
             missing_facts.Add(createDummyFeature("PositiveChanneling1Feature", "fc168f08cbeb4a5e90f1d5a4cfe82f42"));
             missing_facts.Add(createDummyFeature("PositiveChanneling2Feature", "56f12dafd5bf495fabf9b2f938a03d63"));
-
+            
+            missing_facts.Add(createDummyFeatureSelection("BloodlineUndeadSpellLevel1Selection", "cacde9103efa44979349a36e104c5b71"));
 
             Action<UnitDescriptor> fix_action = delegate (UnitDescriptor u)
             {
