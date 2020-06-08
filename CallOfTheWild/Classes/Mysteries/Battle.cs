@@ -37,7 +37,7 @@ namespace CallOfTheWild
         {
             var bless = library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638");
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes, getArchetypeArray());
             var rage = library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b");
             var buff = Helpers.CreateBuff(name_prefix + "EffectBuff",
                                           display_name,
@@ -51,8 +51,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
-                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
-                                                                          classes: classes, stepLevel: 10, type: AbilityRankType.StatBonus, max: 2)
+                                          createClassScalingConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 10, type: AbilityRankType.StatBonus, max: 2)
                                          );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
@@ -86,7 +85,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("6b90c773a6543dc49b2505858ce33db5"); // cure moderate wounds
    
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(0, 7, 1, 4, 1, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 7, 1, 4, 1, 0, 0, classes, getArchetypeArray());
 
             var cure_spells = new BlueprintAbility[]
             {
@@ -134,10 +133,7 @@ namespace CallOfTheWild
 
             var feature = Common.ActivatableAbilityToFeature(ability, false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
             return feature;
         }
 
@@ -146,9 +142,9 @@ namespace CallOfTheWild
         {
             var stoneskin = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b");
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 15, 1, 10, 0, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 15, 1, 10, 0, 0, 0, classes, getArchetypeArray());
 
-            var ability = Common.convertToSuperNatural(stoneskin, name_prefix, classes, stat, resource);
+            var ability = Common.convertToSuperNatural(stoneskin, name_prefix, classes, stat, resource, archetypes: getArchetypeArray());
             ability.SetNameDescription(display_name, description);
             ability.Range = AbilityRange.Personal;
             ability.setMiscAbilityParametersSelfOnly();
@@ -156,10 +152,7 @@ namespace CallOfTheWild
             var feature = Common.AbilityToFeature(ability, false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
 
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
-            }
+            addMinLevelPrerequisite(feature, 11);
 
             return feature;
         }
@@ -206,13 +199,11 @@ namespace CallOfTheWild
                                                  "",
                                                  icons[i],
                                                  FeatureGroup.MagusArcana,
-                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                 classes: classes,
-                                                                                 progression: ContextRankProgression.StartPlusDivStep,
-                                                                                 startLevel: 1,
-                                                                                 stepLevel: 4),
-                                                 Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>(feat_ids[i].Item1), 7, classes),
-                                                 Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>(feat_ids[i].Item2), 11, classes)
+                                                 createClassScalingConfig(progression: ContextRankProgression.StartPlusDivStep,
+                                                                            startLevel: 1,
+                                                                            stepLevel: 4),
+                                                 Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>(feat_ids[i].Item1), 7, classes, archetypes: getArchetypeArray()),
+                                                 Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>(feat_ids[i].Item2), 11, classes, archetypes: getArchetypeArray())
                                                  );
 
                 foreach (var maneuver in maneuvers[i])
@@ -253,7 +244,7 @@ namespace CallOfTheWild
         {
             //will give pounce for 1 round
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 7, 1, 8, 1, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 7, 1, 8, 1, 0, 0, classes, getArchetypeArray());
             var expeditious_retreat = library.Get<BlueprintAbility>("4f8181e7a7f1d904fbaea64220e83379");
             var buff = Helpers.CreateBuff(name_prefix + "Buff",
                                             display_name,
@@ -331,8 +322,8 @@ namespace CallOfTheWild
                                                         feature.Icon,
                                                         FeatureGroup.None,
                                                         Common.createAddParametrizedFeatures(library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"), category), //weapon focus
-                                                        Helpers.CreateAddFeatureOnClassLevel(ic_feature, 8, classes),
-                                                        Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, classes),
+                                                        Helpers.CreateAddFeatureOnClassLevel(ic_feature, 8, classes, archetypes: getArchetypeArray()),
+                                                        Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, classes, archetypes: getArchetypeArray()),
                                                         Helpers.Create<PrerequisiteProficiency>(p => p.WeaponProficiencies = new WeaponCategory[] { category })
                                                         );
                 feature.AllFeatures = feature.AllFeatures.AddToArray(ws_feature);

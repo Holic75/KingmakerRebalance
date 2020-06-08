@@ -40,7 +40,7 @@ namespace CallOfTheWild
             var improved_invisibility_buff = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
 
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevel(0, 1, classes);
+            resource.SetIncreasedByLevel(0, 1, classes, getArchetypeArray());
 
             var apply_invisibility = Common.createContextActionApplyBuff(invisibility_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
 
@@ -81,14 +81,10 @@ namespace CallOfTheWild
                                                 FeatureGroup.None,
                                                 Helpers.CreateAddAbilityResource(resource),
                                                 Helpers.CreateAddFact(ability1),
-                                                Helpers.CreateAddFeatureOnClassLevel(add_ability2_feature, 9, classes)
+                                                Helpers.CreateAddFeatureOnClassLevel(add_ability2_feature, 9, classes, archetypes: getArchetypeArray())
                                                 );
 
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 3, any: true));
-            }
-
+            addMinLevelPrerequisite(feature, 3);
             return feature;
         }
 
@@ -98,7 +94,7 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73").Icon; //lightning bolt
 
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes, getArchetypeArray());
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
                                          isAoE: true, halfIfSaved: true);
@@ -114,11 +110,11 @@ namespace CallOfTheWild
                                            "",
                                            Helpers.reflexHalfDamage,
                                            Helpers.CreateRunActions(SavingThrowType.Reflex, dmg),
-                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes),
+                                           createClassScalingConfig(),
                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
                                            Helpers.CreateResourceLogic(resource),
                                            library.Get<BlueprintAbility>("c073af2846b8e054fb28e6f72bc02749").GetComponent<AbilityDeliverProjectile>(),//kinetic thunderstorm torrent,
-                                           Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
+                                           Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(),stat)
                                            );
             ability.setMiscAbilityParametersRangedDirectional();
 
@@ -138,9 +134,7 @@ namespace CallOfTheWild
                                                    "",
                                                    icon,
                                                    FeatureGroup.None,
-                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
-                                                                                  ContextRankProgression.Custom,
-                                                                                  classes: classes,
+                                                   createClassScalingConfig(ContextRankProgression.Custom,
                                                                                   customProgression: new (int, int)[] {
                                                                                                                         (4, 5),
                                                                                                                         (10, 10),
@@ -163,7 +157,7 @@ namespace CallOfTheWild
                                                      Helpers.Create<AddEnergyDamageImmunity>(a => a.EnergyType = DamageEnergyType.Electricity)
                                                      );
 
-            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(immunity, 17, classes));
+            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(immunity, 17, classes, archetypes: getArchetypeArray()));
             return feature;
         }
 
@@ -174,7 +168,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("9fbc4fe045472984aa4a2d15d88bdaf9");
 
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 4, 1, 0, 0.0f, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 4, 1, 0, 0.0f, classes, getArchetypeArray());
 
             var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)),
                                          isAoE: true, halfIfSaved: true);
@@ -194,10 +188,10 @@ namespace CallOfTheWild
                                            "",
                                            "Fortitude Half",
                                            Helpers.CreateRunActions(SavingThrowType.Fortitude, dmg, apply_deafened),
-                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes),
+                                           createClassScalingConfig(),
                                            Helpers.CreateResourceLogic(resource),
                                            library.Get<BlueprintAbility>("9fbc4fe045472984aa4a2d15d88bdaf9").GetComponent<AbilitySpawnFx>(),//air blast cyclone,
-                                           Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat),
+                                           Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(),stat),
                                            Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
                                            );
             ability.setMiscAbilityParametersRangedDirectional();
@@ -205,10 +199,7 @@ namespace CallOfTheWild
             var feature = Common.AbilityToFeature(ability, true);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
 
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
 
             return feature;
         }
@@ -231,7 +222,7 @@ namespace CallOfTheWild
             shocking_touch.SetNameDescriptionIcon(display_name,
                                                    description,
                                                    icon);
-            shocking_touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", classes));
+            shocking_touch.ReplaceComponent<ContextRankConfig>(createClassScalingConfig(ContextRankProgression.Div2));
             var shocking_touch_sticky = Helpers.CreateTouchSpellCast(shocking_touch, resource);
             var shocking = library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658");
 
@@ -254,7 +245,7 @@ namespace CallOfTheWild
                                                    FeatureGroup.None,
                                                    Helpers.CreateAddFact(shocking_touch_sticky),
                                                    Helpers.CreateAddAbilityResource(resource),
-                                                   Helpers.CreateAddFeatureOnClassLevel(shocking_weapon_feature, 11, classes)
+                                                   Helpers.CreateAddFeatureOnClassLevel(shocking_weapon_feature, 11, classes, archetypes: getArchetypeArray())
                                                    );
             return feature;
         }
@@ -278,8 +269,7 @@ namespace CallOfTheWild
                                                 icon,
                                                 FeatureGroup.None,
                                                 Helpers.Create<NewMechanics.ActionOnSpellDamage>(a => { a.only_critical = true; a.action = Helpers.CreateActionList(action); }),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes,
-                                                                                progression: ContextRankProgression.OnePlusDivStep, stepLevel: 11)
+                                                createClassScalingConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 11)
                                                );
             return feature;
         }
@@ -295,10 +285,7 @@ namespace CallOfTheWild
                                                   ability.Icon,
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
             return feature;
         }
 

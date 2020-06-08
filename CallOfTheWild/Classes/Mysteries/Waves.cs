@@ -94,7 +94,7 @@ namespace CallOfTheWild
                     a.FirstRound = actions;
                 }),
                 Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }),
-                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes, type: AbilityRankType.DamageDice),
+               createClassScalingConfig(type: AbilityRankType.DamageDice),
             };
 
 
@@ -116,15 +116,12 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: stat),
                                                      Helpers.CreateResourceLogic(resource),
-                                                     Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
+                                                     Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(),stat)
                                                      );
             ability.setMiscAbilityParametersRangedDirectional();
             var feature = Common.AbilityToFeature(ability, false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
-            }
+            addMinLevelPrerequisite(feature, 11);
             return feature;
         }
 
@@ -143,7 +140,7 @@ namespace CallOfTheWild
                                                 Common.createManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush, 4),
                                                 Common.createManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Grapple, 4),
                                                 Common.createManeuverDefenseBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Trip, 4),
-                                                Helpers.CreateAddFeatureOnClassLevel(dodge, 5, classes)
+                                                Helpers.CreateAddFeatureOnClassLevel(dodge, 5, classes, archetypes: getArchetypeArray())
                                                 );
 
             return feature;
@@ -195,8 +192,8 @@ namespace CallOfTheWild
                                                 "",
                                                 icon,
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddFeatureOnClassLevel(feature1, 11, classes, before: true),
-                                                Helpers.CreateAddFeatureOnClassLevel(feature2, 11, classes)
+                                                Helpers.CreateAddFeatureOnClassLevel(feature1, 11, classes, before: true, archetypes: getArchetypeArray()),
+                                                Helpers.CreateAddFeatureOnClassLevel(feature2, 11, classes, archetypes: getArchetypeArray())
                                                 );
 
             return feature;
@@ -212,8 +209,7 @@ namespace CallOfTheWild
                                           mage_armor.Icon,
                                           null,
                                           Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Armor, rankType: AbilityRankType.Default, multiplier: 2),
-                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                          classes: classes, stepLevel: 4, startLevel: -1, min: 2)
+                                          createClassScalingConfig(progression: ContextRankProgression.StartPlusDivStep, stepLevel: 4, startLevel: -1, min: 2)
                                          );
             var buff2 = Helpers.CreateBuff(name_prefix + "2Buff",
                               display_name,
@@ -228,7 +224,7 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             var apply_buff2 = Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevel(0, 1, classes);
+            resource.SetIncreasedByLevel(0, 1, classes, getArchetypeArray());
 
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
@@ -246,8 +242,7 @@ namespace CallOfTheWild
                                                                                                                         Helpers.CreateActionList(apply_buff, apply_buff2)
                                                                                                                         )
                                                                         ),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes,
-                                                                                type: AbilityRankType.StatBonus, progression: ContextRankProgression.OnePlusDivStep,
+                                                createClassScalingConfig(type: AbilityRankType.StatBonus, progression: ContextRankProgression.OnePlusDivStep,
                                                                                 stepLevel: 13),
                                                 Helpers.CreateResourceLogic(resource)
                                                 );
@@ -269,9 +264,7 @@ namespace CallOfTheWild
                                                    "",
                                                    icon,
                                                    FeatureGroup.None,
-                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
-                                                                                  ContextRankProgression.Custom,
-                                                                                  classes: classes,
+                                                   createClassScalingConfig(ContextRankProgression.Custom,
                                                                                   customProgression: new (int, int)[] {
                                                                                                                         (4, 5),
                                                                                                                         (10, 10),
@@ -294,7 +287,7 @@ namespace CallOfTheWild
                                                      Helpers.Create<AddEnergyDamageImmunity>(a => a.EnergyType = DamageEnergyType.Cold)
                                                      );
 
-            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(immunity, 17, classes));
+            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(immunity, 17, classes, archetypes: getArchetypeArray()));
             return feature;
         }
 
@@ -322,8 +315,8 @@ namespace CallOfTheWild
                                                 Helpers.roundsPerLevelDuration,
                                                 Helpers.fortNegates,
                                                 Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff)),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes),
-                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat),
+                                                createClassScalingConfig(),
+                                                Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(),stat),
                                                 baleful_polymorph.GetComponent<AbilityTargetHasFact>(),
                                                 baleful_polymorph.GetComponent<SpellDescriptorComponent>(),
                                                 baleful_polymorph.GetComponent<AbilitySpawnFx>(),
@@ -335,10 +328,7 @@ namespace CallOfTheWild
             var feature = Common.AbilityToFeature(ability, false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
 
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
             return feature;
         }
 
@@ -367,7 +357,7 @@ namespace CallOfTheWild
             for (int i = 0; i < form_ids.Length; i++)
             {
                 var spell = library.Get<BlueprintAbility>(form_ids[i]);
-                var ability = Common.convertToSuperNatural(spell, name_prefix, classes, stat, resource);
+                var ability = Common.convertToSuperNatural(spell, name_prefix, classes, stat, resource, archetypes: getArchetypeArray());
 
                 var new_actions = Common.changeAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, c => c.DurationValue = Helpers.CreateContextDuration(c.DurationValue.BonusValue, DurationRate.Hours));
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
@@ -380,14 +370,11 @@ namespace CallOfTheWild
                 else
                 {
                     var feat = Common.AbilityToFeature(ability);
-                    feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 7 + i * 2, classes));
+                    feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 7 + i * 2, classes, archetypes: getArchetypeArray()));
                 }
 
             }
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
             return feature;
         }
 
@@ -409,7 +396,7 @@ namespace CallOfTheWild
                                          description,
                                          Helpers.GetIcon("c83447189aabc72489164dfc246f3a36") //frigid touch
                                          );
-            touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", classes));
+            touch.ReplaceComponent<ContextRankConfig>(createClassScalingConfig(ContextRankProgression.Div2));
             var touch_sticky = Helpers.CreateTouchSpellCast(touch, resource);
             
 
@@ -434,7 +421,7 @@ namespace CallOfTheWild
                                                    FeatureGroup.None,
                                                    Helpers.CreateAddFact(touch_sticky),
                                                    Helpers.CreateAddAbilityResource(resource),
-                                                   Helpers.CreateAddFeatureOnClassLevel(frost_weapon_feature, 11, classes)
+                                                   Helpers.CreateAddFeatureOnClassLevel(frost_weapon_feature, 11, classes, archetypes: getArchetypeArray())
                                                    );
             return feature;
         }

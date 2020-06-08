@@ -45,9 +45,9 @@ namespace CallOfTheWild
             resource.SetIncreasedByStat(1, stat);
 
             var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
-            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                                  type: AbilityRankType.Default, classes: classes, startLevel: 1, stepLevel: 2);
-            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat);
+            var context_rank_config = createClassScalingConfig(progression: ContextRankProgression.StartPlusDivStep,
+                                                                                  type: AbilityRankType.Default, startLevel: 1, stepLevel: 2);
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat);
             var feature = Helpers.CreateFeature(name_prefix + "Feature",
                                                    display_name,
                                                    description,
@@ -91,7 +91,7 @@ namespace CallOfTheWild
         public BlueprintFeature createEnergyBody(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevel(0, 1, classes);
+            resource.SetIncreasedByLevel(0, 1, classes, getArchetypeArray());
 
             var icon = library.Get<BlueprintAbility>("1bc83efec9f8c4b42a46162d72cbf494").Icon; //burst of glory
 
@@ -107,7 +107,7 @@ namespace CallOfTheWild
 
             var area_effect = library.CopyAndAdd(aura_of_healing, $"{name_prefix}Area", "");
             area_effect.Size = 5.Feet();
-            area_effect.SetComponents(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: classes),
+            area_effect.SetComponents(createClassScalingConfig(),
                                       Helpers.CreateAreaEffectRunAction(round: heal_living)
                                       );
             var undead_damage = Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(),
@@ -124,7 +124,7 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("f5eaec10b715dbb46a78890db41fa6a0"), //fiery body
                                           Helpers.CreateAddFact(Common.elemental),
                                           Common.createAddTargetAttackWithWeaponTrigger(action_attacker: Helpers.CreateActionList(undead_damage)),
-                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes),
+                                          createClassScalingConfig(),
                                           Common.createAddAreaEffect(area_effect)
                                           );
 
@@ -192,7 +192,7 @@ namespace CallOfTheWild
         {
             var clw = library.Get<BlueprintAbility>("47808d23c67033d4bbab86a1070fd62f");
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevel(0, 1, classes);
+            resource.SetIncreasedByLevel(0, 1, classes, getArchetypeArray());
 
             var spawn_fx = Helpers.Create<ContextActionSpawnFx>(c => c.PrefabLink = clw.GetComponent<AbilitySpawnFx>().PrefabLink);
             var transfer_damage = Helpers.Create<HealingMechanics.ContextActionTransferDamageToCaster>(c => c.Value = 5);
@@ -291,7 +291,7 @@ namespace CallOfTheWild
                                                                                                               h.shared_value_type = AbilitySharedValue.Heal;
                                                                                                            }
                                                                                                           ),
-                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes)
+                                         createClassScalingConfig()
                                          );
         }
 

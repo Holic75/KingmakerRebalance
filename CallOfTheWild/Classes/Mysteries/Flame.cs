@@ -74,7 +74,7 @@ namespace CallOfTheWild
                                                  icon,
                                                  FeatureGroup.None,
                                                  Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable),
-                                                 Helpers.CreateAddFeatureOnClassLevel(woodland_stride, 10, classes)
+                                                 Helpers.CreateAddFeatureOnClassLevel(woodland_stride, 10, classes, archetypes: getArchetypeArray())
                                                  );
             return feat;
         }
@@ -83,16 +83,16 @@ namespace CallOfTheWild
         public BlueprintFeature createFireBreath(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes, archetypes: getArchetypeArray());
 
             var ability = library.CopyAndAdd<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038", name_prefix + "Ability", "");
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
             ability.RemoveComponents<SpellComponent>();
             ability.RemoveComponents<SpellListComponent>();
-            ability.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes));
+            ability.ReplaceComponent<ContextRankConfig>(createClassScalingConfig());
             ability.AddComponents(Helpers.CreateResourceLogic(resource),
-                                  Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
+                                  Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat)
                                  );
             ability.SetNameDescriptionIcon(display_name, description, Helpers.GetIcon("2a711cd134b91d34ab027b50d721778b")); // gold dragon fire breath)
 
@@ -116,7 +116,7 @@ namespace CallOfTheWild
             // TODO: offer the option to place more, using an activatable ability?
             area.Size = 20.Feet();
             area.SetComponents(
-                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.AsIs, AbilityRankType.DamageDice, classes: classes),
+                createClassScalingConfig(ContextRankProgression.AsIs, AbilityRankType.DamageDice),
                 Helpers.CreateAreaEffectRunAction(round:
                     Helpers.CreateActionSavingThrow(SavingThrowType.Reflex,
                         Helpers.CreateActionDealDamage(DamageEnergyType.Fire,
@@ -142,17 +142,14 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, ContextRankProgression.AsIs, stat: stat),
                                                 Helpers.CreateRunActions(spawn_area),
-                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
+                                                Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat)
                                                 );
 
             ability.setMiscAbilityParametersRangedDirectional();
 
             var feature = Common.AbilityToFeature(ability, false);
             feature.AddComponent(Helpers.CreateAddAbilityResource(resource));
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
-            }
+            addMinLevelPrerequisite(feature, 11);
             return feature;
         }
 
@@ -181,7 +178,7 @@ namespace CallOfTheWild
             for (int i = 0; i < form_ids.Length; i++)
             {
                 var spell = library.Get<BlueprintAbility>(form_ids[i]);
-                var ability = Common.convertToSuperNatural(spell, name_prefix, classes, stat, resource);
+                var ability = Common.convertToSuperNatural(spell, name_prefix, classes, stat, resource, archetypes: getArchetypeArray());
                 
                 var new_actions = Common.changeAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, c => c.DurationValue = Helpers.CreateContextDuration(c.DurationValue.BonusValue, DurationRate.Hours));
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
@@ -195,14 +192,11 @@ namespace CallOfTheWild
                 else
                 {
                     var feat = Common.AbilityToFeature(ability);
-                    feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 7 + i*2, classes));
+                    feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feat, 7 + i*2, classes, archetypes: getArchetypeArray()));
                 }
 
             }
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
             return feature;
         }
 
@@ -210,7 +204,7 @@ namespace CallOfTheWild
         public BlueprintFeature createHeatAura(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0, classes, getArchetypeArray());
 
             var blur = library.Get<BlueprintBuff>("dd3ad347240624d46a11a092b4dd4674");
 
@@ -233,11 +227,10 @@ namespace CallOfTheWild
                                                 Helpers.reflexHalfDamage,
                                                 Helpers.CreateRunActions(damage, apply_blur),
                                                 Helpers.CreateAbilityTargetsAround(10.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
-                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2,
-                                                                                min: 1, classes: classes),
+                                                createClassScalingConfig(ContextRankProgression.Div2, min: 1),
                                                 resource.CreateResourceLogic(),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),
-                                                Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat));
+                                                Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat));
             ability.setMiscAbilityParametersSelfOnly();
 
             var feature = Common.AbilityToFeature(ability, false);
@@ -256,9 +249,7 @@ namespace CallOfTheWild
                                                    "",
                                                    icon,
                                                    FeatureGroup.None,
-                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
-                                                                                  ContextRankProgression.Custom,
-                                                                                  classes: classes,
+                                                   createClassScalingConfig(ContextRankProgression.Custom,
                                                                                   customProgression: new (int, int)[] {
                                                                                                                         (4, 5),
                                                                                                                         (10, 10),
@@ -281,7 +272,7 @@ namespace CallOfTheWild
                                                      Helpers.Create<AddEnergyDamageImmunity>(a => a.EnergyType = DamageEnergyType.Fire)
                                                      );
 
-            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(immunity, 17, classes));
+            feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(immunity, 17, classes, archetypes: getArchetypeArray()));
             return feature;
         }
 
@@ -304,7 +295,7 @@ namespace CallOfTheWild
             touch_of_flames.SetNameDescriptionIcon(display_name,
                                                    description,
                                                    icon);
-            touch_of_flames.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", classes));
+            touch_of_flames.ReplaceComponent<ContextRankConfig>(createClassScalingConfig(ContextRankProgression.Div2));
             var touch_of_flames_sticky = Helpers.CreateTouchSpellCast(touch_of_flames, resource);
             var flaming = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
 
@@ -327,7 +318,7 @@ namespace CallOfTheWild
                                                    FeatureGroup.None,
                                                    Helpers.CreateAddFact(touch_of_flames_sticky),
                                                    Helpers.CreateAddAbilityResource(resource),
-                                                   Helpers.CreateAddFeatureOnClassLevel(flaming_weapon_feature, 11, classes)
+                                                   Helpers.CreateAddFeatureOnClassLevel(flaming_weapon_feature, 11, classes, archetypes: getArchetypeArray())
                                                    );
             return feature;
         }

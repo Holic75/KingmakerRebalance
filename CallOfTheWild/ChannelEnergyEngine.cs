@@ -1290,9 +1290,10 @@ namespace CallOfTheWild
 
 
         internal static BlueprintFeature createCommandUndead(string name_prefix, string display_name, string description,
-                                                             StatType stat, BlueprintCharacterClass[] classes, BlueprintAbilityResource resource)
+                                                             StatType stat, BlueprintCharacterClass[] classes, BlueprintAbilityResource resource,
+                                                             BlueprintArchetype[] archetypes = null)
         {
-            var ability = Common.convertToSuperNatural(NewSpells.control_undead, name_prefix, classes, stat, resource);
+            var ability = Common.convertToSuperNatural(NewSpells.control_undead, name_prefix, classes, stat, resource, archetypes: archetypes);
             ability.SetName(display_name);
 
             var feature = Common.AbilityToFeature(ability, false);

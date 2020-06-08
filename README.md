@@ -41,7 +41,7 @@ New Archetypes for existing classes:
 - Mindblade and Nature-Bonded Magus Magus archetypes,
 - Ninja class (implemented as Rogue archetype) and Rake Rogue archetype,
 - Monk of the Mantis and Zen Archer Monk archetypes,
-- Sanctified Slayer Inquisitor archetype,
+- Ravener Hunter and Sanctified Slayer Inquisitor archetypes,
 - Executioner and Grave Warden Slayer archetypes,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Lore Warden Fighter archetype,

@@ -33,7 +33,7 @@ namespace CallOfTheWild
         public BlueprintFeature createSpiritWalk(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(0, 1, 2, 1, 2, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 1, 2, 1, 2, 0, 0, classes, getArchetypeArray());
             var icon = library.Get<BlueprintAbility>("3e4ab69ada402d145a5e0ad3ad4b8564").Icon; //mirror image
 
             var invisibility_buff = library.Get<BlueprintBuff>("e6b35473a237a6045969253beb09777c");
@@ -73,10 +73,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateAddFact(ability),
                                                   Helpers.CreateAddAbilityResource(resource));
             feature.Ranks = 1;
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
-            }
+            addMinLevelPrerequisite(feature, 11);
             return feature;
         }
 
@@ -84,7 +81,7 @@ namespace CallOfTheWild
         public BlueprintFeature createBloodOfHeroes(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0, classes, getArchetypeArray());
             var icon = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2").Icon; //rage
 
             var buff = Helpers.CreateBuff(name_prefix + "Buff",
@@ -96,8 +93,8 @@ namespace CallOfTheWild
                                            Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                            Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                            Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.StatBonus), ModifierDescriptor.Morale, SpellDescriptor.Fear),
-                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
-                                                                           type: AbilityRankType.StatBonus, stepLevel: 7, classes: classes)
+                                           createClassScalingConfig(progression: ContextRankProgression.OnePlusDivStep,
+                                                                           type: AbilityRankType.StatBonus, stepLevel: 7)
                                            );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.SpeedBonus)), dispellable: false);
 
@@ -160,8 +157,7 @@ namespace CallOfTheWild
                                                  "",
                                                  Helpers.savingThrowNone,
                                                  Helpers.CreateDeliverTouch(),
-                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2, 
-                                                                                 AbilityRankType.SpeedBonus, min: 1, classes: classes),
+                                                 createClassScalingConfig(ContextRankProgression.Div2, AbilityRankType.SpeedBonus, min: 1),
                                                  Helpers.CreateRunActions(effect),
                                                  Common.createAbilityTargetHasFact(true, undead),
                                                  Common.createAbilityTargetHasFact(true, construct),
@@ -253,7 +249,7 @@ namespace CallOfTheWild
         public BlueprintFeature createSpiritOfTheWarrior(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0, classes, getArchetypeArray());
 
             var buff = library.CopyAndAdd<BlueprintBuff>("287682389d2011b41b5a65195d9cbc84", name_prefix + "Buff", "");
             buff.RemoveComponents<AddProficiencies>();
@@ -261,7 +257,7 @@ namespace CallOfTheWild
             buff.RemoveComponents<ContextRankConfig>();
             buff.RemoveComponents<AddStatBonus>(c => c.Stat == StatType.SaveFortitude);
 
-            buff.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, type: AbilityRankType.StatBonus, classes: classes));
+            buff.AddComponent(createClassScalingConfig(type: AbilityRankType.StatBonus));
             var keen = library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0");
             buff.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.enchant = keen; p.secondary_hand = false; }));
             buff.SetName(display_name);
@@ -290,10 +286,7 @@ namespace CallOfTheWild
                                                  resource.CreateAddAbilityResource(),
                                                  Helpers.CreateAddFact(ability)
                                                  );
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 11, any: true));
-            }
+            addMinLevelPrerequisite(feature, 11);
             CombatManeuverMechanics.SpecificCombatManeuverBonusUnlessHasFacts.facts.Add(buff);
             return feature;
         }
@@ -305,7 +298,7 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png");
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 4, 1, 0, 0, classes);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 4, 1, 0, 0, classes, getArchetypeArray());
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDice)), 
                                                      halfIfSaved: true, isAoE: true);
@@ -325,15 +318,13 @@ namespace CallOfTheWild
                                                  AbilityRange.Medium,
                                                  "",
                                                  "Fortitude half",
-                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2,
-                                                                                 AbilityRankType.DamageDice, classes: classes),
-                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.AsIs,
-                                                                                 AbilityRankType.DamageDiceAlternative, classes: classes),
+                                                 createClassScalingConfig(ContextRankProgression.Div2, AbilityRankType.DamageDice),
+                                                 createClassScalingConfig(ContextRankProgression.AsIs, AbilityRankType.DamageDiceAlternative),
                                                  Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
                                                  Helpers.CreateAbilityTargetsAround(20.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
                                                  Common.createAbilitySpawnFx("bbd6decdae32bce41ae8f06c6c5eb893", anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                                  Helpers.CreateResourceLogic(resource),
-                                                 Common.createContextCalculateAbilityParamsBasedOnClasses(classes, stat)
+                                                 Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat)
                                                 );
             ability.setMiscAbilityParametersRangedDirectional();
 
@@ -346,10 +337,7 @@ namespace CallOfTheWild
                                              resource.CreateAddAbilityResource(),
                                              Helpers.CreateAddFact(ability)
                                              );
-            foreach (var c in classes)
-            {
-                feature.AddComponents(Helpers.PrerequisiteClassLevel(c, 7, any: true));
-            }
+            addMinLevelPrerequisite(feature, 7);
             return feature;
         }
 
@@ -357,7 +345,7 @@ namespace CallOfTheWild
         public BlueprintFeature createAncestralWeapon(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByLevel(0, 1, classes);
+            resource.SetIncreasedByLevel(0, 1, classes, getArchetypeArray());
 
             var ghost_touch = library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f");
             var buff = Helpers.CreateBuff(name_prefix + "Buff",
@@ -404,8 +392,7 @@ namespace CallOfTheWild
                                           mage_armor.Icon,
                                           null,
                                           Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Armor, rankType: AbilityRankType.Default, multiplier: 2),
-                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
-                                                                          classes: classes, stepLevel: 4, startLevel: -1, min: 2)
+                                          createClassScalingConfig(progression: ContextRankProgression.StartPlusDivStep, stepLevel: 4, startLevel: -1, min: 2)
                                          );
             var buff2 = Helpers.CreateBuff(name_prefix + "2Buff",
                               display_name,
@@ -426,7 +413,7 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             var apply_buff2 = Common.createContextActionApplyBuff(buff2, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
-            resource.SetIncreasedByLevel(0, 1, classes);
+            resource.SetIncreasedByLevel(0, 1, classes, getArchetypeArray());
 
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
@@ -444,9 +431,7 @@ namespace CallOfTheWild
                                                                                                                         Helpers.CreateActionList(apply_buff, apply_buff2)
                                                                                                                         )
                                                                         ),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes,
-                                                                                type: AbilityRankType.StatBonus, progression: ContextRankProgression.OnePlusDivStep,
-                                                                                stepLevel: 13),
+                                               createClassScalingConfig(type: AbilityRankType.StatBonus, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 13),
                                                 Helpers.CreateResourceLogic(resource)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();

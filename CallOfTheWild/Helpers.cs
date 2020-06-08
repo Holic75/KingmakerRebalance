@@ -1816,7 +1816,7 @@ namespace CallOfTheWild
             a.Feature = feat;
             a.Class = classes[0];
             a.AdditionalClasses = classes.Skip(1).ToArray();
-            a.Archetypes = archetypes;
+            a.Archetypes = archetypes == null ? new BlueprintArchetype[0] : archetypes;
             return a;
         }
 

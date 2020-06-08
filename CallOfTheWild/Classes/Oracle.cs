@@ -111,6 +111,8 @@ namespace CallOfTheWild
 
         static public BlueprintArchetype dual_cursed_archetype;
 
+        static public Dictionary<BlueprintFeature, BlueprintFeature> oracle_ravener_hunter_mysteries_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
+
         public class Spirit
         {
             public BlueprintProgression progression;
@@ -721,7 +723,7 @@ namespace CallOfTheWild
                                                    FeatureGroup.None);
             //mystery_skills.HideInCharacterSheetAndLevelUp = true;
             
-            mystery_engine = new MysteryEngine(getOracleArray(), StatType.Charisma);
+            mystery_engine = new MysteryEngine(new BlueprintCharacterClass[] { oracle_class, Archetypes.RavenerHunter.archetype.GetParentClass() }, StatType.Charisma, Archetypes.RavenerHunter.archetype);
 
             oracle_mysteries = Helpers.CreateFeatureSelection("OracleMysteriesSelection",
                                                               "Mystery",
@@ -753,6 +755,19 @@ namespace CallOfTheWild
 
             oracle_mysteries.AllFeatures = new BlueprintFeature[] { time_mystery, ancestor_mystery, flame_mystery, battle_mystery, life_mystery, wind_mystery, waves_mystery, nature_mystery, bones_mystery};
             oracle_mysteries.AllFeatures = oracle_mysteries.AllFeatures.AddToArray(dragon_mysteries);
+
+
+            foreach (var m in oracle_mysteries.AllFeatures)
+            {
+                foreach (var kv in oracle_ravener_hunter_mysteries_map)
+                {
+                    if (kv.Key != m)
+                    {
+                        m.AddComponent(Helpers.PrerequisiteNoFeature(kv.Value));
+                        kv.Value.AddComponent(Helpers.PrerequisiteNoFeature(m));
+                    }
+                }
+            }
         }
 
 
@@ -831,6 +846,7 @@ namespace CallOfTheWild
                              final_revelation,
                              new StatType[] { StatType.SkillStealth},
                              spells,
+                             false,
                              armor_of_bones, bleeding_wounds, deaths_touch, near_death,
                              raise_the_dead, resist_life, soul_siphon, undead_servitude
                              );
@@ -980,6 +996,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature, StatType.SkillMobility },
                                          spells,
+                                         true,
                                          animal_companion, erosion_touch, friend_to_animals, life_leach,
                                          natures_whispers, spirit_of_nature, form_of_the_beast, gift_of_claw_and_horn
                                          );
@@ -1043,6 +1060,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature, StatType.SkillMobility},
                                          spells,
+                                         true,
                                          blizzard, fluid_nature, freezing_spells, ice_armor,
                                          icy_skin, water_form, wintry_touch, punitive_transformation
                                          );
@@ -1123,6 +1141,7 @@ namespace CallOfTheWild
                                                  final_revelation,
                                                  new StatType[] { StatType.SkillPerception },
                                                  spells,
+                                                 false,
                                                  dragon_magic, dragon_senses, presence_of_dragon, scaled_toughness,
                                                  breath_weapon, draconic_resistances, form_of_the_dragon, wings_of_the_dragon
                                                  );
@@ -1191,6 +1210,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature },
                                          spells,
+                                         true,
                                          air_barrier, invisibility, lightning_breath, thunderburst,
                                          touch_of_electricity, vortex_spells, spark_skin, wings_of_air
                                          );
@@ -1264,6 +1284,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature },
                                          spells,
+                                         true,
                                          channel, combat_healer, energy_body, enhanced_cures,
                                          healing_hands, life_link, safe_curing, spirit_boost
                                          );
@@ -1327,6 +1348,7 @@ namespace CallOfTheWild
                              final_revelation,
                              new StatType[] { StatType.SkillAthletics },
                              spells,
+                             true,
                              battlecry, combat_healer, iron_skin, maneuver_mastery,
                              skill_at_arms, surprising_charge, war_sight, weapon_mastery
                              );
@@ -1388,6 +1410,7 @@ namespace CallOfTheWild
             flame_mystery = createMystery("FlameOracleMystery", "Flame", NewSpells.wall_of_fire.Icon, final_revelation,
                                          new StatType[] { StatType.SkillAthletics, StatType.SkillMobility },
                                          spells,
+                                         true,
                                          burning_magic, cinder_dance, fire_breath, firestorm,
                                          form_of_flame, heat_aura, touch_of_flame, molten_skin
                                          );
@@ -1452,6 +1475,7 @@ namespace CallOfTheWild
             time_mystery = createMystery("TimeOracleMystery", "Time", time_stop.Icon, final_revelation,
                                          new StatType[] { StatType.SkillMobility, StatType.SkillPerception, StatType.SkillUseMagicDevice },
                                          spells,
+                                         true,
                                          aging_touch, rewind_time, speed_or_slow_time, temporal_celerity,
                                          time_flicker, time_hop, time_sight, erase_from_time
                                          );
@@ -1517,13 +1541,17 @@ namespace CallOfTheWild
             ancestor_mystery = createMystery("AncestorOracleMystery", "Ancestor", library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5").Icon, final_revelation,
                              new StatType[] { StatType.SkillLoreNature },
                              spells,
+                             true,
                              blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior,
                              spirit_shield , storm_of_souls, spirit_walk, ancestral_weapon
                              );
         }
 
 
-        static BlueprintProgression createMystery(string name, string display_name, UnityEngine.Sprite icon, BlueprintFeature final_revelation, StatType[] class_skills, BlueprintAbility[] spells, params BlueprintFeature[] revelations)
+        static BlueprintProgression createMystery(string name, string display_name, UnityEngine.Sprite icon, 
+                                                  BlueprintFeature final_revelation, StatType[] class_skills, BlueprintAbility[] spells, 
+                                                  bool is_ravener,
+                                                  params BlueprintFeature[] revelations)
         {
             string description = $"An oracle with the {display_name.ToLower()} mystery adds ";
 
@@ -1591,13 +1619,27 @@ namespace CallOfTheWild
                                                                               "",
                                                                               icon,
                                                                               FeatureGroup.None,
-                                                                              Helpers.PrerequisiteFeature(mystery));
+                                                                              Helpers.PrerequisiteFeature(mystery, any: true));
 
             mystery_revelation_selection.AllFeatures = revelations;
 
             revelation_selection.AllFeatures = revelation_selection.AllFeatures.AddToArray(mystery_revelation_selection);
 
             mystery_spells_map.Add(mystery, spells);
+
+            if (is_ravener)
+            {
+                var ravener_mystery = Helpers.CreateFeature(name + "RavenerHunterProgression",
+                                                                display_name,
+                                                                Archetypes.RavenerHunter.charged_by_nature.Description,
+                                                                "",
+                                                                icon,
+                                                                FeatureGroup.Domain);
+                mystery_revelation_selection.AddComponent(Helpers.PrerequisiteFeature(ravener_mystery, any: true));
+                oracle_ravener_hunter_mysteries_map.Add(mystery, ravener_mystery);
+                Archetypes.RavenerHunter.charged_by_nature.AllFeatures = Archetypes.RavenerHunter.charged_by_nature.AllFeatures.AddToArray(ravener_mystery);
+                Archetypes.RavenerHunter.revelation_selection.AllFeatures = Archetypes.RavenerHunter.revelation_selection.AllFeatures.AddToArray(mystery_revelation_selection);
+            }
             return mystery;
         }
 

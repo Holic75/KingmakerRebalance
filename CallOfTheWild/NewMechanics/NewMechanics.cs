@@ -8096,7 +8096,72 @@ namespace CallOfTheWild
         }
 
 
-      
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SpellPenetrationBonusAgainstFactAndAlignment : RuleInitiatorLogicComponent<RuleSpellResistanceCheck>
+        {
+            public ContextValue value;
+            public BlueprintUnitFact fact;
+            public Alignment alignment;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleSpellResistanceCheck evt)
+            {
+                if (evt.Target.Descriptor.Alignment.Value != this.alignment || !evt.Target.Descriptor.HasFact(fact))
+                    return;
+                int num = this.value.Calculate(this.Context);
+                evt.AdditionalSpellPenetration += num;
+            }
+
+            public override void OnEventDidTrigger(RuleSpellResistanceCheck evt)
+            {
+            }
+        }
+
+        [ComponentName("Attack bonus against fact owner")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AttackBonusAgainstFactAndAlignment : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public BlueprintUnitFact CheckedFact;
+            public Alignment alignment;
+            public int AttackBonus;
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Weapon == null || !evt.Target.Descriptor.HasFact(this.CheckedFact) || evt.Target.Descriptor.Alignment.Value != this.alignment)
+                    return;
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.AttackBonus * this.Fact.GetRank() + this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]

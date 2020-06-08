@@ -248,6 +248,7 @@ namespace CallOfTheWild
                     CallOfTheWild.HexEngine.Initialize();
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
+                    CallOfTheWild.Archetypes.RavenerHunter.create();
                     CallOfTheWild.Oracle.createOracleClass();
                     CallOfTheWild.Investigator.createInvestigatorClass();
 
