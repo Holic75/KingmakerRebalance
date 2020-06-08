@@ -22,7 +22,7 @@ It introduces new classes:
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood and Urban Bloodrager,
 - Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer and Court Poet,
-- Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith and Feral Champion,
+- Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted and Divine Herbalist,

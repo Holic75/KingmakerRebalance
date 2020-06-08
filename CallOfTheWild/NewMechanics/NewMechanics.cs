@@ -8362,5 +8362,65 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Weapon group attack bonus")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class WeaponTrainingIfHasParametrizedFeatures : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
+        {
+            public BlueprintParametrizedFeature[] required_parametrized_features;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+
+            private bool checkFeature(WeaponCategory category)
+            {
+                if (required_parametrized_features.Empty())
+                {
+                    return true;
+                }
+                foreach (var f in required_parametrized_features)
+                {
+                    if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                if (evt.Weapon == null || !checkFeature(evt.Weapon.Blueprint.Category))
+                    return;
+                evt.AddBonus(this.Fact.GetRank(), this.Fact);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon == null || !checkFeature(evt.Weapon.Blueprint.Category))
+                    return;
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalDamage.AddModifier(this.Fact.GetRank(), (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
     }
 }

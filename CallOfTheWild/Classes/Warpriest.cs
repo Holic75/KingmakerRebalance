@@ -139,6 +139,11 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource wildshape_resource;
         static public BlueprintFeature extra_wildshape;
 
+        static public BlueprintArchetype arsenal_chaplain;
+        static public BlueprintFeature arsenal_chaplain_war_blessing;
+        static public BlueprintFeature arsenal_chaplain_weapon_training;
+        static public BlueprintFeature[] arsenal_chaplain_war_blessing_updates = new BlueprintFeature[3];
+
         internal static void createWarpriestClass()
         {
             Main.logger.Log("Warpriest class test mode: " + test_mode.ToString());
@@ -184,7 +189,8 @@ namespace CallOfTheWild
             createChampionOfTheFaith();
             createCultLeader();
             createFeralChampion();
-            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype, feral_champion }; // { sacred_fist_archetype, champion_of_the_faith_archetype, cult_leader_archetype };
+            createArsenalChaplain();
+            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype, feral_champion, arsenal_chaplain }; 
             Helpers.RegisterClass(warpriest_class);
 
             Common.addMTDivineSpellbookProgression(warpriest_class, warpriest_class.Spellbook, "MysticTheurgeWarpriest",
@@ -3755,6 +3761,18 @@ namespace CallOfTheWild
 
         static void createWarBlessing()
         {
+            for (int i = 0; i < 3; i++)
+            {
+                arsenal_chaplain_war_blessing_updates[i] = Helpers.CreateFeature($"ArsenalChaplainWarBlessingUpdate{i}Feature",
+                                                                                  "",
+                                                                                  "",
+                                                                                  "",
+                                                                                  null,
+                                                                                  FeatureGroup.None);
+                arsenal_chaplain_war_blessing_updates[i].HideInCharacterSheetAndLevelUp = true;
+                arsenal_chaplain_war_blessing_updates[i].HideInUI = true;
+            }
+
             AddStatBonus[][] boni = new AddStatBonus[][] {new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)},
                                                           new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.Dodge) },
                                                           new AddStatBonus[]{Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 1, ModifierDescriptor.Insight) },
@@ -3815,6 +3833,37 @@ namespace CallOfTheWild
                 minor_buffs.Add(buff);
 
                 minor_variants.Add(ability);
+
+                var ability_ranged = library.CopyAndAdd(ability, $"WarpriestWarBlessinMinor{i}RangedAbility", "");
+                ability_ranged.SetName(ability.Name + " (Ranged)");
+                ability_ranged.Range = AbilityRange.Close;
+                ability_ranged.setMiscAbilityParametersSingleTargetRangedFriendly();
+                ability.AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]));
+                addBlessingResourceLogic("War", ability_ranged, amount: 2, quicken: true, parent: minor_ability);
+
+
+                var ability_mass = library.CopyAndAdd(ability, $"WarpriestWarBlessinMinor{i}MassNearAbility", "");
+                ability_mass.SetName(ability.Name + " (Mass)");
+                ability_mass.Range = AbilityRange.Personal;
+                ability_mass.setMiscAbilityParametersSelfOnly();
+                ability_mass.AddComponents(Helpers.CreateAbilityTargetsAround(5.Feet(), TargetType.Ally),
+                                           Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[1])
+                                           );
+                addBlessingResourceLogic("War", ability_mass, amount: 1, quicken: true, parent: minor_ability);
+
+
+                var ability_mass_ranged = library.CopyAndAdd(ability, $"WarpriestWarBlessinMinor{i}MassRangedAbility", "");
+                ability_mass_ranged.SetName(ability.Name + " (Mass Ranged)");
+                ability_mass_ranged.Range = AbilityRange.Personal;
+                ability_mass_ranged.setMiscAbilityParametersSelfOnly();
+                ability_mass_ranged.AddComponents(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
+                                                  Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[2])
+                                                  );
+                addBlessingResourceLogic("War", ability_mass_ranged, amount: 2, quicken: true, parent: minor_ability);
+
+                minor_variants.Add(ability_ranged);
+                minor_variants.Add(ability_mass);
+                minor_variants.Add(ability_mass_ranged);
             }
 
             //remove other buffs
@@ -3861,6 +3910,42 @@ namespace CallOfTheWild
             }
 
             var apply_major_buff = Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);
+
+            var major_ability_touch = Helpers.CreateAbility("WarpriestWarMajorBlessingTouchAbility",
+                                          major_buff.Name,
+                                          major_buff.Description,
+                                          "",
+                                          major_buff.Icon,
+                                          AbilityType.Supernatural,
+                                          CommandType.Standard,
+                                          AbilityRange.Touch,
+                                          Helpers.oneMinuteDuration,
+                                          "",
+                                          Helpers.CreateRunActions(apply_major_buff)
+                                          );
+            major_ability_touch.setMiscAbilityParametersTouchFriendly();
+
+            var major_ability_ranged = library.CopyAndAdd(major_ability_touch, "WarpriestWarMajorBlessingRangedAbility", "");
+            major_ability_ranged.SetName(major_ability_touch + " (Ranged)");
+            major_ability_ranged.Range = AbilityRange.Close;
+            major_ability_ranged.setMiscAbilityParametersSingleTargetRangedFriendly();
+            major_ability_ranged.AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]));
+
+            var major_ability_mass = library.CopyAndAdd(major_ability_touch, "WarpriestWarMajorBlessingMassAbility", "");
+            major_ability_mass.SetName(major_ability_touch + " (Mass)");
+            major_ability_mass.Range = AbilityRange.Personal;
+            major_ability_mass.setMiscAbilityParametersSelfOnly();
+            major_ability_mass.AddComponents(Helpers.CreateAbilityTargetsAround(5.Feet(), TargetType.Ally),
+                                             Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[1]));
+
+            var major_ability_mass_ranged = library.CopyAndAdd(major_ability_touch, "WarpriestWarMajorBlessingMassRangedAbility", "");
+            major_ability_mass_ranged.SetName(major_ability_touch + " (Mass Ranged)");
+            major_ability_mass_ranged.Range = AbilityRange.Personal;
+            major_ability_mass_ranged.setMiscAbilityParametersSelfOnly();
+            major_ability_mass_ranged.AddComponents(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
+                                             Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[2]));
+
+
             var major_ability = Helpers.CreateAbility("WarpriestWarMajorBlessingAbility",
                                                       major_buff.Name,
                                                       major_buff.Description,
@@ -3870,12 +3955,14 @@ namespace CallOfTheWild
                                                       CommandType.Standard,
                                                       AbilityRange.Touch,
                                                       Helpers.oneMinuteDuration,
-                                                      "",
-                                                      Helpers.CreateRunActions(apply_major_buff)
+                                                      ""
                                                       );
-
             major_ability.setMiscAbilityParametersTouchFriendly();
-            addBlessingResourceLogic("War", major_ability, quicken: true);
+            major_ability.CreateAbilityVariants(major_ability_touch, major_ability_ranged, major_ability_mass, major_ability_mass_ranged);
+            addBlessingResourceLogic("War", major_ability_touch, quicken: true, parent: major_ability);
+            addBlessingResourceLogic("War", major_ability_ranged, amount: 2, quicken: true, parent: major_ability);
+            addBlessingResourceLogic("War", major_ability_mass, quicken: true, parent: major_ability);
+            addBlessingResourceLogic("War", major_ability_mass_ranged, amount: 2, quicken: true, parent: major_ability);
 
             addBlessing("WarpriestBlessingWar", "War", minor_ability, major_ability, "3795653d6d3b291418164b27be88cb43");
         }
@@ -4746,5 +4833,81 @@ namespace CallOfTheWild
                                                           );
             sacred_claws.AddComponent(Helpers.CreateAddFact(toggle));
         }
+
+        static void createArsenalChaplain()
+        {
+
+            arsenal_chaplain = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ArsenalChaplainArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Arsenal Chaplain");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Arsenal chaplains are warpriests trained in the militant aspects of their gods.");
+            });
+            Helpers.SetField(arsenal_chaplain, "m_ParentClass", warpriest_class);
+            library.AddAsset(arsenal_chaplain, "");
+
+            arsenal_chaplain.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_blessings, warpriest_blessings, warpriest_sacred_weapon_damage),
+                                                                    Helpers.LevelEntry(4, warpriest_channel_energy, warpriest_sacred_weapon_enhancement),
+                                                                    Helpers.LevelEntry(7, warpriest_sacred_armor),
+                                                                    Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
+                                                                    Helpers.LevelEntry(10, warpriest_sacred_armor2),
+                                                                    Helpers.LevelEntry(12, warpriest_sacred_weapon_enhancement3),
+                                                                    Helpers.LevelEntry(13, warpriest_sacred_armor3),
+                                                                    Helpers.LevelEntry(16, warpriest_sacred_armor4, warpriest_sacred_weapon_enhancement4),
+                                                                    Helpers.LevelEntry(19, warpriest_sacred_armor5),
+                                                                    Helpers.LevelEntry(20, warpriest_sacred_weapon_enhancement5),
+                                                                    };
+            createArsenalChaplainWarBlessing();
+            createArsenalChaplainWeaponTraining();
+
+            arsenal_chaplain.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, arsenal_chaplain_war_blessing),
+                                                           Helpers.LevelEntry(5, arsenal_chaplain_weapon_training),
+                                                           Helpers.LevelEntry(9, arsenal_chaplain_weapon_training),
+                                                           Helpers.LevelEntry(13, arsenal_chaplain_weapon_training),
+                                                           Helpers.LevelEntry(17, arsenal_chaplain_weapon_training),
+                                                          };
+
+
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(arsenal_chaplain_war_blessing);
+        }
+
+
+        static void createArsenalChaplainWarBlessing()
+        {
+            arsenal_chaplain_war_blessing = Helpers.CreateFeature("ArsenalChaplainWarBlessingFeature",
+                                                                  "War Blessing",
+                                                                  "An arsenal chaplain must choose War as his blessing, and can do so even if it is a domain not normally granted by his deity. He does not receive a second blessing.\n"
+                                                                  + "At 7th level, an arsenal chaplain gains Quicken Blessing (War) as a bonus feat even if he does not meet the prerequisites.\n"
+                                                                  + "At 13th level, an arsenal chaplain can use the War blessing on an ally within close range by spending an additional use of the blessing ability.\n"
+                                                                  + "At 16th level, an arsenal chaplain can use the War blessing on all adjacent allies with a single use of the blessing ability.\n"
+                                                                  + "At 19th level, an arsenal chaplain can use the War blessing on all allies within 30 feet by spending an additional use of the blessing ability.",
+                                                                  "",
+                                                                  Helpers.GetIcon("beffc11890fb54a48b855ef14f0a284e"),
+                                                                  FeatureGroup.None,
+                                                                  Helpers.CreateAddFact(blessings_map["War"]),
+                                                                  Helpers.CreateAddFeatureOnClassLevel(quicken_blessing_selections["War"], 7, getWarpriestArray()),
+                                                                  Helpers.CreateAddFeatureOnClassLevel(arsenal_chaplain_war_blessing_updates[0], 13, getWarpriestArray()),
+                                                                  Helpers.CreateAddFeatureOnClassLevel(arsenal_chaplain_war_blessing_updates[1], 16, getWarpriestArray()),
+                                                                  Helpers.CreateAddFeatureOnClassLevel(arsenal_chaplain_war_blessing_updates[2], 19, getWarpriestArray())
+                                                                  );
+        }
+
+
+        static void createArsenalChaplainWeaponTraining()
+        {
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            arsenal_chaplain_weapon_training = Helpers.CreateFeature("ArsenalChaplainWeaponTrainingFeature",
+                                                                  "Sacred Weapon Training",
+                                                                  "At 5th level, an arsenal chaplain gains weapon training as per the fighter class feature, but the benefits of this weapon training apply only to the his sacred weapons (weapons with which the warpriest has taken Weapon Focus).",
+                                                                  "",
+                                                                  Helpers.GetIcon("b8cecf4e5e464ad41b79d5b42b76b399"),
+                                                                  FeatureGroup.WeaponTraining,
+                                                                  Helpers.Create<NewMechanics.WeaponTrainingIfHasParametrizedFeatures>(w => w.required_parametrized_features = new BlueprintParametrizedFeature[] { weapon_focus, NewFeats.deity_favored_weapon } )
+                                                                  );
+            arsenal_chaplain_weapon_training.Ranks = 10;
+        }
+
+
+
     }
 }
