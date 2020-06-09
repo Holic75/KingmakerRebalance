@@ -3902,6 +3902,31 @@ namespace CallOfTheWild
         }
 
 
+        public class ActivatableAbilityLightOrNoArmor : ActivatableAbilityRestriction
+        {
+            public override bool IsAvailable()
+            {
+
+                if (Owner.Body.IsPolymorphed)
+                {
+                    return true;
+                }
+
+                if (!Owner.Body.Armor.HasArmor)
+                {
+                    return true;
+                }
+
+                if (Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.Light)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+
         public class ActivatableAbilityMainWeaponCategoryAllowed : ActivatableAbilityRestriction
         {
             public WeaponCategory[] categories;

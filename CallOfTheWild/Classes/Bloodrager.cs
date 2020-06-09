@@ -39,6 +39,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Abilities;
 
 namespace CallOfTheWild
 {
@@ -88,6 +89,12 @@ namespace CallOfTheWild
         static public BlueprintFeature blood_casting;
         
         static public BlueprintFeatureSelection adopted_magic;
+
+
+        static public BlueprintArchetype blood_conduit;
+        static public BlueprintFeatureSelection contact_specialist;
+        static public BlueprintFeature spell_conduit;
+        static public BlueprintFeature reflexive_conduit;
 
         public class BloodlineInfo
         {
@@ -146,7 +153,8 @@ namespace CallOfTheWild
             createSpellEater();
             createSteelblood();
             createUrbanBloodrager();
-            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype, urban_bloodrager }; //steelblood, spell eater, metamagic rager
+            createBloodConduit();
+            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype, urban_bloodrager, blood_conduit }; //steelblood, spell eater, metamagic rager
             Helpers.RegisterClass(bloodrager_class);
             createRageCastingFeat();
             addToPrestigeClasses();
@@ -3425,10 +3433,154 @@ namespace CallOfTheWild
                 adopted_magic.AllFeatures = adopted_magic.AllFeatures.AddToArray(learn_spell);
             }
         }
+
+
+        static void createBloodConduit()
+        {
+            blood_conduit = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "BloodConduitBloodragerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Blood Conduit");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Blood conduits learn to channel their arcane might directly through their flesh, without the need for mystical words or gestures..");
+            });
+            Helpers.SetField(blood_conduit, "m_ParentClass", bloodrager_class);
+            library.AddAsset(blood_conduit, "");
+            blood_conduit.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, fast_movement),
+                                                                Helpers.LevelEntry(2, uncanny_dodge),
+                                                                Helpers.LevelEntry(5, improved_uncanny_dodge),
+                                                                Helpers.LevelEntry(14, indomitable_will)
+                                                               };
+            createContactSpecialist();
+            createSpellConduitAndReflexiveConduit();
+
+            blood_conduit.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, contact_specialist),
+                                                                  Helpers.LevelEntry(5, spell_conduit),
+                                                                  Helpers.LevelEntry(14, reflexive_conduit)
+                                                            };
+
+            bloodrager_progression.UIGroups[1].Features.Add(contact_specialist);
+            bloodrager_progression.UIGroups[1].Features.Add(spell_conduit);
+            bloodrager_progression.UIGroups[1].Features.Add(reflexive_conduit);
+        }
+
+
+        static void createContactSpecialist()
+        {
+            contact_specialist = Helpers.CreateFeatureSelection("ContactSpecialistFeatureSelection",
+                                                                "Contact Specialist",
+                                                                "At 1st level, a blood conduit selects a bonus feat from the following: Improved Bull Rush, Improved Trip, and Improved Unarmed Strike. He does not need to meet the prerequisites to take this feat. He also adds those feats to his list of bloodline feats.",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None);
+            contact_specialist.IgnorePrerequisites = true;
+            contact_specialist.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("b3614622866fe7046b787a548bbd7f59"), //bull rush
+                library.Get<BlueprintFeature>("0f15c6f70d8fb2b49aa6cc24239cc5fa"), //trip
+                library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167"), //improved unarmed strike
+            };
+            bloodline_feat_selection.AllFeatures = bloodline_feat_selection.AllFeatures.AddToArray(contact_specialist);
+        }
+
+
+        static void createSpellConduitAndReflexiveConduit()
+        {
+            spell_conduit = Helpers.CreateFeature("SpellConduitFeature",
+                                    "Spell Conduit",
+                                    "At 5th level, a blood conduit can channel a bloodrager spell a range of touch into his blood as a swift action. As long as he is wearing light or no armor, he can deliver this spell through bodily contact. When he makes a natural weapon attack or an unarmed strike against an enemy, he can release a touch spell on the creature that, requiring no further touch attack roll. If this spell would usually require a successful touch attack, his successful attack roll counts as this attack.",
+                                    "",
+                                    Helpers.GetIcon("1d6364123e1f6a04c88313d83d3b70ee"), //strength surge
+                                    FeatureGroup.None,
+                                    Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
+
+            var release_buff = Helpers.CreateBuff("SpellConduitToggleBuff",
+                                                  spell_conduit.Name + ": Release",
+                                                  spell_conduit.Description,
+                                                  "",
+                                                  spell_conduit.Icon,
+                                                  null,
+                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = spell_conduit));
+
+            var conduit_activatable_ability = Helpers.CreateActivatableAbility("SpellConduitToggleAbility",
+                                                                             spell_conduit.Name + ": Release",
+                                                                             spell_conduit.Description,
+                                                                             "",
+                                                                             spell_conduit.Icon,
+                                                                             release_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.Create<NewMechanics.ActivatableAbilityLightOrNoArmor>(),
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = spell_conduit));
+            conduit_activatable_ability.DeactivateImmediately = true;
+
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = spell_conduit);
+            var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
+            var on_attack_action = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_on_condition));
+            on_attack_action.AllNaturalAndUnarmed = true;
+            spell_conduit.AddComponent(on_attack_action);
+            spell_conduit.AddComponent(Helpers.CreateAddFact(conduit_activatable_ability));
+
+            int max_variants = 6; //due to ui limitation
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return spell.Spellbook?.Blueprint == bloodrager_class.Spellbook
+                        && spell.Blueprint.StickyTouch != null
+                        && spell.Blueprint.CanTargetEnemies;
+            };
+
+            for (int i = 0; i < max_variants; i++)
+            {
+                var ability = Helpers.CreateAbility($"SpellConduit{i + 1}Ability",
+                                                        spell_conduit.Name,
+                                                        spell_conduit.Description,
+                                                        "",
+                                                        spell_conduit.Icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Swift,
+                                                        AbilityRange.Personal,
+                                                        "",
+                                                        "",
+                                                        Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = spell_conduit; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
+                                                        );
+                ability.setMiscAbilityParametersSelfOnly();
+                spell_conduit.AddComponent(Helpers.CreateAddFact(ability));
+            }
+
+            reflexive_conduit = Helpers.CreateFeature("ReflexiveConduitFeature",
+                                                      "Reflexive Conduit",
+                                                      "At 14th level, a blood conduit can discharge his power into foes that attempt bodily contact with him. While wearing light or no armor, when the blood conduit is subject to a natural weapon or unarmed attack he can release a spell channeled into his blood using spell conduit ability on his attacker.",
+                                                      "",
+                                                      Helpers.GetIcon("3dccdf27a8209af478ac71cded18a271"), //defensive stance
+                                                      FeatureGroup.None);
+
+            var release_buff2 = Helpers.CreateBuff("ReflexiveConduitToggleBuff",
+                                                  reflexive_conduit.Name + ": Release",
+                                                  reflexive_conduit.Description,
+                                                  "",
+                                                  reflexive_conduit.Icon,
+                                                  null,
+                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = spell_conduit));
+
+            var conduit_activatable_ability2 = Helpers.CreateActivatableAbility("ReflexiveDodgeToggleAbility",
+                                                                             reflexive_conduit.Name + ": Release",
+                                                                             reflexive_conduit.Description,
+                                                                             "",
+                                                                             reflexive_conduit.Icon,
+                                                                             release_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.Create<NewMechanics.ActivatableAbilityLightOrNoArmor>(),
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = spell_conduit));
+            conduit_activatable_ability2.DeactivateImmediately = true;
+
+            var release_on_condition2 = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff2), release_action);
+            var on_attacked_action = Common.createAddTargetAttackWithWeaponTrigger(action_attacker: Helpers.CreateActionList(release_on_condition),
+                                                                                   categories: new WeaponCategory[] { WeaponCategory.UnarmedStrike, WeaponCategory.Claw, WeaponCategory.Bite, WeaponCategory.Gore, WeaponCategory.OtherNaturalWeapons },
+                                                                                   wait_for_attack_to_resolve: true);
+            reflexive_conduit.AddComponent(on_attacked_action);
+            reflexive_conduit.AddComponent(Helpers.CreateAddFact(conduit_activatable_ability2));
+        }
     }
-
-
-
-
-
 }
