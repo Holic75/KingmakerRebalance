@@ -418,6 +418,13 @@ namespace CallOfTheWild
             return c;
         }
 
+        public static Kingmaker.UnitLogic.FactLogic.AddAdditionalLimb createAddAdditionalLimb(Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon weapon)
+        {
+            var c = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddAdditionalLimb>();
+            c.Weapon = weapon;
+            return c;
+        }
+
 
         public static Kingmaker.UnitLogic.Mechanics.Components.AddIncomingDamageTrigger createIncomingDamageTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
         {

@@ -1427,11 +1427,11 @@ namespace CallOfTheWild
         {
             var buff = Helpers.CreateBuff("FeralShiftingExploitBuff",
                                                "Feral Shifting",
-                                               "As a swift action, the arcanist can spend 1 point from her arcane reservoir to gain a bite attack that deals 1d6 points of damage (1d4 points of damage if she is Small) for a number of minutes equal to her Charisma modifier (minimum 1). If used as part of a full attack, the bite attack is made at the arcanists's full base attack bonus –5.",
+                                               "As a swift action, the arcanist can spend 1 point from her arcane reservoir to gain a bite attack that deals 1d6 points of damage (1d4 points of damage if she is Small) for a number of minutes equal to her Charisma modifier (minimum 1).",
                                                "",
                                                library.Get<BlueprintFeature>("25954b1652bebc2409f9cb9d5728bceb").Icon, //animal fury
                                                null,
-                                               Common.createAddSecondaryAttacks(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286")) //bite 1d6
+                                               Common.createAddAdditionalLimb(library.Get<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286")) //bite 1d6
                                                );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);

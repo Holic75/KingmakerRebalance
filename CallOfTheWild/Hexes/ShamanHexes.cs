@@ -50,7 +50,7 @@ namespace CallOfTheWild
                                           "",
                                           ability.Icon,
                                           ability.Buff.FxOnStart,
-                                          Common.createAddSecondaryAttacks(wing_weapon)
+                                          Common.createAddSecondaryAttacks(wing_weapon, wing_weapon)
                                           );
 
             ability.Buff = buff;

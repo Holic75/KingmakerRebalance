@@ -999,7 +999,8 @@ namespace CallOfTheWild
                     Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                     Common.createEmptyHandWeaponOverride(athach_slam),
-                    Common.createAddSecondaryAttacks(athach_bite, athach_claw),
+                    Common.createAddAdditionalLimb(athach_bite),
+                    Common.createAddSecondaryAttacks(athach_claw),
                     Helpers.CreateAddFacts(library.Get<BlueprintFeature>("366f54decfc4c08438fa66427cd92939"), //poison
                                            turn_back)
                   );
@@ -1036,7 +1037,7 @@ namespace CallOfTheWild
                                             Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                             Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("de21b6c00e6adaa409a6e7c2ae9f87f4")),//claws
-                                            Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("1f8a2e1e5e078014baebc90c2c46796f")), //bite
+                                            Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("1f8a2e1e5e078014baebc90c2c46796f")), //bite
                                             library.Get<BlueprintBuff>("ac95eba4690dbca46b9a2ab18f656d4f").GetComponent<AddEffectRegeneration>(), //regeneration
                                             Helpers.CreateAddFacts(library.Get<BlueprintFeature>("e80ba26500d22e546baba542032aad0d"), //rend
                                                                    turn_back)

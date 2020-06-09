@@ -892,7 +892,7 @@ namespace CallOfTheWild
                                                                         "As a standard action, you can assume the form of an animal, as beast shape I. At 9th level, it works as beast shape II. At 11th level, as beast shape III. At 13th level, you can assume a form of magical beast as beast shape IV. You can use this ability once per day, but the duration is 1 hour/level. You must be at least 7th level to select this revelation.");
             var gift_of_claw_and_horn = mystery_engine.createGiftOfClawAndHorn("GiftOfClawAndHornOracleRevelation",
                                                                                "Gift of Claw and Horn",
-                                                                               "As a swift action, you gain a natural weapon. The natural weapon lasts for a number of rounds equal to half your oracle level(minimum 1).You must choose a bite, claw, or gore attack.These attacks deal the normal damage for a creature of your size.At 5th level, your natural weapon gains a + 1 enhancement bonus.This bonus increases by + 1 at 10th, 15th, and 20th level.At 11th level, you gain two natural weapons at a time. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+                                                                               "As a swift action, you gain a natural weapon. The natural weapon lasts for a number of rounds equal to half your oracle level(minimum 1).You must choose a bite, claw, or gore attack. These attacks deal the normal damage for a creature of your size.At 5th level, your natural weapon gains a + 1 enhancement bonus.This bonus increases by + 1 at 10th, 15th, and 20th level.At 11th level, you gain two natural weapons at a time. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
 
 
 
@@ -1791,7 +1791,7 @@ namespace CallOfTheWild
                                     "",
                                     null,
                                     FeatureGroup.None,
-                                    Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("35dfad6517f401145af54111be04d6cf"))
+                                    Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("35dfad6517f401145af54111be04d6cf"))
                                     );
             bite1d4.HideInUI = true;
 
@@ -1801,7 +1801,7 @@ namespace CallOfTheWild
                                                 "",
                                                 null,
                                                 FeatureGroup.None,
-                                                Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"))
+                                                Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"))
                                                 );
             bite1d6.HideInUI = true;
             var bite1d8 = Helpers.CreateFeature("OracleWolfScarred1d8BiteFeature",
@@ -1810,7 +1810,7 @@ namespace CallOfTheWild
                                     "",
                                     null,
                                     FeatureGroup.None,
-                                    Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"))
+                                    Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"))
                                     );
             bite1d8.HideInUI = true;
 
@@ -1831,7 +1831,7 @@ namespace CallOfTheWild
                                               Helpers.GetIcon("de7a025d48ad5da4991e7d3c682cf69d"), // cats grace
                                               FeatureGroup.None,
                                               Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20),
-                                              Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("35dfad6517f401145af54111be04d6cf"))
+                                              Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("35dfad6517f401145af54111be04d6cf"))
                                               );
 
             var curse5 = Helpers.CreateFeature("OracleCurse5WolfScarredFace",
@@ -1860,7 +1860,7 @@ namespace CallOfTheWild
                                                 magic_fang_greater.Icon,
                                                 FeatureGroup.None,
                                                 magic_fang_greater.CreateAddKnownSpell(oracle_class, 3),
-                                                Common.createAddSecondaryAttacks(library.Get<BlueprintItemWeapon>("2abc1dc6172759c42971bd04b8c115cb")) //bite 2d6
+                                                Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("2abc1dc6172759c42971bd04b8c115cb")) //bite 2d6
                                                 );
 
             wolf_scarred_face = createOracleCurseProgression("OracleWolfScarredFaceCurseProgression", "Wolf-scarred Face",

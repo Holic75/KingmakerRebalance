@@ -1332,7 +1332,7 @@ namespace CallOfTheWild
                                                         "The shaman transforms herself into another form for a number of minutes per day equal to her level, as alter self. This duration does not need to be consecutive, but must be spent in 1-minute increments. Changing form (including changing back) is a standard action that doesn’t provoke an attack of opportunity. At 8th level, this ability works as beast shape I. At 12th level, this ability works as beast shape II. At 16th level, this ability works as beast shape III. At 20th level, this ability works as beast shape IV.");
             wings_attack_hex = hex_engine.CreateWingsAttackHex("ShamanWingsAttack",
                                                                "Wings I",
-                                                               "The shaman can grow a pair of weak wings. Initially, these wings lack the power to allow the shaman to fly, but the shaman can use them as a secondary natural attack that deals 1d4 points of damage (1d3 for a Small shaman).\n"
+                                                               "The shaman can grow a pair of weak wings. Initially, these wings lack the power to allow the shaman to fly, but the shaman can use them as a secondary natural attacks that deals 1d4 points of damage (1d3 for a Small shaman).\n"
                                                                + "A shaman of 8th level or higher can select the wings hex a second time. This allows her to ignore ground-based effects and gives +3 dodge bonus to AC against melee attacks.");
             wings_hex = hex_engine.CreateWingsHex("ShamanWings",
                                                   "Wings II",

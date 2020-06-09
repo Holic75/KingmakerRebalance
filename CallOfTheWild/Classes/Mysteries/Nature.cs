@@ -304,7 +304,7 @@ namespace CallOfTheWild
                                                    "",
                                                    icon,
                                                    null,
-                                                   Common.createAddSecondaryAttacks(bites[i])
+                                                   Common.createAddAdditionalLimb(bites[i])
                                                    );
                 var gore_buff = Helpers.CreateBuff(name_prefix + $"Gore{i}Buff",
                                    display_name + ": Gore",
@@ -312,7 +312,7 @@ namespace CallOfTheWild
                                    "",
                                    icon,
                                    null,
-                                   Common.createAddSecondaryAttacks(gores[i])
+                                   Common.createAddAdditionalLimb(gores[i])
                                    );
 
                 var buff = Helpers.CreateBuff(name_prefix + $"{i}Buff",
@@ -321,7 +321,8 @@ namespace CallOfTheWild
                                    "",
                                    icon,
                                    null,
-                                   Common.createAddSecondaryAttacks(bites[i], gores[i])
+                                   Common.createAddAdditionalLimb(bites[i]),
+                                   Common.createAddAdditionalLimb(gores[i])
                                    );
 
                 var duration = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default));
