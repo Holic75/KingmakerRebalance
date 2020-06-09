@@ -1,10 +1,14 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Controllers.Projectiles;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.Items;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
@@ -453,6 +457,89 @@ namespace CallOfTheWild.CombatManeuverMechanics
             {
                 evt.Initiator.CombatState.Cooldown.SwiftAction = 6.0f;
             }
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    public class AddInitiatorManeuverWithWeaponTrigger : GameLogicComponent, IInitiatorRulebookHandler<RuleCombatManeuver>
+    {
+        public bool OnlySuccess = true;
+        public BlueprintWeaponType WeaponType = null;
+        public bool CheckWeaponCategory;
+        [ShowIf("CheckWeaponCategory")]
+        public WeaponCategory Category;
+        public bool CheckWeaponRangeType;
+        [ShowIf("CheckWeaponRangeType")]
+        public AttackTypeAttackBonus.WeaponRangeType RangeType;
+        public bool ActionsOnInitiator;
+        public bool CheckDistance;
+        [ShowIf("CheckDistance")]
+        public Feet DistanceLessEqual;
+        public bool AllNaturalAndUnarmed;
+        public bool DuelistWeapon;
+        public ActionList Action;
+
+        public CombatManeuver[] Maneuvers = new CombatManeuver[0];
+
+
+        private void TryRunActions(RuleAttackRoll rule)
+        {
+            if (!this.CheckCondition(rule))
+                return;
+            if (!this.ActionsOnInitiator)
+            {
+                using (new ContextAttackData(rule, (Projectile)null))
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)rule.Target);
+            }
+            else
+            {
+                using (new ContextAttackData(rule, (Projectile)null))
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.Action, (TargetWrapper)rule.Initiator);
+            }
+        }
+
+        private bool CheckCondition(RuleAttackRoll evt)
+        {
+            Main.logger.Log(evt.Weapon.Blueprint.name);
+            ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+
+            if (owner != null && owner != evt.Weapon
+                || (this.WeaponType != null && this.WeaponType != evt.Weapon.Blueprint.Type || this.CheckWeaponCategory && this.Category != evt.Weapon.Blueprint.Category)
+                || (this.CheckWeaponRangeType && !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.RangeType))
+                || this.AllNaturalAndUnarmed && !evt.Weapon.Blueprint.Type.IsNatural && !evt.Weapon.Blueprint.Type.IsUnarmed)
+                return false;
+
+            if (this.CheckDistance && (double)evt.Target.DistanceTo(evt.Initiator) > (double)this.DistanceLessEqual.Meters)
+                return false;
+            bool flag = evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.Light) || evt.Weapon.Blueprint.Category.HasSubCategory(WeaponSubCategory.OneHandedPiercing) || (bool)evt.Initiator.Descriptor.State.Features.DuelingMastery && evt.Weapon.Blueprint.Category == WeaponCategory.DuelingSword || evt.Initiator.Descriptor.Ensure<DamageGracePart>().HasEntry(evt.Weapon.Blueprint.Category);
+            return !this.DuelistWeapon || flag;
+        }
+
+        public void OnEventAboutToTrigger(RuleCombatManeuver evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleCombatManeuver evt)
+        {
+            if (!Maneuvers.Empty() && !Maneuvers.Contains(evt.Type))
+            {
+                return;
+            }
+            if (!evt.Success && OnlySuccess)
+            {
+                return;
+            }
+
+            var attack_rule = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackRoll>();
+
+            if (attack_rule == null)
+            {
+                return;
+            }
+
+            TryRunActions(attack_rule);
         }
     }
 }

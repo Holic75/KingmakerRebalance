@@ -3487,11 +3487,11 @@ namespace CallOfTheWild
         {
             spell_conduit = Helpers.CreateFeature("SpellConduitFeature",
                                     "Spell Conduit",
-                                    "At 5th level, a blood conduit can channel a bloodrager spell a range of touch into his blood as a swift action. As long as he is wearing light or no armor, he can deliver this spell through bodily contact. When he makes a natural weapon attack or an unarmed strike against an enemy, he can release a touch spell on the creature that, requiring no further touch attack roll. If this spell would usually require a successful touch attack, his successful attack roll counts as this attack.",
+                                    "At 5th level, a blood conduit can channel a bloodrager spell a range of touch into his blood as a swift action. As long as he is wearing light or no armor, he can deliver this spell through bodily contact. When he succeeds at a trip or bull rush combat maneuver or an attack with a natural weapon or an unarmed strike against an enemy, he can release a touch spell on the creature.",
                                     "",
                                     Helpers.GetIcon("1d6364123e1f6a04c88313d83d3b70ee"), //strength surge
                                     FeatureGroup.None,
-                                    Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
+                                    Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.always_hit = true));
 
             var release_buff = Helpers.CreateBuff("SpellConduitToggleBuff",
                                                   spell_conduit.Name + ": Release",
@@ -3517,8 +3517,17 @@ namespace CallOfTheWild
             var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = spell_conduit);
             var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
             var on_attack_action = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_on_condition));
+            var on_maneuver_action = Helpers.Create<CombatManeuverMechanics.AddInitiatorManeuverWithWeaponTrigger>(a =>
+            {
+                a.ActionsOnInitiator = false;
+                a.Action = Helpers.CreateActionList(release_on_condition);
+                a.AllNaturalAndUnarmed = true;
+                a.Maneuvers = new Kingmaker.RuleSystem.Rules.CombatManeuver[] { Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush, Kingmaker.RuleSystem.Rules.CombatManeuver.Trip };
+                a.OnlySuccess = true;
+            });
             on_attack_action.AllNaturalAndUnarmed = true;
             spell_conduit.AddComponent(on_attack_action);
+            spell_conduit.AddComponent(on_maneuver_action);
             spell_conduit.AddComponent(Helpers.CreateAddFact(conduit_activatable_ability));
 
             int max_variants = 6; //due to ui limitation
@@ -3567,7 +3576,7 @@ namespace CallOfTheWild
                                                                              reflexive_conduit.Description,
                                                                              "",
                                                                              reflexive_conduit.Icon,
-                                                                             release_buff,
+                                                                             release_buff2,
                                                                              AbilityActivationType.Immediately,
                                                                              CommandType.Free,
                                                                              null,
