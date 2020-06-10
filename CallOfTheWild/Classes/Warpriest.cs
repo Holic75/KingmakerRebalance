@@ -4902,6 +4902,7 @@ namespace CallOfTheWild
                                                                   "",
                                                                   Helpers.GetIcon("b8cecf4e5e464ad41b79d5b42b76b399"),
                                                                   FeatureGroup.WeaponTraining,
+                                                                  Helpers.Create<WeaponTraining>(),
                                                                   Helpers.Create<NewMechanics.WeaponTrainingIfHasParametrizedFeatures>(w => w.required_parametrized_features = new BlueprintParametrizedFeature[] { weapon_focus, NewFeats.deity_favored_weapon } )
                                                                   );
             arsenal_chaplain_weapon_training.Ranks = 10;

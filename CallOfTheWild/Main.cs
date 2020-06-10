@@ -201,6 +201,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixRangerMasterHunter();
                     CallOfTheWild.Rebalance.fixEaglesoul();
                     CallOfTheWild.MonkStunningFists.create();
+                    CallOfTheWild.Rebalance.fixTactician();
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 
@@ -258,7 +259,7 @@ namespace CallOfTheWild
                     CallOfTheWild.BloodlinesFix.load();
                     CallOfTheWild.Archetypes.PrimalSorcerer.create();
                     CallOfTheWild.Arcanist.createArcanistClass();
-
+                    CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.SharedSpells.load();
                     
 
@@ -267,6 +268,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Archetypes.MindBlade.create();
                     CallOfTheWild.Archetypes.Evangelist.create();
+                    
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();
                     

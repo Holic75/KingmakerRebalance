@@ -1829,10 +1829,35 @@ namespace CallOfTheWild
                 sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feat);
                 monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts = monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feat);
                 //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
-                tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts = tactical_leader_feat_share_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feat);
+
+                var choice_buff = Helpers.CreateBuff(feat.name + "ShareBuff",
+                                                      "Tactician: " + feat.Name,
+                                                      "You can grant this teamwork feat to all allies within 30 feet who can see and hear you, using your tactician ability.",
+                                                      Helpers.MergeIds("e47acc8f864543ca8055ace52233842a", feat.AssetGuid),
+                                                      feat.Icon,
+                                                      null
+                                                      );
+                var toggle = Helpers.CreateActivatableAbility(feat.name + "ShareToggleAbility",
+                                                              choice_buff.Name,
+                                                              choice_buff.Description,
+                                                              Helpers.MergeIds("ed966664711f48688cacf90e9bc798b8", feat.AssetGuid),
+                                                              choice_buff.Icon,
+                                                              choice_buff,
+                                                              AbilityActivationType.Immediately,
+                                                              UnitCommand.CommandType.Free,
+                                                              null
+                                                              );
+                toggle.DeactivateImmediately = true;
+                toggle.Group = ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup();
+                toggle.WeightInGroup = 1;
+
+                tactical_leader_feat_share_buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().Facts.Add(feat, choice_buff);
             }
             teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feat);
             Hunter.hunter_teamwork_feat.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.greater_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.master_tactician.AllFeatures = teamwork_feat.AllFeatures;
             teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feat);
             Summoner.teamwork_feat.AllFeatures = Summoner.teamwork_feat.AllFeatures.AddToArray(feat);
 

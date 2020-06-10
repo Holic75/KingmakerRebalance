@@ -41,7 +41,7 @@ namespace CallOfTheWild
             HelaersWay,
             KineticChirurgeonMercy,
             BravadosBlade,
-
+            TacticianTeamworkFeatShare,
 
 
 

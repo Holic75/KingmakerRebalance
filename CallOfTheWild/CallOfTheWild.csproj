@@ -131,6 +131,7 @@
     <Compile Include="Archetypes\Bloodhunter.cs" />
     <Compile Include="Archetypes\DirgeBard.cs" />
     <Compile Include="Archetypes\DivineTracker.cs" />
+    <Compile Include="Archetypes\DrillSergeant.cs" />
     <Compile Include="Archetypes\GraveWarden.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />
     <Compile Include="Archetypes\MindBlade.cs" />

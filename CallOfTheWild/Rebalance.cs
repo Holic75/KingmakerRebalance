@@ -1412,6 +1412,67 @@ namespace CallOfTheWild
             var progression = flamedancer.GetParentClass().Progression;
             progression.UIGroups = progression.UIGroups.AddToArray(Helpers.CreateUIGroup(library.Get<BlueprintFeature>("3c10a0069e7f110499d2e810f4861a6e"), feature));
         }
+
+
+        static internal void fixTactician()
+        {
+            var tactical_leader = library.Get<BlueprintArchetype>("639b74fd2f48d474e965c596b1649095");
+            var teamwork_feats = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447").GetComponent<AddFactsFromCaster>().Facts.Cast<BlueprintFeature>().ToArray();
+            var buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
+
+            buff.SetNameDescription("", "");
+            buff.ComponentsArray = new BlueprintComponent[] {Helpers.Create<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>() };
+            buff.Stacking = StackingType.Stack;
+            foreach (var tw in teamwork_feats)
+            {
+                var choice_buff = Helpers.CreateBuff(tw.name + "ShareBuff",
+                                          "Tactician: " + tw.Name,
+                                          "You can grant this teamwork feat to all allies within 30 feet who can see and hear you, using your tactician ability.",
+                                          Helpers.MergeIds("e47acc8f864543ca8055ace52233842a", tw.AssetGuid),
+                                          tw.Icon,
+                                          null
+                                          );
+                var toggle = Helpers.CreateActivatableAbility(tw.name + "ShareToggleAbility",
+                                                              choice_buff.Name,
+                                                              choice_buff.Description,
+                                                              Helpers.MergeIds("ed966664711f48688cacf90e9bc798b8", tw.AssetGuid),
+                                                              tw.Icon,
+                                                              choice_buff,
+                                                              AbilityActivationType.Immediately,
+                                                              UnitCommand.CommandType.Free,
+                                                              null
+                                                              );
+                toggle.DeactivateImmediately = true;
+                toggle.Group = ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup();
+                toggle.WeightInGroup = 1;
+
+                var feature = Common.ActivatableAbilityToFeature(toggle, true, Helpers.MergeIds("c9ca89f32d3b4e1b8add1bae23c73f4b", tw.AssetGuid));
+
+                tw.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature, 2, new BlueprintCharacterClass[] { tactical_leader.GetParentClass() }, new BlueprintArchetype[] { tactical_leader }));
+                buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().Facts.Add(tw, choice_buff);
+            }
+            var ability = library.Get<BlueprintAbility>("f1c8ec6179505714083ed9bd47599268");
+            ability.SetNameDescription("Tactician",
+                                       "At 3rd level, 9th level, and 18th level, a tactical leader gains a teamwork feat as a bonus feat. He must meet the prerequisites for this feat. As a standard action, the tactical leader can grant one of these feats to all allies within 30 feet who can see and hear him. Allies retain the use of this bonus feat for 3 rounds plus 1 round for every 2 inquisitor levels the tactical leader has. Allies do not need to meet the prerequisites of these bonus feats.\n"
+                                       + "The tactical leader can use this ability once per day at 3rd level, plus one additional time per day at 6th, 9th, 15th, and 18th level.\n"
+                                       + "At 12th level, a tactical leader can use the tactician ability as a swift action. At 18th level, whenever the tactical leader uses this ability, he grants any two teamwork feats that he knows. He can select from any of his teamwork feats, not just his bonus feats.");
+
+            ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff), a.Actions.Actions[0]));
+
+            var tactical_leader_tactician = library.Get<BlueprintFeature>("93e78cad499b1b54c859a970cbe4f585");
+            var extra_tactician = Helpers.CreateFeature("TacticalLeaderExtraTactician",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None,
+                                                        Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup())
+                                                        );
+            extra_tactician.HideInCharacterSheetAndLevelUp = true;
+            extra_tactician.HideInUI = true;
+            tactical_leader_tactician.AddComponent(Helpers.CreateAddFeatureOnClassLevel(extra_tactician, 18, new BlueprintCharacterClass[] { tactical_leader.GetParentClass() }, new BlueprintArchetype[] { tactical_leader }));
+            tactical_leader_tactician.SetNameDescription(ability);
+        }
     }
 
 

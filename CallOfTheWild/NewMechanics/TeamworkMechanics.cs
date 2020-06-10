@@ -11,9 +11,11 @@ using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -298,6 +300,37 @@ namespace CallOfTheWild.TeamworkMechanics
         {
             UnitEntityData unit = target.Unit;
             return ((bool)caster.Descriptor.State.Features.SoloTactics) || unit.Descriptor.HasFact(fact);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddFactsFromCasterIfHasBuffs : BuffLogic, IUnitReapplyFeaturesOnLevelUpHandler, IUnitSubscriber
+    {
+        [JsonProperty]
+        private List<Fact> m_AppliedFacts = new List<Fact>();
+        public Dictionary<BlueprintUnitFact, BlueprintUnitFact> Facts = new Dictionary<BlueprintUnitFact, BlueprintUnitFact>();
+
+        public void HandleUnitReapplyFeaturesOnLevelUp()
+        {
+            this.OnRecalculate();
+        }
+
+        public override void OnFactActivate()
+        {
+            UnitEntityData maybeCaster = this.Fact.MaybeContext?.MaybeCaster;
+            if (maybeCaster == null)
+                return;
+            foreach (var kv in this.Facts)
+            {
+                if (maybeCaster.Descriptor.HasFact(kv.Key) && maybeCaster.Descriptor.HasFact(kv.Value))
+                    this.m_AppliedFacts.Add(this.Owner.Logic.AddFact((BlueprintFact)kv.Key, this.Context));
+            }
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.m_AppliedFacts.ForEach(new Action<Fact>(((FactCollection)this.Owner.Logic).RemoveFact));
         }
     }
 }

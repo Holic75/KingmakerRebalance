@@ -13,9 +13,11 @@ using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
+using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -403,13 +405,74 @@ namespace CallOfTheWild.WeaponTrainingMechanics
         }
     }
 
-    //allow weapon training to be recognized by advanced weapon training
+
+
+    [ComponentName("Weapon group damage bonus")]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ShareWeaponGroupAttackDamageBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
+    {
+        public float multiplier = 0.5f;
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                MechanicsContext context = (this.Fact as Buff)?.Context;
+                if (context != null)
+                    return context;
+                return (this.Fact as Feature)?.Context;
+            }
+        }
+
+
+        int getBonus(ItemEntityWeapon weapon)
+        {
+            var num = this.Context.MaybeCaster?.Get<UnitPartWeaponTraining>()?.GetWeaponRank(weapon);
+            var caster_bonus = (int)(num.GetValueOrDefault() * multiplier);
+
+            var num2 = this.Owner?.Get<UnitPartWeaponTraining>()?.GetWeaponRank(weapon);
+            var wielder_bonus = num2.GetValueOrDefault();
+
+            return caster_bonus - wielder_bonus;
+        }
+
+        public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+
+            int bonus = getBonus(evt.Weapon);
+            if (bonus > 0)
+            {
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalDamage.AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
+            }
+
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+
+        public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+            int bonus = getBonus(evt.Weapon);
+            if (bonus > 0)
+            {
+                evt.AddBonus(bonus, this.Fact);
+            }
+        }
+
+        public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+        }
+    }
+
+    //allow 2h weapon training and sacred weapon training to be recognized by advanced weapon training
     [Harmony12.HarmonyPatch(typeof(UnitPartWeaponTraining))]
     [Harmony12.HarmonyPatch("GetWeaponRank", Harmony12.MethodType.Normal)]
     [Harmony12.HarmonyPatch(new Type[] { typeof(ItemEntityWeapon) })]
     class Patch_UnitPartWeaponTraining_GetWeaponRank
     {
         static BlueprintFeature two_handed_weapon_training = Main.library.Get<BlueprintFeature>("88da2a5dfc505054f933bb81014e864f");
+        static BlueprintParametrizedFeature weapon_focus = Main.library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
 
         static public void Postfix(UnitPartWeaponTraining __instance, ItemEntityWeapon weapon, ref int __result)
         {
@@ -418,23 +481,55 @@ namespace CallOfTheWild.WeaponTrainingMechanics
                 return;
             }
 
-            if (!weapon.Blueprint.IsTwoHanded || !weapon.Blueprint.IsMelee)
+            if (weapon.Blueprint.IsTwoHanded && weapon.Blueprint.IsMelee)
             {
-                return;
+                var fact = __instance.Owner.GetFact(two_handed_weapon_training);
+
+                if (fact == null)
+                {
+                    return;
+                }
+                var rank2h = fact.GetRank();
+
+                if (rank2h > __result)
+                {
+                    __result = rank2h;
+                }
             }
 
-            var fact = __instance.Owner.GetFact(two_handed_weapon_training);
-
-            if (fact == null)
+            if (checkFeature(__instance.Owner, weapon.Blueprint.Category, weapon_focus, NewFeats.deity_favored_weapon))
             {
-                return;
-            }
-            var rank2h = fact.GetRank();
+                var fact = __instance.Owner.GetFact(Warpriest.arsenal_chaplain_weapon_training);
 
-            if (rank2h > __result)
-            {
-                __result = rank2h;
+                if (fact == null)
+                {
+                    return;
+                }
+                var rank_swt = fact.GetRank();
+
+                if (rank_swt > __result)
+                {
+                    __result = rank_swt;
+                }
             }
         }
+
+
+        static bool checkFeature(UnitDescriptor unit, WeaponCategory category, params BlueprintParametrizedFeature[] required_parametrized_features)
+        {
+            if (required_parametrized_features.Empty())
+            {
+                return true;
+            }
+            foreach (var f in required_parametrized_features)
+            {
+                if (unit.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
