@@ -27,6 +27,7 @@ using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -105,6 +106,14 @@ namespace CallOfTheWild
         static public BlueprintFeature winter_witch_cantrips;
         static public BlueprintFeature ice_magic;
 
+        static public BlueprintArchetype havocker;
+        static public BlueprintFeatureSelection patron_element;
+        static public BlueprintFeatureSelection infusion;
+        static public BlueprintFeature infusion_specialization;
+        static public BlueprintFeature spellburn;
+        static public BlueprintFeature gather_power;
+        static public BlueprintProgression kinetic_blast_progression;
+
         static public BlueprintFeature patron_cl_fcb;
         static public BlueprintFeature witch_knife;
         static public BlueprintAbility ill_omen;
@@ -164,7 +173,8 @@ namespace CallOfTheWild
             createHedgeWitch();
             createHexChanneler();
             createWinterWitch();
-            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype, winter_witch_archetype};
+            createHavocker();
+            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype, winter_witch_archetype, havocker};
             Helpers.RegisterClass(witch_class);
             createExtraHexFeat();
 
@@ -172,6 +182,29 @@ namespace CallOfTheWild
 
             HexEngine.split_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 10));
             HexEngine.split_major_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(witch_class, 18));
+
+            HexEngine.split_hex_feat.AddComponent(Common.prerequisiteNoArchetype(havocker));
+            HexEngine.split_major_hex_feat.AddComponent(Common.prerequisiteNoArchetype(havocker));
+
+            HexEngine.amplified_hex_feat.ReplaceComponent(HexEngine.amplified_hex_feat.GetComponent<PrerequisiteClassLevel>(),
+                                                          Helpers.Create<PrerequisiteMechanics.CompoundPrerequisite>(c =>
+                                                          {
+                                                              c.prerequisite1 = Helpers.PrerequisiteClassLevel(witch_class, 1);
+                                                              c.prerequisite2 = Common.prerequisiteNoArchetype(havocker);
+                                                              c.Group = Prerequisite.GroupType.Any;
+                                                          })
+                                                          );
+            HexEngine.accursed_hex_feat.ReplaceComponent(HexEngine.accursed_hex_feat.GetComponent<PrerequisiteClassLevel>(),
+                                                          Helpers.Create<PrerequisiteMechanics.CompoundPrerequisite>(c =>
+                                                          {
+                                                              c.prerequisite1 = Helpers.PrerequisiteClassLevel(witch_class, 1);
+                                                              c.prerequisite2 = Common.prerequisiteNoArchetype(havocker);
+                                                              c.Group = Prerequisite.GroupType.Any;
+                                                          })
+                                                          );
+            extra_hex_feat.AddComponent(Common.prerequisiteNoArchetype(havocker));
+            witch_knife.AddComponent(Common.prerequisiteNoArchetype(havocker));
+            patron_cl_fcb.AddComponent(Common.prerequisiteNoArchetype(havocker));
         }
 
 
@@ -302,6 +335,226 @@ namespace CallOfTheWild
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, ley_line_guardian_archetype.ReplaceSpellbook, "DragonDiscipleLeyLineGuardian",
                            Common.createPrerequisiteClassSpellLevel(witch_class, 1),
                            Common.createPrerequisiteArchetypeLevel(witch_class, ley_line_guardian_archetype, 1));
+        }
+
+
+        static void createHavocker()
+        {
+            havocker = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "HavockerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Havocker");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Although most witches are guided to subtle curses and debilitating hexes by their mysterious patrons, some are instead taught the secrets of harnessing raw, destructive elemental power.");
+            });
+            Helpers.SetField(havocker, "m_ParentClass", witch_class);
+            library.AddAsset(havocker, "");
+            createPatronElement();
+            createInfusions();
+            createSpellBurn();
+            havocker.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, witch_patrons, witch_familiar, hex_selection),
+                                                         Helpers.LevelEntry(2, hex_selection),
+                                                         Helpers.LevelEntry(4, hex_selection),
+                                                         Helpers.LevelEntry(6, hex_selection),
+                                                         Helpers.LevelEntry(8, hex_selection),
+                                                         Helpers.LevelEntry(10, hex_selection),
+                                                         Helpers.LevelEntry(12, hex_selection),
+                                                         Helpers.LevelEntry(14, hex_selection),
+                                                         Helpers.LevelEntry(16, hex_selection),
+                                                         Helpers.LevelEntry(18, hex_selection),
+                                                         Helpers.LevelEntry(20, hex_selection)
+                                                        };
+            havocker.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, patron_element, kinetic_blast_progression),
+                                                      Helpers.LevelEntry(2, gather_power),
+                                                      Helpers.LevelEntry(4, infusion),
+                                                      Helpers.LevelEntry(6, spellburn),
+                                                      Helpers.LevelEntry(8, infusion),
+                                                      Helpers.LevelEntry(10, infusion_specialization),
+                                                      Helpers.LevelEntry(12, infusion),
+                                                      Helpers.LevelEntry(14, infusion_specialization),
+                                                      Helpers.LevelEntry(16, infusion),
+                                                      Helpers.LevelEntry(18, infusion_specialization),
+                                                      Helpers.LevelEntry(20, infusion)
+                                                    };
+            witch_progression.UIDeterminatorsGroup = witch_progression.UIDeterminatorsGroup.AddToArray(patron_element);
+            witch_progression.UIGroups = witch_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(spellburn, gather_power));
+        }
+
+
+        static void createPatronElement()
+        {
+            var kineticist = library.Get<BlueprintCharacterClass>("42a455d9ec1ad924d889272429eb8391");
+            var elemental_foci = new List<BlueprintFeature>();
+            var elemental_focus = library.Get<BlueprintFeatureSelection>("1f3a15a3ae8a5524ab8b97f469bf4e3d");
+
+            foreach (var efs in elemental_focus.AllFeatures)
+            {
+                var progression = efs as BlueprintProgression;
+
+                var focus = Helpers.CreateProgression("Havocker" + progression.name,
+                                                  progression.Name,
+                                                  progression.Description,
+                                                  "",
+                                                  progression.Icon,
+                                                  progression.Groups[0]);
+                focus.Classes = getWitchArray();
+                focus.LevelEntries = new LevelEntry[] { progression.LevelEntries[0] };
+                focus.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = progression.Classes[0]));
+                progression.AddComponent(Common.prerequisiteNoArchetype(havocker));
+
+                var blast_selection = progression.LevelEntries[0].Features[0] as BlueprintFeatureSelection;
+                if (blast_selection != null)
+                {
+                    foreach (var s in blast_selection.AllFeatures)
+                    {
+                        var s_progression = s as BlueprintProgression;
+                        s_progression.Classes = s_progression.Classes.AddToArray(witch_class);
+                        s_progression.Archetypes = new BlueprintArchetype[] { havocker };
+                    }
+                }
+                else
+                {
+                    var s_progression = progression.LevelEntries[0].Features[0] as BlueprintProgression;
+                    s_progression.Classes = s_progression.Classes.AddToArray(witch_class);
+                    s_progression.Archetypes = new BlueprintArchetype[] { havocker };
+                }
+                elemental_foci.Add(focus);
+            }
+
+            patron_element = Helpers.CreateFeatureSelection("PatronElementFeatureSelection",
+                                                            "Patron Element",
+                                                            "A havocker’s patron grants her the ability to devastate her foes with a specific element. At 1st level, rather than selecting a standard patron and gaining patron spells, the witch selects a specific kineticist element, which represents the shadowy forces from which she gains her familiar and class powers. The havocker gains the elemental focus and kinetic blast class features with the associated element, using her witch level as her effective kineticist level. A havocker uses her Intelligence modifier instead of her Constitution modifier to determine her damage with wild talents, the DCs of Constitution-based wild talents, the durations of wild talents with Constitution-based durations, her bonus on concentration checks for wild talents, and any other Constitution-based effects of all her wild talents.",
+                                                            "",
+                                                            elemental_focus.Icon,
+                                                            FeatureGroup.None
+                                                            );
+            patron_element.AllFeatures = elemental_foci.ToArray();
+            elemental_focus.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = patron_element));
+
+           
+
+            var burn_resource = Helpers.CreateAbilityResource("HavockerBurnResource", "", "", "", null);
+            burn_resource.SetFixedResource(0);
+
+            var burn_per_round_resource = Helpers.CreateAbilityResource("HavockerBurnPerRoundResource", "", "", "", null);
+            burn_per_round_resource.SetFixedResource(0);
+
+            var kineticist_component = library.Get<BlueprintFeature>("2fa48527ba627254ba9bf4556330a4d4").GetComponent<AddKineticistPart>().CreateCopy();
+            kineticist_component.MainStat = StatType.Intelligence;
+            kineticist_component.MaxBurn = burn_resource;
+            kineticist_component.MaxBurnPerRound = burn_per_round_resource;
+            kineticist_component.Class = witch_class;
+            patron_element.AddComponents(burn_resource.CreateAddAbilityResource(),
+                                         burn_per_round_resource.CreateAddAbilityResource(),
+                                         kineticist_component,
+                                         Common.createClassLevelsForPrerequisites(kineticist, witch_class)
+                                         );
+            //fix kineticist base abilities to be visible for patron element
+            var abilities = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a =>
+                                                                                        {
+                                                                                            var comp = a.GetComponent<AbilityShowIfCasterHasFact>();
+                                                                                            return comp != null && comp.UnitFact == elemental_focus;
+                                                                                        }
+                                                                                        );
+            foreach (var a in abilities)
+            {
+                var comp = a.GetComponent<AbilityShowIfCasterHasFact>();
+                a.ReplaceComponent(comp, Helpers.Create<NewMechanics.AbilityShowIfCasterHasFactsFromList>(f => f.UnitFacts = new BlueprintUnitFact[] { elemental_focus, patron_element }));
+            }
+
+            //fix all sacling to account for havocker
+            var scaling_objects = library.GetAllBlueprints().Where(a =>
+                                                                            {
+                                                                                var comp = a.GetComponent<ContextCalculateAbilityParamsBasedOnClass>();
+                                                                                return comp != null && comp.CharacterClass == kineticist;
+                                                                            }
+                                                                            );
+
+            foreach (var so in scaling_objects)
+            {
+                var comp = so.GetComponent<ContextCalculateAbilityParamsBasedOnClass>();
+                var new_scaling = Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(new BlueprintCharacterClass[] { witch_class, kineticist }, new BlueprintArchetype[] { havocker }, comp.StatType);
+                new_scaling.use_kineticist_main_stat = comp.UseKineticistMainStat;
+                so.ReplaceComponent(comp, new_scaling);
+            }
+
+
+            kinetic_blast_progression = library.CopyAndAdd<BlueprintProgression>("30a5b8cf728bd4a4d8d90fc4953e322e", "HavockerKineticBlastProgression", "c32f99fcb740447f948b70de216c751b");
+            kinetic_blast_progression.Classes = kinetic_blast_progression.Classes.AddToArray(witch_class);
+            kinetic_blast_progression.Archetypes = new BlueprintArchetype[] { havocker };
+            kinetic_blast_progression.SetDescription(patron_element.Description);
+        }
+
+
+        static void createInfusions()
+        {
+            infusion = library.CopyAndAdd<BlueprintFeatureSelection>("58d6f8e9eea63f6418b107ce64f315ea", "HavockerInfusionSelectionFeature", "");
+            infusion.SetDescription("At 4th level and every 4 witch levels thereafter, the havocker gains an infusion wild talent from the list of options available based on her elemental focus, functioning as the kineticist ability of the same name. A havocker must meet the prerequisites of the infusion wild talent and can’t accept burn (but see the spellburn ability below).");
+
+            infusion_specialization = library.CopyAndAdd<BlueprintFeature>("5f64f446aef387d499a396b626d5fc51", "InfusionSpecializationHavockerFeature", "");
+            infusion_specialization.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Feature", infusion_specialization));
+
+            infusion_specialization.SetDescription("At 10th level, whenever a havocker uses one or more infusions with a blast, she reduces the combined burn cost of the infusions by 1. This can't reduce the total cost of the infusions used below 0.\nShe reduces the burn cost by 1 additional point at 12th, 16th, and 20th levels.");
+
+            gather_power = library.CopyAndAdd<BlueprintFeature>("71f526b1d4b50b94582b0b9cbe12b0e0", "HavockerGatherPowerFeature", "");
+            gather_power.SetDescription("At 2nd level a havocker gains a kineticist gather power ability.");
+            gather_power.HideInUI = false;
+            gather_power.HideInCharacterSheetAndLevelUp = false;
+        }
+
+
+        static void createSpellBurn()
+        {
+            var abilities = new List<BlueprintAbility>();
+            var buffs = new List<BlueprintBuff>();
+            var icon = library.Get<BlueprintActivatableAbility>("00b6d36e31548dc4ab0ac9d15e64a980").Icon; //healing judgment
+            abilities.Add(null);
+            abilities.Add(null);
+            for (int i = 2; i < 9; i++)
+            {
+                var buff = Helpers.CreateBuff($"SpellBurn{i}Buff",
+                                              $"Spellburn ({i/2})",
+                                              "Beginning at 4th level, a havocker can channel stored spell energy into her kinetic blast to increase the blast’s overall utility and power. To use her infusions, the havocker must lose a prepared witch spell to apply the infusion to her kinetic blast. Any spell sacrificed is required to have a spell level equal to at least twice the infusion burn cost. The havocker cannot accept additional burn if the infusion would allow her to do so.",
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<KineticistMechanics.DecreaseWildTalentCostWithActionOnBurn>(a => { a.value = i / 2; a.actions = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()); })
+                                              );
+                buffs.Add(buff);
+
+                var ability = Helpers.CreateAbility($"SpellBurn{i}Ability",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Special,
+                                                    CommandType.Free,
+                                                    AbilityRange.Personal,
+                                                    Helpers.oneRoundDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), false, dispellable: false))
+                                                    );
+                ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(ability);
+            }
+
+
+            foreach (var a in abilities)
+            {
+                if (a == null)
+                {
+                    continue;
+                }
+                a.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(r => r.Buffs = buffs.ToArray()))));
+            }
+
+            spellburn = Helpers.CreateFeature("SpellburnHavockerFeature",
+                                              "Spellburn",
+                                              abilities[3].Description,
+                                              "",
+                                              abilities[3].Icon,
+                                              FeatureGroup.None,
+                                              Common.createSpontaneousSpellConversion(witch_class, abilities.ToArray())
+                                              );
         }
 
 

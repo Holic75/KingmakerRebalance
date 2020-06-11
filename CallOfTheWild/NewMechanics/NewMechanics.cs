@@ -732,6 +732,7 @@ namespace CallOfTheWild
 
         public class ContextCalculateAbilityParamsBasedOnClasses : ContextAbilityParamsCalculator
         {
+            public bool use_kineticist_main_stat;
             public StatType StatType = StatType.Charisma;
             public BlueprintCharacterClass[] CharacterClasses;
             public BlueprintArchetype[] archetypes = new BlueprintArchetype[0];
@@ -744,6 +745,14 @@ namespace CallOfTheWild
                     return context.Params;
                 }
                 StatType statType = this.StatType;
+                if (this.use_kineticist_main_stat)
+                {
+                    UnitPartKineticist unitPartKineticist = context.MaybeCaster?.Get<UnitPartKineticist>();
+                    if (unitPartKineticist == null)
+                        UberDebug.LogError((UnityEngine.Object)context.AssociatedBlueprint, (object)string.Format("Caster is not kineticist: {0} ({1})", (object)context.MaybeCaster, (object)context.AssociatedBlueprint.NameSafe()), (object[])Array.Empty<object>());
+                    StatType? mainStatType = unitPartKineticist?.MainStatType;
+                    statType = !mainStatType.HasValue ? this.StatType : mainStatType.Value;
+                }
 
                 AbilityData ability = context.SourceAbilityContext?.Ability;
                 RuleCalculateAbilityParams rule = !(ability != (AbilityData)null) ? new RuleCalculateAbilityParams(maybeCaster, context.AssociatedBlueprint, (Spellbook)null) : new RuleCalculateAbilityParams(maybeCaster, ability);
@@ -6241,7 +6250,6 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintFact) })]
         class FactCollection__HasFact__Patch
         {
-
             static void Postfix(FactCollection __instance, ref bool __result, BlueprintFact blueprint)
             {
                 if (!__result)

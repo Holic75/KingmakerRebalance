@@ -74,6 +74,11 @@ namespace CallOfTheWild.AooMechanics
                 return false;
             }
 
+            if (!weapon.Blueprint.IsRanged)
+            {
+                return false;
+            }
+
             if (!weapon_categories.Contains(weapon.Blueprint.Category))
             {
                 return false;
@@ -122,13 +127,13 @@ namespace CallOfTheWild.AooMechanics
     public class AttackDamageBonusOnAoo : RuleInitiatorLogicComponent<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
     {
         public WeaponCategory[] weapon_categories;
-        public ContextValue value; 
+        public ContextValue value;
+        public bool only_ranged = true;
 
         public override void OnEventAboutToTrigger(RuleAttackRoll evt)
         {
-
             var weapon_attack = evt.RuleAttackWithWeapon;
-            if (weapon_attack != null && !check(weapon_attack))
+            if (weapon_attack == null || !check(weapon_attack))
             {
                 return;
             }
@@ -141,11 +146,16 @@ namespace CallOfTheWild.AooMechanics
         {
             if (!evt.IsAttackOfOpportunity)
             {
-                return true;
+                return false;
             }
 
             if (!weapon_categories.Contains(evt.Weapon.Blueprint.Category))
                 return false;
+
+            if (!evt.Weapon.Blueprint.IsRanged)
+            {
+                return false;
+            }
 
             return true;
         }
@@ -153,7 +163,7 @@ namespace CallOfTheWild.AooMechanics
         public void OnEventAboutToTrigger(RuleDealDamage evt)
         {
             var weapon_attack = evt.AttackRoll?.RuleAttackWithWeapon;
-            if (weapon_attack != null && !check(weapon_attack))
+            if (weapon_attack == null || !check(weapon_attack))
             {
                 return;
             }

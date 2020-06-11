@@ -43,16 +43,24 @@ namespace CallOfTheWild.FeatureMechanics
 
 
     [Harmony12.HarmonyPatch(typeof(RuleAttackWithWeapon))]
-    [Harmony12.HarmonyPatch("LaunchProjectile", Harmony12.MethodType.Normal)]
-    public class RuleAttackWithWeapon_LaunchProjectile_Patch
+    [Harmony12.HarmonyPatch("LaunchProjectiles", Harmony12.MethodType.Normal)]
+    public class RuleAttackWithWeapon_LaunchProjectiles_Patch
     {
-        static bool Prefix(RuleAttackWithWeapon __instance, BlueprintProjectile projectile, bool first)
+        static bool Prefix(RuleAttackWithWeapon __instance, BlueprintProjectile[] projectiles)
         {
-            if ((!first) && __instance.Weapon.Blueprint.Type.FighterGroup == WeaponFighterGroup.Bows && (bool)__instance.Initiator.Descriptor.State.Features.Manyshot && (__instance.IsFirstAttack && __instance.IsFullAttack))
+            var tr = Harmony12.Traverse.Create(__instance);
+            foreach (BlueprintProjectile projectile in projectiles)
             {
-                if (__instance.Initiator.Get<UnitPartManyshotNotAvailable>() != null && __instance.Initiator.Get<UnitPartManyshotNotAvailable>().active())
+                if (projectile != null)
                 {
-                    return false;
+                    tr.Method("LaunchProjectile", projectile, true).GetValue();
+                    if (__instance.Weapon.Blueprint.Type.FighterGroup == WeaponFighterGroup.Bows && __instance.Initiator.Descriptor.State.Features.Manyshot
+                        && (__instance.IsFirstAttack && __instance.IsFullAttack)
+                        && (__instance.Initiator.Get<UnitPartManyshotNotAvailable>() != null && __instance.Initiator.Get<UnitPartManyshotNotAvailable>().active())
+                        )
+                    {
+                        tr.Method("LaunchProjectile", projectile, false).GetValue();
+                    }
                 }
             }
 

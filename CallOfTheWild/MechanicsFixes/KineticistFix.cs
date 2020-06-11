@@ -156,6 +156,7 @@ namespace CallOfTheWild
             internal_buffer.AddComponent(Helpers.CreateAddAbilityResource(internal_buffer_resource));
             kineticist_progression.LevelEntries[5].Features.Add(internal_buffer);
 
+            Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
             //fix previous saves without buffer
             Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
             {
