@@ -278,14 +278,15 @@ namespace CallOfTheWild
                                                                                         m.TakeBest = true;
                                                                                         m.RerollOnlyIfFailed = true;
                                                                                         m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(resource, 1));
+                                                                                        m.required_resource = resource;
                                                                                     })
                                                                                     );
                 var ability2 = Helpers.CreateActivatableAbility(rule_types[i].ToString() + name_prefix + "ToggleAbility",
-                                                               buff.Name,
-                                                               buff.Description,
+                                                               buff2.Name,
+                                                               buff2.Description,
                                                                "",
-                                                               buff.Icon,
-                                                               buff,
+                                                               buff2.Icon,
+                                                               buff2,
                                                                AbilityActivationType.Immediately,
                                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                                null,

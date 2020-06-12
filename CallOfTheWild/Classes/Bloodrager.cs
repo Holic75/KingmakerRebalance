@@ -1926,24 +1926,27 @@ namespace CallOfTheWild
                 //replace with the following:
                 //once every 4 levels allow to reroll one failed attack
                 var knights_resolve = library.Get<BlueprintBuff>("f7bf9fc0d400d7243aaca01b14f8c935");
+                var resource = Helpers.CreateAbilityResource(prefix + "CertainStrikeResource", "", "", "", knights_resolve.Icon);
+                resource.SetIncreasedByLevelStartPlusDivStep(0, 8, 2, 4, 1, 0, 0.0f, getBloodragerArray());
 
-                var reroll = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ModifyD20>();
+                var reroll = Helpers.Create<NewMechanics.ModifyD20WithActions>();
                 reroll.DispellOnRerollFinished = true;
                 reroll.Rule = RuleType.AttackRoll;
                 reroll.RollsAmount = 1;
                 reroll.TakeBest = true;
                 reroll.RerollOnlyIfFailed = true;
+                reroll.actions = Helpers.CreateActionList();
+                reroll.required_resource = resource;
 
                 var certain_strike_buff = Helpers.CreateBuff(prefix + "CertainStrikeBuff",
                                                          "Certain Strike",
-                                                         "At 8th level, you may decide to reroll a failed attack roll once during next round. You can use this ability once per day per 4 levels of bloodrager.",
+                                                         "At 8th level, you may decide to reroll a failed attack roll once per day. You can use this ability once per day per 4 levels of bloodrager.",
                                                          "",
                                                          knights_resolve.Icon,
                                                          null,
                                                          reroll);
 
-                var resource = Helpers.CreateAbilityResource(prefix + "CertainStrikeResource", "", "", "", knights_resolve.Icon);
-                resource.SetIncreasedByLevelStartPlusDivStep(0, 8, 2, 4, 1, 0, 0.0f, getBloodragerArray());
+
                 var certain_strike_ability = library.CopyAndAdd<BlueprintAbility>("6f9af630d43d4c2498a127ea84cb1c8a", prefix + "CertainStrikeAbility", "");
                 certain_strike_ability.SetName(certain_strike_buff.Name);
                 certain_strike_ability.SetDescription(certain_strike_buff.Description);
@@ -1957,15 +1960,29 @@ namespace CallOfTheWild
                                                                                    Helpers.CreateResourceLogic(resource)
                                                                                   };
                 certain_strike_ability.Type = AbilityType.Supernatural;
+
+                var toggle = Helpers.CreateActivatableAbility(prefix + "CertainStrikeToggleAbility",
+                                                              certain_strike_ability.Name,
+                                                              certain_strike_ability.Description,
+                                                              "44a41da87ea34b7ca8602ff7a3a76aaa",
+                                                              certain_strike_ability.Icon,
+                                                              certain_strike_buff,
+                                                              AbilityActivationType.Immediately,
+                                                              CommandType.Free,
+                                                              null,
+                                                              Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.Never));
+                toggle.DeactivateImmediately = true;
+
                 addBloodrageRestriction(certain_strike_ability);
+                addBloodrageRestriction(toggle);
                 certain_strike = Helpers.CreateFeature(prefix + "CertainStrikeFeature",
                                                        certain_strike_buff.Name,
                                                        certain_strike_buff.Description,
                                                        "",
                                                        certain_strike_buff.Icon,
                                                        FeatureGroup.None,
-                                                       Helpers.CreateAddFact(certain_strike_ability),
-                                                           Helpers.CreateAddAbilityResource(resource)
+                                                       Helpers.CreateAddFact(toggle),
+                                                       Helpers.CreateAddAbilityResource(resource)
                                                            );
             }
 

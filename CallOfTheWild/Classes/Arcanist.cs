@@ -188,7 +188,7 @@ namespace CallOfTheWild
             {
                 a.name = "ExploiterWizardArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Exploiter Wizard");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Contrary to traditional wizardly study, an exploiter wizard forgoes the tried and true methods of arcane focus and arcane schools for the exploits favored by an arcanist.Some wizards regard this blatant exploitation of arcane magic as somehow “cheating,” but most exploiters believe this prejudice is close - minded and overly traditional.");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Contrary to traditional wizardly study, an exploiter wizard forgoes the tried and true methods of arcane focus and arcane schools for the exploits favored by an arcanist. Some wizards regard this blatant exploitation of arcane magic as somehow “cheating,” but most exploiters believe this prejudice is close-minded and overly traditional.");
             });
             Helpers.SetField(exploiter_wizard_archetype, "m_ParentClass", wizard);
             library.AddAsset(exploiter_wizard_archetype, "");

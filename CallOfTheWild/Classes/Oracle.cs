@@ -110,6 +110,17 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource healers_way_resource;
 
         static public BlueprintArchetype dual_cursed_archetype;
+        static public BlueprintFeatureSelection dual_cursed_oracle_mysteries;
+        static public BlueprintFeatureSelection minor_curse_selection;
+        static public BlueprintFeature[] dual_cursed_bonus_spell_features = new BlueprintFeature[3];
+        static BlueprintAbility[] dual_cursed_bonus_spells = new BlueprintAbility[3];
+        static public BlueprintAbility oracles_burden;
+        static public BlueprintFeature fortune_revelation;
+        static public BlueprintFeature misfortune_revelation;
+
+
+        static public Dictionary<BlueprintFeature, BlueprintFeature> curse_to_minor_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
+        static public Dictionary<BlueprintFeature, BlueprintFeature> curse_to_hindrance_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
 
         static public Dictionary<BlueprintFeature, BlueprintFeature> oracle_ravener_hunter_mysteries_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
 
@@ -245,8 +256,9 @@ namespace CallOfTheWild
             createWarsighted();
             createSpiritGuide();
             createDivineHerbalist();
+            createDualCursed();
 
-            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype, divine_herbalist_archetype};
+            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype, divine_herbalist_archetype, dual_cursed_archetype};
             Helpers.RegisterClass(oracle_class);
             createExtraRevelationFeat();
 
@@ -254,6 +266,80 @@ namespace CallOfTheWild
                                                      Common.createPrerequisiteClassSpellLevel(oracle_class, 2));
         }
 
+
+        static void createDualCursed()
+        {
+            dual_cursed_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "DualCursedOracleArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Dual-Cursed Oracle");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "All oracles are cursed to some degree, but some oracles bear an even heavier burden. Though doubly afflicted with supernatural or physical hindrances, a dual-cursed oracle can manipulate fortune and gains greater insights into her mystery.");
+            });
+            Helpers.SetField(dual_cursed_archetype, "m_ParentClass", oracle_class);
+            library.AddAsset(dual_cursed_archetype, "");
+
+            createFortuneRevelation();
+            createMisfortuneRevelation();
+
+            dual_cursed_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, mystery_skills, oracle_mysteries) };
+            dual_cursed_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, minor_curse_selection, dual_cursed_oracle_mysteries),
+                                                                        Helpers.LevelEntry(5, fortune_revelation),
+                                                                        Helpers.LevelEntry(13, misfortune_revelation),
+                                                                      };
+
+            oracle_class.Progression.UIDeterminatorsGroup = oracle_class.Progression.UIDeterminatorsGroup.AddToArray(minor_curse_selection, dual_cursed_oracle_mysteries);
+            oracle_class.Progression.UIGroups = oracle_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(fortune_revelation, misfortune_revelation));
+        }
+
+
+        static void createFortuneRevelation()
+        {
+            var resource = Helpers.CreateAbilityResource("FortuneRevelationResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 10, 1, 5, 1, 0, 0.0f, getOracleArray());
+
+            var ability = library.CopyAndAdd<BlueprintAbility>("9af0b584f6f754045a0a79293d100ab3", "FortuneRevelationAbility", "");
+            ability.RemoveComponents<ReplaceAbilitiesStat>();
+            ability.RemoveComponents<SpellComponent>();
+            ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            ability.ActionType = CommandType.Swift;
+            ability.Range = AbilityRange.Personal;
+            ability.Type = AbilityType.Extraordinary;
+            ability.setMiscAbilityParametersSelfOnly();
+            ability.SetNameDescription("Fortune", 
+                                        "At 5th level, as swift action, you can grant yourself an ability to make a second roll and take the best value every time you roll d20 until the end of the round. You can use this ability once per day at 5th level, and one additional time per day for every six oracle levels beyond 5th.");
+
+            fortune_revelation = Common.AbilityToFeature(ability, false);
+            fortune_revelation.AddComponent(resource.CreateAddAbilityResource());
+        }
+
+
+        static void createMisfortuneRevelation()
+        {
+            var ability = library.CopyAndAdd<BlueprintAbility>("ca1a4cd28737ae544a0a7e5415c79d9b", "MisfortuneRevelationAbility", "");
+            ability.RemoveComponents<AbilityResourceLogic>();
+            ability.RemoveComponents<SpellComponent>();
+            ability.RemoveComponents<AbilityDeliverTouch>();
+            ability.ActionType = CommandType.Swift;
+            ability.Range = AbilityRange.Close;
+            ability.Type = AbilityType.Extraordinary;
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            ability.SetNameDescription("Misfortune", 
+                                       "At 13th level as a swift action, you can curse a creature within close range with misfortune. For the next round, anytime the target rolls a d20, they must roll twice and take the less favorable result.  Once a creature has suffered from your misfortune, it cannot be the target of this revelation again for 1 day.");
+
+            var buff = Helpers.CreateBuff("MisfortuneRevelationCooldownBuff",
+                                          ability.Name + " Cooldown",
+                                          ability.Description,
+                                          "",
+                                          ability.Icon,
+                                          null);
+            var apply_cooldown = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            buff.Stacking = StackingType.Stack;
+            ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(apply_cooldown)));
+            ability.AddComponent(Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { buff }));
+
+            misfortune_revelation = Common.AbilityToFeature(ability, false);
+        }
 
         static void createDivineHerbalist()
         {
@@ -664,6 +750,14 @@ namespace CallOfTheWild
             createOracleProficiencies();
             createCureInflictSpells();
             createCurses();
+            createOracleBurdenSpell();
+            dual_cursed_bonus_spells = new BlueprintAbility[]
+            {
+                Witch.ill_omen,
+                oracles_burden,
+                library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603")
+            };
+
             createMysteries();
             
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
@@ -712,6 +806,50 @@ namespace CallOfTheWild
         }
 
 
+        static void createOracleBurdenSpell()
+        {
+            var actions = new List<GameAction>();
+
+            foreach(var kv in curse_to_minor_map)
+            {
+                var buff = Helpers.CreateBuff(kv.Key.name + "OraclesBurdenBuff",
+                                              "Oracle's Burden: " + kv.Key.Name,
+                                              "",
+                                              "",
+                                              null,
+                                              null,
+                                              Helpers.CreateAddFact(curse_to_hindrance_map[kv.Key])
+                                              );
+                var action = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionCasterHasFacts>(c => c.Facts = new BlueprintUnitFact[] { kv.Key, kv.Value }),
+                                                      Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))
+                                                      );
+                actions.Add(action);
+            }
+
+
+            var ability = Helpers.CreateAbility("OraclesBurdenAbility",
+                                                   "Oracle's Burden",
+                                                   "You entreat the forces of fate to bestow your oracle’s curse upon another creature. The target creature suffers all the hindrances and none of the benefits of your oracle’s curse class feature. You still suffer all effects of your oracle’s curse.",
+                                                   "",
+                                                   Helpers.GetIcon("4baf4109145de4345861fe0f2209d903"), //crushing despair
+                                                   AbilityType.Spell,
+                                                   CommandType.Standard,
+                                                   AbilityRange.Touch,
+                                                   Helpers.minutesPerLevelDuration,
+                                                   Helpers.willNegates,
+                                                   Helpers.CreateRunActions(SavingThrowType.Will, Helpers.CreateConditionalSaved(new GameAction[0], actions.ToArray())),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Curse),
+                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                   Helpers.CreateDeliverTouch(),
+                                                   Helpers.CreateContextRankConfig()
+                                                   );
+            ability.setMiscAbilityParametersTouchHarmful();
+            oracles_burden = Helpers.CreateTouchSpellCast(ability);
+
+            oracles_burden.AddToSpellList(oracle_class.Spellbook.SpellList, 2);
+        }
+
         static void createMysteries()
         {
 
@@ -732,6 +870,8 @@ namespace CallOfTheWild
                                                               "",
                                                               null,
                                                               FeatureGroup.Domain);
+
+            dual_cursed_oracle_mysteries = library.CopyAndAdd(oracle_mysteries, "DualCursedOracleMysteries", "");
 
             revelation_selection = Helpers.CreateFeatureSelection("OracleRevelationSelection",
                                                                   "Revelation",
@@ -1640,6 +1780,40 @@ namespace CallOfTheWild
                 Archetypes.RavenerHunter.charged_by_nature.AllFeatures = Archetypes.RavenerHunter.charged_by_nature.AllFeatures.AddToArray(ravener_mystery);
                 Archetypes.RavenerHunter.revelation_selection.AllFeatures = Archetypes.RavenerHunter.revelation_selection.AllFeatures.AddToArray(mystery_revelation_selection);
             }
+
+            var dual_cursed_mystery = library.CopyAndAdd(mystery, "DualCursed" + mystery.name, "");
+            dual_cursed_mystery.LevelEntries = new LevelEntry[mystery.LevelEntries.Length];
+
+            for (int i = 0; i < mystery.LevelEntries.Length; i++)
+            {
+                if (mystery.LevelEntries[i].Level == 2 || mystery.LevelEntries[i].Level == 4 || mystery.LevelEntries[i].Level == 6)
+                {
+                    int lvl = mystery.LevelEntries[i].Level;
+                    if (dual_cursed_bonus_spell_features[lvl / 2 - 1] == null)
+                    {
+                        dual_cursed_bonus_spell_features[lvl / 2 - 1] = Helpers.CreateFeature("DualCuresedBonusSpell" + dual_cursed_bonus_spells[lvl / 2 - 1].name,
+                                                                                             dual_cursed_bonus_spells[lvl / 2 - 1].Name,
+                                                                                             "At 2nd level, and every two levels thereafter, an oracle learns an additional spell derived from her mystery.\n"
+                                                                                             + dual_cursed_bonus_spells[lvl / 2 - 1].Name + ": " + dual_cursed_bonus_spells[lvl / 2 - 1].Description,
+                                                                                             "",
+                                                                                             dual_cursed_bonus_spells[lvl / 2 - 1].Icon,
+                                                                                             FeatureGroup.None,
+                                                                                             dual_cursed_bonus_spells[lvl / 2 - 1].CreateAddKnownSpell(oracle_class, lvl / 2)
+                                                                                             );
+                    }
+
+                    dual_cursed_mystery.UIGroups[0].Features.Add(dual_cursed_bonus_spell_features[lvl / 2 - 1]);
+                    dual_cursed_mystery.LevelEntries[i] = Helpers.LevelEntry(mystery.LevelEntries[i].Level, dual_cursed_bonus_spell_features[lvl / 2 - 1]);
+                }
+                else
+                {
+                    dual_cursed_mystery.LevelEntries[i] = mystery.LevelEntries[i];
+                }
+            }
+            mystery.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = dual_cursed_mystery));
+            dual_cursed_oracle_mysteries.AllFeatures = dual_cursed_oracle_mysteries.AllFeatures.AddToArray(dual_cursed_mystery);
+
+
             return mystery;
         }
 
@@ -1667,6 +1841,15 @@ namespace CallOfTheWild
                                                            FeatureGroup.None);
 
             oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism };
+
+            minor_curse_selection = Helpers.CreateFeatureSelection("OracleMinorCurseSelection",
+                                               "Second Curse",
+                                               "A dual-cursed oracle must choose a second curse at 1st level. This curse never changes its abilities as the oracle gains levels.",
+                                               "",
+                                               null,
+                                               FeatureGroup.None);
+
+            minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor };
         }
 
 
@@ -1685,6 +1868,9 @@ namespace CallOfTheWild
                                               );
 
             vampirism_minor = library.CopyAndAdd(curse, "OracleCurseVampirismMinor", "");
+            var hindrance = library.CopyAndAdd(vampirism_minor, "OracleCurseVampirismHindranceFeature", "");
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, vampirism_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Vampirism",
                                                "Channel Resistance",
@@ -1743,6 +1929,9 @@ namespace CallOfTheWild
                                               );
 
             lich_minor = library.CopyAndAdd(curse, "OracleCurseLichMinor", "");
+            var hindrance = library.CopyAndAdd(lich_minor, "OracleCurseLichHindranceFeature", "");
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, lich_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Lich",
                                                "Ghoul Touch",
@@ -1834,6 +2023,11 @@ namespace CallOfTheWild
                                               Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("35dfad6517f401145af54111be04d6cf"))
                                               );
 
+            var hindrance = library.CopyAndAdd(wolf_scarred_face_minor, "OracleCurseWolfScarredFaceHindranceFeature", "");
+            hindrance.RemoveComponents<AddAdditionalLimb>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, wolf_scarred_face_minor);
+
             var curse5 = Helpers.CreateFeature("OracleCurse5WolfScarredFace",
                                                "Wolf-scarred Face",
                                                "At 5th level, you add magic fang to your list of known spells and your bite damage increases to 1d6.",
@@ -1882,6 +2076,9 @@ namespace CallOfTheWild
                                   Helpers.Create<SavingThrowBonusAgainstDescriptor>(s => { s.Bonus = -1; s.ModifierDescriptor = ModifierDescriptor.UntypedStackable; s.SpellDescriptor = SpellDescriptor.Disease; })
                                   );
             plagued_minor = library.CopyAndAdd(curse, "OracleCursePlaguedMinorFeature", "");
+            var hindrance = library.CopyAndAdd(plagued_minor, "OracleCursePlaguedHindranceFeature", "");
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, plagued_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Plagued",
                                                "Pox Pustules",
@@ -1936,6 +2133,10 @@ namespace CallOfTheWild
                                               vanish.CreateAddKnownSpell(oracle_class, 1)
                                               );
             pranked_minor = library.CopyAndAdd(curse, "OracleCursePrankedMinorFeature", "");
+            var hindrance = library.CopyAndAdd(pranked_minor, "OracleCursePrankedHindranceFeature", "");
+            hindrance.RemoveComponents<AddKnownSpell>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, pranked_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Pranked",
                                                "Pranked",
@@ -1991,6 +2192,10 @@ namespace CallOfTheWild
                                                                                                 )
                                               );
             wasting_minor = library.CopyAndAdd(curse, "OracleCurseWastingMinorFeature", "");
+            var hindrance = library.CopyAndAdd(wasting_minor, "OracleCurseWastingHindranceFeature", "");
+            hindrance.RemoveComponents<SavingThrowBonusAgainstDescriptor>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, wasting_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Wasting", 
                                                "Immune to Sickened",
@@ -2039,6 +2244,10 @@ namespace CallOfTheWild
                                               Helpers.Create<NewMechanics.AddSpeedBonusBasedOnRaceSize>(a => { a.small_race_speed_bonus = -5; a.normal_race_speed_bonus = -10; })
                                               );
             lame_minor = library.CopyAndAdd(curse, "OracleCurseLameMinorFeature", "");
+            var hindrance = library.CopyAndAdd(lame_minor, "OracleCurseLameHindranceFeature", "");
+            hindrance.RemoveComponents<EncumbranceMechanics.IgnoreEncumbrence>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, lame_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Lame", 
                                                "Immune to Fatigue",
@@ -2104,6 +2313,10 @@ namespace CallOfTheWild
                                                       burning_hands.CreateAddKnownSpell(oracle_class, 1),
                                                       Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = -4)
                                                       );
+            curse_to_minor_map.Add(curse, blackened_minor);
+            var hindrance = library.CopyAndAdd(blackened_minor, "OracleCurseBlackenedHindranceFeature", "");
+            hindrance.RemoveComponents<AddKnownSpell>();
+            curse_to_hindrance_map.Add(curse, hindrance);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Blackened", 
                                                curse.Name,
@@ -2172,7 +2385,9 @@ namespace CallOfTheWild
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
                                               );
 
-
+            curse_to_minor_map.Add(curse, deaf_minor);
+            var hindrance = library.CopyAndAdd(deaf_minor, "OracleCurseDeafHindranceFeature", "");
+            curse_to_hindrance_map.Add(curse, hindrance);
             var curse5 = Helpers.CreateFeature("OracleCurse5Deaf", 
                                                curse.Name,
                                                "At 5th level, you no longer receive a penalty on Perception checks, and the initiative penalty for being deaf is reduced to –2.",
@@ -2219,6 +2434,10 @@ namespace CallOfTheWild
                                                                                                               )
                                                   );
             clouded_vision_minor = library.CopyAndAdd(curse, "OracleCurseCloudedVisionMinorFeature", "");
+            var hindrance = library.CopyAndAdd(clouded_vision_minor, "OracleCurseCloudedVisionHindranceFeature", "");
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, clouded_vision);
+
             var curse5 = Helpers.CreateProgression("OracleCurse5CloudedVision",
                                       curse.Name,
                                       "At 5th level, your vision distance increases to 30 feet.",

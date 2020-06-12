@@ -141,7 +141,7 @@ namespace CallOfTheWild
         {
             sharpened_accuracy = Helpers.CreateFeature("SharpenedAccuracyRagePowerFeature",
                                                        "Sharpened Accuracy",
-                                                       "While in the accurate stance, the barbarian ignores the miss chance for concealment and treats total concealment as concealment. She also ignores cover penalties except those from total cover. A barbarian must have the accurate stance rage power and be at least 8th level to select this rage power.",
+                                                       "While in the lethal stance, the barbarian ignores the miss chance for concealment and treats total concealment as concealment. She also ignores cover penalties except those from total cover. A barbarian must have the lethal stance rage power and be at least 8th level to select this rage power.",
                                                        "",
                                                        Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"),
                                                        FeatureGroup.RagePower,

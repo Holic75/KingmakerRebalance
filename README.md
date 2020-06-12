@@ -25,7 +25,7 @@ It introduces new classes:
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist and Occultist,
-- Oracle with following archetypes: Seeker, Spirit Guide, Warsighted and Divine Herbalist,
+- Oracle with following archetypes: Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Hinterlander and Holy Vindicator prestige classes.

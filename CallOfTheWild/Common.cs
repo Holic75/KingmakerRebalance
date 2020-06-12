@@ -3487,7 +3487,10 @@ namespace CallOfTheWild
 
             for (int i = 0; i <= max_level; i++)
             {
-                spell_list.SpellsByLevel[i] = from_list.SpellsByLevel[i];
+                foreach (var s in from_list.SpellsByLevel[i].Spells)
+                {
+                    s.AddToSpellList(spell_list, i);
+                }
             }
 
             return spell_list;

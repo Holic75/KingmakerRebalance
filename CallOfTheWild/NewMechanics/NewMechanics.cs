@@ -2807,6 +2807,34 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextConditionCasterHasFacts : ContextCondition
+        {
+            public BlueprintUnitFact[] Facts;
+            public bool all = false;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                foreach (var f in Facts)
+                {
+                    if (this.Context.MaybeCaster.Descriptor.HasFact(f) && !all)
+                    {
+                        return true;
+                    }
+                    else if (!this.Context.MaybeCaster.Descriptor.HasFact(f) && all)
+                    {
+                        return false;
+                    }
+                }
+                return all;
+            }
+        }
+
+
         public class ContextConditionHasCondtionImmunity : ContextCondition
         {
             public UnitCondition condition;
@@ -5932,6 +5960,8 @@ namespace CallOfTheWild
             public BlueprintFeature TandemTripFeature;
             private RuleRollD20 m_Roll;
 
+            public BlueprintAbilityResource required_resource = null;
+
             public ActionList actions;
 
             private bool IsSkillCheck
@@ -5984,6 +6014,10 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleRollD20 evt)
             {
+                if (required_resource != null && this.Fact.MaybeContext.MaybeCaster.Descriptor.Resources.GetResourceAmount(required_resource) < 1)
+                {
+                    return;
+                }
                 this.m_Roll = null;
                 RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
                 if (previousEvent == null || !this.CheckRule(previousEvent))
@@ -6010,25 +6044,38 @@ namespace CallOfTheWild
 
             private static bool IsRollFailed(int roll, RulebookEvent evt)
             {
-                bool? nullable1 = (evt as RuleAttackRoll)?.IsSuccessRoll(roll);
-                int num;
-                if ((!nullable1.HasValue ? 0 : (nullable1.Value ? 1 : 0)) == 0)
+                if (evt is RuleAttackRoll)
                 {
-                    bool? nullable2 = (evt as RuleSkillCheck)?.IsSuccessRoll(roll, 0);
-                    if ((!nullable2.HasValue ? 0 : (nullable2.Value ? 1 : 0)) == 0)
+                    var evt2 = evt as RuleAttackRoll;
+                    if (roll <= 1)
                     {
-                        bool? nullable3 = (evt as RuleSavingThrow)?.IsSuccessRoll(roll, 0);
-                        if ((!nullable3.HasValue ? 0 : (nullable3.Value ? 1 : 0)) == 0)
-                        {
-                            bool? nullable4 = (evt as RuleCombatManeuver)?.IsSuccessRoll(roll);
-                            num = !nullable4.HasValue ? 0 : (nullable4.Value ? 1 : 0);
-                            goto label_5;
-                        }
+                        return true;
                     }
+                    if (roll == 20)
+                    {
+                        return false;
+                    }
+
+                    return roll + evt2.AttackBonus < evt2.TargetAC;
                 }
-                num = 1;
-            label_5:
-                return num == 0;
+                else if (evt is RuleSkillCheck)
+                {
+                    return !(evt as RuleSkillCheck).IsSuccessRoll(roll);
+                }
+                else if (evt is RuleSavingThrow)
+                {
+                    return !(evt as RuleSavingThrow).IsSuccessRoll(roll);
+                }
+                else if (evt is RuleCombatManeuver)
+                {
+                    return !(evt as RuleCombatManeuver).IsSuccessRoll(roll);
+                }
+                else if (evt is RuleSpellResistanceCheck)
+                {
+                    return (evt as RuleSpellResistanceCheck).SpellResistance > (evt as RuleSpellResistanceCheck).SpellPenetration + roll;
+                }
+
+                return false;
             }
 
             public override void OnEventDidTrigger(RuleRollD20 evt)
