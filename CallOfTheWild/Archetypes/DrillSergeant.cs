@@ -81,7 +81,7 @@ namespace CallOfTheWild.Archetypes
             createWeaponTrainer();
 
             var bravery = library.Get<BlueprintFeature>("f6388946f9f472f4585591b80e9f2452");
-            var weapon_training_extra = library.Get<BlueprintFeature>("5f3cc7b9a46b880448275763fe70c0b0");
+            var weapon_training_extra = library.Get<BlueprintFeature>("b8cecf4e5e464ad41b79d5b42b76b399");
 
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(2, bravery),
                                                           Helpers.LevelEntry(6, bravery),
@@ -134,13 +134,14 @@ namespace CallOfTheWild.Archetypes
 
             tactician.AllFeatures = library.Get<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb").AllFeatures;
 
+            var comp = library.Get<BlueprintFeature>("4ca47c023f1c158428bd55deb44c735f").GetComponent<AutoMetamagic>().CreateCopy(a => a.Abilities = new BlueprintAbility[] { ability }.ToList()) ;
             greater_tactician = Helpers.CreateFeatureSelection("DrillSergeantGreaterTacticianFeatureSelection",
                                            "Greater Tactician",
                                            "At 9th level, the drill sergeant receives an additional teamwork feat as a bonus feat. He must meet the prerequisites for this feat. Using the tactician ability is a swift action.",
                                            "",
                                            ability.Icon,
                                            FeatureGroup.None,
-                                           Helpers.Create<AutoMetamagic>(a => { a.Metamagic = Metamagic.Quicken; a.Abilities = new BlueprintAbility[] { ability }.ToList(); })
+                                           comp
                                            );
             greater_tactician.AllFeatures = tactician.AllFeatures;
 
