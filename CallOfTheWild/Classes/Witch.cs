@@ -117,6 +117,7 @@ namespace CallOfTheWild
         static public BlueprintFeature patron_cl_fcb;
         static public BlueprintFeature witch_knife;
         static public BlueprintAbility ill_omen;
+        static public BlueprintAbility screech;
 
         static HexEngine hex_engine;
 
@@ -147,6 +148,7 @@ namespace CallOfTheWild
             witch_class.WillSave = wizard_class.WillSave;
             witch_class.Spellbook = createWitchSpellbook();
             createIllOmen();
+            createScreech();
             witch_class.ClassSkills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillUseMagicDevice,
                                                       StatType.SkillPersuasion};
             witch_class.IsDivineCaster = false;
@@ -1321,6 +1323,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
 
                 new Common.SpellId( NewSpells.accursed_glare.AssetGuid, 3),
+                new Common.SpellId( NewSpells.barrow_haze.AssetGuid, 3),
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
                 new Common.SpellId( NewSpells.burning_entanglement.AssetGuid, 3),
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
@@ -1524,10 +1527,38 @@ namespace CallOfTheWild
 
             ill_omen.SpellResistance = true;
             ill_omen.setMiscAbilityParametersSingleTargetRangedHarmful(true);
-            ill_omen.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            ill_omen.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             ill_omen.AddToSpellList(witch_class.Spellbook.SpellList, 1);
             ill_omen.AddSpellAndScroll("3bbf0e0edd3e78f42a42b0dd85c3a53a"); //doom
+        }
+
+
+        static void createScreech()
+        {
+            screech = Helpers.CreateAbility("ScreechAbility",
+                                             "Screech",
+                                             "You emit a shrill, piercing shriek, startling those around you into dropping their guard. Enemies in the area must make a successful Saving Throw or immediately provoke attacks of opportunity from foes that threaten them. You and your allies are unaffected by your own screech.",
+                                             "",
+                                             Helpers.GetIcon("8e7cfa5f213a90549aadd18f8f6f4664"),
+                                             AbilityType.Spell,
+                                             UnitCommand.CommandType.Standard,
+                                             AbilityRange.Personal,
+                                             "",
+                                             Helpers.fortNegates,
+                                             Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionProvokeAttackOfOpportunity>())),
+                                             Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic),
+                                             Common.createAbilityAoERadius(30.Feet(), TargetType.Enemy),
+                                             Common.createAbilitySpawnFx("dce448e95ca41aa49962bbb66a67c32c", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                             );
+
+            screech.SpellResistance = true;
+            screech.setMiscAbilityParametersSelfOnly();
+            screech.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+
+            screech.AddToSpellList(witch_class.Spellbook.SpellList, 3);
+            screech.AddSpellAndScroll("17afee356af23734393bb157daa8b29c"); //ear-piercing scream
         }
 
 

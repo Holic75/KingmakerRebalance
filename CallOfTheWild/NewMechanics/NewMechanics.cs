@@ -5073,9 +5073,11 @@ namespace CallOfTheWild
 
             public override void RunAction()
             {
+                var pt = (this.Target.Point - this.Context.MaybeCaster.Position).To2D().normalized;
+                var n = new Vector2(-pt.y, pt.x);
                 foreach (var p in points_around_target)
                 {
-                    var target = new TargetWrapper(this.Target.Point + p.To3D());
+                    var target = new TargetWrapper(this.Target.Point + (n*UnityEngine.Vector2.Dot(n,p)).To3D());
                     AreaEffectEntityData effectEntityData = AreaEffectsController.Spawn(this.Context, this.AreaEffect, target, new TimeSpan?(this.DurationValue.Calculate(this.Context).Seconds));
                     if (this.AbilityContext == null)
                         return;

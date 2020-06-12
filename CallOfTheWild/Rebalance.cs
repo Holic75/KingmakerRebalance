@@ -1416,6 +1416,7 @@ namespace CallOfTheWild
 
         static internal void fixTactician()
         {
+            var tactical_leader_tactician = library.Get<BlueprintFeature>("93e78cad499b1b54c859a970cbe4f585");
             var tactical_leader = library.Get<BlueprintArchetype>("639b74fd2f48d474e965c596b1649095");
             var teamwork_feats = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447").GetComponent<AddFactsFromCaster>().Facts.Cast<BlueprintFeature>().ToArray();
             var buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
@@ -1447,9 +1448,9 @@ namespace CallOfTheWild
                 toggle.WeightInGroup = 1;
 
                 var feature = Common.ActivatableAbilityToFeature(toggle, true, Helpers.MergeIds("c9ca89f32d3b4e1b8add1bae23c73f4b", tw.AssetGuid));
-
-                tw.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature, 2, new BlueprintCharacterClass[] { tactical_leader.GetParentClass() }, new BlueprintArchetype[] { tactical_leader }));
-                buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().Facts.Add(tw, choice_buff);
+                tw.AddComponent(Common.createAddFeatureIfHasFact(tactical_leader_tactician, feature));
+                buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().facts.Add(tw);
+                buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().prerequsites.Add(choice_buff);
             }
             var ability = library.Get<BlueprintAbility>("f1c8ec6179505714083ed9bd47599268");
             ability.SetNameDescription("Tactician",
@@ -1459,7 +1460,7 @@ namespace CallOfTheWild
 
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff), a.Actions.Actions[0]));
 
-            var tactical_leader_tactician = library.Get<BlueprintFeature>("93e78cad499b1b54c859a970cbe4f585");
+          
             var extra_tactician = Helpers.CreateFeature("TacticalLeaderExtraTactician",
                                                         "",
                                                         "",

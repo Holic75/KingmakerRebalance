@@ -24,6 +24,7 @@ using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
 using Kingmaker.UI.Common;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -845,6 +846,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateContextRankConfig()
                                                    );
             ability.setMiscAbilityParametersTouchHarmful();
+            ability.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             oracles_burden = Helpers.CreateTouchSpellCast(ability);
 
             oracles_burden.AddToSpellList(oracle_class.Spellbook.SpellList, 2);

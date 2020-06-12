@@ -213,6 +213,8 @@ namespace CallOfTheWild
         static public BlueprintAbility animate_dead_lesser;
         static public BlueprintUnit animate_dead_skeleton;
 
+        static public BlueprintAbility barrow_haze;
+        static public BlueprintAbility screech;
         static public void load()
         {
             createImmunityToWind();
@@ -345,6 +347,52 @@ namespace CallOfTheWild
             createConsecreate();
             createDesecrate();
             createAnimateDeadLesser();
+
+            createBarrowHaze();
+        }
+
+
+        static void createBarrowHaze()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "BarrowHazeArea", ""); //mind fog
+            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Size = 20.Feet();
+            area.SpellResistance = false;
+
+            var buff = Helpers.CreateBuff("BarrowHazeBuff",
+                                            "Barrow Haze",
+                                            "Barrow haze creates a bank of fog similar to that created by obscuring mist, except that the vapors are dark and they have a necromantic link to you. The vapors do not interfere with your vision.",
+                                            "",
+                                            icon,
+                                            null,
+                                            Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
+                                            Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; })
+                                            );
+
+            foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
+            {
+                buff.AddComponent(Common.createOutgoingConcelement(c));
+            }
+
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(Common.createContextConditionIsCaster(not:true)); }) };
+
+
+            barrow_haze = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "BarrowHazeAbility", "");
+            barrow_haze.SpellResistance = false;
+            barrow_haze.RemoveComponents<SpellListComponent>();
+            barrow_haze.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Necromancy);
+            barrow_haze.RemoveComponents<SpellDescriptorComponent>();
+            barrow_haze.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            barrow_haze.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
+            barrow_haze.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+            barrow_haze.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            barrow_haze.LocalizedDuration = Helpers.minutesPerLevelDuration;
+            barrow_haze.AddToSpellList(Helpers.wizardSpellList, 3);
+            barrow_haze.LocalizedSavingThrow = Helpers.CreateString("BarrowHaze.SavingThrow", "");
+
+            barrow_haze.AddSpellAndScroll("61bacc43652d76c42b60d965b65cd741");//mind fog
         }
 
 
@@ -2507,7 +2555,7 @@ namespace CallOfTheWild
 
         static void createSolidFogAndFixAcidFog()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
+            var icon = Helpers.GetIcon("3c53ee4965a13d74e81b37ae34f0861b");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "SolidFogArea", ""); //mind fog
             area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
@@ -4481,10 +4529,10 @@ namespace CallOfTheWild
 
         static void createObscuringMist()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
+            var icon = Helpers.GetIcon("3c53ee4965a13d74e81b37ae34f0861b");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "ObscuringMistFogArea", ""); //mind fog
-            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Fx = Common.createPrefabLink(/*"597682efc0419a142a3174fd6bb408f7"*/ "e63a0d8a1f2d74343b374ea4bbf9d951"); //mind fog
             area.Size = 20.Feet();
             area.SpellResistance = false;
             obscuring_mist_area = area;

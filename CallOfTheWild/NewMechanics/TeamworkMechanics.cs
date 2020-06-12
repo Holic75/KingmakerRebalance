@@ -309,7 +309,8 @@ namespace CallOfTheWild.TeamworkMechanics
     {
         [JsonProperty]
         private List<Fact> m_AppliedFacts = new List<Fact>();
-        public Dictionary<BlueprintUnitFact, BlueprintUnitFact> Facts = new Dictionary<BlueprintUnitFact, BlueprintUnitFact>();
+        public List<BlueprintUnitFact> facts = new List<BlueprintUnitFact>();
+        public List<BlueprintUnitFact> prerequsites = new List<BlueprintUnitFact>();
 
         public void HandleUnitReapplyFeaturesOnLevelUp()
         {
@@ -321,10 +322,17 @@ namespace CallOfTheWild.TeamworkMechanics
             UnitEntityData maybeCaster = this.Fact.MaybeContext?.MaybeCaster;
             if (maybeCaster == null)
                 return;
-            foreach (var kv in this.Facts)
+            if (this.Owner == maybeCaster?.Descriptor)
             {
-                if (maybeCaster.Descriptor.HasFact(kv.Key) && maybeCaster.Descriptor.HasFact(kv.Value))
-                    this.m_AppliedFacts.Add(this.Owner.Logic.AddFact((BlueprintFact)kv.Key, this.Context));
+                return;
+            }
+
+            for (int i = 0; i < facts.Count; i++)
+            {
+                if (maybeCaster.Descriptor.HasFact(facts[i]) && maybeCaster.Descriptor.HasFact(prerequsites[i]))
+                {
+                    this.m_AppliedFacts.Add(this.Owner.Logic.AddFact((BlueprintFact)facts[i], this.Context));
+                }
             }
         }
 

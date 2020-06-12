@@ -1818,6 +1818,7 @@ namespace CallOfTheWild
 
         static public void addTemworkFeats(BlueprintFeature feat, bool share = true)
         {
+            var tactical_leader_tactician = library.Get<BlueprintFeature>("93e78cad499b1b54c859a970cbe4f585");
             var tactical_leader_feat_share_buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
             var monster_tactics_buff = library.Get<BlueprintBuff>("81ddc40b935042844a0b5fb052eeca73");
             var sh_teamwork_share = library.Get<BlueprintFeature>("e1f437048db80164792155102375b62c");
@@ -1826,6 +1827,7 @@ namespace CallOfTheWild
 
             if (share)
             {
+                feat.ReapplyOnLevelUp = true;
                 sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feat);
                 monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts = monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feat);
                 //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
@@ -1851,7 +1853,11 @@ namespace CallOfTheWild
                 toggle.Group = ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup();
                 toggle.WeightInGroup = 1;
 
-                tactical_leader_feat_share_buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().Facts.Add(feat, choice_buff);
+                tactical_leader_feat_share_buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().facts.Add(feat);
+                tactical_leader_feat_share_buff.GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().prerequsites.Add(choice_buff);
+                var feature = Common.ActivatableAbilityToFeature(toggle, true, Helpers.MergeIds("c9ca89f32d3b4e1b8add1bae23c73f4b", feat.AssetGuid));
+                feat.AddComponent(Common.createAddFeatureIfHasFact(tactical_leader_tactician, feature));
+                feat.AddComponent(Common.createAddFeatureIfHasFact(Archetypes.DrillSergeant.tactician, feature));
             }
             teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feat);
             Hunter.hunter_teamwork_feat.AllFeatures = teamwork_feat.AllFeatures;

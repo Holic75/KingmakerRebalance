@@ -124,11 +124,12 @@ namespace CallOfTheWild.Archetypes
                                                        Helpers.CreateAddFact(ability),
                                                        resource.CreateAddAbilityResource()
                                                        );
-            var teamwork_feats = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447").GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().Facts.Keys.Cast<BlueprintFeature>().ToArray();
+            var teamwork_feats = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447").GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().facts.Cast<BlueprintFeature>().ToArray();
 
             foreach (var tf in teamwork_feats)
             {
-                tf.ReplaceComponent<AddFeatureOnClassLevel>(a => { a.AdditionalClasses = a.AdditionalClasses.AddToArray(fighter_class); a.Archetypes = a.Archetypes.AddToArray(archetype); });
+                var add_comp = tf.GetComponent<AddFeatureIfHasFact>().CreateCopy(a => a.CheckedFact = tactician);
+                tf.AddComponent(add_comp);
             }
 
             tactician.AllFeatures = library.Get<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb").AllFeatures;
