@@ -263,10 +263,9 @@ namespace CallOfTheWild.AooMechanics
             var codes = instructions.ToList();
             var check_threat_hand = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Call && x.operand.ToString().Contains("GetThreatHand"));
 
-            codes.Insert(check_threat_hand, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+            codes[check_threat_hand] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
                                                                            new Func<UnitEntityData, WeaponSlot>(getThreatHand2).Method
-                                                                           )
-                        );
+                                                                           );
             return codes.AsEnumerable();
         }
 
