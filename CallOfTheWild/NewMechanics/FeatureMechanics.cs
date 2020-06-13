@@ -55,7 +55,7 @@ namespace CallOfTheWild.FeatureMechanics
                 {
                     tr.Method("LaunchProjectile", projectile, true).GetValue();
                     if (__instance.Weapon.Blueprint.Type.FighterGroup == WeaponFighterGroup.Bows && __instance.Initiator.Descriptor.State.Features.Manyshot
-                        && (__instance.IsFirstAttack && __instance.IsFullAttack)
+                        && (__instance.IsFirstAttack && __instance.IsFullAttack && !__instance.IsAttackOfOpportunity)
                         && (__instance.Initiator.Get<UnitPartManyshotNotAvailable>() != null && __instance.Initiator.Get<UnitPartManyshotNotAvailable>().active())
                         )
                     {
@@ -64,7 +64,7 @@ namespace CallOfTheWild.FeatureMechanics
                 }
             }
 
-            return true;
+            return false;
         }
     }
 

@@ -3829,7 +3829,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateRunActions(apply_buff)
                                                     );
                 ability.setMiscAbilityParametersTouchFriendly();
-                addBlessingResourceLogic("War", ability, quicken: true, parent: minor_ability);
+                
                 minor_buffs.Add(buff);
 
                 minor_variants.Add(ability);
@@ -3838,7 +3838,8 @@ namespace CallOfTheWild
                 ability_ranged.SetName(ability.Name + " (Ranged)");
                 ability_ranged.Range = AbilityRange.Close;
                 ability_ranged.setMiscAbilityParametersSingleTargetRangedFriendly();
-                ability_ranged.AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]));
+                ability_ranged.AddComponents(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]),
+                                             Helpers.Create<NewMechanics.AbilityShowIfCasterHasNoFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[2]));
                 addBlessingResourceLogic("War", ability_ranged, amount: 2, quicken: true, parent: minor_ability);
 
 
@@ -3846,7 +3847,7 @@ namespace CallOfTheWild
                 ability_mass.SetName(ability.Name + " (Mass)");
                 ability_mass.Range = AbilityRange.Personal;
                 ability_mass.setMiscAbilityParametersSelfOnly();
-                ability_mass.AddComponents(Helpers.CreateAbilityTargetsAround(5.Feet(), TargetType.Ally),
+                ability_mass.AddComponents(Helpers.CreateAbilityTargetsAround(7.Feet(), TargetType.Ally),
                                            Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[1])
                                            );
                 addBlessingResourceLogic("War", ability_mass, amount: 1, quicken: true, parent: minor_ability);
@@ -3864,6 +3865,9 @@ namespace CallOfTheWild
                 minor_variants.Add(ability_ranged);
                 minor_variants.Add(ability_mass);
                 minor_variants.Add(ability_mass_ranged);
+
+                ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfCasterHasNoFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[1]));
+                addBlessingResourceLogic("War", ability, quicken: true, parent: minor_ability);
             }
 
             //remove other buffs
@@ -3924,28 +3928,29 @@ namespace CallOfTheWild
                                           Helpers.CreateRunActions(apply_major_buff)
                                           );
             major_ability_touch.setMiscAbilityParametersTouchFriendly();
-
+            
             var major_ability_ranged = library.CopyAndAdd(major_ability_touch, "WarpriestWarMajorBlessingRangedAbility", "");
-            major_ability_ranged.SetName(major_ability_touch + " (Ranged)");
+            major_ability_ranged.SetName(major_ability_touch.Name + " (Ranged)");
             major_ability_ranged.Range = AbilityRange.Close;
             major_ability_ranged.setMiscAbilityParametersSingleTargetRangedFriendly();
-            major_ability_ranged.AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]));
+            major_ability_ranged.AddComponents(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]),
+                                               Helpers.Create<NewMechanics.AbilityShowIfCasterHasNoFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[2]));
 
             var major_ability_mass = library.CopyAndAdd(major_ability_touch, "WarpriestWarMajorBlessingMassAbility", "");
-            major_ability_mass.SetName(major_ability_touch + " (Mass)");
+            major_ability_mass.SetName(major_ability_touch.Name + " (Mass)");
             major_ability_mass.Range = AbilityRange.Personal;
             major_ability_mass.setMiscAbilityParametersSelfOnly();
-            major_ability_mass.AddComponents(Helpers.CreateAbilityTargetsAround(5.Feet(), TargetType.Ally),
+            major_ability_mass.AddComponents(Helpers.CreateAbilityTargetsAround(7.Feet(), TargetType.Ally),
                                              Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[1]));
 
             var major_ability_mass_ranged = library.CopyAndAdd(major_ability_touch, "WarpriestWarMajorBlessingMassRangedAbility", "");
-            major_ability_mass_ranged.SetName(major_ability_touch + " (Mass Ranged)");
+            major_ability_mass_ranged.SetName(major_ability_touch.Name + " (Mass Ranged)");
             major_ability_mass_ranged.Range = AbilityRange.Personal;
             major_ability_mass_ranged.setMiscAbilityParametersSelfOnly();
             major_ability_mass_ranged.AddComponents(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
                                              Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[2]));
 
-
+            major_ability_touch.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfCasterHasNoFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[1]));
             var major_ability = Helpers.CreateAbility("WarpriestWarMajorBlessingAbility",
                                                       major_buff.Name,
                                                       major_buff.Description,

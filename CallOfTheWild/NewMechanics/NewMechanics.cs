@@ -8444,6 +8444,17 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterHasNoFact : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintUnitFact UnitFact;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                return !ability.Caster.Progression.Features.HasFact((BlueprintFact)this.UnitFact);
+            }
+        }
+
         [ComponentName("Weapon group attack bonus")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class WeaponTrainingIfHasParametrizedFeatures : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
