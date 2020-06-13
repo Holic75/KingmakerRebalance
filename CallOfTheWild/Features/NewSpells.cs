@@ -367,16 +367,26 @@ namespace CallOfTheWild
                                             "",
                                             icon,
                                             null,
-                                            Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
-                                            Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; })
+                                            Helpers.Create<ConcealementMechanics.IgnoreCasterConcealemnt>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; })
                                             );
-
-            foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
+            var buff2 = library.CopyAndAdd(buff, "BarrowHazeOutgoingConcealementBuff", "");
+            buff2.SetBuffFlags(BuffFlags.HiddenInUi);
+            buff2.ComponentsArray = new BlueprintComponent[]
             {
-                buff.AddComponent(Common.createOutgoingConcelement(c));
-            }
+                Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
+                Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; }),
+            };
 
-            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(Common.createContextConditionIsCaster(not:true)); }) };
+            var buff3 = library.CopyAndAdd(buff, "BarrowHazeCasterConcealement2Buff", "");
+            buff3.SetBuffFlags(BuffFlags.HiddenInUi);
+            buff3.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<ConcealementMechanics.IgnoreCasterConcealemnt>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; })
+            };
+
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff2; a.Condition = Helpers.CreateConditionsCheckerAnd(Common.createContextConditionIsCaster(not:true)); }),
+                                                              Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff3; a.Condition = Helpers.CreateConditionsCheckerOr(); }),
+                                                              Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })};
 
 
             barrow_haze = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "BarrowHazeAbility", "");

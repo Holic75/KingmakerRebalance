@@ -1546,11 +1546,16 @@ namespace CallOfTheWild
                                              AbilityRange.Personal,
                                              "",
                                              Helpers.fortNegates,
-                                             Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionProvokeAttackOfOpportunity>())),
+                                             Helpers.CreateRunActions(Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
+                                                                                                      null, Helpers.Create<ContextActionProvokeAttackOfOpportunity>()
+                                                                                                      )
+                                                                     ),
                                              Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic),
-                                             Common.createAbilityAoERadius(30.Feet(), TargetType.Enemy),
-                                             Common.createAbilitySpawnFx("dce448e95ca41aa49962bbb66a67c32c", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                             Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy),
+                                             Common.createAbilitySpawnFx("dce448e95ca41aa49962bbb66a67c32c", anchor: AbilitySpawnFxAnchor.ClickedTarget),
+                                             Common.createAbilitySpawnFx("73e103c66e0d15545bf0f7d114d3339e", anchor: AbilitySpawnFxAnchor.ClickedTarget),
+                                             Helpers.Create<SharedSpells.CannotBeShared>()
                                              );
 
             screech.SpellResistance = true;

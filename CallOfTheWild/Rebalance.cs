@@ -38,6 +38,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.EntitySystem.Entities;
 
 namespace CallOfTheWild
 {
@@ -1473,6 +1474,28 @@ namespace CallOfTheWild
             extra_tactician.HideInUI = true;
             tactical_leader_tactician.AddComponent(Helpers.CreateAddFeatureOnClassLevel(extra_tactician, 18, new BlueprintCharacterClass[] { tactical_leader.GetParentClass() }, new BlueprintArchetype[] { tactical_leader }));
             tactical_leader_tactician.SetNameDescription(ability);
+        }
+    }
+
+
+    //consider summons as allies
+    [Harmony12.HarmonyPatch(typeof(UnitEntityData))]
+    [Harmony12.HarmonyPatch("IsAlly", Harmony12.MethodType.Normal)]
+    class UnitEntityData_IsAlly_Patch
+    {
+        static void Postfix(UnitEntityData __instance, UnitEntityData unit, ref bool __result)
+        {
+            if (__result == true)
+            {
+                return;
+            }
+
+            var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
+            if (summoner != null)
+            {
+                __result = !__instance.IsEnemy(unit) && __instance.IsAlly(summoner);
+            }
+            
         }
     }
 

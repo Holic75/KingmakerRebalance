@@ -12,6 +12,7 @@ using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
@@ -24,6 +25,80 @@ using System.Threading.Tasks;
 namespace CallOfTheWild.ConcealementMechanics
 {
 
+    public class UnitPartISpecificConcealment : AdditiveUnitPart
+    {
+        public UnitPartConcealment.ConcealmentEntry[] GetConcealments(UnitEntityData attacker)
+        {
+            var concealments = new List<UnitPartConcealment.ConcealmentEntry>();
+            foreach (var b in buffs)
+            {
+                bool works_on = false;
+
+                b.CallComponents<SpecificConcealementBase>(s => works_on = s.worksAgainst(attacker));
+
+                if (works_on)
+                {
+                    b.CallComponents<SpecificConcealementBase>(s => concealments.Add(s.CreateConcealmentEntry()));
+                }
+            }
+
+            return concealments.ToArray();
+        }
+    }
+
+
+    public abstract class SpecificConcealementBase : BuffLogic
+    {
+        public ConcealmentDescriptor Descriptor;
+        public Concealment Concealment;
+        public bool CheckWeaponRangeType;
+        [ShowIf("CheckWeaponRangeType")]
+        public AttackTypeAttackBonus.WeaponRangeType RangeType;
+        public bool CheckDistance;
+        [ShowIf("CheckDistance")]
+        public Feet DistanceGreater;
+        public bool OnlyForAttacks;
+
+        public abstract bool worksAgainst(UnitEntityData attacker);
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartISpecificConcealment>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartISpecificConcealment>().removeBuff(this.Fact);
+        }
+
+        public UnitPartConcealment.ConcealmentEntry CreateConcealmentEntry()
+        {
+            UnitPartConcealment.ConcealmentEntry concealmentEntry = new UnitPartConcealment.ConcealmentEntry()
+            {
+                Concealment = this.Concealment,
+                Descriptor = this.Descriptor
+            };
+            if (this.CheckDistance)
+                concealmentEntry.DistanceGreater = this.DistanceGreater;
+            if (this.CheckWeaponRangeType)
+                concealmentEntry.RangeType = new AttackTypeAttackBonus.WeaponRangeType?(this.RangeType);
+            concealmentEntry.OnlyForAttacks = this.OnlyForAttacks;
+            return concealmentEntry;
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IgnoreCasterConcealemnt : SpecificConcealementBase
+    {
+        public override bool worksAgainst(UnitEntityData attacker)
+        {
+            return (this.Context.MaybeCaster != attacker);
+        }
+    }
+
     public class UnitPartIgnoreFogConcealement : AdditiveUnitPart
     {
         public bool active()
@@ -31,6 +106,9 @@ namespace CallOfTheWild.ConcealementMechanics
             return !buffs.Empty();
         }
     }
+
+
+
 
     public class UnitPartVisibilityLimit : AdditiveUnitPart
     {
@@ -198,9 +276,17 @@ namespace CallOfTheWild.ConcealementMechanics
 
             var ignore_fog_concealement_part = initiator.Get<UnitPartIgnoreFogConcealement>();
             List<UnitPartConcealment.ConcealmentEntry> m_Concealments = Harmony12.Traverse.Create(unitPartConcealment2).Field("m_Concealments").GetValue<List<UnitPartConcealment.ConcealmentEntry>>();
-            if (a < Concealment.Total && m_Concealments != null)
+
+            var all_concealements = m_Concealments?.ToArray() ?? new UnitPartConcealment.ConcealmentEntry[0];
+            var specific_concealment_part = target.Get<UnitPartISpecificConcealment>();
+            if (specific_concealment_part != null)
             {
-                foreach (UnitPartConcealment.ConcealmentEntry concealment in m_Concealments)
+                all_concealements = all_concealements.AddToArray(specific_concealment_part.GetConcealments(initiator));
+            }
+
+            if (a < Concealment.Total && !all_concealements.Empty())
+            {
+                foreach (UnitPartConcealment.ConcealmentEntry concealment in all_concealements)
                 {
                     if (concealment.Descriptor == ConcealmentDescriptor.Fog && ignore_fog_concealement_part != null && ignore_fog_concealement_part.active())
                     {
