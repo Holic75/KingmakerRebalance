@@ -140,7 +140,7 @@ namespace CallOfTheWild
         static public BlueprintFeature extra_wildshape;
 
         static public BlueprintArchetype arsenal_chaplain;
-        static public BlueprintFeature arsenal_chaplain_war_blessing;
+        static public BlueprintProgression arsenal_chaplain_war_blessing;
         static public BlueprintFeature arsenal_chaplain_weapon_training;
         static public BlueprintFeature[] arsenal_chaplain_war_blessing_updates = new BlueprintFeature[3];
 
@@ -3838,7 +3838,7 @@ namespace CallOfTheWild
                 ability_ranged.SetName(ability.Name + " (Ranged)");
                 ability_ranged.Range = AbilityRange.Close;
                 ability_ranged.setMiscAbilityParametersSingleTargetRangedFriendly();
-                ability.AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]));
+                ability_ranged.AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = arsenal_chaplain_war_blessing_updates[0]));
                 addBlessingResourceLogic("War", ability_ranged, amount: 2, quicken: true, parent: minor_ability);
 
 
@@ -3958,7 +3958,7 @@ namespace CallOfTheWild
                                                       ""
                                                       );
             major_ability.setMiscAbilityParametersTouchFriendly();
-            major_ability.CreateAbilityVariants(major_ability_touch, major_ability_ranged, major_ability_mass, major_ability_mass_ranged);
+            major_ability.AddComponent(major_ability.CreateAbilityVariants(major_ability_touch, major_ability_ranged, major_ability_mass, major_ability_mass_ranged));
             addBlessingResourceLogic("War", major_ability_touch, quicken: true, parent: major_ability);
             addBlessingResourceLogic("War", major_ability_ranged, amount: 2, quicken: true, parent: major_ability);
             addBlessingResourceLogic("War", major_ability_mass, quicken: true, parent: major_ability);
@@ -4860,7 +4860,7 @@ namespace CallOfTheWild
             createArsenalChaplainWarBlessing();
             createArsenalChaplainWeaponTraining();
 
-            arsenal_chaplain.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, arsenal_chaplain_war_blessing),
+            arsenal_chaplain.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, arsenal_chaplain_war_blessing, blessings_map["War"]),
                                                            Helpers.LevelEntry(5, arsenal_chaplain_weapon_training),
                                                            Helpers.LevelEntry(9, arsenal_chaplain_weapon_training),
                                                            Helpers.LevelEntry(13, arsenal_chaplain_weapon_training),
@@ -4868,13 +4868,13 @@ namespace CallOfTheWild
                                                           };
 
 
-            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(arsenal_chaplain_war_blessing);
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(arsenal_chaplain_war_blessing, blessings_map["War"]);
         }
 
 
         static void createArsenalChaplainWarBlessing()
         {
-            arsenal_chaplain_war_blessing = Helpers.CreateFeature("ArsenalChaplainWarBlessingFeature",
+            arsenal_chaplain_war_blessing = Helpers.CreateProgression("ArsenalChaplainWarBlessingFeature",
                                                                   "War Blessing",
                                                                   "An arsenal chaplain must choose War as his blessing, and can do so even if it is a domain not normally granted by his deity. He does not receive a second blessing.\n"
                                                                   + "At 7th level, an arsenal chaplain gains Quicken Blessing (War) as a bonus feat even if he does not meet the prerequisites.\n"
@@ -4883,13 +4883,26 @@ namespace CallOfTheWild
                                                                   + "At 19th level, an arsenal chaplain can use the War blessing on all allies within 30 feet by spending an additional use of the blessing ability.",
                                                                   "",
                                                                   Helpers.GetIcon("beffc11890fb54a48b855ef14f0a284e"),
-                                                                  FeatureGroup.None,
-                                                                  Helpers.CreateAddFact(blessings_map["War"]),
-                                                                  Helpers.CreateAddFeatureOnClassLevel(quicken_blessing_selections["War"], 7, getWarpriestArray()),
-                                                                  Helpers.CreateAddFeatureOnClassLevel(arsenal_chaplain_war_blessing_updates[0], 13, getWarpriestArray()),
-                                                                  Helpers.CreateAddFeatureOnClassLevel(arsenal_chaplain_war_blessing_updates[1], 16, getWarpriestArray()),
-                                                                  Helpers.CreateAddFeatureOnClassLevel(arsenal_chaplain_war_blessing_updates[2], 19, getWarpriestArray())
+                                                                  FeatureGroup.None
                                                                   );
+            var quicken_war = Common.featureToFeature(quicken_blessing_selections["War"], false);
+            quicken_war.SetNameDescriptionIcon(arsenal_chaplain_war_blessing);
+            arsenal_chaplain_war_blessing.LevelEntries = new LevelEntry[]
+            {
+                Helpers.LevelEntry(7, quicken_war),
+                Helpers.LevelEntry(13, (arsenal_chaplain_war_blessing_updates[0])),
+                Helpers.LevelEntry(16, (arsenal_chaplain_war_blessing_updates[1])),
+                Helpers.LevelEntry(19, (arsenal_chaplain_war_blessing_updates[2]))
+            };
+            arsenal_chaplain_war_blessing.Classes = getWarpriestArray();
+
+            for (int i = 0; i < arsenal_chaplain_war_blessing_updates.Length; i++)
+            {
+                arsenal_chaplain_war_blessing_updates[i].HideInUI = false;
+                arsenal_chaplain_war_blessing_updates[i].HideInCharacterSheetAndLevelUp = false;
+                arsenal_chaplain_war_blessing_updates[i].SetNameDescriptionIcon(arsenal_chaplain_war_blessing);
+            }
+            arsenal_chaplain_war_blessing.UIGroups = Helpers.CreateUIGroups(arsenal_chaplain_war_blessing_updates.AddToArray(quicken_war));
         }
 
 

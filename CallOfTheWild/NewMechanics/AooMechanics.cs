@@ -11,6 +11,7 @@ using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
@@ -89,7 +90,10 @@ namespace CallOfTheWild.AooMechanics
             {
                 return false;
             }
-
+            if (enemy == null)
+            {//to allow checks
+                return true;
+            }
             return this.Owner.Unit.DistanceTo(enemy) < (double)this.Owner.Unit.View.Corpulence + (double)enemy.View.Corpulence + (double)max_range.Meters && this.Owner.Unit.HasLOS(enemy);
         }
     }
@@ -240,6 +244,46 @@ namespace CallOfTheWild.AooMechanics
 
             var aoo_part = unit.Get<UnitPartSpecialAttackOfOportunity>();
             if (aoo_part != null && aoo_part.canMakeAoo(enemy))
+            {
+                return unit.Body?.PrimaryHand;
+            }
+
+            return null;
+        }
+    }
+
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitAttackOfOpportunity))]
+    [Harmony12.HarmonyPatch("Init", Harmony12.MethodType.Normal)]
+    class UnitAttackOfOpportunity_Init_Transpiler
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_threat_hand = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Call && x.operand.ToString().Contains("GetThreatHand"));
+
+            codes.Insert(check_threat_hand, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitEntityData, WeaponSlot>(getThreatHand2).Method
+                                                                           )
+                        );
+            return codes.AsEnumerable();
+        }
+
+
+        static public WeaponSlot getThreatHand2(UnitEntityData unit)
+        {
+            if (unit == null)
+            {
+                return null;
+            }
+            if (unit.GetThreatHand() != null)
+            {
+                return unit.GetThreatHand();
+            }
+
+            var aoo_part = unit.Get<UnitPartSpecialAttackOfOportunity>();
+            if (aoo_part != null && aoo_part.canMakeAoo(null))
             {
                 return unit.Body?.PrimaryHand;
             }

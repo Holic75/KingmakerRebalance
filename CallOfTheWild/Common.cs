@@ -2182,6 +2182,24 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintFeature featureToFeature(BlueprintFeature feature, bool hide = true, string guid = "")
+        {
+            var f = Helpers.CreateFeature(feature.name + "Feature",
+                                                     feature.Name,
+                                                     feature.Description,
+                                                     guid,
+                                                     feature.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.Create<AddFeatureOnApply>(a => a.Feature = feature)
+                                                     );
+            if (hide)
+            {
+                f.HideInCharacterSheetAndLevelUp = true;
+            }
+            return f;
+        }
+
+
         static public NewMechanics.ComeAndGetMe createComeAndGetMe()
         {
             var c = Helpers.Create<NewMechanics.ComeAndGetMe>();
