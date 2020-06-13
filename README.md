@@ -162,6 +162,7 @@ New features:
 - Animal companions now level up manually,
 - Dismissable area effect spells,
 - When using wall area effect spells you should now see which enemies will be affected.
+- Summoned monsters are now considered as allies
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,
@@ -291,6 +292,7 @@ New spells:
 - Vine Strike,
 - Winter's Grasp,
 - Accursed Glare,
+- Barrow Haze,
 - Bloody Claws,
 - Burning Entanglement,
 - Countless Eyes,
@@ -301,6 +303,7 @@ New spells:
 - Halt Undead,
 - Threefold Aspect,
 - Sands of Time,
+- Screech,
 - Wall of Nausea,
 - Fly and Fly, Mass,
 - Font of Spirit Magic,
