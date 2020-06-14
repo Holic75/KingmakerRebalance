@@ -97,6 +97,33 @@ namespace CallOfTheWild
             public BlueprintSpellbook spellbook = Arcanist.arcanist_spellbook;
             [JsonProperty]
             private Dictionary<string, List<Metamagic>> prepared_spells_with_metamagic = new Dictionary<string, List<Metamagic>>();
+            [JsonProperty]
+            private Dictionary<string, int> extra_spells_level_map = new Dictionary<string, int>();
+
+
+            public bool isExtraSpell(BlueprintAbility spell)
+            {
+                if (spell.Parent != null)
+                {
+                    return extra_spells_level_map.ContainsKey(spell.Parent.AssetGuid);
+                }
+                return extra_spells_level_map.ContainsKey(spell.AssetGuid);
+            }
+
+
+            public void addExtraSpell(BlueprintAbility ability, int level)
+            {
+                extra_spells_level_map.Add(ability.AssetGuid, level);
+                this.Owner.DemandSpellbook(spellbook).AddKnown(level, ability);
+            }
+
+
+            public void removeExtraSpell(BlueprintAbility ability)
+            {
+                extra_spells_level_map.Remove(ability.AssetGuid);
+            }
+
+
 
             private int metamixing = 0;
             public void add(BlueprintAbility ability, Metamagic metamagic)
@@ -260,6 +287,19 @@ namespace CallOfTheWild
 
                         m_KnownSpells[slot.Spell.SpellLevel].Add(new_ability);
                         m_KnownSpellLevels[slot.Spell.Blueprint] = spell_level;
+                        EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
+                    }
+                }
+
+
+                foreach (var kv in extra_spells_level_map)
+                {
+                    if (kv.Value == level)
+                    {
+                        var new_ability = new AbilityData(Main.library.Get<BlueprintAbility>(kv.Key), active_spellbook);
+                        this.add(new_ability.Blueprint, (Metamagic)0);
+                        m_KnownSpells[kv.Value].Add(new_ability);
+                        m_KnownSpellLevels[new_ability.Blueprint] = kv.Value;
                         EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
                     }
                 }
@@ -1216,8 +1256,6 @@ namespace CallOfTheWild
 
                 modifier.ModValue += bonus.Calculate(this.Fact.MaybeContext);
             }
-
-
         }
 
 
@@ -1226,6 +1264,142 @@ namespace CallOfTheWild
             void onModifierAdd(ModifiableValue.Modifier modifier);
         }
 
+
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class AddExtraArcanistSpellParametrized : ParametrizedFeatureComponent
+        {
+            public BlueprintSpellList spell_list;
+
+            public override void OnFactActivate()
+            {
+                BlueprintAbility spell = !(this.Param != (FeatureParam)null) ? (BlueprintAbility)null : this.Param.Value.Blueprint as BlueprintAbility;
+                if (spell == null)
+                    return;
+
+                var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
+                if (arcanist_part == null)
+                {
+                    return;
+                }
+
+                arcanist_part.addExtraSpell(spell, this.spell_list.GetLevel(spell));
+            }
+        }
+
+
+        public class SpellRequiringResourceIfCastFromSpecificSpellbook : BlueprintComponent, IAbilityAvailabilityProvider
+        {
+            BlueprintSpellbook spellbook;
+            public bool arcanist_spellbook;
+            public BlueprintAbilityResource resource;
+            public int amount = 1;
+            public bool half_level;
+            public BlueprintUnitFact[] cost_increasing_facts;
+
+            public string GetReason()
+            {
+                return "Insufficient resource";
+            }
+
+            public bool IsAvailableFor(AbilityData ability)
+            {
+                if (arcanist_spellbook)
+                {
+                    var arcanist_part = ability.Caster?.Get<UnitPartArcanistPreparedMetamagic>();
+                    if (arcanist_part == null || arcanist_part.spellbook != ability.Spellbook?.Blueprint)
+                    {
+                        return true;
+                    }
+                }
+                else if (ability.Spellbook?.Blueprint != spellbook)
+                {
+                    return true;
+                }
+
+                int required_amount = calcualteCost(ability);
+
+                return ability.Caster.Resources.GetResourceAmount(resource) >= required_amount;
+            }
+
+
+            private int calcualteCost(AbilityData ability)
+            {
+                int cost = half_level ? Math.Max(1, ability.SpellLevel / 2) : amount;
+
+                foreach (var f in cost_increasing_facts)
+                {
+                    if (f is BlueprintBuff)
+                    {
+                        cost += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    }
+                    if (f is BlueprintFeature)
+                    {
+                        var feature = ability.Caster.GetFeature(f as BlueprintFeature);
+
+                        if (feature != null)
+                        {
+                            cost += feature.GetRank();
+                        }
+                    }
+                }
+
+                if (arcanist_spellbook && ability.Caster.HasFact(Arcanist.magical_supremacy_buff))
+                {
+                    cost += ability.SpellLevel + 1;
+                }
+
+                return cost < 0 ? 0 : cost;
+            }
+        }
+
+
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class SpendResourceOnExtraArcanistSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
+        {
+            public BlueprintAbilityResource resource;
+            public int amount = 1;
+            public bool half_level;
+
+
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
+                var arcanist_part = evt.Spell?.Caster?.Get<UnitPartArcanistPreparedMetamagic>();
+                if (arcanist_part == null)
+                {
+                    return;
+                }
+                
+
+                if (spellbook_blueprint != arcanist_part.spellbook)
+                {
+                    return;
+                }
+
+                if (evt.Spell.Blueprint.Type != AbilityType.Spell)
+                {
+                    return;
+                }
+
+                if (evt.Spell.StickyTouch != null)
+                {
+                    return;
+                }
+
+                if (!arcanist_part.isExtraSpell(evt.Spell.Blueprint))
+                {
+                    return;
+                }
+
+                int cost = half_level ? Math.Max(1, evt.Spell.SpellLevel / 2) : amount;
+                evt.Spell.Caster.Resources.Spend(resource, cost);
+            }
+        }
 
 
 

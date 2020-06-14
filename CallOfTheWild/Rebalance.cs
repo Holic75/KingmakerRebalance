@@ -1359,6 +1359,7 @@ namespace CallOfTheWild
             {
                 library.Get<BlueprintBuff>("a719abac0ea0ce346b401060754cc1c0"), //web
                 library.Get<BlueprintBuff>("bf6c03b98af9a374c8d61988b5f3ba96"), //phantasmal web
+                library.Get<BlueprintBuff>("5f0f235d30430e040829cf4b1bf1655b"), //grappling infuision (?)
             };
 
             foreach (var b in buffs)

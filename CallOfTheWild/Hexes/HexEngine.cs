@@ -83,7 +83,7 @@ namespace CallOfTheWild
             hex_secondary_stat = secondary_scaling_stat;
             foreach (var c in hex_classes)
             {
-                if (archetype == null)
+                if (archetype == null || archetype.GetParentClass() != c)
                 {
                     amplified_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
                 }
@@ -103,7 +103,7 @@ namespace CallOfTheWild
 
                 amplified_hex_feat.AddComponent(Helpers.CreateAddFeatureOnClassLevel(conversion_feature, 1, new BlueprintCharacterClass[] { c }));
 
-                if (archetype == null)
+                if (archetype == null || archetype.GetParentClass() != c)
                 {
                     accursed_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
                 }

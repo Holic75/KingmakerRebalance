@@ -889,6 +889,7 @@ namespace CallOfTheWild
 
             mages_tattoo.SetComponents(Helpers.Create<NewMechanics.SpellLevelIncreaseParametrized>(s => s.bonus_dc = 1));
             library.AddFeats(mages_tattoo);
+            library.AddWizardFeats(mages_tattoo);
         }
 
 
@@ -909,6 +910,7 @@ namespace CallOfTheWild
                                                 Helpers.PrerequisiteFeaturesFromList(metamagic_feats)
                                                 );
             library.AddFeats(spontaneous_metafocus);
+            library.AddWizardFeats(spontaneous_metafocus);
         }
 
 
@@ -967,6 +969,7 @@ namespace CallOfTheWild
                                            Helpers.Create<PrerequisiteFeaturesFromList>(p => { p.Amount = 3; p.Features = metamagic_feats.ToArray(); })
                                           );
             library.AddFeats(spell_perfection);
+            library.AddWizardFeats(spell_perfection);
         }
 
 

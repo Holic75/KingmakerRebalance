@@ -1331,6 +1331,27 @@ namespace CallOfTheWild
             }
         }
 
+
+        public static void AddWizardFeats(this LibraryScriptableObject library, params BlueprintFeature[] feats)
+        {
+            var selections = new BlueprintFeatureSelection[]
+            {
+                library.Get<BlueprintFeatureSelection>("d6dd06f454b34014ab0903cb1ed2ade3"), //sorc feat
+                library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899"), //wizard feat
+                library.Get<BlueprintFeatureSelection>("66befe7b24c42dd458952e3c47c93563"), //magus bonus feats
+                Arcanist.collegiate_initiate_bonus_feat
+            };
+
+
+            foreach (var s in selections)
+            {
+                if (s != null)
+                {
+                    s.AllFeatures = s.AllFeatures.AddToArray(feats);
+                }
+            }
+        }
+
         public static void AddFeats(this LibraryScriptableObject library, String featSelectionId, params BlueprintFeature[] feats)
         {
             var featGroup = (BlueprintFeatureSelection)library.BlueprintsByAssetId[featSelectionId];

@@ -63,6 +63,8 @@ namespace CallOfTheWild
 
         static public List<WeaponCategory> two_handed_categories = new List<WeaponCategory>();
 
+        static WeaponFighterGroup sacred_weapon_group = (WeaponFighterGroup)100;
+
         public static void load()
         {
             Main.logger.Log("Enabling Advanced Fighter Training Options");
@@ -109,6 +111,7 @@ namespace CallOfTheWild
                 group_training_map.Add(f.GetComponent<WeaponGroupAttackBonus>().WeaponGroup, f);
             }
             group_training_map.Add(WeaponFighterGroup.None, two_handed_weapon_training);
+            //group_training_map.Add(sacred_weapon_group, Warpriest.arsenal_chaplain_weapon_training);
 
 
             foreach (var wc in category_group_map)
@@ -574,7 +577,8 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(weapon_enhancement_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
             foreach (var f in group_training_map)
             {
-                var group_name = f.Value == two_handed_weapon_training ? "Two-Handed Weapons" : getGroupName(f.Key);
+                var group_name = f.Value == two_handed_weapon_training ? "Two-Handed Weapons" 
+                                            : (f.Value == Warpriest.arsenal_chaplain_weapon_training ? "Sacred Weapons" : getGroupName(f.Key));
                 var warrior_spirit_ability = Helpers.CreateAbility(f.Key.ToString() + "WarriorSpiritEnchantmentAbility",
                                                                     weapon_enhancement_buff.Name + " (" + group_name + ")",
                                                                     weapon_enhancement_buff.Description,
@@ -587,7 +591,7 @@ namespace CallOfTheWild
                                                                     "",
                                                                     Helpers.CreateRunActions(apply_buff),
                                                                     resource.CreateResourceLogic(),
-                                                                    Helpers.Create<NewMechanics.AbilityCasterMainWeaponGroupCheck>(a => { a.groups = new WeaponFighterGroup[] { f.Key }; a.is_2h = f.Key == WeaponFighterGroup.None;})
+                                                                    Helpers.Create<NewMechanics.AbilityCasterMainWeaponGroupCheck>(a => { a.groups = new WeaponFighterGroup[] { f.Key }; a.is_2h = f.Key == WeaponFighterGroup.None; a.is_sacred = f.Key == sacred_weapon_group; })
                                                                     );
                 warrior_spirit_ability.setMiscAbilityParametersSelfOnly();
                 var feature = Common.AbilityToFeature(warrior_spirit_ability, false);
@@ -687,8 +691,7 @@ namespace CallOfTheWild
                                                     "",
                                                     Helpers.GetIcon("65c538dcfd91930489ad3ab18ad9204b"), //throw anything
                                                     FeatureGroup.None,
-                                                    Helpers.Create<WeaponTrainingMechanics.WeaponCategoryGrace>(w => w.group = WeaponFighterGroup.Thrown),
-                                                    Helpers.PrerequisiteFeature(thrown_weapon_group)
+                                                    Helpers.Create<WeaponTrainingMechanics.WeaponCategoryGrace>(w => w.group = WeaponFighterGroup.Thrown)
                                                     );
             addToAdvancedWeaponTraining(trained_throw);
         }

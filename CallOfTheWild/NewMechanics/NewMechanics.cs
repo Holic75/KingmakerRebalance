@@ -2149,12 +2149,23 @@ namespace CallOfTheWild
         {
             public WeaponFighterGroup[] groups;
             public bool is_2h = false;
+            public bool is_sacred = false;
+            static BlueprintParametrizedFeature weapon_focus = Main.library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
 
             public bool CorrectCaster(UnitEntityData caster)
             {
+                if (!caster.Body.PrimaryHand.HasWeapon)
+                {
+                    return false;
+                }
+
                 if (is_2h)
                 {
                     return caster.Body.PrimaryHand.Weapon.Blueprint.IsTwoHanded && caster.Body.PrimaryHand.Weapon.Blueprint.IsMelee;
+                }
+                if (is_sacred)
+                {
+                    return checkFeature(caster.Descriptor, caster.Body.PrimaryHand.Weapon.Blueprint.Category, weapon_focus, NewFeats.deity_favored_weapon);
                 }
                 if (caster.Body.PrimaryHand.HasWeapon)
                     return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup));
@@ -2164,6 +2175,22 @@ namespace CallOfTheWild
             public string GetReason()
             {
                 return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+
+            static bool checkFeature(UnitDescriptor unit, WeaponCategory category, params BlueprintParametrizedFeature[] required_parametrized_features)
+            {
+                if (required_parametrized_features.Empty())
+                {
+                    return true;
+                }
+                foreach (var f in required_parametrized_features)
+                {
+                    if (unit.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == f).Any(p => p.Param == category))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
 

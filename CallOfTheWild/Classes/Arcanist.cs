@@ -30,6 +30,7 @@ using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
@@ -92,6 +93,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection metamagic_knowledge;
         static public BlueprintFeatureSelection greater_metamagic_knowledge;
         static public BlueprintFeature metamixing;
+        static public BlueprintBuff metamixing_buff;
         static public BlueprintFeature potent_magic;
         
         static public BlueprintFeature sonic_blast;
@@ -101,6 +103,7 @@ namespace CallOfTheWild
         static public BlueprintFeature swift_consume;
 
         static public BlueprintFeature magical_supremacy;
+        static public BlueprintBuff magical_supremacy_buff;
 
         static public BlueprintFeature extra_reservoir;
         static public BlueprintFeatureSelection extra_arcane_exploit;
@@ -125,6 +128,12 @@ namespace CallOfTheWild
         static public BlueprintBuff dc_buff, cl_buff;
 
         static public BlueprintArchetype exploiter_wizard_archetype;
+        static public BlueprintArchetype collegiate_arcanist;
+        static public BlueprintFeature collegiate_initiate_alignment;
+        static public BlueprintFeatureSelection halcyon_spell_lore;
+        static public BlueprintFeatureSelection collegiate_initiate_bonus_feat;
+        static public BlueprintSpellList halcyon_lore_spell_list;
+
 
         internal static void createArcanistClass()
         {
@@ -171,15 +180,131 @@ namespace CallOfTheWild
             createBloodArcanist();
             createUnletteredArcanist();
             createOccultist();
+            createCollegiateArcanist();
 
-            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist };
+            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist, collegiate_arcanist };
             createExploiterWizard();
             createArcanistFeats();
             addToPrestigeClasses();
-
-            
         }
 
+
+        static void createCollegiateArcanist()
+        {
+            collegiate_arcanist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "CollegiateArcanistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Magaambyan Initiate");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Aspiring students of the Magaambya often spend decades researching arcane magic while learning to follow in the footsteps of the academy’s founder, Old-Mage Jatembe. Those particularly gifted in the art of sculpting spells are sometimes schooled privately in the art of traditional, esoteric, and righteous spells, in the hope that such knowledge will pave the way for the initiate’s acceptance into the school proper as a Magaambyan arcanist.\n"
+                                                                                       + "But many initiates find themselves overwhelmed by the extensive training and end up leaving the Magaambya before completing their studies. These spellcasters retain many of the Magaambya’s techniques and philosophical bents, but are not considered to be graduates of the school. Yet they are still respected and valued, for the Magaambya’s staff fully understand that its teachings and the scholastic, often hermetic lifestyle required to master the techniques are not to everyone’s tastes. For the teachers of the Magaambya, there are no truly failed students save those who abandon their philosophy and succumb to the lure of cruelty and evil.\n"
+                                                                                       + "Because they hold the Magaambya’s interests close to their hearts but are not hindered by the need to remain close at hand to study or serve as teachers or assistants, Magaambyan initiates often serve as strong supporters beyond the normal reach of the Magaambya. Furthermore, Magaambyan initiates can act immediately against the forces of evil without waiting to be officially sent out into the world.");
+            });
+            Helpers.SetField(collegiate_arcanist, "m_ParentClass", arcanist_class);
+            library.AddAsset(collegiate_arcanist, "");
+
+            createCollegiateInititateAlignment();
+            createHalcyonSpellLore();
+            collegiate_arcanist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(5, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(17, arcane_exploits) };
+
+            collegiate_arcanist.AddFeatures = new LevelEntry[20];
+            collegiate_initiate_bonus_feat = library.CopyAndAdd<BlueprintFeatureSelection>("d6dd06f454b34014ab0903cb1ed2ade3", "CollegiateInitiateBonusFeatureSelection", "");
+            collegiate_initiate_bonus_feat.SetNameDescription("Magaambyan Initiate Bonus Feat",
+                                                              "At 5th level, a magaambyan initiate gains a bonus feat. She can choose a metamagic feat, spell focus feat, or any other spellcaster feat. The agaambyan initiate must still meet all prerequisites for a bonus feat, including caster level minimums.");
+            for (int i = 0; i < 20; i++)
+            {
+                collegiate_arcanist.AddFeatures[i] = Helpers.LevelEntry(i + 1, halcyon_spell_lore);
+            }
+            collegiate_arcanist.AddFeatures[0].Features.Add(collegiate_initiate_alignment);
+            collegiate_arcanist.AddFeatures[4].Features.Add(collegiate_initiate_bonus_feat);
+
+            arcanist_class.Progression.UIDeterminatorsGroup = arcanist_class.Progression.UIDeterminatorsGroup.AddToArray(collegiate_initiate_alignment);
+        }
+
+
+        static void createCollegiateInititateAlignment()
+        {
+            var feature = Helpers.CreateFeature("CollegiateInitiateAlignmentFeature",
+                                                "Good Alignment",
+                                                "A Collegiate initiate must be of a good alignment.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.Create<SpellManipulationMechanics.SpendResourceOnExtraArcanistSpellCast >(s => { s.half_level = true; s.resource = arcane_reservoir_resource; }),
+                                                Common.createPrerequisiteAlignment(AlignmentMaskType.Good));
+            collegiate_initiate_alignment = Common.featureToSelection(feature, false);
+        }
+
+
+        static void createHalcyonSpellLore()
+        {
+            var druid_spell_list = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
+            var cleric_spell_list = library.Get<BlueprintSpellList>("8443ce803d2d31347897a3d85cc32f53");
+
+            halcyon_lore_spell_list = Common.combineSpellLists("HalcyonLoreSpellList",
+                                                               (spell, spell_list, lvl) =>
+                                                               {
+                                                                   if (arcanist_class.Spellbook.SpellList.Contains(spell))
+                                                                   {
+                                                                       return false;
+                                                                   }
+                                                                   if (spell_list == cleric_spell_list && (spell.SpellDescriptor & SpellDescriptor.Good) == 0)
+                                                                   {
+                                                                       return false;
+                                                                   }
+                                                                   return true;
+                                                               },
+                                                               druid_spell_list, cleric_spell_list
+                                                               );
+
+
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png");
+            halcyon_spell_lore = Helpers.CreateFeatureSelection("HalcyonSpellLoreFeatureSelection",
+                                                                "Halcyon Spell Lore",
+                                                                "A Magaambyan initiate’s studies of the philanthropic teachings of Old-Mage Jatembe allow her to cast a limited number of spells per day beyond those she could normally prepare ahead of time. At each class level, she chooses one spell from the druid spell list or one spell with the good descriptor from the cleric spell list. The spell must be of a spell level that she can cast, and cannot be a spell that already appears on her arcanist spell list. A Magaambyan initiate can cast a spell that she has chosen with this ability as if it were on her spell list and prepared by expending a number of points from her arcane reservoir equal to half the spell’s level (minimum 1) and expending a spell slot of the spell’s level.",
+                                                                "",
+                                                                icon,
+                                                                FeatureGroup.None);
+
+            var availability_component = Helpers.Create<SpellManipulationMechanics.SpellRequiringResourceIfCastFromSpecificSpellbook>(r =>
+                                                            {
+                                                                r.arcanist_spellbook = true;
+                                                                r.cost_increasing_facts = new BlueprintUnitFact[] { cl_buff, dc_buff, metamixing_buff };
+                                                                r.half_level = true;
+                                                                r.resource = arcane_reservoir_resource;
+                                                            }
+                                                            );
+            for (int i = 1; i <= 9; i++)
+            {
+                foreach (var s in halcyon_lore_spell_list.GetSpells(i))
+                {
+                    if (s.HasVariants)
+                    {
+                        foreach (var v in s.Variants)
+                        {
+                            v.AddComponent(availability_component);
+                        }                       
+                    }
+                    else
+                    {
+                        s.AddComponent(availability_component);
+                    }
+                }
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"HalcyonSpellLore{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = arcanist_class;
+                learn_spell.SpellList = halcyon_lore_spell_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(Helpers.Create<SpellManipulationMechanics.AddExtraArcanistSpellParametrized>(a => a.spell_list = halcyon_lore_spell_list));
+                learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(arcanist_class, i)
+                                          );
+                learn_spell.SetName(Helpers.CreateString($"HalcyonSpellLore{i}.Name", "Halcyon Spell Lore " + $"(level {i})"));
+                learn_spell.SetDescription(halcyon_spell_lore.Description);
+                learn_spell.SetIcon(halcyon_spell_lore.Icon);
+
+                halcyon_spell_lore.AllFeatures = halcyon_spell_lore.AllFeatures.AddToArray(learn_spell);
+            }
+        }
 
         static void createExploiterWizard()
         {
@@ -779,6 +904,7 @@ namespace CallOfTheWild
             ability.DeactivateImmediately = true;
             ability.Group = ActivatableAbilityGroupExtension.ArcanistArcaneReservoirSpellboost.ToActivatableAbilityGroup();
             magical_supremacy = Common.ActivatableAbilityToFeature(ability, false);
+            magical_supremacy_buff = buff;
         }
 
 
@@ -1095,6 +1221,7 @@ namespace CallOfTheWild
                                                Helpers.CreateAddFact(ability)
                                                );
 
+            metamixing_buff = buff;
         }
 
 
