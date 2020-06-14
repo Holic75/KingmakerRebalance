@@ -18,7 +18,7 @@ Known Issues:
 
 
 It introduces new classes:  
-- Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, and Feykiller,  
+- Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager and Blood Conduit,
 - Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer and Court Poet,

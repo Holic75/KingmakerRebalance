@@ -138,7 +138,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addClassToAbility(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, BlueprintAbility a)
+        static public void addClassToAbility(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, BlueprintAbility a)
         {
             var components = a.ComponentsArray.ToArray();
             

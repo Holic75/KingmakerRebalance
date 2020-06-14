@@ -83,6 +83,17 @@ namespace CallOfTheWild
         static public BlueprintFeature raise_animal_companion;
         static public BlueprintFeature forester_breath_of_life;
 
+        static public BlueprintArchetype feral_hunter;
+        static public BlueprintFeature[] wild_shape;
+        static public BlueprintFeature[] summon_nature_ally;
+        static public BlueprintSummonPool summon_nature_ally_pool;
+        static public BlueprintAbilityResource wildshape_resource;
+        static public BlueprintFeature extra_wildshape;
+        static public BlueprintFeatureSelection precise_nature_ally;
+        
+
+
+
 
         internal static void createHunterClass()
         {
@@ -131,8 +142,9 @@ namespace CallOfTheWild
             createDivineHunterArchetype();
             createForesterArchetype();
             createFeykillerArchetype();
+            createFeralHunterArchetype();
             createPrimalCompanionHunterArchetype();
-            hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype, primal_companion_hunter };
+            hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype, primal_companion_hunter, feral_hunter };
             Helpers.RegisterClass(hunter_class);
 
             Common.addMTDivineSpellbookProgression(hunter_class, hunter_class.Spellbook, "MysticTheurgeHunter",
@@ -140,19 +152,215 @@ namespace CallOfTheWild
 
 
             createPlanarFocus();
-            //fix previous saves without 3rd animal companion
-            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+        }
+
+
+        static void createFeralHunterArchetype()
+        {
+            feral_hunter = Helpers.Create<BlueprintArchetype>(a =>
             {
-                if (unit.Progression.GetClassLevel(hunter_class) == 20 && !unit.Progression.IsArchetype(feykiller_archetype) && !unit.Progression.Features.HasFact(animal_focus_additional_use2))
-                {
-                    unit.Progression.Features.AddFeature(animal_focus_additional_use2);
-                    if (!unit.Progression.IsArchetype(forester_archetype))
-                    {
-                        unit.Progression.Features.AddFeature(animal_focus_additional_use_ac2);
-                    }
-                }
+                a.name = "FeralHunterHunterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Feral Hunter");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A feral hunter has forged a bond with nature that’s so strong that she doesn’t merely channel the aspects of animals—she actually becomes an animal herself. Though she lacks an animal companion, a feral hunter is in tune with the beast lurking within her flesh and spirit, and lives in a near-wild state of being. A feral hunter often resembles a lycanthrope, but her power comes from her own nature and is not influenced by moonlight or silver.");
+
+            });
+            Helpers.SetField(feral_hunter, "m_ParentClass", hunter_class);
+            library.AddAsset(feral_hunter, "");
+            feral_hunter.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, hunter_animal_companion, animal_focus_ac),
+                                                                  Helpers.LevelEntry(2, precise_companion),
+                                                                  Helpers.LevelEntry(3, hunter_tactics),
+                                                                  Helpers.LevelEntry(6, hunter_teamwork_feat),
+                                                                  Helpers.LevelEntry(7, trick_selection),
+                                                                  Helpers.LevelEntry(8, animal_focus_additional_use_ac),
+                                                                  Helpers.LevelEntry(9, hunter_teamwork_feat),
+                                                                  Helpers.LevelEntry(10, raise_animal_companion),
+                                                                  Helpers.LevelEntry(12, hunter_teamwork_feat),
+                                                                  Helpers.LevelEntry(13, trick_selection),
+                                                                  Helpers.LevelEntry(15, hunter_teamwork_feat),
+                                                                  Helpers.LevelEntry(18, hunter_teamwork_feat),
+                                                                  Helpers.LevelEntry(19, trick_selection),
+                                                                  Helpers.LevelEntry(20, animal_focus_additional_use_ac2) };
+
+            createFeralHunterWildshape();
+            createSummonNatureAlly();
+            createPreciseNatureAlly();
+            var feral_hunter_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "FeralHunterAnimalFocusFeature", "");
+
+            feral_hunter_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The feral hunter can apply additional animal focus to herself.");
+            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, feral_hunter_animal_focus_additional_use, summon_nature_ally[0]),
+                                                                Helpers.LevelEntry(2, precise_nature_ally),
+                                                                Helpers.LevelEntry(3, summon_nature_ally[1]),
+                                                                Helpers.LevelEntry(4, wild_shape[0], wild_shape[1]),
+                                                                Helpers.LevelEntry(5, summon_nature_ally[2]),
+                                                                Helpers.LevelEntry(6, wild_shape[2], wild_shape[3], extra_wildshape),
+                                                                Helpers.LevelEntry(7, summon_nature_ally[3]),
+                                                                Helpers.LevelEntry(8, wild_shape[4], wild_shape[5], extra_wildshape),
+                                                                Helpers.LevelEntry(9, summon_nature_ally[4]),
+                                                                Helpers.LevelEntry(10, extra_wildshape),
+                                                                Helpers.LevelEntry(11, summon_nature_ally[5]),
+                                                                Helpers.LevelEntry(12, extra_wildshape),
+                                                                Helpers.LevelEntry(13, summon_nature_ally[6]),
+                                                                Helpers.LevelEntry(14, extra_wildshape),
+                                                                Helpers.LevelEntry(15, summon_nature_ally[7]),
+                                                                Helpers.LevelEntry(16, extra_wildshape),
+                                                                Helpers.LevelEntry(17, summon_nature_ally[8]),
+                                                                Helpers.LevelEntry(18, extra_wildshape),
+                                                                Helpers.LevelEntry(20, extra_wildshape),
+                                                             };
+
+
+            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(summon_nature_ally));
+            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(wild_shape[0], wild_shape[2], wild_shape[4]));
+            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(wild_shape[1], wild_shape[3], wild_shape[5]));
+        }
+
+
+
+        static void createPreciseNatureAlly()
+        {
+            precise_nature_ally = library.CopyAndAdd<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb",
+                                          "HunterPreciseNatureAlly",
+                                          "");
+            precise_nature_ally.SetName("Precise Nature's Ally");
+            precise_nature_ally.SetDescription("At 2nd level, a hunter chooses either Precise Shot or Outflank as a bonus feat. She does not need to meet the prerequisites for this feat. In addtion the feral hunter grants all her teamwork feats to all creatures she summons with summon nature’s ally.");
+
+            var outflank = library.TryGet<Kingmaker.Blueprints.Classes.BlueprintFeature>("422dab7309e1ad343935f33a4d6e9f11");
+
+            precise_nature_ally.AllFeatures = new BlueprintFeature[] {library.TryGet< Kingmaker.Blueprints.Classes.BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665"), //precise shot
+                                                                           outflank };
+            precise_nature_ally.Features = precise_companion.AllFeatures;
+            precise_nature_ally.IgnorePrerequisites = true;
+
+            precise_nature_ally.AddComponent(library.Get<BlueprintFeature>("c3abcce19f9f80640a867c9e75f880b2").GetComponent<OnSpawnBuff>()); //from monster tactics
+            library.Get<BlueprintBuff>("81ddc40b935042844a0b5fb052eeca73").SetDescription("This summoned creature receives all teamwork feats that its summoner possesses.");
+        }
+
+
+        static void createSummonNatureAlly()
+        {
+            var summon_resource = Helpers.CreateAbilityResource("FeralHunterSummonResource", "", "", "", null);
+            summon_resource.SetIncreasedByStat(3, StatType.Wisdom);
+            
+            var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "FeralHunterSummonPool", "");
+            var spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("c6147854641924442a3bb736080cfeb6"),
+                library.Get<BlueprintAbility>("298148133cdc3fd42889b99c82711986"),
+                library.Get<BlueprintAbility>("fdcf7e57ec44f704591f11b45f4acf61"),
+                library.Get<BlueprintAbility>("c83db50513abdf74ca103651931fac4b"),
+                library.Get<BlueprintAbility>("8f98a22f35ca6684a983363d32e51bfe"),
+                library.Get<BlueprintAbility>("55bbce9b3e76d4a4a8c8e0698d29002c"),
+                library.Get<BlueprintAbility>("051b979e7d7f8ec41b9fa35d04746b33"),
+                library.Get<BlueprintAbility>("ea78c04f0bd13d049a1cce5daf8d83e0"),
+                library.Get<BlueprintAbility>("a7469ef84ba50ac4cbf3d145e3173f8e")
             };
-            SaveGameFix.save_game_actions.Add(save_game_fix);
+
+            var description = "Starting at 1st level, a feral hunter can cast summon nature's ally I as a spell-like ability a number of times per day equal to 3 + her Wisdom modifier. She can cast this spell as a standard action, and the creatures remain for 1 minute per level (instead of 1 round per level). At 3rd level and every 2 hunter levels thereafter, the power of this ability increases by 1 spell level, allowing her to summon more powerful creatures (to a maximum of summon nature's ally IX at 17th level). A feral hunter cannot have more than one summon nature's ally spell active in this way at a time; if she uses another, any existing summon nature's ally immediately ends.";
+
+            summon_nature_ally = new BlueprintFeature[9];
+            for (int i = 0; i < spells.Length; i++)
+            {
+                List<BlueprintAbility> summon_spells = new List<BlueprintAbility>();
+                List<BlueprintAbility> sna_spells = new List<BlueprintAbility>();
+                if (spells[i].HasVariants)
+                {
+                    sna_spells = spells[i].Variants.ToList();
+                }
+                else
+                {
+                    sna_spells.Add(spells[i]);
+                }
+
+                foreach (var s in sna_spells)
+                {
+                    var ability = library.CopyAndAdd<BlueprintAbility>(s.AssetGuid, "FeralHunter" + s.name, "");
+                    ability.RemoveComponents<SpellListComponent>();
+                    ability.AddComponent(summon_resource.CreateResourceLogic());
+                    foreach (var c in ability.GetComponents<ContextRankConfig>())
+                    {
+                        if (!c.IsFeatureList)
+                        {
+                            var new_c = c.CreateCopy(crc => { Helpers.SetField(crc, "m_Class", new BlueprintCharacterClass[] { hunter_class }); Helpers.SetField(crc, "m_BaseValueType", ContextRankBaseValueType.ClassLevel); });
+                            ability.ReplaceComponent(c, new_c);
+                        }
+                    }
+                    var new_actions = Common.changeAction<ContextActionSpawnMonster>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, a =>
+                    {
+                        a.SummonPool = summon_pool;
+                        a.DurationValue = Helpers.CreateContextDuration(a.DurationValue.BonusValue, DurationRate.Minutes);
+                    }
+                                                                                    );
+                    new_actions = new GameAction[] { Helpers.Create<ContextActionClearSummonPool>(c => c.SummonPool = summon_pool) }.AddToArray(new_actions);
+                    ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
+                    ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
+                    ability.LocalizedDuration = Helpers.minutesPerLevelDuration;
+                    summon_spells.Add(ability);
+                }
+
+                BlueprintAbility summon_base = null;
+                if (summon_spells.Count == 1)
+                {
+                    summon_base = summon_spells[0];
+                }
+                else
+                {
+                    summon_base = Common.createVariantWrapper($"FeralHunterSummonNaturesAlly{i + 1}Base", "", summon_spells.ToArray());
+                    summon_base.SetNameDescription("Summon Nature's Ally " + Common.roman_id[i + 1], description);
+                }
+
+                summon_nature_ally[i] = Helpers.CreateFeature($"FeralHunterSummonNaturesAlly{i + 1}Feature",
+                                                          "Summon Nature's Ally " + Common.roman_id[i + 1],
+                                                          description,
+                                                          "",
+                                                          summon_spells[0].Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFact(summon_base)
+                                                          );
+                if (i == 0)
+                {
+                    summon_nature_ally[i].AddComponent(summon_resource.CreateAddAbilityResource());
+                }
+            }
+        }
+
+
+        static void createFeralHunterWildshape()
+        {
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            //fix scaling
+            foreach (var s in Wildshape.animal_wildshapes)
+            {
+                ClassToProgression.addClassToAbility(hunter_class, new BlueprintArchetype[] { feral_hunter }, s);
+                /*s.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                                                                                       classes: new BlueprintCharacterClass[] { druid, warpriest_class },
+                                                                                       archetype: feral_champion)
+                                                     );*/
+            }
+
+            wildshape_resource = library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4");
+            extra_wildshape = library.Get<BlueprintFeature>("f78260b9a089ccc44b55f0fed08b1752");
+
+            string description = "At 4th level, a feral hunter gains the ability to change shape. This ability functions like the druid wild shape ability, except the hunter can take only animal forms (not elemental or plant forms). The hunter’s effective druid level is equal to her class level. A feral hunter can use wild shape once per day at 4th level and one additional time per day every 2 levels thereafter.";
+            wild_shape = new BlueprintFeature[Wildshape.animal_wildshapes.Count];
+
+            for (int i = 0; i < wild_shape.Length; i++)
+            {
+
+                wild_shape[i] = Helpers.CreateFeature("FeralHunter" + Wildshape.animal_wildshapes[i].name + "Feature",
+                                                      Wildshape.animal_wildshapes[i].Name,
+                                                      description,
+                                                      "",
+                                                      Wildshape.animal_wildshapes[i].Icon,
+                                                      FeatureGroup.None,
+                                                      Helpers.CreateAddFact(Wildshape.animal_wildshapes[i])
+                                                      );
+                if (i == 0)
+                {
+                    wild_shape[i].AddComponents(wildshape_resource.CreateAddAbilityResource(),
+                                                Helpers.CreateAddFact(Wildshape.first_wildshape_form)
+                                                );
+                }
+            }
         }
 
 

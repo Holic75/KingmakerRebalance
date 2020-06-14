@@ -4750,10 +4750,11 @@ namespace CallOfTheWild
             //fix scaling
             foreach (var s in Wildshape.animal_wildshapes)
             {
-                s.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                ClassToProgression.addClassToAbility(warpriest_class, new BlueprintArchetype[] { feral_champion }, s);
+                /*s.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
                                                                                        classes: new BlueprintCharacterClass[] { druid, warpriest_class },
                                                                                        archetype: feral_champion)
-                                                     );                    
+                                                     );*/                    
             }
 
             wildshape_resource = library.Get<BlueprintAbilityResource>("ae6af4d58b70a754d868324d1a05eda4");
