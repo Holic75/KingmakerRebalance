@@ -427,7 +427,8 @@ namespace CallOfTheWild
                                                             "A havocker’s patron grants her the ability to devastate her foes with a specific element. At 1st level, rather than selecting a standard patron and gaining patron spells, the witch selects a specific kineticist element, which represents the shadowy forces from which she gains her familiar and class powers. The havocker gains the elemental focus and kinetic blast class features with the associated element, using her witch level as her effective kineticist level. A havocker uses her Intelligence modifier instead of her Constitution modifier to determine her damage with wild talents, the DCs of Constitution-based wild talents, the durations of wild talents with Constitution-based durations, her bonus on concentration checks for wild talents, and any other Constitution-based effects of all her wild talents.",
                                                             "",
                                                             elemental_focus.Icon,
-                                                            FeatureGroup.None
+                                                            FeatureGroup.None,
+                                                            Common.createAddWeaponProficiencies(WeaponCategory.KineticBlast)
                                                             );
             patron_element.AllFeatures = elemental_foci.ToArray();
             elemental_focus.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = patron_element));

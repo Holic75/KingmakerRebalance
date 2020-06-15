@@ -232,6 +232,7 @@ namespace CallOfTheWild
             precise_nature_ally.IgnorePrerequisites = true;
 
             precise_nature_ally.AddComponent(library.Get<BlueprintFeature>("c3abcce19f9f80640a867c9e75f880b2").GetComponent<OnSpawnBuff>()); //from monster tactics
+            precise_nature_ally.ReplaceComponent<OnSpawnBuff>(o => o.IfHaveFact = precise_nature_ally);
             library.Get<BlueprintBuff>("81ddc40b935042844a0b5fb052eeca73").SetDescription("This summoned creature receives all teamwork feats that its summoner possesses.");
         }
 
@@ -295,6 +296,7 @@ namespace CallOfTheWild
                     ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
                     ability.LocalizedDuration = Helpers.minutesPerLevelDuration;
                     summon_spells.Add(ability);
+                    Common.unsetAsFullRoundAction(ability);
                 }
 
                 BlueprintAbility summon_base = null;

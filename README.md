@@ -45,7 +45,7 @@ New Archetypes for existing classes:
 - Executioner and Grave Warden Slayer archetypes,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Lore Warden Fighter archetype,
-- Preservationist Alchemist archetype,
+- Preservationist and Toxicant Alchemist archetypes,
 - Blood Hunter and Divine Tracker Ranger archetypes.
 
 
@@ -179,6 +179,10 @@ New Wild Talents:
 - Kinetic Whip,
 - Whip Hurricane.
 
+
+New Alchemist Discoveries:
+- Sticky Poison (toxicant only),
+- Celestial Poison (toxicant only).
 
 
 New Advanced Weapon Training Options:

@@ -215,7 +215,7 @@ namespace CallOfTheWild
                 collegiate_arcanist.AddFeatures[i] = Helpers.LevelEntry(i + 1, halcyon_spell_lore);
             }
             collegiate_arcanist.AddFeatures[0].Features.Add(collegiate_initiate_alignment);
-            collegiate_arcanist.AddFeatures[4].Features.Add(collegiate_initiate_bonus_feat);
+            //collegiate_arcanist.AddFeatures[4].Features.Add(collegiate_initiate_bonus_feat);
 
             arcanist_class.Progression.UIDeterminatorsGroup = arcanist_class.Progression.UIDeterminatorsGroup.AddToArray(collegiate_initiate_alignment);
         }
@@ -1953,7 +1953,7 @@ namespace CallOfTheWild
                                                     "",
                                                     Helpers.CreateRunActions(Helpers.Create<SpellManipulationMechanics.RefreshArcanistSpellLevel>(c => { c.spell_level = i; })),
                                                     Helpers.CreateResourceLogic(arcane_reservoir_resource),
-                                                    Helpers.Create<NewMechanics.AbilityShowIfHasClassLevel>(a => { a.character_class = arcanist_class; a.level = (i == 1 ? 0 : i * 2); })
+                                                    Helpers.Create<NewMechanics.AbilityShowIfHasClassSpellLevel>(a => { a.character_class = arcanist_class; a.level = i; })
                                                     );
                 Common.setAsFullRoundAction(ability);
                 ability.setMiscAbilityParametersSelfOnly();

@@ -803,6 +803,18 @@ namespace CallOfTheWild
         }
 
 
+        static public void addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, Conditional conditional_action)
+        {
+            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }
+
+            var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
+            activated.Actions = activated.Actions.AddToArray(conditional_action);
+        }
+
+
 
         static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                               params BlueprintUnitFact[] facts)

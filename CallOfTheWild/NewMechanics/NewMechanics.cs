@@ -6368,6 +6368,20 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfHasClassSpellLevel : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintCharacterClass character_class;
+            public int level;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                ClassData classData = ability.Caster.Progression.GetClassData(this.character_class);
+                return classData?.Spellbook != null && ability.Caster.DemandSpellbook(classData.CharacterClass).MaxSpellLevel >= level;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityShowIfHasClassLevel : BlueprintComponent, IAbilityVisibilityProvider
         {
             public BlueprintCharacterClass character_class;

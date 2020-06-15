@@ -150,6 +150,7 @@
     <Compile Include="Archetypes\Seeker.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
+    <Compile Include="Archetypes\Toxicant.cs" />
     <Compile Include="Archetypes\UntamedRager.cs" />
     <Compile Include="Archetypes\ZenArcher.cs" />
     <Compile Include="Classes\AnimalFocus.cs" />

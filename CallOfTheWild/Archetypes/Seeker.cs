@@ -96,6 +96,7 @@ namespace CallOfTheWild.Archetypes
             fixDragonDisciple();
             //var dragon_disicple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
             //dragon_disicple.AddComponent(Common.prerequisiteNoArchetype(sorcerer, archetype));
+
         }
 
 
@@ -192,7 +193,7 @@ namespace CallOfTheWild.Archetypes
                                                     Helpers.Create<NewMechanics.MetamagicMechanics.ReduceMetamagicCostForSpecifiedSpells>(r => { r.reduction = 1; r.spells = spells.ToArray(); })
                                                     );
                 feature2.HideInCharacterSheetAndLevelUp = true;
-                seeker_magic.AddComponent(Common.createAddFeatureIfHasFact(seeker_bloodline, feature));
+                seeker_magic.AddComponent(Common.createAddFeatureIfHasFact(seeker_bloodline, feature2));
 
                 normal_seeker_map.Add(bp, seeker_bloodline);
                 bloodlines.AllFeatures = bloodlines.AllFeatures.AddToArray(seeker_bloodline);
@@ -200,6 +201,8 @@ namespace CallOfTheWild.Archetypes
                 seeker_bloodline.AddComponent(Common.createPrerequisiteArchetypeLevel(archetype.GetParentClass(), archetype, 1));
                 seeker_bloodline.AddComponent(Common.prerequisiteNoArchetype(eldritch_scion.GetParentClass(), eldritch_scion));
                 seeker_bloodline.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = dragon_disciple));
+
+                b.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = seeker_bloodline));
             }
         }
 

@@ -646,6 +646,7 @@ namespace CallOfTheWild
                     ability.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
                     ability.LocalizedDuration = Helpers.minutesPerLevelDuration;
                     summon_spells.Add(ability);
+                    Common.unsetAsFullRoundAction(ability);
                 }
 
                 BlueprintAbility summon_base = null;

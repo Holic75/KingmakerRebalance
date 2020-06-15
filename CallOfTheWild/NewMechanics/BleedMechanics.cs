@@ -79,7 +79,7 @@ namespace CallOfTheWild.BleedMechanics
     }
 
 
-        public class BleedBuff: BuffLogic, ITickEachRound
+    public class BleedBuff: BuffLogic, ITickEachRound
     {
         public ContextDiceValue dice_value;
 

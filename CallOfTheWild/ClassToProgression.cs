@@ -96,7 +96,7 @@ namespace CallOfTheWild
             addClassToFeat(class_to_add, archetypes_to_add, spells_type, progression);
         }
 
-        static void addClassToFact(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintUnitFact f)
+        static public void addClassToFact(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintUnitFact f)
         {
             if (f is BlueprintAbility)
             {
@@ -357,7 +357,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addClassToFeat(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureBase feat)
+        static public void addClassToFeat(BlueprintCharacterClass class_to_add, BlueprintArchetype[] archetypes_to_add, DomainSpellsType spells_type, BlueprintFeatureBase feat)
         {
             foreach (var c in feat.ComponentsArray.ToArray())
             {

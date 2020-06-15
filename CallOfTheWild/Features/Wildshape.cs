@@ -696,6 +696,11 @@ namespace CallOfTheWild
             animal_wildshapes.Add(wildshape_smilodon);
             animal_wildshapes.Add(wildshape_mastodon);
 
+            foreach (var aw in animal_wildshapes)
+            {
+                aw.SetIcon(Helpers.GetIcon("19bb148cb92db224abb431642d10efeb"));
+            }
+
             var shape_features = new BlueprintFeature[] {
                                                         wolf_feature,
                                                         leopard_feature,
