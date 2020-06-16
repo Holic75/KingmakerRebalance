@@ -3488,7 +3488,8 @@ namespace CallOfTheWild
                                                                 "At 1st level, a blood conduit selects a bonus feat from the following: Improved Bull Rush, Improved Trip, and Improved Unarmed Strike. He does not need to meet the prerequisites to take this feat. He also adds those feats to his list of bloodline feats.",
                                                                 "",
                                                                 null,
-                                                                FeatureGroup.None);
+                                                                FeatureGroup.None,
+                                                                Common.createPrerequisiteArchetypeLevel(blood_conduit, 1));
             contact_specialist.IgnorePrerequisites = true;
             contact_specialist.AllFeatures = new BlueprintFeature[]
             {
