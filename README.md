@@ -127,7 +127,8 @@ New feats:
 - Improved Spell Sharing,
 - Animal Ally,
 - Bullseye shot,
-- Pinpoint targeting.
+- Pinpoint targeting,
+- Ability Focus: Toxic Secretion.
 
 New rage powers:
 - Terrifying Howl
@@ -182,7 +183,8 @@ New Wild Talents:
 
 New Alchemist Discoveries:
 - Sticky Poison (toxicant only),
-- Celestial Poison (toxicant only).
+- Celestial Poison (toxicant only),
+- Concentrate Poison (toxicant only).
 
 
 New Advanced Weapon Training Options:

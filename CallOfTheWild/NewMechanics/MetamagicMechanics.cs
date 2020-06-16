@@ -428,6 +428,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay = -1;
             public bool consume_extra_spell_slot = false;
+            public int increase_spell_dc;
 
             private int calculate_cost(UnitEntityData caster)
             {
@@ -444,9 +445,10 @@ namespace CallOfTheWild
 
             public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
             {
-                bool is_metamagic_not_available = ability == null || data?.Spellbook == null || ability.Type != AbilityType.Spell
-                                              || ((ability.AvailableMetamagic & Metamagic) == 0);
-
+                bool is_metamagic_not_available = ability == null 
+                                                 || (data?.Spellbook == null || ability.Type != AbilityType.Spell)
+                                                 || ((ability.AvailableMetamagic & Metamagic) == 0);
+                Main.logger.Log(is_metamagic_not_available.ToString());
                 if (is_metamagic_not_available)
                 {
                     return false;
@@ -482,6 +484,11 @@ namespace CallOfTheWild
                 }
                 cost_to_pay = calculate_cost(this.Owner.Unit);
                 evt.AddMetamagic(Metamagic);
+
+                if (increase_spell_dc > 0)
+                {
+                    evt.AddBonusDC(increase_spell_dc);
+                }
             }
 
             public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)

@@ -1612,6 +1612,20 @@ namespace CallOfTheWild
             };
         }
 
+
+        public static ContextDurationValue CreateContextDurationNonExtandable(ContextValue bonus = null, DurationRate rate = DurationRate.Rounds, DiceType diceType = DiceType.Zero, ContextValue diceCount = null)
+        {
+            var d =  new ContextDurationValue()
+            {
+                BonusValue = bonus ?? CreateContextValueRank(),
+                Rate = rate,
+                DiceCountValue = diceCount ?? 0,
+                DiceType = diceType
+            };
+            Helpers.SetField(d, "m_IsExtendable", false);
+            return d;
+        }
+
         public static BlueprintBuff CreateBuff(String name, String displayName, String description, String guid, Sprite icon,
             PrefabLink fxOnStart,
             params BlueprintComponent[] components)

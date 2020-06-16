@@ -6417,6 +6417,30 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextConditionCriticalHitFromCaster : ContextCondition
+        {
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            public int required_edge = 0;
+
+            protected override bool CheckCondition()
+            {
+                var caster = this.Context.MaybeCaster;
+
+                var attack = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackWithWeapon>()?.AttackRoll;
+
+                if (attack == null || attack.Initiator != caster || attack.WeaponStats == null)
+                {
+                    return false;
+                }
+
+                return attack.WeaponStats.CriticalEdge == required_edge || required_edge == 0;               
+            }
+        }
+
         [AllowedOn(typeof(BlueprintBuff))]
         public class DamageBonusAgainstCaster : BuffLogic, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
         {
@@ -7991,6 +8015,24 @@ namespace CallOfTheWild
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
                 will_spend = 0;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseSpellDCForBlueprints : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public BlueprintScriptableObject[] blueprints;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (blueprints.Contains(evt.Blueprint))
+                    evt.AddBonusDC(this.value.Calculate(this.Fact.MaybeContext));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
             }
         }
 

@@ -49,6 +49,7 @@ using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
+
 namespace CallOfTheWild.Archetypes
 {
     public class Toxicant
@@ -61,7 +62,8 @@ namespace CallOfTheWild.Archetypes
 
         static public BlueprintFeature sticky_posion;
         static public BlueprintFeature celestial_poison;
-        static public BlueprintFeature malignant_poison;
+        static public BlueprintFeature concentrate_poison;
+        static public BlueprintFeature poison_focus;
         static public BlueprintBuff poison_buff;
 
         static public void create()
@@ -138,7 +140,7 @@ namespace CallOfTheWild.Archetypes
             alchemist_class.Progression.UIGroups = alchemist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(poison_secretion, poison_improvement));
             alchemist_class.Archetypes = alchemist_class.Archetypes.AddToArray(archetype);
 
-            medical_discovery.AllFeatures = medical_discovery.AllFeatures.AddToArray(sticky_posion, celestial_poison);
+            medical_discovery.AllFeatures = medical_discovery.AllFeatures.AddToArray(sticky_posion, celestial_poison, concentrate_poison);
 
             var dispelling_attack = library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c");
             ClassToProgression.addClassToFeat(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.NoSpells, dispelling_attack);
@@ -274,12 +276,14 @@ namespace CallOfTheWild.Archetypes
 
             sticky_posion = Helpers.CreateFeature("StickyPoisonDiscovery",
                                          "Sticky Poison",
-                                         "Any poison the alchemist creates is sticky—when the alchemist applies it to a weapon, the weapon remains poisoned for a number of strikes equal to the alchemist’s Intelligence modifier. .",
+                                         "Any poison the alchemist creates is sticky—when the alchemist applies it to a weapon, the weapon remains poisoned for a number of strikes equal to the alchemist’s Intelligence modifier.",
                                          "",
                                          Helpers.GetIcon("0c852a2405dd9f14a8bbcfaf245ff823"), //acid spalsh
                                          FeatureGroup.Discovery,
                                          Common.createPrerequisiteArchetypeLevel(archetype, 6)
                                          );
+
+
 
             var celestial_poison_buff = library.CopyAndAdd(poison_buff, "Celestial" + "PoisonBuff", "");
             celestial_poison_buff.RemoveComponents<SpellDescriptorComponent>();
@@ -296,6 +300,7 @@ namespace CallOfTheWild.Archetypes
                                                           apply_poison
                                                          );
             var apply_effect = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_on_condition));
+
             var duration_config = Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { archetype.GetParentClass() },
                                                                   progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4);
             var poison_touch = Helpers.CreateAbility("ToxicantPoisonTouchAbility",
@@ -314,8 +319,10 @@ namespace CallOfTheWild.Archetypes
                                                      duration_config,
                                                      Common.createContextCalculateAbilityParamsBasedOnClass(archetype.GetParentClass(), StatType.Intelligence)
                                                      );
+            poison_touch.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend;
             poison_touch.setMiscAbilityParametersTouchHarmful();
-            var poison_touch_cast = Helpers.CreateTouchSpellCast(poison_touch, resource);
+            var poison_touch_cast = Helpers.CreateTouchSpellCast(poison_touch);
+            
 
             var hit_resource = Helpers.CreateAbilityResource("ToxicantPoisonWeaponHitResource", "", "", "", null);
             hit_resource.SetFixedResource(30);
@@ -329,7 +336,7 @@ namespace CallOfTheWild.Archetypes
                                                  "Poison Weapon",
                                                  poison_touch.Description,
                                                  "",
-                                                 poison_touch.Icon,
+                                                 LoadIcons.Image2Sprite.Create(@"AbilityIcons/PoisonWeapon.png"),
                                                  null,
                                                  Helpers.CreateAddAbilityResourceNoRestore(hit_resource),
                                                  Helpers.CreateAddFactContextActions(activated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c =>
@@ -359,18 +366,17 @@ namespace CallOfTheWild.Archetypes
                                                      weapon_buff.Name,
                                                      weapon_buff.Description,
                                                      "",
-                                                     poison_buff.Icon,
+                                                     weapon_buff.Icon,
                                                      AbilityType.Extraordinary,
                                                      CommandType.Standard,
                                                      AbilityRange.Touch,
                                                      Helpers.oneMinuteDuration,
                                                      Helpers.fortNegates,
-                                                     Helpers.CreateRunActions(Common.createContextActionApplyBuff(weapon_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
-                                                     resource.CreateResourceLogic(),
+                                                     Helpers.CreateRunActions(Common.createContextActionApplyBuff(weapon_buff, Helpers.CreateContextDurationNonExtandable(1, DurationRate.Minutes), dispellable: false)),
                                                      Common.createContextCalculateAbilityParamsBasedOnClass(archetype.GetParentClass(), StatType.Intelligence)
                                                      );
             poison_weapon.setMiscAbilityParametersTouchFriendly();
-
+            poison_weapon.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend;
 
             poison_secretion = Helpers.CreateFeature("ToxicantPoisonSecreation",
                                                      "Toxic Secretion",
@@ -392,6 +398,47 @@ namespace CallOfTheWild.Archetypes
                                                      Helpers.CreateAddFacts(poison_weapon, poison_touch_cast),
                                                      resource.CreateAddAbilityResource()
                                                      );
+
+            var extend = library.Get<BlueprintFeature>("4ca47c023f1c158428bd55deb44c735f").GetComponent<AutoMetamagic>().CreateCopy(a => { a.Abilities = new BlueprintAbility[] { poison_weapon, poison_touch }.ToList(); a.Metamagic = Metamagic.Extend; });
+            var concentrate_poison_buff = Helpers.CreateBuff("ConcentratePoisonBuff",
+                                                             "Concentrate Poison",
+                                                             "The alchemist can combine two doses of the same poison to increase their effects. This requires two doses of the poison and 1 minute of concentration. When completed, the alchemist has one dose of poison. The poison’s duration is extended by 100% and the save DC increases by +2.",
+                                                             "",
+                                                             Helpers.GetIcon("fd101fbc4aacf5d48b76a65e3aa5db6d"),
+                                                             null,
+                                                             Helpers.Create<NewMechanics.IncreaseSpellDCForBlueprints>(i => { i.value = 2; i.blueprints = new BlueprintScriptableObject[] { poison_weapon, poison_touch }; }),
+                                                             extend
+                                                             );
+            var concentrate_poison_toggle = Helpers.CreateActivatableAbility("ConcentratePoisonToggleAbility",
+                                                                             concentrate_poison_buff.Name,
+                                                                             concentrate_poison_buff.Description,
+                                                                             "",
+                                                                             concentrate_poison_buff.Icon,
+                                                                             concentrate_poison_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null);
+            concentrate_poison_toggle.DeactivateImmediately = true;
+
+            poison_touch_cast.AddComponents(Helpers.CreateResourceLogic(resource, cost_is_custom: true),
+                                            Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_increasing_facts = new BlueprintFact[] {concentrate_poison_buff}));
+            poison_weapon.AddComponents(Helpers.CreateResourceLogic(resource, cost_is_custom: true),
+                                        Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_increasing_facts = new BlueprintFact[] { concentrate_poison_buff }));
+
+            concentrate_poison = Common.ActivatableAbilityToFeature(concentrate_poison_toggle, false);
+            concentrate_poison.Groups = new FeatureGroup[] { FeatureGroup.Discovery };
+            concentrate_poison.AddComponent(Common.createPrerequisiteArchetypeLevel(archetype, 1));
+
+            poison_focus = Helpers.CreateFeature("PoisonFocusFeature",
+                                        "Ability Focus: Toxic Secretion",
+                                        "The DC of poison produced by toxicant toxic secretion ability is increased by 2.",
+                                        "",
+                                        null,
+                                        FeatureGroup.Feat,
+                                        Common.createPrerequisiteArchetypeLevel(archetype, 1),
+                                        Helpers.Create<NewMechanics.IncreaseSpellDCForBlueprints>(i => { i.value = 2; i.blueprints = new BlueprintScriptableObject[] { poison_weapon, poison_touch, poison_secretion }; })
+                                        );
+            library.AddFeats(poison_focus);
         }
     }
 }
