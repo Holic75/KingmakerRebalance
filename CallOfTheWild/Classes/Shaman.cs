@@ -58,6 +58,7 @@ namespace CallOfTheWild
         static public BlueprintFeature shaman_proficiencies;
         static public BlueprintSpellbook spirit_magic_spellbook;
         static public BlueprintFeature spirit_magic;
+        static public BlueprintFeature no_spirit_magic;
 
         static public Dictionary<string, Spirit> spirits = new Dictionary<string, Spirit>();
 
@@ -108,6 +109,11 @@ namespace CallOfTheWild
         static public BlueprintSpellList restless_magic_spell_list;
         static public BlueprintFeature rebuke_spirits;
         static public BlueprintFeature laugh_at_death;
+
+        static public BlueprintArchetype possesed_shaman;
+        static public BlueprintFeature crowded_vessel;
+        static public BlueprintFeatureSelection shared_skill;
+        static public BlueprintFeatureSelection wandering_skill;
 
 
         static public BlueprintAbility sense_spirit_magic; //+2 circumstance saves against spells from spirit/wandering spirit spell list for 24h hours
@@ -203,7 +209,7 @@ namespace CallOfTheWild
                                                                 icon,
                                                                 FeatureGroup.None,
                                                                 Helpers.PrerequisiteNoFeature(progression),
-                                                                Helpers.CreateAddFact(spirit_magic_spells));
+                                                                Common.createAddFeatureIfHasFact(no_spirit_magic, spirit_magic_spells, not: true));
                 wandering_progression.LevelEntries = wandering_entries.ToArray();
                 wandering_progression.UIGroups = Helpers.CreateUIGroups(spirit_ability[1], greater_spirit_ability[1], true_spirit_ability[1]);
 
@@ -294,17 +300,24 @@ namespace CallOfTheWild
             createWitchDoctor();
             createOverseer();
             createSpiritWarden();
-            shaman_class.Archetypes = new BlueprintArchetype[] {speaker_for_the_past_archetype, overseer_archetype, witch_doctor_archetype, spirit_warden };
+            createPosessedShaman();
+            shaman_class.Archetypes = new BlueprintArchetype[] {speaker_for_the_past_archetype, overseer_archetype, witch_doctor_archetype, spirit_warden, possesed_shaman };
             Helpers.RegisterClass(shaman_class);
             createExtraHexFeat();
 
             Common.addMTDivineSpellbookProgression(shaman_class, shaman_class.Spellbook, "MysticTheurgeShaman",
-                                                     Common.createPrerequisiteClassSpellLevel(shaman_class, 2));
+                                                     Common.createPrerequisiteClassSpellLevel(shaman_class, 2), Common.prerequisiteNoArchetype(possesed_shaman));
+
+            Common.addMTDivineSpellbookProgression(shaman_class, possesed_shaman.ReplaceSpellbook, "MysticTheurgePosessedShaman",
+                                         Common.createPrerequisiteArchetypeLevel(possesed_shaman, 2));
 
             createSenseSpiritMagic();
             createSpiritCall();
             createFontOfSpiritMagic();
         }
+
+
+       
 
 
         static void createSenseSpiritMagic()
@@ -841,6 +854,93 @@ namespace CallOfTheWild
             speaker_for_the_past_archetype.ClassSkills = shaman_class.ClassSkills.AddToArray(StatType.SkillKnowledgeWorld, StatType.SkillPerception, StatType.SkillUseMagicDevice);
 
             beast_of_ill_omen.AddComponent(Common.prerequisiteNoArchetype(shaman_class, speaker_for_the_past_archetype));
+        }
+
+
+
+        static void createPosessedShaman()
+        {
+
+            possesed_shaman = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PossessedShamanArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Possessed Shaman");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "For a possessed shaman, merely communing with the spirit world is insufficient. Instead, she invites the spirits to share her body, granting them the chance to experience corporeal existence. In return, they grant her their skills and protect her from otherworldly influence.");
+            });
+            Helpers.SetField(possesed_shaman, "m_ParentClass", shaman_class);
+            library.AddAsset(possesed_shaman, "");
+
+            createSharedSkill();
+            createCrowdedVessel();
+
+            possesed_shaman.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spirit_magic), Helpers.LevelEntry(2, hex_selection), Helpers.LevelEntry(6, wandering_hex_selection) };
+            possesed_shaman.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, no_spirit_magic, shared_skill), Helpers.LevelEntry(2, crowded_vessel), Helpers.LevelEntry(6, wandering_skill) };
+            shaman_class.Progression.UIGroups = shaman_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(shared_skill, crowded_vessel, wandering_skill));
+
+
+            var possesed_shaman_spellbook = library.CopyAndAdd(shaman_class.Spellbook, "PossesedShamanSpellbook", "");
+            possesed_shaman_spellbook.RemoveComponents<SpellbookMechanics.CompanionSpellbook>();
+            possesed_shaman.ReplaceSpellbook = possesed_shaman_spellbook;
+            waves_spirit.fluid_magic.AddComponent(Common.prerequisiteNoArchetype(possesed_shaman));
+        }
+
+
+        static void createCrowdedVessel()
+        {
+            crowded_vessel = Helpers.CreateFeature("CrowdedVesselFeature",
+                                                   "Crowded Vessel",
+                                                   "At 2nd level, whenever a possessed shaman fails a saving throw against a charm or compulsion spell or effect, she can attempt a new saving throw (using the original DC) at the end of her next turn as the spirits inside her attempt to regain control. If the saving throw is successful, the charm or compulsion effect ends. If the saving throw fails, she is affected as normal for the remainder of the duration.",
+                                                   "",
+                                                   Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"),//protection from energy
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<NewMechanics.SecondRollToRemoveBuffAfterOneRound>(m =>
+                                                                                                   {
+                                                                                                       m.spell_descriptor = SpellDescriptor.Compulsion | SpellDescriptor.Charm;
+                                                                                                   }
+                                                                                                   )
+                                                   );
+
+        }
+
+
+        static void createSharedSkill()
+        {
+            shared_skill = Helpers.CreateFeatureSelection("SharedSkillPosessedShamanFeatureSelection",
+                                                          "Shared Skill",
+                                                          "At 1st level, a possessed shaman selects one skill and adds it to the list of her class skills. In addition the possessed shaman treats this skill as if she had a number of ranks in them equal to her shaman level, and uses her Wisdom modifier in place of the ability modifier the skills would normally use.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.AasimarHeritage);
+
+            var skill_foci = library.Get<BlueprintFeatureSelection>("c9629ef9eebb88b479b2fbc5e836656a").AllFeatures;
+
+            for (int i = 0; i < skill_foci.Length; i++)
+            {
+                StatType stat = skill_foci[i].GetComponent<AddContextStatBonus>().Stat;
+
+                string name = LocalizedTexts.Instance.Stats.GetText(stat);
+
+                var feature = Helpers.CreateFeature(stat.ToString() + "PosessedShamanSharedSkillFeature",
+                                                   "Shared skill: " + name,
+                                                   "The possessed shaman adds corresponding skill to the list of her class skills. In addition the possessed shaman treats this skill as if she had a number of ranks in them equal to her shaman level, and uses her Wisdom modifier in place of the ability modifier the skills would normally use.",
+                                                   "",
+                                                   skill_foci[i].Icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.Create<AddClassSkill>(a => a.Skill = stat),
+                                                   Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = stat; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); ss.increase_by1_on_apply = true; }),
+                                                   Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(r => { r.only_if_greater = false; r.NewBaseStatType = StatType.Wisdom; r.StatTypeToReplaceBastStatFor = stat; }),
+                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
+                                                                                   classes: new BlueprintCharacterClass[] { shaman_class }
+                                                                                   )
+                                                   );
+                shared_skill.AllFeatures = shared_skill.AllFeatures.AddToArray(feature);
+            }
+
+            wandering_skill = library.CopyAndAdd(shared_skill, "WanderingSkillPossesedShamanFeatureSelection", "");
+            wandering_skill.SetNameDescription("Wandering Skill",
+                                              "At 6th level, a possessed shaman is able to make room for another spirit. She can select another shared skill.");
+
+
         }
 
 
@@ -1507,6 +1607,15 @@ namespace CallOfTheWild
                                                  null,
                                                  FeatureGroup.None
                                                  );
+            no_spirit_magic = Helpers.CreateFeature("NoSpiritMagicFeature",
+                                     "",
+                                     "",
+                                     "",
+                                     null,
+                                     FeatureGroup.None
+                                     );
+            no_spirit_magic.HideInUI = true;
+            no_spirit_magic.HideInCharacterSheetAndLevelUp = true;
         }
     }
 }

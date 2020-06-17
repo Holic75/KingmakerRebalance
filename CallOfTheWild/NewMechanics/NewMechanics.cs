@@ -5951,7 +5951,7 @@ namespace CallOfTheWild
             [SerializeField]
             [ShowIf("IsSavingThrow")]
             [EnumFlagsAsButtons(ColumnCount = 4)]
-            private ModifyD20WithActions.InnerSavingThrowType m_SavingThrowType = ModifyD20WithActions.InnerSavingThrowType.All;
+            ModifyD20WithActions.InnerSavingThrowType m_SavingThrowType = ModifyD20WithActions.InnerSavingThrowType.All;
             [EnumFlagsAsButtons(ColumnCount = 3)]
             public RuleType Rule;
             public bool Replace;
@@ -6068,7 +6068,9 @@ namespace CallOfTheWild
                 if (this.Replace)
                     evt.Override(this.Roll);
                 else
+                {
                     evt.SetReroll(this.RollsAmount, this.TakeBest);
+                }
             }
 
             private static bool IsRollFailed(int roll, RulebookEvent evt)
@@ -6144,8 +6146,10 @@ namespace CallOfTheWild
                     return false;
                 Kingmaker.Blueprints.Classes.Spells.SpellDescriptor? spellDescriptor = rule.Reason.Context?.SpellDescriptor;
                 Kingmaker.Blueprints.Classes.Spells.SpellDescriptor descriptor1 = !spellDescriptor.HasValue ? Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.None : spellDescriptor.Value;
+
                 if (this.SpecificDescriptor && !descriptor1.Intersects((Kingmaker.Blueprints.Classes.Spells.SpellDescriptor)this.SpellDescriptor))
                     return false;
+
                 return (this.m_SavingThrowType & ModifyD20WithActions.ConvertToInnerSavingThrowType(ruleSavingThrow.Type)) != (ModifyD20WithActions.InnerSavingThrowType)0;
             }
 
@@ -8594,6 +8598,50 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
+            }
+        }
+
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class SecondRollToRemoveBuffAfterOneRound : RuleInitiatorLogicComponent<RuleApplyBuff>
+        {
+            public SpellDescriptorWrapper spell_descriptor;
+
+            private RuleSavingThrow last_saving_throw = null;
+            private bool passed = false;
+            public override void OnEventAboutToTrigger(RuleApplyBuff evt)
+            {
+                if (evt.Context == null || !evt.Context.SpellDescriptor.Intersects(spell_descriptor))
+                {
+                    return;
+                }
+
+                var saving_throw = evt.Context.SavingThrow;
+                if (saving_throw == null || saving_throw.IsPassed)
+                {
+                    return;
+                }
+
+                if (last_saving_throw != saving_throw)
+                {
+                    last_saving_throw = saving_throw;
+                    int new_roll = RulebookEvent.Dice.D20;
+                    passed = saving_throw.IsSuccessRoll(new_roll);
+                    Common.AddBattleLogMessage(saving_throw.Initiator.CharacterName + $" rolls due to {this.Fact.Name}: " + $"{new_roll}  ({(passed ? "Success" : "Failure")})");
+                }
+                if (passed)
+                {
+                    TimeSpan round = 6.Seconds();
+                    Harmony12.Traverse.Create(evt).Property("Duration").SetValue(new TimeSpan?(round));
+
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleApplyBuff evt)
+            {
+
             }
         }
 
