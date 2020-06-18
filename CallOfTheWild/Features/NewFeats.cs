@@ -803,7 +803,7 @@ namespace CallOfTheWild
 
             var ranged_weapons = new WeaponCategory[] {WeaponCategory.Longbow, WeaponCategory.Shortbow, WeaponCategory.Shuriken, WeaponCategory.Sling, WeaponCategory.SlingStaff, WeaponCategory.HandCrossbow,
                                                        WeaponCategory.LightCrossbow, WeaponCategory.HeavyCrossbow, WeaponCategory.Dart, WeaponCategory.ThrowingAxe, WeaponCategory.LightRepeatingCrossbow,
-                                                        WeaponCategory.HeavyRepeatingCrossbow, WeaponCategory.Javelin};
+                                                        WeaponCategory.HeavyRepeatingCrossbow, WeaponCategory.Javelin, WeaponCategory.Dagger, WeaponCategory.Starknife};
             snap_shot = Helpers.CreateFeature("SnapShotFeature",
                                                     "Snap Shot",
                                                     "While wielding a ranged weapon with which you have Weapon Focus, you threaten squares within 5 feet of you. You can make attacks of opportunity with that ranged weapon. You do not provoke attacks of opportunity when making a ranged attack as an attack of opportunity.",
