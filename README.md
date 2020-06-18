@@ -21,7 +21,7 @@ It introduces new classes:
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager and Blood Conduit,
-- Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer and Court Poet,
+- Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
@@ -31,7 +31,7 @@ It introduces new classes:
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
-- Sacred Servant and Vindictive Bastard(implemented as a separate class) Paladin archetypes,
+- Sacred Servant and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
 - Arrowsong Minstrel and Dirge Bard Bard archetypes,
 - Exploiter Wizard and Spirit Whisperer Wizard archetypes,
 - Nature Fang and Storm Druid Druid archetypes,

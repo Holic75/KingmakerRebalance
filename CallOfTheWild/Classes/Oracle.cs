@@ -1919,7 +1919,7 @@ namespace CallOfTheWild
         static void createLich()
         {
             var false_life = library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762");
-            var wail_of_banshee = library.Get<BlueprintAbility>("b24583190f36a8442b212e45226c54fc");
+            var banshee_blast = library.Get<BlueprintAbility>("d42c6d3f29e07b6409d670792d72bc82");
             var curse = Helpers.CreateFeature("OracleCurseLich",
                                               "Lich",
                                               "You have (unknowingly) fulfilled most (but not all) of the ritualistic components to achieve lichdom. You have yet to turn into an undead creature, but you are close. You take damage from positive energy and heal from negative energy as if you were undead.",
@@ -1946,12 +1946,12 @@ namespace CallOfTheWild
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Lich",
                                                 "Lich",
-                                                "At 10th level, you add false life to your list of 2nd-level oracle spells known and wail of banshee to your list of 5th-level oracle spells known.",
+                                                "At 10th level, you add false life to your list of 2nd-level oracle spells known and banshee blast to your list of 5th-level oracle spells known.",
                                                 "",
-                                                wail_of_banshee.Icon,
+                                                banshee_blast.Icon,
                                                 FeatureGroup.None,
                                                 false_life.CreateAddKnownSpell(oracle_class, 2),
-                                                wail_of_banshee.CreateAddKnownSpell(oracle_class, 5)
+                                                banshee_blast.CreateAddKnownSpell(oracle_class, 5)
                                                 );
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Lich",

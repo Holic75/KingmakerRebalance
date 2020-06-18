@@ -118,6 +118,11 @@ namespace CallOfTheWild
         static public BlueprintFeature song_of_inspiration;
         static public BlueprintFeature handling_the_crowd;
 
+        static public BlueprintArchetype sunsinger;
+        static public BlueprintFeature pillar_of_light;
+        static public BlueprintFeature channel_solar_energy;
+        static public BlueprintFeature sunsinger_extra_channel;
+
 
         internal static void createSkaldClass()
         {
@@ -164,24 +169,12 @@ namespace CallOfTheWild
             createHeraldOfTheHorn();
             createWarDrummer();
             createCourtPoet();
-            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype, court_poet}; //wardrummer, urban skald, herald of the horn
+            createSunSinger();
+            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype, court_poet, sunsinger}; //wardrummer, urban skald, herald of the horn
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
             fixExtraRagePower();
 
-
-            //fix saves with missing spell kenning resource
-            //fix previous saves without 3rd animal companion
-            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
-            {
-                if (unit.Progression.GetClassLevel(skald_class) >= 17 
-                    && unit.Progression.Features.HasFact(spell_kenning_extra_use) 
-                    && unit.Progression.Features.GetRank(spell_kenning_extra_use) == 1)
-                {
-                    unit.Progression.Features.AddFeature(spell_kenning_extra_use);
-                }
-            };
-            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 
@@ -679,6 +672,111 @@ namespace CallOfTheWild
                                                      );
         }
 
+
+
+        static void createSunSinger()
+        {
+            sunsinger = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SunsingerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Sunsinger");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Qadiran sunsingers are particularly religious skalds of Sarenrae who call down their goddess’s glory to fill soldiers with fire.");
+            });
+            Helpers.SetField(sunsinger, "m_ParentClass", skald_class);
+            library.AddAsset(sunsinger, "");
+            sunsinger.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, inspired_rage_feature),
+                                                                          Helpers.LevelEntry(3, song_of_marching),
+                                                                          Helpers.LevelEntry(5, spell_kenning),
+                                                                          Helpers.LevelEntry(11, spell_kenning_extra_use),
+                                                                          Helpers.LevelEntry(17, spell_kenning_extra_use),
+                                                                        };
+            var deity_selection = library.CopyAndAdd<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4", "SunsingerDeitySelection", "");
+            deity_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("c1c4f7f64842e7e48849e5e67be11a1b") };//sarenrae
+            deity_selection.SetNameDescription("Sarenrae","A sunsinger skald must be lawful good, neutral good, chaotic good or neutral, and must worship Sarenrae.");
+            deity_selection.RemoveComponents<NoSelectionIfAlreadyHasFeature>();
+            createPillarOfLight();
+            createChannelSolarEnergy();
+
+            sunsinger.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, deity_selection),
+                                                                  Helpers.LevelEntry(5, channel_solar_energy),
+                                                                  Helpers.LevelEntry(6, pillar_of_light),
+                                                                };
+
+            skald_progression.UIDeterminatorsGroup = skald_progression.UIDeterminatorsGroup.AddToArray(deity_selection);
+
+            skald_progression.UIGroups = skald_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(channel_solar_energy, pillar_of_light));
+        }
+
+        static void createPillarOfLight()
+        {
+            var fascinate_ability = library.CopyAndAdd<BlueprintActivatableAbility>("993908ad3fb81f34ba0ed168b7c61f58", "SunsingerFascinateToggleAbility", "");
+            fascinate_ability.SetDescription("At 6th level, aa sunsinger skald can use her raging song to call upon her goddess to imbue her with glory and make all who see it pay heed. A great beam of sunlight shines down upon the skald, casting bright light in a 30-foot radius, and allows the skald’s raging song to function as the fascinate bardic performance.");
+
+            var fasciante_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a4fc1c0798359974e99e1d790935501d", "SunsingerFascianteArea", "");
+            fasciante_area.Fx = Common.createPrefabLink("79cd602c3311fda459f1e7c62d7ec9a1"); //sund domain aura
+            fasciante_area.ReplaceComponent<ContextCalculateAbilityParamsBasedOnClass>(c => c.CharacterClass = skald_class);
+            var fascinate_buff = library.CopyAndAdd<BlueprintBuff>("555930f121b364a4e82670b433028728", "SunsingertFascianteBuff", "");
+            fascinate_buff.SetDescription(fascinate_ability.Description);
+            fascinate_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = fasciante_area);
+            fascinate_ability.Buff = fascinate_buff;
+            pillar_of_light = Common.ActivatableAbilityToFeature(fascinate_ability, false);
+        }
+
+
+        static void createChannelSolarEnergy()
+        {
+            var resource = Helpers.CreateAbilityResource("SunsingerChannelEnergyResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 6, 1, 0, 0.0f, getSkaldArray());
+
+            var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+           
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2,
+                                                                                  type: AbilityRankType.Default, classes: getSkaldArray());
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getSkaldArray(), StatType.Charisma);
+            var channel_positive_energy = Helpers.CreateFeature("SunsingerChannelPositiveEnergyFeature",
+                                                                "Channel Solar Energy",
+                                                                "At 5th level, a sunsinger skald can channel energy as a cleric once per day to heal wounds or harm undead like a good-aligned cleric. When she does so, she fills the area affected by the channeled energy with light, and can outline creatures in the area of effect as per faerie fire for a number of rounds equal to half her skald level. The sunsinger uses her skald level as her effective cleric level when channeling positive energy.",
+                                                                "",
+                                                                positive_energy_feature.Icon,
+                                                                FeatureGroup.None,
+                                                                Helpers.CreateAddAbilityResource(resource));
+
+            var heal_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
+                                                                      "SunsingerChannelEnergyHealLiving",
+                                                                      "Channel Solar Energy — Heal Living",
+                                                                      "Channeling positive energy causes a burst that heals all living creatures in a 30-foot radius centered on the sunsinger. The amount of damage healed is equal to 1d6 points of damage plus 1d6 points of damage for every two sunsinger levels beyond 1st (2d6 at 3rd, 3d6 at 5th, and so on).",
+                                                                      "",
+                                                                      context_rank_config,
+                                                                      dc_scaling,
+                                                                      Helpers.CreateResourceLogic(resource));
+
+            var faerie_fire_buff = library.Get<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54");
+            var apply_faerie_fire = Common.createContextActionApplyBuff(faerie_fire_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), dispellable: false);
+            var apply_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), apply_faerie_fire);
+
+            var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                                          "SunsingerChannelEnergyHarmUndead",
+                                                          "Channel Solar Energy — Harm Undead",
+                                                          "Channeling positive energy causes a burst that damages all undead creatures in a 30-foot radius centered on the sunsinger. The amount of damage inflicted is equal to 1d6 points of damage plus 1d6 points of damage for every two sunsinger levels beyond 1st (2d6 at 3rd, 3d6 at 5th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the cleric's level + the cleric's Charisma modifier.",
+                                                          "",
+                                                          context_rank_config,
+                                                          dc_scaling,
+                                                          Helpers.CreateResourceLogic(resource));
+
+            heal_living.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(apply_effect)));
+            harm_undead.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(apply_effect)));
+
+            var heal_living_base = Common.createVariantWrapper("SunsingerPositiveHealBase", "", heal_living);
+            var harm_undead_base = Common.createVariantWrapper("SunsingerPositiveHarmBase", "", harm_undead);
+
+            ChannelEnergyEngine.storeChannel(heal_living, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(harm_undead, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+
+            channel_positive_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
+            channel_solar_energy = channel_positive_energy;
+          
+            sunsinger_extra_channel = ChannelEnergyEngine.createExtraChannelFeat(heal_living, channel_positive_energy, "ExtraChannelSunsinger", "Extra Channel (Sunsinger)", "");
+        }
 
 
         static void createCourtPoet()
