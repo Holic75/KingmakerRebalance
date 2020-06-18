@@ -162,8 +162,9 @@ New features:
 - Rerolls (due to Bit of Luck and similar abilities) are now shown in the battle log,
 - Animal companions now level up manually,
 - Dismissable area effect spells,
-- When using wall area effect spells you should now see which enemies will be affected.
-- Summoned monsters are now considered as allies
+- When using wall area effect spells you should now see which enemies will be affected,
+- Summoned monsters are now considered as allies,
+- Everyone can select a Diety (optional).
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,

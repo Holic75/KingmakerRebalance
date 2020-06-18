@@ -34,6 +34,7 @@ namespace CallOfTheWild
             internal bool fix_ecclesitheurge_class { get; }
             internal bool advanced_fighter_options { get; }
             internal bool wizard_discoveries { get; }
+            internal bool deity_for_everyone { get; }
             internal Settings()
             {
 
@@ -53,6 +54,7 @@ namespace CallOfTheWild
                     fix_ecclesitheurge_class = (bool)jo["fix_ecclesitheurge_class"];
                     advanced_fighter_options = (bool)jo["advanced_fighter_options"];
                     wizard_discoveries = (bool)jo["wizard_discoveries"];
+                    deity_for_everyone = (bool)jo["deity_for_everyone"];
                 }
             }
         }

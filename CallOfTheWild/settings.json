@@ -9,5 +9,6 @@
   "fix_teamwork_feats": true,
   "fix_ecclesitheurge_class": true,
   "advanced_fighter_options": true,
-  "wizard_discoveries": true
+  "wizard_discoveries": true,
+  "deity_for_everyone": true
 }
