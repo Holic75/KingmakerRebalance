@@ -126,6 +126,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature wild_armor_feature;
         static BlueprintBuff allow_wild_armor_buff;
+        static public BlueprintArmorEnchantment wild_armor_enchant;
         static public BlueprintBuff[] druid_wild_shapes;
 
         static public BlueprintFeature weapon_shift;
@@ -443,12 +444,12 @@ namespace CallOfTheWild
 
             foreach (var wb in druid_wild_shapes)
             {
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff, wild_armor_feature);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff/*, wild_armor_feature*/);
             }
 
 
             var enchant = Common.createArmorEnchantment("WildArmorEnchantment", "Wild", wild_armor_feature.Description, "Wild", "", "8cc52c63f3494254bb69ad3fa3a31d73", 10, 3);
-            enchant.AddComponent(Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = wild_armor_feature));
+            //enchant.AddComponent(Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = wild_armor_feature));
             var armor_guids = new string[]
             {
                 "d0808425cbe661140a636de0ca1a1535", //dragonscale plate
@@ -462,7 +463,12 @@ namespace CallOfTheWild
                 "90a937ee70b7e8d4fa48d796022921d4", //oaks leather
                 "be870ed4eb418a9459e2e8e991252861", //second skin
                 "caef4e3a5dace8e49a938cafc0a9b3e6", //primal hide
-                "9c1dd7e5c3dc25e4cb12116950dff129" //black dragon plate
+                "9c1dd7e5c3dc25e4cb12116950dff129", //black dragon plate
+
+                "f61ec85c52b765446b06d2b819381c80", //heart of thunder shield
+                "1aadb3a0a09171944a57d153ea3bef0e", //north light shield
+                "9d6800e2e5efde04a9f79734b8c1864e", //venomous limb shield
+                "1caff5f6e06bad641bcdc48e26f47067", //wild guardian shield
             };
 
             foreach (var ag in armor_guids)
@@ -471,7 +477,7 @@ namespace CallOfTheWild
                 Common.addArmorEnchantment(armor, enchant);
             }
 
-            
+            wild_armor_enchant = enchant;
         }
 
         static void createEngulf()

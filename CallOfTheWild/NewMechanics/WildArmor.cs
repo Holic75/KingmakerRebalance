@@ -46,9 +46,39 @@ namespace CallOfTheWild.WildArmorMechanics
         {
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
             {
-                __instance.Armor.ReleaseDeactivateFlag();
-                EventBus.RaiseEvent<IPolymorphOnHandler>((Action<IPolymorphOnHandler>)(h => h.polymorphOn(__instance.Owner)));
+                if (__instance.Armor.HasArmor && hasWildEnchant(__instance.Armor.Armor))
+                {
+                    __instance.Armor.ReleaseDeactivateFlag();
+                }
             }
+            var primary_hand = __instance.CurrentHandsEquipmentSet?.PrimaryHand;
+            var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
+            if (primary_hand != null 
+                && (!primary_hand.HasShield || !hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+            {
+                primary_hand.RetainDeactivateFlag();
+            }
+            if (secondary_hand != null 
+                && (!secondary_hand.HasShield || !hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+            {
+                secondary_hand.RetainDeactivateFlag();
+            }
+            EventBus.RaiseEvent<IPolymorphOnHandler>((Action<IPolymorphOnHandler>)(h => h.polymorphOn(__instance.Owner)));
+        }
+
+
+        static public bool hasWildEnchant(ItemEntityArmor armor)
+        {
+            if (armor == null)
+            {
+                return false;
+            }
+            if (armor.EnchantmentsCollection == null)
+            {
+                return false;
+            }
+
+            return armor.EnchantmentsCollection.HasFact(Wildshape.wild_armor_enchant);
         }
     }
 
@@ -66,9 +96,29 @@ namespace CallOfTheWild.WildArmorMechanics
     {
         static public void Prefix(UnitBody __instance)
         {
-            if (__instance.Armor.Active)
+            if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
             {
-                __instance.Armor.RetainDeactivateFlag();
+                if (__instance.Armor.HasArmor && Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(__instance.Armor.Armor))
+                {
+                    __instance.Armor.RetainDeactivateFlag();
+                }
+            }
+        }
+
+
+        static public void Postfix(UnitBody __instance)
+        {
+            var primary_hand = __instance.CurrentHandsEquipmentSet?.PrimaryHand;
+            var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
+            if (primary_hand != null 
+                && (!primary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+            {
+                primary_hand.ReleaseDeactivateFlag();
+            }
+            if (secondary_hand != null 
+                && (!secondary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+            {
+                secondary_hand.ReleaseDeactivateFlag();
             }
         }
     }
