@@ -684,12 +684,11 @@ namespace CallOfTheWild
             });
             Helpers.SetField(sunsinger, "m_ParentClass", skald_class);
             library.AddAsset(sunsinger, "");
-            sunsinger.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, inspired_rage_feature),
-                                                                          Helpers.LevelEntry(3, song_of_marching),
-                                                                          Helpers.LevelEntry(5, spell_kenning),
-                                                                          Helpers.LevelEntry(11, spell_kenning_extra_use),
-                                                                          Helpers.LevelEntry(17, spell_kenning_extra_use),
-                                                                        };
+            sunsinger.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(3, song_of_marching),
+                                                        Helpers.LevelEntry(5, spell_kenning),
+                                                        Helpers.LevelEntry(11, spell_kenning_extra_use),
+                                                        Helpers.LevelEntry(17, spell_kenning_extra_use),
+                                                    };
             var deity_selection = library.CopyAndAdd<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4", "SunsingerDeitySelection", "");
             deity_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("c1c4f7f64842e7e48849e5e67be11a1b") };//sarenrae
             deity_selection.SetNameDescription("Sarenrae","A sunsinger skald must be lawful good, neutral good, chaotic good or neutral, and must worship Sarenrae.");
