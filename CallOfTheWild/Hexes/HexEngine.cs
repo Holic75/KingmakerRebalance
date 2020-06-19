@@ -10,6 +10,8 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items;
+using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
@@ -68,12 +70,83 @@ namespace CallOfTheWild
         private List<BlueprintBuff> cackle_buffs = new List<BlueprintBuff>();
 
 
+        static public BlueprintItemEquipmentUsable rod_of_interminable_hexes;
+        static public BlueprintItemEquipmentUsable rod_of_abrupt_hexes;
+        static public BlueprintItemEquipmentUsable rod_of_voracious_hexes;
+
         public static void Initialize()
         {
             createHexVulnerabilitySpellAndAccursedHexFeat();
             createAmplifiedHex();
             createSplitHex();
+            
+            createRods();
             Main.logger.Log("Hex Engine test mode: " + test_mode.ToString());
+        }
+
+
+        static void createRods()
+        {
+            var metamagic_all = library.Get<BlueprintFeature>("4ca47c023f1c158428bd55deb44c735f").GetComponent<AutoMetamagic>();
+
+            rod_of_interminable_hexes = createMetamagicHexRod("RodOfInterminableHexes",
+                                                              "Rod of Interminable Hexes",
+                                                              "Three times per day when a wielder of this rod uses a hex (but not an advanced hex or grand hex), she can use this rod’s power to double the duration of the hex, so long as the hex’s normal duration is longer than 1 round. When augmented with this rod, a hex that might have a longer duration if a target fails its save but only a 1-round duration if the target succeeds at its save (such as evil eye) still has only a 1-round duration against a target that succeeds at its save.",
+                                                              "1b2a09528da9e9948aa9026037bada90",
+                                                              11000,
+                                                              metamagic_all.CreateCopy(m => 
+                                                                                       { m.Metamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Extend;
+                                                                                         m.Abilities = new List<BlueprintAbility>(); })
+                                                              );
+
+            rod_of_abrupt_hexes = createMetamagicHexRod("RodOfAbruptHexes",
+                                                  "Rod of Abrupt Hexes",
+                                                  "Three times per day when a wielder of this rod uses a hex (but not an advanced hex or grand hex), she can use this rod’s power to activate the hex as swift action rather than a standard action.",
+                                                  "551dcb2932443c944a6f120048c7d9f7",
+                                                  75500,
+                                                  metamagic_all.CreateCopy(m =>
+                                                  {
+                                                      m.Metamagic = Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
+                                                      m.Abilities = new List<BlueprintAbility>();
+                                                  })
+                                                  );
+
+            rod_of_voracious_hexes = createMetamagicHexRod("RodOfVoraciousHexes",
+                                                        "Rod of Voracious Hexes",
+                                                        "Three times per day when a wielder of this rod uses a hex (but not an advanced hex or grand hex), she can use this rod’s power to target not only the hex’s normal target, but also another target within 30 feet of the first. The hex must normally target a single creature within a range of at least 30 feet.",
+                                                        "9a511d3b04f08944eb3db4462f88c2c0",
+                                                        32500,
+                                                        Helpers.CreateAddFact(split_hex_feat)
+                                                        );
+        }
+
+
+        static BlueprintItemEquipmentUsable createMetamagicHexRod(string name, string display_name, string description, string prototype_wand_guid, int cost,
+                                                                  params BlueprintComponent[] components)
+        {
+            var zarcies = library.Get<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
+
+            var rod = library.CopyAndAdd<BlueprintItemEquipmentUsable>(prototype_wand_guid, name, "");
+            Helpers.SetField(rod, "m_Cost", cost);
+            Helpers.SetField(rod, "m_DisplayNameText", Helpers.CreateString(rod.name + ".Name", display_name));
+            Helpers.SetField(rod, "m_DescriptionText", Helpers.CreateString(rod.name + ".Description", description));
+            rod.ActivatableAbility = library.CopyAndAdd<BlueprintActivatableAbility>(rod.ActivatableAbility.AssetGuid, name + "ActivatableAbility", "");
+            rod.ActivatableAbility.SetNameDescription(rod.Name, rod.Description);
+            rod.ActivatableAbility.Buff = library.CopyAndAdd<BlueprintBuff>(rod.ActivatableAbility.Buff.AssetGuid, name + "Buff", "");
+            rod.ActivatableAbility.Buff.SetNameDescription(rod.Name, rod.Description);
+            rod.ActivatableAbility.Buff.ComponentsArray = components;
+
+            rod.ActivatableAbility.Buff.AddComponent(
+                Helpers.Create<NewMechanics.SpellCastTrigger>(a =>
+                {
+                    a.Actions = Helpers.CreateActionList(Helpers.Create<NewMechanics.MetamagicMechanics.ConsumeRodCharge>(c => c.rod_ability = rod.ActivatableAbility));
+                    a.Spells = new BlueprintAbility[0];
+                })
+            );
+
+            //add to zarcie
+            Helpers.AddItemToSpecifiedVendorTable(zarcies, rod, 5);
+            return rod;
         }
 
         public HexEngine(BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, StatType secondary_scaling_stat = StatType.Charisma, BlueprintArchetype archetype = null)
@@ -145,8 +218,7 @@ namespace CallOfTheWild
             var duration = Helpers.CreateContextValue(AbilityRankType.Default);
             duration.ValueType = ContextValueType.Simple;
             duration.Value = 1;
-            cooldown_action.DurationValue = Helpers.CreateContextDuration(bonus: duration,
-                                                                            rate: DurationRate.Days);
+            cooldown_action.DurationValue = Helpers.CreateContextDurationNonExtandable(bonus: duration, rate: DurationRate.Days);
 
             var ability = hex_ability.StickyTouch == null ? hex_ability : hex_ability.StickyTouch.TouchDeliveryAbility;
 
@@ -174,7 +246,7 @@ namespace CallOfTheWild
                 accursed_hex_personalized.SetName(accursed_hex_buff.Name + " : " + ability.Name);
                 var test_condition = new Condition[] { Helpers.CreateConditionCasterHasFact(accursed_hex_feat), Common.createContextConditionHasBuffFromCaster(accursed_hex_personalized, true) };
                 var release_condtion = test_condition.AddToArray(Helpers.Create<ContextConditionIsEnemy>());
-                var accursed_hex_action = Common.createContextActionApplyBuff(accursed_hex_personalized, Helpers.CreateContextDuration(),
+                var accursed_hex_action = Common.createContextActionApplyBuff(accursed_hex_personalized, Helpers.CreateContextDurationNonExtandable(),
                                                                               dispellable: false, duration_seconds: 9); //set duration to 9 seconds to simulate "until end of your turn"
                 var accursed_hex_conditional = Helpers.CreateConditional(test_mode ? test_condition : release_condtion,
                                                               Helpers.CreateConditionalSaved(accursed_hex_action,
@@ -306,9 +378,8 @@ namespace CallOfTheWild
                                                    "",
                                                    hex_ability.Icon,
                                                    null);
-            var apply_cooldown = Common.createContextActionApplyBuff(cooldown_cast, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
-            hex_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))));
-            hex_ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_cast));
+            var apply_cooldown = Common.createContextActionApplyBuff(cooldown_cast, Helpers.CreateContextDurationNonExtandable(1, DurationRate.Minutes), dispellable: false);
+
 
 
             var hex_cooldown = addWitchHexCooldownScaling(hex_ability, cooldown_guid);
@@ -321,7 +392,10 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             beast_of_ill_omen.Ranks = 1;
             addToAmplifyHex(hex_ability);
-            //addToSplitHex(hex_ability, true);
+            addToSplitHex(hex_ability, beast_of_ill_omen, true);
+
+            hex_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))));
+            hex_ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_cast));
             return beast_of_ill_omen;
         }
 
@@ -366,6 +440,8 @@ namespace CallOfTheWild
             slumber_hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
             addToSplitHex(hex_ability, slumber_hex, true);
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return slumber_hex;
         }
 
@@ -410,6 +486,8 @@ namespace CallOfTheWild
             misfortune_hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
             addToSplitHex(hex_ability, misfortune_hex, true);
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return misfortune_hex;
         }
 
@@ -452,6 +530,8 @@ namespace CallOfTheWild
                                                       Helpers.CreateAddFact(hex_ability));
             fortune_hex.Ranks = 1;
             addToSplitHex(hex_ability, fortune_hex);
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return fortune_hex;
         }
 
@@ -548,6 +628,10 @@ namespace CallOfTheWild
             ameliorating.Ranks = 1;
             addToSplitHex(hex_ability1, ameliorating);
             addToSplitHex(hex_ability2, ameliorating);
+            addToRodOfAbruptHexes(hex_ability1);
+            addToRodOfInterminableHexes(hex_ability1);
+            addToRodOfAbruptHexes(hex_ability2);
+            addToRodOfInterminableHexes(hex_ability2);
             return ameliorating;
         }
 
@@ -596,15 +680,6 @@ namespace CallOfTheWild
                                                          evil_eye_variants[0].LocalizedSavingThrow);
             evil_eye_ability.AddComponent(evil_eye_ability.CreateAbilityVariants(evil_eye_variants));
 
-            //remove separate abilities
-            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
-            {
-                foreach (var ee in evil_eye_variants)
-                {
-                    unit.RemoveFact(ee);
-                }
-            };
-            SaveGameFix.save_game_actions.Add(save_game_fix);
 
             evil_eye.AddComponent(Helpers.CreateAddFact(evil_eye_ability));
             evil_eye.Ranks = 1;
@@ -639,7 +714,7 @@ namespace CallOfTheWild
             var bonus_value = Helpers.CreateContextValue(AbilityRankType.Default);
             bonus_value.ValueType = ContextValueType.Simple;
             bonus_value.Value = 1;
-            buff_save.DurationValue = Helpers.CreateContextDuration(bonus: bonus_value,
+            buff_save.DurationValue = Helpers.CreateContextDurationNonExtandable(bonus: bonus_value,
                                                                            rate: DurationRate.Rounds);
             action_save.Succeed = Helpers.CreateActionList(buff_save);
             var action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff),
@@ -661,6 +736,8 @@ namespace CallOfTheWild
             ability.AddComponent(eyebyte.GetComponent<Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFx>());
             addToAmplifyHex(ability);
             addToSplitHex(ability, parent_feature,  true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return ability;
         }
 
@@ -711,6 +788,7 @@ namespace CallOfTheWild
             summer_heat.Ranks = 1;
             addToAmplifyHex(hex_ability);
             addToSplitHex(hex_ability, summer_heat, true);
+            addToRodOfAbruptHexes(hex_ability);
             return summer_heat;
         }
 
@@ -795,6 +873,8 @@ namespace CallOfTheWild
             {
                 addToSplitHex(heal1_hex_ability, healing_hex1_feature, true);
                 addToSplitHex(heal2_hex_ability, healing_hex2_feature, true);
+                addToRodOfAbruptHexes(heal1_hex_ability);
+                addToRodOfAbruptHexes(heal2_hex_ability);
             }
             else
             {
@@ -1087,6 +1167,9 @@ namespace CallOfTheWild
             hex_ability.SetName(buff.Name);
             hex_ability.SetDescription(buff.Description);
 
+            addToRodOfAbruptHexes(hex_ability);
+            
+
             var ward = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   hex_ability.Name,
                                                   hex_ability.Description,
@@ -1095,6 +1178,7 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             ward.Ranks = 1;
+            addToSplitHex(hex_ability, ward);
             return ward;
         }
 
@@ -1235,6 +1319,8 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersRangedDirectional();
             var feature = Common.AbilityToFeature(ability, hide: false);
 
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1802,9 +1888,9 @@ namespace CallOfTheWild
 
 
             amplified_hex_feat.AddComponent(Helpers.Create<NewMechanics.AbilityUsedTrigger>(a =>
-                {
-                    a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(amplified_hex_buff, 3));
-                })
+                    {
+                        a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(amplified_hex_buff, 0/*3*/));
+                    })
             );
 
 
@@ -1910,6 +1996,26 @@ namespace CallOfTheWild
         }
 
 
+        static void addToRodOfAbruptHexes(BlueprintAbility hex)
+        {
+            hex.AvailableMetamagic = hex.AvailableMetamagic | Kingmaker.UnitLogic.Abilities.Metamagic.Quicken;
+            var metamagic_component = rod_of_abrupt_hexes.ActivatableAbility.Buff.GetComponent<AutoMetamagic>();
+            var trigger_component = rod_of_abrupt_hexes.ActivatableAbility.Buff.GetComponent<NewMechanics.SpellCastTrigger>();
+            metamagic_component.Abilities.Add(hex);
+            trigger_component.Spells = trigger_component.Spells.AddToArray(hex);
+        }
+
+
+        static void addToRodOfInterminableHexes(BlueprintAbility hex)
+        {
+            hex.AvailableMetamagic = hex.AvailableMetamagic | Kingmaker.UnitLogic.Abilities.Metamagic.Extend;
+            var metamagic_component = rod_of_interminable_hexes.ActivatableAbility.Buff.GetComponent<AutoMetamagic>();
+            var trigger_component = rod_of_interminable_hexes.ActivatableAbility.Buff.GetComponent<NewMechanics.SpellCastTrigger>();
+            metamagic_component.Abilities.Add(hex);
+            trigger_component.Spells = trigger_component.Spells.AddToArray(hex);
+        }
+
+
         BlueprintAbility addToSplitHexBase(BlueprintAbility hex, BlueprintFeature parent_feature, bool amplify, bool major)
         {
             BlueprintAbility split_hex = null;
@@ -1943,7 +2049,8 @@ namespace CallOfTheWild
                                                 split_hex_feat.Description,
                                                 "",
                                                 split_hex.Icon,
-                                                null
+                                                null,
+                                                Helpers.Create<ReplaceAbilityParamsWithContext>(a => a.Ability = split_hex)
                                                 );
 
             split_hex.AddComponent(Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[]{immune_to_split_hex_buff}));
@@ -1978,12 +2085,13 @@ namespace CallOfTheWild
 
             split_hex_feat.AddComponents(spell_trigger_original, spell_trigger_split);
 
-
-            if (amplify)
+            var rod_trigger = rod_of_voracious_hexes.ActivatableAbility.Buff.GetComponent<NewMechanics.SpellCastTrigger>();
+            rod_trigger.Spells = rod_trigger.Spells.AddToArray(hex);
+            /*if (amplify)
             {
                 var c = amplified_hex_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
                 c.spells = c.spells.AddToArray(split_hex);
-            }
+            }*/
 
             return split_hex;
         }

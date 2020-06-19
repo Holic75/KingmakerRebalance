@@ -209,7 +209,8 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "");
 
             //addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
+            
+
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -218,6 +219,8 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -262,8 +265,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedFriendly(true);
             addWitchHexCooldownScaling(ability, "");
 
-            //addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
+
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -272,6 +274,8 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -329,6 +333,7 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             battle_ward.Ranks = 1;
+            addToRodOfAbruptHexes(hex_ability);
             return battle_ward;
         }
 
@@ -350,7 +355,7 @@ namespace CallOfTheWild
                                                                           
                                           );
 
-            var apply_saved = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);
+            var apply_saved = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDurationNonExtandable(1), dispellable: false);
             var apply_failed = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
             var action_save = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(Helpers.CreateConditionalSaved(apply_saved, apply_failed)));
 
@@ -371,7 +376,6 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "");
 
             addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var hampering_hex = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -380,6 +384,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             hampering_hex.Ranks = 1;
+            addToSplitHex(ability, hampering_hex, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return hampering_hex;
         }
 
@@ -443,6 +450,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             curse_of_suffering.Ranks = 1;
+            addToSplitHex(ability, curse_of_suffering);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return curse_of_suffering;
         }
 
@@ -498,6 +508,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             bone_ward.Ranks = 1;
+
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return bone_ward;
         }
 
@@ -538,7 +551,6 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "");
 
             addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var fearful_gaze = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -547,6 +559,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             fearful_gaze.Ranks = 1;
+            addToSplitHex(ability, fearful_gaze, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return fearful_gaze;
         }
 
@@ -595,7 +610,6 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "");
 
             addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var bone_lock = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -604,6 +618,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             bone_lock.Ranks = 1;
+            addToSplitHex(ability, bone_lock, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return bone_lock;
         }
 
@@ -682,6 +699,8 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             flame_ward.Ranks = 1;
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return flame_ward;
         }
 
@@ -722,6 +741,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             fire_nimbus.Ranks = 1;
+            addToSplitHex(ability, fire_nimbus, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return fire_nimbus;
         }
 
@@ -738,9 +760,9 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("f00bbb092bd65a4468e72869b99f1d66"),
                                           Common.createAddEnergyVulnerability(DamageEnergyType.Fire));
 
-            var apply_buff1 = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 9));
-            var apply_buff2 = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 15));
-            var apply_buff3 = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 21));
+            var apply_buff1 = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2, DurationRate.Rounds), dispellable: false));
+            var apply_buff2 = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(3, DurationRate.Rounds), dispellable: false, duration_seconds: 15));
+            var apply_buff3 = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(4, DurationRate.Rounds), dispellable: false, duration_seconds: 21));
 
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
                                                 display_name,
@@ -770,6 +792,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             flame_curse.Ranks = 1;
+            addToSplitHex(ability, flame_curse);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return flame_curse;
         }
 
@@ -884,6 +909,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             beckoning_chill.Ranks = 1;
+            addToSplitHex(ability, beckoning_chill);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return beckoning_chill;
         }
 
@@ -956,6 +984,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             mists_shroud.Ranks = 1;
+
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return mists_shroud;
         }
 
@@ -1135,6 +1166,8 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature, true);
+            addToRodOfAbruptHexes(ability);
             return feature;
         }
 
@@ -1164,7 +1197,6 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "", cooldown_only_on_success: true);
 
             addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -1173,6 +1205,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1257,35 +1292,6 @@ namespace CallOfTheWild
                                      );
             }
 
-            /*if (hex_stat == StatType.Wisdom)
-            {
-
-                feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Wisdom; }),
-                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Wisdom; }),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
-                                     );
-            }
-            else if (hex_stat == StatType.Intelligence)
-            {
-                feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreNature; s.ReplacementStat = StatType.Intelligence; }),
-                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreReligion; s.ReplacementStat = StatType.Intelligence; }),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
-                                      );
-            }
-            else if (hex_stat == StatType.Charisma)
-            {
-                feature.AddComponents(Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreNature; s.ReplacementStat = StatType.Charisma; }),
-                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillLoreReligion; s.ReplacementStat = StatType.Charisma; }),
-                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeArcana; s.ReplacementStat = StatType.Charisma; }),
-                                      Helpers.Create<NewMechanics.SkillStatReplacement>(s => { s.Skill = StatType.SkillKnowledgeWorld; s.ReplacementStat = StatType.Charisma; }),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom),
-                                      Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence)
-                                      );
-            }*/
-
 
             feature.Ranks = 1;
             return feature;
@@ -1323,7 +1329,6 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "");
 
             addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -1332,6 +1337,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1464,7 +1472,6 @@ namespace CallOfTheWild
             addWitchHexCooldownScaling(ability, "");
 
             addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -1473,6 +1480,8 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature, true);
+            addToRodOfAbruptHexes(ability);
             return feature;
         }
 
@@ -1534,8 +1543,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
 
-            //addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
+
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -1544,6 +1552,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1618,6 +1629,8 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             feature.Ranks = 1;
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return feature;
         }
 
@@ -1638,7 +1651,6 @@ namespace CallOfTheWild
 
 
             addToAmplifyHex(load_stone);
-            //addToSplitHex(load_stone, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   load_stone.Name,
                                                   load_stone.Description,
@@ -1647,6 +1659,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(load_stone));
             feature.Ranks = 1;
+            addToSplitHex(load_stone, feature, true);
+            addToRodOfAbruptHexes(load_stone);
+            addToRodOfInterminableHexes(load_stone);
             return feature;
         }
 
@@ -1774,8 +1789,6 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addWitchHexCooldownScaling(ability, "");
 
-            //addToAmplifyHex(ability);
-            //addToSplitHex(ability, true);
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability.Name,
                                                   ability.Description,
@@ -1784,6 +1797,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1830,6 +1846,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(hex_ability));
             feature.Ranks = 1;
+
+            addToRodOfAbruptHexes(hex_ability);
+            addToRodOfInterminableHexes(hex_ability);
             return feature;
         }
 
@@ -1866,6 +1885,9 @@ namespace CallOfTheWild
                                                   FeatureGroup.None,
                                                   Helpers.CreateAddFact(ability));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1918,6 +1940,9 @@ namespace CallOfTheWild
                                                   Helpers.CreateAddFact(ability),
                                                   Helpers.CreateAddAbilityResource(resource));
             feature.Ranks = 1;
+            addToSplitHex(ability, feature, true);
+            addToRodOfAbruptHexes(ability);
+            addToRodOfInterminableHexes(ability);
             return feature;
         }
 
@@ -1984,6 +2009,9 @@ namespace CallOfTheWild
             }
             );
             ability_move.ReplaceComponent(dimension_door_component, dimension_door_marked);
+          
+            addToRodOfAbruptHexes(ability_move);
+
 
             var feature = Helpers.CreateFeature(name_prefix + "HexFeature",
                                                   ability_move.Name,

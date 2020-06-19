@@ -3022,25 +3022,47 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
-        public class AbilityUsedTrigger : GameLogicComponent, IGlobalRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IGlobalRulebookSubscriber
+        public class AbilityUsedTrigger : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
         {
-            [NotNull]
-            public Dictionary<BlueprintAbility, ActionList> spell_action_map = new Dictionary<BlueprintAbility, ActionList>();
             public BlueprintAbility[] Spells = (BlueprintAbility[])Array.Empty<BlueprintAbility>();
             [NotNull]
             public ActionList Actions = new ActionList();
 
-            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
             }
 
-            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
             {
                 if (evt.Spell.IsSpell)
                 {
                     return;
                 }
                 if (!Spells.Contains<BlueprintAbility>(evt.Spell))
+                    return;
+
+                (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, evt.Initiator);
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class SpellCastTrigger : RuleInitiatorLogicComponent<RuleCastSpell>
+        {
+            public BlueprintAbility[] Spells = (BlueprintAbility[])Array.Empty<BlueprintAbility>();
+            [NotNull]
+            public ActionList Actions = new ActionList();
+
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+            }
+
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (!Spells.Contains<BlueprintAbility>(evt.Spell.Blueprint))
                     return;
 
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, evt.Initiator);

@@ -521,6 +521,29 @@ namespace CallOfTheWild
         }
 
 
+        public class ConsumeRodCharge: ContextAction
+        {
+            public BlueprintActivatableAbility rod_ability;
+
+            public override string GetCaption()
+            {
+                return "Consume rod charge";
+            }
+
+            public override void RunAction()
+            {
+                foreach (ActivatableAbility activatableAbility in  this.Context.MaybeCaster.ActivatableAbilities)
+                {
+                    if (activatableAbility.Blueprint == this.rod_ability && activatableAbility.IsOn)
+                    {
+                        activatableAbility.Get<ActivatableAbilityResourceLogic>()?.ManualSpendResource();
+                        break;
+                    }
+                }
+            }
+        }
+
+
         public class AutoMetamagicExtender : AutoMetamagic
         {
             protected static BlueprintAbility ExtractBlueprint(BlueprintAbility ability, [CanBeNull] AbilityData data)

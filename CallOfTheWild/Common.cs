@@ -315,6 +315,35 @@ namespace CallOfTheWild
             return context_saved;
         }
 
+        public static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuffNonExtandable(BlueprintBuff buff, DurationRate duration_rate,
+                                                                                                                AbilityRankType rank_type = AbilityRankType.Default,
+                                                                                                                bool is_from_spell = true, bool is_permanent = false, bool is_child = false,
+                                                                                                                bool on_failed_save = true, bool is_dispellable = true)
+        {
+            var context_saved = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
+
+            var apply_buff = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff>();
+            apply_buff.IsFromSpell = is_from_spell;
+            apply_buff.AsChild = is_child;
+            apply_buff.Permanent = is_permanent;
+            apply_buff.Buff = buff;
+            apply_buff.IsNotDispelable = !is_dispellable;
+            var bonus_value = Helpers.CreateContextValue(rank_type);
+            bonus_value.ValueType = ContextValueType.Rank;
+            apply_buff.DurationValue = Helpers.CreateContextDurationNonExtandable(bonus: bonus_value,
+                                                                           rate: duration_rate);
+            if (on_failed_save)
+            {
+                context_saved.Succeed = new Kingmaker.ElementsSystem.ActionList();
+                context_saved.Failed = Helpers.CreateActionList(apply_buff);
+            }
+            else
+            {
+                context_saved.Failed = new Kingmaker.ElementsSystem.ActionList();
+                context_saved.Succeed = Helpers.CreateActionList(apply_buff);
+            }
+            return context_saved;
+        }
 
         public static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool is_dispellable = true)
