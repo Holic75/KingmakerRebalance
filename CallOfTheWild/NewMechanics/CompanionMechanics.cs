@@ -47,7 +47,7 @@ namespace CallOfTheWild.CompanionMechanics
             {
                 return;
             }
-            if (evt.Initiator.Body.PrimaryHand.MaybeWeapon == null || !evt.Initiator.Body.PrimaryHand.MaybeWeapon.Blueprint.IsNatural)
+            if (evt.Initiator.Body.PrimaryHand.MaybeWeapon == null || !evt.Initiator.Body.PrimaryHand.MaybeWeapon.Blueprint.IsNatural || evt.Initiator.Body.PrimaryHand.MaybeWeapon.Blueprint.IsUnarmed)
                 return;
 
             if ((bool)evt.Initiator.Descriptor.State.Features.IterativeNaturalAttacks)
@@ -70,25 +70,32 @@ namespace CallOfTheWild.CompanionMechanics
             int num_attaks = 0;
             if (unit.Body.HandsAreEnabled)
             {
-                if (unit.Body.PrimaryHand.MaybeWeapon != null)
+                if (unit.Body.PrimaryHand.MaybeWeapon != null && unit.Body.PrimaryHand.MaybeWeapon.Blueprint.IsNatural && !unit.Body.PrimaryHand.MaybeWeapon.Blueprint.IsUnarmed)
                 {
                     num_attaks++;
                 }
-                if (unit.Body.SecondaryHand.MaybeWeapon != null)
+                if (unit.Body.SecondaryHand.MaybeWeapon != null && unit.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural && !unit.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed)
                 {
                     num_attaks++;
                 }
             }
 
-            if (unit.Body.AdditionalLimbs != null)
+            num_attaks += unit.Body.AdditionalLimbs.Where(w => w.MaybeWeapon != null && w.MaybeWeapon.Blueprint.IsNatural).Count();
+
+            if (unit.Descriptor.HasFact(Wildshape.mutated_shape_buff))
             {
-                num_attaks += unit.Body.AdditionalLimbs.Count();
+                num_attaks++;
             }
             return num_attaks;
         }
 
         public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
         {
+            if ((bool)evt.Initiator.Descriptor.State.Features.IterativeNaturalAttacks)
+            {
+                return;
+            }
+
             if (countNumberOfAttacks(evt.Initiator) < 3)
             {
                 return;

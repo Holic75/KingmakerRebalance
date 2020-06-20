@@ -419,7 +419,9 @@ enchanced attacks,
 - Archaelogist receives rogue talents at level 4, 8, 12, 16 and 20,
 - Polymorphs and size changes are no longer stackable,
 - Monks can now stagger opponents at level 12, blind at level 16 and paralyze at level 20 with stunning fists,
-- Master Hunter ranger capstone works as standard action attack raher than a buff.
+- Master Hunter ranger capstone works as standard action attack raher than a buff,
+- Optionally makes all rake (like last 2 smilodon claw attacks) and similar attacks secondary, i.e. they receive -5 penalty (reduced to -2 with multiattack). This is not a pnp-accurate fix, but since rake normally works only on grappled opponents it seems to make sense,
+- all Animal Companions/Eidolons receive multiattack at appropriate levels.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -475,7 +477,8 @@ Notable differences from pnp:
 - Condition removal DC for Master Healing Technique ability of divine herbalist oracle is increased by 5,
 - Monk/Ninja ki pools do not stack,
 - You can not use twf with unhindering shield,
-- Kinetic Chirurgeon looses wild talents instead of infusions/infusion specializations/metakinesis. 
+- Kinetic Chirurgeon looses wild talents instead of infusions/infusion specializations/metakinesis,
+- Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks).
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

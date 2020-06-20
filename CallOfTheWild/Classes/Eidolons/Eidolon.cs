@@ -349,12 +349,14 @@ namespace CallOfTheWild
 
             var multi_attack = Helpers.CreateFeature("MultiAttackFeature",
                                                      "Multiattack",
-                                                     "The  gains Multiattack which reduces secondary attack penalty to -2 if it has 3 or more natural attacks. If it does not have the requisite 3 or more natural attacks (or it is reduced to less than 3 attacks), the creature instead gains a second attack with one of its natural weapons, albeit at a –5 penalty. If the creature later gains 3 or more natural attacks, it loses this additional attack and instead gains Multiattack.",
+                                                     "The creature reduces secondary attacks penalty to -2 if it has 3 or more natural attacks. If it does not have the requisite 3 or more natural attacks (or it is reduced to less than 3 attacks), the creature instead gains a second attack with one of its natural weapons, albeit at a –5 penalty.",
                                                      "",
                                                      null,
                                                      FeatureGroup.None,
-                                                     Helpers.Create<CompanionMechanics.MultiAttack>()
+                                                     Helpers.Create<CompanionMechanics.MultiAttack>(),
+                                                     Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 5)
                                                      );
+            library.AddFeats(multi_attack);
 
             devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "EidolonDevotionFeature", "");
             devotion.SetDescription("An eidolon gains a +4 morale bonus on Will saves against enchantment spells and effects.");

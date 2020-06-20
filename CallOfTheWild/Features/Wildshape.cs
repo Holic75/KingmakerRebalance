@@ -76,6 +76,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature toss_feature;
         static public BlueprintFeature engulf;
+        static public BlueprintBuff mutated_shape_buff;
 
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
@@ -219,6 +220,7 @@ namespace CallOfTheWild
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff, mutated_shape);
             }
             library.AddFeats(mutated_shape);
+            mutated_shape_buff = buff;
         }
 
 
