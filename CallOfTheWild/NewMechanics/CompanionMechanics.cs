@@ -14,6 +14,7 @@ using Kingmaker.Items;
 using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
@@ -37,6 +38,72 @@ using UnityEngine;
 
 namespace CallOfTheWild.CompanionMechanics
 {
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class MultiAttack : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
+    {
+        public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
+        {
+            if (!evt.Initiator.Body.HandsAreEnabled)
+            {
+                return;
+            }
+            if (evt.Initiator.Body.PrimaryHand.MaybeWeapon == null || !evt.Initiator.Body.PrimaryHand.MaybeWeapon.Blueprint.IsNatural)
+                return;
+
+            if ((bool)evt.Initiator.Descriptor.State.Features.IterativeNaturalAttacks)
+            {
+                return;
+            }
+
+            if (countNumberOfAttacks(evt.Initiator) < 3)
+            {
+                ++evt.PrimaryHand.PenalizedAttacks;
+            }
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
+        {
+        }
+
+        public int countNumberOfAttacks(UnitEntityData unit)
+        {
+            int num_attaks = 0;
+            if (unit.Body.HandsAreEnabled)
+            {
+                if (unit.Body.PrimaryHand.MaybeWeapon != null)
+                {
+                    num_attaks++;
+                }
+                if (unit.Body.SecondaryHand.MaybeWeapon != null)
+                {
+                    num_attaks++;
+                }
+            }
+
+            if (unit.Body.AdditionalLimbs != null)
+            {
+                num_attaks += unit.Body.AdditionalLimbs.Count();
+            }
+            return num_attaks;
+        }
+
+        public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+            if (countNumberOfAttacks(evt.Initiator) < 3)
+            {
+                return;
+            }
+            if (evt.Weapon.IsSecondary)
+            {
+                evt.AddBonus(3, this.Fact);
+            }
+        }
+
+        public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+        {
+
+        }
+    }
 
     public class UnitPartUnsummonedCompanion : UnitPart
     {
@@ -852,5 +919,6 @@ namespace CallOfTheWild.CompanionMechanics
             int index = Mathf.Min(20, !rank.HasValue ? 0 : rank.Value);
             return rank_to_level[index];
         }
+
     }
 }

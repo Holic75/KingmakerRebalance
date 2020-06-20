@@ -69,7 +69,8 @@ namespace CallOfTheWild
             water_elemental.Body = water_elemental.Body.CloneObject();
             water_elemental.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             water_elemental.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"); //bite 1d6
-            water_elemental.Body.SecondaryHand = library.Get<BlueprintItemWeapon>("b21cd5b03fbb0f542815580e66f85915"); //tail 1d6
+            water_elemental.Body.SecondaryHand = null;
+            water_elemental.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("b21cd5b03fbb0f542815580e66f85915") }; //tail 1d6
             water_elemental.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
             water_elemental.ReplaceComponent<AddClassLevels>(a =>
             {

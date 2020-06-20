@@ -346,6 +346,16 @@ namespace CallOfTheWild
             //str/dex increase
             //improved evasion
 
+
+            var multi_attack = Helpers.CreateFeature("MultiAttackFeature",
+                                                     "Multiattack",
+                                                     "The  gains Multiattack which reduces secondary attack penalty to -2 if it has 3 or more natural attacks. If it does not have the requisite 3 or more natural attacks (or it is reduced to less than 3 attacks), the creature instead gains a second attack with one of its natural weapons, albeit at a –5 penalty. If the creature later gains 3 or more natural attacks, it loses this additional attack and instead gains Multiattack.",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None,
+                                                     Helpers.Create<CompanionMechanics.MultiAttack>()
+                                                     );
+
             devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "EidolonDevotionFeature", "");
             devotion.SetDescription("An eidolon gains a +4 morale bonus on Will saves against enchantment spells and effects.");
             var evasion = library.CopyAndAdd<BlueprintFeature>("815bec596247f9947abca891ef7f2ca8", "EidolonEvasionFeature", "");
@@ -378,7 +388,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(4, natural_armor, str_dex_bonus),
                                                                     Helpers.LevelEntry(5, devotion),
                                                                     Helpers.LevelEntry(6, natural_armor, str_dex_bonus),
-                                                                    Helpers.LevelEntry(7),
+                                                                    Helpers.LevelEntry(7, multi_attack),
                                                                     Helpers.LevelEntry(8, natural_armor, str_dex_bonus),
                                                                     Helpers.LevelEntry(9, natural_armor, str_dex_bonus),
                                                                     Helpers.LevelEntry(10),
@@ -395,10 +405,31 @@ namespace CallOfTheWild
                                                                     };
 
 
-            eidolon_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(evasion, devotion, improved_evasion),
+            eidolon_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(evasion, devotion, multi_attack, improved_evasion),
                                                            Helpers.CreateUIGroup(natural_armor),
                                                            Helpers.CreateUIGroup(str_dex_bonus),
                                                         };
+
+            var animal_companion_archetype = library.Get<BlueprintArchetype>("9f8a232fbe435a9458bf64c3024d7bee");
+            foreach (var le in animal_companion_archetype.AddFeatures)
+            {
+                if (le.Level == 8)
+                {
+                    le.Features.Add(multi_attack);
+                }
+            }
+
+            //fix previous saves without bloodcasting
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(eidolon_class) >= 7 && !unit.Progression.Features.HasFact(multi_attack) 
+                    || unit.Progression.GetClassLevel(animal_companion_archetype.GetParentClass()) >= 8 && unit.Progression.IsArchetype(animal_companion_archetype) 
+                      && !unit.Progression.Features.HasFact(multi_attack))
+                {
+                    unit.Progression.Features.AddFeature(multi_attack);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 

@@ -136,6 +136,10 @@ namespace CallOfTheWild
 
         static internal void load()
         {
+            //fix winter wolf size
+            var winter_wolf = library.Get<BlueprintUnit>("b0793ff228ff32242b9a472da19d33f1");
+            winter_wolf.Prefab = Common.createUnitViewLink("baa310bf7c37172419994c8e3e5557e0");
+
             fixFormOfTheDragonIWeapons();
             createToss();
             createEngulf();
@@ -633,7 +637,7 @@ namespace CallOfTheWild
 
 
         static void fixDruid()
-        {
+        {           
             string description = "At 4th level, a druid gains the ability to turn herself into a wolf or a leopard and back again once per day. The effect lasts for 1 hour per druid level, or until she changes back.\nChanging form is a standard action and doesn't provoke an attack of opportunity. A druid can use this ability an additional time per day at 6th level and every two levels thereafter, for a total of eight times at 18th level.\nAt 6th level, a druid can use wild shape to change into a bear, dire wold or a small elemental. At 8th level, a druid can use wild shape to change into a smilodon, mastodon, mandragora or a medium elemental. At 10th level, a druid can use wild shape to change into a shambling mound or a large elemental. At 12th level, a druid can use wild shape to change into a giant flytrap, treant or a huge elemental.\nFor the feyspeaker archetype, all level prerequisites are increased by 2.";
             var wildshape_wolf = library.Get<BlueprintAbility>("ac8811714a45a5948b27208538ce4f03");
             var wolf_feature = library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb");

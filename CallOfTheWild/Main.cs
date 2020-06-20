@@ -35,6 +35,7 @@ namespace CallOfTheWild
             internal bool advanced_fighter_options { get; }
             internal bool wizard_discoveries { get; }
             internal bool deity_for_everyone { get; }
+            internal bool nerf_smilodon { get; }
             internal Settings()
             {
 
@@ -55,6 +56,7 @@ namespace CallOfTheWild
                     advanced_fighter_options = (bool)jo["advanced_fighter_options"];
                     wizard_discoveries = (bool)jo["wizard_discoveries"];
                     deity_for_everyone = (bool)jo["deity_for_everyone"];
+                    nerf_smilodon = (bool)jo["nerf_smilodon"];
                 }
             }
         }
@@ -204,6 +206,11 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixEaglesoul();
                     CallOfTheWild.MonkStunningFists.create();
                     CallOfTheWild.Rebalance.fixTactician();
+                    if (settings.nerf_smilodon)
+                    {
+                        Main.logger.Log("Applying -5 penalty to rake attacks.");
+                        CallOfTheWild.Rebalance.nerfSmilodonRake();
+                    }
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
 

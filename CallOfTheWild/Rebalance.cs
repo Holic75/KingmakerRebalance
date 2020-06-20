@@ -1379,6 +1379,39 @@ namespace CallOfTheWild
         }
 
 
+        internal static void nerfSmilodonRake()
+        {
+            var units = library.GetAllBlueprints().OfType<BlueprintUnit>().Where(c => c.name.Contains("Smilodon"));
+            var buffs = library.GetAllBlueprints().OfType<BlueprintBuff>().Where(c => c.name.Contains("Smilodon"));
+
+            foreach (var u in units)
+            {
+                int num_limbs = u.Body.AdditionalLimbs.Length;
+                if (num_limbs <3)
+                {
+                    continue;
+                }
+                u.Body.AdditionalSecondaryLimbs = u.Body.AdditionalLimbs.Skip(num_limbs - 2).ToArray();
+                u.Body.AdditionalLimbs = u.Body.AdditionalLimbs.Take(num_limbs - 2).ToArray();
+            }
+            foreach (var b in buffs)
+            {
+                var polymorph = b.GetComponent<Polymorph>();
+                if (polymorph == null)
+                {
+                    continue;
+                }
+                int num_limbs = polymorph.AdditionalLimbs.Length;
+                if (num_limbs < 3)
+                {
+                    continue;
+                }
+
+                polymorph.SecondaryAdditionalLimbs = polymorph.AdditionalLimbs.Skip(num_limbs - 2).ToArray();
+                polymorph.AdditionalLimbs = polymorph.AdditionalLimbs.Take(num_limbs - 2).ToArray();
+            }
+        }
+
         internal static void fixFlameDancer()
         {
             //add song_of_fiery_faze gaze

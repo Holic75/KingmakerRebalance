@@ -857,7 +857,7 @@ namespace CallOfTheWild
                                          "",
                                          tail1d6.Icon,
                                          FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6)
+                                         Helpers.Create<AddSecondaryAttacks>(a => a.Weapon = new BlueprintItemWeapon[] { tail1d6 })
                                          );
         }
 
@@ -869,12 +869,19 @@ namespace CallOfTheWild
 
             constrict = Helpers.CreateFeature("ConstrictEvolutionFeature",
                                          "Constrict",
-                                         "The eidolon gains powerful muscles that allow it to crush those it grapples. It can make one additional attack with its tail one making a full attack action.",
+                                         $"The eidolon gains powerful muscles that allow it to crush those it grapples. It can make one additional {(Main.settings.nerf_smilodon ? "secondary" : "primary")} attack with its tail when making a full attack.",
                                          "",
                                          icon,
-                                         FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6)
-                                         );
+                                         FeatureGroup.None);
+
+            if (Main.settings.nerf_smilodon)
+            {
+                constrict.AddComponent(Common.createAddSecondaryAttacks(tail1d6));                            
+            }
+            else
+            {
+                constrict.AddComponent(Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6));
+            }
         }
 
 
@@ -1162,13 +1169,19 @@ namespace CallOfTheWild
 
             rake = Helpers.CreateFeature("RakeEvolutionFeature",
                                          "Rake",
-                                         "The eidolon grows dangerous claws on its feet, allowing it to make two rake attacks against its foes. These attacks are primary attacks. These rake attacks deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                                         $"The eidolon grows dangerous claws on its feet, allowing it to make two rake attacks against its foes. These attacks are {(Main.settings.nerf_smilodon ? "secondary" : "primary")} attacks. These rake attacks deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
                                          "",
                                          icon,
-                                         FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4),
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4)
-                                         );
+                                         FeatureGroup.None);
+            if (Main.settings.nerf_smilodon)
+            {
+                rake.AddComponents(Helpers.Create<AddSecondaryAttacks>(a => a.Weapon = new BlueprintItemWeapon[] { claw1d4, claw1d4 }));
+            }
+            else
+            {
+                rake.AddComponents(Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4),
+                                  Helpers.Create<AddAdditionalLimb>(a => a.Weapon = claw1d4));
+            }
         }
 
 
