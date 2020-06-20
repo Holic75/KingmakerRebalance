@@ -599,8 +599,10 @@ namespace CallOfTheWild
             animate_dead_lesser.setMiscAbilityParametersSingleTargetRangedHarmful();
             animate_dead_lesser.AddToSpellList(Helpers.clericSpellList, 2);
             animate_dead_lesser.AddToSpellList(Helpers.wizardSpellList, 3);
-
-
+            animate_dead.MaterialComponent = library.Get<BlueprintAbility>("7c5d556b9a5883048bf030e20daebe31").MaterialComponent.CloneObject();
+            animate_dead.MaterialComponent.Count = 6;
+            animate_dead_lesser.MaterialComponent = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").MaterialComponent.CloneObject();
+            animate_dead_lesser.MaterialComponent.Count = 3; 
             //fix jaethal ability
             var summon_undead = library.Get<BlueprintAbility>("4c1556984f24e5c4282c6fcda832b7b2");
             summon_undead.LocalizedDuration = animate_dead.LocalizedDuration;

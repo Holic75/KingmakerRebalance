@@ -60,16 +60,18 @@ namespace CallOfTheWild
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Common.createAuraFeatureComponent(fx_buff));
+                                                   Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Medium));
+                                                  // Common.createAuraFeatureComponent(fx_buff));
             fx_feature.HideInCharacterSheetAndLevelUp = true;
             fx_feature.HideInUI = true;
 
             var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
             var earth_elemental_unit = library.CopyAndAdd<BlueprintUnit>("eab864d9ca3415644a792792fd81bf87", "QuadrupedEarthElementalEidolonUnit", ""); //wolf
 
+            earth_elemental_unit.Prefab = Common.createUnitViewLink("46b4f98ae7d8ddf40878914741a42129");
             earth_elemental_unit.LocalizedName = earth_elemental_unit.LocalizedName.CreateCopy();
             earth_elemental_unit.LocalizedName.String = Helpers.CreateString(earth_elemental_unit.name + ".Name", "Elemental Eidolon (Earth)");
-
+            earth_elemental_unit.Size = Size.Huge;
             earth_elemental_unit.Strength = 14;
             earth_elemental_unit.Dexterity = 14;
             earth_elemental_unit.Constitution = 13;

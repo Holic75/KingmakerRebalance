@@ -435,6 +435,7 @@ namespace CallOfTheWild
                 animate_dead.RemoveComponents<SpellListComponent>();
                 animate_dead.RemoveComponents<SpellComponent>();
                 animate_dead.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes));
+                animate_dead.MaterialComponent = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").MaterialComponent;//fireball
 
                 var power_word_kill = library.CopyAndAdd<BlueprintAbility>("2f8a67c483dfa0f439b293e094ca9e3c", prefix + "BonesManifestationPowerWordKillAbility", "");
                 power_word_kill.RemoveComponents<SpellListComponent>();
