@@ -1381,7 +1381,7 @@ namespace CallOfTheWild
 
         internal static void nerfSmilodonRake()
         {
-            var units = library.GetAllBlueprints().OfType<BlueprintUnit>().Where(c => c.name.Contains("Smilodon"));
+            var units = library.GetAllBlueprints().OfType<BlueprintUnit>().Where(c => c.name.Contains("Smilodon") || c.name.Contains("Dweomercat"));
             var buffs = library.GetAllBlueprints().OfType<BlueprintBuff>().Where(c => c.name.Contains("Smilodon"));
 
             foreach (var u in units)

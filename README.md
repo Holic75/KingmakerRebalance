@@ -352,6 +352,7 @@ New spells:
 - Giant Form I and II,
 - Control Undead,
 - Hold Person, Mass, 
+- Magical Beast Shape,
 - Particulate Form,
 - Blood Mist,
 - Incendiary Cloud,
@@ -367,7 +368,7 @@ New spells:
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  
 - Beast shape II allows to turn into large bear (without rend) and large dire wolf (with trip),  
-- Beast shape III allows to turn into large smilodon and Huge mastodon (with trample),  
+- Beast shape III allows to turn into large smilodon and huge mastodon (with trample),  
 - Beast shape IV allows to turn into large hodag (with toss) and large winter wolf (with trip and breath weapon)  
 
 The changes corresponding to these spells as well as Plant Shape I, II and III were also applied to druid wildshape ability.
@@ -437,7 +438,7 @@ Original game bug fixes:
 - Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire, as a side effect it also allows to loot body under baleful polymorph.
 - Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required),
 - Fixed missing druid scaling on 1st level Weather domain ability,
-- Monks no longer gain their AC bonus if using shield and fight unarmored.
+- Monks no longer gain their AC bonus if using shield and fighting unarmored.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

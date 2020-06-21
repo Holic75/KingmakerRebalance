@@ -73,10 +73,17 @@ namespace CallOfTheWild
         static public BlueprintBuff troll_form;
         static public BlueprintBuff storm_giant_form;
         static public BlueprintBuff athach_form;
+        static public BlueprintBuff bulette_form;
+        static public BlueprintBuff hydra_form;
+
+        static public BlueprintAbility bulette_spell;
+        static public BlueprintAbility hydra_spell;
+        static public BlueprintAbility magical_beast_shape;
 
         static public BlueprintFeature toss_feature;
         static public BlueprintFeature engulf;
         static public BlueprintBuff mutated_shape_buff;
+        static public BlueprintFeature no_multi_attack;
 
 
         static BlueprintUnitFact reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
@@ -137,6 +144,10 @@ namespace CallOfTheWild
 
         static internal void load()
         {
+            no_multi_attack = SaveGameFix.createDummyFeature("NoMultiAttack", "f98798c7fa114d8faf7db58497016af2");
+            no_multi_attack.HideInUI = true;
+            no_multi_attack.HideInCharacterSheetAndLevelUp = true;
+            
             //fix winter wolf size
             var winter_wolf = library.Get<BlueprintUnit>("b0793ff228ff32242b9a472da19d33f1");
             winter_wolf.Prefab = Common.createUnitViewLink("baa310bf7c37172419994c8e3e5557e0");
@@ -154,6 +165,7 @@ namespace CallOfTheWild
             createPlantShapeI();
             createPlantShapeII();
             createPlantShapeIII();
+            createMagicalBeastShape();
 
             fixLegendaryProportions();
             fixAirElementalDC();
@@ -1156,7 +1168,7 @@ namespace CallOfTheWild
                                                  );  
 
             plant_shapeI = replaceForm(beast_shape_prototype, mandragora_form, "PlantShapeISpell", "Plant Shape I",
-                                                "You become a Small mandragora. You gain a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d6 bite attack, two 1d4 slams and poison ability.");
+                                                "You become a small mandragora. You gain a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d6 bite attack, two 1d4 slams and poison ability.");
             plant_shapeI.RemoveComponents<SpellListComponent>();
             plant_shapeI.AddToSpellList(Helpers.alchemistSpellList, 5);
             plant_shapeI.AddToSpellList(Helpers.wizardSpellList, 5);
@@ -1176,7 +1188,7 @@ namespace CallOfTheWild
             shambling_mound_form.SetIcon(entangle.Icon);
 
             plant_shapeII = replaceForm(beast_shape_prototype, shambling_mound_form, "PlantShapeIISpell", "Plant Shape II",
-                                                "You become a Large shambling mound. You gain a +4 size bonus to your Strength, a +2 size bonus to your Constitution, +4 natural armor bonus, resist fire 20, and resist electricity 20. Your movement speed is reduced by 10 feet. You also have two 2d6 slam attacks, the constricting vines ability, and the poison ability.\nConstricting Vines: A shambling mound's vines coil around any creature it hits with a slam attack. The shambling mound attempts a grapple maneuver check against its target, and on a successful check its vines deal 2d6+5 damage and the foe is grappled.\nGrappled characters cannot move, and take a -2 penalty on all attack rolls and a -4 penalty to Dexterity. Grappled characters attempt to escape every round by making a successful combat maneuver, Strength, Athletics, or Mobility check. The DC of this check is the shambling mound's CMD.\nEach round, creatures grappled by a shambling mound suffer 4d6+Strength modifier × 2 damage.\nA shambling mound receives a +4 bonus on grapple maneuver checks.\nPoison:\nSlam; Save: Fortitude\nFrequency: 1/round for 2 rounds\nEffect: 1d2 Strength and 1d2 Dexterity damage\nCure: 1 save\nThe save DC is Constitution-based.");
+                                                "You become a large shambling mound. You gain a +4 size bonus to your Strength, a +2 size bonus to your Constitution, +4 natural armor bonus, resist fire 20, and resist electricity 20. Your movement speed is reduced by 10 feet. You also have two 2d6 slam attacks, the constricting vines ability, and the poison ability.\nConstricting Vines: A shambling mound's vines coil around any creature it hits with a slam attack. The shambling mound attempts a grapple maneuver check against its target, and on a successful check its vines deal 2d6+5 damage and the foe is grappled.\nGrappled characters cannot move, and take a -2 penalty on all attack rolls and a -4 penalty to Dexterity. Grappled characters attempt to escape every round by making a successful combat maneuver, Strength, Athletics, or Mobility check. The DC of this check is the shambling mound's CMD.\nEach round, creatures grappled by a shambling mound suffer 4d6+Strength modifier × 2 damage.\nA shambling mound receives a +4 bonus on grapple maneuver checks.\nPoison:\nSlam; Save: Fortitude\nFrequency: 1/round for 2 rounds\nEffect: 1d2 Strength and 1d2 Dexterity damage\nCure: 1 save\nThe save DC is Constitution-based.");
 
             plant_shapeII.RemoveComponents<SpellListComponent>();
             plant_shapeII.AddToSpellList(Helpers.alchemistSpellList, 6);
@@ -1196,7 +1208,7 @@ namespace CallOfTheWild
                                                  "You are in treant form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.",
                                                  entangle.Icon,
                                                  treant,
-                                                 8, -2, 6, 6, 0, Size.Huge,
+                                                 8, -2, 4, 6, 0, Size.Huge,
                                                  treant_slam, treant_slam, new BlueprintItemWeapon[0],
                                                  trample, overrun,
                                                  library.Get<BlueprintFeature>("8e934134fec60ab4c8972c85a7b62f89"),
@@ -1209,22 +1221,23 @@ namespace CallOfTheWild
                                                  "You are in giant flytrap form now. You have a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also have four 1d8 bite attacks, acid Resistance 20, immunity to trip and blindsight. It also has engulf ability.",
                                                  entangle.Icon,
                                                  giant_flytrap,
-                                                 8, -2, 6, 6, 0, Size.Huge,
+                                                 8, -2, 4, 6, 0, Size.Huge,
                                                  giant_flytrap_bite, null, new BlueprintItemWeapon[0],
                                                  //giant_flytrap_bite, giant_flytrap_bite, new BlueprintItemWeapon[] { giant_flytrap_bite, giant_flytrap_bite },
                                                  library.Get<BlueprintFeature>("416386972c8de2e42953533c4946599a"), //acid resistance
                                                  library.Get<BlueprintFeature>("236ec7f226d3d784884f066aa4be1570"), //blindsight
                                                  library.Get<BlueprintFeature>("e0ac733ba38f74d46a1712c95b9874f2"), //trip immunity
+                                                 no_multi_attack,
                                                  engulf
                                                  );
             giant_flytrap_form.AddComponent(Helpers.Create<BuffExtraAttack>(b => b.Number = 3)); //+ bite x 3
 
             treant_form_spell = replaceForm(smilodon_form_spell, treant_form, "PlantShapeIIITreantAbility", "Plant Shape III (Treant)",
-                                     "You become a Huge treant. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.");
+                                     "You become a huge treant. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain two 2d6 slam attacks, damage reduction 10/slashing, vulnerability to fire and trample ability.");
             treant_form_spell.RemoveComponents<SpellListComponent>();
             treant_form_spell.SetIcon(entangle.Icon);
             giant_flytrap_form_spell = replaceForm(smilodon_form_spell, giant_flytrap_form, "PlantShapeIIIGiantFlytrapAbility", "Plant Shape III (Giant Flytrap)",
-                                                 "You become a Huge giant flytrap. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain four 1d8 bite attacks, acid Resistance 20 and blindsight and poison ability.");
+                                                 "You become a huge giant flytrap. You gain a +8 size bonus to your Strength, +4 to Constitution, -2 penalty to Dexterity and a +6 natural armor bonus. You also gain four 1d8 bite attacks, acid Resistance 20 and blindsight and poison ability.");
 
             giant_flytrap_form_spell.RemoveComponents<SpellListComponent>();
             giant_flytrap_form_spell.SetIcon(entangle.Icon);
@@ -1239,6 +1252,63 @@ namespace CallOfTheWild
             plant_shapeIII.RemoveComponents<SpellListComponent>();
             plant_shapeIII.AddToSpellList(Helpers.wizardSpellList, 7);
             Helpers.AddSpellAndScroll(plant_shapeIII, "5022612735a9e2345bfc5110106823d8");
+        }
+
+
+        static void createMagicalBeastShape()
+        {
+            
+            BlueprintUnit bulette = library.Get<BlueprintUnit>("18fa241bd1afd77438564ec92614f7f1");
+            
+            bulette_form = createPolymorphForm("MagicalBeastShapeBuletteBuff",
+                                                 "Magical Beast Shape (Bulette)",
+                                                 "You are in bulette form now. You have a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also have one 2d8 bite attack and two 2d6 claw attacks and tremorsense 60 feet.",
+                                                 beast_shape_prototype.Icon,
+                                                 bulette,
+                                                 8, -4, 2, 7, 10, Size.Huge,
+                                                 library.Get<BlueprintItemWeapon>("d889d3f8edd9ee54a9623c8127b0546f"),
+                                                 library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710"),
+                                                 new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710") },
+                                                 library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
+                                                 trip_defense_4legs
+                                                 );
+            bulette_form.AddComponent(Common.createBlindsight(60));
+
+            BlueprintUnit hydra = library.Get<BlueprintUnit>("68e28734693629841a336655091c4de4");
+            hydra_form = createPolymorphForm("MagicalBeastShapeHydraBuff",
+                                     "Magical Beast Shape (Hydra)",
+                                     "You are in hydra form now. You have a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also have five 1d8 bite attacks, immunity to trip and fast healing 5.",
+                                     beast_shape_prototype.Icon,
+                                     hydra,
+                                     8, -4, 2, 7, 0, Size.Huge,
+                                     library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"),
+                                     library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"),
+                                     new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"), library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"), library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8") },
+                                     library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
+                                     library.Get<BlueprintFeature>("c1b26f97b974aec469613f968439e7bb"), //immunity to trip
+                                     library.Get<BlueprintBuff>("37a5e51e9e3a23049a77ba70b4e7b2d2")//fast healing 5
+                                     );
+
+            bulette_spell = replaceForm(smilodon_form_spell, bulette_form, "MagicalBeastShapeBuletteAbility", "Magical Beast Shape (Bulette)",
+                                      "You become a huge bulette. You gain a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also gain one 2d8 bite attack and two 2d6 claw attacks and tremorsense 60 feet.");
+            bulette_spell.RemoveComponents<SpellListComponent>();
+            bulette_spell.SetIcon(beast_shape_prototype.Icon);
+
+            hydra_spell = replaceForm(smilodon_form_spell, hydra_form, "MagicalBeastShapeHydraAbility", "Magical Beast Shape (Hydra)",
+                          "You become a huge hydra. You gain a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also gain five 1d8 bite attacks, immunity to trip and fast healing 5.");
+            hydra_spell.RemoveComponents<SpellListComponent>();
+            hydra_spell.SetIcon(beast_shape_prototype.Icon);
+
+            magical_beast_shape = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "MagicalBeastShapeSpell", "");
+            magical_beast_shape.RemoveComponents<SpellListComponent>();
+            magical_beast_shape.SetIcon(beast_shape_prototype.Icon);
+            magical_beast_shape.SetName("Magical Beast Shape");
+            magical_beast_shape.SetDescription("You become a Huge Bulette or a Huge Hydra");
+            magical_beast_shape.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(plant_shapeIII, bulette_spell, hydra_spell));
+
+            magical_beast_shape.RemoveComponents<SpellListComponent>();
+            magical_beast_shape.AddToSpellList(Helpers.wizardSpellList, 7);
+            Helpers.AddSpellAndScroll(magical_beast_shape, "7ed316e488b68a248ad37c1e312f4e9e");
         }
 
 

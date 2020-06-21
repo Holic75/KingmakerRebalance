@@ -43,6 +43,10 @@ namespace CallOfTheWild.CompanionMechanics
     {
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
         {
+            if (evt.Initiator.Descriptor.HasFact(Wildshape.no_multi_attack))
+            {
+                return;
+            }
             if (!evt.Initiator.Body.HandsAreEnabled)
             {
                 return;
@@ -91,6 +95,10 @@ namespace CallOfTheWild.CompanionMechanics
 
         public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
         {
+            if (evt.Initiator.Descriptor.HasFact(Wildshape.no_multi_attack))
+            {
+                return;
+            }
             if ((bool)evt.Initiator.Descriptor.State.Features.IterativeNaturalAttacks)
             {
                 return;
