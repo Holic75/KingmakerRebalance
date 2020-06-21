@@ -1262,7 +1262,7 @@ namespace CallOfTheWild
             
             bulette_form = createPolymorphForm("MagicalBeastShapeBuletteBuff",
                                                  "Magical Beast Shape (Bulette)",
-                                                 "You are in bulette form now. You have a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also have one 2d8 bite attack and two 2d6 claw attacks and tremorsense 60 feet.",
+                                                 "You are in bulette form now. You have a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also have one 2d8 bite attack and two 2d6 claw attacks, pounce and tremorsense 60 feet.",
                                                  beast_shape_prototype.Icon,
                                                  bulette,
                                                  8, -4, 2, 7, 10, Size.Huge,
@@ -1270,6 +1270,7 @@ namespace CallOfTheWild
                                                  library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710"),
                                                  new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710") },
                                                  library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
+                                                 library.Get<BlueprintBuff>("20b57bab6bac9b04493491432bcb6868"),//pounce
                                                  trip_defense_4legs
                                                  );
             bulette_form.AddComponent(Common.createBlindsight(60));
@@ -1277,7 +1278,7 @@ namespace CallOfTheWild
             BlueprintUnit hydra = library.Get<BlueprintUnit>("68e28734693629841a336655091c4de4");
             hydra_form = createPolymorphForm("MagicalBeastShapeHydraBuff",
                                      "Magical Beast Shape (Hydra)",
-                                     "You are in hydra form now. You have a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also have five 1d8 bite attacks, immunity to trip and fast healing 5.",
+                                     "You are in hydra form now. You have a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also have five 1d8 bite attacks, immunity to trip, pounce and fast healing 5.",
                                      beast_shape_prototype.Icon,
                                      hydra,
                                      8, -4, 2, 7, 0, Size.Huge,
@@ -1286,16 +1287,17 @@ namespace CallOfTheWild
                                      new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"), library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"), library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8") },
                                      library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
                                      library.Get<BlueprintFeature>("c1b26f97b974aec469613f968439e7bb"), //immunity to trip
-                                     library.Get<BlueprintBuff>("37a5e51e9e3a23049a77ba70b4e7b2d2")//fast healing 5
+                                     library.Get<BlueprintBuff>("37a5e51e9e3a23049a77ba70b4e7b2d2"),//fast healing 5,
+                                     library.Get<BlueprintBuff>("20b57bab6bac9b04493491432bcb6868")//pounce
                                      );
 
             bulette_spell = replaceForm(smilodon_form_spell, bulette_form, "MagicalBeastShapeBuletteAbility", "Magical Beast Shape (Bulette)",
-                                      "You become a huge bulette. You gain a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also gain one 2d8 bite attack and two 2d6 claw attacks and tremorsense 60 feet.");
+                                      "You become a huge bulette. You gain a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also gain one 2d8 bite attack and two 2d6 claw attacks, pounce and tremorsense 60 feet.");
             bulette_spell.RemoveComponents<SpellListComponent>();
             bulette_spell.SetIcon(beast_shape_prototype.Icon);
 
             hydra_spell = replaceForm(smilodon_form_spell, hydra_form, "MagicalBeastShapeHydraAbility", "Magical Beast Shape (Hydra)",
-                          "You become a huge hydra. You gain a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also gain five 1d8 bite attacks, immunity to trip and fast healing 5.");
+                          "You become a huge hydra. You gain a +8 size bonus to your Strength, +2 to Constitution, -4 penalty to Dexterity and a +7 natural armor bonus. You also gain five 1d8 bite attacks, immunity to trip, pounce and fast healing 5.");
             hydra_spell.RemoveComponents<SpellListComponent>();
             hydra_spell.SetIcon(beast_shape_prototype.Icon);
 

@@ -206,7 +206,7 @@ namespace CallOfTheWild
             cryptid_schoolar = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "CryptidSchoolarArchetype";
-                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Cryptid Schoolar");
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Cryptid Scholar");
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Cryptid scholars research monsters that lurk secretly at the edge of civilization, developing a deep expertise regarding their anatomy, habits, and ecology. Although competent as lone monster hunters, cryptid scholars excel when they have associates with whom to share their insights.");
             });
             Helpers.SetField(cryptid_schoolar, "m_ParentClass", investigator_class);
