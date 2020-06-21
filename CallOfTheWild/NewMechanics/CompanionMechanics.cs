@@ -133,7 +133,6 @@ namespace CallOfTheWild.CompanionMechanics
 
         public void activate()
         {
-            Main.logger.Log("Activate");
             if (this.Owner.Pet == null)
             {
                 return;
@@ -157,7 +156,6 @@ namespace CallOfTheWild.CompanionMechanics
 
         public void deactivate()
         {
-            Main.logger.Log("Deactivate");
             if (!active())
             {
                 return;
@@ -168,11 +166,9 @@ namespace CallOfTheWild.CompanionMechanics
             }
             if (this.Owner.Pet.Descriptor.State.IsDead)
             {
-                Main.logger.Log("Ressurect");
                 this.Owner.Pet.Descriptor.Resurrect(((float)this.companion_hp) / this.Owner.Pet.MaxHP, true);
                 //this.Owner.Pet.Descriptor.AddBuff(BlueprintRoot.Instance.SystemMechanics.ResurrectionBuff, null, new TimeSpan?(1.Rounds().Seconds));
             }
-            Main.logger.Log("Release");
             this.Owner.Pet.Descriptor.State.IsUntargetable.Release();
             companion_hp = -1;
         }
@@ -203,7 +199,6 @@ namespace CallOfTheWild.CompanionMechanics
 
         public override void RunAction()
         {
-            Main.logger.Log("Invoke Summon");
             this.Target?.Unit?.Ensure<UnitPartUnsummonedCompanion>().deactivate();
         }
     }
