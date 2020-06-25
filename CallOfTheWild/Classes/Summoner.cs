@@ -223,32 +223,31 @@ namespace CallOfTheWild
             Helpers.SetField(twinned_summoner, "m_ParentClass", summoner_class);
             library.AddAsset(twinned_summoner, "");
 
-            twinned_summoner.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(4, shield_ally),
+            var twinned_eidolon_selection = library.CopyAndAdd(eidolon_selection, "TwinnedEidolonFeatureSelection", "07464c5f4c5e4dd79120db73a3cfd597");
+            twinned_eidolon_selection.SetNameDescriptionIcon(Eidolon.twinned_eidolon);
+            twinned_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small };
+
+
+            twinned_summoner.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, eidolon_selection),
+                                                             Helpers.LevelEntry(4, shield_ally),
                                                              Helpers.LevelEntry(6, makers_call),
                                                              Helpers.LevelEntry(8, transposition),
                                                              Helpers.LevelEntry(12, greater_shield_ally),
                                                            };
 
-            twinned_summoner.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(4, teamwork_feat_share, teamwork_feat),
+            twinned_summoner.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, twinned_eidolon_selection),
+                                                             Helpers.LevelEntry(4, teamwork_feat_share, teamwork_feat),
                                                              Helpers.LevelEntry(6, twinned_transposition),
                                                              Helpers.LevelEntry(8, swift_twinned_transposition),
                                                              Helpers.LevelEntry(12, teamwork_feat),
                                                         };
 
+            summoner_progression.UIDeterminatorsGroup = summoner_progression.UIDeterminatorsGroup.AddToArray(twinned_eidolon_selection);
             summoner_progression.UIGroups[0].Features.Add(teamwork_feat_share);
             summoner_progression.UIGroups[0].Features.Add(twinned_transposition);
             summoner_progression.UIGroups[0].Features.Add(swift_twinned_transposition);
 
-            Eidolon.twinned_eidolon.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, twinned_summoner, 1));
-            Eidolon.twinned_eidolon_small.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, twinned_summoner, 1));
 
-            foreach (var e in eidolon_selection.AllFeatures)
-            {
-                e.AddComponent(Common.prerequisiteNoArchetype(summoner_class, twinned_summoner));
-            }
-
-            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.twinned_eidolon);
-            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.twinned_eidolon_small);
         }
 
         static void createMasterSummoner()
@@ -557,15 +556,12 @@ namespace CallOfTheWild
             fey_caller.ReplaceClassSkills = true;
             fey_caller.ClassSkills = new StatType[] { StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillPersuasion, StatType.SkillUseMagicDevice };
 
-            foreach (var e in eidolon_selection.AllFeatures)
-            {
-                e.AddComponent(Common.prerequisiteNoArchetype(summoner_class, fey_caller));
-            }
+            var fey_eidolon_selection = library.CopyAndAdd(eidolon_selection, "FeyEidolonSelection", "e054d599ec2f4b7e99a43c739a44b1fd");
+            fey_eidolon_selection.SetNameDescriptionIcon(Eidolon.fey_eidolon);
+            fey_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.fey_eidolon };
+            fey_eidolon_selection.HideInCharacterSheetAndLevelUp = true;
 
-            Eidolon.fey_eidolon.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, fey_caller, 1));
-            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.fey_eidolon);
-
-            fey_caller.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_monster[0]),
+            fey_caller.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, eidolon_selection, summon_monster[0]),
                                                              Helpers.LevelEntry(3, summon_monster[1]),
                                                              Helpers.LevelEntry(5, summon_monster[2]),
                                                              Helpers.LevelEntry(7, summon_monster[3]),
@@ -575,7 +571,7 @@ namespace CallOfTheWild
                                                              Helpers.LevelEntry(15, summon_monster[7]),
                                                              Helpers.LevelEntry(17, summon_monster[8])
                                                            };
-            fey_caller.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_nature_ally[0]),
+            fey_caller.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, fey_eidolon_selection, summon_nature_ally[0]),
                                                              Helpers.LevelEntry(3, summon_nature_ally[1]),
                                                              Helpers.LevelEntry(5, summon_nature_ally[2]),
                                                              Helpers.LevelEntry(7, summon_nature_ally[3]),
@@ -586,7 +582,7 @@ namespace CallOfTheWild
                                                              Helpers.LevelEntry(17, summon_nature_ally[8])
                                                         };
 
-
+            summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(fey_eidolon_selection);
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(summon_nature_ally));
         }
 
@@ -694,15 +690,12 @@ namespace CallOfTheWild
             createSmiteChaos();
             createDevilBinderCharismaBonus();
 
-            foreach (var e in eidolon_selection.AllFeatures)
-            {
-                e.AddComponent(Common.prerequisiteNoArchetype(summoner_class, devil_binder));
-            }
+            var infernal_eidolon_selection = library.CopyAndAdd(eidolon_selection, "InfernalEidolonSelection", "0b7e1736275948cb805b58451a0a3715");
+            infernal_eidolon_selection.SetNameDescriptionIcon(Eidolon.infernal_eidolon);
+            infernal_eidolon_selection.HideInCharacterSheetAndLevelUp = true;
+            infernal_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.infernal_eidolon };
 
-            Eidolon.infernal_eidolon.AddComponent(Common.createPrerequisiteArchetypeLevel(summoner_class, devil_binder, 1));
-            eidolon_selection.AllFeatures = eidolon_selection.AllFeatures.AddToArray(Eidolon.infernal_eidolon);
-
-            devil_binder.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_monster[0]),
+            devil_binder.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, eidolon_selection, summon_monster[0]),
                                                              Helpers.LevelEntry(3, summon_monster[1]),
                                                              Helpers.LevelEntry(4, shield_ally),
                                                              Helpers.LevelEntry(5, summon_monster[2]),
@@ -717,7 +710,7 @@ namespace CallOfTheWild
                                                              Helpers.LevelEntry(17, summon_monster[8]),
                                                              Helpers.LevelEntry(20, twin_eidolon)
                                                            };
-            devil_binder.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, infernal_arcana[0]),
+            devil_binder.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, infernal_eidolon_selection, infernal_arcana[0]),
                                                           Helpers.LevelEntry(3, infernal_arcana[1]),
                                                           Helpers.LevelEntry(4, infernal_affinity[0], devil_binder_charisma_bonus),
                                                           Helpers.LevelEntry(5, infernal_arcana[2]),
@@ -735,7 +728,7 @@ namespace CallOfTheWild
                                                           Helpers.LevelEntry(20, infernal_affinity[4])
                                                         };
 
-
+            summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(infernal_eidolon_selection);
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(infernal_affinity));
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(infernal_arcana));
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(devil_binder_charisma_bonus, devil_binder_smite_chaos));

@@ -705,7 +705,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (context2.AbilityBlueprint.IsSpell &&
+                if (context2.SourceAbility.IsSpell &&
                     (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Elemental) != 0)
                 {
                     foreach (var key_value in elemental_metamagic)
@@ -741,7 +741,7 @@ namespace CallOfTheWild
                 {
                     return true;
                 }
-                if (context2.AbilityBlueprint.IsSpell &&
+                if (context2.SourceAbility.IsSpell &&
                     (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Elemental) != 0)
                 {
                     foreach (var key_value in elemental_metamagic)

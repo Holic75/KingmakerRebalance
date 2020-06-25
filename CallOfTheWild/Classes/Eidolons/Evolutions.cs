@@ -94,6 +94,8 @@ namespace CallOfTheWild
         static public BlueprintFeature poison_strength;
         static public BlueprintFeature poison_constitution;
         static public BlueprintFeature[] shared_slots;
+        static public BlueprintFeature extra_attack;
+        static public BlueprintFeature extra_off_hand_attack;
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
@@ -713,6 +715,9 @@ namespace CallOfTheWild
             evolution_entries.Add(new EvolutionEntry(poison_constitution, 4, 7, new BlueprintFeature[] { bite }, new BlueprintFeature[] { poison_strength },
                                          devil_elemental.AddToArray(Eidolon.protean_eidolon)
                                          ));
+
+            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
         static void createEvolutions()
@@ -727,6 +732,7 @@ namespace CallOfTheWild
             createResistance();            
             createSkilled();
             createWingBuffet();
+            createExtraAttacks();
 
             createAbilityIncrease();
             createEnergyAttacks();
@@ -811,6 +817,28 @@ namespace CallOfTheWild
         }
 
 
+        static void createExtraAttacks()
+        {
+            extra_attack = Helpers.CreateFeature("ExtraAttackEvolutionFeature",
+                                                "Extra Attack",
+                                                "Eidolon can make one more primary hand attack.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.Create<BuffExtraAttack>(b => { b.Number = 1; b.Haste = false; })
+                                                );
+
+            extra_off_hand_attack = Helpers.CreateFeature("ExtraSecondaryAttackEvolutionFeature",
+                                                         "Extra Off-Hand Attack",
+                                                         "Eidolon can make one more secondary hand attack.",
+                                                         "",
+                                                         null,
+                                                         FeatureGroup.None,
+                                                         Helpers.Create<NewMechanics.BuffExtraOffHandAttack>(b => { b.Number = 1; })
+                                                         );
+        }
+
+
         static void createImprovedNaturalAttacks()
         {
             var icon = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33").Icon; //magic fang
@@ -829,6 +857,9 @@ namespace CallOfTheWild
                                                                     );
             }
         }
+
+
+
 
 
         static void createBite()
@@ -1100,7 +1131,7 @@ namespace CallOfTheWild
         static void createGore()
         {
             var icon = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon; //infernal bloodline
-            var gore1d8 = library.Get<BlueprintItemWeapon>("5d7d23f5e35254d4bb087f7476163509");
+            var gore1d6 = library.Get<BlueprintItemWeapon>("76ada2578e9121a44b8ffbb7c1f2b5f0");
 
             gore = Helpers.CreateFeature("GoreEvolutionFeature",
                                          "Gore",
@@ -1108,7 +1139,7 @@ namespace CallOfTheWild
                                          "",
                                          icon,
                                          FeatureGroup.None,
-                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = gore1d8)
+                                         Helpers.Create<AddAdditionalLimb>(a => a.Weapon = gore1d6)
                                          );
         }
 

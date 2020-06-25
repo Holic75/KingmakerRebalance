@@ -3832,12 +3832,12 @@ namespace CallOfTheWild
                 return;
             }
             var context = Helpers.GetMechanicsContext();
+
             var spellContext = context?.SourceAbilityContext;
 
             if (spellContext == null)
             {
                 var source_buff = (evt.Reason?.Item as ItemEntityWeapon)?.Blueprint.GetComponent<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>()?.buff;
-
                 if (source_buff != null)
                 {
                     context_buff = evt.Initiator.Buffs?.GetBuff(source_buff);

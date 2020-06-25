@@ -1,7 +1,9 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.Enums;
+using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
@@ -301,6 +303,25 @@ namespace CallOfTheWild
             {
             }
         }
+
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class ClBonusParametrized : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public int bonus;
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                var spell = (this.Fact as Feature)?.Param.Blueprint as BlueprintAbility;
+                if (SpellDuplicates.isDuplicate(spell, evt.Spell) || SpellDuplicates.isDuplicate(spell, evt.Spell?.Parent))
+                {
+                    evt.AddBonusCasterLevel(bonus);
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
     }
 
 
@@ -320,10 +341,6 @@ namespace CallOfTheWild
             return false;
         }
     }
-
-
-
-
 
 
 

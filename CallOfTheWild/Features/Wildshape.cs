@@ -51,7 +51,12 @@ namespace CallOfTheWild
 {
     public class Wildshape
     {
+
         static internal BlueprintAbility beast_shape_prototype = library.CopyAndAdd<BlueprintAbility>("61a7ed778dd93f344a5dacdbad324cc9", "BeastShapePrototype", "");
+
+        static BlueprintAbility turn_back_standard = library.Get<BlueprintAbility>("bd09b025ee2a82f46afab922c4decca9");
+        static BlueprintAbility turn_back_free = library.Get<BlueprintAbility>("a2cb181ee69860b46b82844a3a8569b8");
+        static BlueprintAbility turn_back_full = library.Get<BlueprintAbility>("f63d91c30d1f9024fb5743929db7dd1e");
 
         static LibraryScriptableObject library => Main.library;
         static public BlueprintBuff wolf_form = Main.library.Get<BlueprintBuff>("00d8fbe9cf61dc24298be8d95500c84b");
@@ -118,6 +123,10 @@ namespace CallOfTheWild
         static public BlueprintAbility plant_shapeII;
         static public BlueprintAbility plant_shapeIII;
 
+        static public BlueprintAbility monstrous_physiqueI;
+        static public BlueprintAbility monstrous_physiqueII;
+        static public BlueprintAbility monstrous_physiqueIII;
+
         static public BlueprintAbility troll_form_spell;
         static public BlueprintAbility fire_giant_form_spell;
         static public BlueprintAbility frost_giant_form_spell;
@@ -166,6 +175,7 @@ namespace CallOfTheWild
             createPlantShapeII();
             createPlantShapeIII();
             createMagicalBeastShape();
+            //createMonstorusPhysique();
 
             fixLegendaryProportions();
             fixAirElementalDC();
@@ -660,6 +670,8 @@ namespace CallOfTheWild
 
             var wildshape_bear_buff = library.CopyAndAdd<BlueprintBuff>(bear_form.AssetGuid, "DruidWildshapeIIBearBuff", "");
             wildshape_bear_buff.SetName("Wild Shape (Bear)");
+            wildshape_bear_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard).AddToArray(turn_back_free));
+
             var wildshape_bear = replaceForm(wildshape_wolf, wildshape_bear_buff, "DruidWildshapeIIBearAbility", wildshape_bear_buff.Name, bear_form_spell.Description);
             //fix thundering claw
             var thudnering_conditional = (library.Get<BlueprintFeature>("f418b53b2a597b54b810699e9f68e061").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional);
@@ -667,26 +679,31 @@ namespace CallOfTheWild
 
             var wildshape_dire_wolf_buff = library.CopyAndAdd<BlueprintBuff>(dire_wolf_form.AssetGuid, "DruidWildshapeIIDireWolfBuff", "");
             wildshape_dire_wolf_buff.SetName("Wild Shape (Dire Wolf)");
+            wildshape_dire_wolf_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard).AddToArray(turn_back_free));
             var wildshape_dire_wolf = replaceForm(wildshape_wolf, wildshape_dire_wolf_buff, "DruidWildshapeIIDireWolfAbility", wildshape_dire_wolf_buff.Name, dire_wolf_form_spell.Description);
 
             var wildshape_smilodon = library.Get<BlueprintAbility>("32f1f208ad635224f89ef158140ab509");
 
             var wildshape_mastodon_buff = library.CopyAndAdd<BlueprintBuff>(mastodon_form.AssetGuid, "DruidWildshapeIIIMastodonBuff", "");
             wildshape_mastodon_buff.SetName("Wild Shape (Mastodon)");
+            wildshape_mastodon_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard).AddToArray(turn_back_free));
             var wildshape_mastodon = replaceForm(wildshape_wolf, wildshape_mastodon_buff, "DruidWildshapeIIIMastodonAbility", wildshape_mastodon_buff.Name, mastodon_form_spell.Description);
 
             var wildshape_mandragora_buff = library.CopyAndAdd<BlueprintBuff>(mandragora_form.AssetGuid, "DruidWildshapeIIIMandragoraBuff", "");
             wildshape_mandragora_buff.SetName("Wild Shape (Mandragora)");
+            wildshape_mandragora_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard).AddToArray(turn_back_free));
             var wildshape_mandragora = replaceForm(wildshape_wolf, wildshape_mandragora_buff, "DruidWildshapeIIIMandragoraAbility", wildshape_mandragora_buff.Name, plant_shapeI.Description);
 
             var wildshape_shambling_mound = library.Get<BlueprintAbility>("943d41b6aaef1dc4e82f115118dbf902");
 
             var wildshape_flytrap_buff = library.CopyAndAdd<BlueprintBuff>(giant_flytrap_form.AssetGuid, "DruidWildshapeVGiantFlytrapBuff", "");
             wildshape_flytrap_buff.SetName("Wild Shape (Giant Flytrap)");
+            wildshape_flytrap_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard).AddToArray(turn_back_free));
             var wildshape_flytrap = replaceForm(wildshape_wolf, wildshape_flytrap_buff, "DruidWildshapeVGiantFlytrapAbility", wildshape_flytrap_buff.Name, giant_flytrap_form_spell.Description);
 
             var wildshape_treant_buff = library.CopyAndAdd<BlueprintBuff>(treant_form.AssetGuid, "DruidWildshapeVTreantBuff", "");
             wildshape_treant_buff.SetName("Wild Shape (Treant)");
+            wildshape_treant_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard).AddToArray(turn_back_free));
             var wildshape_treant = replaceForm(wildshape_wolf, wildshape_treant_buff, "DruidWildshapeVTreantAbility", wildshape_treant_buff.Name, treant_form_spell.Description);
 
             var leopard_feature = library.Get<BlueprintFeature>("c4d651bc0d4eabd41b08ee81bfe701d8");
@@ -858,6 +875,7 @@ namespace CallOfTheWild
             bear_shape.Buff.ComponentsArray = bear_form.ComponentsArray;
             bear_shape.Buff.SetDescription(bear_form.Description);
             bear_shape.SetDescription(bear_form_spell.Description);
+            bear_shape.Buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard));
 
             var wolf_shape = createChangeShapeAbility(wolf_form, "TransmutationSchoolChangeShapeWolf", "Change Shape (Wolf)", wolf_form_spell.Description);
             var dire_wolf_shape = createChangeShapeAbility(dire_wolf_form, "TransmutationSchoolChangeShapeDireWolf", "Change Shape (Dire Wolf)", dire_wolf_form_spell.Description);
@@ -885,6 +903,7 @@ namespace CallOfTheWild
             shape_buff.SetDescription(buff.Description);
             shape_buff.SetName(display_name);
             shape_buff.ComponentsArray = buff.ComponentsArray;
+            shape_buff.ReplaceComponent<Polymorph>(p => p.Facts = p.Facts.RemoveFromArray(turn_back_standard));
             shape.SetName(display_name);
             shape.SetDescription(description);
             shape.Buff = shape_buff;
@@ -936,7 +955,7 @@ namespace CallOfTheWild
             var ability = library.CopyAndAdd<BlueprintAbility>("940a545a665194b48b722c1f9dd78d53", "ShapechangeAbility", "");
             ability.SetIcon(disintegrate.Icon);
             ability.SetName("Shapechange Ability");
-            ability.SetDescription("This spell allows you to take the form of a wide variety of creatures.This spell can function as elemental body IV, form of the dragon III, giant form I, giant form II and plant shape III depending on what form you take.You can change form once each round as a free action.The change takes place either immediately before your regular action or immediately after it, but not during the action.");
+            ability.SetDescription("This spell allows you to take the form of a wide variety of creatures. This spell can function as elemental body IV, form of the dragon III, giant form I, giant form II and plant shape III depending on what form you take. You can change form once as a free action. The change takes place either immediately before your regular action or immediately after it, but not during the action.");
             ability.RemoveComponents<SpellListComponent>();
             ability.Type = AbilityType.Supernatural;
             ability.ActionType = CommandType.Free;
@@ -1159,16 +1178,16 @@ namespace CallOfTheWild
             BlueprintUnit mandragora = library.Get<BlueprintUnit>("f30beec3bfcfc374883cbbc700c6ad47");
             mandragora_form = createPolymorphForm("PlantshapeIMandragoraBuff",
                                                  "Plant Shape (Mandragora)",
-                                                 "You are in mandragora form now. You have a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also have one 1d6 bite attack, two 1d4 slams and poison ability.",
+                                                 "You are in mandragora form now. You have a +2 size bonus to Dexterity and  Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also have one 1d6 bite attack, two 1d4 slams and poison ability.",
                                                  entangle.Icon,
                                                  mandragora,
-                                                 2, 0, 2, 2, 10, Size.Small,
+                                                 0, 2, 2, 2, 10, Size.Small,
                                                  mandaragora_slam, mandaragora_slam, new BlueprintItemWeapon[] {mandragora_bite},
                                                  mandragora_poison
                                                  );  
 
             plant_shapeI = replaceForm(beast_shape_prototype, mandragora_form, "PlantShapeISpell", "Plant Shape I",
-                                                "You become a small mandragora. You gain a +2 size bonus to your Strength and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d6 bite attack, two 1d4 slams and poison ability.");
+                                                "You become a small mandragora. You gain a +2 size bonus to your Dexterity and Constitution and a +2 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d6 bite attack, two 1d4 slams and poison ability.");
             plant_shapeI.RemoveComponents<SpellListComponent>();
             plant_shapeI.AddToSpellList(Helpers.alchemistSpellList, 5);
             plant_shapeI.AddToSpellList(Helpers.wizardSpellList, 5);
@@ -1177,8 +1196,81 @@ namespace CallOfTheWild
         }
 
 
+        static void createMonstorusPhysique()
+        {
+            var icon = library.Get<BlueprintFeature>("489c8c4a53a111d4094d239054b26e32").Icon;//abyssal bloodlien strength
+            BlueprintUnit gargoyle = library.Get<BlueprintUnit>("258d63b2e7a05e74780c8a1120b4e623");
+            var gargoyle_form = createPolymorphForm("MonstorusPhysiqueGragoyleBuff",
+                                                 "Monstrous Physique I",
+                                                 "You are in gargoyle form now. You have a +2 size bonus to your Strength and a +2 natural armor bonus. You gain flight ability. You also have two 1d6 claw attacks, one 1d4 bite attack and one 1d4 gore attack. You are able to cast spells while in this form.",
+                                                 icon,
+                                                 gargoyle,
+                                                 2, 0, 0, 2, 0, Size.Medium,
+                                                 library.Get<BlueprintItemWeapon>("c76f72a862d168d44838206524366e1c"),
+                                                 library.Get<BlueprintItemWeapon>("c76f72a862d168d44838206524366e1c"),
+                                                 new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("d53e7995a3ea3f646af020d1b9b56d68"), library.Get<BlueprintItemWeapon>("cc86ff4cd9bf7ff45863c19f7f0cb11f")},
+                                                 library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175")//airborne
+                                                 );
+            gargoyle_form.AddComponent(Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
+            monstrous_physiqueI = replaceForm(beast_shape_prototype, gargoyle_form, "MonstrousPhysiqueISpell", "Monstorus Physique I",
+                                                "You become a medium gargoyle. You gain a +2 size bonus to your Strength and a +2 natural armor bonus. You gain flight ability. You also gain two 1d6 claw attacks, one 1d4 bite attack and one 1d4 gore attack. You are able to cast spells while in this form.");
+            monstrous_physiqueI.RemoveComponents<SpellListComponent>();
+            monstrous_physiqueI.AddToSpellList(Helpers.alchemistSpellList, 4);
+            monstrous_physiqueI.AddToSpellList(Helpers.wizardSpellList, 4);
+            monstrous_physiqueI.SetIcon(icon);
+            Helpers.AddSpellAndScroll(monstrous_physiqueI, "102d903c65636f341ae7cb4533905ffa");//scroll of bulls strength
 
-        
+            var rend = library.CopyAndAdd<BlueprintFeature>("e80ba26500d22e546baba542032aad0d", "HagRendFeature", "");
+            rend.ReplaceComponent<RendFeature>(r => r.RendDamage = new DiceFormula(2, DiceType.D6));
+            BlueprintUnit hag = library.Get<BlueprintUnit>("b889022a8eff1aa42bcc08f05c95c4dc");
+            var hag_form = createPolymorphForm("MonstorusPhysiqueHagBuff",
+                                                 "Monstrous Physique II",
+                                                 "You are in hag form now. You have a +4 size bonus to your Strength, a -2 penalty to Dexterity and a +4 natural armor bonus. You have two 1d6 claw attacks, one 1d6 bite attack and rend ability. You are able to cast spells while in this form.",
+                                                 icon,
+                                                 hag,
+                                                 4, -2, 0, 4, 10, Size.Large,
+                                                 library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"),
+                                                 library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"),
+                                                 new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("d53e7995a3ea3f646af020d1b9b56d68")},
+                                                 rend
+                                                 );
+            hag_form.AddComponent(Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
+            monstrous_physiqueII = replaceForm(beast_shape_prototype, hag_form, "MonstrousPhysiqueIISpell", "Monstorus Physique II",
+                                                "You become a large hag. You gain a +4 size bonus to your Strength, a -2 penalty to Dexterity and a +4 natural armor bonus. You also gain two 1d6 claw attacks, one 1d6 bite attack and rend ability. You are able to cast spells while in this form.");
+            monstrous_physiqueII.RemoveComponents<SpellListComponent>();
+            monstrous_physiqueII.AddToSpellList(Helpers.alchemistSpellList, 5);
+            monstrous_physiqueII.AddToSpellList(Helpers.wizardSpellList, 5);
+            monstrous_physiqueII.SetIcon(icon);
+            Helpers.AddSpellAndScroll(monstrous_physiqueII, "102d903c65636f341ae7cb4533905ffa");//scroll of bulls strength
+
+
+            BlueprintUnit lizardfolk = library.Get<BlueprintUnit>("98efa959deae59a46b3007aca1621052");
+            var saurian_from = createPolymorphForm("MonstorusPhysiqueSaurianBuff",
+                                                 "Monstrous Physique III",
+                                                 "You are in saurian form now. You have a +6 size bonus to your Strength, a -4 penalty to Dexterity and a +6 natural armor bonus. You have two 1d8 claw attacks, one 2d6 bite attack, fire resistance 20 and roar ability. You are able to cast spells while in this form.",
+                                                 icon,
+                                                 lizardfolk,
+                                                 6, -4, 0, 4, 10, Size.Medium,
+                                                 library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"),
+                                                 library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"),
+                                                 new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286") }
+                                                 );
+            saurian_from.AddComponent(Helpers.Create<SizeMechanics.PermanentSizeOverride>(s => s.size = Size.Huge));
+            saurian_from.AddComponent(Common.createEnergyDR(20, DamageEnergyType.Fire));
+            saurian_from.AddComponent(Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
+
+            monstrous_physiqueIII = replaceForm(beast_shape_prototype, saurian_from, "MonstrousPhysiqueIIISpell", "Monstorus Physique III",
+                                                "You become a huge saurian. You gain a +6 size bonus to your Strength, a -4 penalty to Dexterity and a +6 natural armor bonus. You also gain two 1d8 claw attacks, one 2d6 bite attack, fire resistance 20 and roar ability. You are able to cast spells while in this form.");
+            monstrous_physiqueIII.RemoveComponents<SpellListComponent>();
+            monstrous_physiqueIII.AddToSpellList(Helpers.alchemistSpellList, 6);
+            monstrous_physiqueIII.AddToSpellList(Helpers.wizardSpellList, 6);
+            monstrous_physiqueIII.SetIcon(icon);
+            Helpers.AddSpellAndScroll(monstrous_physiqueIII, "102d903c65636f341ae7cb4533905ffa");//scroll of bulls strength
+        }
+
+
+
+
 
         static void createPlantShapeII()
         {
@@ -1270,7 +1362,7 @@ namespace CallOfTheWild
                                                  library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710"),
                                                  new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710") },
                                                  library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
-                                                 library.Get<BlueprintBuff>("20b57bab6bac9b04493491432bcb6868"),//pounce
+                                                 library.Get<BlueprintFeature>("20b57bab6bac9b04493491432bcb6868"),//pounce
                                                  trip_defense_4legs
                                                  );
             bulette_form.AddComponent(Common.createBlindsight(60));
@@ -1288,7 +1380,7 @@ namespace CallOfTheWild
                                      library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
                                      library.Get<BlueprintFeature>("c1b26f97b974aec469613f968439e7bb"), //immunity to trip
                                      library.Get<BlueprintBuff>("37a5e51e9e3a23049a77ba70b4e7b2d2"),//fast healing 5,
-                                     library.Get<BlueprintBuff>("20b57bab6bac9b04493491432bcb6868")//pounce
+                                     library.Get<BlueprintFeature>("20b57bab6bac9b04493491432bcb6868")//pounce
                                      );
 
             bulette_spell = replaceForm(smilodon_form_spell, bulette_form, "MagicalBeastShapeBuletteAbility", "Magical Beast Shape (Bulette)",
@@ -1407,7 +1499,7 @@ namespace CallOfTheWild
             BlueprintUnit hodag = library.Get<BlueprintUnit>("3822f050c76b00240a248e1ba8597636");
             hodag_form = createPolymorphForm("BeastShapeIVHodagBuff",
                                                  "Wild Shape (Hodag)",
-                                                 "You are in hodag form now. You have a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also have one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and toss ability.",
+                                                 "You are in hodag form now. You have a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also have one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack, ferocity and toss ability.",
                                                  beast_shape4.Icon,
                                                  hodag,
                                                  6, -2, 2, 6, 0, Size.Large,
@@ -1416,10 +1508,12 @@ namespace CallOfTheWild
                                                  new BlueprintItemWeapon[]{library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"),
                                                                            library.Get<BlueprintItemWeapon>("ae822725634c6f0418b8c48bd29df255")
                                                                            },
-                                                 trip_defense_4legs, toss_feature);
+                                                 trip_defense_4legs, 
+                                                 toss_feature,
+                                                 library.Get<BlueprintUnitFact>("955e356c813de1743a98ab3485d5bc69"));
 
             hodag_form_spell = replaceForm(smilodon_form_spell, hodag_form, "BeastShapeIVHodagAbility", "Beast Shape IV (Hodag)",
-                                            "You become a Large hodag. You gain a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also gain one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and toss ability.");
+                                            "You become a Large hodag. You gain a +6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. You also gain one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack, ferocity and toss ability.");
 
 
 
@@ -1448,7 +1542,7 @@ namespace CallOfTheWild
                                                  tripping_bite, trip_defense_4legs, winter_wolf_breath, winter_wolf_trait);
            
             winter_wolf_form_spell = replaceForm(smilodon_form_spell, winter_wolf_form, "BeastShapeIVWinterWolfAbility", "Beast Shape IV (Winter Wolf)",
-                                  "You become a Large winter wolf. You gain a + 6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d8 bite attack and breath weapon(6d6 cold damage, Reflex save for half can be used once in 1d4 rounds).  You also gain cold resistance 20 and fire vulnerability.");
+                                  "You become a Large winter wolf. You gain a + 6 size bonus to your Strength, +2 bonus to your Constitution, -2 penalty to Dexterity, and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also gain one 1d8 bite attack and breath weapon(6d6 cold damage, Reflex save for half can be used once in 1d4 rounds). You also gain cold resistance 20 and fire vulnerability.");
             winter_wolf_form.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = winter_wolf_breath));
             beast_shape4.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(beast_shape4, winter_wolf_form_spell, hodag_form_spell));
         }
@@ -1490,12 +1584,15 @@ namespace CallOfTheWild
             var polymorph_spell = library.Get<BlueprintAbility>("93d9d74dac46b9b458d4d2ea7f4b1911");
             var variants = polymorph_spell.GetComponent<AbilityVariants>();
             var polymorph_bear = replaceForm(polymorph_animal, bear_form, "PolymorphSpellBearAbility", "Polymorph (Bear)",
-                                                "Target becomes a Large bear. It gains a + 4 size bonus to Strength, a –2 penalty to Dexterity, and a + 4 natural armor bonus. Its movement speed is increased by 10 feet. It also gains two 1d6 claw attacks and one 1d6 bite attack.");
+                                                "Target becomes a Large bear. It gains a + 4 size bonus to Strength, a –2 penalty to Dexterity, and a + 4 natural armor bonus. Its movement speed is increased by 10 feet. It also gains two 1d6 claw attacks and one 1d6 bite attack.",
+                                                turn_back_full);
             var polymorph_dire_wolf = replaceForm(polymorph_animal, dire_wolf_form, "PolymorphSpellDireWolfAbility", "Polymorph (Dire Wolf)",
-                                                "Target becomes a Large dire wolf. It gains a +4 size bonus to Strength, -2 penalty to Dexterity, and a +4 natural armor bonus. Its movement speed is increased by 10 feet. It also gains a 1d8 bite attack and the tripping bite ability.");
+                                                "Target becomes a Large dire wolf. It gains a +4 size bonus to Strength, -2 penalty to Dexterity, and a +4 natural armor bonus. Its movement speed is increased by 10 feet. It also gains a 1d8 bite attack and the tripping bite ability.",
+                                                turn_back_full);
 
             var polymorph_wolf = replaceForm(polymorph_animal, wolf_form, "PolymorphSpellWolfAbility", "Polymorph (Wolf)",
-                                               "Target becomes a Medium wolf. It gains a +2 size bonus to Strength and a +2 natural armor bonus. Its movement speed is increased by 20 feet. It also gains a 1d6 bite attack and the tripping bite ability.\nTripping Bite: A wolf can attempt to trip its opponent as a free action if it hits with bite attack.");
+                                               "Target becomes a Medium wolf. It gains a +2 size bonus to Strength and a +2 natural armor bonus. Its movement speed is increased by 20 feet. It also gains a 1d6 bite attack and the tripping bite ability.\nTripping Bite: A wolf can attempt to trip its opponent as a free action if it hits with bite attack.",
+                                               turn_back_full);
 
             variants.Variants = variants.Variants.AddToArray(polymorph_wolf, polymorph_bear, polymorph_dire_wolf);
             polymorph_spell.SetDescription("This spell transforms an allied creature into a wolf, a leopard, a Large bear, a Large dire wolf or a small elemental. The subject may choose to resume its normal form as a full-round action; doing so ends the spell for that subject.");
@@ -1510,11 +1607,14 @@ namespace CallOfTheWild
             var variants = polymorph_spell.GetComponent<AbilityVariants>();
 
             var polymorph_mastodon = replaceForm(polymorph_animal, mastodon_form, "PolymorphGreaterSpellMastodonAbility", "Polymorph, Greater (Mastodon)",
-                                                "Target becomes a Huge mastodon. It gains a +6 size bonus to Strength, -4 penalty to Dexterity, and a +6 natural armor bonus. Its movement speed is increased by 10 feet. It also gains a 2d8 gore attack, 2d6 slam attack and trample ability.");
+                                                "Target becomes a Huge mastodon. It gains a +6 size bonus to Strength, -4 penalty to Dexterity, and a +6 natural armor bonus. Its movement speed is increased by 10 feet. It also gains a 2d8 gore attack, 2d6 slam attack and trample ability.",
+                                                turn_back_full);
             var polymorph_hodag = replaceForm(polymorph_animal, hodag_form, "PolymorphGreaterSpellHodagAbility", "Polymorph, Greater (Hodag)",
-                                     "Target becomes a Large hodag. It gains a +6 size bonus to Strength, +2 bonus to Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. It also gains one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and poison ability.");
+                                     "Target becomes a Large hodag. It gains a +6 size bonus to Strength, +2 bonus to Constitution, -2 penalty to Dexterity, and a +6 natural armor bonus. It also gains one 1d8 bite attack, two 1d6 claw attacks, one 1d8 tail attack and poison ability.",
+                                     turn_back_full);
             var polymorph_winter_wolf = replaceForm(polymorph_animal, winter_wolf_form, "PolymorphGreaterSpellWinterWolfAbility", "Polymorph, Greater (Winter Wolf)",
-                                     "Target becomes a Large winter wolf. It gains a + 6 size bonus to Strength, +2 bonus to Constitution, -2 penalty to Dexterity, and a + 6 natural armor bonus. Its movement speed is increased by 10 feet. It also gains one 1d8 bite attack and breath weapon(6d6 cold damage, Reflex save for half can be used once in 1d4 rounds).  It also gains cold resistance 20 and fire vulnerability.");
+                                     "Target becomes a Large winter wolf. It gains a + 6 size bonus to Strength, +2 bonus to Constitution, -2 penalty to Dexterity, and a + 6 natural armor bonus. Its movement speed is increased by 10 feet. It also gains one 1d8 bite attack and breath weapon(6d6 cold damage, Reflex save for half can be used once in 1d4 rounds).  It also gains cold resistance 20 and fire vulnerability.",
+                                     turn_back_full);
             variants.Variants = variants.Variants.AddToArray(polymorph_mastodon, polymorph_hodag, polymorph_winter_wolf);
             polymorph_spell.SetDescription("This spell transforms an allied creature into a large smilodon, huge mastodon, large hodag, large winter wolf, large shambling mound, large elemental, wyvern or medium dragon-like creature. The subject may choose to resume its normal form as a full-round action; doing so ends the spell for that subject.");
 
@@ -1527,7 +1627,7 @@ namespace CallOfTheWild
                                                 BlueprintItemWeapon main_hand, BlueprintItemWeapon off_hand, BlueprintItemWeapon[] additional_limbs,
                                                 params BlueprintUnitFact[] facts)
         {
-            var buff = library.CopyAndAdd<BlueprintBuff>("00d8fbe9cf61dc24298be8d95500c84b", name, ""); //wolf wildshape as base
+            var buff = library.CopyAndAdd<BlueprintBuff>("00d8fbe9cf61dc24298be8d95500c84b", name, ""); //wolf beast shape as base
             buff.SetDescription(description);
             buff.SetName(display_name);
             buff.SetIcon(icon);
@@ -1558,17 +1658,27 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintAbility replaceForm(BlueprintAbility ability_base, BlueprintBuff form_buff, string new_name, string display_name, string description)
+        static BlueprintAbility replaceForm(BlueprintAbility ability_base, BlueprintBuff form_buff, string new_name, string display_name, string description, BlueprintAbility turn_back_ability = null)
         {
             var ability = library.CopyAndAdd<BlueprintAbility>(ability_base.AssetGuid, new_name, "");
             ability.SetName(display_name);
             ability.SetDescription(description);
-            var check_component = ability.GetComponent<AbilityTargetHasFact>().CreateCopy();
+            var check_component = ability.GetComponent<AbilityTargetHasFact>().CreateCopy(a => a.CheckedFacts = a.CheckedFacts.AsEnumerable().ToArray());
             check_component.CheckedFacts[0] = form_buff;
             ability.ReplaceComponent<AbilityTargetHasFact>(check_component);
             var action = ability.GetComponent<AbilityEffectRunAction>().CreateCopy();
             var original_action = ((ContextActionApplyBuff)ability.GetComponent<AbilityEffectRunAction>().Actions.Actions[0]).CreateCopy();
-            original_action.Buff = form_buff;
+            if (turn_back_ability != null && !form_buff.GetComponent<Polymorph>().Facts.Contains(turn_back_ability))
+            {
+                var new_form_buff = library.CopyAndAdd(form_buff, new_name + form_buff.name, Helpers.MergeIds("5dcc9ba5cf914ea3986986372779021a", form_buff.AssetGuid));
+                check_component.CheckedFacts[0] = new_form_buff;
+                original_action.Buff = new_form_buff;
+                new_form_buff.ReplaceComponent<Polymorph>(p => p.Facts.RemoveFromArray(turn_back_standard).RemoveFromArray(turn_back_free).RemoveFromArray(turn_back_full).AddToArray(turn_back_ability));
+            }
+            else
+            {
+                original_action.Buff = form_buff;
+            }
             action.Actions = Helpers.CreateActionList(original_action);
 
             ability.ReplaceComponent<AbilityEffectRunAction>(action);

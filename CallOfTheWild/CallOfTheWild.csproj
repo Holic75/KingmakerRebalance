@@ -193,6 +193,7 @@
     <Compile Include="Features\MetamagicFeats.cs" />
     <Compile Include="Features\MonkStunningFistEffects.cs" />
     <Compile Include="Features\RogueTalents.cs" />
+    <Compile Include="Features\Traits.cs" />
     <Compile Include="Features\VersatilePerformance.cs" />
     <Compile Include="Features\WizardDiscoveries.cs" />
     <Compile Include="MechanicsFixes\BloodlinesFix.cs" />

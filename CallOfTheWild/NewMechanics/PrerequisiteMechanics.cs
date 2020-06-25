@@ -55,6 +55,23 @@ namespace CallOfTheWild.PrerequisiteMechanics
         }
     }
 
+    public class PrerequisiteRace : Prerequisite
+    {
+        public BlueprintRace race;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return race == unit.Progression.Race;
+        }
+
+        public override string GetUIText()
+        {
+            return race.Name;
+        }
+    }
 
     [AllowMultipleComponents]
     public class PrerequisiteNoFeatures : Prerequisite

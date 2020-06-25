@@ -236,6 +236,59 @@ namespace CallOfTheWild.OnCastMechanics
     }
 
 
+    public class IgnoreActionOnApplyBuff: BlueprintComponent
+    {
+
+    }
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ActionOnApplyBuff : RuleInitiatorLogicComponent<RuleApplyBuff>
+    {
+        public SpellSchool school;
+        public ActionList actions;
+        public bool use_buff_context = true;
+        public bool on_caster = false;
+        public override void OnEventAboutToTrigger(RuleApplyBuff evt)
+        {
+
+        }
+
+        public override void OnEventDidTrigger(RuleApplyBuff evt)
+        {
+            var ability = evt.Context.SourceAbilityContext?.Ability;
+            if (ability == null)
+            {
+                return;
+            }
+            if (!ability.Blueprint.IsSpell)
+            {
+                return;
+            }
+
+            if (school != SpellSchool.None && ability.Blueprint.School != school)
+            {
+                return;
+            }
+
+            if (evt.AppliedBuff.Blueprint.GetComponent<IgnoreActionOnApplyBuff>() != null)
+            {
+                return;
+            }
+            var target = on_caster ? evt.AppliedBuff.Context.MaybeCaster : evt.Initiator;
+
+            if (use_buff_context)
+            {
+                (evt.AppliedBuff as IFactContextOwner).RunActionInContext(actions, target);
+            }
+            else
+            {
+                (this.Fact as IFactContextOwner).RunActionInContext(actions, target);
+            }
+        }
+    }
+
+
     [AllowMultipleComponents]
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class IncreaseDurationBy1RoundIfMetamagic : RuleInitiatorLogicComponent<RuleApplyBuff>

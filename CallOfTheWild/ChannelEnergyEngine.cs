@@ -154,6 +154,7 @@ namespace CallOfTheWild
         static public BlueprintFeature quick_channel = null;
         static public BlueprintFeature channel_smite = null;
         static public BlueprintFeature improved_channel = null;
+        static public BlueprintFeature sacred_conduit = null;
         static public BlueprintFeature channeling_scourge = null;
 
         static BlueprintFeature witch_channel_negative;
@@ -1215,7 +1216,22 @@ namespace CallOfTheWild
             {
                 abilities.spells = abilities.spells.AddToArray(ability);
             }
+
+
+            if (sacred_conduit == null)
+            {
+                return;
+            }
+
+            abilities = sacred_conduit.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+
+            if (!abilities.spells.Contains(ability))
+            {
+                abilities.spells = abilities.spells.AddToArray(ability);
+            }
         }
+
+
 
 
         static void addToImprovedChannel(ChannelEntry c)
@@ -1279,6 +1295,16 @@ namespace CallOfTheWild
                                                      Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 2; c.spells = new BlueprintAbility[] {turn_undead }; }),
                                                      Helpers.PrerequisiteFeaturesFromList(necromancy_school)
                                                      );
+
+            sacred_conduit = Helpers.CreateFeature("SacredConduitTrait",
+                                                  "Sacred Conduit",
+                                                  "Your birth was particularly painful and difficult for your mother, who needed potent divine magic to ensure that you survived (your mother may or may not have survived). In any event, that magic infused you from an early age, and you now channel divine energy with greater ease than most.\n"
+                                                  + "Benefit: Whenever you channel energy, you gain a +1 trait bonus to the save DC of your channeled energy.",
+                                                  "",
+                                                  ChannelEnergyEngine.improved_channel.Icon,
+                                                  FeatureGroup.Trait,
+                                                  Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 1; c.spells = new BlueprintAbility[] { turn_undead }; })
+                                                 );
 
             foreach (var c in channel_entires)
             {

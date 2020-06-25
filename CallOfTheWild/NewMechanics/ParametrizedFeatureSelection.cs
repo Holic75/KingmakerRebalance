@@ -17,6 +17,13 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
     {
         KnownSpell = 20,
         KnownSpontaneousSpell = 21,
+        AllLearnableSpells = 22
+    }
+
+
+    public class MaxLearneableSpellLevelLimiter : BlueprintComponent
+    {
+        public int max_lvl = 9;
     }
 
 
@@ -30,6 +37,9 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
             {
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpell:
                     __result = (IEnumerable < IFeatureSelectionItem > )ExtractKnownSpells(__instance, previewUnit, false).ToArray<FeatureUIData>();
+                    return false;
+                case (FeatureParameterType)FeatureParameterTypeExtender.AllLearnableSpells:
+                    __result = (IEnumerable<IFeatureSelectionItem>)ExtractAllLearnableSpells(__instance, previewUnit).ToArray<FeatureUIData>();
                     return false;
                 case FeatureParameterType.SpellSpecialization:
                     __result = (IEnumerable<IFeatureSelectionItem>)ExtractItemsFromSpellbooks2(__instance, previewUnit).ToArray<FeatureUIData>();
@@ -80,6 +90,33 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                 foreach (SpellLevelList spellLevel in spellbook.Blueprint.SpellList.SpellsByLevel)
                 {
                     if (spellLevel.SpellLevel <= spellbook.MaxSpellLevel)
+                    {
+                        foreach (BlueprintAbility spell in spellLevel.SpellsFiltered)
+                        {
+                            if (unit.GetFeature(feature.Prerequisite, spell.School) != null)
+                            {
+                                yield return new FeatureUIData(feature, spell, spell.Name, spell.Description, spell.Icon, spell.name);
+                            }
+                        }
+                    }
+                }
+            }
+            yield break;
+        }
+
+
+        static private IEnumerable<FeatureUIData> ExtractAllLearnableSpells(BlueprintParametrizedFeature feature, UnitDescriptor unit)
+        {
+            var max_lvl = feature.GetComponent<MaxLearneableSpellLevelLimiter>().max_lvl;
+            foreach (Spellbook spellbook in unit.Spellbooks)
+            {
+                if (spellbook.Blueprint.GetComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>() != null)
+                {
+                    continue;
+                }
+                foreach (SpellLevelList spellLevel in spellbook.Blueprint.SpellList.SpellsByLevel)
+                {
+                    if (spellLevel.SpellLevel <= max_lvl)
                     {
                         foreach (BlueprintAbility spell in spellLevel.SpellsFiltered)
                         {

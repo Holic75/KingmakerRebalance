@@ -628,8 +628,34 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleApplyMetamagic evt)
             {
             }
+        }
 
 
+        public class ReduceMetamagicCostForSpellParametrized : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleApplyMetamagic>
+        {
+            public int reduction = 1;
+
+            public void OnEventAboutToTrigger(RuleApplyMetamagic evt)
+            {
+                var spell = this.Param?.Blueprint as BlueprintAbility;
+                if (spell == null)
+                {
+                    return;
+                }
+
+                var spellbook = evt.Spellbook;
+                if (spellbook == null || !SpellDuplicates.isDuplicate(spell, evt.Spell))
+                {
+                    return;
+                }
+                if (evt.AppliedMetamagics.Count == 0) return;
+
+                evt.ReduceCost(reduction);
+            }
+
+            public void OnEventDidTrigger(RuleApplyMetamagic evt)
+            {
+            }
         }
 
 

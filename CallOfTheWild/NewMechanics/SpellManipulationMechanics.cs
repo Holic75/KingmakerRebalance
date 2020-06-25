@@ -1225,13 +1225,40 @@ namespace CallOfTheWild
         }
 
 
+        public class TargetDescriptorModifierBonus : OwnedGameLogicComponent<UnitDescriptor>, IOnModifierAdd
+        {
+            public ModifierDescriptor descriptor;
+            public ContextValue bonus;
+
+            public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
+            {
+                var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (spellContext == null)
+                {
+                    return;
+                }
+
+                if (value.Owner != this.Owner)
+                {
+                    return;
+                }
+
+                if (descriptor != ModifierDescriptor.None && descriptor != modifier.ModDescriptor)
+                {
+                    return;
+                }
+
+                modifier.ModValue += bonus.Calculate(this.Fact.MaybeContext);
+            }
+        }
+
         public class ModifierBonusForSchool : OwnedGameLogicComponent<UnitDescriptor>, IOnModifierAdd
         {
             public SpellSchool school;
             public ModifierDescriptor descriptor;
             public ContextValue bonus;
 
-            public void onModifierAdd(ModifiableValue.Modifier modifier)
+            public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
             {
                 var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
                 if (spellContext == null)
@@ -1261,7 +1288,7 @@ namespace CallOfTheWild
 
         public interface IOnModifierAdd : IGlobalSubscriber
         {
-            void onModifierAdd(ModifiableValue.Modifier modifier);
+            void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier);
         }
 
 
@@ -1410,7 +1437,7 @@ namespace CallOfTheWild
         {
             internal static bool Prefix(ModifiableValue __instance , ModifiableValue.Modifier mod)
             {
-                EventBus.RaiseEvent<IOnModifierAdd>((Action<IOnModifierAdd>)(h => h.onModifierAdd(mod)));
+                EventBus.RaiseEvent<IOnModifierAdd>((Action<IOnModifierAdd>)(h => h.onModifierAdd(__instance, mod)));
 
                 return true;
             }

@@ -2,12 +2,14 @@
 using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Newtonsoft.Json;
@@ -46,6 +48,60 @@ namespace CallOfTheWild.SkillMechanics
             {
                 return evt.D20;
             }
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class DependentAbilityScoreCheckStatReplacement : RuleD20InitiatorLogicComponent<RuleSkillCheck>
+    {
+        public StatType stat;
+        public StatType old_stat;
+        public StatType new_stat;
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                MechanicsContext context = (this.Fact as Buff)?.Context;
+                if (context != null)
+                    return context;
+                return (this.Fact as Feature)?.Context;
+            }
+        }
+
+        protected override void OnD20AboutToTrigger(RuleRollD20 evt)
+        {
+            RuleSkillCheck rule = evt.Reason.Rule as RuleSkillCheck;
+            StatType? statType = rule?.StatType;
+            if ((statType.GetValueOrDefault() != this.stat ? 1 : (!statType.HasValue ? 1 : 0)) != 0)
+                return;
+
+            var stat = this.Owner.Stats.GetStat<ModifiableValueDependant>(statType.Value);
+            if (stat == null)
+            {
+                return;
+            }
+            if (stat.BaseStat.Type != old_stat)
+            {
+                return;
+            }
+
+            var old_stat_value = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(old_stat).Bonus;
+            var new_stat_value = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
+
+            if (new_stat_value <= old_stat_value)
+            {
+                return;
+            }
+
+            ModifiableValue.Modifier modifier = new ModifiableValue.Modifier()
+            {
+                ModDescriptor = Kingmaker.Enums.ModifierDescriptor.Inherent,
+                ModValue = new_stat_value - old_stat_value
+            };
+            rule.AddTemporaryModifier(modifier);
         }
     }
 
