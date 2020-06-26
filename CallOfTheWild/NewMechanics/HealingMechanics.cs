@@ -1,6 +1,7 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -18,6 +19,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -537,6 +539,25 @@ namespace CallOfTheWild.HealingMechanics
         }
     }
 
+
+    public class OnHealingReceivedActionTrigger: OwnedGameLogicComponent<UnitDescriptor>, IHealingHandler
+    {
+        public ActionList actions;
+        public int min_amount = 0;
+
+        public void HandleHealing(UnitEntityData source, UnitEntityData target, int amount)
+        {
+            if (target != this.Owner.Unit)
+            {
+                return;
+            }
+            if (amount < min_amount)
+            {
+                return;
+            }
+            (this.Fact as IFactContextOwner).RunActionInContext(actions, target);
+        }
+    }
 
     /*public class TemporaryHpBonusInternal : BuffLogic, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
     {
