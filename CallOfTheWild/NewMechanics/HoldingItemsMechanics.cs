@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.Enums;
 using Kingmaker.Items;
 using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
@@ -35,7 +36,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 spell_combat = true;
             }
 
-            
+
 
             if (__instance.Blueprint.IsTwoHanded
                 || (__instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands && __result == false))
@@ -234,7 +235,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
             var weapon = primary_hand_slot?.MaybeWeapon;
             var weapon2 = secondary_hand_slot?.MaybeWeapon;
-            if (weapon == null  || weapon.EnchantmentsCollection == null )
+            if (weapon == null || weapon.EnchantmentsCollection == null)
             {
                 return false;
             }
@@ -276,7 +277,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 return false;
             }
 
-            if (secondary_hand_slot!= null && !Helpers.hasFreeHand(secondary_hand_slot))
+            if (secondary_hand_slot != null && !Helpers.hasFreeHand(secondary_hand_slot))
             {
                 return false;
             }
@@ -633,4 +634,58 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
+
+    public class UnitPartConsiderAsLightWeapon : AdditiveUnitPart
+    {
+        public bool canBeUsedOn(ItemEntityWeapon weapon)
+        {
+            if (buffs.Empty())
+            {
+                return false;
+            }
+
+            foreach (var b in buffs)
+            {
+                bool result = false;
+                b.CallComponents<CanUse2hWeaponAs1hBase>(c => result = c.canBeUsedOn(weapon));
+                if (result)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    public abstract class ConsiderAsLightWeaponBase : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        abstract public bool canBeUsedOn(ItemEntityWeapon weapon);
+
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartConsiderAsLightWeapon>().addBuff(this.Fact);
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartConsiderAsLightWeapon>().removeBuff(this.Fact);
+        }
+    }
+
+    public class ConsiderWeaponCategoriesAsLightWeapon: ConsiderAsLightWeaponBase
+    {
+        public WeaponCategory[] categories;
+
+        public override bool canBeUsedOn(ItemEntityWeapon weapon)
+        {
+            if (weapon == null)
+            {
+                return false;
+            }
+
+            return weapon.Blueprint.Category == WeaponCategory.SpikedHeavyShield || weapon.Blueprint.Category == WeaponCategory.WeaponHeavyShield;
+        }
+    }
 }

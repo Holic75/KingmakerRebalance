@@ -477,7 +477,12 @@ namespace CallOfTheWild
                 UnitPartWeaponTraining partWeaponTraining = __instance.Owner.Get<UnitPartWeaponTraining>();
                 bool ignore_weapon_size = (bool)__instance.Owner.State.Features.EffortlessDualWielding && partWeaponTraining != null && partWeaponTraining.IsSuitableWeapon(maybeWeapon2);
                 ignore_weapon_size = ignore_weapon_size || __instance.Owner.Unit.Descriptor.HasFact(prodigious_two_weapon_fighting);
-                if (!maybeWeapon2.Blueprint.IsLight && !maybeWeapon1.Blueprint.Double && (!ignore_weapon_size))
+
+                var consider_as_light_unit_part = __instance.Owner.Get<HoldingItemsMechanics.UnitPartConsiderAsLightWeapon>();
+                bool is_light = maybeWeapon2.Blueprint.IsLight
+                                || (consider_as_light_unit_part != null && consider_as_light_unit_part.canBeUsedOn(maybeWeapon2));
+
+                if (!is_light  && !maybeWeapon1.Blueprint.Double && (!ignore_weapon_size))
                     bonus += -2;
 
                 if (evt.Weapon.IsShield && __instance.Owner.Unit.Descriptor.HasFact(shield_master))

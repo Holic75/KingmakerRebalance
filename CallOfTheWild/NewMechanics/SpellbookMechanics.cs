@@ -1,12 +1,17 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -255,6 +260,51 @@ namespace CallOfTheWild.SpellbookMechanics
             }
 
             return true;
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class CasterLevelBonusBounded : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+    {
+        public ContextValue value;
+        public ContextValue bound;
+        public BlueprintCharacterClass character_class;
+
+        public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+        {
+            evt.AddBonusCasterLevel(getBonus(evt.Spellbook));
+        }
+
+
+
+        public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+        {
+        }
+
+
+        private int getBonus(Spellbook spellbook)
+        {
+            if (spellbook == null)
+            {
+                return 0 ;
+            }
+            var class_spellbook = this.Owner.GetSpellbook(character_class);
+            if (class_spellbook == null)
+            {
+                return 0;
+            }
+
+            if (class_spellbook.Blueprint != spellbook.Blueprint && class_spellbook.Blueprint.GetComponent<CompanionSpellbook>()?.spellbook != spellbook.Blueprint)
+            {
+                return 0;
+            }
+
+            int bonus = value.Calculate(this.Fact.MaybeContext);
+            bonus = Math.Min(bonus, bound.Calculate(this.Fact.MaybeContext) - spellbook.CasterLevel);
+
+            return Math.Max(0, bonus);
         }
     }
 

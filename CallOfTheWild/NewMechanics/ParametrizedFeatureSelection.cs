@@ -120,10 +120,7 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                     {
                         foreach (BlueprintAbility spell in spellLevel.SpellsFiltered)
                         {
-                            if (unit.GetFeature(feature.Prerequisite, spell.School) != null)
-                            {
-                                yield return new FeatureUIData(feature, spell, spell.Name, spell.Description, spell.Icon, spell.name);
-                            }
+                           yield return new FeatureUIData(feature, spell, spell.Name, spell.Description, spell.Icon, spell.name);
                         }
                     }
                 }
@@ -150,6 +147,7 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
             var tr = Harmony12.Traverse.Create(__instance);
             switch (__instance.ParameterType)
             {
+                case (FeatureParameterType)FeatureParameterTypeExtender.AllLearnableSpells:
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpell:
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpontaneousSpell:
                     ___m_CachedItems = tr.Method("ExtractItemsFromBlueprints", (IEnumerable<BlueprintScriptableObject>)__instance.BlueprintParameterVariants).GetValue<IEnumerable<FeatureUIData>>().ToArray<FeatureUIData>();

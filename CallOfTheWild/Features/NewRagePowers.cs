@@ -967,7 +967,7 @@ namespace CallOfTheWild
                                                          "Witch Hunter",
                                                          "While raging, the barbarian gains a +1 bonus on damage rolls against creatures possessing spells or spell-like abilities. This damage bonus increases by +1 for every four levels the barbarian has obtained.",
                                                          "",
-                                                         null,
+                                                         library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8").Icon, //holy weapon,
                                                          null,
                                                          Helpers.Create<NewMechanics.DamageBonusAgainstSpellUser>(d => d.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
                                                          Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,

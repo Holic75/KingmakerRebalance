@@ -92,11 +92,11 @@ namespace CallOfTheWild
             var classes = Main.library.Root.Progression.CharacterClasses.Where(c => !forbidden_classes.Contains(c) && !c.Archetypes.Empty() || c == VindicativeBastard.vindicative_bastard_class).ToList();
             foreach (var c in classes)
             {
-               if (hasDietySelection(c.Progression.LevelEntries))
-               {//already has diety
+                if (hasDietySelection(c.Progression.LevelEntries))
+                {//already has diety
                     atheism.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = c));
                     continue;
-               }
+                }
 
                 c.Progression.LevelEntries[0].Features.Add(deity);
 
@@ -125,10 +125,10 @@ namespace CallOfTheWild
             foreach (var le in level_entries)
             {
                 if (le.Features.Any(f =>
-                                    {
-                                        var selection = (f as BlueprintFeatureSelection);
-                                        return selection != null && selection.Group == FeatureGroup.Deities;
-                                    }
+                {
+                    var selection = (f as BlueprintFeatureSelection);
+                    return selection != null && selection.Group == FeatureGroup.Deities;
+                }
                                     ))
                 {
                     return true;

@@ -3204,7 +3204,7 @@ namespace CallOfTheWild
 
                 bonus = Math.Min(this.Owner.Stats.AC.ModifiedValue - this.Owner.Stats.AC.Touch, bonus);
 
-                if (bonus <= 0 || evt.IsTargetFlatFooted || !evt.AttackType.IsTouch())
+                if (bonus <= 0 || !evt.AttackType.IsTouch())
                 {
                     return;
                 }
@@ -3216,9 +3216,7 @@ namespace CallOfTheWild
             }
         }
 
-
-        [AllowedOn(typeof(BlueprintBuff))]
-        public class DamageBonusAgainstSpellUser : BuffLogic, ITargetRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, ITargetRulebookSubscriber
+        public class DamageBonusAgainstSpellUser : RuleInitiatorLogicComponent<RuleCalculateDamage>
         {
             public ContextValue Value;
             public bool arcane = true;
@@ -3230,6 +3228,7 @@ namespace CallOfTheWild
             {
                 foreach (ClassData classData in unit.Progression.Classes)
                 {
+                   
                     BlueprintSpellbook spellbook = classData.Spellbook;
                     if (spellbook == null)
                     {
@@ -3263,18 +3262,18 @@ namespace CallOfTheWild
                 return false;
             }
 
-            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
                 if (!isValidTarget(evt.Target.Descriptor))
                 {
                     return;
                 }
 
-                int bonus = Value.Calculate(this.Context);
+                int bonus = Value.Calculate(this.Fact.MaybeContext);
                 evt.DamageBundle.First?.AddBonus(bonus);
             }
 
-            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
             {
             }
         }
@@ -3564,6 +3563,107 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class ContextACBonusIfAdjacentCasterWithShield : BuffLogic, ITargetRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, ITargetRulebookSubscriber
+        {
+            public ContextValue value;
+            public ModifierDescriptor descriptor;
+
+
+            public void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+
+                var caster = this.Buff.Context.MaybeCaster;
+                if (caster == null)
+                {
+                    return;
+                }
+                if (this.Owner.Unit.DistanceTo(caster) > 7.Feet().Meters)
+                {
+                    return;
+                }
+
+                if (!caster.Descriptor.Body.HandsAreEnabled || caster.Descriptor.Body.SecondaryHand.MaybeShield == null)
+                {
+                    return;
+                }
+                  
+
+                int bonus = value.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Target.Stats.AC.AddModifier(bonus, (GameLogicComponent)this, descriptor));
+            }
+
+            public void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+        
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class FlankingAttackBonus : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public int Bonus;
+            public ModifierDescriptor Descriptor;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Weapon == null || !evt.Weapon.Blueprint.IsMelee)
+                    return;
+
+                if (evt.Target.CombatState.IsFlanked)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+        public class DamageBonusIfInvisibleToTarget : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public int Bonus;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                if (evt.DamageBundle.Weapon?.Blueprint.IsMelee != true) return;
+
+                var initiator = evt.Initiator;
+                var target = evt.Target;
+                // Flat-footed isn't enough, but we need to run the rule to assess the other variables
+                // (such as IgnoreVisibility and IgnoreConcealment)
+                var rule = Rulebook.Trigger(new RuleCheckTargetFlatFooted(initiator, target));
+                if (rule.IsFlatFooted)
+                {
+                    var targetCannotSeeUs = target.Descriptor.State.IsHelpless || // sleeping, etc
+                        !target.Memory.Contains(initiator) && !rule.IgnoreVisibility || // hasn't seen us, e.g. stealth/ambush
+                        UnitPartConcealment.Calculate(target, initiator) == Concealment.Total && !rule.IgnoreConcealment; // invisibility/blindness etc
+
+                    if (targetCannotSeeUs)
+                    {
+                        evt.DamageBundle.First?.AddBonusTargetRelated(Bonus);
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt) { }
+        }
+
 
         [AllowMultipleComponents]
         [ComponentName("Saving throw bonus against fact")]
@@ -3644,19 +3744,24 @@ namespace CallOfTheWild
         {
             public ContextValue Value;
             public ModifierDescriptor Descriptor;
+            public WeaponCategory[] categories = new WeaponCategory[0];
 
             public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
             {
                 if (!evt.IsAttackOfOpportunity)
                     return;
+                if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
                 evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(this.Value.Calculate(this.Fact.MaybeContext), (GameLogicComponent)this, this.Descriptor));
             }
 
             public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
             {
             }
-
         }
+
 
 
         [ComponentName("Maneuver Defence Bonus")]
