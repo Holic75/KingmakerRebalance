@@ -634,6 +634,29 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
+    [Harmony12.HarmonyPatch(typeof(UnitBody))]
+    [Harmony12.HarmonyPatch("SetEmptyHandWeapon", Harmony12.MethodType.Normal)]
+    class UnitBody__SetEmptyHandWeapon__Patch
+    {
+        //signal weapon set change to notify that weapons could have been changed
+        static void Postfix(UnitBody __instance, BlueprintItemWeapon weapon)
+        {
+            EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(UnitBody))]
+    [Harmony12.HarmonyPatch("RemoveEmptyHandWeapon", Harmony12.MethodType.Normal)]
+    class UnitBody__RemoveEmptyHandWeaponEmptyHandWeapon__Patch
+    {
+        //signal weapon set change to notify that weapons could have been changed
+        static void Postfix(UnitBody __instance, BlueprintItemWeapon weapon)
+        {
+            EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
+        }
+    }
+
+
 
     public class UnitPartConsiderAsLightWeapon : AdditiveUnitPart
     {

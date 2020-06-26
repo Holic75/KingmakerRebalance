@@ -54,7 +54,7 @@ namespace CallOfTheWild.SkillMechanics
 
     [AllowedOn(typeof(BlueprintUnitFact))]
     [AllowMultipleComponents]
-    public class DependentAbilityScoreCheckStatReplacement : RuleD20InitiatorLogicComponent<RuleSkillCheck>
+    public class DependentAbilityScoreCheckStatReplacement : RuleInitiatorLogicComponent<RuleSkillCheck>
     {
         public StatType stat;
         public StatType old_stat;
@@ -73,23 +73,33 @@ namespace CallOfTheWild.SkillMechanics
             }
         }
 
-        protected override void OnD20AboutToTrigger(RuleRollD20 evt)
+        public override void OnEventDidTrigger(RuleSkillCheck evt)
+        {
+
+        }
+
+        public override void OnEventAboutToTrigger(RuleSkillCheck evt)
         {
             if (do_not_apply_if_has_fact != null && this.Owner.HasFact(do_not_apply_if_has_fact))
             {
                 return;
             }
-            RuleSkillCheck rule = evt.Reason.Rule as RuleSkillCheck;
-            StatType? statType = rule?.StatType;
-            if ((statType.GetValueOrDefault() != this.stat ? 1 : (!statType.HasValue ? 1 : 0)) != 0)
+
+            if (evt.StatType != stat)
                 return;
 
-            var stat = this.Owner.Stats.GetStat<ModifiableValueDependant>(statType.Value);
-            if (stat == null)
+            var dependent_stat = this.Owner.Stats.GetStat<ModifiableValueDependant>(evt.StatType);
+            if (dependent_stat == null)
             {
                 return;
             }
-            if (stat.BaseStat.Type != old_stat)
+
+            var base_stat = (dependent_stat.BaseStat as ModifiableValueSkill);
+            if (base_stat == null)
+            {
+                return;
+            }
+            if (base_stat.BaseStat.Type != old_stat)
             {
                 return;
             }
@@ -102,12 +112,7 @@ namespace CallOfTheWild.SkillMechanics
                 return;
             }
 
-            ModifiableValue.Modifier modifier = new ModifiableValue.Modifier()
-            {
-                ModDescriptor = Kingmaker.Enums.ModifierDescriptor.Inherent,
-                ModValue = new_stat_value - old_stat_value
-            };
-            rule.AddTemporaryModifier(modifier);
+            evt.Bonus.AddModifier(new_stat_value - old_stat_value, this, Kingmaker.Enums.ModifierDescriptor.Inherent);
         }
     }
 

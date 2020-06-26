@@ -1367,7 +1367,7 @@ namespace CallOfTheWild
 
         static void createSizeIncrease()
         {
-            var reduced_reach = library.Get<BlueprintFeature>("c33f2d68d93ceee488aa4004347dffca");
+            var reduced_reach = library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca");
             size_increase = new BlueprintFeature[2];
             size_increase[0] = Helpers.CreateFeature("SizeIncreaseLargeEvolutionFeature",
                                                      "Size Increase: Large",
