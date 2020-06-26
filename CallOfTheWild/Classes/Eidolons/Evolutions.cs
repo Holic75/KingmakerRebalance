@@ -1367,6 +1367,7 @@ namespace CallOfTheWild
 
         static void createSizeIncrease()
         {
+            var reduced_reach = library.Get<BlueprintFeature>("c33f2d68d93ceee488aa4004347dffca");
             size_increase = new BlueprintFeature[2];
             size_increase[0] = Helpers.CreateFeature("SizeIncreaseLargeEvolutionFeature",
                                                      "Size Increase: Large",
@@ -1385,7 +1386,13 @@ namespace CallOfTheWild
                                                      Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.UntypedStackable),
                                                      Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Feat, multiplier: -1),
                                                      Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Feat, rankType: AbilityRankType.StatBonus, multiplier: -1),
-                                                     Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[0].AddToArray(ability_increase[2]))
+                                                     Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = ability_increase[0].AddToArray(ability_increase[2])),
+                                                     Helpers.Create<NewMechanics.AddFeatureIfHasArchetype>(a =>
+                                                                     {
+                                                                         a.Feature = reduced_reach;
+                                                                         a.archetype = Eidolon.quadruped_archetype;
+                                                                     }
+                                                                     )
                                                      );
             size_increase[1] = Helpers.CreateFeature("SizeIncreaseHugeEvolutionFeature",
                                                      "Size Increase: Huge",

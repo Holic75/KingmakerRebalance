@@ -4409,6 +4409,53 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfHasArchetype : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public bool not = false;
+            public BlueprintArchetype archetype;
+            public BlueprintUnitFact Feature;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null)
+                    return;
+
+                var unit = this.Owner;
+                
+
+                if (unit == null)
+                {
+                    return;
+                }
+
+                if (unit.Progression.IsArchetype(archetype))
+                {
+                    this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+                }
+            }
+        }
+
+
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]

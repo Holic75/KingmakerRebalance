@@ -128,7 +128,8 @@ New feats:
 - Animal Ally,
 - Bullseye shot,
 - Pinpoint targeting,
-- Ability Focus: Toxic Secretion.
+- Ability Focus: Toxic Secretion,
+- Skin and Scales.
 
 New rage powers:
 - Terrifying Howl
@@ -163,8 +164,7 @@ New features:
 - Animal companions now level up manually,
 - Dismissable area effect spells,
 - When using wall area effect spells you should now see which enemies will be affected,
-- Summoned monsters are now considered as allies,
-- Everyone can select a Diety (optional).
+- Summoned monsters are now considered as allies.
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,

@@ -60,6 +60,8 @@ namespace CallOfTheWild.SkillMechanics
         public StatType old_stat;
         public StatType new_stat;
 
+        public BlueprintUnitFact do_not_apply_if_has_fact = null;
+
         private MechanicsContext Context
         {
             get
@@ -73,6 +75,10 @@ namespace CallOfTheWild.SkillMechanics
 
         protected override void OnD20AboutToTrigger(RuleRollD20 evt)
         {
+            if (do_not_apply_if_has_fact != null && this.Owner.HasFact(do_not_apply_if_has_fact))
+            {
+                return;
+            }
             RuleSkillCheck rule = evt.Reason.Rule as RuleSkillCheck;
             StatType? statType = rule?.StatType;
             if ((statType.GetValueOrDefault() != this.stat ? 1 : (!statType.HasValue ? 1 : 0)) != 0)
