@@ -78,6 +78,9 @@ namespace CallOfTheWild
             var air_elemental_unit = library.CopyAndAdd<BlueprintUnit>("54cf380dee486ff42b803174d1b9da1b", "QuadrupedAirElementalEidolonUnit", "");
             air_elemental_unit.Color = air_elemental.Color;
 
+            //change model to medium sized leopard
+            air_elemental_unit.Prefab = Common.createUnitViewLink("a9334574d1c444f45a14c51fbc74c4f8");
+            air_elemental_unit.Size = Size.Medium;
             air_elemental_unit.Visual = air_elemental.Visual;
             air_elemental_unit.LocalizedName = air_elemental_unit.LocalizedName.CreateCopy();
             air_elemental_unit.LocalizedName.String = Helpers.CreateString(air_elemental_unit.name + ".Name", "Elemental Eidolon (Air)");
@@ -104,7 +107,7 @@ namespace CallOfTheWild
                 a.Selections = new SelectionEntry[0];
             });
             air_elemental_unit.AddComponents(Helpers.Create<EidolonComponent>());
-
+            
 
             Helpers.SetField(air_elemental_unit, "m_Portrait", Helpers.createPortrait("EidolonQuadrupedAirElementalProtrait", "AirElementalQuadruped", ""));
 
@@ -320,7 +323,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(16, feature16),
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
-            air_quadruped_eidolon.UIGroups = Helpers.CreateUIGroups(feature12, feature1, feature4, feature8, feature12, feature16, feature20);
+            air_quadruped_eidolon.UIGroups = Helpers.CreateUIGroups(feature1q, feature4, feature8, feature12, feature16, feature20);
             addLesserEidolon(air_elemental_eidolon);
             addLesserEidolon(air_quadruped_eidolon);
         }

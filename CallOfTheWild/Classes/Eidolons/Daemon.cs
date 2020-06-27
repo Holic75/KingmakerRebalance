@@ -53,7 +53,7 @@ namespace CallOfTheWild
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
-                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("fbc5f03051dda4c42b49e9ccf7dd8abe")) //lich
+                                                   Helpers.Create<UnitViewMechanics.ReplaceUnitView>(r => r.prefab = Common.createUnitViewLink("0b68f776341bc9d449c8d65da602552c"/*"fbc5f03051dda4c42b49e9ccf7dd8abe"*/)) //lich
                                                    );
             fx_feature.HideInCharacterSheetAndLevelUp = true;
             fx_feature.HideInUI = true;
