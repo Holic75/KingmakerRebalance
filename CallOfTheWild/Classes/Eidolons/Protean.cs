@@ -79,7 +79,7 @@ namespace CallOfTheWild
             {
                 a.Archetypes = new BlueprintArchetype[] { serpentine_archetype };
                 a.CharacterClass = eidolon_class;
-                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillStealth, StatType.SkillLoreReligion };
+                a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth };
                 a.Selections = new SelectionEntry[0];
             });
             protean_unit.AddComponents(Helpers.Create<EidolonComponent>());

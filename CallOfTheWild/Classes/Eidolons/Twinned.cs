@@ -80,7 +80,7 @@ namespace CallOfTheWild
             {
                 a.Archetypes = new BlueprintArchetype[] {Eidolon.twinned_archetype };
                 a.CharacterClass = eidolon_class;
-                a.Skills = new StatType[] { StatType.SkillMobility, StatType.SkillAthletics, StatType.SkillStealth };
+                a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth };
                 a.Selections = new SelectionEntry[0];
             });
             twinned_unit.AddComponents(Helpers.Create<EidolonComponent>());

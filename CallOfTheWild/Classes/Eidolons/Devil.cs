@@ -87,7 +87,7 @@ namespace CallOfTheWild
             {
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
-                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth };
                 a.Selections = new SelectionEntry[0];
             });
             devil_unit.AddComponents(Helpers.Create<EidolonComponent>());

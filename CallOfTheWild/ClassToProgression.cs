@@ -458,6 +458,19 @@ namespace CallOfTheWild
                         c_typed.classes = c_typed.classes.AddToArray(class_to_add);
                     }
                 }
+                else if (c is AddClassLevelToSummonDuration)
+                {
+                    feat.AddComponent(Helpers.Create<NewMechanics.AddClassesLevelToSummonDuration>(i => i.CharacterClasses = new BlueprintCharacterClass[] { class_to_add, (c as AddClassLevelToSummonDuration).CharacterClass }));
+                    feat.RemoveComponent(c);
+                }
+                else if (c is NewMechanics.AddClassesLevelToSummonDuration)
+                {
+                    var c_typed = c as NewMechanics.AddClassesLevelToSummonDuration;
+                    if (!c_typed.CharacterClasses.Contains(class_to_add))
+                    {
+                        c_typed.CharacterClasses = c_typed.CharacterClasses.AddToArray(class_to_add);
+                    }
+                }
                 else if (c is LearnSpellList && spells_type == DomainSpellsType.NormalList)
                 {
                     var spell_list = (c as LearnSpellList)?.SpellList;

@@ -7595,6 +7595,31 @@ namespace CallOfTheWild
             }
         }
 
+        public class AddClassesLevelToSummonDuration : RuleInitiatorLogicComponent<RuleSummonUnit>
+        {
+            public BlueprintCharacterClass[] CharacterClasses;
+            public bool Half;
+
+            public override void OnEventAboutToTrigger(RuleSummonUnit evt)
+            {
+                AbilityData ability = evt.Reason.Ability;
+                if (((object)ability != null ? ability.Spellbook : (Spellbook)null) == null || ability.Blueprint.School != SpellSchool.Conjuration)
+                    return;
+                int classLevel = 0;
+                foreach (var c in CharacterClasses)
+                {
+                    classLevel += this.Owner.Progression.GetClassLevel(c);
+                }
+                
+                int num = !this.Half ? classLevel : Math.Max(classLevel / 2, 1);
+                evt.BonusDuration += num.Rounds();
+            }
+
+            public override void OnEventDidTrigger(RuleSummonUnit evt)
+            {
+            }
+        }
+
 
         public class ApplyActionToAllUnits : ContextAction
         {
@@ -8142,7 +8167,6 @@ namespace CallOfTheWild
         {
             public StatType check;
             public StatType skill;
-            public int value = 4;
 
             public override void OnEventAboutToTrigger(RuleSkillCheck evt)
             {
@@ -8155,7 +8179,7 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                evt.Bonus.AddModifier(value, this, ModifierDescriptor.Trait);
+                evt.Bonus.AddModifier(3, this, ModifierDescriptor.Trait);
             }
 
             public override void OnEventDidTrigger(RuleSkillCheck evt)

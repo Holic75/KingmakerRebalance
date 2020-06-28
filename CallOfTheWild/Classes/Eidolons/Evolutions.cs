@@ -60,7 +60,8 @@ namespace CallOfTheWild
         static BlueprintFeature monitor = library.Get<BlueprintFeature>("ece6bde3dfc76ba4791376428e70621a");
         static BlueprintFeature smilodon = library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895");
         static BlueprintFeature wolf = library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea");
-        static BlueprintFeature[] animals = new BlueprintFeature[] { bear, boar, centipede, dog, elk, leopard, mammoth, monitor, smilodon, wolf };
+        static BlueprintFeature wolf_ekun = library.Get<BlueprintFeature>("e992949eba096644784592dc7f51a5c7");
+        static BlueprintFeature[] animals = new BlueprintFeature[] { bear, boar, centipede, dog, elk, leopard, mammoth, monitor, smilodon, wolf, wolf_ekun };
 
 
         static public BlueprintFeature claws;
@@ -95,7 +96,9 @@ namespace CallOfTheWild
         static public BlueprintFeature poison_constitution;
         static public BlueprintFeature[] shared_slots;
         static public BlueprintFeature extra_attack;
+        static public BlueprintFeature extra_attack2;
         static public BlueprintFeature extra_off_hand_attack;
+        static public BlueprintFeature extra_off_hand_attack2;
 
         static BlueprintFeature summoner_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
         static public BlueprintFeature[] extra_evolution = new BlueprintFeature[5];
@@ -540,7 +543,7 @@ namespace CallOfTheWild
                                                          Eidolon.demon_eidolon, Eidolon.daemon_eidolon, Eidolon.devil_eidolon,
                                                          Eidolon.air_quadruped_eidolon, Eidolon.earth_quadruped_eidolon, Eidolon.fire_quadruped_eidolon, Eidolon.water_serpentine_eidolon };
             evolution_entries.Add(new EvolutionEntry(claws, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.AddToArray(new BlueprintFeature[] { Eidolon.infernal_eidolon, boar, dog, mammoth, monitor, wolf, Eidolon.agathion_eidolon, Eidolon.protean_eidolon})));
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] { Eidolon.infernal_eidolon, boar, dog, mammoth, monitor, wolf, wolf_ekun, Eidolon.agathion_eidolon, Eidolon.protean_eidolon})));
             evolution_entries.Add(new EvolutionEntry(slam_biped, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons));
 
             foreach (var e in improved_natural_attacks)
@@ -549,7 +552,7 @@ namespace CallOfTheWild
                                                          evolution_group: "Improved Damage"));
             }
 
-            evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0],
+            evolution_entries.Add(new EvolutionEntry(bite, 1, 0, new BlueprintFeature[0], new BlueprintFeature[] {extra_off_hand_attack2 },
                                                      devil_elemental.AddToArray(new BlueprintFeature[] {boar, elk, mammoth, Eidolon.agathion_eidolon, Eidolon.protean_eidolon })));
             evolution_entries.Add(new EvolutionEntry(tail_slap, 1, 0, new BlueprintFeature[0], new BlueprintFeature[0], serpentine_eidolons.AddToArray(centipede)));
 
@@ -615,8 +618,8 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
-            evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, leopard, smilodon, centipede, Eidolon.agathion_eidolon })));
+            evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[] {extra_attack2, extra_off_hand_attack2 },
+                                                     devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, wolf_ekun, leopard, smilodon, centipede, Eidolon.agathion_eidolon })));
 
             foreach (var e in immunity)
             {
@@ -625,7 +628,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
-                                                     quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar})));
+                                                     quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, wolf_ekun, leopard, elk, mammoth, boar})));
 
             evolution_entries.Add(new EvolutionEntry(constrict, 2, 0, new BlueprintFeature[] { tail_slap }, new BlueprintFeature[0],
                                          serpentine_eidolons.AddToArray(centipede)));
@@ -649,7 +652,7 @@ namespace CallOfTheWild
                                                     new BlueprintFeature[0]));
 
             evolution_entries.Add(new EvolutionEntry(pounce, 3, 7, new BlueprintFeature[0], new BlueprintFeature[0],
-                                        quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, leopard, elk, mammoth, boar }))
+                                        quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, wolf_ekun, leopard, elk, mammoth, boar }))
                                         );
             evolution_entries.Add(new EvolutionEntry(amorphous, 4, 0, new BlueprintFeature[0], new BlueprintFeature[0],
                                         new BlueprintFeature[0]));
@@ -716,8 +719,10 @@ namespace CallOfTheWild
                                          devil_elemental.AddToArray(Eidolon.protean_eidolon)
                                          ));
 
-            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
-            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons));
+            evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 0, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {extra_off_hand_attack}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[] { gore }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 0, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
         static void createEvolutions()
@@ -808,7 +813,7 @@ namespace CallOfTheWild
 
             wing_buffet = Helpers.CreateFeature("WingBuffetEvolutionFeature",
                                          "Wing Buffet",
-                                         "he eidolon learns to use its wings to batter foes, granting it two wing buffet attacks. These attacks are secondary attacks. The wing buffets deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
+                                         "The eidolon learns to use its wings to batter foes, granting it two wing buffet attacks. These attacks are secondary attacks. The wing buffets deal 1d4 points of damage (1d6 if Large, 1d8 if Huge).",
                                          "",
                                          icon,
                                          FeatureGroup.None,
@@ -828,6 +833,9 @@ namespace CallOfTheWild
                                                 Helpers.Create<BuffExtraAttack>(b => { b.Number = 1; b.Haste = false; })
                                                 );
 
+            extra_attack2 = library.CopyAndAdd(extra_attack, "ExtraAttackEvolutionIIFeature", "");
+            extra_attack2.SetName("Extra Attack II");
+
             extra_off_hand_attack = Helpers.CreateFeature("ExtraSecondaryAttackEvolutionFeature",
                                                          "Extra Off-Hand Attack",
                                                          "Eidolon can make one more secondary hand attack.",
@@ -836,6 +844,9 @@ namespace CallOfTheWild
                                                          FeatureGroup.None,
                                                          Helpers.Create<NewMechanics.BuffExtraOffHandAttack>(b => { b.Number = 1; })
                                                          );
+
+            extra_off_hand_attack2 = library.CopyAndAdd(extra_attack, "ExtraSecondaryAttackEvolutionIIFeature", "");
+            extra_off_hand_attack2.SetName("Extra Off-Hand Attack II");
         }
 
 

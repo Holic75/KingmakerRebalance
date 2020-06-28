@@ -90,7 +90,7 @@ namespace CallOfTheWild
             {
                 a.Archetypes = new BlueprintArchetype[] { quadruped_archetype};
                 a.CharacterClass = eidolon_class;
-                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillStealth, StatType.SkillLoreReligion};
+                a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth };
                 a.DoNotApplyAutomatically = true;
                 a.Selections = new SelectionEntry[0];
             });
@@ -168,7 +168,7 @@ namespace CallOfTheWild
             {
                 a.Archetypes = new BlueprintArchetype[0];
                 a.CharacterClass = eidolon_class;
-                a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillStealth };
+                a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth };
                 a.DoNotApplyAutomatically = true;
                 a.Selections = new SelectionEntry[0];
             });
