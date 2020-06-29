@@ -177,7 +177,7 @@ namespace CallOfTheWild.UnitViewMechanics
             {//copy view from master
                 var master = Owner.Unit.Descriptor.Master.Value;
                 unitEntityView = master?.Descriptor.Doll.CreateUnitView(false);
-                Main.logger.Log("View: " + (unitEntityView != null).ToString());
+                //Main.logger.Log("View: " + (unitEntityView != null).ToString());
                 if (master != null)
                 {
                     if (master?.UISettings.PortraitBlueprint != null)

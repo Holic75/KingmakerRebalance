@@ -7621,6 +7621,42 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Armor check penalty increase")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ArmorCheckPenaltyIncrease : RuleInitiatorLogicComponent<RuleCalculateArmorCheckPenalty>
+        {
+            public ContextValue Bonus;
+            public int BonesPerRank;
+            public bool CheckCategory;
+            [ShowIf("CheckCategory")]
+            public ArmorProficiencyGroup Category;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+            public override void OnTurnOn()
+            {
+                this.Owner.Body.Armor.MaybeArmor?.RecalculateStats();
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateArmorCheckPenalty evt)
+            {
+                if (this.CheckCategory && evt.Armor.Blueprint.ProficiencyGroup != this.Category)
+                    return;
+                evt.AddBonus(this.Bonus.Calculate(this.Context) + this.BonesPerRank * this.Fact.GetRank());
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateArmorCheckPenalty evt)
+            {
+            }
+        }
+
+
         public class ApplyActionToAllUnits : ContextAction
         {
             public bool apply_to_target;
