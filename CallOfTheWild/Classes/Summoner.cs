@@ -91,6 +91,9 @@ namespace CallOfTheWild
 
         static public BlueprintArchetype master_summoner;
         static public BlueprintFeatureSelection lesser_eidolon_selection;
+        static public BlueprintFeatureSelection twinned_eidolon_selection;
+        static public BlueprintFeatureSelection fey_eidolon_selection;
+        static public BlueprintFeatureSelection infernal_eidolon_selection;
         static List<BlueprintFeature> lesser_evolution_distribution = new List<BlueprintFeature>();
         static public BlueprintSummonPool master_summoner_free_pool;
         static public BlueprintFeature[] master_summoner_summon_monster = new BlueprintFeature[9];
@@ -223,7 +226,7 @@ namespace CallOfTheWild
             Helpers.SetField(twinned_summoner, "m_ParentClass", summoner_class);
             library.AddAsset(twinned_summoner, "");
 
-            var twinned_eidolon_selection = library.CopyAndAdd(eidolon_selection, "TwinnedEidolonFeatureSelection", "07464c5f4c5e4dd79120db73a3cfd597");
+            twinned_eidolon_selection = library.CopyAndAdd(eidolon_selection, "TwinnedEidolonFeatureSelection", "07464c5f4c5e4dd79120db73a3cfd597");
             twinned_eidolon_selection.SetNameDescriptionIcon(Eidolon.twinned_eidolon);
             twinned_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small };
 
@@ -556,7 +559,7 @@ namespace CallOfTheWild
             fey_caller.ReplaceClassSkills = true;
             fey_caller.ClassSkills = new StatType[] { StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillPersuasion, StatType.SkillUseMagicDevice };
 
-            var fey_eidolon_selection = library.CopyAndAdd(eidolon_selection, "FeyEidolonSelection", "e054d599ec2f4b7e99a43c739a44b1fd");
+            fey_eidolon_selection = library.CopyAndAdd(eidolon_selection, "FeyEidolonSelection", "e054d599ec2f4b7e99a43c739a44b1fd");
             fey_eidolon_selection.SetNameDescriptionIcon(Eidolon.fey_eidolon);
             fey_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.fey_eidolon };
             fey_eidolon_selection.HideInCharacterSheetAndLevelUp = true;
@@ -690,7 +693,7 @@ namespace CallOfTheWild
             createSmiteChaos();
             createDevilBinderCharismaBonus();
 
-            var infernal_eidolon_selection = library.CopyAndAdd(eidolon_selection, "InfernalEidolonSelection", "0b7e1736275948cb805b58451a0a3715");
+            infernal_eidolon_selection = library.CopyAndAdd(eidolon_selection, "InfernalEidolonSelection", "0b7e1736275948cb805b58451a0a3715");
             infernal_eidolon_selection.SetNameDescriptionIcon(Eidolon.infernal_eidolon);
             infernal_eidolon_selection.HideInCharacterSheetAndLevelUp = true;
             infernal_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.infernal_eidolon };

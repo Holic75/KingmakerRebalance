@@ -120,7 +120,11 @@ namespace CallOfTheWild
                                                                                    Shaman.nature_spirit.true_spirit_ability as BlueprintFeatureSelection,
                                                                                    Shaman.nature_spirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
                                                                                    Oracle.animal_companion,
-                                                                                   Summoner.eidolon_selection
+                                                                                   Summoner.eidolon_selection,
+                                                                                   Summoner.lesser_eidolon_selection,
+                                                                                   Summoner.twinned_eidolon_selection,
+                                                                                   Summoner.fey_eidolon_selection,
+                                                                                   Summoner.infernal_eidolon_selection
                                                                                    };
         public static BlueprintFeatureSelection familiar_selection = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183"); //rogue familiar
                                                                                                      
