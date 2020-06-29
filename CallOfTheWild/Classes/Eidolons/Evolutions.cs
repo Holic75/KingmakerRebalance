@@ -720,8 +720,8 @@ namespace CallOfTheWild
                                          ));
 
             evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons));
-            evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 0, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {extra_off_hand_attack}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
-            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[] { gore }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 0, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {gore}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
             evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 0, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
@@ -845,7 +845,7 @@ namespace CallOfTheWild
                                                          Helpers.Create<NewMechanics.BuffExtraOffHandAttack>(b => { b.Number = 1; })
                                                          );
 
-            extra_off_hand_attack2 = library.CopyAndAdd(extra_attack, "ExtraSecondaryAttackEvolutionIIFeature", "");
+            extra_off_hand_attack2 = library.CopyAndAdd(extra_off_hand_attack, "ExtraSecondaryAttackEvolutionIIFeature", "");
             extra_off_hand_attack2.SetName("Extra Off-Hand Attack II");
         }
 
