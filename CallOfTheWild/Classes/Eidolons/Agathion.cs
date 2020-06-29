@@ -66,6 +66,7 @@ namespace CallOfTheWild
             agathion_unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"); //bite 1d6
             agathion_unit.Body.SecondaryHand = null;
             agathion_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            agathion_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             agathion_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[] { quadruped_archetype };

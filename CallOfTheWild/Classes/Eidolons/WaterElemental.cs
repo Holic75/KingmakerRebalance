@@ -148,6 +148,7 @@ namespace CallOfTheWild
             water_elemental_unit.Body.PrimaryHand = null;
             water_elemental_unit.Body.SecondaryHand = null;
             water_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            water_elemental_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             water_elemental_unit.Gender = Gender.Female;
             water_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
             {

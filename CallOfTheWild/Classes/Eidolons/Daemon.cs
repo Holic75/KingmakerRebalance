@@ -80,6 +80,7 @@ namespace CallOfTheWild
             daemon_unit.Body.PrimaryHand = null;
             daemon_unit.Body.SecondaryHand = null;
             daemon_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            daemon_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             //daemon_unit.Size = Size.Large;
             daemon_unit.ReplaceComponent<AddClassLevels>(a =>
             {

@@ -85,6 +85,7 @@ namespace CallOfTheWild
             earth_elemental_unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"); //bite 1d6
             earth_elemental_unit.Body.SecondaryHand = null;
             earth_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            earth_elemental_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             earth_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[] {Eidolon.quadruped_archetype};
@@ -153,6 +154,7 @@ namespace CallOfTheWild
             earth_elemental_unit.Body.PrimaryHand = null;
             earth_elemental_unit.Body.SecondaryHand = null;
             earth_elemental_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            earth_elemental_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             earth_elemental_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[0];

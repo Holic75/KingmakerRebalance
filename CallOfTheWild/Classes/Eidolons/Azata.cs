@@ -78,6 +78,7 @@ namespace CallOfTheWild
             azata_unit.Body.PrimaryHand = null;
             azata_unit.Body.SecondaryHand = null;
             azata_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            azata_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             azata_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[0];

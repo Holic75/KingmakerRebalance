@@ -82,6 +82,7 @@ namespace CallOfTheWild
             devil_unit.Body.PrimaryHand = null;
             devil_unit.Body.SecondaryHand = null;
             devil_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            devil_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             //devil_unit.Size = Size.Large;
             devil_unit.ReplaceComponent<AddClassLevels>(a =>
             {

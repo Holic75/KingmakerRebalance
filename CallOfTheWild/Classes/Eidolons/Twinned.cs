@@ -76,6 +76,7 @@ namespace CallOfTheWild
             twinned_unit.Body.PrimaryHand = null;
             twinned_unit.Body.SecondaryHand = null;
             twinned_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            twinned_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             twinned_unit.ReplaceComponent<AddClassLevels>(a =>
             {
                 a.Archetypes = new BlueprintArchetype[] {Eidolon.twinned_archetype };

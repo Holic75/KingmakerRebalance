@@ -87,6 +87,7 @@ namespace CallOfTheWild
             angel_unit.Body.PrimaryHand = null;
             angel_unit.Body.SecondaryHand = null;
             angel_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
+            angel_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             angel_unit.Gender = Gender.Female;
             angel_unit.ReplaceComponent<AddClassLevels>(a =>
             {
