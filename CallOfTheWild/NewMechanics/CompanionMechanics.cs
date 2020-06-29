@@ -152,6 +152,7 @@ namespace CallOfTheWild.CompanionMechanics
             }
             this.Owner.Pet.Descriptor.State.MarkedForDeath = true;
             this.Owner.Pet.Descriptor.State.IsUntargetable.Retain();
+            //Main.logger.Log("HP:" + companion_hp.ToString());
         }
 
         public void deactivate()
@@ -166,7 +167,10 @@ namespace CallOfTheWild.CompanionMechanics
             }
             if (this.Owner.Pet.Descriptor.State.IsDead)
             {
-                this.Owner.Pet.Descriptor.Resurrect(((float)this.companion_hp) / this.Owner.Pet.MaxHP, true);
+                //Main.logger.Log("Ressurection HP:" + companion_hp.ToString());
+                //Main.logger.Log("Max HP:" + this.Owner.Pet.MaxHP.ToString());
+                float health_part = ((float)this.companion_hp) / this.Owner.Pet.MaxHP;
+                this.Owner.Pet.Descriptor.Resurrect(health_part, true);
                 //this.Owner.Pet.Descriptor.AddBuff(BlueprintRoot.Instance.SystemMechanics.ResurrectionBuff, null, new TimeSpan?(1.Rounds().Seconds));
             }
             this.Owner.Pet.Descriptor.State.IsUntargetable.Release();
