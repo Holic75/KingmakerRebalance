@@ -1232,11 +1232,11 @@ namespace CallOfTheWild
 
             public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
             {
-                var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                /*var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
                 if (spellContext == null)
                 {
                     return;
-                }
+                }*/
 
                 if (value.Owner != this.Owner)
                 {
