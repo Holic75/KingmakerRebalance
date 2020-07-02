@@ -6752,7 +6752,7 @@ namespace CallOfTheWild
                                                                                 type: AbilityRankType.DamageBonus, stepLevel: 2, max: 10)
                                                 );
                 buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
-                weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
+                
 
 
                 var flame_blade_v = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, (oh ? "OffHand" : "MainHand") + "FlameBladeAbility", "");
@@ -6765,10 +6765,12 @@ namespace CallOfTheWild
                 if (oh)
                 {
                     flame_blade_v.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetSecondaryHandFree>());
+                    weapon_off_hand.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
                 }
                 else
                 {
                     flame_blade_v.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>());
+                    weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = buff));
                 }
 
                 flame_blade_v.ReplaceComponent<SpellComponent>(Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation));
