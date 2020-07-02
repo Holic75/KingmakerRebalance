@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Kingmaker.View.Animation;
+using Kingmaker.View.Equipment;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -633,15 +634,37 @@ namespace CallOfTheWild.HoldingItemsMechanics
         }
     }
 
-
+    //EmptyHandWeaponOverrideNotification
     [Harmony12.HarmonyPatch(typeof(UnitBody))]
     [Harmony12.HarmonyPatch("SetEmptyHandWeapon", Harmony12.MethodType.Normal)]
     class UnitBody__SetEmptyHandWeapon__Patch
     {
+        public static bool no_animation_action = false;
         //signal weapon set change to notify that weapons could have been changed
         static void Postfix(UnitBody __instance, BlueprintItemWeapon weapon)
         {
+            no_animation_action = true;
             EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
+            no_animation_action = false;
+        }
+    }
+
+    //make signal from created weapons no longer consume move action
+    [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
+    [Harmony12.HarmonyPatch("HandleEquipmentSetChanged", Harmony12.MethodType.Normal)]
+    class UnitViewHandsEquipment_HandleEquipmentSetChanged_Patch
+    {
+        static bool Prefix(UnitViewHandsEquipment __instance)
+        {
+            var tr = Harmony12.Traverse.Create(__instance);
+
+            if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
+            {
+                tr.Method("ChangeEquipmentWithoutAnimation").GetValue();
+                return false;
+            }
+
+            return true;
         }
     }
 
@@ -652,9 +675,12 @@ namespace CallOfTheWild.HoldingItemsMechanics
         //signal weapon set change to notify that weapons could have been changed
         static void Postfix(UnitBody __instance, BlueprintItemWeapon weapon)
         {
+            UnitBody__SetEmptyHandWeapon__Patch.no_animation_action = true;
             EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
+            UnitBody__SetEmptyHandWeapon__Patch.no_animation_action = false;
         }
     }
+
 
 
 

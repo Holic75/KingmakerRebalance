@@ -828,7 +828,7 @@ namespace CallOfTheWild
                                                 "Extra Attack",
                                                 "Eidolon can make one more primary hand attack.",
                                                 "",
-                                                null,
+                                                Helpers.GetIcon("9d5d2d3ffdd73c648af3eb3e585b1113"),//divine favor
                                                 FeatureGroup.None,
                                                 Helpers.Create<BuffExtraAttack>(b => { b.Number = 1; b.Haste = false; })
                                                 );
@@ -840,7 +840,7 @@ namespace CallOfTheWild
                                                          "Extra Off-Hand Attack",
                                                          "Eidolon can make one more secondary hand attack.",
                                                          "",
-                                                         null,
+                                                         Helpers.GetIcon("c35eb3e0093960d4998522be47a1bca6"),//judgment smiting
                                                          FeatureGroup.None,
                                                          Helpers.Create<NewMechanics.BuffExtraOffHandAttack>(b => { b.Number = 1; })
                                                          );
