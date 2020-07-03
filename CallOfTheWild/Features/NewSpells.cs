@@ -5049,7 +5049,7 @@ namespace CallOfTheWild
             earth_tremor.SetName("Earth Tremor");
             earth_tremor.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground),
                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation));
-
+            earth_tremor.Range = AbilityRange.Unlimited;
             earth_tremor.AddToSpellList(Helpers.druidSpellList, 3);
             earth_tremor.AddToSpellList(Helpers.magusSpellList, 3);
             earth_tremor.AddToSpellList(Helpers.wizardSpellList, 3);

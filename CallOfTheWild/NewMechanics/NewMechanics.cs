@@ -734,15 +734,15 @@ namespace CallOfTheWild
         {
             public bool use_kineticist_main_stat;
             public StatType StatType = StatType.Charisma;
-            public BlueprintCharacterClass[] CharacterClasses;
+            public BlueprintCharacterClass[] CharacterClasses = new BlueprintCharacterClass[0];
             public BlueprintArchetype[] archetypes = new BlueprintArchetype[0];
 
             public override AbilityParams Calculate(MechanicsContext context)
             {
-                UnitEntityData maybeCaster = context.MaybeCaster;
+                UnitEntityData maybeCaster = context?.MaybeCaster;
                 if (maybeCaster == null)
                 {
-                    return context.Params;
+                    return context?.Params;
                 }
                 StatType statType = this.StatType;
                 if (this.use_kineticist_main_stat)

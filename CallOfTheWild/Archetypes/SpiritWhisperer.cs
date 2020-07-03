@@ -204,7 +204,7 @@ namespace CallOfTheWild.Archetypes
         static void createHexSelection()
         {
             spirit_hex_selection = Helpers.CreateFeatureSelection("SpiritHexSpirirtWhispererSelection",
-                                                                   "Spirirt Hex",
+                                                                   "Spirit Hex",
                                                                    "At 5th level, a spirit whisperer can select one hex from the list of those granted by his chosen spirit. He uses his wizard level as his shaman level when determining the effects and DC of this hex. In addition, he uses his Intelligence modifier in place of his Wisdom modifier for these hexes. At 10th and 15th level, he can select another hex from those granted by his spirit. Each hex selected in this way replaces the bonus feat gained at that level.",
                                                                    "",
                                                                    null,

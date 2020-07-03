@@ -15,6 +15,7 @@ using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
@@ -123,18 +124,18 @@ namespace CallOfTheWild
 
 
 
-    [Harmony12.HarmonyPatch(typeof(UnitDescriptor))]
+    [Harmony12.HarmonyPatch(typeof(UnitEntityData))]
     [Harmony12.HarmonyPatch("PostLoad", Harmony12.MethodType.Normal)]
     class UnitDescriptor__PostLoad__Patch
     {
         static LibraryScriptableObject library = Main.library;
 
         [Harmony12.HarmonyPostfix]
-        static void Postfix(UnitDescriptor __instance)
+        static void Postfix(UnitEntityData __instance)
         {
             foreach (var action in SaveGameFix.save_game_actions)
             {
-                action(__instance);
+                action(__instance.Descriptor);
             }
         }
     }

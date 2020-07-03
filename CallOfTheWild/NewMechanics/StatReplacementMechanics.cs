@@ -90,7 +90,7 @@ namespace CallOfTheWild.StatReplacementMechanics
             {
                 if (_oldStatType == null)
                 {
-                    _oldStatType = ((ModifiableValueSkill)value).BaseStat.Type;
+                    _oldStatType = (value as ModifiableValueSkill)?.BaseStat.Type;
                 }
 
                 ModifiableValueAttributeStat oldStat = base.Owner.Stats.GetStat<ModifiableValueAttributeStat>((StatType)_oldStatType);
