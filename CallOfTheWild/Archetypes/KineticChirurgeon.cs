@@ -240,6 +240,7 @@ namespace CallOfTheWild.Archetypes
 
         static void createSwiftHealing()
         {
+            var sigil_of_creation_feature = library.Get<BlueprintFeature>("3e354532d3e41b548b883f7a67f27acf");
             swift_healing = Helpers.CreateFeature("SwiftHealingKineticHealerFeatureFeature",
                                                    "Swift Healing",
                                                    "A kinetic chirurgeon can choose to use kinetic healer on herself as a swift action.",
@@ -259,11 +260,13 @@ namespace CallOfTheWild.Archetypes
             ability.SetNameDescriptionIcon(heal_variants.Variants[0].Name + " (Swift Healing)", swift_healing.Description, swift_healing.Icon);
 
             heal_variants.Variants = heal_variants.Variants.AddToArray(ability);
+            sigil_of_creation_feature.GetComponent<AutoMetamagic>().Abilities.Add(ability);
         }
 
 
         static void createDualHealing()
         {
+            var sigil_of_creation_feature = library.Get<BlueprintFeature>("3e354532d3e41b548b883f7a67f27acf");
             dual_healing = Helpers.CreateFeature("DualHealingKineticHealerFeatureFeature",
                                                    "Dual Healing",
                                                    "A kinetic chirurgeon can choose to heal both herself and another target with the same use of kinetic healer, although in that case, both she and her target must each accept 1 point of burn, instead of only one of them needing to do so as normal for kinetic healer.",
@@ -287,11 +290,13 @@ namespace CallOfTheWild.Archetypes
             ability.SetNameDescriptionIcon(heal_varinats.Variants[0].Name + " (Dual Healing)", dual_healing.Description, dual_healing.Icon);
 
             heal_varinats.Variants = heal_varinats.Variants.AddToArray(ability);
+            sigil_of_creation_feature.GetComponent<AutoMetamagic>().Abilities.Add(ability);
         }
 
 
         static void createEmpoweredHealing()
         {
+            var sigil_of_creation_feature = library.Get<BlueprintFeature>("3e354532d3e41b548b883f7a67f27acf");
             empowered_healing = Helpers.CreateFeature("EmpoweredHealingKineticHealerFeatureFeature",
                                                    "Greater Healing",
                                                    "A kinetic chirurgeon can choose to roll one additional die when using kinetic healer. This increases to two additional dice at 11th level, and to three additional dice at 17th level. ",
@@ -318,8 +323,8 @@ namespace CallOfTheWild.Archetypes
                 ability.AddComponent(Common.createAbilityShowIfCasterHasFact(empowered_healing));
                 ability.SetNameDescriptionIcon(heal_varinats.Variants[i].Name + " (Greater Healing)", empowered_healing.Description, empowered_healing.Icon);
                 heal_varinats.Variants = heal_varinats.Variants.AddToArray(ability);
+                sigil_of_creation_feature.GetComponent<AutoMetamagic>().Abilities.Add(ability);
             }
-            
         }
 
 

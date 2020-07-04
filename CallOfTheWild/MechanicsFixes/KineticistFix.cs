@@ -274,6 +274,7 @@ namespace CallOfTheWild
 
         static void fixKineticHealer()
         {
+            var sigil_of_creation_feature = library.Get<BlueprintFeature>("3e354532d3e41b548b883f7a67f27acf");
             //add option to offload burn to other target when using kinetic healer
             var healer_base = library.Get<BlueprintAbility>("eff667a3a43a77d45a193bb7c94b3a6c");
             healer_base.SetDescription("With a touch, you can heal a willing living creature of an amount of damage equal to your kinetic blast’s damage. Instead of paying the burn cost yourself, you can cause the recipient to take 1 point of burn. If you do so, the recipient takes 1 point of nonlethal damage per Hit Die kineticist possesses, as usual for burn; this damage can’t be healed by any means until the recipient takes a full night’s rest.");
@@ -301,6 +302,7 @@ namespace CallOfTheWild
 
             
             healer_base.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAbilityVariants(healer_base, healer_burn_self, healer_burn_other)};
+            sigil_of_creation_feature.GetComponent<AutoMetamagic>().Abilities = (new BlueprintAbility[] {healer_burn_self, healer_burn_other }).ToList();
         }
 
 
