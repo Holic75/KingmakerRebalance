@@ -214,7 +214,7 @@ namespace CallOfTheWild
         static void createMetamagicRod(BlueprintFeature feature)
         {
             var zarcies = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
-            
+            var xelliren = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("08e090bb2038e3d47be56d8752d5dcaf");
             var names = new string[] { "Lesser", "Regular", "Greater" };
             var display_prefix = new string[] { "Lesser ", "Standard", "Greater " };
             var max_level = new string[] { "3rd", "6th", "9th " };
@@ -246,6 +246,7 @@ namespace CallOfTheWild
 
                 //add to zarcie
                 Helpers.AddItemToSpecifiedVendorTable(zarcies, rod, 5);
+                Helpers.AddItemToSpecifiedVendorTable(xelliren, rod, 5);
             }
         }
 

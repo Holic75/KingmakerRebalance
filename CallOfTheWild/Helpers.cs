@@ -2621,7 +2621,9 @@ namespace CallOfTheWild
             scroll.ReplaceComponent<CopyScroll>(c => c.CustomSpell = null);
 
             var zarcies = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
+            var xelliren = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("08e090bb2038e3d47be56d8752d5dcaf");
             AddItemToSpecifiedVendorTable(zarcies, scroll, 5);
+            AddItemToSpecifiedVendorTable(xelliren, scroll, 5);
             modScrolls.Add(scroll);
         }
 

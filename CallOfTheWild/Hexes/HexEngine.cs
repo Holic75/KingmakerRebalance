@@ -125,7 +125,7 @@ namespace CallOfTheWild
                                                                   params BlueprintComponent[] components)
         {
             var zarcies = library.Get<BlueprintSharedVendorTable>("5450d563aab78134196ee9a932e88671");
-
+            var xelliren = ResourcesLibrary.TryGetBlueprint<BlueprintSharedVendorTable>("08e090bb2038e3d47be56d8752d5dcaf");
             var rod = library.CopyAndAdd<BlueprintItemEquipmentUsable>(prototype_wand_guid, name, "");
             Helpers.SetField(rod, "m_Cost", cost);
             Helpers.SetField(rod, "m_DisplayNameText", Helpers.CreateString(rod.name + ".Name", display_name));
@@ -146,6 +146,7 @@ namespace CallOfTheWild
 
             //add to zarcie
             Helpers.AddItemToSpecifiedVendorTable(zarcies, rod, 5);
+            Helpers.AddItemToSpecifiedVendorTable(xelliren, rod, 5);
             return rod;
         }
 

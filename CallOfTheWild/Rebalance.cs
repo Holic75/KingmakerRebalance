@@ -39,6 +39,8 @@ using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.Visual.Animation.Kingmaker;
+using Kingmaker.Visual.Animation.Kingmaker.Actions;
 
 namespace CallOfTheWild
 {
@@ -1545,6 +1547,31 @@ namespace CallOfTheWild
         static void Postfix(ModifiableValue.Modifier __instance,  ref bool __result)
         {
             __result = __result || __instance.ModDescriptor == ModifierDescriptor.Inherent || __instance.ModDescriptor == ModifierDescriptor.Feat;
+        }
+    }
+
+
+    //replace missing attack animation with "something"
+    [Harmony12.HarmonyPatch(typeof(UnitAnimationManager), "GetAction", typeof(UnitAnimationSpecialAttackType))]
+    class UnitAnimationManager_GetAction
+    {
+        static UnitAnimationSpecialAttackType[] attacks_to_try = new UnitAnimationSpecialAttackType[] { UnitAnimationSpecialAttackType.Slam,
+                                                                                                        UnitAnimationSpecialAttackType.Bite,
+                                                                                                        UnitAnimationSpecialAttackType.Gore}; 
+        static void Postfix(UnitAnimationManager __instance, UnitAnimationSpecialAttackType type,  ref UnitAnimationAction __result)
+        {
+            if (__result != null)
+            {
+                return;
+            }
+            foreach (var att in attacks_to_try)
+            {
+                __result = (UnitAnimationAction)__instance.ActionSet.OfType<UnitAnimationActionSpecialAttack>().FirstOrDefault<UnitAnimationActionSpecialAttack>((Func<UnitAnimationActionSpecialAttack, bool>)(a => a.AttackType == att));
+                if (__result != null)
+                {
+                    return;
+                }
+            }
         }
     }
 }
