@@ -402,7 +402,8 @@ namespace CallOfTheWild
                                           Helpers.Create<NewMechanics.EnchantmentMechanics.TransferPrimaryHandWeaponEnchantsToPolymorph>(t =>
                                                                                                                                           {
                                                                                                                                               t.transfer_type = TransferType.Only;
-                                                                                                                                              t.enchants = WeaponEnchantments.standard_enchants;
+                                                                                                                                              t.transfer_enhancement = true;
+                                                                                                                                              //t.enchants = WeaponEnchantments.standard_enchants;
                                                                                                                                               //t.transfer_type = TransferType.Except;
                                                                                                                                               //t.enchants = enchants2;
                                                                                                                                               //t.transfer_enhancement = true;
@@ -443,6 +444,20 @@ namespace CallOfTheWild
                 var buff = library.Get<BlueprintBuff>(id);
                 buff.ReplaceComponent<Polymorph>(p => { p.MainHand = p.AdditionalLimbs[0]; p.OffHand = p.AdditionalLimbs[1]; p.AdditionalLimbs = p.AdditionalLimbs.Skip(2).ToArray(); });
             }
+
+            //fix thundering claw of the bear god, we will create copies of original thundering and shocking enchants that will not be transferred
+            var shocking_tc = library.CopyAndAdd<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658", "ThunderingClawShockingEnchant", "");
+            var thundering_tc = library.CopyAndAdd<BlueprintWeaponEnchantment>("690e762f7704e1f4aa1ac69ef0ce6a96", "ThunderingClawThunderingEnchant", "");
+
+            var thudnering_claw = library.Get<BlueprintItemWeapon>("e5b46c4b36c2ca74d8a30f68a93bc77c");
+            var tc_enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("783d7d496da6ac44f9511011fc5f1979"), //+4
+                shocking_tc,
+                thundering_tc,
+                library.Get<BlueprintWeaponEnchantment>("ea4da1b2cf1db1147b9e9974135d43ad"), //call lightning
+            };
+            Helpers.SetField(thudnering_claw, "m_Enchantments", tc_enchants);
         }
 
 
@@ -676,6 +691,8 @@ namespace CallOfTheWild
             //fix thundering claw
             var thudnering_conditional = (library.Get<BlueprintFeature>("f418b53b2a597b54b810699e9f68e061").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional);
             (thudnering_conditional.ConditionsChecker.Conditions[0] as ContextConditionCasterHasFact).Fact = wildshape_bear_buff;
+            var thudnering_conditional2 = (library.Get<BlueprintFeature>("e95c2acd75e1d964eaece4a9958d31d5").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional);
+            (thudnering_conditional2.ConditionsChecker.Conditions[2] as ContextConditionCasterHasFact).Fact = wildshape_bear_buff;
 
             var wildshape_dire_wolf_buff = library.CopyAndAdd<BlueprintBuff>(dire_wolf_form.AssetGuid, "DruidWildshapeIIDireWolfBuff", "");
             wildshape_dire_wolf_buff.SetName("Wild Shape (Dire Wolf)");

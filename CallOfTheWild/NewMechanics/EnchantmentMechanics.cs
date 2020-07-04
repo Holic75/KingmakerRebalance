@@ -1362,7 +1362,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
         public bool transfer_enhancement = false;
 
-        public BlueprintWeaponEnchantment[] enchants;
+        public BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[0];
         public TransferType transfer_type;
 
         [JsonProperty]
@@ -1462,7 +1462,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 }
                 else
                 {
-                    enchancement_bonus = Math.Min(4, enchancement_bonus);
+                    enchancement_bonus = Math.Min(4, enchancement_bonus - 1);
                 }
 
                 foreach (var w in weapons)

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kingmaker.Items;
+using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Blueprints.Items;
 
 namespace CallOfTheWild.WildArmorMechanics
 {
@@ -42,6 +44,7 @@ namespace CallOfTheWild.WildArmorMechanics
     [Harmony12.HarmonyPatch("ApplyPolymorphEffect", Harmony12.MethodType.Normal)]
     class Patch_UnitBody_ApplyPolymorphEffect
     {
+        static public BlueprintItem thundering_claw = Main.library.Get<BlueprintItem>("e5b46c4b36c2ca74d8a30f68a93bc77c");
         static public void Postfix(UnitBody __instance)
         {
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
@@ -54,12 +57,14 @@ namespace CallOfTheWild.WildArmorMechanics
             var primary_hand = __instance.CurrentHandsEquipmentSet?.PrimaryHand;
             var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
             if (primary_hand != null 
-                && (!primary_hand.HasShield || !hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+                && (!primary_hand.HasShield || !hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
+                && (primary_hand.MaybeItem?.Blueprint != thundering_claw))
             {
                 primary_hand.RetainDeactivateFlag();
             }
             if (secondary_hand != null 
-                && (!secondary_hand.HasShield || !hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+                && (!secondary_hand.HasShield || !hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
+                && (secondary_hand.MaybeItem?.Blueprint != thundering_claw))
             {
                 secondary_hand.RetainDeactivateFlag();
             }
@@ -94,6 +99,7 @@ namespace CallOfTheWild.WildArmorMechanics
     [Harmony12.HarmonyPatch("CancelPolymorphEffect", Harmony12.MethodType.Normal)]
     class Patch_UnitBody_CancelPolymorphEffect
     {
+        static public BlueprintItem thundering_claw = Main.library.Get<BlueprintItem>("e5b46c4b36c2ca74d8a30f68a93bc77c");
         static public void Prefix(UnitBody __instance)
         {
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
@@ -111,12 +117,14 @@ namespace CallOfTheWild.WildArmorMechanics
             var primary_hand = __instance.CurrentHandsEquipmentSet?.PrimaryHand;
             var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
             if (primary_hand != null 
-                && (!primary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+                && (!primary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
+                && (primary_hand.MaybeItem?.Blueprint != thundering_claw))
             {
                 primary_hand.ReleaseDeactivateFlag();
             }
             if (secondary_hand != null 
-                && (!secondary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active()))
+                && (!secondary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
+                && (secondary_hand.MaybeItem?.Blueprint != thundering_claw))
             {
                 secondary_hand.ReleaseDeactivateFlag();
             }
