@@ -4853,14 +4853,21 @@ namespace CallOfTheWild
         {
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "AuraOfDoomArea", "");
 
-            var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
-
-            var apply_shaken = Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(1, DurationRate.Hours), is_child: true);
+            var shaken2 = library.CopyAndAdd<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220", "AuraOfDoomShakenBuff", "");
+            shaken2.Stacking = StackingType.Stack;
+            var apply_shaken = Common.createContextActionApplyBuff(shaken2, Helpers.CreateContextDuration(), is_child: false, dispellable: false, is_permanent: true);
             var on_save_failed = Helpers.CreateConditionalSaved(null, apply_shaken);
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(on_save_failed));
 
             var conditional_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), effect);
-            area.ReplaceComponent<AbilityAreaEffectRunAction>(a => a.UnitEnter = Helpers.CreateActionList(conditional_effect));
+            area.ReplaceComponent<AbilityAreaEffectRunAction>(a =>
+            {
+                a.UnitEnter = Helpers.CreateActionList(conditional_effect);
+                a.UnitExit = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(shaken2),
+                                                                            Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = shaken2))
+                                                );
+            }
+            );
             area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Emotion | SpellDescriptor.Fear | SpellDescriptor.Shaken));
             area.SpellResistance = true;
             var buff = Helpers.CreateBuff("AuraOfDoomBuff",
