@@ -770,6 +770,8 @@ namespace CallOfTheWild
             Helpers.SetField(jinyiwei_archetype, "m_ParentClass", investigator_class);
             library.AddAsset(jinyiwei_archetype, "");
 
+            jinyiwei_archetype.ChangeCasterType = true;
+            jinyiwei_archetype.IsDivineCaster = true;
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
             createDivineInspiration();
             createCelestialInsight();
@@ -860,6 +862,8 @@ namespace CallOfTheWild
             });
             Helpers.SetField(questioner_archetype, "m_ParentClass", investigator_class);
             library.AddAsset(questioner_archetype, "");
+            questioner_archetype.ChangeCasterType = true;
+            questioner_archetype.IsArcaneCaster = true;
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
             createInspirationForSubterfuge();

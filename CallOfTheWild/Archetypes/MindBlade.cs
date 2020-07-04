@@ -78,6 +78,9 @@ namespace CallOfTheWild.Archetypes
             Helpers.SetField(archetype, "m_ParentClass", magus_class);
             library.AddAsset(archetype, "");
 
+            archetype.ChangeCasterType = true;
+            archetype.IsArcaneCaster = true;
+            
             createPsychicSpellcasting();
             createPsychicAccess();
             createPsychicPoolAndDualWeapons();
