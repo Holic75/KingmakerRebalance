@@ -182,7 +182,7 @@ namespace CallOfTheWild.Archetypes
                                                "",
                                                Helpers.GetIcon("808ab74c12df8784ab4eeaf6a107dbea"), //protection from evil
                                                FeatureGroup.None,
-                                               Common.createPrerequisiteAlignment(AlignmentMaskType.Good)
+                                               Common.createPrerequisiteAlignment(AlignmentMaskType.Good | AlignmentMaskType.ChaoticNeutral | AlignmentMaskType.TrueNeutral | AlignmentMaskType.LawfulNeutral)
                                                );
             holy_magic = Common.featureToSelection(feature);
             holy_magic.Obligatory = true;
