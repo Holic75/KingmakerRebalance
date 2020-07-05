@@ -12,6 +12,7 @@ using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.Utility;
 using System;
@@ -78,6 +79,8 @@ namespace CallOfTheWild
         static internal int fly_ac_bonus = 3;
         static LibraryScriptableObject library = Main.library;
         static internal Fact flying_fact;
+        static public BlueprintFeature airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
+        static public BlueprintFeature pit_spell_immunity;
 
         static internal void load()
         {
@@ -106,6 +109,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbility>("1407fb5054d087d47a4c40134c809f12"), //acid pit
                 library.Get<BlueprintAbility>("46097f610219ac445b4d6403fc596b9f"), //spiked pit
                 library.Get<BlueprintAbility>("f63f4d1806b78604a952b3958892ce1c"), //hungry pit
+                library.Get<BlueprintAbility>("dd3dacafcf40a0145a5824c838e2698d"), //rift of ruin
             };
 
             foreach (var s in spells)
@@ -121,6 +125,9 @@ namespace CallOfTheWild
                 }
             }
 
+            pit_spell_immunity = Helpers.CreateFeature("PitSpellsImmunityFeature", "", "", "e069c9dd1109436b934728d204411d49", null, FeatureGroup.None);
+            pit_spell_immunity.HideInCharacterSheetAndLevelUp = true;
+
             var areas = new BlueprintAbilityAreaEffect[]
             {
                 library.Get<BlueprintAbilityAreaEffect>("d59890fb468915946bae085439bd0881"), //tar pool
@@ -133,6 +140,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbilityAreaEffect>("e122151e93e44e0488521aed9e51b617"), //acid pit area
                 library.Get<BlueprintAbilityAreaEffect>("beccc33f543b1f8469c018982c23ac06"), //spiked pit area
                 library.Get<BlueprintAbilityAreaEffect>("d086b1aeb367a5b43808d34c321955d1"), //hungry pit area
+                library.Get<BlueprintAbilityAreaEffect>("9b51157a5305dbf4184bf15bdad39226"), //rift of ruin area
              };
 
             foreach (var a in areas)
@@ -146,7 +154,17 @@ namespace CallOfTheWild
                 {
                     a.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
                 }
+
+                var pit = a.GetComponent<AreaEffectPit>();
+                if (pit == null)
+                {
+                    continue;
+                }
+                pit.ImmunityFacts = pit.ImmunityFacts.AddToArray(airborne);
             }
+
+
+
         }
 
         static void createFlyingFact()
@@ -162,9 +180,7 @@ namespace CallOfTheWild
 
 
         static void fixWingsBuff()
-        {
-            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
-
+        {          
             var wing_buffs = library.GetAllBlueprints().Where(b => b.name.Contains("BuffWings") && b is BlueprintBuff).Cast<BlueprintBuff>().ToList();
             wing_buffs.Add(library.Get<BlueprintBuff>("25699a90ed3299e438b6fd5548930809")); //angel wings
             wing_buffs.Add(library.Get<BlueprintBuff>("a19cda073f4c2b64ca1f8bf8fe285ece")); //black angel wings
@@ -209,7 +225,6 @@ namespace CallOfTheWild
 
         static void fixFlyingCreatures()
         {
-            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
             airborne.AddComponent(Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain));
             airborne.AddComponent(Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
             airborne.AddComponent(Common.createSpellImmunityToSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));

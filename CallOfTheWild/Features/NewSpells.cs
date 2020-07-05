@@ -2115,7 +2115,8 @@ namespace CallOfTheWild
                                           null,
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
                                           Common.createSpellImmunityToSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground),
-                                          Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain)
+                                          Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                                          Helpers.CreateAddFact(FixFlying.pit_spell_immunity)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes), is_from_spell: true);
