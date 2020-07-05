@@ -713,6 +713,10 @@ namespace CallOfTheWild
                     {
                         if (context2.Params.HasMetamagic((Metamagic)key_value.Key) )
                         {
+                            context2.RemoveSpellDescriptor(SpellDescriptor.Fire);
+                            context2.RemoveSpellDescriptor(SpellDescriptor.Cold);
+                            context2.RemoveSpellDescriptor(SpellDescriptor.Acid);
+                            context2.RemoveSpellDescriptor(SpellDescriptor.Electricity);
                             context2.AddSpellDescriptor(key_value.Value.Item1);
                             return;
                         }

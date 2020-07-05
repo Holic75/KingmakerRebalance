@@ -1,7 +1,10 @@
-﻿using Kingmaker.Blueprints;
+﻿using JetBrains.Annotations;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
@@ -10,6 +13,7 @@ using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using System;
@@ -43,7 +47,7 @@ namespace CallOfTheWild.SpellbookMechanics
     [AllowedOn(typeof(BlueprintSpellbook))]
     public class CanNotUseSpells : BlueprintComponent
     {
-       
+
     }
 
     [AllowedOn(typeof(BlueprintSpellbook))]
@@ -141,13 +145,13 @@ namespace CallOfTheWild.SpellbookMechanics
     {
         static bool Prefix(Spellbook __instance, AbilityData spell, bool excludeSpecial, ref bool __result)
         {
-             if (__instance.Owner.Ensure<UnitPartDoNotSpendNextSpell>().active)
-             {
+            if (__instance.Owner.Ensure<UnitPartDoNotSpendNextSpell>().active)
+            {
                 __instance.Owner.Ensure<UnitPartDoNotSpendNextSpell>().active = false;
                 __result = true;
                 return false;
-             }
-             return true;
+            }
+            return true;
         }
     }
 
@@ -180,7 +184,7 @@ namespace CallOfTheWild.SpellbookMechanics
                 {
                     if (abilityData.MetamagicData != null)
                     {
-                        ___m_KnownSpellLevels[abilityData.Blueprint] = index - abilityData.MetamagicData.SpellLevelCost; 
+                        ___m_KnownSpellLevels[abilityData.Blueprint] = index - abilityData.MetamagicData.SpellLevelCost;
                     }
                 }
             }
@@ -209,7 +213,7 @@ namespace CallOfTheWild.SpellbookMechanics
             int? count = __instance.Blueprint.SpellsPerDay.GetCount(__instance.CasterLevel, spellLevel);
             if (!count.HasValue)
             {
-                __result =  0;
+                __result = 0;
             }
             else
             {
@@ -288,7 +292,7 @@ namespace CallOfTheWild.SpellbookMechanics
         {
             if (spellbook == null)
             {
-                return 0 ;
+                return 0;
             }
             var class_spellbook = this.Owner.GetSpellbook(character_class);
             if (class_spellbook == null)
@@ -305,6 +309,90 @@ namespace CallOfTheWild.SpellbookMechanics
             bonus = Math.Min(bonus, bound.Calculate(this.Fact.MaybeContext) - spellbook.CasterLevel);
 
             return Math.Max(0, bonus);
+        }
+    }
+
+    public class PsychicSpellbook: BlueprintComponent
+    {
+    
+    }
+
+
+    [AllowMultipleComponents]
+    public class PrerequisitePsychicCasterTypeSpellLevel : Prerequisite
+    {
+        public bool OnlySpontaneous;
+        public int RequiredSpellLevel;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            foreach (ClassData classData in unit.Progression.Classes)
+            {
+                BlueprintSpellbook spellbook = classData.Spellbook;
+                if (spellbook != null
+                    && (!this.OnlySpontaneous || spellbook.Spontaneous)
+                    && spellbook.GetComponent<PsychicSpellbook>() != null
+                    && unit.DemandSpellbook(classData.CharacterClass).MaxSpellLevel >= this.RequiredSpellLevel)
+                    return true;
+            }
+            return false;
+        }
+
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (this.OnlySpontaneous)
+                stringBuilder.Append("Ability to cast psychic spontaneous spells");
+            else
+                stringBuilder.Append("Ability to cast psychic spells");
+            stringBuilder.Append(" ");
+            stringBuilder.Append((string)UIStrings.Instance.Tooltips.SpellsOfLevel[this.RequiredSpellLevel]);
+            return stringBuilder.ToString();
+        }
+    }
+
+
+
+    [AllowMultipleComponents]
+    public class PrerequisiteDivineCasterTypeSpellLevel : Prerequisite
+    {
+        public bool OnlySpontaneous;
+        public int RequiredSpellLevel;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            foreach (ClassData classData in unit.Progression.Classes)
+            {
+                BlueprintSpellbook spellbook = classData.Spellbook;
+                if (spellbook != null
+                    && !spellbook.IsAlchemist
+                    && !spellbook.IsArcane
+                    && (!this.OnlySpontaneous || spellbook.Spontaneous)
+                    && spellbook.GetComponent<PsychicSpellbook>() == null
+                    && unit.DemandSpellbook(classData.CharacterClass).MaxSpellLevel >= this.RequiredSpellLevel)
+                    return true;
+            }
+            return false;
+        }
+
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (this.OnlySpontaneous)
+                stringBuilder.Append((string)(UIStrings.Instance.Tooltips.CanCastDivineSpontaneousSpellsOfLevel));
+            else
+                stringBuilder.Append((string)(UIStrings.Instance.Tooltips.CanCastDivineSpellsOfLevel));
+            stringBuilder.Append(" ");
+            stringBuilder.Append((string)UIStrings.Instance.Tooltips.SpellsOfLevel[this.RequiredSpellLevel]);
+            return stringBuilder.ToString();
         }
     }
 

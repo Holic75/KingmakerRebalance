@@ -64,14 +64,16 @@ namespace CallOfTheWild
 
     public static partial class Extensions
     {
-        public static bool checkSpellbook(this BlueprintSpellbook spellbook, bool is_divine, bool is_arcane, bool is_alchemist)
+        public static bool checkSpellbook(this BlueprintSpellbook spellbook, bool is_divine, bool is_arcane, bool is_alchemist, bool psychic)
         {
             if (spellbook == null)
             {
                 return false;
             }
+            bool is_psychic = spellbook.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null;
 
-            return (spellbook.IsAlchemist && is_alchemist) || (spellbook.IsArcane && is_arcane) || (!spellbook.IsArcane && !spellbook.IsAlchemist && is_divine);
+            return (is_psychic && psychic)
+                  || (spellbook.IsAlchemist && is_alchemist) || (spellbook.IsArcane && is_arcane) || (!spellbook.IsArcane && !spellbook.IsAlchemist && !is_psychic && is_divine);
         }
 
         public static T CloneObject<T>(this T obj) where T : class
@@ -3033,10 +3035,8 @@ namespace CallOfTheWild
         }
 
 
-
-
-        public static void addSpellbooksToSpellSelection(string name, int spell_level,
-                                                        BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true)
+        public static void addSpellbooksToSpellSelection2(string name, int spell_level,
+                                                BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true, bool psychic = true)
         {
             var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             var thassilonian_shools = library.Get<BlueprintFeatureSelection>("f431178ec0e2b4946a34ab504bb46285").AllFeatures;
@@ -3052,7 +3052,7 @@ namespace CallOfTheWild
                 List<BlueprintComponent> components = new List<BlueprintComponent>();
                 components.Add(Common.createPrerequisiteClassSpellLevel(c, spell_level));
 
-                if (c.Spellbook.checkSpellbook(divine, arcane, alchemist))
+                if (c.Spellbook.checkSpellbook(divine, arcane, alchemist, psychic))
                 {
                     foreach (var a in alternative_spellbook_archetypes)
                     {
@@ -3064,7 +3064,7 @@ namespace CallOfTheWild
 
                 foreach (var a in alternative_spellbook_archetypes)
                 {
-                    if (a.ReplaceSpellbook.checkSpellbook(divine, arcane, alchemist))
+                    if (a.ReplaceSpellbook.checkSpellbook(divine, arcane, alchemist, psychic))
                     {
                         Common.addReplaceSpellbook(spellbook_selection, a.ReplaceSpellbook, name + a.name + "SpellbookFeature", a.Name,
                                                 Common.createPrerequisiteArchetypeLevel(c, a, 1),
@@ -3087,6 +3087,13 @@ namespace CallOfTheWild
                                             Common.createPrerequisiteClassSpellLevel(wizard, spell_level),
                                             Common.createPrerequisiteArchetypeLevel(wizard, thassilonian_specialist, 1));
             }
+        }
+
+
+        public static void addSpellbooksToSpellSelection(string name, int spell_level,
+                                                        BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true)
+        {
+            addSpellbooksToSpellSelection2(name, spell_level, spellbook_selection, divine, arcane, alchemist, false);
         }
 
 

@@ -118,7 +118,7 @@ namespace CallOfTheWild
             holy_vindicator_class.AddComponent(Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 5));
             holy_vindicator_class.AddComponent(Helpers.PrerequisiteStatValue(StatType.SkillLoreReligion, 5));
             holy_vindicator_class.AddComponent(Helpers.PrerequisiteFeature(ChannelEnergyEngine.improved_channel)); //instead of channel energy and Alignment/Elemental channel which are not in the game and imho do not worth implementing 
-            holy_vindicator_class.AddComponent(Common.createPrerequisiteCasterTypeSpellLevel(false, 1));
+            holy_vindicator_class.AddComponent(Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(p => p.RequiredSpellLevel = 1));
 
             holy_vindicator_class.AddComponent(Helpers.Create<SkipLevelsForSpellProgression>(s => s.Levels = new int[] { 5, 9 }));
 

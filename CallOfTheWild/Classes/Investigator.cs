@@ -753,6 +753,8 @@ namespace CallOfTheWild
                 spell.AddToSpellList(psychic_detective_spellbook.SpellList, spell_id.level);
             }
 
+            psychic_detective_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.PsychicSpellbook>());
+
             psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_detective_spellbook));
             psychic_spellcasting.AddComponents(Common.createCantrips(investigator_class, StatType.Intelligence, psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
             psychic_spellcasting.AddComponents(Helpers.CreateAddFacts(psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));

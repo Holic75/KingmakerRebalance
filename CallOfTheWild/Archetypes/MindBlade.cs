@@ -79,7 +79,8 @@ namespace CallOfTheWild.Archetypes
             library.AddAsset(archetype, "");
 
             archetype.ChangeCasterType = true;
-            archetype.IsArcaneCaster = true;
+            archetype.IsArcaneCaster = false;
+
             
             createPsychicSpellcasting();
             createPsychicAccess();
@@ -183,6 +184,7 @@ namespace CallOfTheWild.Archetypes
             {
                 ps.AddComponent(Common.prerequisiteNoArchetype(archetype));
             }
+            spellbook.AddComponent(Helpers.Create<SpellbookMechanics.PsychicSpellbook>());
         }
 
 

@@ -114,7 +114,8 @@ namespace CallOfTheWild
             hinterlander_class.AddComponent(Helpers.PrerequisiteFeature(endurance_feat));
             hinterlander_class.AddComponent(Common.createPrerequisiteParametrizedFeatureWeapon(weapon_focus, WeaponCategory.Longbow));
             hinterlander_class.AddComponent(Common.createPrerequisiteCasterTypeSpellLevel(true, 1, true));
-            hinterlander_class.AddComponent(Common.createPrerequisiteCasterTypeSpellLevel(false, 1, true));
+            hinterlander_class.AddComponent(Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(p => { p.RequiredSpellLevel = 1; p.Group = Prerequisite.GroupType.Any; }));
+            hinterlander_class.AddComponent(Helpers.Create<SpellbookMechanics.PrerequisitePsychicCasterTypeSpellLevel>(p => { p.RequiredSpellLevel = 1; p.Group = Prerequisite.GroupType.Any; }));
 
             createHinterlanderProgression();
             hinterlander_class.Progression = hinterlander_progression;
@@ -376,7 +377,7 @@ namespace CallOfTheWild
                                                                  null,
                                                                  FeatureGroup.EldritchKnightSpellbook);
             spellbook_selection.Obligatory = true;
-            Common.addSpellbooksToSpellSelection("Hinterlander", 1, spellbook_selection, alchemist: false);
+            Common.addSpellbooksToSpellSelection2("Hinterlander", 1, spellbook_selection, alchemist: false);
         }
 
 
