@@ -865,6 +865,12 @@ namespace CallOfTheWild.EvolutionMechanics
     }
 
 
+    public class AbilityEvolutionCost: BlueprintComponent
+    {
+        public int cost = 0;
+    }
+
+
     public class ShareSpellbooksWithCompanion : OwnedGameLogicComponent<UnitDescriptor>
     {
         public override void OnFactActivate()

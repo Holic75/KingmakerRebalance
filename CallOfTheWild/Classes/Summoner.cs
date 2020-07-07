@@ -1707,6 +1707,15 @@ namespace CallOfTheWild
 
             for (int i = 0; i < spell_levels.Length; i++)
             {
+                var descripton = "This spell causes your eidolon to take on new characteristics.\n"
+                                                                           + $"You can grant the eidolon any evolution whose total cost does not exceed {max_evolution_cost[i]} evolution points. You may only grant one evolution with this spell, even if that evolution can be taken multiple times.\n"
+                                                                           + "You can grant an evolution that allows you to spend additional evolution points to upgrade that evolution. This spell cannot be used to grant an upgrade to an evolution that the eidolon already possesses. The eidolon must meet any prerequisites of the selected evolution.";
+                if (i + 1 == spell_levels.Length)
+                {
+                    descripton = "This spell causes your eidolon to take on new characteristics.\n"
+                                 + $"You can grant the eidolon up to 2 evolutions whose total cost do not exceed {max_evolution_cost[i]} evolution points.\n"
+                                 + "You can grant an evolution that allows you to spend additional evolution points to upgrade that evolution. This spell cannot be used to grant an upgrade to an evolution that the eidolon already possesses. The eidolon must meet any prerequisites of the selected evolution.";
+                }
                 var ability = Evolutions.getGrantTemporaryEvolutionAbility(max_evolution_cost[i], true,
                                                                            names[i].Replace(" ", "").Replace(",", ""),
                                                                            names[i],
@@ -1717,6 +1726,7 @@ namespace CallOfTheWild
                                                                            AbilityType.Spell,
                                                                            CommandType.Standard,
                                                                            Helpers.minutesPerLevelDuration,
+                                                                           i + 1 == spell_levels.Length,
                                                                            Helpers.CreateContextRankConfig(),
                                                                            Helpers.CreateSpellComponent(SpellSchool.Transmutation));
                 ability.AddToSpellList(summoner_class.Spellbook.SpellList, spell_levels[i]);

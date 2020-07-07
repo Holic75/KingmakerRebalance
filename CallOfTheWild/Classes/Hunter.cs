@@ -397,6 +397,7 @@ namespace CallOfTheWild
                                                                                     AbilityType.Supernatural,
                                                                                     CommandType.Swift,
                                                                                     Helpers.minutesPerLevelDuration,
+                                                                                    false,
                                                                                     Helpers.CreateResourceLogic(resource),
                                                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                                                     classes: new BlueprintCharacterClass[] { hunter_class }

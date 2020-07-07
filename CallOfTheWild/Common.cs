@@ -1810,6 +1810,15 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.AbilityShowIfCasterHasFacts createAbilityShowIfCasterHasAnyFacts(params BlueprintUnitFact[] facts)
+        {
+            var a = Helpers.Create<NewMechanics.AbilityShowIfCasterHasFacts>();
+            a.UnitFacts = facts;
+            a.any = true;
+            return a;
+        }
+
+
         static public ContextConditionHasFact createContextConditionHasFact(BlueprintUnitFact fact, bool has = true)
         {
             var c = Helpers.Create<ContextConditionHasFact>();

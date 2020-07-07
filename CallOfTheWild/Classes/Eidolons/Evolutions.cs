@@ -249,7 +249,7 @@ namespace CallOfTheWild
         static List<EvolutionEntry> evolution_entries = new List<EvolutionEntry>();
         static public BlueprintFeatureSelection evolution_selection;
         static public BlueprintFeatureSelection self_evolution_selection;
-        static public BlueprintAbility getGrantTemporaryEvolutionAbility(int max_cost, 
+        static public BlueprintAbility getGrantTemporaryEvolutionAbility(int max_cost,
                                                                           bool remove_buffs,
                                                                           string name_prefix, string display_name,
                                                                           string description,
@@ -257,8 +257,55 @@ namespace CallOfTheWild
                                                                           AbilityType ability_type,
                                                                           UnitCommand.CommandType command_type,
                                                                           string duration,
+                                                                          bool reuse_remaining_cost,
                                                                           params BlueprintComponent[] components)
         {
+            BlueprintBuff[] remaining_points_buffs = new BlueprintBuff[0];
+            if (reuse_remaining_cost)
+            {
+                var remaining_ability = getGrantTemporaryEvolutionAbility(max_cost - 1, false,
+                                                                      $"Remaining" + name_prefix,
+                                                                      display_name + $" (Remaining E. P.)",
+                                                                      description,
+                                                                      icon,
+                                                                      ability_type,
+                                                                      CommandType.Free,
+                                                                      duration,
+                                                                      false,
+                                                                      components);
+
+                remaining_points_buffs = new BlueprintBuff[max_cost - 1];
+                for (int i = 1; i <= max_cost - 1; i++)
+                {
+                    var remaining_buff = Helpers.CreateBuff(remaining_ability.name + $"{i}Buff",
+                                                            display_name + $" (Remained {i} E. P.)",
+                                                            description,
+                                                            "",
+                                                            icon,
+                                                            null,
+                                                            Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = remaining_ability),
+                                                            Helpers.CreateAddFact(remaining_ability)
+                                                            );
+                    remaining_points_buffs[i - 1] = remaining_buff;
+                }
+
+                var remove_remaining_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = remaining_points_buffs);
+                foreach (var v in remaining_ability.Variants)
+                {
+                    var execute_action_on_cast = v.GetComponent<AbilityExecuteActionOnCast>();
+                    if (execute_action_on_cast == null)
+                    {
+                        v.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(remove_remaining_buffs)));
+                    }
+                    else
+                    {
+                        execute_action_on_cast = v.GetComponent<AbilityExecuteActionOnCast>();
+                        execute_action_on_cast.Actions = Helpers.CreateActionList(execute_action_on_cast.Actions.Actions.AddToArray(remove_remaining_buffs));
+                    }
+                    v.AddComponent(Common.createAbilityCasterHasFacts(remaining_points_buffs.Skip(v.GetComponent<EvolutionMechanics.AbilityEvolutionCost>().cost - 1).ToArray()));
+                    v.AddComponent(Common.createAbilityShowIfCasterHasAnyFacts(remaining_points_buffs.Skip(v.GetComponent<EvolutionMechanics.AbilityEvolutionCost>().cost - 1).ToArray()));
+                }
+            }
             List<BlueprintAbility> abilities = new List<BlueprintAbility>();
             List<ContextActionRemoveBuff> buffs_to_remove = new List<ContextActionRemoveBuff>();
             if (remove_buffs)
@@ -266,6 +313,10 @@ namespace CallOfTheWild
                 foreach (var ee in evolution_entries)
                 {
                     buffs_to_remove.Add(Common.createContextActionRemoveBuff(ee.buff));
+                }
+                foreach (var b in remaining_points_buffs)
+                {
+                    buffs_to_remove.Add(Common.createContextActionRemoveBuff(b));
                 }
             }
             var fx = Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Common.createContextActionSpawnFx(Common.createPrefabLink("352469f228a3b1f4cb269c7ab0409b8e"))));
@@ -288,6 +339,15 @@ namespace CallOfTheWild
                                                         duration,
                                                         Helpers.savingThrowNone,
                                                         Helpers.CreateRunActions(buffs_to_remove.ToArray<GameAction>().AddToArray(apply_buff).AddToArray(fx)));
+
+                    if (reuse_remaining_cost && ee.total_cost < max_cost)
+                    {
+                        var apply_remaining = Common.createContextActionApplyBuffToCaster(remaining_points_buffs[max_cost - ee.total_cost - 1],
+                                                                                          Helpers.CreateContextDuration(1, DurationRate.Rounds),
+                                                                                          dispellable: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
+                                                                                          is_from_spell: ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike);
+                        ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(apply_remaining)));
+                    }
                     ability.AddComponents(components);
                     foreach (var e in ee.required_evolutions)
                     {
@@ -321,8 +381,8 @@ namespace CallOfTheWild
                     {
                         ability.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
                     }
+                    ability.AddComponent(Helpers.Create<EvolutionMechanics.AbilityEvolutionCost>(a => a.cost = ee.total_cost));
                     abilities.Add(ability);
-
                 }
             }
             var wrapper = Common.createVariantWrapper(name_prefix + "BaseAbility", "", abilities.ToArray());

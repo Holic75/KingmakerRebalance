@@ -4557,17 +4557,18 @@ namespace CallOfTheWild
         public class AbilityShowIfCasterHasFacts : BlueprintComponent, IAbilityVisibilityProvider
         {
             public BlueprintUnitFact[] UnitFacts;
+            public bool any;
 
             public bool IsAbilityVisible(AbilityData ability)
             {
                 foreach (var fact in UnitFacts)
                 {
-                    if (!ability.Caster.Progression.Features.HasFact(fact))
+                    if (ability.Caster.HasFact(fact) == any)
                     {
-                        return false;
+                        return any;
                     }
                 }
-                return true;
+                return !any;
             }
         }
 
