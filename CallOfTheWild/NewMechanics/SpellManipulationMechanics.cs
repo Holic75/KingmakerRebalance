@@ -289,6 +289,7 @@ namespace CallOfTheWild
                         m_KnownSpellLevels[slot.Spell.Blueprint] = spell_level;
                         EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(new_ability)));
                     }
+                    slot.Available = false;
                 }
 
 
