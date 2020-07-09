@@ -1884,7 +1884,7 @@ namespace CallOfTheWild
                                                            "",
                                                            buff.Icon,
                                                            buff,
-                                                           AbilityActivationType.Immediately,
+                                                           AbilityActivationType.WithUnitCommand,
                                                            Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
                                                            null);
             if (!test_mode)

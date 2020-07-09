@@ -1380,7 +1380,7 @@ namespace CallOfTheWild
                                                                 "",
                                                                 icon,
                                                                 buffs[i],
-                                                                AbilityActivationType.Immediately,
+                                                                AbilityActivationType.WithUnitCommand,
                                                                 UnitCommand.CommandType.Standard,
                                                                 null);
                 abilities[i].Group = ActivatableAbilityGroupExtension.ThreefoldAspect.ToActivatableAbilityGroup();
@@ -3043,7 +3043,7 @@ namespace CallOfTheWild
                                                                        "",
                                                                        icon,
                                                                        allow_buff,
-                                                                       AbilityActivationType.Immediately,
+                                                                       AbilityActivationType.WithUnitCommand,
                                                                        UnitCommand.CommandType.Swift,
                                                                        null
                                                                        );

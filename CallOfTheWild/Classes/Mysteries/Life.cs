@@ -134,7 +134,7 @@ namespace CallOfTheWild
                                                            "",
                                                            icon,
                                                            buff,
-                                                           Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.WithUnitCommand,
                                                            CommandType.Standard,
                                                            null,
                                                            Helpers.CreateActivatableResourceLogic(resource, ResourceSpendType.NewRound)

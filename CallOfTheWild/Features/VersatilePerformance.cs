@@ -164,6 +164,7 @@ namespace CallOfTheWild
                                                                         deactivated: fatigue_saved)
                                     );
             var toggle = Common.createToggleAreaEffect(effect_buff, 50.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()),
+                                          AbilityActivationType.WithUnitCommand,
                                           UnitCommand.CommandType.Standard,
                                           Common.createPrefabLink("5d4308fa344af0243b2dd3b1e500b2cc"), //inspire courage
                                           Common.createPrefabLink("9353083f430e5a44a8e9d6e26faec248")
@@ -201,6 +202,7 @@ namespace CallOfTheWild
                                                                                                                  Common.createContextConditionHasFact(Common.elemental, has: false),
                                                                                                                  Common.createContextConditionHasFact(Common.construct, has: false),
                                                                                                                  Helpers.Create<ContextConditionIsEnemy>()),
+                                                      AbilityActivationType.WithUnitCommand,
                                                       UnitCommand.CommandType.Standard,
                                                       Common.createPrefabLink("20caf000cd4c3434da00a74f4a49dccc"), //dirge of doom
                                                       Common.createPrefabLink("39da71647ad4747468d41920d0edd721") //dirge of doom
@@ -227,6 +229,7 @@ namespace CallOfTheWild
             var buff = library.CopyAndAdd<BlueprintBuff>("1533e782fca42b84ea370fc1dcbf4fc1", "SymphonyOfElysianHeartEffectBuff", ""); //freedom of movement
 
             var toggle = Common.createToggleAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()),
+                                          AbilityActivationType.WithUnitCommand,
                                           UnitCommand.CommandType.Standard,
                                           Common.createPrefabLink("79665f3d500fdf44083feccf4cbfc00a"), //inspire competence area
                                           Common.createPrefabLink("9353083f430e5a44a8e9d6e26faec248")
@@ -319,6 +322,7 @@ namespace CallOfTheWild
                                                  );
 
             var toggle = Common.createToggleAreaEffect(effect_buff, 30.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.CreateContextConditionAlignment(AlignmentComponent.Evil)),
+                                                      AbilityActivationType.WithUnitCommand,
                                                       UnitCommand.CommandType.Standard,
                                                       Common.createPrefabLink("dfc59904273f7ee49ab00e5278d86e16"),
                                                       Common.createPrefabLink("9353083f430e5a44a8e9d6e26faec248")

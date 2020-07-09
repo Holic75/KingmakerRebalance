@@ -637,7 +637,7 @@ namespace CallOfTheWild
                                                                          ability_guid,
                                                                          icon,
                                                                          buff,
-                                                                         Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                                         Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.WithUnitCommand,
                                                                          Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
                                                                          null);
             Focus.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();

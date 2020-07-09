@@ -418,7 +418,7 @@ namespace CallOfTheWild
                                                                "",
                                                                buff.Icon,
                                                                buff,
-                                                               AbilityActivationType.Immediately,
+                                                               AbilityActivationType.WithUnitCommand,
                                                                CommandType.Standard,
                                                                null,
                                                                Helpers.CreateActivatableResourceLogic(resource, ResourceSpendType.NewRound)

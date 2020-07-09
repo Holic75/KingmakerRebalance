@@ -1406,7 +1406,7 @@ namespace CallOfTheWild
                                                                         ability_guid,
                                                                         effect.Icon,
                                                                         switch_buff,
-                                                                        AbilityActivationType.Immediately,
+                                                                        command_type == CommandType.Free ? AbilityActivationType.Immediately : AbilityActivationType.WithUnitCommand,
                                                                         command_type,
                                                                         animation
                                                                         );
@@ -1522,7 +1522,7 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintActivatableAbility createToggleAreaEffect(BlueprintBuff effect_buff, Feet radius, ConditionsChecker conditions, 
+        static public BlueprintActivatableAbility createToggleAreaEffect(BlueprintBuff effect_buff, Feet radius, ConditionsChecker conditions, AbilityActivationType activation_type,
                                                                          CommandType command_type, PrefabLink prefab_link_area, PrefabLink prefab_link_buff)
         {
             var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("5d4308fa344af0243b2dd3b1e500b2cc", effect_buff.name +"Area", "");
@@ -1550,7 +1550,7 @@ namespace CallOfTheWild
                                                           "",
                                                           effect_buff.Icon,
                                                           buff,
-                                                          AbilityActivationType.Immediately,
+                                                          activation_type,
                                                           command_type,
                                                           null);
             return toggle;
@@ -2146,7 +2146,7 @@ namespace CallOfTheWild
                                                              "",
                                                              buff.Icon,
                                                              buff,
-                                                             AbilityActivationType.Immediately,
+                                                             command == CommandType.Free ? AbilityActivationType.Immediately : AbilityActivationType.WithUnitCommand,
                                                              command,
                                                              null,
                                                              components

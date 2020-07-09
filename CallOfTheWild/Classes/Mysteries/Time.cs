@@ -138,7 +138,7 @@ namespace CallOfTheWild
                                                             "",
                                                             blur.Icon,
                                                             displacement,
-                                                            Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                            Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.WithUnitCommand,
                                                             CommandType.Standard,
                                                             null,
                                                             Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)

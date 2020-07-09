@@ -886,7 +886,7 @@ namespace CallOfTheWild
                                                                          "",
                                                                          sacred_weapon_enhancement_buff.Icon,
                                                                          sacred_weapon_enhancement_buff,
-                                                                         AbilityActivationType.Immediately,
+                                                                         AbilityActivationType.WithUnitCommand,
                                                                          CommandType.Swift,
                                                                          null,
                                                                          Helpers.CreateActivatableResourceLogic(sacred_weapon_resource, ResourceSpendType.NewRound),

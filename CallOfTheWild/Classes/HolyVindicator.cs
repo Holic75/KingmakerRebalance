@@ -333,7 +333,7 @@ namespace CallOfTheWild
                                                                    "",
                                                                    icon,
                                                                    b,
-                                                                   AbilityActivationType.Immediately,
+                                                                   AbilityActivationType.WithUnitCommand,
                                                                    CommandType.Standard,
                                                                    null
                                                                    );

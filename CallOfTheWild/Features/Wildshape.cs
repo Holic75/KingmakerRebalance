@@ -1355,7 +1355,7 @@ namespace CallOfTheWild
             plant_shapeIII.RemoveComponents<SpellListComponent>();
             plant_shapeIII.SetIcon(entangle.Icon);
             plant_shapeIII.SetName("Plant Shape III");
-            plant_shapeIII.SetDescription("You become a Huge Treant or a Huge Giant Flytrap");
+            plant_shapeIII.SetDescription("You become a Huge Treant or a Huge Giant Flytrap.");
             plant_shapeIII.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(plant_shapeIII, treant_form_spell, giant_flytrap_form_spell));
 
             plant_shapeIII.RemoveComponents<SpellListComponent>();
@@ -1375,9 +1375,9 @@ namespace CallOfTheWild
                                                  beast_shape_prototype.Icon,
                                                  bulette,
                                                  8, -4, 2, 7, 10, Size.Huge,
-                                                 library.Get<BlueprintItemWeapon>("d889d3f8edd9ee54a9623c8127b0546f"),
-                                                 library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710"),
-                                                 new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("c47ddfd181931764aa508b7b5aa27710") },
+                                                 library.Get<BlueprintItemWeapon>("61fb13235c614f744ad42ff6141fab0e"),
+                                                 library.Get<BlueprintItemWeapon>("75254f19ca6e1d048a88b7545bb65221"),
+                                                 new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("75254f19ca6e1d048a88b7545bb65221") },
                                                  library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
                                                  library.Get<BlueprintFeature>("20b57bab6bac9b04493491432bcb6868"),//pounce
                                                  trip_defense_4legs
@@ -1391,9 +1391,9 @@ namespace CallOfTheWild
                                      beast_shape_prototype.Icon,
                                      hydra,
                                      8, -4, 2, 7, 0, Size.Huge,
-                                     library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"),
-                                     library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"),
-                                     new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"), library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8"), library.Get<BlueprintItemWeapon>("ec35ef997ed5a984280e1a6d87ae80a8") },
+                                     library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"),
+                                     library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"),
+                                     new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"), library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218"), library.Get<BlueprintItemWeapon>("61bc14eca5f8c1040900215000cfc218") },
                                      library.Get<BlueprintUnitFact>("c33f2d68d93ceee488aa4004347dffca"), //reduced reach
                                      library.Get<BlueprintFeature>("c1b26f97b974aec469613f968439e7bb"), //immunity to trip
                                      library.Get<BlueprintBuff>("37a5e51e9e3a23049a77ba70b4e7b2d2"),//fast healing 5,
@@ -1414,8 +1414,8 @@ namespace CallOfTheWild
             magical_beast_shape.RemoveComponents<SpellListComponent>();
             magical_beast_shape.SetIcon(beast_shape_prototype.Icon);
             magical_beast_shape.SetName("Magical Beast Shape");
-            magical_beast_shape.SetDescription("You become a Huge Bulette or a Huge Hydra");
-            magical_beast_shape.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(plant_shapeIII, bulette_spell, hydra_spell));
+            magical_beast_shape.SetDescription("You become a Huge Bulette or a Huge Hydra.");
+            magical_beast_shape.ReplaceComponent<AbilityVariants>(Helpers.CreateAbilityVariants(magical_beast_shape, bulette_spell, hydra_spell));
 
             magical_beast_shape.RemoveComponents<SpellListComponent>();
             magical_beast_shape.AddToSpellList(Helpers.wizardSpellList, 7);

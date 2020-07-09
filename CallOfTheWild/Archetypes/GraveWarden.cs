@@ -199,7 +199,7 @@ namespace CallOfTheWild.Archetypes
                                                  "",
                                                  buff.Icon,
                                                  buff,
-                                                 AbilityActivationType.Immediately,
+                                                 AbilityActivationType.WithUnitCommand,
                                                  CommandType.Swift,
                                                  null,
                                                  resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound),

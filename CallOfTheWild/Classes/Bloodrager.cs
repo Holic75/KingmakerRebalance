@@ -716,7 +716,7 @@ namespace CallOfTheWild
                                                                             enlarge_buff.Icon,
                                                                             demonic_bulk_switch_buff,
                                                                             AbilityActivationType.Immediately,
-                                                                            CommandType.Standard,
+                                                                            CommandType.Free,
                                                                             reckless_stance.ActivateWithUnitAnimation);
                 demonic_bulk = Helpers.CreateFeature("BloodragerBloodlineAbyssalDemonicBulkFeature",
                                                                         demonic_bulk_switch_buff.Name,
@@ -842,7 +842,7 @@ namespace CallOfTheWild
                                                                             firebelly.Icon,
                                                                             demonic_aura_switch_buff,
                                                                             AbilityActivationType.Immediately,
-                                                                            CommandType.Standard,
+                                                                            CommandType.Free,
                                                                             reckless_stance.ActivateWithUnitAnimation);
                 demonic_aura = Helpers.CreateFeature("BloodragerBloodlineAbyssalDemonicAuraFeature",
                                                                         demonic_aura_switch_buff.Name,
@@ -2887,7 +2887,7 @@ namespace CallOfTheWild
                                                            "",
                                                            buff.Icon,
                                                            buff,
-                                                           AbilityActivationType.Immediately,
+                                                           AbilityActivationType.WithUnitCommand,
                                                            test_mode ? CommandType.Free : CommandType.Swift,
                                                            null,
                                                            Common.createActivatableAbilityUnitCommand(CommandType.Swift)

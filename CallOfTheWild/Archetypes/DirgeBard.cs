@@ -154,7 +154,7 @@ namespace CallOfTheWild.Archetypes
                                                           "",
                                                           buff.Icon,
                                                           buff,
-                                                          AbilityActivationType.Immediately,
+                                                          AbilityActivationType.WithUnitCommand,
                                                           CommandType.Standard,
                                                           null,
                                                           bard_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound)
