@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
@@ -46,6 +47,7 @@ namespace CallOfTheWild
         static internal BlueprintFeatureSelection feral_combat_training;
         static internal Dictionary<WeaponCategory, BlueprintUnitFact> natural_weapon_type_fact_map = new Dictionary<WeaponCategory, BlueprintUnitFact>();
         static internal BlueprintParametrizedFeature ki_focus_weapon;
+        static internal BlueprintParametrizedFeature crusaders_flurry;
 
         class NaturalWeapoonEntry
         {
@@ -100,9 +102,26 @@ namespace CallOfTheWild
             library.AddCombatFeats(feral_combat_training);
 
             ki_focus_weapon = library.CopyAndAdd<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e", "KiWeaponFeature", "");
-            ki_focus_weapon.SetNameDescriptionIcon("Ki Weapon", "You can use ki attacks through the specified weapon as if they were unarmed attacks. These attacks include the monk’s ki strike, quivering palm, and the Stunning Fist feat", null);
+            ki_focus_weapon.SetNameDescriptionIcon("Ki Weapon", "You can use ki attacks through the specified weapon as if they were unarmed attacks. These attacks include the monk’s ki strike, quivering palm, and the Stunning Fist feat.", null);
             ki_focus_weapon.Groups = new FeatureGroup[0];
             ki_focus_weapon.ComponentsArray = new BlueprintComponent[0];
+
+
+            crusaders_flurry = library.CopyAndAdd<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e", "CrusadersFlurry", "8ff12016059f45b28eb616b2323efc2e");
+            crusaders_flurry.SetNameDescriptionIcon("Crusader's Flurry", "You can use your deity’s favored weapon as if it were a monk weapon.",
+                                                    LoadIcons.Image2Sprite.Create(@"FeatIcons/CrusadersFlurry.png"));
+            crusaders_flurry.Groups = new FeatureGroup[] { FeatureGroup.Feat};
+            crusaders_flurry.Prerequisite = NewFeats.deity_favored_weapon;
+            crusaders_flurry.WeaponSubCategory = WeaponSubCategory.Melee;
+            crusaders_flurry.ComponentsArray = new BlueprintComponent[]
+                {
+                    Helpers.Create<PrerequisiteMechanics.PrerequisiteMatchingParametrizedFeatures>(p => {p.base_feature = weapon_focus; p.dependent_feature = NewFeats.deity_favored_weapon; }),
+                    Helpers.Create<PrerequisiteParametrizedWeaponSubcategory>(p => {p.Feature = NewFeats.deity_favored_weapon; p.SubCategory = WeaponSubCategory.Melee; }),
+                    ChannelEnergyEngine.improved_channel.GetComponent<PrerequisiteFeaturesFromList>(), //channel energy prereq
+                    Helpers.PrerequisiteFeature( library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), any: true),
+                    Helpers.PrerequisiteFeature( Warpriest.flurry2_unlock, any: true)
+                };
+            library.AddFeats(crusaders_flurry);
 
             var ki_strike_magic = library.Get<BlueprintFeature>("1188005ee3160f84f8bed8b19a7d46cf");
             var ki_strike_cold_iron = library.Get<BlueprintFeature>("7b657938fde78b14cae10fc0d3dcb991");
@@ -138,7 +157,7 @@ namespace CallOfTheWild
         }
 
 
-        public static bool checkHasFeralCombat(UnitEntityData unit, ItemEntityWeapon weapon, bool allow_ki_focus = false)
+        public static bool checkHasFeralCombat(UnitEntityData unit, ItemEntityWeapon weapon, bool allow_ki_focus = false, bool allow_crusaders_flurry = false)
         {
             if (weapon == null || unit == null)
             {
@@ -149,7 +168,12 @@ namespace CallOfTheWild
                 return true;
             }
 
-            if (allow_ki_focus && unit.Descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == ki_focus_weapon).Any(p => (p.Param == weapon.Blueprint.Category)))
+            if (allow_crusaders_flurry && unit.Descriptor.Progression.Features.Enumerable.Where(p => p.Blueprint == crusaders_flurry).Any(p => (p.Param == weapon.Blueprint.Category)))
+            {
+                return true;
+            }
+
+            if (allow_ki_focus && unit.Descriptor.Progression.Features.Enumerable.Where(p => p.Blueprint == ki_focus_weapon).Any(p => (p.Param == weapon.Blueprint.Category)))
             {
                 return true;
             }
@@ -358,7 +382,7 @@ namespace CallOfTheWild
             {
                 if (!HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
                     && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
-                    && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon))
+                    && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true))
                     )
                 {
                     this.AddFact();

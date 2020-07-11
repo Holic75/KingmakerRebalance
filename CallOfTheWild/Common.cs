@@ -2824,6 +2824,29 @@ namespace CallOfTheWild
 
             spells.Clear();
             spells.Add(new_spell);
+
+
+            if (domain_progression.AssetGuid != "881b2137a1779294c8956fe5b497cc35")
+            {
+                return;
+            }
+
+            //fix trisitian buff
+            var trisitan_fire_maximize = library.Get<BlueprintBuff>("f16954c5c8cb0834baace64a167aa3cb").GetComponent<AutoMetamagic>();
+            if (!trisitan_fire_maximize.Abilities.Contains(old_spell))
+            {
+                return;
+            }
+            
+            if (SpellDuplicates.isDuplicate(old_spell, new_spell))
+            {
+                trisitan_fire_maximize.Abilities.Add(new_spell);
+            }
+            else
+            {
+                trisitan_fire_maximize.Abilities.Remove(old_spell);
+                trisitan_fire_maximize.Abilities.Add(new_spell);
+            }
         }
 
 

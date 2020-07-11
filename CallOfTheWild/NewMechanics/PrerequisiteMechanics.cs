@@ -16,6 +16,33 @@ namespace CallOfTheWild.PrerequisiteMechanics
 {
 
     [AllowMultipleComponents]
+    public class PrerequisiteMatchingParametrizedFeatures : Prerequisite
+    {
+        public BlueprintParametrizedFeature base_feature;
+        public BlueprintParametrizedFeature dependent_feature;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            if (selectionState != (FeatureSelectionState)null && selectionState.IsSelectedInChildren((IFeatureSelectionItem)this.base_feature))
+                return false;
+            return unit.Progression.Features.Enumerable.Where(p => p.Blueprint == this.base_feature).Any(this.CheckFeature);
+        }
+
+        public bool CheckFeature(Kingmaker.UnitLogic.Feature feature)
+        {
+            return feature.Owner.Progression.Features.Enumerable.Where(p => p.Blueprint == this.dependent_feature).Any(f => f.Param == feature.Param);
+        }
+
+        public override string GetUIText()
+        {
+            return base_feature.Name + " with " + dependent_feature.Name + ".";
+        }
+    }
+
+        [AllowMultipleComponents]
     public class PrerequsiteOrAlternative : Prerequisite
     {        
         public Prerequisite base_prerequsite, alternative_prerequsite;

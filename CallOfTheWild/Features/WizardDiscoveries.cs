@@ -40,7 +40,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class WizardDiscoveries
+    public class WizardDiscoveries
     {
         static bool disabled = false;
         static public BlueprintFeature infectious_charms; //

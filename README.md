@@ -129,7 +129,8 @@ New feats:
 - Bullseye shot,
 - Pinpoint targeting,
 - Ability Focus: Toxic Secretion,
-- Skin and Scales.
+- Skin and Scales,
+- Crusader's Flurry.
 
 New rage powers:
 - Terrifying Howl
