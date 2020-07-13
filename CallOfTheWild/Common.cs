@@ -4268,6 +4268,24 @@ namespace CallOfTheWild
         }
 
 
+        static public void addFeatureSelectionToAcl(AddClassLevels acl, BlueprintFeatureSelection feature_selection, BlueprintFeature feature)
+        {
+            var selections = acl.Selections;
+
+            var existing_selction = selections.FirstOrDefault(s => s.Selection == feature_selection);
+
+            if (existing_selction == null)
+            {
+                existing_selction = new SelectionEntry();
+                existing_selction.Selection = feature_selection;
+                existing_selction.Features = new BlueprintFeature[0];
+                acl.Selections = acl.Selections.AddToArray(existing_selction);
+            }
+
+            existing_selction.Features = existing_selction.Features.AddToArray(feature);
+        }
+
+
         static public void replaceSorcererBloodlineSpell(BlueprintProgression bloodline, BlueprintAbility spell, int level)
         {
             foreach (var le in bloodline.LevelEntries)

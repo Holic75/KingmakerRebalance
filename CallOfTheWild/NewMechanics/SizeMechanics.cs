@@ -3,9 +3,12 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Enums;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.Parts;
@@ -195,4 +198,94 @@ namespace CallOfTheWild.SizeMechanics
     }
 
 
+
+
+    public class UnitPartDoubleWeaponSize : AdditiveUnitPart
+    {
+        public void maybeApply(RuleCalculateWeaponStats evt)
+        {
+            if (evt.Weapon?.Blueprint == null)
+            {
+                return;
+            }
+
+            bool res = false;
+            foreach (var b in buffs)
+            {
+                b.CallComponents<DoubleWeaponSize>(a => res = a.apply(evt));
+                {
+                    if (res)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    //double weapon damage after verything else
+    [Harmony12.HarmonyPatch(typeof(RuleCalculateWeaponStats), "OnTrigger")]
+    class RuleCalculateWeaponStats_OnTrigger_Patch
+    {
+        static bool Prefix(RuleCalculateWeaponStats __instance, RulebookEventContext context)
+        {
+            __instance.Initiator?.Get<UnitPartDoubleWeaponSize>()?.maybeApply(__instance);
+            return true;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class DoubleWeaponSize : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public WeaponCategory[] categories;
+
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartDoubleWeaponSize>().addBuff(this.Fact);
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartDoubleWeaponSize>().removeBuff(this.Fact);
+        }
+
+        public bool apply(RuleCalculateWeaponStats evt)
+        {
+            if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
+            {
+                return false;
+            }
+
+            if (evt.DoNotScaleDamage)
+            {
+                return false;
+            }
+            var wielder_size = evt.Initiator.Descriptor.State.Size;
+            evt.DoNotScaleDamage = true;
+
+            //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
+            var base_weapon_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.Damage : evt.Weapon.Blueprint.ScaleDamage(wielder_size);
+            DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : WeaponDamageScaleTable.Scale(evt.WeaponDamageDiceOverride.Value, wielder_size);
+
+
+            if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
+            {
+                //double damage dice
+                DiceFormula double_damage = new DiceFormula(2 * baseDice.Rolls, baseDice.Dice);
+                evt.WeaponDamageDiceOverride = new DiceFormula?(double_damage);
+            }
+            else
+            {
+                var new_dice = WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, wielder_size, evt.Weapon.Blueprint);
+                if (new_dice == baseDice)
+                {
+                    //no scaling available
+                    new_dice = new DiceFormula(2 * baseDice.Rolls, baseDice.Dice);
+                }
+                evt.WeaponDamageDiceOverride = new DiceFormula?(new_dice);
+            }
+            return true;
+        }
+    }
 }

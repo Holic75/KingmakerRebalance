@@ -3828,54 +3828,7 @@ namespace CallOfTheWild
 
 
 
-        [AllowedOn(typeof(BlueprintUnitFact))]
-        [AllowMultipleComponents]
-        public class DoubleWeaponSize : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
-        {
-            public WeaponCategory[] categories;
 
-            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
-            {
-                if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
-                {
-                    return;
-                }
-
-                if (evt.DoNotScaleDamage)
-                {
-                    return;
-                }
-                var wielder_size = evt.Initiator.Descriptor.State.Size;
-                evt.DoNotScaleDamage = true;
-
-                //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
-                var base_weapon_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.Damage : evt.Weapon.Blueprint.ScaleDamage(wielder_size);
-                DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : WeaponDamageScaleTable.Scale(evt.WeaponDamageDiceOverride.Value, wielder_size);
-
-
-                if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)
-                {
-                    //double damage dice
-                    DiceFormula double_damage = new DiceFormula(2 * baseDice.Rolls, baseDice.Dice);
-                    evt.WeaponDamageDiceOverride = new DiceFormula?(double_damage);
-                }
-                else
-                {
-                    var new_dice = WeaponDamageScaleTable.Scale(baseDice, wielder_size + 2, wielder_size, evt.Weapon.Blueprint);
-                    if (new_dice == baseDice)
-                    {
-                        //no scaling available
-                        new_dice = new DiceFormula(2 * baseDice.Rolls, baseDice.Dice);
-                    }
-
-                    evt.WeaponDamageDiceOverride = new DiceFormula?(new_dice);
-                }
-            }
-
-            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
-            {
-            }
-        }
 
 
         [ComponentName("Attacks ignore armor and shields")]

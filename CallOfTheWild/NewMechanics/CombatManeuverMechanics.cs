@@ -461,6 +461,27 @@ namespace CallOfTheWild.CombatManeuverMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ReplaceCombatManeuverStatForSpecificManeuver : RuleInitiatorLogicComponent<RuleCalculateCMB>
+    {
+        public StatType StatType;
+        public CombatManeuver[] maneuvers;
+
+        public override void OnEventAboutToTrigger(RuleCalculateCMB evt)
+        {
+            if (!maneuvers.Contains(evt.Type))
+            {
+                return;
+            }
+            evt.ReplaceStrength = new StatType?(this.StatType);
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateCMB evt)
+        {
+        }
+    }
+
+
     [AllowMultipleComponents]
     public class AddInitiatorManeuverWithWeaponTrigger : GameLogicComponent, IInitiatorRulebookHandler<RuleCombatManeuver>
     {

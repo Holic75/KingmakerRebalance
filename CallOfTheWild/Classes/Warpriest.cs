@@ -143,6 +143,7 @@ namespace CallOfTheWild
         static public BlueprintProgression arsenal_chaplain_war_blessing;
         static public BlueprintFeature arsenal_chaplain_weapon_training;
         static public BlueprintFeature[] arsenal_chaplain_war_blessing_updates = new BlueprintFeature[3];
+        static public BlueprintFeature aid_another_boost;
 
         internal static void createWarpriestClass()
         {
@@ -1814,65 +1815,21 @@ namespace CallOfTheWild
 
         static void createCommunityBlessing()
         {
-            var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
             var remove_fear_buff = library.Get<BlueprintBuff>("c5c86809a1c834e42a2eb33133e90a28");
             var eccli_blessing = library.Get<BlueprintAbility>("db0f61cd985ca09498cafde9a4b27a16");
-            var remove_self_action = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
-            BlueprintBuff[] aid_another_buffs = new BlueprintBuff[2];
-            aid_another_buffs[0] = Helpers.CreateBuff("WarpriestCommunityBlessingAidAnother1Buff",
-                                                                "Aid Another (Attack Bonus)",
-                                                                "In melee combat, you can help a friend attack or defend by distracting or interfering with an opponents. If you’re in position to make a melee attack on an opponent that is engaging a friend in melee combat, you can attempt to aid your friend as a standard action. Your friend gains either a +2 bonus on his next attack roll or a +2 bonus to AC against next attack (your choice), as long as that attack comes before the beginning of your next turn. Multiple characters can aid the same friend, and similar bonuses stack.",
-                                                                "",
-                                                                remove_fear.Icon,
-                                                                null,
-                                                                Common.createAttackTypeAttackBonus(Common.createSimpleContextValue(4), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
-                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true, on_initiator: true)
-                                                                );
-            aid_another_buffs[0].Stacking = StackingType.Stack;
 
-            aid_another_buffs[1] = Helpers.CreateBuff("WarpriestCommunityBlessingAidAnother2Buff",
-                                                    "Aid Another (AC)",
-                                                    aid_another_buffs[0].Description,
-                                                    "",
-                                                    remove_fear.Icon,
-                                                    null,
-                                                    Helpers.Create<ACBonusAgainstAttacks>(a => { a.Value = Common.createSimpleContextValue(4); a.Descriptor = ModifierDescriptor.UntypedStackable; a.AgainstMeleeOnly = true; }),
-                                                    Helpers.Create<AddTargetAttackWithWeaponTrigger>(a =>
-                                                                                                    {
-                                                                                                        a.ActionOnSelf = remove_self_action;
-                                                                                                        a.WaitForAttackResolve = true;
-                                                                                                        a.OnlyMelee = true;
-                                                                                                    })
-                                                    );
-            aid_another_buffs[1].Stacking = StackingType.Stack;
+            var aid_another_boost = Helpers.CreateFeature("AidAnotherBoostFeature", "", "", "", null, FeatureGroup.None);
+            aid_another_boost.HideInCharacterSheetAndLevelUp = true;
 
-            BlueprintAbility[] aid_another_abilities = new BlueprintAbility[aid_another_buffs.Length];
-
-            for (int i = 0; i < aid_another_buffs.Length; i++)
-            {
-                var apply_buff = Common.createContextActionApplyBuff(aid_another_buffs[i], Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
-                aid_another_abilities[i] = Helpers.CreateAbility($"WarpriestCommunityBlessingAidAnother{i + 1}Ability",
-                                                                 aid_another_buffs[i].Name,
-                                                                 aid_another_buffs[i].Description,
-                                                                 "",
-                                                                 aid_another_buffs[i].Icon,
-                                                                 AbilityType.Special,
-                                                                 CommandType.Standard,
-                                                                 AbilityRange.Touch,
-                                                                 Helpers.oneRoundDuration,
-                                                                 "",
-                                                                 Helpers.CreateRunActions(apply_buff)
-                                                                 );
-                aid_another_abilities[i].setMiscAbilityParametersTouchFriendly(works_on_self: false);
-            }
-
+            Helpers.SetField(Rebalance.aid_another_config, "m_FeatureList",
+                             Helpers.GetField<BlueprintFeature[]>(Rebalance.aid_another_config, "m_FeatureList").AddToArray(aid_another_boost, aid_another_boost));
             var minor_buff = Helpers.CreateBuff("WarpriestCommunityMinorBlessingBuff",
                                                 "Communal Aid",
                                                 "At 1st level, you can touch an ally and grant it the blessing of community. For the next minute, whenever that ally uses the aid another action, the bonus granted increases to +4. You can instead use this ability on yourself as a swift action.",
                                                 "",
                                                 eccli_blessing.Icon,
                                                 remove_fear_buff.FxOnStart,
-                                                Helpers.CreateAddFacts(aid_another_abilities)
+                                                Helpers.CreateAddFacts(aid_another_boost)
                                                 );
 
             var apply_minor_buff = Common.createContextActionApplyBuff(minor_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Minutes), dispellable: false);

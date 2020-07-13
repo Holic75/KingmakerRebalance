@@ -48,6 +48,88 @@ namespace CallOfTheWild
     {
         static LibraryScriptableObject library => Main.library;
 
+        static public BlueprintBuff[] aid_another_buffs = new BlueprintBuff[2];
+        static public ContextRankConfig aid_another_config;
+
+        static internal void createAidAnother()
+        {
+           var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
+           var remove_self_action = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+
+            aid_another_config = Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, progression: ContextRankProgression.BonusValue,
+                                                                                                featureList: new BlueprintFeature[0], stepLevel: 2);
+            aid_another_buffs[0] = Helpers.CreateBuff("WarpriestCommunityBlessingAidAnother1Buff",
+                                                                "Aid Another (Attack Bonus)",
+                                                                "In melee combat, you can help a friend attack or defend by distracting or interfering with an opponents. If you’re in position to make a melee attack on an opponent that is engaging a friend in melee combat, you can attempt to aid your friend as a standard action. Your friend gains either a +2 bonus on his next attack roll or a +2 bonus to AC against next attack (your choice), as long as that attack comes before the beginning of your next turn. Multiple characters can aid the same friend, and similar bonuses stack.",
+                                                                "",
+                                                                remove_fear.Icon,
+                                                                null,
+                                                                Common.createAttackTypeAttackBonus(Helpers.CreateContextValue(AbilityRankType.Default), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true, on_initiator: true),
+                                                                aid_another_config
+                                                                );
+            aid_another_buffs[0].Stacking = StackingType.Stack;
+
+            aid_another_buffs[1] = Helpers.CreateBuff("WarpriestCommunityBlessingAidAnother2Buff",
+                                                    "Aid Another (AC Bonus)",
+                                                    aid_another_buffs[0].Description,
+                                                    "",
+                                                    remove_fear.Icon,
+                                                    null,
+                                                    Helpers.Create<ACBonusAgainstAttacks>(a => { a.Value = Helpers.CreateContextValue(AbilityRankType.Default); a.Descriptor = ModifierDescriptor.UntypedStackable; a.AgainstMeleeOnly = true; }),
+                                                    Helpers.Create<AddTargetAttackWithWeaponTrigger>(a =>
+                                                    {
+                                                        a.ActionOnSelf = remove_self_action;
+                                                        a.WaitForAttackResolve = true;
+                                                        a.OnlyMelee = true;
+                                                    }),
+                                                    aid_another_config
+                                                    );
+            aid_another_buffs[1].Stacking = StackingType.Stack;
+
+            BlueprintAbility[] aid_another_abilities = new BlueprintAbility[aid_another_buffs.Length];
+
+            for (int i = 0; i < aid_another_buffs.Length; i++)
+            {
+                var apply_buff = Common.createContextActionApplyBuff(aid_another_buffs[i], Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
+                aid_another_abilities[i] = Helpers.CreateAbility($"WarpriestCommunityBlessingAidAnother{i + 1}Ability",
+                                                                 aid_another_buffs[i].Name,
+                                                                 aid_another_buffs[i].Description,
+                                                                 "",
+                                                                 aid_another_buffs[i].Icon,
+                                                                 AbilityType.Special,
+                                                                 UnitCommand.CommandType.Standard,
+                                                                 AbilityRange.Touch,
+                                                                 Helpers.oneRoundDuration,
+                                                                 "",
+                                                                 Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(aid_another_buffs[i]), apply_buff)
+                                                                 );
+                aid_another_abilities[i].setMiscAbilityParametersTouchFriendly(works_on_self: false);
+            }
+
+            var wrapper = Common.createVariantWrapper("AidAnotherAbilityBase", "ab00871bf2914b3ba492fdb2f1af8875", aid_another_abilities);
+            wrapper.SetName("Aid Another");
+            var feature = Helpers.CreateFeature("AidAnotherFeature",
+                                                "Aid Another",
+                                                aid_another_buffs[0].Description,
+                                                "",
+                                                aid_another_buffs[0].Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFacts(wrapper)
+                                                );
+            feature.HideInCharacterSheetAndLevelUp = true;
+            var basic_feat_progression = library.Get<BlueprintProgression>("5b72dd2ca2cb73b49903806ee8986325");
+            basic_feat_progression.LevelEntries[0].Features.Add(feature);
+
+            Action<UnitDescriptor> save_game_action = delegate (UnitDescriptor u)
+            {
+                if (!u.HasFact(feature))
+                {
+                    u.AddFact(feature);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_action);
+        }
 
 
         internal static void fixSpellDescriptors()
@@ -245,7 +327,7 @@ namespace CallOfTheWild
             valerie_class_level.Archetypes = new BlueprintArchetype[0];
             valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             valerie_class_level.Selections[0].Features[1] = valerie_class_level.Selections[0].Features[2];
-            valerie_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillLoreReligion, StatType.SkillAthletics };
+            valerie_class_level.Skills = new StatType[] {StatType.SkillPersuasion, StatType.SkillAthletics, StatType.SkillLoreReligion};
             valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
             valerie_companion.Body.SecondaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Shields.BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b");//shield
             valerie1_feature.GetComponent<AddFacts>().Facts = valerie1_feature.GetComponent<AddFacts>().Facts.Skip(1).ToArray();
@@ -263,7 +345,7 @@ namespace CallOfTheWild
             amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             amiri_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
             //amiri_class_level.Selections[0].Features[1] = NewFeats.furious_focus;
-            amiri_class_level.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillAthletics, StatType.SkillMobility };
+            amiri_class_level.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillPersuasion, StatType.SkillLoreNature};
             //change tristian stats
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
             tristian_companion.Strength = 10;
@@ -341,6 +423,10 @@ namespace CallOfTheWild
             linzi_companion.Charisma = 16;
             linzi_companion.Constitution = 12;
             linzi_companion.Strength = 11;
+            var linzi_feature = library.Get<BlueprintFeature>("920cb420385dbb34681b620b6c1b59e9");
+            var linzi_class_levels = linzi_feature.GetComponent<AddClassLevels>();
+            linzi_class_levels.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillThievery, StatType.SkillKnowledgeArcana, StatType.SkillMobility };
+            linzi_class_levels.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extra performance
             //change octavia
             var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
             octavia_companion.Dexterity = 16;
@@ -382,11 +468,22 @@ namespace CallOfTheWild
             noknok_companion.Wisdom = 10;
             noknok_companion.GetComponent<AddClassLevels>().Levels = 1;
             noknok_companion.GetComponent<AddClassLevels>().Skills = new StatType[] { StatType.SkillMobility, StatType.SkillThievery, StatType.SkillPerception, StatType.SkillStealth, StatType.SkillUseMagicDevice, StatType.SkillLoreNature, StatType.SkillAthletics };
-            //change jaethal
+            //change jaethal to archer
             var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
             var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
-            jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
+            //jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
+            jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"); //point blank shot
+            jaethal_selections.Selections[2].Features[0] = Inquisitions.conversion;
+            var jaethal_unit = library.Get<BlueprintUnit>("32d2801eddf236b499d42e4a7d34de23");
+            jaethal_unit.Strength = 12;
+            jaethal_unit.Dexterity = 17;
+            jaethal_unit.Charisma = 10;
+            jaethal_unit.Wisdom = 16;
+            jaethal_unit.Intelligence = 8;
+            jaethal_unit.Constitution = 12;
+            jaethal_selections.LevelsStat = StatType.Dexterity;
+            jaethal_unit.Body.PrimaryHandAlternative1 = library.Get<BlueprintItemWeapon>("7998cd1409fe1194583b64180df4f216"); //composite longbow
 
             var varn_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e83a03d50fedd35449042ce73f1b6908");
             var varn_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("2babd2d4687b5ee428966322eccfe4b6");
