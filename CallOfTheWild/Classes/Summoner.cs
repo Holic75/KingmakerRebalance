@@ -354,15 +354,21 @@ namespace CallOfTheWild
                     var clear_action = Helpers.CreateConditional(Helpers.Create<CompanionMechanics.ContextActionPetIsAlive>(),
                                                                  Helpers.Create<ContextActionClearSummonPool>(c => c.SummonPool = summon_pool));
                     var new_actions = Common.replaceActions<ContextActionClearSummonPool>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions, clear_action);
-                    var summon_action = Common.extractActions<ContextActionSpawnMonster>(new_actions).FirstOrDefault();
 
-                    var summon_free = summon_action.CreateCopy(s => s.SummonPool = master_summoner_free_pool);
-                    var summon_normal = summon_action.CreateCopy(s => s.SummonPool = summon_pool);
-
-                    var summon_action2 = Helpers.CreateConditional(Helpers.Create<NewMechanics.HasUnitsInSummonPool>(h => h.SummonPool = master_summoner_free_pool),
-                                                           summon_normal, summon_free);
-                    new_actions = Common.replaceActions<ContextActionSpawnMonster>(new_actions, summon_action2);
-
+                    new_actions = Common.replaceActions<ContextActionSpawnMonster>(new_actions, s =>
+                    {
+                        if (s.SummonPool == summon_pool || s.SummonPool == master_summoner_free_pool)
+                        {
+                            return s;
+                        }
+                        var summon_free = s.CreateCopy(sm => sm.SummonPool = master_summoner_free_pool);
+                        var summon_normal = s.CreateCopy(sm => sm.SummonPool = summon_pool);
+                        var summon2 = Helpers.CreateConditional(Helpers.Create<NewMechanics.HasUnitsInSummonPool>(h => h.SummonPool = master_summoner_free_pool),
+                                                                summon_normal, summon_free);
+                        return summon2;
+                    }
+                    );
+                                                                                                      
                     ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
                     ability.AddComponent(Helpers.Create<CompanionMechanics.AbilityCasterCompanionDeadOrSummonPoolEmpty>(a => a.SummonPool = master_summoner_free_pool));
                     summon_spells.Add(ability);

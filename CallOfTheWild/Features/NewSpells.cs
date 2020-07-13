@@ -4164,7 +4164,7 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("d7f055790fceee34e87c4902877c894f"),
                                           Common.createAddEnergyDamageImmunity(DamageEnergyType.Cold),
                                           Common.createAddEnergyDamageImmunity(DamageEnergyType.Electricity),
-                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Electricity | SpellDescriptor.Cold | SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison),
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison | SpellDescriptor.Death),
                                           Common.createBuffDescriptorImmunity(SpellDescriptor.Electricity | SpellDescriptor.Cold | SpellDescriptor.Blindness | SpellDescriptor.Disease | SpellDescriptor.Stun | SpellDescriptor.Poison),
                                           Helpers.CreateAddFact(library.Get<BlueprintFeature>("5e4d22d5cb6869e499f5fdc82e2127ad")), //cold subtype
                                           Common.createMagicDR(5),
@@ -4172,7 +4172,8 @@ namespace CallOfTheWild
                                           Helpers.Create<AddImmunityToCriticalHits>(),
                                           Common.createEmptyHandWeaponOverride(weapon),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
-                                          Common.createSpecificBuffImmunity(suffocation_buff)
+                                          Common.createSpecificBuffImmunity(suffocation_buff),
+                                          Common.createSpecificBuffImmunity(Common.deafened)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);

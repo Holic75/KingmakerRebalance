@@ -1228,7 +1228,7 @@ namespace CallOfTheWild
             witch_patrons = Helpers.CreateFeatureSelection("WitchPatronSelection",
                                                            "Patron",
                                                            "At 1st level, when a witch gains her familiar, she must also select a patron. This patron is a vague and mysterious force, granting the witch power for reasons that she might not entirely understand. While these forces need not be named, they typically hold influence over one of the following forces.\n"
-                                                           + "A witch’s patron adds new spells to a witch’s list of spells known. These spells are also automatically added to the list of spells stored by the familiar. The spells gained depend upon the patron chosen.",
+                                                           + "At 2nd level, and every two levels thereafter, a witch’s patron adds new spells to a witch’s list of spells known. These spells are also automatically added to the list of spells stored by the familiar. The spells gained depend upon the patron chosen. Each patron is listed by its theme. Its actual name is up to the GM and the witch to decide.",
                                                            "30f2f38633a144028aebecdd03391470",
                                                            diety_selection.Icon,
                                                            FeatureGroup.None);
@@ -1579,16 +1579,23 @@ namespace CallOfTheWild
             }
             description += ".";
 
-            var patron =  Helpers.CreateFeature("Witch" + name + "PatronFeature",
+            var patron =  Helpers.CreateProgression("Witch" + name + "PatronFeature",
                                   name + " Patron",
                                   description,
                                   feature_guid,
                                   null,
                                   FeatureGroup.None,
-                                  learn_spell_list,
+                                  //learn_spell_list,
                                   Helpers.Create<SpellDuplicates.AddCasterLevelForSpellsOrDuplicates>(a => { a.Value = Helpers.CreateContextValue(AbilityRankType.Default); a.Spells = Common.getSpellsFromSpellList(learn_spell_list.SpellList); }),
                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, feature: patron_cl_fcb)
                                   );
+            patron.Classes = getWitchArray();
+
+            patron.LevelEntries = extra_spell_list.createLearnSpellLevelEntries("Witch" + name + "PatronSpell",
+                                                                                description,
+                                                                                learn_spell_list.SpellList.AssetGuid,
+                                                                                new int[] { 2, 4, 6, 8, 10, 12, 14, 16, 18 },
+                                                                                witch_class);
 
 
             var witch_knife_bonus = Helpers.CreateFeature("WitchKnife" + patron.name,

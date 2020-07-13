@@ -154,6 +154,11 @@ namespace CallOfTheWild
                 guid = spell_guid;
                 level = spell_level;
             }
+
+            public BlueprintAbility getSpell()
+            {
+                return library.Get<BlueprintAbility>(guid);
+            }
         }
 
         public class ExtraSpellList
@@ -216,6 +221,30 @@ namespace CallOfTheWild
                 learn_spell_list.CharacterClass = character_class;
                 learn_spell_list.SpellList = createSpellList(name, guid);
                 return learn_spell_list;
+            }
+
+
+            public LevelEntry[] createLearnSpellLevelEntries(string name, string description, string guid,
+                                                             int[] levels,
+                                                             BlueprintCharacterClass character_class, BlueprintArchetype archetype = null)
+            {
+                LevelEntry[] entires = new LevelEntry[levels.Length];
+
+                for (int i = 0; i < entires.Length; i++)
+                {
+                    var s = spells[i].getSpell();
+                    var feature = Helpers.CreateFeature(name + s.name,
+                                                        s.Name,
+                                                        description + "\n" + s.Name + ": " + s.Description,
+                                                        Helpers.MergeIds(guid, s.AssetGuid),
+                                                        s.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddKnownSpell(s, character_class, i + 1, archetype)
+                                                        );
+                    entires[i] = Helpers.LevelEntry(levels[i], feature);
+                }
+
+                return entires;
             }
 
         }

@@ -187,7 +187,7 @@ namespace CallOfTheWild
             var feral_hunter_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "FeralHunterAnimalFocusFeature", "");
 
             feral_hunter_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The feral hunter can apply additional animal focus to herself.");
-            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, feral_hunter_animal_focus_additional_use, summon_nature_ally[0]),
+            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, /*feral_hunter_animal_focus_additional_use,*/ summon_nature_ally[0]),
                                                                 Helpers.LevelEntry(2, precise_nature_ally),
                                                                 Helpers.LevelEntry(3, summon_nature_ally[1]),
                                                                 Helpers.LevelEntry(4, wild_shape[0], wild_shape[1]),

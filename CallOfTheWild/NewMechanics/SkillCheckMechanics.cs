@@ -4,8 +4,10 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -23,7 +25,7 @@ namespace CallOfTheWild.SkillMechanics
 {
 
     //make dialog skill checks account for temporary skill bonuses if possible
-    [Harmony12.HarmonyPatch(typeof(RulePartySkillCheck))]
+    /*[Harmony12.HarmonyPatch(typeof(RulePartySkillCheck))]
     [Harmony12.HarmonyPatch("Calculate", Harmony12.MethodType.Normal)]
     class Patch_RulePartySkillCheck_Calculate_Transpiler
     {
@@ -48,6 +50,62 @@ namespace CallOfTheWild.SkillMechanics
             {
                 return evt.D20;
             }
+        }
+    }*/
+
+
+    [Harmony12.HarmonyPatch(typeof(RulePartySkillCheck))]
+    [Harmony12.HarmonyPatch("Calculate", Harmony12.MethodType.Normal)]
+    class Patch_RulePartySkillCheck_Calculate_Patch
+    {
+        static bool Prefix(RulePartySkillCheck __instance, bool isTrigger, ref int ___m_D20, ref int ___m_StatValue, StatType ___m_StatType, int ___m_DifficultyClass)
+        {
+            ___m_StatValue = int.MinValue;
+            var tr = Harmony12.Traverse.Create(__instance);
+            tr.Property("Roller").SetValue(null);
+            RuleSkillCheck selected_evt = null;
+            foreach (UnitEntityData unitEntityData in Game.Instance.Player.Party)
+            {
+                if (unitEntityData.Descriptor.State.CanAct)
+                {
+                    ModifiableValue stat = unitEntityData.Stats.GetStat(___m_StatType);
+                    ModifiableValueAttributeStat valueAttributeStat = stat as ModifiableValueAttributeStat;
+                    int num = valueAttributeStat != null ? valueAttributeStat.Bonus : stat.ModifiedValue;
+                    RuleSkillCheck evt = new RuleSkillCheck(unitEntityData, ___m_StatType, ___m_DifficultyClass)
+                    {
+                        Voice = __instance.Voice,
+                        EnsureSuccess = __instance.EnsureSuccess
+                    };
+
+                    if (isTrigger)
+                    {
+
+                        Rulebook.Trigger<RuleSkillCheck>(evt);
+                        num += evt.Bonus;
+                    }
+
+                    if (___m_StatValue < num)
+                    {
+                        ___m_StatValue = num;
+                        tr.Property("Roller").SetValue(unitEntityData);
+                        selected_evt = evt;
+                    }
+                }
+            }
+            if (__instance.Roller == null)
+            {
+                UberDebug.Log("Roller is null, in the party skillcheck", (object[])Array.Empty<object>());
+            }
+            else
+            {
+
+                if (!isTrigger)
+                {
+                    selected_evt.Calculate();
+                }
+                ___m_D20 = selected_evt.D20;
+            }
+            return false;
         }
     }
 
