@@ -26,11 +26,13 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Class.Kineticist.Properties;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
@@ -127,7 +129,7 @@ namespace CallOfTheWild
         static public BlueprintFeature pinpoint_targeting;
 
         static public BlueprintFeature scales_and_skin;
-
+        static public BlueprintFeature improved_combat_expertise;
         
 
 
@@ -209,6 +211,30 @@ namespace CallOfTheWild
             createPinpointTargeting();
 
             createScalesAndSkin();
+            createImprovedCombatExpertise();
+        }
+
+
+        static void createImprovedCombatExpertise()
+        {
+            var combat_expertise_buff = library.Get<BlueprintBuff>("e81cd772a7311554090e413ea28ceea1");
+            var ce = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a");
+            improved_combat_expertise = Helpers.CreateFeature("ImprovedCombatExpertiseFeature",
+                                                            "Improved Combat Expertise",
+                                                            "When you use Combat Expertise, reduce the number you subtract from melee attack rolls and combat maneuvers by 2.",
+                                                            "",
+                                                            combat_expertise_buff.Icon,
+                                                            FeatureGroup.Feat,
+                                                            Helpers.PrerequisiteStatValue(StatType.Intelligence, 13),
+                                                            Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 8),
+                                                            Helpers.PrerequisiteFeature(ce)
+                                                            );
+
+            var ce_property = library.Get<BlueprintUnitProperty>("8a63b06d20838954e97eb444f805ec89");
+            var comp = ce_property.GetComponent<BaseAttackPropertyWithFeatureList>();
+            comp.Features = comp.Features.AddToArray(improved_combat_expertise, improved_combat_expertise);
+            improved_combat_expertise.Groups = improved_combat_expertise.Groups.AddToArray(FeatureGroup.CombatFeat);
+            library.AddCombatFeats(improved_combat_expertise);
         }
 
 
@@ -1553,14 +1579,17 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/OsyluthGuile.png");
             var buff = Helpers.CreateBuff("OsyluthGuileBuff",
                                           "Osyluth Guile",
-                                          "While you are fighting defensively or using the total defense action, select one opponent. Add your Charisma bonus to your AC as a dodge bonus against that opponent’s melee attacks until your next turn. You cannot use this feat if you cannot see the selected opponent.",
+                                          "While you are fighting defensively or using the total defense action or combat expertise, select one opponent. Add your Charisma bonus to your AC as a dodge bonus against that opponent’s melee attacks until your next turn. You cannot use this feat if you cannot see the selected opponent.",
                                           "",
                                           icon,
                                           null,
                                           Helpers.Create<NewMechanics.ACBonusAgainstTargetIfHasFact>(a =>
                                                                                                       {
                                                                                                           a.CheckCaster = true;
-                                                                                                          a.checked_fact = library.Get<BlueprintBuff>("6ffd93355fb3bcf4592a5d976b1d32a9"); //fight defensively
+                                                                                                          a.checked_fact = new BlueprintUnitFact[]
+                                                                                                          { library.Get<BlueprintBuff>("6ffd93355fb3bcf4592a5d976b1d32a9"), //fight defensively
+                                                                                                            library.Get<BlueprintBuff>("e81cd772a7311554090e413ea28ceea1"), //combat expertise
+                                                                                                          };
                                                                                                           a.Descriptor = ModifierDescriptor.Dodge;
                                                                                                           a.Value = Helpers.CreateContextValue(AbilityRankType.Default);
                                                                                                           a.only_melee = true;
@@ -1592,6 +1621,7 @@ namespace CallOfTheWild
             osyluth_guile.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
             library.AddCombatFeats(osyluth_guile);
         }
+
 
         static void createSpellBane()
         {

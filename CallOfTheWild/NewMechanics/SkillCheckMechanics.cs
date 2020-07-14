@@ -9,6 +9,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UI.Log;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
@@ -79,7 +80,7 @@ namespace CallOfTheWild.SkillMechanics
 
                     if (isTrigger)
                     {
-
+                        evt.Silent = true; ;
                         Rulebook.Trigger<RuleSkillCheck>(evt);
                         num += evt.Bonus;
                     }
@@ -102,6 +103,10 @@ namespace CallOfTheWild.SkillMechanics
                 if (!isTrigger)
                 {
                     selected_evt.Calculate();
+                }
+                else
+                {
+                    Game.Instance.UI.BattleLogManager.HandleUnitSkillCheckRolled(selected_evt);
                 }
                 ___m_D20 = selected_evt.D20;
             }

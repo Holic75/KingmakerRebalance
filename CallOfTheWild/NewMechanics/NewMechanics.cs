@@ -6507,7 +6507,7 @@ namespace CallOfTheWild
             public bool CheckCaster;
             public bool CheckCasterFriend;
             public ModifierDescriptor Descriptor;
-            public BlueprintUnitFact checked_fact;
+            public BlueprintUnitFact[] checked_fact = new BlueprintUnitFact[0];
             public bool only_melee = false;
 
             public void OnEventAboutToTrigger(RuleAttackRoll evt)
@@ -6517,7 +6517,20 @@ namespace CallOfTheWild
                 bool flag2 = this.CheckCasterFriend && maybeCaster != null && evt.Target.GroupId == maybeCaster.GroupId && evt.Target != maybeCaster;
                 if (!flag1 && !flag2)
                     return;
-                if (checked_fact != null && !evt.Target.Descriptor.HasFact(checked_fact))
+
+
+
+                bool has_fact = checked_fact.Empty();
+                foreach (var f in checked_fact)
+                {
+                    if (has_fact)
+                    {
+                        break;
+                    }
+                    has_fact = evt.Target.Descriptor.HasFact(f);
+                }
+
+                if (! has_fact)
                 {
                     return;
                 }

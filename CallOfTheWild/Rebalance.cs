@@ -65,7 +65,7 @@ namespace CallOfTheWild
                                                                 remove_fear.Icon,
                                                                 null,
                                                                 Common.createAttackTypeAttackBonus(Helpers.CreateContextValue(AbilityRankType.Default), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
-                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true, on_initiator: true),
+                                                                Common.createAddInitiatorAttackWithWeaponTrigger(remove_self_action, check_weapon_range_type: true, wait_for_attack_to_resolve: true, on_initiator: true, only_hit: false),
                                                                 aid_another_config
                                                                 );
             aid_another_buffs[0].Stacking = StackingType.Stack;
@@ -82,6 +82,7 @@ namespace CallOfTheWild
                                                         a.ActionOnSelf = remove_self_action;
                                                         a.WaitForAttackResolve = true;
                                                         a.OnlyMelee = true;
+                                                        a.OnlyHit = false;
                                                     }),
                                                     aid_another_config
                                                     );
@@ -140,6 +141,8 @@ namespace CallOfTheWild
             library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
             library.Get<BlueprintAbility>("0a2f7c6aa81bc6548ac7780d8b70bcbc").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
             library.Get<BlueprintAbility>("740d943e42b60f64a8de74926ba6ddf7").ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | SpellDescriptor.Compulsion);
+            //descriptor to boggard terrifying croak
+            library.Get<BlueprintAbility>("d7ab3a110325b174e90ae6c7b4e96bb9").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken | SpellDescriptor.Emotion));
         }
 
 
@@ -326,7 +329,8 @@ namespace CallOfTheWild
             valerie_class_level.CharacterClass = VindicativeBastard.vindicative_bastard_class;
             valerie_class_level.Archetypes = new BlueprintArchetype[0];
             valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
-            valerie_class_level.Selections[0].Features[1] = valerie_class_level.Selections[0].Features[2];
+            valerie_class_level.Selections[0].Features[0] = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"); //shield focus
+            valerie_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a"); //combat expertise
             valerie_class_level.Skills = new StatType[] {StatType.SkillPersuasion, StatType.SkillAthletics, StatType.SkillLoreReligion};
             valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
             valerie_companion.Body.SecondaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Shields.BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b");//shield
@@ -360,12 +364,12 @@ namespace CallOfTheWild
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
             tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
             tristian_level.Selections[6].ParamSpellSchool = SpellSchool.Evocation;
-
+            tristian_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillLoreNature };
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
-            harrim_companion.Strength = 17;
+            harrim_companion.Strength = 16;
             harrim_companion.Constitution = 12;
             harrim_companion.Charisma = 10;
-            harrim_companion.Wisdom = 16;
+            harrim_companion.Wisdom = 17;
             harrim_companion.Dexterity = 10;
             harrim_companion.Body.PrimaryHandAlternative1 = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("7f7c8e1e4fdd99e438b30ed9622e9e3f");//heavy flail
 

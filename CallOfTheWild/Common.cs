@@ -101,6 +101,7 @@ namespace CallOfTheWild
         public static BlueprintFeature animal = library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6");
         public static BlueprintFeature magical_beast = library.Get<BlueprintFeature>("625827490ea69d84d8e599a33929fdc6");
         public static BlueprintFeature monstrous_humanoid = library.Get<BlueprintFeature>("57614b50e8d86b24395931fffc5e409b");
+        public static BlueprintFeature giant_humanoid = library.Get<BlueprintFeature>("f9c388137f4faa74aac9065a68b56880");
         public static BlueprintFeature aberration = library.Get<BlueprintFeature>("3bec99efd9a363242a6c8d9957b75e91");
         public static BlueprintFeature vermin = library.Get<BlueprintFeature>("09478937695300944a179530664e42ec");
         public static BlueprintFeature no_animate_feature;
