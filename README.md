@@ -130,7 +130,8 @@ New feats:
 - Pinpoint targeting,
 - Ability Focus: Toxic Secretion,
 - Skin and Scales,
-- Crusader's Flurry.
+- Crusader's Flurry,
+- Improved Combat Expertise.
 
 New rage powers:
 - Terrifying Howl
