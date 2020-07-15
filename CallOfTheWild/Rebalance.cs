@@ -365,6 +365,7 @@ namespace CallOfTheWild
             tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
             tristian_level.Selections[6].ParamSpellSchool = SpellSchool.Evocation;
             tristian_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillLoreNature };
+            tristian_level.Levels = 1;
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
             harrim_companion.Strength = 16;
             harrim_companion.Constitution = 12;

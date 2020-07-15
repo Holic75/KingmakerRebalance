@@ -821,7 +821,7 @@ namespace CallOfTheWild
                                                                                                                         {
                                                                                                                             c.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                                                                                                                             c.spells = new BlueprintAbility[0];
-                                                                                                                            c.correct_dc = false;
+                                                                                                                            c.correct_dc = true;
                                                                                                                             c.multiplier = 2;
                                                                                                                         })
                                               );
@@ -835,7 +835,7 @@ namespace CallOfTheWild
             witch_channel_negative.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c =>
                                                                                                                                  { c.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                                                                                                                                    c.spells = new BlueprintAbility[0];
-                                                                                                                                   c.correct_dc = false;
+                                                                                                                                   c.correct_dc = true;
                                                                                                                                    c.multiplier = 2;
                                                                                                                                  })
                                                );

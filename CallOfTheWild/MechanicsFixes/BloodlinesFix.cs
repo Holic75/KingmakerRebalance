@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class BloodlinesFix
+    public class BloodlinesFix
     {
         static LibraryScriptableObject library => Main.library;
         static BlueprintCharacterClass magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
