@@ -41,6 +41,9 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Visual.Animation.Kingmaker;
 using Kingmaker.Visual.Animation.Kingmaker.Actions;
+using Harmony12;
+using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Damage;
 
 namespace CallOfTheWild
 {
@@ -331,10 +334,23 @@ namespace CallOfTheWild
             valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             valerie_class_level.Selections[0].Features[0] = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"); //shield focus
             valerie_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a"); //combat expertise
-            valerie_class_level.Skills = new StatType[] {StatType.SkillPersuasion, StatType.SkillAthletics, StatType.SkillLoreReligion};
+            valerie_class_level.Skills = new StatType[] {StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillLoreReligion};
             valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
             valerie_companion.Body.SecondaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Shields.BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b");//shield
             valerie1_feature.GetComponent<AddFacts>().Facts = valerie1_feature.GetComponent<AddFacts>().Facts.Skip(1).ToArray();
+
+            Action<UnitDescriptor> fix_action2 = delegate (UnitDescriptor u)
+            {
+                if (u.CharacterName == "Valerie")
+                {
+                    while(u.Stats.SkillAthletics.BaseValue > 0)
+                    {
+                        u.Stats.SkillAthletics.BaseValue--;
+                        u.Stats.SkillKnowledgeWorld.BaseValue++;
+                    }
+                }
+            };
+            SaveGameFix.save_game_actions.Add(fix_action2);
             //change amiri stats
             var amiri_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b3f29faef0a82b941af04f08ceb47fa2");
             amiri_companion.Strength = 17;//+2
@@ -349,7 +365,7 @@ namespace CallOfTheWild
             amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             amiri_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
             //amiri_class_level.Selections[0].Features[1] = NewFeats.furious_focus;
-            amiri_class_level.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillPersuasion, StatType.SkillLoreNature};
+            amiri_class_level.Skills = new StatType[] { StatType.SkillKnowledgeWorld, StatType.SkillPersuasion, StatType.SkillAthletics};
             //change tristian stats
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
             tristian_companion.Strength = 10;
@@ -435,9 +451,45 @@ namespace CallOfTheWild
             //change octavia
             var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
             octavia_companion.Dexterity = 16;
-            octavia_companion.Intelligence = 16;
+            octavia_companion.Intelligence = 17;
             octavia_companion.Constitution = 10;
+            octavia_companion.Charisma = 12;
+            //remove rogue level
+            var octavia_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("200151a5a5c78a4439d0f6e9fb26620a");
+            
+            var octavia_acl = octavia_feature.GetComponent<AddClassLevels>();
+            octavia_feature.RemoveComponents<AddClassLevels>(a => a != octavia_acl);
+            octavia_acl.Archetypes = new BlueprintArchetype[] { /*Arcanist.exploiter_wizard_archetype*/ library.Get<BlueprintArchetype>("55a8ce15e30d71547a44c69bb2e8a84f") }; //thasillonian specialist
+            octavia_acl.Skills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillThievery, StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillMobility };
+            octavia_acl.Selections = new SelectionEntry[0];
+            Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("26a668c5a8c22354bac67bcd42e09a3f"), library.Get<BlueprintFeature>("1621be43793c5bb43be55493e9c45924")); //adaptability - persuasion
+            Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("f431178ec0e2b4946a34ab504bb46285"), library.Get<BlueprintFeature>("5e33543285d1c3d49b55282cf466bef3")); //thassilonian wrath
+            Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("03a1781486ba98043afddaabf6b7d8ff"), library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30")); //hare familiar
 
+            var spell_focus = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");
+            Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899"), spell_focus);
+            Common.addParametrizedFeatureSelectionToAcl(octavia_acl, spell_focus, SpellSchool.Evocation);
+            Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45"), library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"));
+            /*Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.potent_magic);
+            Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45"), NewFeats.mages_tattoo);
+            Common.addParametrizedFeatureSelectionToAcl(octavia_acl, NewFeats.mages_tattoo, SpellSchool.Evocation);*/
+
+            //remove dex buff if it is already activated
+            Action<UnitDescriptor> fix_action = delegate (UnitDescriptor u)
+            {
+                var dex_buff = library.Get<BlueprintBuff>("b649a3d906a6ff44a9bb01f939ef1a6f");
+                var buff = u.Buffs.GetBuff(dex_buff);
+                if (buff == null)
+                {
+                    return;
+                }
+                var dex_toggle = library.Get<BlueprintActivatableAbility>("3553bda4d6dfe6344ad89b25f7be939a");
+                if (!u.HasFact(dex_toggle))
+                {
+                    buff.Remove();
+                }
+            };
+            SaveGameFix.save_game_actions.Add(fix_action);
             //change regongar
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
@@ -446,7 +498,12 @@ namespace CallOfTheWild
             regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
                                                                                 {
                                                                                     Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
-                                                                                    Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("75d76373f7b7c2b429c6ad6cde02edb0") } //claws
+                                                                                    Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
+                                                                                },
+                                                                                new SelectionEntry()
+                                                                                {
+                                                                                    Selection = BloodlinesFix.bloodline_familiar,
+                                                                                    Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
                                                                                 }
                                                                               );
 
@@ -768,18 +825,21 @@ namespace CallOfTheWild
 
         static internal void fixTeamworkFeats()
         {
+            int fix_range = 2;  //2 meters ~ 7 feet
             var back_to_back = library.Get<BlueprintFeature>("c920f2cd2244d284aa69a146aeefcb2c");
-            back_to_back.GetComponent<BackToBack>().Radius = 2;
+            back_to_back.GetComponent<BackToBack>().Radius = fix_range;
             var shield_wall = library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907");
-            shield_wall.GetComponent<ShieldWall>().Radius = 2;
+            shield_wall.GetComponent<ShieldWall>().Radius = fix_range;
             var shake_it_off = library.Get<BlueprintFeature>("6337b37f2a7c11b4ab0831d6780bce2a");
-            shake_it_off.GetComponent<ShakeItOff>().Radius = 2;
+            shake_it_off.GetComponent<ShakeItOff>().Radius = fix_range;
             var allied_spell_caster = library.Get<BlueprintFeature>("9093ceeefe9b84746a5993d619d7c86f");
-            allied_spell_caster.GetComponent<AlliedSpellcaster>().Radius = 2;
-            allied_spell_caster.AddComponent(Helpers.Create<TeamworkMechanics.AlliedSpellcasterSameSpellBonus>(a => { a.Radius = 2; a.AlliedSpellcasterFact = allied_spell_caster; }));
+            allied_spell_caster.GetComponent<AlliedSpellcaster>().Radius = fix_range;
+            allied_spell_caster.AddComponent(Helpers.Create<TeamworkMechanics.AlliedSpellcasterSameSpellBonus>(a => { a.Radius = fix_range; a.AlliedSpellcasterFact = allied_spell_caster; }));
             allied_spell_caster.SetDescription("Whenever you are adjacent to an ally who also has this feat, you receive a +2 competence bonus on level checks made to overcome spell resistance. If your ally has the same spell prepared (or known with a slot available if they are spontaneous spellcasters), this bonus increases to +4 and you receive a +1 bonus to the caster level for all level-dependent variables, such as duration, range, and effect.");
             var shielded_caster = library.Get<BlueprintFeature>("0b707584fc2ea724aa72c396c2230dc7");
-            shielded_caster.GetComponent<ShieldedCaster>().Radius = 2;
+            shielded_caster.GetComponent<ShieldedCaster>().Radius = fix_range;
+            var coordinated_maneuvers = library.Get<BlueprintFeature>("b186cea78dce3a04aacff0a81786008c");
+            coordinated_maneuvers.GetComponent<CoordinatedManeuvers>().Radius = fix_range;
         }
 
 
@@ -1516,6 +1576,14 @@ namespace CallOfTheWild
             }
         }
 
+
+        internal static void fixFeatsRequirements()
+        {
+            var manyshot = library.Get<BlueprintFeature>("adf54af2a681792489826f7fd1b62889");
+            manyshot.AddComponent(Helpers.PrerequisiteStatValue(StatType.Dexterity, 17));
+            manyshot.AddComponent(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"))); //point blank shot
+        }
+
         internal static void fixFlameDancer()
         {
             //add song_of_fiery_faze gaze
@@ -1638,6 +1706,28 @@ namespace CallOfTheWild
     }
 
 
+    //fix sneak attack to trigger only on first ray
+    [Harmony12.HarmonyPatch(typeof(RulePrepareDamage))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RulePrepareDamage_OnTrigger
+    {
+        static bool Prefix(RulePrepareDamage __instance, RulebookEventContext context)
+        {
+            AbilityData ability = __instance.ParentRule?.Reason?.Ability;
+            if (ability == null 
+                || __instance.ParentRule.Projectile == null 
+                || __instance.ParentRule.Projectile.IsFirstProjectile
+                || __instance.ParentRule.AttackRoll == null
+                || !__instance.ParentRule.AttackRoll.IsSneakAttack)
+                return true;
+
+            __instance.IsSurpriseSpell = false;
+            __instance.ParentRule.AttackRoll.UseSneakAttack();
+            return true;
+        }
+    }
+
+
 
 
 
@@ -1676,4 +1766,7 @@ namespace CallOfTheWild
             }
         }
     }
+
+
+
 }

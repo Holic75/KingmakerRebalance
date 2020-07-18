@@ -25,7 +25,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature blood_havoc;
         static public BlueprintFeature blood_intensity;
-        static public BlueprintFeature bloodline_familiar;
+        static public BlueprintFeatureSelection bloodline_familiar;
 
         static internal void load()
         {

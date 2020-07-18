@@ -1,4 +1,6 @@
-﻿using Kingmaker.Blueprints;
+﻿using Harmony12;
+using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.UI.Common;
@@ -154,6 +156,37 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                     return true;
                 default:
                     return true;
+            }
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(AddClassLevels))]
+    [Harmony12.HarmonyPatch("PerformSelections", Harmony12.MethodType.Normal)]
+    class Patch_AddClassLevels_PerformSelections_Transpiler
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_parameter_type_index = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ldfld && x.operand.ToString().Contains("ParameterType"));
+
+            codes[check_parameter_type_index] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<BlueprintParametrizedFeature, FeatureParameterType>(getParameterType).Method
+                                                                           );
+            return codes.AsEnumerable();
+        }
+
+
+        static private FeatureParameterType getParameterType(BlueprintParametrizedFeature feature)
+        {
+            switch (feature.ParameterType)
+            {
+                case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell:
+                case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.AllLearnableSpells:
+                case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpontaneousSpell:
+                    return FeatureParameterType.SpellSpecialization;
+                default:
+                    return feature.ParameterType;
             }
         }
     }

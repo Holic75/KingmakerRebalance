@@ -4287,6 +4287,38 @@ namespace CallOfTheWild
         }
 
 
+        static public void addParametrizedFeatureSelectionToAcl(AddClassLevels acl, BlueprintParametrizedFeature feature, SpellSchool school)
+        {
+            var spell_focus = new SelectionEntry();
+            spell_focus.IsParametrizedFeature = true;
+            spell_focus.ParametrizedFeature = feature;
+            spell_focus.ParamSpellSchool = school;
+            acl.Selections = acl.Selections.AddToArray(spell_focus);
+        }
+
+
+        static public void addParametrizedFeatureSelectionToAcl(AddClassLevels acl, BlueprintParametrizedFeature feature, WeaponCategory weapon_category)
+        {
+            var weapon_focus = new SelectionEntry();
+            weapon_focus.IsParametrizedFeature = true;
+            weapon_focus.ParametrizedFeature = feature;
+            weapon_focus.ParamWeaponCategory = weapon_category;
+
+            acl.Selections = acl.Selections.AddToArray(weapon_focus);
+        }
+
+
+        static public void addParametrizedFeatureSelectionToAcl(AddClassLevels acl, BlueprintParametrizedFeature feature, BlueprintScriptableObject param_object)
+        {
+            var spell_specialization = new SelectionEntry();
+            spell_specialization.IsParametrizedFeature = true;
+            spell_specialization.ParametrizedFeature = feature;
+            spell_specialization.ParamObject = param_object;
+
+            acl.Selections = acl.Selections.AddToArray(spell_specialization);
+        }
+
+
         static public void replaceSorcererBloodlineSpell(BlueprintProgression bloodline, BlueprintAbility spell, int level)
         {
             foreach (var le in bloodline.LevelEntries)

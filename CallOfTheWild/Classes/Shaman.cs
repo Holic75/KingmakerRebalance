@@ -1039,11 +1039,11 @@ namespace CallOfTheWild
 
             var harm_undead_base = Common.createVariantWrapper("ShamanSpiritWardenRebukeSpiritsHarmUndeadBase", "", harm_undead);
 
-            ChannelEnergyEngine.storeChannel(harm_undead, channel_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+            ChannelEnergyEngine.storeChannel(harm_undead, rebuke_spirits, ChannelEnergyEngine.ChannelType.PositiveHarm);
 
             rebuke_spirits.AddComponent(Helpers.CreateAddFacts(harm_undead_base));
             rebuke_spirits.AddComponent(Helpers.CreateAddAbilityResource(resource));
-            var extra_channel = ChannelEnergyEngine.createExtraChannelFeat(harm_undead, channel_energy, "ExtraChannelShamanSpiritWarden", "Extra Channel (Spirit Warden)", "");
+            var extra_channel = ChannelEnergyEngine.createExtraChannelFeat(harm_undead, rebuke_spirits, "ExtraChannelShamanSpiritWarden", "Extra Channel (Spirit Warden)", "");
         }
 
 

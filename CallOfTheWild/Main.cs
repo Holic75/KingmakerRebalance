@@ -205,6 +205,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixEaglesoul();
                     CallOfTheWild.MonkStunningFists.create();
                     CallOfTheWild.Rebalance.fixTactician();
+                    CallOfTheWild.Rebalance.fixFeatsRequirements();
                     CallOfTheWild.Rebalance.createAidAnother();
                     if (settings.secondary_rake_attacks)
                     {
