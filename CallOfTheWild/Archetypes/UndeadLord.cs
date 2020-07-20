@@ -270,7 +270,7 @@ namespace CallOfTheWild.Archetypes
 
             command_undead = ChannelEnergyEngine.createCommandUndead("UndeadLord", 
                                                                      "Command Undead",
-                                                                     " As a standard action, you can use one of your uses of channel negative energy to enslave one undead creature within close range. Undead receive a Will save to negate the effect. The DC for this Will save is equal to 10 + 1/2 your cleric level + your Charisma modifier. Undead that fail their saves fall under your control, obeying your commands to the best of their ability, as if under the effects of control undead.",
+                                                                     "As a standard action, you can use one of your uses of channel negative energy to enslave one undead creature within close range. Undead receive a Will save to negate the effect. The DC for this Will save is equal to 10 + 1/2 your cleric level + your Charisma modifier. Undead that fail their saves fall under your control, obeying your commands to the best of their ability, as if under the effects of control undead.",
                                                                      StatType.Charisma, new BlueprintCharacterClass[] {cleric_class}, resource);
         }
 
@@ -278,7 +278,7 @@ namespace CallOfTheWild.Archetypes
         {
             var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
-
+            var druid_class = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var cleric_deity = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
 
             var pharasma = library.Get<BlueprintFeature>("458750bc214ab2e44abdeae404ab22e9");
@@ -320,7 +320,7 @@ namespace CallOfTheWild.Archetypes
                                                                                                              dispellable: false)),
                                                 Common.createAbilitySpawnFx("e93261ee4c3ea474e923f6a645a3384f", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
-                                                                                classes: new BlueprintCharacterClass[] { cleric_class, inquisitor_class },
+                                                                                classes: new BlueprintCharacterClass[] { cleric_class, inquisitor_class, druid_class },
                                                                                 progression: ContextRankProgression.Div2, min: 1
                                                                                 ),
                                                 Helpers.CreateDeliverTouch()
@@ -340,23 +340,41 @@ namespace CallOfTheWild.Archetypes
             undeath_subdomain.ReplaceComponent<LearnSpellList>(a => a.SpellList = spell_list);
             undeath_subdomain.AddComponent(Helpers.PrerequisiteNoFeature(pharasma));
             undeath_subdomain.SetNameDescriptionIcon("Undead Subdomain",
-                                                     "You can grant the living some undead traits with a touch, and find comfort in the presence of the dead.\nDeath’s Kiss: You can cause a creature to take on some of the traits of the undead with a melee touch attack. Touched creatures are treated as undead for the purposes of effects that heal or cause damage based on positive and negative energy. This effect lasts for a number of rounds equal to 1/2 your cleric level (minimum 1). It does not apply to the Turn Undead or Command Undead feats. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\nDeath's Embrace: At 8th level, you heal damage instead of taking damage from channeled negative energy. If the channeled negative energy targets undead, you heal hit points just like undead in the area.\nIf you are undead, then you instead do not take damage from positive energy.\nDomain Spells: Cause Fear, ghoul's touch, Bestow Curse, Enervation, Slay Living, Circle of Death, Destruction, Horrid Wilting, Energy Drain.",
+                                                     "You can grant the living some undead traits with a touch, and find comfort in the presence of the dead.\nDeath’s Kiss: You can cause a creature to take on some of the traits of the undead with a melee touch attack. Touched creatures are treated as undead for the purposes of effects that heal or cause damage based on positive and negative energy. This effect lasts for a number of rounds equal to 1/2 your cleric level (minimum 1). It does not apply to the Turn Undead or Command Undead feats. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\nDeath's Embrace: At 8th level, you heal damage instead of taking damage from channeled negative energy. If the channeled negative energy targets undead, you heal hit points just like undead in the area.\nIf you are undead, then you instead do not take damage from positive energy.\nDomain Spells: Cause Fear, Ghoul touch, Bestow Curse, Enervation, Slay Living, Circle of Death, Destruction, Horrid Wilting, Energy Drain.",
                                                      Helpers.GetIcon("4b76d32feb089ad4499c3a1ce8e1ac27")); //animate dead icon
 
             var undeath_subdomain_secondary = library.CopyAndAdd(undeath_subdomain, "UndeadSubdomainProgressionSecondary", "");
+            var undeath_subdomain_blight = library.CopyAndAdd(undeath_subdomain, "UndeadSubdomainProgressionBligthDruid", "");
+            undeath_subdomain_blight.RemoveComponents<PrerequisiteFeature>();
+            undeath_subdomain_blight.RemoveComponents<PrerequisiteNoFeature>();
+            undeath_subdomain_blight.AddComponent(Helpers.PrerequisiteNoFeature(pharasma));
             undeath_subdomain_secondary.RemoveComponents<LearnSpellList>();
             undeath_subdomain.AddComponent(Helpers.PrerequisiteNoFeature(undeath_subdomain_secondary));
             undeath_subdomain_secondary.AddComponent(Helpers.PrerequisiteNoFeature(undeath_subdomain));
 
+           
+            undeath_subdomain_blight.RemoveComponents<LearnSpellList>();
+            undeath_subdomain_blight.AddComponent(Helpers.PrerequisiteClassLevel(druid_class, 1));
+            undeath_subdomain_blight.Classes = new BlueprintCharacterClass[] { druid_class };
+            var death_spells_feature_druid = library.CopyAndAdd<BlueprintFeature>("01c9f3756c9d2e1488b6a2d29dd9d37f", "UndeadDomainSpellListDruidFeature", "");
+            death_spells_feature_druid.ReplaceComponent<AddSpecialSpellList>(a => a.SpellList = spell_list);
+            undeath_subdomain_blight.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(1, base_feature, death_spells_feature_druid), undeath_subdomain.LevelEntries[1] };
+            
             var death_domain = library.Get<BlueprintFeature>("710d8c959e7036448b473ffa613cdeba");
             var death_domain2 = library.Get<BlueprintFeature>("023794a8386506c49aad142846700594");
+            var death_domain_blight = library.Get<BlueprintFeature>("7d3f0f00b1f8ad54ba6abc6aeac84c05");
             death_domain.AddComponents(Helpers.PrerequisiteNoFeature(undeath_subdomain), Helpers.PrerequisiteNoFeature(undeath_subdomain_secondary));
             death_domain2.AddComponents(Helpers.PrerequisiteNoFeature(undeath_subdomain), Helpers.PrerequisiteNoFeature(undeath_subdomain_secondary));
+            death_domain_blight.AddComponents(Helpers.PrerequisiteNoFeature(undeath_subdomain_blight));
+            undeath_subdomain_blight.AddComponent(Helpers.PrerequisiteNoFeature(death_domain_blight));
 
             var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
+            var blight_druid_domain = library.Get<BlueprintFeatureSelection>("096fc02f6cc817a43991c4b437e12b8e");
             var secondary_domain_selection = library.Get<BlueprintFeatureSelection>("43281c3d7fe18cc4d91928395837cd1e");
             domain_selection.AllFeatures = domain_selection.AllFeatures.AddToArray(undeath_subdomain);
             secondary_domain_selection.AllFeatures = secondary_domain_selection.AllFeatures.AddToArray(undeath_subdomain_secondary);
+            blight_druid_domain.AllFeatures = blight_druid_domain.AllFeatures.AddToArray(undeath_subdomain_blight);
+
             Common.replaceDomainSpell(undeath_subdomain, NewSpells.ghoul_touch, 2);
             Common.replaceDomainSpell(undeath_subdomain, library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f"), 4); //enervation
             Common.replaceDomainSpell(undeath_subdomain, library.Get<BlueprintAbility>("37302f72b06ced1408bf5bb965766d46"), 9); //energy drain

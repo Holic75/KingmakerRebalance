@@ -2854,7 +2854,16 @@ namespace CallOfTheWild
 
             spells.Clear();
             spells.Add(new_spell);
-
+            
+            new_spell.AddComponent(Helpers.Create<SpellListComponent>(s => { s.SpellLevel = level; s.SpellList = spell_list; }));
+            var spell_list_components = old_spell.GetComponents<SpellListComponent>();
+            foreach (var slc in spell_list_components.ToArray())
+            {
+                if (slc.SpellList == spell_list)
+                {
+                    old_spell.RemoveComponent(slc);
+                }
+            }
 
             if (domain_progression.AssetGuid != "881b2137a1779294c8956fe5b497cc35")
             {

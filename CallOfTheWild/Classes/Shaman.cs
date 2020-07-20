@@ -383,19 +383,17 @@ namespace CallOfTheWild
             }
             var blight_bond = library.Get<BlueprintFeatureSelection>("096fc02f6cc817a43991c4b437e12b8e");
 
-            foreach (var d in blight_bond.AllFeatures)
-            {
-                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList));
-            }
 
-            foreach (var d in Archetypes.StormDruid.domain_primary_progressions)
-            {
-                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList));
-            }
+            var druid_domains = blight_bond.AllFeatures.Cast<BlueprintProgression>().ToArray()
+                                .AddToArray(Archetypes.StormDruid.domain_primary_progressions)
+                                .AddToArray(Archetypes.StormDruid.domain_secondary_progressions);
+            
 
-            foreach (var d in Archetypes.StormDruid.domain_secondary_progressions)
+            foreach (var d in druid_domains)
             {
-                feature_spell_list_map.Add((d, (d as BlueprintProgression).LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList));
+                var spell_list = d.LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList;
+
+                feature_spell_list_map.Add((d, spell_list));
             }
 
 

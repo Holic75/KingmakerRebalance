@@ -140,11 +140,16 @@ namespace CallOfTheWild.Archetypes
         static void createNatureBondAndWindLord()
         {
             var domains = new BlueprintProgression[]{library.Get<BlueprintProgression>("4a3516fdc4cda764ebd1279b22d10205"),
-                                                     library.Get<BlueprintProgression>("3aef017b78329db4fa53fe8560069886")
+                                                     library.Get<BlueprintProgression>("3aef017b78329db4fa53fe8560069886"),
+                                                     Subdomains.lightning_domain_druid,
+                                                     Subdomains.storm_domain_druid
                                                     };
+            var domain_primary_domain_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
+            var domain_secondary_domain_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
             foreach (var d in domains)
             {
-                var spell_list = d.LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList;
+                BlueprintSpellList spell_list = d.LevelEntries[0].Features[1].GetComponent<AddSpecialSpellList>().SpellList;
+
                 var primary_domain = library.CopyAndAdd<BlueprintProgression>(d.AssetGuid, "StormLord" + d.name, "");
 
                 var spells = Common.getSpellsFromSpellList(spell_list);
@@ -170,15 +175,32 @@ namespace CallOfTheWild.Archetypes
                         secondary_level_entries.Add(level_entry);
                     }
                 }
+
+                if (d.LevelEntries[0].Features.Count == 1)
+                {
+                    secondary_domain.AddComponent(d.GetComponent<AddSpecialSpellList>());
+                    primary_domain.AddComponent(d.GetComponent<AddSpecialSpellList>());
+                }
                 secondary_domain.LevelEntries = secondary_level_entries.ToArray();
                 secondary_domain.AddComponent(Helpers.PrerequisiteNoFeature(primary_domain));
                 domain_primary_progressions.Add(primary_domain);
                 domain_secondary_progressions.Add(secondary_domain);
+                domain_primary_domain_map.Add(d, primary_domain);
+                domain_secondary_domain_map.Add(d, secondary_domain);
+            }
+
+            foreach (var d in domain_primary_progressions)
+            {
+                d.ReplaceComponent<PrerequisiteNoFeature>(p => p.Feature = domain_primary_domain_map[p.Feature]);
+            }
+            foreach (var d in domain_secondary_progressions)
+            {
+                d.ReplaceComponent<PrerequisiteNoFeature>(p => p.Feature = domain_primary_domain_map[p.Feature]);
             }
 
             nature_bond = Helpers.CreateFeatureSelection("NatureBondStormLordFeatureSelection",
                                                         "Nature Bond",
-                                                        "A storm druid may not choose an animal companion. A storm druid must choose the Air or Weather domain.",
+                                                        "A storm druid may not choose an animal companion. A storm druid must choose the Air or Weather domain or their subdomains.",
                                                         "",
                                                         library.Get<BlueprintAbility>("7cfbefe0931257344b2cb7ddc4cdff6f").Icon, //storm bolts
                                                         FeatureGroup.DruidDomain);

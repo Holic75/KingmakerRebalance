@@ -8783,7 +8783,7 @@ namespace CallOfTheWild
                 if (evt.Weapon.Blueprint.Type.Category == category)
                 {
                     var offHand = evt.Initiator.Body.SecondaryHand;
-                    if (!offHand.HasShield && (!offHand.HasWeapon || offHand.MaybeWeapon == evt.Initiator.Body.EmptyHandWeapon))
+                    if (HoldingItemsMechanics.Helpers.hasFreeHand(offHand))
                     {
                         var dexterity = evt.Initiator.Descriptor.Stats.Dexterity;
                         var existingStat = !evt.DamageBonusStat.HasValue ? null : (Owner.Unit.Descriptor.Stats.GetStat(evt.DamageBonusStat.Value) as ModifiableValueAttributeStat);

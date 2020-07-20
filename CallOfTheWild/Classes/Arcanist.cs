@@ -114,6 +114,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeatureSelection school_focus;
         static public BlueprintFeatureSelection bloodline_selection;
+        static public BlueprintFeature new_arcana_blood_arcanist;
         static public BlueprintSpellbook unlettered_arcanist_prepared_spellbook;
         static public BlueprintSpellbook unlettered_arcanist_spontaneous_spellbook;
         static public BlueprintFeature unlettered_arcanist_familiar;
@@ -547,8 +548,19 @@ namespace CallOfTheWild
 
             foreach (var b in bloodline_selection.AllFeatures)
             {
-                bloodlines.Add(Common.removeEntriesFromProgression(b as BlueprintProgression, "Arcanist" + b.name, f => f.name.Contains("ClassSkill") || f.name.Contains("SpellLevel") || f.name.Contains("NewArcanaSelection")));
+                bloodlines.Add(Common.removeEntriesFromProgression(b as BlueprintProgression, "Arcanist" + b.name, f => f.name.Contains("ClassSkill") || f.name.Contains("SpellLevel") /*|| f.name.Contains("NewArcanaSelection")*/));
             }
+
+            var new_arcana = library.Get<BlueprintFeatureSelection>("20a2435574bdd7f4e947f405df2b25ce");
+            new_arcana_blood_arcanist = library.CopyAndAdd<BlueprintFeature>("4a2e8388c2f0dd3478811d9c947bebfb", "BloodleneArcaneNewArcanaBloodArcanistFeature", "");
+            new_arcana_blood_arcanist.ReplaceComponent<LearnSpellParametrized>(l => l.SpellcasterClass = arcanist_class);
+            foreach (var f in new_arcana.AllFeatures)
+            {
+                f.AddComponent(Common.prerequisiteNoArchetype(blood_arcanist_archetype));
+            }
+            new_arcana.AllFeatures = new_arcana.AllFeatures.AddToArray(new_arcana_blood_arcanist);
+            new_arcana.Features = new_arcana.Features.AddToArray(new_arcana_blood_arcanist);
+
             bloodline_selection.AllFeatures = bloodlines.ToArray();
 
             blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
@@ -653,7 +665,7 @@ namespace CallOfTheWild
             extra_arcane_exploit.SetNameDescription("Extra Arcanist Exploit",
                                                    "You gain one additional arcanist exploit. You must meet the prerequisites for this arcanist exploit.\n"
                                                    + "Special: You can take this feat multiple times. Each time you do, you gain another arcanist exploit.");
-            extra_arcane_exploit.AddComponent(Helpers.PrerequisiteClassLevel(arcanist_class, 1));
+            extra_arcane_exploit.AddComponent(Helpers.PrerequisiteFeature(arcane_exploits));
             extra_arcane_exploit.Ranks = 10;
             library.AddFeats(extra_arcane_exploit);
         }
