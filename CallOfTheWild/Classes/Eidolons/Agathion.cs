@@ -93,6 +93,7 @@ namespace CallOfTheWild
             agathion_eidolon.ReplaceComponent<AddPet>(a => a.Pet = agathion_unit);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(agathion_eidolon);
+            addLesserEidolon(agathion_eidolon);
         }
 
 
@@ -217,7 +218,7 @@ namespace CallOfTheWild
                                                            };
             agathion_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
 
-            addLesserEidolon(agathion_eidolon);
+            setLesserEidolonProgression(agathion_eidolon);
         }
     }
 }

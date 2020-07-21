@@ -102,6 +102,7 @@ namespace CallOfTheWild
             water_serpentine_eidolon.ReplaceComponent<AddPet>(a => a.Pet = water_elemental);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(water_serpentine_eidolon);
+            addLesserEidolon(water_serpentine_eidolon);
         }
 
 
@@ -181,6 +182,7 @@ namespace CallOfTheWild
                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
             water_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = water_elemental_unit);
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(water_elemental_eidolon);
+            addLesserEidolon(water_elemental_eidolon);
         }
 
 
@@ -293,8 +295,8 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             water_serpentine_eidolon.UIGroups = Helpers.CreateUIGroups(feature1s, feature4, feature8, feature12, feature16, feature20);
-            addLesserEidolon(water_elemental_eidolon);
-            addLesserEidolon(water_serpentine_eidolon);
+            setLesserEidolonProgression(water_elemental_eidolon);
+            setLesserEidolonProgression(water_serpentine_eidolon);
         }
     }
 }

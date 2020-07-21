@@ -130,6 +130,7 @@ namespace CallOfTheWild
                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
             air_quadruped_eidolon.ReplaceComponent<AddPet>(a => a.Pet = air_elemental_unit);
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(air_quadruped_eidolon);
+            addLesserEidolon(air_quadruped_eidolon);
         }
 
 
@@ -216,7 +217,8 @@ namespace CallOfTheWild
                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.NeutralGood
                                                                                    | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.TrueNeutral));
             air_elemental_eidolon.ReplaceComponent<AddPet>(a => a.Pet = air_elemental_unit);
-            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(air_elemental_eidolon);         
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(air_elemental_eidolon);
+            addLesserEidolon(air_elemental_eidolon);
         }
 
 
@@ -326,8 +328,8 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             air_quadruped_eidolon.UIGroups = Helpers.CreateUIGroups(feature1q, feature4, feature8, feature12, feature16, feature20);
-            addLesserEidolon(air_elemental_eidolon);
-            addLesserEidolon(air_quadruped_eidolon);
+            setLesserEidolonProgression(air_elemental_eidolon);
+            setLesserEidolonProgression(air_quadruped_eidolon);
         }
     }
 }

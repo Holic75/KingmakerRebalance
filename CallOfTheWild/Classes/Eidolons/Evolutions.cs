@@ -135,7 +135,7 @@ namespace CallOfTheWild
                 summoner_level = min_level;
                 conflicting_evolutions = conflicting_evolution_features;
                 required_evolutions = required_evolution_features;
-                subtypes = authorised_subtypes;
+                subtypes = authorised_subtypes.ToArray();
 
                 foreach (var subtype in authorised_subtypes)
                 {

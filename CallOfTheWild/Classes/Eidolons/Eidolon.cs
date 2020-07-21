@@ -100,14 +100,23 @@ namespace CallOfTheWild
         {
             var lesser_eidolon = library.CopyAndAdd(normal_eidolon, "Lesser" + normal_eidolon.Name, "");
             lesser_eidolon.SetName("Lesser " + normal_eidolon.Name);
-            lesser_eidolon.LevelEntries = new LevelEntry[]
+            normal_to_lesser_eidolon_map.Add(normal_eidolon, lesser_eidolon);
+        }
+
+
+        static void setLesserEidolonProgression(BlueprintProgression normal_eidolon)
+        {
+            normal_to_lesser_eidolon_map[normal_eidolon].LevelEntries = new LevelEntry[]
             {
                 Helpers.LevelEntry(1, normal_eidolon.LevelEntries[0].Features),
                 Helpers.LevelEntry(8, normal_eidolon.LevelEntries[1].Features),
                 Helpers.LevelEntry(16, normal_eidolon.LevelEntries[2].Features)
             };
-            normal_to_lesser_eidolon_map.Add(normal_eidolon, lesser_eidolon);
+
+            normal_to_lesser_eidolon_map[normal_eidolon].UIGroups = normal_eidolon.UIGroups;
         }
+
+
 
         static public BlueprintFeature[] getLesserEidolons()
         {

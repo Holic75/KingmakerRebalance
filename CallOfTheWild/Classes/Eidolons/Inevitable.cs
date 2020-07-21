@@ -110,6 +110,7 @@ namespace CallOfTheWild
             inevitable_eidolon.ReplaceComponent<AddPet>(a => a.Pet = inevitable_unit);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(inevitable_eidolon);
+            addLesserEidolon(inevitable_eidolon);
         }
 
 
@@ -210,7 +211,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             inevitable_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
-            addLesserEidolon(inevitable_eidolon);
+            setLesserEidolonProgression(inevitable_eidolon);
         }
     }
 }

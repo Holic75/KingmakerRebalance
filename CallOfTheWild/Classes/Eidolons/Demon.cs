@@ -107,6 +107,7 @@ namespace CallOfTheWild
             demon_eidolon.ReplaceComponent<AddPet>(a => a.Pet = demon_unit);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(demon_eidolon);
+            addLesserEidolon(demon_eidolon);
         }
 
 
@@ -207,7 +208,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             demon_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
-            addLesserEidolon(demon_eidolon);
+            setLesserEidolonProgression(demon_eidolon);
         }
     }
 }

@@ -180,7 +180,7 @@ namespace CallOfTheWild
                                              }),
                                              Helpers.Create<UniqueBuff>()
                                              );
-
+            buff.Stacking = StackingType.Stack;
             var resource = Helpers.CreateAbilityResource("LightningRodResource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 12, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { cleric_class, druid_class, inquisitor_class });
 

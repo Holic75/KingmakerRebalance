@@ -122,6 +122,7 @@ namespace CallOfTheWild
                                                 "A devil binder must select an eidolon of the devil subtype. The devil binder’s eidolon never increases its maximum number of attacks, and its base attack bonus is equal to half its Hit Dice. At 4th level and every 4 levels thereafter, the eidolon’s Charisma score increases by 2.");
             infernal_eidolon.ReplaceComponent<AddPet>(a => a.Pet = infernal_unit);
             infernal_eidolon.ReplaceComponent<PrerequisiteAlignment>(p => p.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulEvil | Kingmaker.UnitLogic.Alignments.AlignmentMaskType.LawfulNeutral);
+            addLesserEidolon(devil_eidolon);
         }
 
 
@@ -231,7 +232,7 @@ namespace CallOfTheWild
 
             infernal_eidolon.LevelEntries = devil_eidolon.LevelEntries;
             infernal_eidolon.UIGroups = devil_eidolon.UIGroups;
-            addLesserEidolon(devil_eidolon);
+            setLesserEidolonProgression(devil_eidolon);
         }
     }
 }

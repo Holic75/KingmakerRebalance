@@ -105,6 +105,7 @@ namespace CallOfTheWild
             azata_eidolon.ReplaceComponent<AddPet>(a => a.Pet = azata_unit);
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(azata_eidolon);
+            addLesserEidolon(azata_eidolon);
         }
 
 
@@ -229,7 +230,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(20, feature20)
                                                            };
             azata_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
-            addLesserEidolon(azata_eidolon);
+            setLesserEidolonProgression(azata_eidolon);
         }
     }
 }
