@@ -135,6 +135,8 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection collegiate_initiate_bonus_feat;
         static public BlueprintSpellList halcyon_lore_spell_list;
 
+        static public BlueprintFeatureSelection school_understanding;
+
 
         internal static void createArcanistClass()
         {
@@ -187,6 +189,7 @@ namespace CallOfTheWild
             createExploiterWizard();
             createArcanistFeats();
             addToPrestigeClasses();
+            createSchoolUnderstanding();
         }
 
 
@@ -1158,6 +1161,341 @@ namespace CallOfTheWild
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
             spell_resistance.AddComponent(Helpers.CreateAddFact(ability));
+        }
+
+
+        static BlueprintFeature createEvocation()
+        {
+            //evocation
+            var evocation_progression = library.Get<BlueprintProgression>("f8019b7724d72a241a97157bc37f1c3b");
+            var resource = Helpers.CreateAbilityResource("EvocationSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("3d55cc710cc497843bb51788057cd93f", "SchoolUnderstandingEvocationSchoolBaseAbility", "");
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var evocation_buff = Helpers.CreateBuff("SchoolUnderstangingEvocationBuff",
+                                          "School Understanding (" + evocation_progression.Name + ")",
+                                          school_understanding.Description + "\n" + evocation_progression.Name + ": " + evocation_progression.Description,
+                                          "",
+                                          evocation_progression.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.IntenseSpellsForClasses>(i => i.classes = getExploitsUserArray()));
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(evocation_buff));
+
+            var evocation_feature = Helpers.CreateFeature("EvocationSchoolUnderstangingFeature",
+                                                          evocation_buff.Name,
+                                                          evocation_buff.Description,
+                                                          "",
+                                                          evocation_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(evocation_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(evocation_progression));
+            return evocation_feature;
+        }
+
+
+        static BlueprintFeature createAbjuration()
+        {
+            //abjuration
+            var abjuration_progression = library.Get<BlueprintProgression>("c451fde0aec46454091b70384ea91989");
+            var resource = Helpers.CreateAbilityResource("AbjurationSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("2433d465095a9984398a0482b1af0877", "SchoolUnderstandingAbjurationSchoolBaseAbility", "");
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            var resistance_feature = library.Get<BlueprintFeature>("1abe070e7a00ddd48b8a141d71f79e70");
+
+            var abjuration_buff = Helpers.CreateBuff("SchoolUnderstangingAbjurationBuff",
+                                          "School Understanding (" + abjuration_progression.Name + ")",
+                                          school_understanding.Description + "\n" + abjuration_progression.Name + ": " + abjuration_progression.Description,
+                                          "",
+                                          abjuration_progression.Icon,
+                                          null);
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(abjuration_buff));
+
+            var abjuration_feature = Helpers.CreateFeature("AbjurationSchoolUnderstangingFeature",
+                                                          abjuration_buff.Name,
+                                                          abjuration_buff.Description,
+                                                          "",
+                                                          abjuration_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(abjuration_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(abjuration_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }),
+                                                          resistance_feature.GetComponent<AddAbilityResources>());
+
+            foreach (var a in resistance_feature.GetComponent<AddFacts>().Facts.Cast<BlueprintAbility>())
+            {
+                var new_a = library.CopyAndAdd(a, "SchoolUnderstanding" + a.name, "");
+                new_a.AddComponent(Common.createAbilityCasterHasFacts(abjuration_buff));
+                abjuration_feature.AddComponent(Helpers.CreateAddFact(new_a));
+            }
+
+            return abjuration_feature;
+        }
+
+
+        static BlueprintFeature createTransmutation()
+        {
+            //transmutation
+            var transutation_progression = library.Get<BlueprintProgression>("b6a604dab356ac34788abf4ad79449ec");
+            var resource = Helpers.CreateAbilityResource("TransmutationSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("810992c76efdde84db707a0444cf9a1c", "SchoolUnderstandingTransmutaionSchoolBaseAbility", ""); //telekientic fist
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            var enhancement_feature = library.Get<BlueprintFeature>("93919f8ce64dc5a4cbf058a486a44a1b");
+
+            var transmutation_buff = Helpers.CreateBuff("SchoolUnderstangingTransmutationBuff",
+                                                          "School Understanding (" + transutation_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + transutation_progression.Name + ": " + transutation_progression.Description,
+                                                          "",
+                                                          transutation_progression.Icon,
+                                                          null);
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(transmutation_buff));
+
+            var transmutation_feature = Helpers.CreateFeature("TransmutatitonSchoolUnderstangingFeature",
+                                                          transmutation_buff.Name,
+                                                          transmutation_buff.Description,
+                                                          "",
+                                                          transmutation_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(transmutation_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(transutation_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }),
+                                                          Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>("6aa7d3496cd68e643adcd439a7306caa"), 20, getExploitsUserArray(), false));//capstone
+
+            foreach (var a in enhancement_feature.GetComponent<AddFacts>().Facts.Cast<BlueprintActivatableAbility>())
+            {
+                var new_a = library.CopyAndAdd(a, "SchoolUnderstanding" + a.name, "");
+                new_a.AddComponent(Common.createActivatableAbilityRestrictionHasFact(transmutation_buff));
+                transmutation_feature.AddComponent(Helpers.CreateAddFact(new_a));
+            }
+
+            return transmutation_feature;
+        }
+
+
+        static BlueprintFeature createIllusion()
+        {
+            //illusion
+            var illusion_progression = library.Get<BlueprintProgression>("24d5402c0c1de48468b563f6174c6256");
+            var resource = Helpers.CreateAbilityResource("IllusionSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("9b4d07751dd104243a94b495c571c9dd", "SchoolUnderstandingIllusionSchoolBaseAbility", ""); //blinding ray
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var illusion_buff = Helpers.CreateBuff("SchoolUnderstangingIllusionBuff",
+                                                          "School Understanding (" + illusion_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + illusion_progression.Name + ": " + illusion_progression.Description,
+                                                          "",
+                                                          illusion_progression.Icon,
+                                                          null);
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(illusion_buff));
+
+            var illusion_feature = Helpers.CreateFeature("IllusionSchoolUnderstangingFeature",
+                                                          illusion_buff.Name,
+                                                          illusion_buff.Description,
+                                                          "",
+                                                          illusion_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(illusion_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(illusion_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+
+            return illusion_feature;
+        }
+
+
+        static BlueprintFeature createConjuration()
+        {
+            //conjuration
+            var conjuration_progression = library.Get<BlueprintProgression>("567801abe990faf4080df566fadcd038");
+            var resource = Helpers.CreateAbilityResource("ConjurationSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("697291ff99d3fbb448be5b60b5f2a30c", "SchoolUnderstandingConjurationSchoolBaseAbility", ""); //acid dart
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var conjuration_buff = Helpers.CreateBuff("SchoolUnderstangingConjurationBuff",
+                                                          "School Understanding (" + conjuration_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + conjuration_progression.Name + ": " + conjuration_progression.Description,
+                                                          "",
+                                                          conjuration_progression.Icon,
+                                                          null,
+                                                          Helpers.Create<NewMechanics.AddClassesLevelToSummonDuration>(a => { a.Half = true; a.CharacterClasses = getExploitsUserArray(); }));
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(conjuration_buff));
+
+            var conjuration_feature = Helpers.CreateFeature("ConjurationSchoolUnderstangingFeature",
+                                                          conjuration_buff.Name,
+                                                          conjuration_buff.Description,
+                                                          "",
+                                                          conjuration_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(conjuration_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(conjuration_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+
+            return conjuration_feature;
+        }
+
+
+        static BlueprintFeature createEnchantment()
+        {
+            //enchantment
+            var enchantment_progression = library.Get<BlueprintProgression>("252363458703f144788af49ef04d0803");
+            var resource = Helpers.CreateAbilityResource("EnchantmentSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("7b3cb9ad9ef68cd43837c6db054f7d9f", "SchoolUnderstandingEnchantmentSchoolBaseAbility", ""); //dazing touch
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var base_feature = library.Get<BlueprintFeature>("9e4c4799735ae9c45964e9113107ef02");
+            var enchantment_buff = Helpers.CreateBuff("SchoolUnderstangingEnchantmentBuff",
+                                                          "School Understanding (" + enchantment_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + enchantment_progression.Name + ": " + enchantment_progression.Description,
+                                                          "",
+                                                          enchantment_progression.Icon,
+                                                          null,
+                                                          base_feature.GetComponent<SavingThrowBonusAgainstSchoolAbilityValue>(),
+                                                          base_feature.GetComponent<AddContextStatBonus>(),
+                                                          base_feature.GetComponent<ContextRankConfig>()
+                                                          );
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(enchantment_buff));
+
+            var enchantment_feature = Helpers.CreateFeature("EnchantmentSchoolUnderstangingFeature",
+                                                          enchantment_buff.Name,
+                                                          enchantment_buff.Description,
+                                                          "",
+                                                          enchantment_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(enchantment_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(enchantment_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+            return enchantment_feature;
+        }
+
+
+        static BlueprintFeature createNecromancy()
+        {
+            //necromancy
+            var necromancy_progression = library.Get<BlueprintProgression>("e9450978cc9feeb468fb8ee3a90607e3");
+            var resource = Helpers.CreateAbilityResource("NecromancySchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("39af648796b7b9b4ab6321898ebb5fff", "SchoolUnderstandingNecromancySchoolBaseAbility", ""); //shaken
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            var resource2 = Helpers.CreateAbilityResource("NecromancySchoolUnderstandingBase2Resource", "", "", "", null);
+            var base_ability2 = library.CopyAndAdd<BlueprintAbility>("71b8898b1d26d654b9a3eeac87e3e2f8", "SchoolUnderstandingNecromancySchoolBase2Ability", ""); //turn undead
+            base_ability2.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource2);
+            resource2.SetIncreasedByStat(3, StatType.Charisma);
+
+            var necromancy_buff = Helpers.CreateBuff("SchoolUnderstangingNecromancyBuff",
+                                                          "School Understanding (" + necromancy_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + necromancy_progression.Name + ": " + necromancy_progression.Description,
+                                                          "",
+                                                          necromancy_progression.Icon,
+                                                          null
+                                                          );
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(necromancy_buff));
+            base_ability2.AddComponent(Common.createAbilityCasterHasFacts(necromancy_buff));
+            var necromancy_feature = Helpers.CreateFeature("NecromancySchoolUnderstangingFeature",
+                                                          necromancy_buff.Name,
+                                                          necromancy_buff.Description,
+                                                          "",
+                                                          necromancy_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, base_ability2, createSchoolUnderstandingAbility(necromancy_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.CreateAddAbilityResource(resource2),
+                                                          Helpers.PrerequisiteNoFeature(necromancy_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+            ChannelEnergyEngine.addToImprovedChannel(base_ability2, necromancy_feature);
+
+            return necromancy_feature;
+        }
+
+
+        static BlueprintFeature createDivination()
+        {
+            //divination
+            var divination_progression = library.Get<BlueprintProgression>("d7d18ce5c24bd324d96173fdc3309646");
+            var resource = Helpers.CreateAbilityResource("DivinationSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("0997652c1d8eb164caae8a462401a25d", "SchoolUnderstandingDivinationSchoolBaseAbility", ""); //diviner's fortune
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            var divination_base_feature = library.Get<BlueprintFeature>("54d21b3221ea82a4d90d5a91b7872f3d");
+
+            var divination_buff = Helpers.CreateBuff("SchoolUnderstangingDivinationBuff",
+                                                          "School Understanding (" + divination_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + divination_progression.Name + ": " + divination_progression.Description,
+                                                          "",
+                                                          divination_progression.Icon,
+                                                          null,
+                                                          Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>("a6839f2a709288e43b68d3281b3bbd8f"), 20, getExploitsUserArray()));
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(divination_buff));
+
+            var divination_feature = Helpers.CreateFeature("DivinationSchoolUnderstangingFeature",
+                                                          divination_buff.Name,
+                                                          divination_buff.Description,
+                                                          "",
+                                                          divination_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          divination_base_feature.GetComponent<AddContextStatBonus>(),
+                                                          divination_base_feature.GetComponent<ContextRankConfig>(),
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(divination_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(divination_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+
+            return divination_feature;
+        }
+
+        static void createSchoolUnderstanding()
+        {
+            var description = "The arcanist can select one arcane school from any of the schools available to a character with the arcane school wizard class feature, but does not have to select any opposition schools. As a swift action, the arcanist can expend 1 point from her arcane reservoir to bolster her understanding, allowing her to gain 1st-level school abilities and treat her arcanist level as her wizard level for the purpose of using these ability for a number of rounds equal to her Charisma modifier (minimum 1). Arcanist uses  Charisma modifier in place of her Intelligence modifier for these abilities.";
+            school_understanding = Helpers.CreateFeatureSelection("SchoolUnderstandingExploit",
+                                                      "School Understanding",
+                                                      description,
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.None);
+            school_understanding.AddComponent(Helpers.PrerequisiteNoFeature(school_understanding));
+
+            school_understanding.AllFeatures = new BlueprintFeature[]
+            {
+                createAbjuration(),
+                createConjuration(),
+                createDivination(),
+                createEnchantment(),
+                createEvocation(),
+                createTransmutation(),
+                createNecromancy(),
+                createIllusion(),
+            };
+
+            arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(school_understanding);
+            arcane_exploits_wizard.AllFeatures = arcane_exploits_wizard.AllFeatures.AddToArray(school_understanding);
+        }
+
+        static BlueprintAbility createSchoolUnderstandingAbility(BlueprintBuff buff)
+        {
+            var ability = Helpers.CreateAbility(buff.name + "Ability",
+                                                "Activate " + buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                "Charisma modifier rounds",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false)),
+                                                arcane_reservoir_resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            return ability;
         }
 
 

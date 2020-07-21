@@ -565,7 +565,6 @@ namespace CallOfTheWild
             library.AddAsset(witch_doctor_archetype, "");
             witch_doctor_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(4, hex_selection),
                                                                               Helpers.LevelEntry(8, hex_selection),
-                                                                              Helpers.LevelEntry(10, hex_selection),
                                                                               Helpers.LevelEntry(12, hex_selection),
                                                                              };
 
