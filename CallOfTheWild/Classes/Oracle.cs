@@ -2470,6 +2470,8 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.GetIcon("4cf3d0fae3239ec478f51e86f49161cb"), // true seeing
                                                 FeatureGroup.None,
+                                                Common.createBuffDescriptorImmunity(SpellDescriptor.GazeAttack),
+                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.GazeAttack),
                                                 Helpers.Create<Blindsense>(b => { b.Range = 15.Feet(); b.Blindsight = true; }));
             clouded_vision = createOracleCurseProgression("OracleCloudedVisionCurseProgression", "Clouded Vision", "",
                                                           curse, curse5, curse10, curse15);

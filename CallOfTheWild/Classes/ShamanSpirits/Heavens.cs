@@ -246,25 +246,24 @@ namespace CallOfTheWild
             }
 
 
-             void createGreaterSpiritAbility()
+            void createGreaterSpiritAbility()
             {
                 var icon = library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1").Icon; //blur
 
                 greater_spirit_ability = Helpers.CreateFeature(prefix + "VoidAdaptationFeature",
                                                                "Void Adaptation",
-                                                               "The shaman gains immunity to blindness, poison and suffocation.",
+                                                               "The shaman gains blindsense 30 feet, immunity to poison and suffocation.",
                                                                "",
                                                                icon,
                                                                FeatureGroup.None,
-                                                               Common.createAddConditionImmunity(UnitCondition.Blindness),
-                                                               Common.createAddConditionImmunity(UnitCondition.Dazzled),
+                                                               Common.createBlindsense(30),
                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison),
                                                                Common.createSpecificBuffImmunity(NewSpells.suffocation_buff)
                                                                );
             }
 
 
-             void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "PhantasmagoricDisplay", "", "", "", null);
                 resource.SetFixedResource(3);
@@ -278,7 +277,7 @@ namespace CallOfTheWild
 
                 true_spirit_ability = Helpers.CreateFeature(prefix + "HeavensPrismaticSprayFeature",
                                                            "Phantasmagoric Display",
-                                                           prefix + " can use Prismatic Spray spell 3 times per day as spell-like ability.",
+                                                           "Shaman can use Prismatic Spray spell 3 times per day as spell-like ability.",
                                                            "",
                                                            ability.Icon,
                                                            FeatureGroup.None,

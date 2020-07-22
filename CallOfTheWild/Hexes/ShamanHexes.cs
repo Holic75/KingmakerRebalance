@@ -1032,7 +1032,9 @@ namespace CallOfTheWild
                                          "",
                                          icon,
                                          null,
-                                         Common.createBlindsight(30)
+                                         Common.createBlindsight(30),
+                                         Common.createBuffDescriptorImmunity(SpellDescriptor.GazeAttack),
+                                         Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.GazeAttack)
                                          );
 
             var ability = Helpers.CreateActivatableAbility(name_prefix + "HexActivatableAbility",

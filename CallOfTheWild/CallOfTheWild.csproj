@@ -194,6 +194,7 @@
     <Compile Include="Features\MonkStunningFistEffects.cs" />
     <Compile Include="Features\RogueTalents.cs" />
     <Compile Include="Features\Subdomains.cs" />
+    <Compile Include="Features\Subschools.cs" />
     <Compile Include="Features\VersatilePerformance.cs" />
     <Compile Include="Features\WizardDiscoveries.cs" />
     <Compile Include="MechanicsFixes\BloodlinesFix.cs" />

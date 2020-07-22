@@ -379,6 +379,17 @@ namespace CallOfTheWild
                     c_typed.Archetypes = c_typed.Archetypes.AddToArray(archetypes_to_add);
                     addClassToFact(class_to_add, archetypes_to_add, spells_type, c_typed.Feature as BlueprintUnitFact);
                 }
+                else if (c is LevelUpMechanics.AddFeatureOnClassLevelRange)
+                {
+                    var c_typed = c as LevelUpMechanics.AddFeatureOnClassLevelRange;
+                    c_typed.classes = c_typed.classes.AddToArray(class_to_add);
+                    c_typed.archetypes = c_typed.archetypes.AddToArray(archetypes_to_add);
+                    if (!c_typed.class_bonuses.Empty())
+                    {
+                        c_typed.class_bonuses = c_typed.class_bonuses.AddToArray(c_typed.class_bonuses.Last());
+                    }
+                    addClassToFact(class_to_add, archetypes_to_add, spells_type, c_typed.Feature as BlueprintUnitFact);
+                }
                 else if (c is AddFeatureIfHasFact)
                 {
                     var c_typed = c as AddFeatureIfHasFact;

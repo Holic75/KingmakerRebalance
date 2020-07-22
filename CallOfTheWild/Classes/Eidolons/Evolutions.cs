@@ -1383,7 +1383,9 @@ namespace CallOfTheWild
                                                "",
                                                icon,
                                                FeatureGroup.None,
-                                               Common.createBlindsight(30)
+                                               Common.createBlindsight(30),
+                                               Common.createBuffDescriptorImmunity(SpellDescriptor.GazeAttack),
+                                               Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.GazeAttack)
                                               );
         }
 

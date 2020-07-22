@@ -42,10 +42,8 @@ namespace CallOfTheWild
             KineticChirurgeonMercy,
             BravadosBlade,
             TacticianTeamworkFeatShare,
-
-
-
-
+            VersatileEvocation,
+            ElementalManipulation,
 
             ExtraGroup1,
             ExtraGroup2,

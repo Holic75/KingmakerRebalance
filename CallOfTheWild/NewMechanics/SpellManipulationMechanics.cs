@@ -1516,6 +1516,42 @@ namespace CallOfTheWild
 
 
 
+        public class ChangeElementalDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber, IRulebookHandler<RuleCalculateDamage>
+        {
+            public DamageEnergyType Element;
+            public ContextValue max_level;
+
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                AbilityData ability = evt.Reason.Ability;
+                if (ability == (AbilityData)null || !(ability.Blueprint.IsSpell || ability.Blueprint.Type == AbilityType.Supernatural))
+                    return;
+
+                var caster_level = evt.Reason.Context?.Params?.CasterLevel;
+
+                int max_level_value = max_level.Calculate(this.Fact.MaybeContext);
+                if (max_level_value < caster_level.GetValueOrDefault())
+                {
+                    return;
+                }
+                foreach (BaseDamage baseDamage in evt.DamageBundle)
+                    (baseDamage as EnergyDamage)?.ReplaceEnergy(this.Element);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+
+            public override void Validate(ValidationContext context)
+            {
+                base.Validate(context);
+                if (this.Element == DamageEnergyType.Fire || this.Element == DamageEnergyType.Cold || (this.Element == DamageEnergyType.Acid || this.Element == DamageEnergyType.Electricity))
+                    return;
+                context.AddError("Only Fire, Cold, Acid or Electricity are allowed", (object[])Array.Empty<object>());
+            }
+        }
+
+
         [Harmony12.HarmonyPatch(typeof(ModifiableValue))]
         [Harmony12.HarmonyPatch("AddModifier", Harmony12.MethodType.Normal)]
         [Harmony12.HarmonyPatch(new Type[] {typeof(ModifiableValue.Modifier) })]

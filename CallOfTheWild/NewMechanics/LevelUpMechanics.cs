@@ -61,7 +61,7 @@ namespace CallOfTheWild.LevelUpMechanics
         public int max_level = 100;
         public BlueprintFeature Feature;
         public BlueprintCharacterClass[] classes;
-        public BlueprintArchetype[] archetypes;
+        public BlueprintArchetype[] archetypes = new BlueprintArchetype[0];
         public int[] class_bonuses = new int[0];
         [JsonProperty]
         private Fact m_AppliedFact;

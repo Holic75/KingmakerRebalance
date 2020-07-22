@@ -1047,8 +1047,10 @@ namespace CallOfTheWild
                                                           constricting_coils.Icon,
                                                           FeatureGroup.None,
                                                           Common.createBlindsight(60),
-                                                           Helpers.Create<AddImmunityToCriticalHits>(),
-                                                           Helpers.Create<AddImmunityToPrecisionDamage>()
+                                                          Common.createBuffDescriptorImmunity(SpellDescriptor.GazeAttack),
+                                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.GazeAttack),
+                                                          Helpers.Create<AddImmunityToCriticalHits>(),
+                                                          Helpers.Create<AddImmunityToPrecisionDamage>()
                                                           );
                 //add rank to dr
                 var rank_config = damage_reduction.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>();
