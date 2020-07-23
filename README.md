@@ -177,6 +177,11 @@ The mod also adds following inquisitions that can be selected instead of domains
 - Tactics,
 - Valor.
 
+Subdomains:
+- Undead,
+- Lightning,
+- Storms.
+
 
 New Wild Talents:
 - Blade Rush,
@@ -243,6 +248,10 @@ Wizard Discoveries:
 - Resilent Illusions,
 - Time Stutter.
 
+Arcane Subschools:
+- Admixture,
+- Enhancement,
+- Teleportation.
 
 Bard Masterpieces:
 - Clamor of Heavens,

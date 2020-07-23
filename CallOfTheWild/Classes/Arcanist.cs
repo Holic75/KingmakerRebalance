@@ -519,7 +519,7 @@ namespace CallOfTheWild
             school_focus.SetNameDescription("School Focus",
                                             "At 1st level, a school savant chooses a school of magic. The arcanist gains the abilities granted by that school, as the arcane school class feature of the wizard, treating her arcanist level as her wizard level for these abilities. She can also further specialize by selecting a subschool. In addition, the arcanist can prepare one additional spell per day of each level she can cast, but this spell must be chosen from the selected school.\n"
                                             + "Finally, the arcanist must select two additional schools of magic as her opposition schools. Whenever she prepares spells from one of her opposition schools, the spell takes up two of her prepared spell slots. ");
-            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[] { school_savant_archetype }, ClassToProgression.DomainSpellsType.SpecialList, school_focus);
+            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.SpecialList, school_focus);
 
             school_savant_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits) };
             school_savant_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_focus) };
@@ -1492,7 +1492,8 @@ namespace CallOfTheWild
                                                 "Charisma modifier rounds",
                                                 "",
                                                 Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false)),
-                                                arcane_reservoir_resource.CreateResourceLogic()
+                                                arcane_reservoir_resource.CreateResourceLogic(),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
             return ability;

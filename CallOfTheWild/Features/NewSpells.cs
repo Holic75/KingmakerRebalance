@@ -219,6 +219,8 @@ namespace CallOfTheWild
         static public BlueprintAbility screech;
         static public BlueprintAbility fickle_winds;
 
+        static public BlueprintAbility fiery_shiriken;
+
         static public void load()
         {
             createImmunityToWind();
@@ -355,6 +357,117 @@ namespace CallOfTheWild
 
             createBarrowHaze();
             createFickleWinds();
+            createFireShuriken();
+        }
+
+
+        static void createFireShuriken()
+        {
+            var fire_bolt = library.Get<BlueprintAbility>("4ecdf240d81533f47a5279f5075296b9");
+
+            var resource = Helpers.CreateAbilityResource("FieryShurikenResource", "", "", "", null);
+            resource.SetFixedResource(8);
+
+            var description = "You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd(to a maximum of eight shuriken at 15th level), which hover in front of you.When these shuriken appear, you can launch some or all of them at the same target or different targets.Each shuriken requires a ranged touch attack roll to hit and deals 1d8 points of fire damage.You provoke no attacks of opportunity when launching them.Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken.If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
+            var one_projectile_spell_swift = library.CopyAndAdd(fire_bolt, "FieryShurikenSingleProjectileAbility", "");
+            one_projectile_spell_swift.SetNameDescription("Fiery Shuriken (1 Projectile, Swift)", description);
+
+            one_projectile_spell_swift.Type = AbilityType.SpellLike;
+            one_projectile_spell_swift.SpellResistance = true;
+            one_projectile_spell_swift.ActionType = UnitCommand.CommandType.Swift;
+            one_projectile_spell_swift.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            one_projectile_spell_swift.RemoveComponents<SpellComponent>();
+            one_projectile_spell_swift.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            one_projectile_spell_swift.RemoveComponents<ContextRankConfig>();
+            one_projectile_spell_swift.RemoveComponents<AbilityEffectRunAction>();
+            one_projectile_spell_swift.AddComponent(Helpers.CreateRunActions(Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D8, 1, 0))));
+            one_projectile_spell_swift.LocalizedDuration = Helpers.CreateString("FireShurikenSingleProjectile.Duration", "");
+            one_projectile_spell_swift.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Conjuration));
+            one_projectile_spell_swift.AvailableMetamagic = Metamagic.Reach | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
+            var abilities = new List<BlueprintAbility>();
+            abilities.Add(one_projectile_spell_swift);
+            for (int i = 2; i <= 7; i++)
+            {
+                var ability = library.CopyAndAdd(one_projectile_spell_swift, $"FieryShuriken{i}ProjectilesAbility", "");
+                ability.ActionType = UnitCommand.CommandType.Standard;
+                ability.ReplaceComponent<AbilityResourceLogic>(a => { a.Amount = i; });
+                ability.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfCasterHasResource>(a => { a.resource = resource; a.amount = i; }));
+                var projectile = one_projectile_spell_swift.GetComponent<AbilityDeliverProjectile>().Projectiles[0];
+                ability.ReplaceComponent<AbilityDeliverProjectile>(a => { a.Projectiles = Enumerable.Repeat(projectile, i).ToArray(); a.DelayBetweenProjectiles = 0.2f; });
+                ability.SetNameDescription($"Fiery Shuriken ({i} Projectiles)", description);
+                abilities.Add(ability);
+            }
+
+
+            var wrapper = Common.createVariantWrapper("FireShurikenAbilityBase", "", abilities.ToArray());
+            wrapper.SetName("Fiery Shuriken");
+
+            var buff = Helpers.CreateBuff("FieryShurikenBuff",
+                                          wrapper.Name,
+                                          wrapper.Description,
+                                          "",
+                                          wrapper.Icon,
+                                          null,
+                                          Helpers.CreateAddAbilityResourceNoRestore(resource),
+                                          Helpers.CreateAddFact(wrapper),
+                                          Helpers.CreateAddFactContextActions(newRound: Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),
+                                                                                                                  null,
+                                                                                                                  Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                  )
+                                                                             )
+
+                                        );
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+            foreach (var a in abilities)
+            {
+                buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = a));
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), is_from_spell: true);
+
+
+
+            var fiery_shuriken_one_projectile = library.CopyAndAdd(one_projectile_spell_swift, "FieryShurikenOneProjectileSpell", "");
+            fiery_shuriken_one_projectile.Type = AbilityType.Spell;
+            fiery_shuriken_one_projectile.SetName("Fiery Shuriken (1 Projectile)");
+            fiery_shuriken_one_projectile.ActionType = UnitCommand.CommandType.Standard;
+            fiery_shuriken_one_projectile.AvailableMetamagic = fiery_shuriken_one_projectile.AvailableMetamagic | Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
+
+            fiery_shuriken_one_projectile.RemoveComponents<AbilityResourceLogic>();
+            var action_on_caster = Common.createContextActionOnContextCaster(apply_buff,
+                                                                Helpers.Create<ResourceMechanics.ContextRestoreResource>(c =>
+                                                                {
+                                                                    c.amount = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                    c.Resource = resource;
+                                                                })
+                                                                );
+            fiery_shuriken_one_projectile.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(action_on_caster)));
+            fiery_shuriken_one_projectile.AddComponent(Helpers.CreateContextRankConfig(progression: ContextRankProgression.DelayedStartPlusDivStep, 
+                                                                                       startLevel: 3, stepLevel: 2, max: 7)
+                                                                                       );
+
+            var fiery_shuriken_all_projectiles = library.CopyAndAdd(one_projectile_spell_swift, "FieryShurikenAllProjectilesSpell", "");
+            fiery_shuriken_all_projectiles.Type = AbilityType.Spell;
+            fiery_shuriken_all_projectiles.SetName("Fiery Shuriken (All Projectiles)");
+            fiery_shuriken_all_projectiles.RemoveComponents<AbilityResourceLogic>();
+            fiery_shuriken_all_projectiles.ActionType = UnitCommand.CommandType.Standard;
+            fiery_shuriken_all_projectiles.AvailableMetamagic = fiery_shuriken_one_projectile.AvailableMetamagic | Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
+            fiery_shuriken_all_projectiles.ReplaceComponent<AbilityDeliverProjectile>(a =>
+                                                                                     {
+                                                                                         a.Projectiles = Enumerable.Repeat(a.Projectiles[0], 8).ToArray();
+                                                                                         a.UseMaxProjectilesCount = true;
+                                                                                         a.DelayBetweenProjectiles = 0.2f;
+                                                                                         a.MaxProjectilesCountRank = AbilityRankType.Default;
+                                                                                     });
+            fiery_shuriken_all_projectiles.AddComponent(Helpers.CreateContextRankConfig(progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                                       startLevel: 1, stepLevel: 2, max: 8));
+
+            
+            fiery_shiriken = Common.createVariantWrapper("FieryShurikenBaseSpell", "", fiery_shuriken_one_projectile, fiery_shuriken_all_projectiles);
+            fiery_shiriken.SetName("Fiery Shuriken");
+            fiery_shiriken.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Conjuration));
+            fiery_shiriken.AddToSpellList(Helpers.wizardSpellList, 2);
+            fiery_shiriken.AddSpellAndScroll("95bf8273fd7930c4da3eaaf636a6cd29");
         }
 
 
@@ -6834,7 +6947,7 @@ namespace CallOfTheWild
                                                         Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true
                                                     );
                 flame_blade_v.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
-                flame_blade_v.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
+                flame_blade_v.AvailableMetamagic = Metamagic.Quicken |Metamagic.Extend | Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
                 flame_blade_v.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
                 flame_blades.Add(flame_blade_v);
             }

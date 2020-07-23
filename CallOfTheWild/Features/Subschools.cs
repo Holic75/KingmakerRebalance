@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
@@ -191,7 +192,7 @@ namespace CallOfTheWild
                                                    "",
                                                    buff.Icon,
                                                    AbilityType.Supernatural,
-                                                   Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                   CommandType.Swift,
                                                    AbilityRange.Personal,
                                                    Helpers.oneRoundDuration,
                                                    "",
@@ -217,7 +218,7 @@ namespace CallOfTheWild
                 Helpers.LevelEntry(8, perfection_feature),
                 enhancement.LevelEntries[2]
             };
-            addToSchoolSelection(enhancement);
+            addToSchoolSelection(enhancement, transmutation);
         }
 
 
@@ -251,7 +252,7 @@ namespace CallOfTheWild
             {
                 var ability = library.CopyAndAdd(dimension_door, $"TeleprotationSchoolBase{i * 5}Ability", "");
                 ability.Parent = null;
-
+                ability.ActionType = CommandType.Swift;
                 ability.Range = AbilityRange.Custom;
                 ability.CustomRange = (i * 5).Feet();
                 ability.Type = AbilityType.Supernatural;
@@ -274,7 +275,7 @@ namespace CallOfTheWild
                 Helpers.LevelEntry(1, shift_feature, opposition_school_selection, opposition_school_selection),
                 conjuration.LevelEntries[1]
             };
-            addToSchoolSelection(teleportation);
+            addToSchoolSelection(teleportation, conjuration);
         }
 
 
@@ -372,7 +373,8 @@ namespace CallOfTheWild
                                                "",
                                                icons[i],
                                                null,
-                                               Helpers.Create<SpellManipulationMechanics.ChangeElementalDamage>(c =>{ c.Element = energy[i]; c.max_level = Helpers.CreateContextValue(AbilityRankType.Default); })
+                                               Helpers.Create<SpellManipulationMechanics.ChangeElementalDamage>(c =>{ c.Element = energy[i]; c.max_level = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWizardArray())
                                                );
 
                 var buff_area_effect =  Common.createBuffAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerOr());
@@ -402,13 +404,15 @@ namespace CallOfTheWild
             };
             admixture.SetNameDescription(versatile_evocation_feature.Name, versatile_evocation_feature.Description);
 
-            addToSchoolSelection(admixture);
+            addToSchoolSelection(admixture, evocation);
+            
         }     
         
 
-        static void addToSchoolSelection(BlueprintFeature subschool)
+        static void addToSchoolSelection(BlueprintFeature subschool, BlueprintFeature school)
         {
             school_selection.AllFeatures = school_selection.AllFeatures.AddToArray(subschool);
+            school.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = subschool)); //dodge
         }
     }
 }
