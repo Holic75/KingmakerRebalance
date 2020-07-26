@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using JetBrains.Annotations;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
@@ -284,6 +285,74 @@ namespace CallOfTheWild.WeaponTrainingMechanics
         {
         }
     }
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddFeatureOnWeaponCategory : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+        public BlueprintUnitFact feature;
+        [JsonProperty]
+        private Fact m_AppliedFact;
+
+        public WeaponCategory[] required_categories;
+
+        public override void OnFactActivate()
+        {
+            this.Apply();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            if (m_AppliedFact != null)
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+            }
+            this.m_AppliedFact = null;
+        }
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+
+            this.Apply();
+        }
+
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.Apply();
+        }
+
+        private void Apply()
+        {
+            OnFactDeactivate();
+            if (Owner.Body.IsPolymorphed)
+            {
+                return;
+            }
+
+            bool weapon_ok = checkWeapon(this.Owner.Body?.PrimaryHand?.MaybeWeapon) || checkWeapon(this.Owner.Body?.PrimaryHand?.MaybeWeapon);
+
+
+            if (this.m_AppliedFact != null || !weapon_ok)
+            {
+                return;
+            }
+            this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
+        }
+
+
+        private bool checkWeapon([CanBeNull] ItemEntityWeapon weapon)
+        {
+            if (weapon == null)
+            {
+                return false;
+            }
+
+            return required_categories.Contains(weapon.Blueprint.Category);
+        }
+    }
+
 
 
     [AllowMultipleComponents]

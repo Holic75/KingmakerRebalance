@@ -189,6 +189,7 @@
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Dismiss.cs" />
     <Compile Include="Features\AdvancedFighterOptions.cs" />
+    <Compile Include="Features\Familiars.cs" />
     <Compile Include="Features\MagusArcana.cs" />
     <Compile Include="Features\MetamagicFeats.cs" />
     <Compile Include="Features\MonkStunningFistEffects.cs" />

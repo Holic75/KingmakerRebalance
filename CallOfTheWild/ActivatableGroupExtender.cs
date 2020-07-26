@@ -44,6 +44,7 @@ namespace CallOfTheWild
             TacticianTeamworkFeatShare,
             VersatileEvocation,
             ElementalManipulation,
+            Familiar,
 
             ExtraGroup1,
             ExtraGroup2,

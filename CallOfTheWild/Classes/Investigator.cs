@@ -306,7 +306,7 @@ namespace CallOfTheWild
 
                 var opportune_advice_buff = Helpers.CreateBuff(fe.Item2.Replace(" ", "") + "InvestigatorOpportuneAdviceBuff",
                                                              "Opportune Advice: " + fe.Item2,
-                                                             studied_defense.Description,
+                                                             opportune_advice_cooldown.Description,
                                                              "",
                                                              fe.Item1.Icon,
                                                              null,
@@ -411,7 +411,7 @@ namespace CallOfTheWild
 
             var knowledgeable_strike_ability = Helpers.CreateAbility("KnowledgeableStrikeInvestigatorAbility",
                                            "Knowledgeable Strike",
-                                           buffs[0].Description,
+                                           opportune_strike_buffs[0].Description,
                                            "",
                                            icon_opportune_strike,
                                            AbilityType.Extraordinary,

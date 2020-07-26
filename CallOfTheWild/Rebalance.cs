@@ -56,8 +56,8 @@ namespace CallOfTheWild
 
         static internal void createAidAnother()
         {
-           var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
-           var remove_self_action = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+            var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
+            var remove_self_action = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
 
             aid_another_config = Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, progression: ContextRankProgression.BonusValue,
                                                                                                 featureList: new BlueprintFeature[0], stepLevel: 2);
@@ -154,9 +154,37 @@ namespace CallOfTheWild
             var feystalker_master = library.Get<BlueprintFeature>("02357ba2802b8654bb3e824bae68f5c0");
             var feystalker_buff = library.Get<BlueprintBuff>("5a4b6a4be0c7efc4dbc7159152a21447");
             feystalker_master.ReplaceComponent<OnSpawnBuff>(o => o.buff = feystalker_buff);
-    
+
         }
 
+
+        public static void fixBeltsOfPerfectComponents()
+        {
+            var lesser_extend = library.Get<BlueprintFeature>("23de5684062b01f49a2f310103db5b60");
+            var lesser_empower = library.Get<BlueprintFeature>("c54708f815850ea4f9a96e091bcbccac");
+
+            var normal_extend = library.Get<BlueprintFeature>("0592284ca75c8f546be126c130726531");
+            var normal_empower = library.Get<BlueprintFeature>("324defe6bf85dab4d9e1d85a63c1d35a");
+
+            var greater_extend = library.Get<BlueprintFeature>("9dc99e47a71654e41be9a408fa3914de");
+            var greater_empower = library.Get<BlueprintFeature>("ac32d1c08f04edc4fb99a3314fabb41b");
+
+
+            lesser_extend.RemoveComponents<AutoMetamagic>();
+            lesser_extend.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Extend; m.max_level = 1; }));
+            normal_extend.RemoveComponents<AutoMetamagic>();
+            normal_extend.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Extend; m.max_level = 2; }));
+            greater_extend.RemoveComponents<AutoMetamagic>();
+            greater_empower.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Extend; m.max_level = 3; }));
+
+            lesser_empower.RemoveComponents<AutoMetamagic>();
+            lesser_empower.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Empower; m.max_level = 1; }));
+            normal_empower.RemoveComponents<AutoMetamagic>();
+            normal_empower.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Empower; m.max_level = 2; }));
+            greater_empower.RemoveComponents<AutoMetamagic>();
+            greater_empower.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Empower; m.max_level = 3; }));
+
+        }
 
 
         internal static void fixTransmutionSchoolPhysicalEnhancement()
@@ -343,7 +371,7 @@ namespace CallOfTheWild
             valerie_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             valerie_class_level.Selections[0].Features[0] = library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"); //shield focus
             valerie_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a"); //combat expertise
-            valerie_class_level.Skills = new StatType[] {StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillLoreReligion};
+            valerie_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillLoreReligion };
             valerie_companion.Body.PrimaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("571c56d11dafbb04094cbaae659974b5");//longsword
             valerie_companion.Body.SecondaryHand = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Shields.BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b");//shield
             valerie1_feature.GetComponent<AddFacts>().Facts = valerie1_feature.GetComponent<AddFacts>().Facts.Skip(1).ToArray();
@@ -352,7 +380,7 @@ namespace CallOfTheWild
             {
                 if (u.CharacterName == "Valerie")
                 {
-                    while(u.Stats.SkillAthletics.BaseValue > 0)
+                    while (u.Stats.SkillAthletics.BaseValue > 0)
                     {
                         u.Stats.SkillAthletics.BaseValue--;
                         u.Stats.SkillKnowledgeWorld.BaseValue++;
@@ -374,7 +402,7 @@ namespace CallOfTheWild
             amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             amiri_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
             //amiri_class_level.Selections[0].Features[1] = NewFeats.furious_focus;
-            amiri_class_level.Skills = new StatType[] { StatType.SkillKnowledgeWorld, StatType.SkillPersuasion, StatType.SkillAthletics};
+            amiri_class_level.Skills = new StatType[] { StatType.SkillKnowledgeWorld, StatType.SkillPersuasion, StatType.SkillAthletics };
             //change tristian stats
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
             tristian_companion.Strength = 10;
@@ -444,7 +472,7 @@ namespace CallOfTheWild
             harrim_class_level.Selections[9].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088"); //gwf
             harrim_class_level.Selections[9].ParamWeaponCategory = WeaponCategory.HeavyFlail;
 
-            harrim_feature.GetComponent<AddFacts>().Facts =  harrim_feature.GetComponent<AddFacts>().Facts.Take(1).ToArray();
+            harrim_feature.GetComponent<AddFacts>().Facts = harrim_feature.GetComponent<AddFacts>().Facts.Take(1).ToArray();
             //harrim_class_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("9ebe166b9b901c746b1858029f13a2c5"); //madness domain instead of chaos
 
             //change linzi
@@ -466,10 +494,10 @@ namespace CallOfTheWild
             octavia_companion.Strength = 8;
             //remove rogue level
             var octavia_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("200151a5a5c78a4439d0f6e9fb26620a");
-            
+
             var octavia_acl = octavia_feature.GetComponent<AddClassLevels>();
             octavia_feature.RemoveComponents<AddClassLevels>(a => a != octavia_acl);
-            octavia_acl.Skills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillThievery, StatType.SkillPersuasion, StatType.SkillMobility };
+            octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillThievery, StatType.SkillPersuasion, StatType.SkillMobility };
             //octavia_acl.Selections[1].Features[1] = library.Get<BlueprintFeature>("875fff6feb84f5240bf4375cb497e395"); //oposoiton enchantment, necromancy
             octavia_acl.Selections[2].Features[0] = Subschools.admixture;
             octavia_acl.Selections[4].Features[0] = library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30");// hare familiar
@@ -498,10 +526,10 @@ namespace CallOfTheWild
             var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();
             regognar_levels.Levels = 1;
             regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
-                                                                                {
-                                                                                    Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
-                                                                                    Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
-                                                                                },
+            {
+                Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
+                Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
+            },
                                                                                 new SelectionEntry()
                                                                                 {
                                                                                     Selection = BloodlinesFix.bloodline_familiar,
@@ -570,13 +598,13 @@ namespace CallOfTheWild
             cephales_class_levels.Selections[0].Features[0] = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74"); //improved initiative
             cephales_class_levels.Selections[0].Features[1] = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"); //spell focus (necromancy
             cephales_class_levels.Selections = cephales_class_levels.Selections.AddToArray(new SelectionEntry()
-                                                                                            {
-                                                                                                Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
-                                                                                                Features = new BlueprintFeature[] { BloodlinesFix.blood_havoc },
-                                                                                                ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"),
-                                                                                                ParamSpellSchool = SpellSchool.Necromancy,
-                                                                                                IsParametrizedFeature = true
-                                                                                            }
+            {
+                Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
+                Features = new BlueprintFeature[] { BloodlinesFix.blood_havoc },
+                ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"),
+                ParamSpellSchool = SpellSchool.Necromancy,
+                IsParametrizedFeature = true
+            }
                                                                                             );
             cephales_class_levels.Selections[0].Features[3] = library.Get<BlueprintParametrizedFeature>("5b04b45b228461c43bad768eb0f7c7bf");
             cephales_class_levels.Selections[0].Features[4] = library.Get<BlueprintFeature>("f180e72e4a9cbaa4da8be9bc958132ef");
@@ -630,7 +658,7 @@ namespace CallOfTheWild
             //weather
             //add missing druid scaling to Storm Burst
             library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9").ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", domain_classes_and_druid));
-            
+
             //protection domain
             /*var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,
                                                                                              startLevel: 1,
@@ -772,7 +800,7 @@ namespace CallOfTheWild
 
         static internal void fixItemBondForSpontnaeousCasters()
         {
-            var item_bond_spontaneous = library.CopyAndAdd<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1","ItemBondSpontaneousAbility" ,"");
+            var item_bond_spontaneous = library.CopyAndAdd<BlueprintAbility>("e5dcf71e02e08fc448d9745653845df1", "ItemBondSpontaneousAbility", "");
             item_bond_spontaneous.ReplaceComponent<AbilityRestoreSpellSlot>(Helpers.Create<AbilityRestoreSpontaneousSpell>(a => a.SpellLevel = 10));
 
             var item_bond_feature = library.Get<BlueprintFeature>("2fb5e65bd57caa943b45ee32d825e9b9");
@@ -859,7 +887,7 @@ namespace CallOfTheWild
 
             var bonded = library.Get<BlueprintFeature>("aa34ca4f3cd5e5d49b2475fcfdf56b24");
 
-            bonded.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.value = -2; c.spells = new BlueprintAbility[0];}));
+            bonded.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.value = -2; c.spells = new BlueprintAbility[0]; }));
             bonded.SetDescription(bonded.Description + "\nThis ability replaces the increase to channel energy gained at 3rd level.");
 
             var long_blessing = library.Get<BlueprintAbility>("3ef665bb337d96946bcf98a11103f32f");
@@ -882,8 +910,8 @@ namespace CallOfTheWild
             foreach (var dr in drs)
             {
                 var context_rank_config = dr.GetComponent<ContextRankConfig>();
-                var feature_list = Helpers.GetField<BlueprintFeature[]>(context_rank_config,"m_FeatureList").ToList();
-                
+                var feature_list = Helpers.GetField<BlueprintFeature[]>(context_rank_config, "m_FeatureList").ToList();
+
                 while (feature_list.Contains(increased_dr))
                 {
                     feature_list.Remove(increased_dr);
@@ -1008,7 +1036,7 @@ namespace CallOfTheWild
 
             foreach (var f in familiar.AllFeatures)
             {
-               f.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(p => p.Features = familiar.AllFeatures.RemoveFromArray(f)));
+                f.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(p => p.Features = familiar.AllFeatures.RemoveFromArray(f)));
             }
         }
 
@@ -1018,15 +1046,15 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("OnTurnOn", Harmony12.MethodType.Normal)]
         class ActivatableAbilityy__OnTurnOn__Patch
         {
-            static void Postfix( ActivatableAbility __instance)
+            static void Postfix(ActivatableAbility __instance)
             {
                 if (__instance.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
                 {
                     return;
                 }
-         
-                var activated_performances =  __instance.Owner.ActivatableAbilities.Enumerable.Where(a => __instance.Owner.Buffs.HasFact(a.Blueprint.Buff) && !a.IsOn
-                                                                                                          && a.Blueprint.Group == ActivatableAbilityGroup.BardicPerformance);         
+
+                var activated_performances = __instance.Owner.ActivatableAbilities.Enumerable.Where(a => __instance.Owner.Buffs.HasFact(a.Blueprint.Buff) && !a.IsOn
+                                                                                                         && a.Blueprint.Group == ActivatableAbilityGroup.BardicPerformance);
                 foreach (var a in activated_performances)
                 {
                     if (a != __instance)
@@ -1092,7 +1120,7 @@ namespace CallOfTheWild
                                                       "9be3aa47a13d5654cbcb8dbd40c325f2",
                                                       "89df18039ef22174b81052e2e419c728"};
 
-            
+
 
             string[] paladin_channel_ids = new string[] { "6670f0f21a1d7f04db2b8b115e8e6abf",
                                                           "0c0cf7fcb356d2448b7d57f2c4db3c0c",
@@ -1168,9 +1196,9 @@ namespace CallOfTheWild
                 var feats = u.GetComponent<AddClassLevels>().Selections[0].Features;
                 u.GetComponent<AddClassLevels>().Selections[0].Features = feats.RemoveFromArray(weapon_focus);
             }
-            
+
         }
-        
+
 
         internal static void fixFlailCritMultiplier()
         {
@@ -1224,7 +1252,7 @@ namespace CallOfTheWild
             //give it retroactively
             Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
             {
-                if (unit.Progression.GetClassLevel(stalwart_defender) >=1 && !unit.Progression.Features.HasFact(proficiency))
+                if (unit.Progression.GetClassLevel(stalwart_defender) >= 1 && !unit.Progression.Features.HasFact(proficiency))
                 {
                     unit.Progression.Features.AddFeature(proficiency);
                 }
@@ -1274,7 +1302,7 @@ namespace CallOfTheWild
 
                 if (range == AbilityRange.Medium)
                 {
-                    __result =  60.Feet();
+                    __result = 60.Feet();
                 }
                 else if (range == AbilityRange.Long)
                 {
@@ -1322,14 +1350,14 @@ namespace CallOfTheWild
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
             fast_bombs_buff.AddComponent(Common.createAddCondition(UnitCondition.Staggered));
             fast_bombs_ability.AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = staggered; r.Not = true; }));
-            
+
 
             //fast_bombs_buff.AddComponent(Helpers.Create<FreeActionAbilityUseMechanics.ForceFullRoundOnAbilities>(f => f.abilities = bombs));
             fast_bombs.AddComponent(Helpers.CreateAddFact(new_ability));
             //Helpers.SetField(fast_bombs_ability, "m_ActivateWithUnitCommand", UnitCommand.CommandType.Move);
             //fast_bombs_ability.DeactivateAfterFirstRound = true;
-           // fast_bombs_ability.ActivationType = AbilityActivationType.WithUnitCommand;
-           // fast_bombs_ability.DeactivateImmediately = false;
+            // fast_bombs_ability.ActivationType = AbilityActivationType.WithUnitCommand;
+            // fast_bombs_ability.DeactivateImmediately = false;
 
         }
 
@@ -1494,7 +1522,7 @@ namespace CallOfTheWild
                 {
                     dr.AffectAnyPhysicalDamage = true;
                 }
-            }              
+            }
         }
 
         static internal void fixTandemTripPrerequisite()
@@ -1553,7 +1581,7 @@ namespace CallOfTheWild
             foreach (var u in units)
             {
                 int num_limbs = u.Body.AdditionalLimbs.Length;
-                if (num_limbs <3)
+                if (num_limbs < 3)
                 {
                     continue;
                 }
@@ -1604,7 +1632,7 @@ namespace CallOfTheWild
             var flamedancer = library.Get<BlueprintArchetype>("e7914f2adcdb8fc46af5b65d1e06c539");
             flamedancer.AddFeatures[0].Features[0] = feature;
 
-            var blueprint_facts = new BlueprintUnitFact[] 
+            var blueprint_facts = new BlueprintUnitFact[]
             {
                 library.Get<BlueprintFeature>("3c10a0069e7f110499d2e810f4861a6e"),
                 library.Get<BlueprintBuff>("bf9493f27bb23d74bb598fb1a7a9fe3a"),
@@ -1631,7 +1659,7 @@ namespace CallOfTheWild
             var buff = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447");
 
             buff.SetNameDescription("", "");
-            buff.ComponentsArray = new BlueprintComponent[] {Helpers.Create<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>() };
+            buff.ComponentsArray = new BlueprintComponent[] { Helpers.Create<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>() };
             buff.Stacking = StackingType.Stack;
             foreach (var tw in teamwork_feats)
             {
@@ -1669,7 +1697,7 @@ namespace CallOfTheWild
 
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff), a.Actions.Actions[0]));
 
-          
+
             var extra_tactician = Helpers.CreateFeature("TacticalLeaderExtraTactician",
                                                         "",
                                                         "",
@@ -1703,7 +1731,7 @@ namespace CallOfTheWild
             {
                 __result = !__instance.IsEnemy(unit) && __instance.IsAlly(summoner);
             }
-            
+
         }
     }
 
@@ -1713,21 +1741,45 @@ namespace CallOfTheWild
     [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
     class RulePrepareDamage_OnTrigger
     {
+        static public Dictionary<(AbilityData, UnitEntityData), bool> spell_target_map = new Dictionary<(AbilityData, UnitEntityData), bool>();
         static bool Prefix(RulePrepareDamage __instance, RulebookEventContext context)
         {
             AbilityData ability = __instance.ParentRule?.Reason?.Ability;
-            if (ability == null 
-                || __instance.ParentRule.Projectile == null 
-                || __instance.ParentRule.Projectile.IsFirstProjectile
-                || __instance.ParentRule.AttackRoll == null
-                || !__instance.ParentRule.AttackRoll.IsSneakAttack)
+            if (ability == null || __instance.Target == null)
+            {
                 return true;
+            }
 
+            if (!spell_target_map.ContainsKey((ability, __instance.Target)))
+            {
+                spell_target_map[(ability, __instance.Target)] = true;
+                return true;
+            }
+           
             __instance.IsSurpriseSpell = false;
-            __instance.ParentRule.AttackRoll.UseSneakAttack();
+            __instance.ParentRule.AttackRoll?.UseSneakAttack();
             return true;
         }
     }
+
+    [Harmony12.HarmonyPatch(typeof(UnitEntityData))]
+    [Harmony12.HarmonyPatch("LeaveCombat", Harmony12.MethodType.Normal)]
+    class UnitEntityData__LeaveCombat__Patch
+    {
+        static void Postfix(UnitEntityData __instance)
+        {
+            var keys = RulePrepareDamage_OnTrigger.spell_target_map.Keys.ToArray();
+            foreach (var k in keys)
+            {
+                if (k.Item1.Caster == __instance.Descriptor
+                    || k.Item2 == __instance)
+                {
+                    RulePrepareDamage_OnTrigger.spell_target_map.Remove(k);
+                }
+            }
+        }
+    }
+
 
 
 

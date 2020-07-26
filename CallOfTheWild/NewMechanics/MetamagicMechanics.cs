@@ -322,6 +322,45 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class MetamagicUpToSpellLevel : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public int max_level = 10;
+
+            public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
+            {
+                bool is_metamagic_not_available = ability == null || data?.Spellbook == null || ability.Type != AbilityType.Spell
+                                              || ((ability.AvailableMetamagic & Metamagic) == 0);
+
+                if (is_metamagic_not_available)
+                {
+                    return false;
+                }
+
+                if (data.SpellLevel > max_level)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (!CanBeUsedOn(evt.Spell, evt.AbilityData))
+                {
+                    return;
+                }
+                evt.AddMetamagic(Metamagic);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
 
         [AllowedOn(typeof(BlueprintBuff))]
         public class MetamagicOnSchool : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber

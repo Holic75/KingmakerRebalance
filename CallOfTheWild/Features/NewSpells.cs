@@ -4625,7 +4625,7 @@ namespace CallOfTheWild
             var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
             var buff = Helpers.CreateBuff("WindsOfVengeanceBuff",
                                           "Winds of Vengeance",
-                                          "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you to fly granting immunity to ground-based effects and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
+                                          "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you ability to fly and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
                                           + "Ranged weapons (including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you. Gases and most gaseous breath weapons cannot pass though the winds.\n"
                                           + "In addition, once per round, when a creature hits you with a melee attack, winds lash out at that creature. The creature must make a Fortitude Saving Throw or take 5d8 points of bludgeoning damage and be knocked prone.\n"
                                           + "On a successful save, the damage is halved and the creature is not knocked prone.",
@@ -4636,7 +4636,8 @@ namespace CallOfTheWild
                                           Helpers.CreateAddFact(airborne),
                                           Helpers.CreateAddStatBonus(StatType.Speed, 30, ModifierDescriptor.UntypedStackable),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch }),
-                                          on_hit
+                                          on_hit,
+                                          Helpers.CreateAddFact(immunity_to_wind)
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
             winds_of_vengeance = Helpers.CreateAbility("WindsOfVengeanceAbility",

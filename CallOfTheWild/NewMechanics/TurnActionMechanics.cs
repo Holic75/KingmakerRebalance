@@ -2,6 +2,9 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Equipment;
+using Kingmaker.Controllers.Units;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
@@ -9,6 +12,7 @@ using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
@@ -26,6 +30,67 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild.TurnActionMechanics
 {
+    public class UnitPartFamiliarFreeItemUse : AdditiveUnitPart
+    {
+        private bool used_this_round = false;
+        private bool in_use = false;
+
+        public void prepare()
+        {
+            in_use = true;
+        }
+
+        public void use()
+        {
+            used_this_round = true;
+        }
+
+        public void unprepare()
+        {
+            in_use = false;
+        }
+
+        public void reset()
+        {
+            used_this_round = false;
+        }
+
+        public bool isActive()
+        {
+            return !this.buffs.Empty() && !used_this_round && in_use;
+        }
+
+
+        public bool canBeUsed()
+        {
+            return !this.buffs.Empty() && !used_this_round;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(BlueprintItemEquipmentUsable))]
+    [Harmony12.HarmonyPatch("IsUnitNeedUMDForUse", Harmony12.MethodType.Normal)]
+    class BlueprintItemEquipmentUsable_IsUnitNeedUMDForUse__Patch
+    {
+        static void Postfix(BlueprintItemEquipmentUsable __instance, UnitDescriptor unit,  ref bool __result)
+        {
+            if (__result == true)
+            {
+                return;
+            }
+            if (__instance.RequireUMDIfCasterHasNoSpellInSpellList)
+            {
+                var unit_part = unit.Get<UnitPartFamiliarFreeItemUse>();
+                if (unit_part == null || !unit_part.isActive())
+                {
+                    return;
+                }
+                __result = true;
+            }
+        }
+    }
+
+
     public class UnitPartFreeAbilityUse : AdditiveUnitPart
     {
         public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
@@ -372,6 +437,110 @@ namespace CallOfTheWild.TurnActionMechanics
             }
         }
     }
+
+
+
+    public class FamiliarFreeItemUse : FreeActionAbilityUseBase, IUnitSubscriber, IInitiatorRulebookHandler<RuleCastSpell>, ITickEachRound, IGlobalSubscriber
+    {
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().addBuff(this.Fact);
+        }
+
+        public override void OnTurnOff()
+        {
+            base.OnTurnOff();
+            this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().removeBuff(this.Fact);
+        }
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (ability == null)
+            {
+                return false;
+            }
+            var unit_part = ability.Caster.Get<UnitPartFamiliarFreeItemUse>();
+            if (unit_part == null)
+            {
+                return false;
+            }
+
+            if (!unit_part.isActive())
+            {
+                return false;
+            }
+
+            if (ability.SourceItem == null || !(ability.SourceItem.Blueprint is BlueprintItemEquipmentUsable))
+            {
+                return false;
+            }
+
+
+            var item = ability.SourceItem.Blueprint as BlueprintItemEquipmentUsable;
+
+            if (item.RequireUMDIfCasterHasNoSpellInSpellList && !ability.Caster.HasUMDSkill)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void OnNewRound()
+        {
+            this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().reset();
+        }
+
+        public void OnEventAboutToTrigger(RuleCastSpell evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleCastSpell evt)
+        {
+            if (canUseOnAbility(evt.Spell, CommandType.Free))
+            {
+                this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().use();
+
+                var ability = this.Owner.ActivatableAbilities.Enumerable
+                              .Where(a => a.IsOn && a.Blueprint.Group == ActivatableAbilityGroupExtension.Familiar.ToActivatableAbilityGroup()).FirstOrDefault();
+                if (ability != null)
+                {
+                    ability.IsOn = false;
+                }
+                /*var buff = ability?.Blueprint?.Buff;
+                if (buff != null)
+                {
+                    this.Owner.Buffs?.GetBuff(buff)?.Remove();
+                }*/
+            }
+        }
+    }
+
+
+    public class RestrictionCanUseFamiliarFreeCast : ActivatableAbilityRestriction
+    {
+        public bool Not;
+
+        public override bool IsAvailable()
+        {
+            return this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().canBeUsed() != Not;
+        }
+    }
+
+    public class ActivateFamiliarFreeCast : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().prepare();
+        }
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartFamiliarFreeItemUse>().unprepare();
+        }
+    }
+
 
 
 

@@ -208,6 +208,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixFeatsRequirements();
                     CallOfTheWild.Rebalance.createAidAnother();
                     CallOfTheWild.Rebalance.fixFeyStalkerSummonBuff();
+                    CallOfTheWild.Rebalance.fixBeltsOfPerfectComponents();
                     if (settings.secondary_rake_attacks)
                     {
                         Main.logger.Log("Applying -5 penalty to rake attacks.");
@@ -215,7 +216,7 @@ namespace CallOfTheWild
                     }
 
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
-
+                    CallOfTheWild.Familiars.load();
                     CallOfTheWild.ChannelEnergyEngine.init();
                     if (settings.allow_spellcasting_in_elemental_form)
                     {
