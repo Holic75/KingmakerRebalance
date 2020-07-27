@@ -269,7 +269,7 @@ namespace CallOfTheWild
                 ability.Group = ActivatableAbilityGroup.None;
                 Helpers.SetField(ability, "m_ActivateWithUnitCommand", CommandType.Standard);
                 ability.ReplaceComponent<ActivatableAbilityResourceLogic>(a => a.RequiredResource = resource);
-
+                ability.DeactivateIfCombatEnded = true;
                 spirit_ability = Common.ActivatableAbilityToFeature(ability, hide: false);
                 spirit_ability.AddComponent(Helpers.CreateAddAbilityResource(resource));
             }

@@ -402,7 +402,7 @@ namespace CallOfTheWild
             amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             amiri_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
             //amiri_class_level.Selections[0].Features[1] = NewFeats.furious_focus;
-            amiri_class_level.Skills = new StatType[] { StatType.SkillKnowledgeWorld, StatType.SkillPersuasion, StatType.SkillAthletics };
+            amiri_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillAthletics, StatType.SkillLoreNature };
             //change tristian stats
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
             tristian_companion.Strength = 10;
