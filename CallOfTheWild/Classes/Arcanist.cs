@@ -1190,7 +1190,51 @@ namespace CallOfTheWild
                                                           FeatureGroup.None,
                                                           Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(evocation_buff)),
                                                           Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(evocation_progression),
+                                                          Helpers.PrerequisiteNoFeature(Subschools.admixture));
+            return evocation_feature;
+        }
+
+
+        static BlueprintFeature createAdmixture()
+        {
+            //evocation
+            var evocation_progression = Subschools.admixture;
+            var resource = Helpers.CreateAbilityResource("AdmixtureSchoolUnderstandingBaseResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var evocation_buff = Helpers.CreateBuff("SchoolUnderstangingAdmixtureBuff",
+                                          "School Understanding (" + evocation_progression.Name + ")",
+                                          school_understanding.Description + "\n" + evocation_progression.Name + ": " + evocation_progression.Description,
+                                          "",
+                                          evocation_progression.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.IntenseSpellsForClasses>(i => i.classes = getExploitsUserArray()));
+            
+
+            var evocation_feature = Helpers.CreateFeature("AdmixtureSchoolUnderstangingFeature",
+                                                          evocation_buff.Name,
+                                                          evocation_buff.Description,
+                                                          "",
+                                                          evocation_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(createSchoolUnderstandingAbility(evocation_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(library.Get<BlueprintProgression>("f8019b7724d72a241a97157bc37f1c3b")),
                                                           Helpers.PrerequisiteNoFeature(evocation_progression));
+
+            foreach (var a in Subschools.versatile_evocation)
+            {
+                var a2 = library.CopyAndAdd(a, "SchoolUnderstanding" + a.name, "");
+                var buff2 = library.CopyAndAdd(a2.Buff, "SchoolUnderstanding" + a2.Buff.name, "");
+                buff2.ReplaceComponent<NewMechanics.MetamagicMechanics.MetamagicOnSchool>(m => m.resource = resource);
+                a2.Buff = buff2;
+                a2.ReplaceComponent<ActivatableAbilityResourceLogic>(ar => ar.RequiredResource = resource);
+                a2.AddComponent(Common.createActivatableAbilityRestrictionHasFact(evocation_buff));
+                var af = evocation_feature.GetComponent<AddFacts>();
+                af.Facts = af.Facts.AddToArray(a2);
+            }
+
             return evocation_feature;
         }
 
@@ -1263,12 +1307,70 @@ namespace CallOfTheWild
                                                           Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(transmutation_buff)),
                                                           Helpers.CreateAddAbilityResource(resource),
                                                           Helpers.PrerequisiteNoFeature(transutation_progression),
+                                                          Helpers.PrerequisiteNoFeature(Subschools.enhancement),
                                                           Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }),
                                                           Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>("6aa7d3496cd68e643adcd439a7306caa"), 20, getExploitsUserArray(), false));//capstone
 
             foreach (var a in enhancement_feature.GetComponent<AddFacts>().Facts.Cast<BlueprintActivatableAbility>())
             {
                 var new_a = library.CopyAndAdd(a, "SchoolUnderstanding" + a.name, "");
+                new_a.AddComponent(Common.createActivatableAbilityRestrictionHasFact(transmutation_buff));
+                transmutation_feature.AddComponent(Helpers.CreateAddFact(new_a));
+            }
+
+            return transmutation_feature;
+        }
+
+
+        static BlueprintFeature createEnhancement()
+        {
+            //transmutation
+            var transutation_progression = Subschools.enhancement;
+            var resource = Helpers.CreateAbilityResource("EnhancementSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd(Subschools.augment, "ShoolUndersatandingEnhancementAugmentBAseAbility", "");
+
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            var enhancement_feature = library.Get<BlueprintFeature>("93919f8ce64dc5a4cbf058a486a44a1b");
+
+            var transmutation_buff = Helpers.CreateBuff("SchoolUnderstangingEnhancementBuff",
+                                                          "School Understanding (" + transutation_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + transutation_progression.Name + ": " + transutation_progression.Description,
+                                                          "",
+                                                          transutation_progression.Icon,
+                                                          null);
+
+            base_ability.ReplaceComponent<AbilityVariants>(a =>
+            {
+                var abilities = new List<BlueprintAbility>();
+                foreach (var v in a.Variants)
+                {
+                    var a2 = library.CopyAndAdd(v, "SchoolUnderstanding" + v.name, "");
+                    a2.ReplaceComponent<AbilityResourceLogic>(ar => ar.RequiredResource = resource);
+                    a2.AddComponent(Common.createAbilityCasterHasFacts(transmutation_buff));
+                    a2.Parent = base_ability;
+                    abilities.Add(a2);
+                }
+                a.Variants = abilities.ToArray();
+            }
+            );
+
+
+            var transmutation_feature = Helpers.CreateFeature("EnhancementSchoolUnderstangingFeature",
+                                                          transmutation_buff.Name,
+                                                          transmutation_buff.Description,
+                                                          "",
+                                                          transmutation_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(transmutation_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(library.Get<BlueprintProgression>("b6a604dab356ac34788abf4ad79449ec")),
+                                                          Helpers.PrerequisiteNoFeature(Subschools.enhancement),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }),
+                                                          Helpers.CreateAddFeatureOnClassLevel(library.Get<BlueprintFeature>("6aa7d3496cd68e643adcd439a7306caa"), 20, getExploitsUserArray(), false));//capstone
+
+            foreach (var a in enhancement_feature.GetComponent<AddFacts>().Facts.Cast<BlueprintActivatableAbility>())
+            {
+                var new_a = library.CopyAndAdd(a, "SchoolUnderstandingEnhancement" + a.name, "");
                 new_a.AddComponent(Common.createActivatableAbilityRestrictionHasFact(transmutation_buff));
                 transmutation_feature.AddComponent(Helpers.CreateAddFact(new_a));
             }
@@ -1336,11 +1438,62 @@ namespace CallOfTheWild
                                                           Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(conjuration_buff)),
                                                           Helpers.CreateAddAbilityResource(resource),
                                                           Helpers.PrerequisiteNoFeature(conjuration_progression),
+                                                          Helpers.PrerequisiteNoFeature(Subschools.teleportation),
                                                           Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
 
             return conjuration_feature;
         }
 
+
+        static BlueprintFeature createTeleportation()
+        {
+            //conjuration
+            var conjuration_progression = Subschools.teleportation;
+            var resource = Helpers.CreateAbilityResource("TeleportationSchoolUnderstandingBaseResource", "", "", "", null);
+
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var conjuration_buff = Helpers.CreateBuff("SchoolUnderstangingTeleportationBuff",
+                                                          "School Understanding (" + conjuration_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + conjuration_progression.Name + ": " + conjuration_progression.Description,
+                                                          "",
+                                                          conjuration_progression.Icon,
+                                                          null,
+                                                          Helpers.Create<NewMechanics.AddClassesLevelToSummonDuration>(a => { a.Half = true; a.CharacterClasses = getExploitsUserArray(); }));
+
+            var conjuration_feature = Helpers.CreateFeature("TeleportationSchoolUnderstangingFeature",
+                                                          conjuration_buff.Name,
+                                                          conjuration_buff.Description,
+                                                          "",
+                                                          conjuration_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(createSchoolUnderstandingAbility(conjuration_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(conjuration_progression),
+                                                          Helpers.PrerequisiteNoFeature(library.Get<BlueprintProgression>("567801abe990faf4080df566fadcd038")));
+
+            for (int i = 1; i <= 10; i++)
+            {
+                var ability = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", $"TeleprotationSchoolUnderstandingBase{i * 5}Ability", "");
+                ability.Parent = null;
+                ability.ActionType = CommandType.Swift;
+                ability.Range = AbilityRange.Custom;
+                ability.CustomRange = (i * 5).Feet();
+                ability.Type = AbilityType.Supernatural;
+
+                ability.SetNameDescription("Shift", 
+                                           "At 1st level, you can teleport to a nearby space as a swift action as if using dimension door. This movement does not provoke an attack of opportunity. You must be able to see the space that you are moving into. You cannot take other creatures with you when you use this ability (except for familiars). You can move 5 feet for every two wizard levels you possess (minimum 5 feet). You can use this ability a number of times per day equal to 3 + your Intelligence modifier.");
+                ability.AddComponent(resource.CreateResourceLogic());
+                ability.AddComponent(Common.createAbilityCasterHasFacts(conjuration_buff));
+                var feature = Common.AbilityToFeature(ability);
+                int min_level = i == 1 ? 0 : 2 * i;
+                int max_level = i == 10 ? 100 : 2 * i + 1;
+
+                conjuration_feature.AddComponent(Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = min_level; a.max_level = max_level; a.classes = getExploitsUserArray(); a.Feature = feature; }));
+            }
+
+            return conjuration_feature;
+        }
 
         static BlueprintFeature createEnchantment()
         {
@@ -1447,6 +1600,46 @@ namespace CallOfTheWild
                                                           Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(divination_buff)),
                                                           Helpers.CreateAddAbilityResource(resource),
                                                           Helpers.PrerequisiteNoFeature(divination_progression),
+                                                          Helpers.PrerequisiteNoFeature(Subschools.prophecy),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+
+            return divination_feature;
+        }
+
+
+        static BlueprintFeature createProphecy()
+        {
+            //divination
+            var divination_progression = Subschools.prophecy;
+            var resource = Helpers.CreateAbilityResource("ProphecySchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd<BlueprintAbility>("0997652c1d8eb164caae8a462401a25d", "SchoolUnderstandingProphecySchoolBaseAbility", ""); //diviner's fortune
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var resource2 = Helpers.CreateAbilityResource("ProphecySchoolUnderstanding2BaseResource", "", "", "", null);
+            var base_ability2 = library.CopyAndAdd<BlueprintAbility>(Subschools.inspiring_prediciton_ability, "SchoolUnderstandingProphecySchoolBase2Ability", ""); 
+            base_ability2.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource2);
+            resource2.SetIncreasedByStat(3, StatType.Charisma);
+
+            var divination_buff = Helpers.CreateBuff("SchoolUnderstangingProphecyBuff",
+                                                          "School Understanding (" + divination_progression.Name + ")",
+                                                          school_understanding.Description + "\n" + divination_progression.Name + ": " + divination_progression.Description,
+                                                          "",
+                                                          divination_progression.Icon,
+                                                          null);
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(divination_buff));
+
+            var divination_feature = Helpers.CreateFeature("ProphecySchoolUnderstangingFeature",
+                                                          divination_buff.Name,
+                                                          divination_buff.Description,
+                                                          "",
+                                                          divination_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, base_ability2, createSchoolUnderstandingAbility(divination_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.CreateAddAbilityResource(resource2),
+                                                          Helpers.PrerequisiteNoFeature(library.Get<BlueprintProgression>("d7d18ce5c24bd324d96173fdc3309646")),
+                                                          Helpers.PrerequisiteNoFeature(Subschools.prophecy),
                                                           Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
 
             return divination_feature;
@@ -1473,6 +1666,10 @@ namespace CallOfTheWild
                 createTransmutation(),
                 createNecromancy(),
                 createIllusion(),
+                createAdmixture(),
+                createTeleportation(),
+                createEnhancement(),
+                createProphecy()
             };
 
             arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(school_understanding);

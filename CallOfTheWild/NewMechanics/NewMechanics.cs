@@ -72,6 +72,7 @@ using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using System.Text;
 using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.Blueprints.Items.Armors;
+using Kingmaker.AreaLogic.SummonPool;
 
 namespace CallOfTheWild
 {
@@ -4526,6 +4527,32 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextActionClearSummonPoolFromCaster : ContextAction
+        {
+            public BlueprintSummonPool SummonPool;
+
+            public override string GetCaption()
+            {
+                return "Clear Summon Pool from caster";
+            }
+
+            public override void RunAction()
+            {
+                ISummonPool pool = Game.Instance.SummonPools.GetPool(this.SummonPool);
+                if (pool == null)
+                    return;
+                foreach (UnitEntityData unit in pool.Units)
+                {
+                    if (unit.Ensure<UnitPartSummonedMonster>().Summoner == this.Context.MaybeCaster)
+                    {
+                        unit.Descriptor.RemoveFact((BlueprintUnitFact)Game.Instance.BlueprintRoot.SystemMechanics.SummonedUnitBuff);
+                    }
+                }
+            }
+        }
+
+
+
         [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityShowIfCasterHasResource : BlueprintComponent, IAbilityVisibilityProvider
         {
@@ -8834,6 +8861,31 @@ namespace CallOfTheWild
             protected override bool CheckCondition()
             {
                 return GameHelper.GetSummonPool(this.SummonPool).Count > 0;
+            }
+        }
+
+        public class HasUnitsInSummonPoolFromCaster : ContextCondition
+        {
+            public BlueprintSummonPool SummonPool;
+
+            protected override string GetConditionCaption()
+            {
+                return "";
+            }
+
+            protected override bool CheckCondition()
+            {
+                ISummonPool pool = Game.Instance.SummonPools.GetPool(this.SummonPool);
+                if (pool == null)
+                    return false;
+                foreach (UnitEntityData unit in pool.Units)
+                {
+                    if (unit.Ensure<UnitPartSummonedMonster>().Summoner == this.Context.MaybeCaster)
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
 

@@ -282,6 +282,7 @@ namespace CallOfTheWild.Archetypes
             var cleric_deity = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
 
             var pharasma = library.Get<BlueprintFeature>("458750bc214ab2e44abdeae404ab22e9");
+            var norgorber = library.Get<BlueprintFeature>("805b6bdc8c96f4749afc687a003f9628");
             var allow_death = library.Get<BlueprintFeature>("a099afe1b0b32554199b230699a69525");
 
             undeath_subdomain = library.CopyAndAdd<BlueprintProgression>("710d8c959e7036448b473ffa613cdeba", "UndeadSubdomain", "");
@@ -338,7 +339,7 @@ namespace CallOfTheWild.Archetypes
             };
             undeath_subdomain.UIGroups = Helpers.CreateUIGroups(base_feature, undeath_subdomain.UIGroups[0].Features[1]);
             undeath_subdomain.ReplaceComponent<LearnSpellList>(a => a.SpellList = spell_list);
-            undeath_subdomain.AddComponent(Helpers.PrerequisiteNoFeature(pharasma));
+            undeath_subdomain.AddComponents(Helpers.PrerequisiteNoFeature(pharasma), Helpers.PrerequisiteNoFeature(norgorber));
             undeath_subdomain.SetNameDescriptionIcon("Undead Subdomain",
                                                      "You can grant the living some undead traits with a touch, and find comfort in the presence of the dead.\nDeath’s Kiss: You can cause a creature to take on some of the traits of the undead with a melee touch attack. Touched creatures are treated as undead for the purposes of effects that heal or cause damage based on positive and negative energy. This effect lasts for a number of rounds equal to 1/2 your cleric level (minimum 1). It does not apply to the Turn Undead or Command Undead feats. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\nDeath's Embrace: At 8th level, you heal damage instead of taking damage from channeled negative energy. If the channeled negative energy targets undead, you heal hit points just like undead in the area.\nIf you are undead, then you instead do not take damage from positive energy.\nDomain Spells: Cause Fear, Ghoul touch, Bestow Curse, Enervation, Slay Living, Circle of Death, Destruction, Horrid Wilting, Energy Drain.",
                                                      Helpers.GetIcon("4b76d32feb089ad4499c3a1ce8e1ac27")); //animate dead icon
@@ -347,7 +348,7 @@ namespace CallOfTheWild.Archetypes
             var undeath_subdomain_blight = library.CopyAndAdd(undeath_subdomain, "UndeadSubdomainProgressionBligthDruid", "");
             undeath_subdomain_blight.RemoveComponents<PrerequisiteFeature>();
             undeath_subdomain_blight.RemoveComponents<PrerequisiteNoFeature>();
-            undeath_subdomain_blight.AddComponent(Helpers.PrerequisiteNoFeature(pharasma));
+            undeath_subdomain_blight.AddComponents(Helpers.PrerequisiteNoFeature(pharasma));
             undeath_subdomain_secondary.RemoveComponents<LearnSpellList>();
             undeath_subdomain.AddComponent(Helpers.PrerequisiteNoFeature(undeath_subdomain_secondary));
             undeath_subdomain_secondary.AddComponent(Helpers.PrerequisiteNoFeature(undeath_subdomain));
@@ -390,7 +391,7 @@ namespace CallOfTheWild.Archetypes
 
             foreach (var f in cleric_deity.AllFeatures)
             {
-                if (f != pharasma && f.GetComponent<AddFacts>().Facts.Contains(allow_death))
+                if (f != pharasma && f != norgorber && f.GetComponent<AddFacts>().Facts.Contains(allow_death))
                 {
                     deity_selection.AllFeatures = deity_selection.AllFeatures.AddToArray(f);
                 }

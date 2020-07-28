@@ -74,11 +74,15 @@ namespace CallOfTheWild
         static public BlueprintItemEquipmentUsable rod_of_abrupt_hexes;
         static public BlueprintItemEquipmentUsable rod_of_voracious_hexes;
 
+        static public BlueprintFeatureSelection hex_strike;
+        static public BlueprintAbility hex_strike_base;
+
         public static void Initialize()
         {
             createHexVulnerabilitySpellAndAccursedHexFeat();
             createAmplifiedHex();
             createSplitHex();
+            createHexStrike();
             
             createRods();
             Main.logger.Log("Hex Engine test mode: " + test_mode.ToString());
@@ -157,14 +161,6 @@ namespace CallOfTheWild
             hex_secondary_stat = secondary_scaling_stat;
             foreach (var c in hex_classes)
             {
-                if (archetype == null || archetype.GetParentClass() != c)
-                {
-                    amplified_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
-                }
-                else
-                {
-                    amplified_hex_feat.AddComponent(Common.createPrerequisiteArchetypeLevel(c, archetype, 1, true));
-                }
                 var conversion_feature = Helpers.CreateFeature(c.name + "AmblifiedHexSpontaneousConversion",
                                                                "",
                                                                "",
@@ -180,11 +176,16 @@ namespace CallOfTheWild
                 if (archetype == null || archetype.GetParentClass() != c)
                 {
                     accursed_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
+                    hex_strike.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
+                    amplified_hex_feat.AddComponent(Helpers.PrerequisiteClassLevel(c, 1, true));
                 }
                 else
                 {
                     accursed_hex_feat.AddComponent(Common.createPrerequisiteArchetypeLevel(c, archetype, 1, true));
+                    amplified_hex_feat.AddComponent(Common.createPrerequisiteArchetypeLevel(c, archetype, 1, true));
+                    hex_strike.AddComponent(Common.createPrerequisiteArchetypeLevel(c, archetype, 1, true));
                 }
+
             }
             //manually add hex_vilneraility to all necessary spellbooks
             //and create scroll once
@@ -443,6 +444,7 @@ namespace CallOfTheWild
             addToSplitHex(hex_ability, slumber_hex, true);
             addToRodOfAbruptHexes(hex_ability);
             addToRodOfInterminableHexes(hex_ability);
+            addToHexStrike(slumber_hex, hex_ability);
             return slumber_hex;
         }
 
@@ -489,6 +491,7 @@ namespace CallOfTheWild
             addToSplitHex(hex_ability, misfortune_hex, true);
             addToRodOfAbruptHexes(hex_ability);
             addToRodOfInterminableHexes(hex_ability);
+            addToHexStrike(misfortune_hex, hex_ability);
             return misfortune_hex;
         }
 
@@ -684,6 +687,7 @@ namespace CallOfTheWild
 
             evil_eye.AddComponent(Helpers.CreateAddFact(evil_eye_ability));
             evil_eye.Ranks = 1;
+            addToHexStrike(evil_eye, evil_eye_variants);
             return evil_eye;
         }
 
@@ -790,6 +794,7 @@ namespace CallOfTheWild
             addToAmplifyHex(hex_ability);
             addToSplitHex(hex_ability, summer_heat, true);
             addToRodOfAbruptHexes(hex_ability);
+            addToHexStrike(summer_heat, hex_ability);
             return summer_heat;
         }
 
@@ -1016,6 +1021,7 @@ namespace CallOfTheWild
             addMajorHexPrerequisite(agony);
             addToAmplifyHex(hex_ability);
             addToSplitMajorHex(hex_ability, agony, true);
+            addToHexStrike(agony, hex_ability);
             return agony;
         }
 
@@ -1082,6 +1088,7 @@ namespace CallOfTheWild
             hex.Ranks = 1;
             addToAmplifyHex(hex_ability);
             addToSplitMajorHex(hex_ability, hex, true);
+            addToHexStrike(hex, hex_ability);
             return hex;
         }
 
@@ -1223,6 +1230,7 @@ namespace CallOfTheWild
             addMajorHexPrerequisite(harrowing_curse);
             addToAmplifyHex(hex_ability);
             addToSplitMajorHex(hex_ability, harrowing_curse, true);
+            addToHexStrike(harrowing_curse, hex_ability);
             return harrowing_curse;
         }
 
@@ -1290,6 +1298,7 @@ namespace CallOfTheWild
             addMajorHexPrerequisite(retribution);
             addToAmplifyHex(ability);
             addToSplitMajorHex(ability, retribution, true);
+            addToHexStrike(retribution, ability);
             return retribution;
         }
 
@@ -1376,6 +1385,7 @@ namespace CallOfTheWild
             addMajorHexPrerequisite(ice_tomb);
             addToAmplifyHex(hex_ability);
             addToSplitMajorHex(hex_ability, ice_tomb, true);
+            addToHexStrike(ice_tomb, hex_ability);
             return ice_tomb;
         }
 
@@ -1481,6 +1491,7 @@ namespace CallOfTheWild
             animal_servant.Ranks = 1;
             addGrandHexPrerequisite(animal_servant);
             addToAmplifyHex(hex_ability);
+            addToHexStrike(animal_servant, hex_ability);
             return animal_servant;
         }
 
@@ -1544,6 +1555,7 @@ namespace CallOfTheWild
             death_curse.Ranks = 1;
             addGrandHexPrerequisite(death_curse);
             addToAmplifyHex(hex_ability);
+            addToHexStrike(death_curse, hex_ability);
             return death_curse;
         }
 
@@ -1577,6 +1589,7 @@ namespace CallOfTheWild
             lay_to_rest.Ranks = 1;
             addGrandHexPrerequisite(lay_to_rest);
             addToAmplifyHex(hex_ability);
+            addToHexStrike(lay_to_rest, hex_ability);
             return lay_to_rest;
         }
 
@@ -1666,6 +1679,7 @@ namespace CallOfTheWild
             eternal_slumber.Ranks = 1;
             addGrandHexPrerequisite(eternal_slumber);
             addToAmplifyHex(hex_ability);
+            addToHexStrike(eternal_slumber, hex_ability);
             return eternal_slumber;
         }
 
@@ -1861,6 +1875,105 @@ namespace CallOfTheWild
                                                       accursed_hex_buff.Icon,
                                                       FeatureGroup.Feat);
             library.AddFeats(accursed_hex_feat);
+        }
+
+
+        static void createHexStrike()
+        {
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+            hex_strike = Helpers.CreateFeatureSelection("HexStrikeFeatureSelection",
+                                               "Hex Strike",
+                                               "When you gain this feat, choose one hex that you can use to affect no more than one opponent. If you make a successful unarmed strike against an opponent, in addition to dealing your unarmed strike damage, you can use a swift action to deliver the effects of the chosen hex to that opponent. Doing so does not provoke attacks of opportunity.\n"
+                                               + "Special: You can take this feat multiple times. Each time you take it, you apply it to a different qualifying hex.",
+                                               "",
+                                               LoadIcons.Image2Sprite.Create(@"FeatIcons/HexStrike.png"),
+                                               FeatureGroup.Feat,
+                                               Helpers.PrerequisiteFeature(improved_unarmed_strike));
+
+            var release_buff = Helpers.CreateBuff("HexStrikeToggleBuff",
+                                      hex_strike.Name + ": Release",
+                                      hex_strike.Description,
+                                      "",
+                                      hex_strike.Icon,
+                                      null,
+                                      Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = hex_strike));
+
+            var hex_strike_activatable_ability = Helpers.CreateActivatableAbility("HexStrikeToggleAbility",
+                                                                             hex_strike.Name + ": Release",
+                                                                             hex_strike.Description,
+                                                                             "",
+                                                                             hex_strike.Icon,
+                                                                             release_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = hex_strike));
+            hex_strike_activatable_ability.DeactivateImmediately = true;
+
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = hex_strike);
+
+            var release_on_condition = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(release_buff),
+                                                                                 Helpers.Create<TurnActionMechanics.ContextConditionHasAction>(c => {c.has_swift = true; c.check_caster = true; })
+                                                                                },
+                                                     new GameAction[]{release_action,
+                                                                                  Helpers.Create<TurnActionMechanics.ConsumeAction>(c => {c.consume_swift = true; c.from_caster = true; })
+                                                                     }
+                                                     );
+            var attack_action_prototype = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_on_condition));
+            var on_attack_action = FeralCombatTraining.AddInitiatorAttackWithWeaponTriggerOrFeralTraining.fromAddInitiatorAttackWithWeaponTrigger(attack_action_prototype, allow_ki_focus: false);
+
+            hex_strike_base = Helpers.CreateAbility("HexStrikeAbilityBase",
+                                                        hex_strike.Name,
+                                                        hex_strike.Description,
+                                                        "",
+                                                        hex_strike.Icon,
+                                                        AbilityType.Special,
+                                                        CommandType.Free,
+                                                        AbilityRange.Personal,
+                                                        "",
+                                                        "");
+
+
+            hex_strike_base.ComponentsArray = hex_strike.ComponentsArray.AddToArray(Helpers.CreateAbilityVariants(hex_strike_base));
+            hex_strike_base.setMiscAbilityParametersSelfOnly();
+            hex_strike.AddComponents(on_attack_action,
+                         Helpers.CreateAddFacts(hex_strike_base, hex_strike_activatable_ability));
+
+            library.AddFeats(hex_strike);
+            library.AddCombatFeats(hex_strike);
+            hex_strike.Groups = hex_strike.Groups.AddToArray(FeatureGroup.CombatFeat);
+        }
+
+
+        static void addToHexStrike(BlueprintFeature base_feature, params BlueprintAbility[] hexes)
+        {
+            var feature = Helpers.CreateFeature(base_feature.name + "HexStrikeFeature" ,
+                                                "Hex Strike (" + base_feature.Name + ")",
+                                                hex_strike.Description,
+                                                "",
+                                                base_feature.Icon,
+                                                FeatureGroup.Feat);
+            feature.Groups = feature.Groups.AddToArray(FeatureGroup.CombatFeat);
+            hex_strike.AllFeatures = hex_strike.AllFeatures.AddToArray(hex_strike);
+            var variants = hex_strike_base.GetComponent<AbilityVariants>();
+
+            foreach (var h in hexes)
+            {
+                var ability = Helpers.CreateAbility(h.name + "HexStikeAbility",
+                                                    "Hex Strike (" + h.Name + ")",
+                                                     h.Description,
+                                                     "",
+                                                     h.Icon,
+                                                     AbilityType.Special,
+                                                     CommandType.Free,
+                                                     AbilityRange.Personal,
+                                                     "",
+                                                     "",
+                                                     Helpers.CreateRunActions(Helpers.Create<SpellManipulationMechanics.AbilityStoreInFact>(a => { a.fact = hex_strike; a.ability = h; })),
+                                                     Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = feature)
+                                                     );
+                ability.setMiscAbilityParametersSelfOnly();
+            }
         }
 
 

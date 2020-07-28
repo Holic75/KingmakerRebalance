@@ -18,6 +18,8 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
@@ -797,4 +799,77 @@ namespace CallOfTheWild.TurnActionMechanics
         }
     }
 
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ConsumeAction : ContextAction
+    {
+        public bool consume_swift;
+        public bool consume_move;
+        public bool consume_standard;
+        public bool from_caster = true;
+
+        public override string GetCaption()
+        {
+            return "Consume specified action";
+        }
+
+        public override void RunAction()
+        {
+            var unit = from_caster ? this.Context.MaybeCaster : this.Target.Unit;
+            if (unit == null)
+            {
+                return;
+            }
+            if (consume_swift && unit.CombatState.Cooldown.SwiftAction == 0.0f)
+            {
+                unit.CombatState.Cooldown.SwiftAction += 6.0f;
+            }
+            if (consume_move && unit.CombatState.Cooldown.MoveAction <= 3.01f)
+            {
+                unit.CombatState.Cooldown.MoveAction += 3.0f;
+            }
+            if (consume_standard && unit.CombatState.Cooldown.StandardAction == 0.0f)
+            {
+                unit.CombatState.Cooldown.StandardAction = 6.0f;
+            }
+        }
+    }
+
+
+    public class ContextConditionHasAction : ContextCondition
+    {
+        public bool has_swift = false;
+        public bool has_standard = false;
+        public bool has_move = false;
+        public bool check_caster = true;
+
+        protected override string GetConditionCaption()
+        {
+            return "Has specified action";
+        }
+
+        protected override bool CheckCondition()
+        {
+            var unit = check_caster ?  this.Context.MaybeCaster : this.Target.Unit;
+            if (unit == null)
+            {
+                return false;
+            }
+
+            if (has_swift && unit.CombatState.Cooldown.SwiftAction > 0.0f)
+            {
+                return false;
+            }
+            if (has_move && unit.CombatState.Cooldown.MoveAction > 3.01f)
+            {
+                return false;
+            }
+            if (has_standard && unit.CombatState.Cooldown.StandardAction > 0.0f)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
 }

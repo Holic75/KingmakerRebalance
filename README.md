@@ -131,7 +131,8 @@ New feats:
 - Ability Focus: Toxic Secretion,
 - Skin and Scales,
 - Crusader's Flurry,
-- Improved Combat Expertise.
+- Improved Combat Expertise,
+- Hex Strike.
 
 New rage powers:
 - Terrifying Howl
@@ -186,7 +187,8 @@ Subdomains:
 New Wild Talents:
 - Blade Rush,
 - Kinetic Whip,
-- Whip Hurricane.
+- Whip Hurricane,
+- Spark of Life.
 
 
 New Alchemist Discoveries:
@@ -222,7 +224,7 @@ New Rogue Talents:
 
 
 New Slayer Talents:
-- Assasinate,
+- Assassinate,
 - Armored Marauder,
 - Armored Swiftness,
 - Reaping Stalker.
@@ -348,6 +350,7 @@ New spells:
 - Virtuoso Performance,
 - Wall of Fire,
 - Wall of Blindness,
+- Fickle Winds,
 - Overland Flight,
 - Tidal Surge,
 - Suffocate,

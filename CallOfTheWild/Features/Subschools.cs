@@ -2,12 +2,15 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
@@ -27,19 +30,23 @@ namespace CallOfTheWild
         static public BlueprintProgression teleportation;
         static public BlueprintProgression undead;
         static public BlueprintProgression phantasm;
-        static public BlueprintProgression manipulation;
+        //static public BlueprintProgression manipulation;
         static public BlueprintProgression prophecy;
-        static public BlueprintProgression banishment;
+        //static public BlueprintProgression banishment;
         static public BlueprintProgression enhancement;
 
         static public BlueprintProgression evocation;
         static public BlueprintProgression transmutation;
         static public BlueprintProgression divination;
         static public BlueprintProgression conjuration;
-        static public BlueprintProgression enchantment;
+        //static public BlueprintProgression enchantment;
         static public BlueprintProgression necromancy;
-        static public BlueprintProgression abjuration;
+        //static public BlueprintProgression abjuration;
         static public BlueprintProgression illusion;
+
+        static public BlueprintAbility augment;
+        static public BlueprintAbility inspiring_prediciton_ability;
+        static public List<BlueprintActivatableAbility> versatile_evocation = new List<BlueprintActivatableAbility>();
 
         static public BlueprintFeatureSelection school_selection = library.Get<BlueprintFeatureSelection>("5f838049069f1ac4d804ce0862ab5110");
 
@@ -56,8 +63,109 @@ namespace CallOfTheWild
             createAdmixture();
             createTeleportation();
             createEnhancement();
+            createProphecy();
         }
 
+
+        static void createProphecy()
+        {
+            var description = "A number of times per day equal to 3 + your Intelligence modifier, you can predict an ally’s success, bolstering others’ resolve. As a swift action, you can shout an inspiring prediction, granting each ally within 50 feet who can hear you a +4 luck bonus on her next attack roll, saving throw, or skill check.";
+            var description2 = "A number of times per day equal to your Intelligence modifier, you can publicly declare that your next spell is guided by prophecy. When you do, the next spell you cast has a 20% chance of fizzling (1–20 on a d%). If the spell does not fail, treat the spell as if it had been modified by the Empower Spell feat, even if you do not have that feat. At 12th level, the chance that the spell fizzles is reduced to 15% (1–15 on a d%). At 16th level, the chance is reduced to 10% (1–10 on a d%).";
+            
+            divination = library.Get<BlueprintProgression>("d7d18ce5c24bd324d96173fdc3309646");
+            var base_feature = library.Get<BlueprintFeature>("54d21b3221ea82a4d90d5a91b7872f3d");
+
+            var resource = Helpers.CreateAbilityResource("ProphecySchoolBaseAbilityResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Intelligence);
+
+            var lesser_buff = Helpers.CreateBuff("ProphecySchoolBaseBuff",
+                                                 "Inspiring Prediction",
+                                                 description,
+                                                 "",
+                                                 Helpers.GetIcon("ec931b882e806ce42906597e5585c13f"), //guidance
+                                                 null,
+                                                 Helpers.Create<BuffAllSavesBonus>(b => { b.Descriptor = ModifierDescriptor.Luck; b.Value = 4; }),
+                                                 Helpers.Create<BuffAllSkillsBonus>(b => { b.Descriptor = ModifierDescriptor.Luck; b.Value = 4; }),
+                                                 Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.Luck));
+            var remove_self = Helpers.CreateActionList(Common.createContextActionRemoveBuff(lesser_buff));
+            lesser_buff.AddComponents(Common.createAddInitiatorAttackRollTrigger2(remove_self, only_hit: false, on_initiator: true),
+                                      Helpers.Create<AddInitiatorSkillRollTrigger>(a => a.Action = remove_self),
+                                      Helpers.Create<AddInitiatorPartySkillRollTrigger>(a => a.Action = remove_self),
+                                      Helpers.Create<AddInitiatorSavingThrowTrigger>(a => a.Action = remove_self)
+                                      );
+
+            var lesser_ability = Helpers.CreateAbility("ProphecySchoolBaseAbility",
+                                                lesser_buff.Name,
+                                                lesser_buff.Description,
+                                                "",
+                                                lesser_buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(lesser_buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                Helpers.CreateAbilityTargetsAround(30.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Ally, spreadSpeed: 17.Feet()),
+                                                Common.createAbilitySpawnFxTime("d119d19888a8f964b8acc5dfce6ea9e9", AbilitySpawnFxTime.OnStart),
+                                                resource.CreateResourceLogic()
+                                                );
+            lesser_ability.setMiscAbilityParametersSelfOnly();
+            inspiring_prediciton_ability = lesser_ability;
+            var inspiring_predicition_feature = Helpers.CreateFeature("ProphecySchoolSchoolBaseFeature",
+                                                      "Focused School — Prophecy",
+                                                      "Diviners are masters of remote viewing, prophecies, and using magic to explore the world.\n"
+                                                      + $"Inspiring Prediction: {description}\n"
+                                                      + "Diviner's Fortune: When you activate this school power, you can touch any creature as a standard action to give it an insight bonus on all of its attack rolls, skill checks, ability checks, and saving throws equal to 1/2 your wizard level (minimum +1) for 1 round. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\n"
+                                                      + $"In Accordance with the Prophecy: {description2}",
+                                                      "",
+                                                      lesser_ability.Icon,
+                                                      FeatureGroup.None,
+                                                      base_feature.ComponentsArray.Take(4).ToArray()
+                                                      );
+            inspiring_predicition_feature.AddComponents(resource.CreateAddAbilityResource(), Helpers.CreateAddFacts(lesser_ability));
+
+
+            var resource2 = Helpers.CreateAbilityResource("ProphecySchoolGreaterAbilityResource", "", "", "", null);
+            resource2.SetIncreasedByStat(0, StatType.Intelligence);
+
+            var greater_buff = Helpers.CreateBuff("ProphecySchoolGreaterBuff",
+                                     "In Accordance with the Prophecy",
+                                     description2,
+                                     "",
+                                     Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"), //divine power
+                                     null,
+                                     Helpers.Create<MetamagicOnNextSpell>(m => m.Metamagic = Metamagic.Empower),
+                                     Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWizardArray(), progression: ContextRankProgression.Custom,
+                                                                     customProgression: new (int, int)[] { (11, 20), (15, 15), (20, 10) })
+                                     );
+
+            var greater_ability = Helpers.CreateAbility("ProphecySchoolGreaterAbility",
+                                                        greater_buff.Name,
+                                                        greater_buff.Description,
+                                                        "",
+                                                        greater_buff.Icon,
+                                                        AbilityType.Supernatural,
+                                                        CommandType.Free,
+                                                        AbilityRange.Personal,
+                                                        Helpers.oneRoundDuration,
+                                                        "",
+                                                        Helpers.CreateRunActions(Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                        resource2.CreateResourceLogic()
+                                                        );
+            greater_ability.setMiscAbilityParametersSelfOnly();
+            var greater_feature = Common.AbilityToFeature(greater_ability, false);
+            greater_feature.AddComponent(resource2.CreateAddAbilityResource());
+
+            prophecy = library.CopyAndAdd(divination, "SpecialisationSchoolProphecyProgression", "");
+            prophecy.SetNameDescription(inspiring_predicition_feature);
+            prophecy.LevelEntries = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, inspiring_predicition_feature,  opposition_school_selection, opposition_school_selection),
+                Helpers.LevelEntry(8, greater_feature),
+            };
+            addToSchoolSelection(prophecy, divination);
+        }
 
         static void createEnhancement()
         {
@@ -88,7 +196,7 @@ namespace CallOfTheWild
             var description = "As a standard action, you can touch a creature and grant it either a +2 enhancement bonus to a single ability score of your choice or a +1 bonus to natural armor that stacks with any natural armor the creature might possess. At 10th level, the enhancement bonus to one ability score increases to +4. The natural armor bonus increases by +1 for every five wizard levels you possess, to a maximum of +5 at 20th level. This augmentation lasts a number of rounds equal to 1/2 your wizard level (minimum 1 round). You can use this ability a number of times per day equal to 3 + your Intelligence modifier.";
             var description2 = "At 8th level, as a swift action you can grant yourself an enhancement bonus to a single ability score equal to 1/2 your wizard level (maximum +10) for one round. You may use this ability for a number of times per day equal to your wizard level.";
             var augment_feature = Helpers.CreateFeature("EnhancementSchoolSchoolBaseFeature",
-                                                      "Specialist School — Transmutation (Enhancement Subschool)",
+                                                      "Focused School — Enhancement",
                                                       "Transmuters use magic to change the world around them.\n"
                                                       +"Physical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\n"
                                                       + $"Augment: {description}\n"
@@ -154,6 +262,7 @@ namespace CallOfTheWild
 
             var base_ability = Common.createVariantWrapper("EnhancementAugmentAbilityBase", "", base_abilities.ToArray());
             base_ability.SetNameDescription("Augment", description);
+            augment = base_ability;
 
             augment_feature.AddComponent(Helpers.CreateAddFact(base_ability));
 
@@ -235,7 +344,7 @@ namespace CallOfTheWild
 
             var description = "At 1st level, you can teleport to a nearby space as a swift action as if using dimension door. This movement does not provoke an attack of opportunity. You must be able to see the space that you are moving into. You cannot take other creatures with you when you use this ability (except for familiars). You can move 5 feet for every two wizard levels you possess (minimum 5 feet). You can use this ability a number of times per day equal to 3 + your Intelligence modifier.";
             var shift_feature = Helpers.CreateFeature("TeleprotationSchoolBaseFeature",
-                                                      "Specialist School — Conjuration (Teleportation Subschool)",
+                                                      "Focused School — Teleportation",
                                                       "The conjurer focuses on the study of summoning monsters and magic alike to bend to his will.\n"
                                                       + "Summoner's Charm: Whenever you cast a conjuration (summoning) spell, increase the duration by a number of rounds equal to 1/2 your wizard level (minimum 1). This increase is not doubled by Extend Spell.\n"
                                                       + $"Shift: {description}\n"
@@ -304,7 +413,7 @@ namespace CallOfTheWild
             var description1 = "When you cast an evocation spell that does acid, cold, electricity, or fire damage, you may change the damage dealt to one of the other four energy types. This changes the descriptor of the spell to match the new energy type. Any non-damaging effects remain unchanged. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.";
             var description2 = "At 8th level, you can emit a 30-foot aura that transforms magical energy. Choose an energy type to transform it into. Any magical source of energy with a caster level equal to or less than your wizard level is altered to the chosen energy type. This includes supernatural effects from creatures with Hit Dice no greater than your caster level. For example, you could transform a white dragon’s frigid breath weapon (a supernatural ability), but not a fire elemental’s fiery touch (an extraordinary ability). If an effect lies only partially within your aura, only the portions within the aura are transformed. You can use this ability for a number of rounds per day equal to your wizard level. The rounds do not need to be consecutive.";
             var versatile_evocation_feature = Helpers.CreateFeature("VersatileEvocationFeature",
-                                                                    "Specialist School - Evocation (Admixture Subschool)",
+                                                                    "Focused School - Admixture",
                                                                     "Evokers revel in the raw power of magic, and can use it to create and destroy with shocking ease.\n"
                                                                     +"Intense Spells: Whenever you cast an evocation spell that deals hit point damage, add 1/2 your wizard level to the damage (minimum +1). This bonus only applies once to a spell, not once per missile or ray, and cannot be split between multiple missiles or rays. This damage is of the same type as the spell. At 20th level, whenever you cast an evocation spell, you can roll twice to penetrate a creature's spell resistance and take the better result.\n"
                                                                     + $"Versatile Evocation: {description1}\n"
@@ -344,6 +453,7 @@ namespace CallOfTheWild
                 toggle.DeactivateImmediately = true;
                 toggle.Group = ActivatableAbilityGroupExtension.VersatileEvocation.ToActivatableAbilityGroup();
                 versatile_evocation_feature.AddComponent(Helpers.CreateAddFact(toggle));
+                versatile_evocation.Add(toggle);
             }
 
 

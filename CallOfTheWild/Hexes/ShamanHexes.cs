@@ -387,6 +387,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, hampering_hex, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(hampering_hex, ability);
             return hampering_hex;
         }
 
@@ -453,6 +454,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, curse_of_suffering);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(curse_of_suffering, ability);
             return curse_of_suffering;
         }
 
@@ -562,6 +564,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, fearful_gaze, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(fearful_gaze, ability);
             return fearful_gaze;
         }
 
@@ -621,6 +624,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, bone_lock, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(bone_lock, ability);
             return bone_lock;
         }
 
@@ -744,6 +748,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, fire_nimbus, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(fire_nimbus, ability);
             return fire_nimbus;
         }
 
@@ -795,6 +800,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, flame_curse);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(flame_curse, ability);
             return flame_curse;
         }
 
@@ -912,6 +918,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, beckoning_chill);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(beckoning_chill, ability);
             return beckoning_chill;
         }
 
@@ -1170,6 +1177,7 @@ namespace CallOfTheWild
             feature.Ranks = 1;
             addToSplitHex(ability, feature, true);
             addToRodOfAbruptHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1210,6 +1218,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, feature, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1342,6 +1351,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, feature, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1484,6 +1494,7 @@ namespace CallOfTheWild
             feature.Ranks = 1;
             addToSplitHex(ability, feature, true);
             addToRodOfAbruptHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1557,6 +1568,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, feature);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1664,6 +1676,7 @@ namespace CallOfTheWild
             addToSplitHex(load_stone, feature, true);
             addToRodOfAbruptHexes(load_stone);
             addToRodOfInterminableHexes(load_stone);
+            addToHexStrike(feature, load_stone);
             return feature;
         }
 
@@ -1802,6 +1815,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, feature);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1890,6 +1904,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, feature, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 
@@ -1945,6 +1960,7 @@ namespace CallOfTheWild
             addToSplitHex(ability, feature, true);
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
+            addToHexStrike(feature, ability);
             return feature;
         }
 

@@ -3,8 +3,10 @@ using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -102,6 +104,7 @@ namespace CallOfTheWild
             createBladeRush();
             createKineticWhip();
             createWhipHurricane();
+            createSparkOfLife();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
         }
@@ -375,6 +378,150 @@ namespace CallOfTheWild
             blade_whirlwind_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
             blade_rush_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
             blade_rush_swift_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+        }
+
+
+        static void createSparkOfLife()
+        {
+            BlueprintAbility summon_elemental_medium = library.Get<BlueprintAbility>("e42b1dbff4262c6469a9ff0a6ce730e3");
+            BlueprintAbility summon_elemental_large = library.Get<BlueprintAbility>("89404dd71edc1aa42962824b44156fe5");
+            BlueprintAbility summon_elemental_huge = library.Get<BlueprintAbility>("766ec978fa993034f86a372c8eb1fc10");
+            BlueprintAbility summon_elemental_greater = library.Get<BlueprintAbility>("8eb769e3b583f594faabe1cfdb0bb696");
+            BlueprintAbility summon_elemental_elder = library.Get<BlueprintAbility>("8a7f8c1223bda1541b42fd0320cdbe2b");
+
+            var elements = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("49e55e8f24e1ad24e910fefc0258adba"), //air
+                library.Get<BlueprintFeature>("d945ac76fc6a06e44b890252824db30a"), //earth
+                library.Get<BlueprintFeature>("fbed3ca8c0d89124ebb3299ccf68c439"), //fire
+                library.Get<BlueprintFeature>("53a8c2f3543147b4d913c6de0c57c7e8"), //water
+            };
+
+            var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "SparkOfLifeSummonPool", "");
+            var spark_of_life_ability = Helpers.CreateAbility("SparkOfLifeAbilityBase",
+                                                              "Spark of Life",
+                                                              "Element universal\nType utility(Sp)\nLevel 5\n Burn 0\n"
+                                                              + "You breathe a semblance of life into elemental matter, which takes the form of a Medium elemental of any of your elements as if summoned by summon monster IV with a caster level equal to your kineticist level, except the elemental gains the mindless trait. Each round on your turn, you must take a move action to guide the elemental or it collapses back into its component element. By accepting 1 point of burn, you can pour a bit of your own sentience into the elemental, removing the mindless quality and allowing it to persist for 1 round per kineticist level without requiring any further actions. At 12th level, you can choose to form a Large elemental as if by summon monster V; at 14th level, you can choose to form a Huge elemental as if by summon monster VI; at 16th level, you can choose to form a greater elemental as if by summon monster VII; and at 18th level, you can choose to form an elder elemental as if by summon monster VIII.",
+                                                              "",
+                                                              Helpers.GetIcon("e42b1dbff4262c6469a9ff0a6ce730e3"),
+                                                              AbilityType.SpellLike,
+                                                              UnitCommand.CommandType.Standard,
+                                                              AbilityRange.Close,
+                                                              "",
+                                                              ""
+                                                              );
+            var variants = Helpers.CreateAbilityVariants(spark_of_life_ability);
+           
+            spark_of_life_ability.setMiscAbilityParametersRangedDirectional();
+
+
+            var buff = Helpers.CreateBuff("SparkOfLifeBuff",
+                                          "Spark of Life: Concentration",
+                                          spark_of_life_ability.Description,
+                                          "",
+                                          spark_of_life_ability.Icon,
+                                          null,
+                                          Helpers.CreateAddFactContextActions(newRound: new GameAction[] {Helpers.CreateConditional(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => h.SummonPool = summon_pool),
+                                                                                                                                    Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                                    ),
+                                                                                                          Helpers.Create<TurnActionMechanics.ConsumeAction>(c => {c.consume_move = true; c.from_caster = false; }),
+                                                                                                         },
+                                                                              deactivated: new GameAction[] { Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool)}
+                                                                              )
+                                          );
+
+
+
+            var names = new string[] { "Air", "Earth", "Fire", "Water" };
+
+            
+            for (int i = 0; i < 4; i++)
+            {
+                var action = Common.createRunActionsDependingOnContextValue(
+                     Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.StatBonus),
+                     summon_elemental_medium.Variants[i].GetComponent<AbilityEffectRunAction>().Actions,
+                     summon_elemental_large.Variants[i].GetComponent<AbilityEffectRunAction>().Actions,
+                     summon_elemental_huge.Variants[i].GetComponent<AbilityEffectRunAction>().Actions,
+                     summon_elemental_greater.Variants[i].GetComponent<AbilityEffectRunAction>().Actions,
+                     summon_elemental_elder.Variants[i].GetComponent<AbilityEffectRunAction>().Actions
+                     );
+                var normal_ability = Helpers.CreateAbility($"SparkOfLife{names[i]}Ability",
+                                                          $"Spark of Life ({names[i]}, Burn)",
+                                                           spark_of_life_ability.Description,
+                                                           "",
+                                                           spark_of_life_ability.Icon,
+                                                           AbilityType.SpellLike,
+                                                           UnitCommand.CommandType.Standard,
+                                                           AbilityRange.Close,
+                                                           Helpers.roundsPerLevelDuration,
+                                                           "",
+                                                           Helpers.CreateRunActions(action),
+                                                           summon_elemental_medium.Variants[i].GetComponent<SpellDescriptorComponent>(),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {kineticist_class}),
+                                                           Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = elements[i]),
+                                                           Helpers.Create<AbilityKineticist>(a => { a.Amount = 1; a.WildTalentBurnCost = 1; } ),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
+                                                                                           progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                                           startLevel: 10, stepLevel: 2, min: 1, max: 5)
+                                                           );
+                normal_ability.setMiscAbilityParametersRangedDirectional();
+                var new_duration = Helpers.CreateContextDuration(1, Kingmaker.UnitLogic.Mechanics.DurationRate.Hours);
+                var action2 = Common.createRunActionsDependingOnContextValue(
+                             Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.StatBonus),
+                             Helpers.CreateActionList((summon_elemental_medium.Variants[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).CreateCopy(sm => { sm.SummonPool = summon_pool; sm.DurationValue = new_duration; })),
+                             Helpers.CreateActionList((summon_elemental_large.Variants[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).CreateCopy(sm => { sm.SummonPool = summon_pool; sm.DurationValue = new_duration; })),
+                             Helpers.CreateActionList((summon_elemental_huge.Variants[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).CreateCopy(sm => { sm.SummonPool = summon_pool; sm.DurationValue = new_duration; })),
+                             Helpers.CreateActionList((summon_elemental_greater.Variants[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).CreateCopy(sm => { sm.SummonPool = summon_pool; sm.DurationValue = new_duration; })),
+                             Helpers.CreateActionList((summon_elemental_elder.Variants[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnMonster).CreateCopy(sm => { sm.SummonPool = summon_pool; sm.DurationValue = new_duration; }))
+                             );
+
+                var concentration_ability = Helpers.CreateAbility($"SparkOfLife{names[i]}ConcentrationAbility",
+                                          $"Spark of Life ({names[i]}, Concentration)",
+                                           spark_of_life_ability.Description,
+                                           "",
+                                           spark_of_life_ability.Icon,
+                                           AbilityType.SpellLike,
+                                           UnitCommand.CommandType.Standard,
+                                           AbilityRange.Close,
+                                           "Concentration",
+                                           "",
+                                           Helpers.CreateRunActions(action2,
+                                                                    Common.createContextActionApplyBuffToCaster(buff, new_duration, dispellable: false)
+                                                                    ),
+                                           summon_elemental_medium.Variants[i].GetComponent<SpellDescriptorComponent>(),
+                                           Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = elements[i]),
+                                           Helpers.Create<AbilityKineticist>(a => a.Amount = 1),
+                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
+                                                                           progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                           startLevel: 10, stepLevel: 2, min: 1, max: 5),
+                                           Common.createAbilityCasterHasNoFacts(buff)
+                                           );
+                concentration_ability.setMiscAbilityParametersRangedDirectional();
+                Common.setAsFullRoundAction(concentration_ability);
+                variants.Variants = variants.Variants.AddToArray(normal_ability, concentration_ability);
+                spark_of_life_ability.AddComponent(variants);
+            }
+
+            var stop_concentrating = Helpers.CreateAbility("SparkOfLifeStopConcentratingAbility",
+                                                           "Spark of life: Stop Concentrating",
+                                                           spark_of_life_ability.Description,
+                                                           "",
+                                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/Unsummon.png"),
+                                                           AbilityType.Special,
+                                                           UnitCommand.CommandType.Free,
+                                                           AbilityRange.Personal,
+                                                           "",
+                                                           "",
+                                                           Helpers.CreateRunActions(Common.createContextActionRemoveBuff(buff)),
+                                                           Common.createAbilityCasterHasFacts(buff)
+                                                           );
+            stop_concentrating.setMiscAbilityParametersSelfOnly();
+            variants.Variants = variants.Variants.AddToArray(stop_concentrating);
+
+            spark_of_life = Common.AbilityToFeature(spark_of_life_ability, false);
+            spark_of_life.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 10));
+            var wild_talent_selection = library.Get<BlueprintFeatureSelection>("5c883ae0cd6d7d5448b7a420f51f8459");
+            wild_talent_selection.AllFeatures = wild_talent_selection.AllFeatures.AddToArray(spark_of_life);
         }
 
 
