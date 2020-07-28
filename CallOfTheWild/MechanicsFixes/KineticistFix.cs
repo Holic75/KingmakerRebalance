@@ -400,7 +400,7 @@ namespace CallOfTheWild
             var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "SparkOfLifeSummonPool", "");
             var spark_of_life_ability = Helpers.CreateAbility("SparkOfLifeAbilityBase",
                                                               "Spark of Life",
-                                                              "Element universal\nType utility(Sp)\nLevel 5\n Burn 0\n"
+                                                              "Element: universal\nType: utility\nLevel: 5\nBurn: 0\n"
                                                               + "You breathe a semblance of life into elemental matter, which takes the form of a Medium elemental of any of your elements as if summoned by summon monster IV with a caster level equal to your kineticist level, except the elemental gains the mindless trait. Each round on your turn, you must take a move action to guide the elemental or it collapses back into its component element. By accepting 1 point of burn, you can pour a bit of your own sentience into the elemental, removing the mindless quality and allowing it to persist for 1 round per kineticist level without requiring any further actions. At 12th level, you can choose to form a Large elemental as if by summon monster V; at 14th level, you can choose to form a Huge elemental as if by summon monster VI; at 16th level, you can choose to form a greater elemental as if by summon monster VII; and at 18th level, you can choose to form an elder elemental as if by summon monster VIII.",
                                                               "",
                                                               Helpers.GetIcon("e42b1dbff4262c6469a9ff0a6ce730e3"),
@@ -421,10 +421,12 @@ namespace CallOfTheWild
                                           "",
                                           spark_of_life_ability.Icon,
                                           null,
-                                          Helpers.CreateAddFactContextActions(newRound: new GameAction[] {Helpers.CreateConditional(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => h.SummonPool = summon_pool),
+                                          Common.createAddCondition(UnitCondition.Staggered),
+                                          Helpers.CreateAddFactContextActions(newRound: new GameAction[] {Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => {h.SummonPool = summon_pool; h.Not = true; }),
+                                                                                                                                                                       Helpers.Create<NewMechanics.ContextConditionHasCondtionImmunity>(h => h.condition = UnitCondition.Staggered)
+                                                                                                                                                                       ),
                                                                                                                                     Helpers.Create<ContextActionRemoveSelf>()
                                                                                                                                     ),
-                                                                                                          Helpers.Create<TurnActionMechanics.ConsumeAction>(c => {c.consume_move = true; c.from_caster = false; }),
                                                                                                          },
                                                                               deactivated: new GameAction[] { Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool)}
                                                                               )
@@ -461,7 +463,7 @@ namespace CallOfTheWild
                                                            Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = elements[i]),
                                                            Helpers.Create<AbilityKineticist>(a => { a.Amount = 1; a.WildTalentBurnCost = 1; } ),
                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
-                                                                                           progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                                           progression: ContextRankProgression.DelayedStartPlusDivStep, type: Kingmaker.Enums.AbilityRankType.StatBonus,
                                                                                            startLevel: 10, stepLevel: 2, min: 1, max: 5)
                                                            );
                 normal_ability.setMiscAbilityParametersRangedDirectional();
@@ -492,7 +494,7 @@ namespace CallOfTheWild
                                            Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = elements[i]),
                                            Helpers.Create<AbilityKineticist>(a => a.Amount = 1),
                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
-                                                                           progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                           progression: ContextRankProgression.DelayedStartPlusDivStep, type: Kingmaker.Enums.AbilityRankType.StatBonus,
                                                                            startLevel: 10, stepLevel: 2, min: 1, max: 5),
                                            Common.createAbilityCasterHasNoFacts(buff)
                                            );

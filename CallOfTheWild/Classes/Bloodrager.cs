@@ -3585,7 +3585,7 @@ namespace CallOfTheWild
 
             reflexive_conduit = Helpers.CreateFeature("ReflexiveConduitFeature",
                                                       "Reflexive Conduit",
-                                                      "At 14th level, a blood conduit can discharge his power into foes that attempt bodily contact with him. While wearing light or no armor, when the blood conduit is subject to a natural weapon or unarmed attack he can release a spell channeled into his blood using spell conduit ability on his attacker.",
+                                                      "At 14th level, a blood conduit can discharge his power into foes that attempt bodily contact with him. While wearing light or no armor, when the blood conduit is subject to a natural weapon or unarmed attack he can release a spell channeled into his blood using spell conduit ability on his attacker as a swift action.",
                                                       "",
                                                       Helpers.GetIcon("3dccdf27a8209af478ac71cded18a271"), //defensive stance
                                                       FeatureGroup.None);
