@@ -204,6 +204,14 @@ namespace CallOfTheWild
                                                               c.Group = Prerequisite.GroupType.Any;
                                                           })
                                                           );
+            HexEngine.hex_strike.ReplaceComponent(HexEngine.hex_strike.GetComponent<PrerequisiteClassLevel>(),
+                                              Helpers.Create<PrerequisiteMechanics.CompoundPrerequisite>(c =>
+                                              {
+                                                  c.prerequisite1 = Helpers.PrerequisiteClassLevel(witch_class, 1);
+                                                  c.prerequisite2 = Common.prerequisiteNoArchetype(havocker);
+                                                  c.Group = Prerequisite.GroupType.Any;
+                                              })
+                                              );
             extra_hex_feat.AddComponent(Common.prerequisiteNoArchetype(havocker));
             witch_knife.AddComponent(Common.prerequisiteNoArchetype(havocker));
             patron_cl_fcb.AddComponent(Common.prerequisiteNoArchetype(havocker));

@@ -1736,23 +1736,34 @@ namespace CallOfTheWild
     }
 
 
-    //fix sneak attack to trigger only on first ray
+    //fix sneak attack to trigger only on first ray (generally one sneak attack per context)
     [Harmony12.HarmonyPatch(typeof(RulePrepareDamage))]
     [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
     class RulePrepareDamage_OnTrigger
     {
-        static public Dictionary<(AbilityData, UnitEntityData), bool> spell_target_map = new Dictionary<(AbilityData, UnitEntityData), bool>();
+        static public Dictionary<(MechanicsContext, UnitEntityData), bool> spell_target_map = new Dictionary<(MechanicsContext, UnitEntityData), bool>();
         static bool Prefix(RulePrepareDamage __instance, RulebookEventContext context)
         {
+            if (!Main.settings.one_sneak_attack_per_target_per_spell)
+            {
+                return true;
+            }
             AbilityData ability = __instance.ParentRule?.Reason?.Ability;
+            
             if (ability == null || __instance.Target == null)
             {
                 return true;
             }
 
-            if (!spell_target_map.ContainsKey((ability, __instance.Target)))
+            var context2 = __instance.ParentRule?.Reason?.Context;
+            if (context2 == null)
             {
-                spell_target_map[(ability, __instance.Target)] = true;
+                return true;
+            }
+
+            if (!spell_target_map.ContainsKey((context2, __instance.Target)))
+            {
+                spell_target_map[(context2, __instance.Target)] = true;
                 return true;
             }
            
@@ -1771,7 +1782,7 @@ namespace CallOfTheWild
             var keys = RulePrepareDamage_OnTrigger.spell_target_map.Keys.ToArray();
             foreach (var k in keys)
             {
-                if (k.Item1.Caster == __instance.Descriptor
+                if (k.Item1?.MaybeCaster == __instance
                     || k.Item2 == __instance)
                 {
                     RulePrepareDamage_OnTrigger.spell_target_map.Remove(k);

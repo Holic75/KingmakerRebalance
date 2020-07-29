@@ -50,7 +50,10 @@ namespace CallOfTheWild.SpellFailureMechanics
             if (!evt.Spell.Blueprint.IsSpell || evt.Spell.Spellbook == null || (evt.Spell.StickyTouch != null))
                 return;
 
-            if (RulebookEvent.Dice.D100 > this.chance.Calculate(this.Fact.MaybeContext))
+            int threshold = this.chance.Calculate(this.Fact.MaybeContext);
+            int d100 = RulebookEvent.Dice.D100;
+            //Main.logger.Log($"Failure: {d100}/{threshold}");
+            if (d100 > threshold)
             {
                 return;
             }

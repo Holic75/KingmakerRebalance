@@ -102,11 +102,12 @@ namespace CallOfTheWild
                                                 AbilityType.Supernatural,
                                                 CommandType.Swift,
                                                 AbilityRange.Personal,
-                                                Helpers.oneRoundDuration,
+                                                Helpers.oneMinuteDuration,
                                                 "",
-                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(lesser_buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(lesser_buff, Helpers.CreateContextDuration(10), dispellable: false)),
                                                 Helpers.CreateAbilityTargetsAround(30.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Ally, spreadSpeed: 17.Feet()),
-                                                Common.createAbilitySpawnFxTime("d119d19888a8f964b8acc5dfce6ea9e9", AbilitySpawnFxTime.OnStart),
+                                                Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba",
+                                                                                anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 resource.CreateResourceLogic()
                                                 );
             lesser_ability.setMiscAbilityParametersSelfOnly();
@@ -134,27 +135,25 @@ namespace CallOfTheWild
                                      "",
                                      Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"), //divine power
                                      null,
-                                     Helpers.Create<MetamagicOnNextSpell>(m => m.Metamagic = Metamagic.Empower),
+                                     Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(a => { a.Metamagic = Metamagic.Empower; a.resource = resource2; a.amount = 1; }),
                                      Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = Helpers.CreateContextValue(AbilityRankType.Default)),
                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWizardArray(), progression: ContextRankProgression.Custom,
                                                                      customProgression: new (int, int)[] { (11, 20), (15, 15), (20, 10) })
                                      );
 
-            var greater_ability = Helpers.CreateAbility("ProphecySchoolGreaterAbility",
+            var greater_ability = Helpers.CreateActivatableAbility("ProphecySchoolGreaterAbility",
                                                         greater_buff.Name,
                                                         greater_buff.Description,
                                                         "",
                                                         greater_buff.Icon,
-                                                        AbilityType.Supernatural,
+                                                        greater_buff,
+                                                        AbilityActivationType.Immediately,
                                                         CommandType.Free,
-                                                        AbilityRange.Personal,
-                                                        Helpers.oneRoundDuration,
-                                                        "",
-                                                        Helpers.CreateRunActions(Common.createContextActionApplyBuff(greater_buff, Helpers.CreateContextDuration(1), dispellable: false)),
-                                                        resource2.CreateResourceLogic()
+                                                        null,
+                                                        resource2.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.Never)
                                                         );
-            greater_ability.setMiscAbilityParametersSelfOnly();
-            var greater_feature = Common.AbilityToFeature(greater_ability, false);
+            greater_ability.DeactivateImmediately = true;
+            var greater_feature = Common.ActivatableAbilityToFeature(greater_ability, false);
             greater_feature.AddComponent(resource2.CreateAddAbilityResource());
 
             prophecy = library.CopyAndAdd(divination, "SpecialisationSchoolProphecyProgression", "");

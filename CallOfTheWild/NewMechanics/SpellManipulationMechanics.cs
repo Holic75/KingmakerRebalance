@@ -606,6 +606,7 @@ namespace CallOfTheWild
             public ActionList actions_on_store = new ActionList();
             public bool ignore_target_checkers = false;
             public bool always_hit = false;
+            public bool do_not_clear_spell_after_release;
             [JsonProperty]
             private AbilityData spell = null;
             [JsonProperty]
@@ -625,7 +626,10 @@ namespace CallOfTheWild
                     }
                     Rulebook.Trigger<RuleCastSpell>(rule_cast_spell);
                     Common.AddBattleLogMessage($"{this.Owner.CharacterName} released {spell.Blueprint.Name} from {this.Fact.Name}.");
-                    spell = null;
+                    if (!do_not_clear_spell_after_release)
+                    {
+                        clearSpell();
+                    }
                 }
             }
 
@@ -633,6 +637,7 @@ namespace CallOfTheWild
             public void clearSpell()
             {
                 spell = null;
+                base_spell = null;
             }
 
             public void storeSpell(AbilityData new_spell)

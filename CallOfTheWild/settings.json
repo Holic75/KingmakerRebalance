@@ -10,5 +10,6 @@
   "fix_ecclesitheurge_class": true,
   "advanced_fighter_options": true,
   "wizard_discoveries": true,
-  "secondary_rake_attacks":  true
+  "secondary_rake_attacks":  true,
+  "one_sneak_attack_per_target_per_spell" : true
 }

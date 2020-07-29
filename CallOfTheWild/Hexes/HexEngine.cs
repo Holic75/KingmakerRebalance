@@ -1888,7 +1888,8 @@ namespace CallOfTheWild
                                                "",
                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/HexStrike.png"),
                                                FeatureGroup.Feat,
-                                               Helpers.PrerequisiteFeature(improved_unarmed_strike));
+                                               Helpers.PrerequisiteFeature(improved_unarmed_strike),
+                                               Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => { f.always_hit = true; f.do_not_clear_spell_after_release = true; }));
 
             var release_buff = Helpers.CreateBuff("HexStrikeToggleBuff",
                                       hex_strike.Name + ": Release",
@@ -1939,7 +1940,6 @@ namespace CallOfTheWild
             hex_strike.AddComponents(on_attack_action,
                          Helpers.CreateAddFacts(hex_strike_base, hex_strike_activatable_ability));
 
-            library.AddFeats(hex_strike);
             library.AddCombatFeats(hex_strike);
             hex_strike.Groups = hex_strike.Groups.AddToArray(FeatureGroup.CombatFeat);
         }
@@ -1952,9 +1952,10 @@ namespace CallOfTheWild
                                                 hex_strike.Description,
                                                 "",
                                                 base_feature.Icon,
-                                                FeatureGroup.Feat);
+                                                FeatureGroup.Feat,
+                                                Helpers.PrerequisiteFeature(base_feature));
             feature.Groups = feature.Groups.AddToArray(FeatureGroup.CombatFeat);
-            hex_strike.AllFeatures = hex_strike.AllFeatures.AddToArray(hex_strike);
+            hex_strike.AllFeatures = hex_strike.AllFeatures.AddToArray(feature);
             var variants = hex_strike_base.GetComponent<AbilityVariants>();
 
             foreach (var h in hexes)
@@ -1973,7 +1974,9 @@ namespace CallOfTheWild
                                                      Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = feature)
                                                      );
                 ability.setMiscAbilityParametersSelfOnly();
+                variants.Variants = variants.Variants.AddToArray(ability);
             }
+            
         }
 
 
