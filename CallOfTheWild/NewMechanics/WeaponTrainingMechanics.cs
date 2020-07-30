@@ -166,19 +166,21 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             {
                 return;
             }*/
-
+            var has_free_secondary_hand = HoldingItemsMechanics.Helpers.hasFreeHandOrBuckler(evt.Initiator.Body?.SecondaryHand);
             if (AdvancedFighterOptions.category_finesse_training_map.ContainsKey(evt.Weapon.Blueprint.Category)
                 && this.Owner.HasFact(AdvancedFighterOptions.category_finesse_training_map[evt.Weapon.Blueprint.Category]))
             {
                 return;
             }
 
-            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == slashing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == slashing_grace).Any(p => p.Param == weapon.Blueprint.Category) 
+                && has_free_secondary_hand)
             {
                 return;
             }
 
-            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == fencing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == fencing_grace).Any(p => p.Param == weapon.Blueprint.Category) 
+                && has_free_secondary_hand)
             {
                 return;
             }
@@ -248,12 +250,15 @@ namespace CallOfTheWild.WeaponTrainingMechanics
                 return;
             }
 
-            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == slashing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            var has_free_secondary_hand = HoldingItemsMechanics.Helpers.hasFreeHandOrBuckler(evt.Initiator.Body?.SecondaryHand);
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == slashing_grace).Any(p => p.Param == weapon.Blueprint.Category)
+                && has_free_secondary_hand)
             {
                 return;
             }
 
-            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == fencing_grace).Any(p => p.Param == weapon.Blueprint.Category))
+            if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == fencing_grace).Any(p => p.Param == weapon.Blueprint.Category)
+                && has_free_secondary_hand)
             {
                 return;
             }

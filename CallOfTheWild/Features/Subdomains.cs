@@ -141,7 +141,8 @@ namespace CallOfTheWild
             storm_domain_druid.Classes = new BlueprintCharacterClass[] { druid_class };
             storm_domain_druid.ComponentsArray = new BlueprintComponent[] { Helpers.PrerequisiteNoFeature(weather_domain_domain_druid), Helpers.PrerequisiteClassLevel(druid_class, 1) };
             weather_domain_domain_druid.AddComponent(Helpers.PrerequisiteNoFeature(storm_domain_druid));
-
+            weather_domain.AddComponents(Helpers.PrerequisiteNoFeature(storm_domain), Helpers.PrerequisiteNoFeature(storm_domain_secondary));
+            weather_domain_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(storm_domain), Helpers.PrerequisiteNoFeature(storm_domain_secondary));
             var weather_domain_base = library.Get<BlueprintFeature>("1c37869ee06ca33459f16f23f4969e7d");
             weather_domain_base.SetNameDescription(library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9"));
 
@@ -241,6 +242,8 @@ namespace CallOfTheWild
             lightning_domain_druid.ComponentsArray = new BlueprintComponent[] { Helpers.PrerequisiteNoFeature(air_domain_druid), Helpers.PrerequisiteClassLevel(druid_class, 1) };                                                              
             air_domain_druid.AddComponent(Helpers.PrerequisiteNoFeature(lightning_domain_druid));
 
+            air_domain.AddComponents(Helpers.PrerequisiteNoFeature(lightning_domain), Helpers.PrerequisiteNoFeature(lightning_domain_secondary));
+            air_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(lightning_domain), Helpers.PrerequisiteNoFeature(lightning_domain_secondary));
             var air_domain_base = library.Get<BlueprintFeature>("39b0c7db785560041b436b558c9df2bb");
             air_domain_base.SetNameDescription(library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f"));
 

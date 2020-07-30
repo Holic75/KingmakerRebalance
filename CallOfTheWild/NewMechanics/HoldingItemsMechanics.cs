@@ -402,6 +402,10 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         internal static bool hasFreeHand(HandSlot hand_slot)
         {
+            if (hand_slot == null)
+            {
+                return true;
+            }
             if (!hand_slot.HasItem)
             {
                 return true;
@@ -413,6 +417,26 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 return false;
             }
             return shield.ArmorComponent.Blueprint.ProficiencyGroup == Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Buckler && hand_slot.Owner.HasFact(NewFeats.unhindering_shield);
+        }
+
+
+        internal static bool hasFreeHandOrBuckler(HandSlot hand_slot)
+        {
+            if (hand_slot == null)
+            {
+                return true;
+            }
+            if (!hand_slot.HasItem)
+            {
+                return true;
+            }
+
+            var shield = hand_slot.MaybeShield;
+            if (shield == null)
+            {
+                return false;
+            }
+            return shield.ArmorComponent.Blueprint.ProficiencyGroup == Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Buckler;
         }
 
 

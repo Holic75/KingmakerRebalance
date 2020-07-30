@@ -1350,7 +1350,7 @@ namespace CallOfTheWild
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
             fast_bombs_buff.AddComponent(Common.createAddCondition(UnitCondition.Staggered));
             fast_bombs_ability.AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = staggered; r.Not = true; }));
-
+            fast_bombs_ability.DeactivateIfCombatEnded = true;
 
             //fast_bombs_buff.AddComponent(Helpers.Create<FreeActionAbilityUseMechanics.ForceFullRoundOnAbilities>(f => f.abilities = bombs));
             fast_bombs.AddComponent(Helpers.CreateAddFact(new_ability));
