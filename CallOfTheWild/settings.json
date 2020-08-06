@@ -11,5 +11,6 @@
   "advanced_fighter_options": true,
   "wizard_discoveries": true,
   "secondary_rake_attacks":  true,
-  "one_sneak_attack_per_target_per_spell" : true
+  "one_sneak_attack_per_target_per_spell": true,
+  "metamagic_for_spontaneous_spell_conversion": true 
 }

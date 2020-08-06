@@ -114,7 +114,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeatureSelection school_focus;
         static public BlueprintFeatureSelection bloodline_selection;
-        static public BlueprintFeature new_arcana_blood_arcanist;
+        static public BlueprintParametrizedFeature new_arcana_blood_arcanist;
         static public BlueprintSpellbook unlettered_arcanist_prepared_spellbook;
         static public BlueprintSpellbook unlettered_arcanist_spontaneous_spellbook;
         static public BlueprintFeature unlettered_arcanist_familiar;
@@ -555,7 +555,7 @@ namespace CallOfTheWild
             }
 
             var new_arcana = library.Get<BlueprintFeatureSelection>("20a2435574bdd7f4e947f405df2b25ce");
-            new_arcana_blood_arcanist = library.CopyAndAdd<BlueprintFeature>("4a2e8388c2f0dd3478811d9c947bebfb", "BloodleneArcaneNewArcanaBloodArcanistFeature", "");
+            new_arcana_blood_arcanist = library.CopyAndAdd<BlueprintParametrizedFeature>("4a2e8388c2f0dd3478811d9c947bebfb", "BloodleneArcaneNewArcanaBloodArcanistFeature", "");
             new_arcana_blood_arcanist.ReplaceComponent<LearnSpellParametrized>(l => l.SpellcasterClass = arcanist_class);
             foreach (var f in new_arcana.AllFeatures)
             {
@@ -563,7 +563,7 @@ namespace CallOfTheWild
             }
             new_arcana.AllFeatures = new_arcana.AllFeatures.AddToArray(new_arcana_blood_arcanist);
             new_arcana.Features = new_arcana.Features.AddToArray(new_arcana_blood_arcanist);
-
+            new_arcana_blood_arcanist.SpellcasterClass = arcanist_class;
             bloodline_selection.AllFeatures = bloodlines.ToArray();
 
             blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
@@ -1628,7 +1628,7 @@ namespace CallOfTheWild
                                                           divination_progression.Icon,
                                                           null);
             base_ability.AddComponent(Common.createAbilityCasterHasFacts(divination_buff));
-
+            base_ability2.AddComponent(Common.createAbilityCasterHasFacts(divination_buff));
             var divination_feature = Helpers.CreateFeature("ProphecySchoolUnderstangingFeature",
                                                           divination_buff.Name,
                                                           divination_buff.Description,
@@ -1654,7 +1654,9 @@ namespace CallOfTheWild
                                                       "",
                                                       null,
                                                       FeatureGroup.None);
-            school_understanding.AddComponent(Helpers.PrerequisiteNoFeature(school_understanding));
+            school_understanding.AddComponents(Helpers.PrerequisiteNoFeature(school_understanding),
+                                               Common.prerequisiteNoArchetype(school_savant_archetype)
+                                               );
 
             school_understanding.AllFeatures = new BlueprintFeature[]
             {
