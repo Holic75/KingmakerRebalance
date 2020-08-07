@@ -340,7 +340,7 @@ namespace CallOfTheWild.TurnActionMechanics
             {
                 bool need_full_round = !ability.HasMetamagic(Metamagic.Quicken)
                                          && (
-                                             (ability.Spellbook.Blueprint.Spontaneous && ability.MetamagicData != null && ability.MetamagicData.NotEmpty)
+                                             ((ability.Spellbook.Blueprint.Spontaneous  || ability.ConvertedFrom != null) && ability.MetamagicData != null && ability.MetamagicData.NotEmpty)
                                              || (ability.Blueprint.IsFullRoundAction)
                                              );
                 if (is_full_round != need_full_round)
