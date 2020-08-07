@@ -1257,7 +1257,7 @@ namespace CallOfTheWild
                     cost += m.DefaultCost();
                 }
 
-                for (int i = 0; i < (metamagics.Contains(Metamagic.Heighten) ? 9 : 1); i++)
+                for (int i = (metamagics.Contains(Metamagic.Heighten) ? 1 : 0); i < (metamagics.Contains(Metamagic.Heighten) ? 9 : 1); i++)
                 {
                     if (cost + i + expected_spell_level > 9)
                     {
@@ -1704,6 +1704,49 @@ namespace CallOfTheWild
                 if (this.Element == DamageEnergyType.Fire || this.Element == DamageEnergyType.Cold || (this.Element == DamageEnergyType.Acid || this.Element == DamageEnergyType.Electricity))
                     return;
                 context.AddError("Only Fire, Cold, Acid or Electricity are allowed", (object[])Array.Empty<object>());
+            }
+        }
+
+
+        public class PreferredSpell : ParametrizedFeatureComponent
+        {
+            public BlueprintCharacterClass character_class;
+            [JsonProperty]
+            private List<BlueprintAbility[]> spell_lists;
+            public override void OnTurnOn()
+            {
+                var spell = this.Param.Blueprint as BlueprintAbility;
+                var spell_level = this.Owner.DemandSpellbook(this.character_class).GetSpellLevel(spell);
+
+                var spells = new List<BlueprintAbility>();
+                if (!spell.HasVariants)
+                {
+                    spells.Add(spell);
+                }
+                else
+                {
+                    spells.AddRange(spell.Variants);
+                }
+                spell_lists = new List<BlueprintAbility[]>();
+                for (int i = 0; i < spells.Count; i++)
+                {
+                    var spell_list = new BlueprintAbility[10];
+                    spell_list[spell_level] = spells[i];
+                    spell_lists.Add(spell_list);
+                    this.Owner.DemandSpellbook(this.character_class).AddSpellConversionList(spell_lists.Last());
+                }
+            }
+
+            public override void OnTurnOff()
+            {
+                if (spell_lists == null)
+                {
+                    return;
+                }
+                foreach (var sl in spell_lists)
+                {
+                    this.Owner.DemandSpellbook(this.character_class).RemoveSpellConversionList(sl);
+                }
             }
         }
 

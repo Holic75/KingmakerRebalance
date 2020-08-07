@@ -332,6 +332,7 @@ namespace CallOfTheWild
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
+                    CallOfTheWild.NewFeats.createPreferredSpell();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();

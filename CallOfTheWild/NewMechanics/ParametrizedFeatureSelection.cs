@@ -58,6 +58,11 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
         {
             foreach (Spellbook spellbook in unit.Spellbooks)
             {               
+                if (feature.SpellcasterClass != null
+                    && spellbook != unit.GetSpellbook(feature.SpellcasterClass))
+                {
+                    continue;
+                }
                 if (only_spontaneous && !spellbook.Blueprint.Spontaneous)
                 {
                     continue;

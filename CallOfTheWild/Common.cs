@@ -3106,8 +3106,8 @@ namespace CallOfTheWild
         }
 
 
-        public static void addSpellbooksToSpellSelection2(string name, int spell_level,
-                                                BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true, bool psychic = true)
+        public static void addSpellbooksToSelection(string name, int spell_level, Action<BlueprintFeatureSelection, BlueprintSpellbook, string, string, BlueprintComponent[]> add_action,
+                                        BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true, bool psychic = true)
         {
             var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             var thassilonian_shools = library.Get<BlueprintFeatureSelection>("f431178ec0e2b4946a34ab504bb46285").AllFeatures;
@@ -3129,7 +3129,7 @@ namespace CallOfTheWild
                     {
                         components.Add(Common.prerequisiteNoArchetype(c, a));
                     }
-                    Common.addReplaceSpellbook(spellbook_selection, c.Spellbook, name + c.name + "SpellbookFeature",
+                    add_action(spellbook_selection, c.Spellbook, name + c.name + "SpellbookFeature",c.Spellbook.Name,
                                                components.ToArray());
                 }
 
@@ -3137,9 +3137,9 @@ namespace CallOfTheWild
                 {
                     if (a.ReplaceSpellbook.checkSpellbook(divine, arcane, alchemist, psychic))
                     {
-                        Common.addReplaceSpellbook(spellbook_selection, a.ReplaceSpellbook, name + a.name + "SpellbookFeature", a.Name,
-                                                Common.createPrerequisiteArchetypeLevel(c, a, 1),
-                                                components[0]);
+                        add_action(spellbook_selection, a.ReplaceSpellbook, name + a.name + "SpellbookFeature", a.Name,
+                                                new BlueprintComponent[]{Common.createPrerequisiteArchetypeLevel(c, a, 1),
+                                                                         components[0] });
                     }
                 }
             }
@@ -3153,11 +3153,21 @@ namespace CallOfTheWild
             foreach (var s in thassilonian_shools)
             {
                 var spellbook = (s as BlueprintFeatureReplaceSpellbook).Spellbook;
-                Common.addReplaceSpellbook(spellbook_selection, spellbook, name + spellbook.name + "Feature",
+                add_action(spellbook_selection, spellbook, name + spellbook.name + "Feature",
                                            "Thassilonian Specialist: " + s.Name,
-                                            Common.createPrerequisiteClassSpellLevel(wizard, spell_level),
-                                            Common.createPrerequisiteArchetypeLevel(wizard, thassilonian_specialist, 1));
+                                            new BlueprintComponent[]{Common.createPrerequisiteClassSpellLevel(wizard, spell_level),
+                                                                    Common.createPrerequisiteArchetypeLevel(wizard, thassilonian_specialist, 1) });
             }
+        }
+
+
+        public static void addSpellbooksToSpellSelection2(string name, int spell_level,
+                                                BlueprintFeatureSelection spellbook_selection, bool divine = true, bool arcane = true, bool alchemist = true, bool psychic = true)
+        {
+
+            addSpellbooksToSelection(name, spell_level,
+                                     Common.addReplaceSpellbook,
+                                     spellbook_selection, divine, arcane, alchemist, psychic);            
         }
 
 

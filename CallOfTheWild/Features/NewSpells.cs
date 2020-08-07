@@ -6949,7 +6949,7 @@ namespace CallOfTheWild
                                                     );
                 flame_blade_v.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
                 flame_blade_v.AvailableMetamagic = Metamagic.Quicken |Metamagic.Extend | Metamagic.Heighten | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
-                flame_blade_v.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire));
+                flame_blade_v.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
                 flame_blades.Add(flame_blade_v);
             }
 
