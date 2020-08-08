@@ -131,7 +131,7 @@ namespace CallOfTheWild
         static public BlueprintFeature scales_and_skin;
         static public BlueprintFeature improved_combat_expertise;
 
-
+        static public BlueprintFeature greater_spell_specialization;
         static public BlueprintFeatureSelection preferred_spell;
         static internal void load()
         {
@@ -212,8 +212,40 @@ namespace CallOfTheWild
 
             createScalesAndSkin();
             createImprovedCombatExpertise();
+            createGreaterSpellSpecialization();
         }
 
+
+
+        static void createGreaterSpellSpecialization()
+        {
+            library.Get<BlueprintFeature>("fe9220cdc16e5f444a84d85d5fa8e3d5").SetName(library.Get<BlueprintFeature>("f327a765a4353d04f872482ef3e48c35").Name); //set name to spell specialization progression
+            greater_spell_specialization = Helpers.CreateFeature("GreaterSpellSpecialization",
+                                                 "Greater Spell Specialization",
+                                                 "By sacrificing a prepared spell of the same level than your specialized spell, you may spontaneously cast your specialized spell. The specialized spell is treated as its normal level, regardless of the spell slot used to cast it. You may add a metamagic feat to the spell by increasing the spell slot and casting time, just like a cleric spontaneously casting a cure or inflict spell with a metamagic feat.",
+                                                 "",
+                                                 Helpers.GetIcon("f327a765a4353d04f872482ef3e48c35"),
+                                                 FeatureGroup.WizardFeat,
+                                                 Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe")), //spell focus
+                                                 Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("fe9220cdc16e5f444a84d85d5fa8e3d5")), //spell specialization progression
+                                                 Common.createPrerequisiteCasterTypeSpellLevel(true, 5, true),
+                                                 Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(p => { p.RequiredSpellLevel = 5; p.Group = Prerequisite.GroupType.Any; }),
+                                                 Helpers.Create<SpellbookMechanics.PrerequisitePsychicCasterTypeSpellLevel>(p => { p.RequiredSpellLevel = 5; p.Group = Prerequisite.GroupType.Any; })
+                                                 );
+            greater_spell_specialization.Groups = new FeatureGroup[] { FeatureGroup.WizardFeat, FeatureGroup.Feat };
+            BlueprintFeature[] spell_specializations = Main.library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures;
+            spell_specializations = spell_specializations.AddToArray(Main.library.Get<BlueprintParametrizedFeature>("f327a765a4353d04f872482ef3e48c35")); //spell specialization first
+
+            foreach (var ss in spell_specializations)
+            {
+                ss.AddComponents(Helpers.Create<SpellManipulationMechanics.GreaterSpellSpecialization>(g => g.required_feat = greater_spell_specialization),
+                                 Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] {greater_spell_specialization})
+                                 );
+            }
+
+            library.AddWizardFeats(greater_spell_specialization);
+            library.AddFeats(greater_spell_specialization);
+        }
 
         static internal void createPreferredSpell()
         {
@@ -222,13 +254,16 @@ namespace CallOfTheWild
                                                              "Choose one spell which you have the ability to cast. You can cast that spell spontaneously by sacrificing a prepared spell or spell slot of equal or higher level. You can apply any metamagic feats you possess to this spell when you cast it. This increases the minimum level of the prepared spell or spell slot you must sacrifice in order to cast it but does not affect the casting time.\n"
                                                              + "Special: You can gain this feat multiple times. Its effects do not stack. Each time you take the feat, it applies to a different spell.",
                                                              "",
-                                                             Helpers.GetIcon("e69a85f633ae8ca4398abeb6fa11b1fe"),
-                                                             FeatureGroup.Feat,
+                                                             LoadIcons.Image2Sprite.Create(@"FeatIcons/PreferredSpell.png"),
+                                                             FeatureGroup.WizardFeat,
                                                              Helpers.PrerequisiteStatValue(StatType.SkillKnowledgeArcana, 5),
                                                              Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("2f5d1e705c7967546b72ad8218ccf99c"))
                                                              );
             preferred_spell.HideInCharacterSheetAndLevelUp = true;
+            preferred_spell.Groups = new FeatureGroup[] { FeatureGroup.WizardFeat, FeatureGroup.Feat };
+            library.AddWizardFeats(preferred_spell);
             library.AddFeats(preferred_spell);
+
 
             Common.addSpellbooksToSelection("PreferredSpellParametrized", 1, addToPerfectSpell,
                                             preferred_spell);
@@ -247,6 +282,7 @@ namespace CallOfTheWild
                                                             (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell,
                                                             components.AddToArray(Helpers.Create<SpellManipulationMechanics.PreferredSpell>(p => p.character_class = @class))
                                                             );
+            feature.Groups = feature.Groups.AddToArray(FeatureGroup.WizardFeat);
             feature.SpellcasterClass = @class;
             feature.BlueprintParameterVariants = library.Get<BlueprintParametrizedFeature>("e69a85f633ae8ca4398abeb6fa11b1fe").BlueprintParameterVariants;
             selection.AllFeatures = selection.AllFeatures.AddToArray(feature);

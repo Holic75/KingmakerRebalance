@@ -1708,6 +1708,110 @@ namespace CallOfTheWild
         }
 
 
+        public class GreaterSpellSpecialization : ParametrizedFeatureComponent
+        {
+            [JsonProperty]
+            private Dictionary<BlueprintSpellbook, List<BlueprintAbility[]>> spellbook_spell_lists_map;
+
+            public BlueprintFeature required_feat;
+
+            public override void OnTurnOn()
+            {
+                enable();
+            }
+
+            private void enable()
+            {
+                if (!this.Owner.Progression.Features.HasFact(required_feat))
+                {
+                    return;
+                }
+                if (spellbook_spell_lists_map != null)
+                {
+                    return;
+                }
+                spellbook_spell_lists_map = new Dictionary<BlueprintSpellbook, List<BlueprintAbility[]>>();
+                var param_spell = this.Param.Blueprint as BlueprintAbility;
+
+
+
+                foreach (var sb in this.Owner.Spellbooks)
+                {
+                    var spell_lists = new List<BlueprintAbility[]>();
+                    var spell_level = 1000;
+                    BlueprintAbility spell = null;
+
+                    foreach (var sd in SpellDuplicates.getDuplicates(param_spell))
+                    {
+                        var sl  = sb.GetSpellLevel(sd);
+                        
+                        if (sl != -1 && sl <spell_level)
+                        {
+                            spell = sd;
+                            spell_level = sl;
+                        }
+                    }
+
+                    if (spell_level == 1000)
+                    {
+                        continue;
+                    }
+
+                    var spells = new List<BlueprintAbility>();
+                    if (!spell.HasVariants)
+                    {
+                        spells.Add(spell);
+                    }
+                    else
+                    {
+                        spells.AddRange(spell.Variants);
+                    }
+
+                    var spellbook = SpellbookMechanics.Helpers.getCastingSpellbook(sb, this.Owner);
+                    if (sb == null)
+                    {
+                        return;
+                    }
+
+                    for (int i = 0; i < spells.Count; i++)
+                    {
+                        var spell_list = new BlueprintAbility[10];
+                        spell_list[spell_level] = spells[i];
+                        spell_lists.Add(spell_list);
+                        spellbook?.AddSpellConversionList(spell_lists.Last());
+                    }
+                    spellbook_spell_lists_map.Add(spellbook.Blueprint, spell_lists);
+                }
+            }
+
+
+            public void disable()
+            {
+                if (spellbook_spell_lists_map == null)
+                {
+                    return;
+                }
+
+                foreach (var kv in spellbook_spell_lists_map)
+                {
+                    var spellbook = this.Owner.GetSpellbook(kv.Key);
+                    foreach (var sl in kv.Value)
+                    {
+                        spellbook?.RemoveSpellConversionList(sl);
+                    }
+                }
+                spellbook_spell_lists_map = null;
+            }
+
+            public override void OnTurnOff()
+            {
+                disable();
+            }
+        }
+
+
+
+
         public class PreferredSpell : ParametrizedFeatureComponent
         {
             public BlueprintCharacterClass character_class;
@@ -1715,8 +1819,13 @@ namespace CallOfTheWild
             private List<BlueprintAbility[]> spell_lists;
             public override void OnTurnOn()
             {
+                var spell_book = this.Owner.GetSpellbook(this.character_class);
+                if (spell_book == null)
+                {
+                    return;
+                }
                 var spell = this.Param.Blueprint as BlueprintAbility;
-                var spell_level = this.Owner.DemandSpellbook(this.character_class).GetSpellLevel(spell);
+                var spell_level = spell_book.GetSpellLevel(spell);
 
                 var spells = new List<BlueprintAbility>();
                 if (!spell.HasVariants)
@@ -1728,27 +1837,39 @@ namespace CallOfTheWild
                     spells.AddRange(spell.Variants);
                 }
                 spell_lists = new List<BlueprintAbility[]>();
+
+                spell_book = SpellbookMechanics.Helpers.getCastingSpellbook(spell_book, this.Owner);
                 for (int i = 0; i < spells.Count; i++)
                 {
                     var spell_list = new BlueprintAbility[10];
                     spell_list[spell_level] = spells[i];
                     spell_lists.Add(spell_list);
-                    this.Owner.DemandSpellbook(this.character_class).AddSpellConversionList(spell_lists.Last());
+                    spell_book?.AddSpellConversionList(spell_lists.Last());
                 }
             }
 
             public override void OnTurnOff()
             {
+                var spell_book = this.Owner.GetSpellbook(this.character_class);
+                if (spell_book == null)
+                {
+                    return;
+                }
+                spell_book = SpellbookMechanics.Helpers.getCastingSpellbook(spell_book, this.Owner);
                 if (spell_lists == null)
                 {
                     return;
                 }
                 foreach (var sl in spell_lists)
                 {
-                    this.Owner.DemandSpellbook(this.character_class).RemoveSpellConversionList(sl);
+                    spell_book?.RemoveSpellConversionList(sl);
                 }
             }
         }
+
+
+
+
 
 
         [Harmony12.HarmonyPatch(typeof(ModifiableValue))]

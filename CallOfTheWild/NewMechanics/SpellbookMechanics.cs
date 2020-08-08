@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Root.Strings;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
@@ -123,6 +124,9 @@ namespace CallOfTheWild.SpellbookMechanics
             }*/
         }
     }
+
+
+
 
 
     //make fake spell book return zero memorized spells
@@ -393,6 +397,25 @@ namespace CallOfTheWild.SpellbookMechanics
             stringBuilder.Append(" ");
             stringBuilder.Append((string)UIStrings.Instance.Tooltips.SpellsOfLevel[this.RequiredSpellLevel]);
             return stringBuilder.ToString();
+        }
+    }
+
+
+    public static class Helpers
+    {
+        //used to extract arcanist spontaneous spellbook from his memorization spellbook, for any other kind of spellbooks return spellbook argument
+        public static Spellbook getCastingSpellbook(Spellbook spellbook, UnitDescriptor unit)
+        {
+            var sb1 = spellbook?.Blueprint.GetComponent<CompanionSpellbook>()?.spellbook?.GetComponent<GetKnownSpellsFromMemorizationSpellbook>()?.spellbook;
+
+            if (sb1 == null)
+            {
+                return spellbook;
+            }
+            else
+            {
+                return unit.GetSpellbook(sb1);
+            }
         }
     }
 

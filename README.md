@@ -132,7 +132,9 @@ New feats:
 - Skin and Scales,
 - Crusader's Flurry,
 - Improved Combat Expertise,
-- Hex Strike.
+- Hex Strike,
+- Preferred Spell,
+- Greater Spell Specialization.
 
 New rage powers:
 - Terrifying Howl
