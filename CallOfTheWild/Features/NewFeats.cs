@@ -130,9 +130,9 @@ namespace CallOfTheWild
 
         static public BlueprintFeature scales_and_skin;
         static public BlueprintFeature improved_combat_expertise;
-        
 
 
+        static public BlueprintFeatureSelection preferred_spell;
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -214,6 +214,43 @@ namespace CallOfTheWild
             createImprovedCombatExpertise();
         }
 
+
+        static internal void createPreferredSpell()
+        {
+            preferred_spell = Helpers.CreateFeatureSelection("PreferredSpellFeatureSelection",
+                                                             "Preferred Spell",
+                                                             "Choose one spell which you have the ability to cast. You can cast that spell spontaneously by sacrificing a prepared spell or spell slot of equal or higher level. You can apply any metamagic feats you possess to this spell when you cast it. This increases the minimum level of the prepared spell or spell slot you must sacrifice in order to cast it but does not affect the casting time.\n"
+                                                             + "Special: You can gain this feat multiple times. Its effects do not stack. Each time you take the feat, it applies to a different spell.",
+                                                             "",
+                                                             Helpers.GetIcon("e69a85f633ae8ca4398abeb6fa11b1fe"),
+                                                             FeatureGroup.Feat,
+                                                             Helpers.PrerequisiteStatValue(StatType.SkillKnowledgeArcana, 5),
+                                                             Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("2f5d1e705c7967546b72ad8218ccf99c"))
+                                                             );
+            preferred_spell.HideInCharacterSheetAndLevelUp = true;
+            library.AddFeats(preferred_spell);
+
+            Common.addSpellbooksToSelection("PreferredSpellParametrized", 1, addToPerfectSpell,
+                                            preferred_spell);
+        }
+
+
+        static void addToPerfectSpell(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, string display_name, params BlueprintComponent[] components)
+        {
+            var @class = (components.AsEnumerable().First(f => (f is PrerequisiteClassSpellLevel)) as PrerequisiteClassSpellLevel).CharacterClass;
+            var feature = Helpers.CreateParametrizedFeature(name,
+                                                            preferred_spell.Name + " (" + display_name + ")",
+                                                            preferred_spell.Description,
+                                                            Helpers.MergeIds(preferred_spell.AssetGuid, spellbook.AssetGuid),
+                                                            preferred_spell.Icon,
+                                                            FeatureGroup.Feat,
+                                                            (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell,
+                                                            components.AddToArray(Helpers.Create<SpellManipulationMechanics.PreferredSpell>(p => p.character_class = @class))
+                                                            );
+            feature.SpellcasterClass = @class;
+            feature.BlueprintParameterVariants = library.Get<BlueprintParametrizedFeature>("e69a85f633ae8ca4398abeb6fa11b1fe").BlueprintParameterVariants;
+            selection.AllFeatures = selection.AllFeatures.AddToArray(feature);
+        }
 
         static void createImprovedCombatExpertise()
         {

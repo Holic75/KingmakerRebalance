@@ -37,6 +37,7 @@ namespace CallOfTheWild
             internal bool deity_for_everyone { get; }
             internal bool secondary_rake_attacks { get; }
             internal bool one_sneak_attack_per_target_per_spell { get; }
+            internal bool metamagic_for_spontaneous_spell_conversion { get; }
             internal Settings()
             {
 
@@ -58,6 +59,7 @@ namespace CallOfTheWild
                     wizard_discoveries = (bool)jo["wizard_discoveries"];
                     secondary_rake_attacks = (bool)jo["secondary_rake_attacks"];
                     one_sneak_attack_per_target_per_spell = (bool)jo["one_sneak_attack_per_target_per_spell"];
+                    metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
                 }
             }
         }
@@ -330,6 +332,7 @@ namespace CallOfTheWild
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
+                    CallOfTheWild.NewFeats.createPreferredSpell();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
@@ -341,6 +344,10 @@ namespace CallOfTheWild
                         Main.logger.Log("Updating companion stats.");
                         CallOfTheWild.Rebalance.fixCompanions();
                     }
+
+                    Main.logger.Log("metamagic_for_spontaneous_spell_conversion:" +settings.metamagic_for_spontaneous_spell_conversion.ToString());
+                    Main.logger.Log("one_sneak_attack_per_target_per_spell:" + settings.one_sneak_attack_per_target_per_spell.ToString());
+
 
 
 #if DEBUG

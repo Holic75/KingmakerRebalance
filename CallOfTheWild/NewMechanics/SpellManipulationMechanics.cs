@@ -61,6 +61,7 @@ using Kingmaker.UI.UnitSettings;
 using Kingmaker.UI.Constructor;
 using Kingmaker.UI.Tooltip;
 using Kingmaker.Blueprints.Root.Strings;
+using Kingmaker.UnitLogic.FactLogic;
 
 namespace CallOfTheWild
 {
@@ -555,17 +556,21 @@ namespace CallOfTheWild
             {
                 if (__result == false)
                 {
-                    if (__instance.Blueprint.GetComponent<InferIsFullRoundFromParamSpellSlot>() == null)
+                    if (__instance.Blueprint.GetComponent<InferIsFullRoundFromParamSpellSlot>() != null
+                        && __instance.ParamSpellSlot?.Spell != null)
                     {
+                        __result = __instance.ParamSpellSlot.Spell.RequireFullRoundAction;
                         return;
                     }
 
-                    if (__instance.ParamSpellSlot?.Spell == null)
+                    if (__instance.ActionType == UnitCommand.CommandType.Standard
+                        && __instance.ConvertedFrom != null
+                        && __instance.MetamagicData != null
+                        && __instance.MetamagicData.NotEmpty)
                     {
+                        __result = true;
                         return;
                     }
-
-                    __result = __instance.ParamSpellSlot.Spell.RequireFullRoundAction;
                 }
                 else if (!__instance.Blueprint.IsFullRoundAction)
                 {
@@ -1101,6 +1106,11 @@ namespace CallOfTheWild
                 {
                     ConvertedFrom = spell
                 })).ToList<AbilityData>();
+                if (Main.settings.metamagic_for_spontaneous_spell_conversion)
+                {
+                    ___Conversion.AddRange(getMetamagicSpontaneousConversionSpells(spell, spellBook));
+                }
+                
                 SpellSlot spellSlot = (__instance.MechanicSlot as MechanicActionBarSlotMemorizedSpell)?.SpellSlot;
                 if (spellSlot != null)
                 {
@@ -1152,8 +1162,119 @@ namespace CallOfTheWild
                 ___ToggleAdditionalSpells.gameObject.SetActive(true);
                 return false;
             }
-        }
 
+
+            static List<AbilityData> getMetamagicSpontaneousConversionSpells(AbilityData spell, Spellbook spellbook)
+            {
+                var spell_level = spellbook.GetSpellLevel(spell);
+                var spells = new List<AbilityData>();
+                var metamagics = spell.Caster.Progression.Features.Enumerable.Where(f => f.Blueprint.GetComponent<AddMetamagicFeat>() != null)
+                    .Select(f => f.Blueprint.GetComponent<AddMetamagicFeat>().Metamagic).ToArray();
+
+                for (int i = 1; i <= spell_level; i++)
+                {
+                    var conversion_spells = spellbook.GetSpontaneousConversionSpells(i).EmptyIfNull<BlueprintAbility>().ToArray();
+                    //we need to find all possible metamagic combinations for every spell here
+                    foreach (var s in conversion_spells)
+                    {
+                        spells.AddRange(getMetamagicCombinationForGivenLevel(spell_level, spellbook, spell, s, i, metamagics.Where(m => (s.AvailableMetamagic & m) != 0).ToArray()));
+                    }
+
+                }
+                return spells;
+            }
+
+
+            static List<AbilityData> getMetamagicCombinationForGivenLevel(int target_level, Spellbook spellbook, AbilityData converted_spell, BlueprintAbility spell, int spell_level,
+                                                                   Metamagic[] metamagics)
+            {
+                var spells = new List<AbilityData>();
+                if (metamagics.Empty())
+                {
+                    return spells;
+                }
+
+                
+                List<int> next_metamagic = new List<int>();
+                List<Metamagic> selected_metamagics = new List<Metamagic>();
+                next_metamagic.Add(0);
+                while (true)
+                {
+                    while(!next_metamagic.Empty() && next_metamagic.Last() >= metamagics.Count())
+                    {
+                        next_metamagic.Remove(next_metamagic.Last());
+                        if (!next_metamagic.Empty())
+                        {
+                            next_metamagic[next_metamagic.Count - 1]++;
+                            selected_metamagics.RemoveAt(selected_metamagics.Count - 1);
+                        }
+                    }
+                    if (next_metamagic.Empty())
+                    {
+                        break;
+                    }
+                    selected_metamagics.Add(metamagics[next_metamagic.Last()]);
+
+                    //try to get metamagic data for required cost, return null if impossible
+                    //if impossible we have too much metamagic, remove last added metamagic, increase next_metamagic.last
+                    //else continue adding more metamagics
+                    var metamagic_data = getMetamagicDataForSpecifiedCost(selected_metamagics, spellbook, spell, target_level - spell_level, spell_level);
+                    if (metamagic_data == null)
+                    {
+                        selected_metamagics.Remove(selected_metamagics.Last());
+                        next_metamagic[next_metamagic.Count - 1]++;
+                    }
+                    else
+                    {
+                        next_metamagic.Add(next_metamagic.Last() + 1);
+                        spells.Add(new AbilityData(spell, spellbook)
+                        {
+                            ConvertedFrom = converted_spell,
+                            MetamagicData = metamagic_data
+                        });
+                    }
+                     
+                }
+
+                return spells;
+            }
+
+
+            static MetamagicData getMetamagicDataForSpecifiedCost(List<Metamagic> metamagics, Spellbook spellbook, BlueprintAbility spell, int required_cost, int expected_spell_level)
+            {
+                //avoid more than one elemental metamagic
+                if (metamagics.Count(m => (m & (Metamagic)MetamagicFeats.MetamagicExtender.Elemental) != 0) > 1)
+                {
+                    return null;
+                }
+
+                var sl = spellbook.GetSpellLevel(spell);
+                int d_level = expected_spell_level - sl;
+                
+                int cost = 0;
+                foreach (var m in metamagics)
+                {
+                    cost += m.DefaultCost();
+                }
+
+                for (int i = (metamagics.Contains(Metamagic.Heighten) ? 1 : 0); i < (metamagics.Contains(Metamagic.Heighten) ? 9 : 1); i++)
+                {
+                    if (cost + i + expected_spell_level > 9)
+                    {
+                        return null;
+                    }
+                    var rule_apply_metamagic = new RuleApplyMetamagic(spellbook, spell, metamagics, i);
+                    rule_apply_metamagic.Result.SpellLevelCost += d_level;
+                    var result = Rulebook.Trigger(rule_apply_metamagic).Result;
+                    if (result.SpellLevelCost == required_cost + d_level)
+                    {
+                        return result;
+                    }
+                }
+                return null;
+            }
+        }
+       
         //update name of spell on store abilities
         [Harmony12.HarmonyPatch(typeof(DescriptionTemplatesAbility))]
         [Harmony12.HarmonyPatch("AbilityDataHeader", Harmony12.MethodType.Normal)]
@@ -1583,6 +1704,49 @@ namespace CallOfTheWild
                 if (this.Element == DamageEnergyType.Fire || this.Element == DamageEnergyType.Cold || (this.Element == DamageEnergyType.Acid || this.Element == DamageEnergyType.Electricity))
                     return;
                 context.AddError("Only Fire, Cold, Acid or Electricity are allowed", (object[])Array.Empty<object>());
+            }
+        }
+
+
+        public class PreferredSpell : ParametrizedFeatureComponent
+        {
+            public BlueprintCharacterClass character_class;
+            [JsonProperty]
+            private List<BlueprintAbility[]> spell_lists;
+            public override void OnTurnOn()
+            {
+                var spell = this.Param.Blueprint as BlueprintAbility;
+                var spell_level = this.Owner.DemandSpellbook(this.character_class).GetSpellLevel(spell);
+
+                var spells = new List<BlueprintAbility>();
+                if (!spell.HasVariants)
+                {
+                    spells.Add(spell);
+                }
+                else
+                {
+                    spells.AddRange(spell.Variants);
+                }
+                spell_lists = new List<BlueprintAbility[]>();
+                for (int i = 0; i < spells.Count; i++)
+                {
+                    var spell_list = new BlueprintAbility[10];
+                    spell_list[spell_level] = spells[i];
+                    spell_lists.Add(spell_list);
+                    this.Owner.DemandSpellbook(this.character_class).AddSpellConversionList(spell_lists.Last());
+                }
+            }
+
+            public override void OnTurnOff()
+            {
+                if (spell_lists == null)
+                {
+                    return;
+                }
+                foreach (var sl in spell_lists)
+                {
+                    this.Owner.DemandSpellbook(this.character_class).RemoveSpellConversionList(sl);
+                }
             }
         }
 
