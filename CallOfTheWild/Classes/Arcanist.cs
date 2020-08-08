@@ -1671,7 +1671,7 @@ namespace CallOfTheWild
                 createEnhancement(),
                 createProphecy()
             };
-
+            school_understanding.AddComponent(Common.prerequisiteNoArchetype(school_savant_archetype));
             arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(school_understanding);
             arcane_exploits_wizard.AllFeatures = arcane_exploits_wizard.AllFeatures.AddToArray(school_understanding);
         }

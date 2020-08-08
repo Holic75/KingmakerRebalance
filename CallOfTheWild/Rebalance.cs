@@ -412,7 +412,7 @@ namespace CallOfTheWild
             tristian_companion.Wisdom = 17;
             tristian_companion.Charisma = 14;
             var tristian_level = tristian_companion.GetComponent<AddClassLevels>();
-            tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35");//fire as primary
+            tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc");//sun as primary
             tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
             tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
@@ -497,12 +497,26 @@ namespace CallOfTheWild
 
             var octavia_acl = octavia_feature.GetComponent<AddClassLevels>();
             octavia_feature.RemoveComponents<AddClassLevels>(a => a != octavia_acl);
-            octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillThievery, StatType.SkillPersuasion, StatType.SkillMobility };
-            //octavia_acl.Selections[1].Features[1] = library.Get<BlueprintFeature>("875fff6feb84f5240bf4375cb497e395"); //oposoiton enchantment, necromancy
+            //octavia_acl.CharacterClass = Arcanist.arcanist_class;
+            octavia_acl.Archetypes = new BlueprintArchetype[] { Arcanist.exploiter_wizard_archetype };
+            Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.potent_magic);
+            //Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.bloodline_selection, library.Get<BlueprintFeature>("4d491cf9631f7e9429444f4aed629791"));
+            //Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("BloodlineArcaneArcaneBondFeature"), library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30"));
+            octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillMobility };
+            octavia_acl.Selections[4].Features[0] = library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30");// hare familiar
+            octavia_acl.Selections[5].Features[0] = library.Get<BlueprintFeature>("f43ffc8e3f8ad8a43be2d44ad6e27914"); //umd
+            octavia_companion.Dexterity = 14;
+            octavia_companion.Charisma = 14;
+            octavia_companion.Strength = 10;
+            octavia_acl.Selections[0].Features[0] = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");//sf;
+            octavia_acl.Selections[6].ParamSpellSchool = SpellSchool.Conjuration;
+            Common.addParametrizedFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"), SpellSchool.Illusion);
+            /*octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillThievery, StatType.SkillPersuasion, StatType.SkillMobility };
+            //octavia_acl.Selections[1].Features[1] = library.Get<BlueprintFeature>("875fff6feb84f5240bf4375cb497e395"); //opposition enchantment, necromancy
             octavia_acl.Selections[2].Features[0] = Subschools.admixture;
             octavia_acl.Selections[4].Features[0] = library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30");// hare familiar
             octavia_acl.Selections[5].Features[0] = library.Get<BlueprintFeature>("1621be43793c5bb43be55493e9c45924"); //adaptability persuation
-            octavia_acl.Selections[6].ParamSpellSchool = SpellSchool.Conjuration;
+            octavia_acl.Selections[6].ParamSpellSchool = SpellSchool.Conjuration;*/
 
             //remove dex buff if it is already activated
             Action<UnitDescriptor> fix_action = delegate (UnitDescriptor u)

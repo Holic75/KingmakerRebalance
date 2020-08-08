@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Buffs;
@@ -10,6 +11,8 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.UnitLogic.Class.Kineticist.ActivatableAbility;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
@@ -621,6 +624,44 @@ namespace CallOfTheWild.HoldingItemsMechanics
             return codes.AsEnumerable();
         }
     }
+
+
+    [Harmony12.HarmonyPatch(typeof(RestrictionCanGatherPower))]
+    [Harmony12.HarmonyPatch("IsAvailable", Harmony12.MethodType.Normal)]
+    class RestrictionCanGatherPower__IsAvailable__Patch
+    {
+        static bool Prefix(RestrictionCanGatherPower __instance, ref bool __result)
+        {
+            __result = getResult(__instance);
+            return false;
+        }
+
+
+        static bool getResult(RestrictionCanGatherPower __instance)
+        {
+            UnitPartKineticist unitPartKineticist = __instance.Owner.Get<UnitPartKineticist>();
+            if (unitPartKineticist == null)
+                return false;
+            UnitBody body = __instance.Owner.Body;
+            if (body.IsPolymorphed)
+                return false;
+            ItemEntity maybeItem1 = body.PrimaryHand.MaybeItem;
+            WeaponCategory? category = (maybeItem1 as ItemEntityWeapon)?.Blueprint.Category;
+            bool flag = category.GetValueOrDefault() == WeaponCategory.KineticBlast && category.HasValue;
+            if (maybeItem1 != null && !flag)
+                return false;
+
+            ItemEntity maybeItem2 = body.SecondaryHand.MaybeItem;
+            if (maybeItem2 == null)
+                return true;
+            ArmorProficiencyGroup? proficiencyGroup = body.SecondaryHand.MaybeShield?.Blueprint.Type.ProficiencyGroup;
+
+            if (proficiencyGroup.HasValue && (proficiencyGroup.GetValueOrDefault() != ArmorProficiencyGroup.TowerShield))
+                return unitPartKineticist.CanGatherPowerWithShield || Helpers.hasFreeHand(body.SecondaryHand);
+            return false;
+        }
+    }
+
 
 
     [Harmony12.HarmonyPatch(typeof(ItemEntityWeapon))]
