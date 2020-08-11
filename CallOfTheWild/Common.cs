@@ -119,7 +119,7 @@ namespace CallOfTheWild
                                                                 null,
                                                                 Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
-                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => s.chance = 20)
+                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.ignore_psychic = true; })
                                                                 );
 
         public static BlueprintBuff dazed_non_mind_affecting = Helpers.CreateBuff("DazedNonMindAffectingBuff",

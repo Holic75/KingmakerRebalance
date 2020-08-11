@@ -2,8 +2,10 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Commands.Base;
@@ -20,8 +22,10 @@ namespace CallOfTheWild
     public class PhrenicAmplificationsEngine
     {
         static LibraryScriptableObject library => Main.library;
-        //intense focus ?
-        //relentness casting
+        //dual amplification
+        //mimic metamagic
+        //space rending spell
+        //synaptic shock
 
         BlueprintAbilityResource resource;
         BlueprintSpellbook spellbook;
@@ -37,6 +41,7 @@ namespace CallOfTheWild
         }
 
 
+
         public BlueprintFeature createFocusedForce()
         {
             var buff = Helpers.CreateBuff(name_prefix + "FocusedForceBuff",
@@ -45,7 +50,7 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.GetIcon("0a2f7c6aa81bc6548ac7780d8b70bcbc"),
                                           null,
-                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
                                             {
                                                 m.amount = 1;
                                                 m.resource = resource;
@@ -61,6 +66,78 @@ namespace CallOfTheWild
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
             var feature =  Common.ActivatableAbilityToFeature(toggle, false);
             feature.AddComponent(Helpers.Create<OnCastMechanics.ForceFocusSpellDamageDiceIncrease>(s => { s.spellbook = spellbook; s.SpellDescriptor = SpellDescriptor.Force; }));
+            return feature;
+        }
+
+
+        public BlueprintFeature createPsychofeedback()
+        {
+            var icons = new UnityEngine.Sprite[]
+            {
+                Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a"), //dexterity
+                Helpers.GetIcon("99cf556b967c2074ca284e127d815711"), //constitution
+                Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e") //strength
+            };
+
+            var stats = new StatType[]
+            {
+                StatType.Dexterity,
+                StatType.Constitution,
+                StatType.Strength
+            };
+            var spell_arrays = new BlueprintAbility[][]
+            {
+                new BlueprintAbility[10],
+                new BlueprintAbility[10],
+                new BlueprintAbility[10]
+            };
+
+            var description = "The psychic can spend 2 points from her phrenic pool to sacrifice a linked spell of 2nd level or higher. Doing so grants the psychic a +1 enhancement bonus to Strength, Dexterity, or Constitution per level of the sacrificed spell. This bonus lasts for 1 minute per psychic level.";
+            for (int i = 2; i <= 9; i++)
+            {
+                for (int j = 0; j < spell_arrays.Length; j++)
+                {
+                    var buff = Helpers.CreateBuff(name_prefix + stats[j].ToString() + $"{i}PsychoFeedbackBuff",
+                                                  $"Psychofeedback (+{i} {stats[j].ToString()})",
+                                                  description,
+                                                  "",
+                                                  icons[j],
+                                                  null,
+                                                  Helpers.CreateAddStatBonus(stats[j], i, ModifierDescriptor.Enhancement)
+                                                  );
+
+                    var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                                        Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), 
+                                                                        dispellable: false);
+                    spell_arrays[j][i] = Helpers.CreateAbility(name_prefix + stats[j].ToString() + $"{i}PsychoFeedbackAbility",
+                                                            buff.Name,
+                                                            buff.Description,
+                                                            "",
+                                                            buff.Icon,
+                                                            AbilityType.Supernatural,
+                                                            UnitCommand.CommandType.Standard,
+                                                            AbilityRange.Personal,
+                                                            Helpers.minutesPerLevelDuration,
+                                                            "",
+                                                            Helpers.CreateRunActions(apply_buff),
+                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {character_class}),
+                                                            resource.CreateResourceLogic(amount: 2)
+                                                            );
+                    spell_arrays[j][i].setMiscAbilityParametersSelfOnly();
+                }
+            }
+
+            var feature = Helpers.CreateFeature(name_prefix + "PsychofeedbackFeature",
+                                                "Psychofeedback",
+                                                description,
+                                                "",
+                                                icons[0],
+                                                FeatureGroup.None,
+                                                Common.createSpontaneousSpellConversion(character_class, spell_arrays[0]),
+                                                Common.createSpontaneousSpellConversion(character_class, spell_arrays[1]),
+                                                Common.createSpontaneousSpellConversion(character_class, spell_arrays[2])
+                                                );
+
             return feature;
         }
 
@@ -227,7 +304,7 @@ namespace CallOfTheWild
 
         public BlueprintFeature createUndercastSurge()
         {
-            var toggles = new BlueprintActivatableAbility[4];
+            var toggles = new BlueprintActivatableAbility[5];
 
             for (int i = 0; i < toggles.Length; i++)
             {

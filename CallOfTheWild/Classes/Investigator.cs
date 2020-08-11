@@ -128,6 +128,7 @@ namespace CallOfTheWild
         static public BlueprintFeature will_of_the_dead;
         static public BlueprintFeature relentness_casting;
         static public BlueprintFeature undercast_surge;
+        static public BlueprintFeature psychofeedback;
 
         static public BlueprintArchetype cryptid_schoolar;
         static public BlueprintFeature intuitive_monster_lore;
@@ -546,6 +547,7 @@ namespace CallOfTheWild
             ongoing_defense = phrenic_amplifications_engine.createOngoingDefense();
             relentness_casting = phrenic_amplifications_engine.createRelentnessCasting();
             undercast_surge = phrenic_amplifications_engine.createUndercastSurge();
+            psychofeedback = phrenic_amplifications_engine.createPsychofeedback();
             phrenic_dabbler.AllFeatures = new BlueprintFeature[]
             {
                 biokinetic_healing,
@@ -557,7 +559,8 @@ namespace CallOfTheWild
                 will_of_the_dead,
                 ongoing_defense,
                 relentness_casting,
-                undercast_surge
+                undercast_surge,
+                psychofeedback
             };
 
         }
@@ -610,6 +613,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "7bc8e27cba24f0e43ae64ed201ad5785", 0), //resistance
                 new Common.SpellId( "d3a852385ba4cd740992d1970170301a", 0), //virtue
 
+                new Common.SpellId( NewSpells.burst_of_adrenaline.AssetGuid, 1),
+                new Common.SpellId( NewSpells.burst_of_insight.AssetGuid, 1),
                 new Common.SpellId( "bd81a3931aa285a4f9844585b5d97e51", 1), //cause fear
                 new Common.SpellId( "91da41b9793a4624797921f221db653c", 1), //color spray
                 new Common.SpellId( NewSpells.command.AssetGuid, 1),

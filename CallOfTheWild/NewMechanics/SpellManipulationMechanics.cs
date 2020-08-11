@@ -1951,6 +1951,69 @@ namespace CallOfTheWild
         }
 
 
+        public class ExtraEffectOnSpellApplyTarget : OwnedGameLogicComponent<UnitDescriptor>, IApplyAbilityEffectHandler, IGlobalSubscriber
+        {
+            public ActionList actions;
+            public bool check_caster;
+
+            public void OnAbilityEffectApplied(AbilityExecutionContext context)
+            {
+
+            }
+
+            public void OnAbilityEffectAppliedToTarget(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (target.Unit?.Descriptor != this.Owner)
+                {
+                    return;
+                }
+
+                if (check_caster && context.MaybeCaster != this.Fact.MaybeContext.MaybeCaster)
+                {
+                    return;
+                }
+
+                (this.Fact as IFactContextOwner).RunActionInContext(actions, this.Owner.Unit);
+            }
+
+            public void OnTryToApplyAbilityEffect(AbilityExecutionContext context, TargetWrapper target)
+            {
+               
+            }
+        }
+
+
+        public class ExtraEffectOnSpellApplyCaster : OwnedGameLogicComponent<UnitDescriptor>, IApplyAbilityEffectHandler, IGlobalSubscriber
+        {
+            public ActionList actions;
+
+            public void OnAbilityEffectApplied(AbilityExecutionContext context)
+            {
+
+            }
+
+            public void OnAbilityEffectAppliedToTarget(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (target.Unit == null)
+                {
+                    return;
+                }
+
+                if (context.MaybeCaster != this.Fact.MaybeContext.MaybeCaster)
+                {
+                    return;
+                }
+
+                (this.Fact as IFactContextOwner).RunActionInContext(actions, target.Unit);
+            }
+
+            public void OnTryToApplyAbilityEffect(AbilityExecutionContext context, TargetWrapper target)
+            {
+
+            }
+        }
+
+
 
 
 

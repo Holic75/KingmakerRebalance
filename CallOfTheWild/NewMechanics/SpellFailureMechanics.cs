@@ -44,12 +44,17 @@ namespace CallOfTheWild.SpellFailureMechanics
     {
         public ContextValue chance;
         public bool do_not_spend_slot_if_failed = false;
+        public bool ignore_psychic = false;
 
         public void OnEventAboutToTrigger(RuleCastSpell evt)
         {
             if (!evt.Spell.Blueprint.IsSpell || evt.Spell.Spellbook == null || (evt.Spell.StickyTouch != null))
                 return;
 
+            if (ignore_psychic && evt.Spell.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
+            {
+                return;
+            }
             int threshold = this.chance.Calculate(this.Fact.MaybeContext);
             int d100 = RulebookEvent.Dice.D100;
             //Main.logger.Log($"Failure: {d100}/{threshold}");

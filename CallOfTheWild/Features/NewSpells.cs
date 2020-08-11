@@ -221,6 +221,10 @@ namespace CallOfTheWild
 
         static public BlueprintAbility fiery_shiriken;
 
+        static public BlueprintAbility burst_of_adrenaline;
+        static public BlueprintAbility burst_of_insight;
+
+
         static public void load()
         {
             createImmunityToWind();
@@ -358,6 +362,101 @@ namespace CallOfTheWild
             createBarrowHaze();
             createFickleWinds();
             createFireShuriken();
+
+            createBurstOfAdrenaline();
+            createBurstOfInsight();
+        }
+
+
+        static void createBurstOfInsight()
+        {
+            var stats = new StatType[] { StatType.Charisma, StatType.Intelligence, StatType.Wisdom };
+
+            var after_buff = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759"); //dazed
+            var apply_after_buff = Common.createContextActionApplyBuff(after_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var variants = new List<BlueprintAbility>();
+            string description = "You plumb the depths of your mind for insight, leaving you momentarily frazzled. For one round you gain a +8 enhancement bonus on Intelligence, Wisdom, or Charisma, but you are dazed for 1 round afterward.";
+            var icon = Helpers.GetIcon("4cf3d0fae3239ec478f51e86f49161cb");
+            foreach (var s in stats)
+            {
+                var buff = Helpers.CreateBuff(s.ToString() + "BurstOfInsightBuff",
+                                              "Burst of Insight: " + s.ToString(),
+                                              description,
+                                              "",
+                                              icon,
+                                              library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b").FxOnStart,
+                                              Helpers.CreateAddStatBonus(s, 8, ModifierDescriptor.Enhancement),
+                                              Helpers.CreateAddFactContextActions(deactivated: apply_after_buff)
+                                              );
+
+                var ability = Helpers.CreateAbility(s.ToString() + "BurstOfInsightAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Swift,
+                                                    AbilityRange.Personal,
+                                                    Helpers.oneRoundDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1))),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                    );
+                ability.setMiscAbilityParametersSelfOnly();
+                ability.AvailableMetamagic = Metamagic.Heighten;
+                variants.Add(ability);
+            }
+
+            burst_of_insight = Common.createVariantWrapper("BurstOfInsightAbility", "", variants.ToArray());
+            burst_of_insight.SetName("Burst of Insight");
+            burst_of_insight.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+        }
+
+
+        static void createBurstOfAdrenaline()
+        {
+            var stats = new StatType[] { StatType.Constitution, StatType.Dexterity, StatType.Strength };
+
+            var after_buff = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4"); //fatigued
+            var apply_after_buff = Common.createContextActionApplyBuff(after_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var variants = new List<BlueprintAbility>();
+            string description = "You draw upon your body’s inner reserves of strength, leaving you winded. For one round you gain a +8 enhancement bonus to Strength, Dexterity, or Constitution, but you are fatigued for 1 round afterward.";
+            var icon = Helpers.GetIcon("3dccdf27a8209af478ac71cded18a271");
+            foreach (var s in stats)
+            {
+                var buff = Helpers.CreateBuff(s.ToString() + "BurstOfAdrenalineBuff",
+                                              "Burst of Adrenaline: " + s.ToString(),
+                                              description,
+                                              "",
+                                              icon,
+                                              library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b").FxOnStart,
+                                              Helpers.CreateAddStatBonus(s, 8, ModifierDescriptor.Enhancement),
+                                              Helpers.CreateAddFactContextActions(deactivated: apply_after_buff)
+                                              );
+
+                var ability = Helpers.CreateAbility(s.ToString() + "BurstOfAdrenalineAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Swift,
+                                                    AbilityRange.Personal,
+                                                    Helpers.oneRoundDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1))),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                    );
+                ability.setMiscAbilityParametersSelfOnly();
+                ability.AvailableMetamagic = Metamagic.Heighten;
+                variants.Add(ability);    
+            }
+
+            burst_of_adrenaline = Common.createVariantWrapper("BurstOfAdrenalineAbility", "", variants.ToArray());
+            burst_of_adrenaline.SetName("Burst of Adrenaline");
+            burst_of_adrenaline.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
         }
 
 
